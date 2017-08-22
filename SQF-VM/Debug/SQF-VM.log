@@ -1,0 +1,22 @@
+﻿  Entry.c
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\basetype.h(12): warning C4215: nonstandard extension used: long float
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\basetype.h(46): warning C4215: nonstandard extension used: long float
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\sqf_base.h(115): warning C4133: 'function': incompatible types - from 'PVM' to 'PSTACK'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\sqf_base.h(121): warning C4133: 'function': incompatible types - from 'PVM' to 'PSTACK'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(14): warning C4133: 'function': incompatible types - from 'PVM' to 'PSTACK'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(15): warning C4133: 'function': incompatible types - from 'PVM' to 'PSTACK'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(28): warning C4133: 'function': incompatible types - from 'PVM' to 'PSTACK'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(29): warning C4133: 'function': incompatible types - from 'PVM' to 'PSTACK'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(42): warning C4133: 'function': incompatible types - from 'PVM' to 'PSTACK'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(43): warning C4133: 'function': incompatible types - from 'PVM' to 'PSTACK'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(56): warning C4133: 'function': incompatible types - from 'PVM' to 'PSTACK'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(57): warning C4133: 'function': incompatible types - from 'PVM' to 'PSTACK'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(67): warning C4133: 'function': incompatible types - from 'PVM' to 'PSTACK'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(83): warning C4013: 'malloc' undefined; assuming extern returning int
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(99): warning C4013: 'realloc' undefined; assuming extern returning int
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(103): warning C4013: 'free' undefined; assuming extern returning int
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(83): warning C4047: 'initializing': 'char *' differs in levels of indirection from 'int'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\entry.c(99): warning C4047: 'initializing': 'char *' differs in levels of indirection from 'int'
+c:\users\marco.silipo\documents\visual studio 2015\projects\sqf-parser\sqf-vm\sqf_base.h(106): warning C4715: 'pop_stack': not all control paths return a value
+  SQF-VM.vcxproj -> C:\Users\marco.silipo\Documents\Visual Studio 2015\Projects\Sqf-Parser\Debug\SQF-VM.exe
+  SQF-VM.vcxproj -> C:\Users\marco.silipo\Documents\Visual Studio 2015\Projects\Sqf-Parser\Debug\SQF-VM.pdb (Full PDB)
