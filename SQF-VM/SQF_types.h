@@ -8,6 +8,7 @@
 
 //SQF.c --> sqfvm | Add TYPE command and if required deletion callback
 
+PCMD SCALAR_TYPE(void);
 
 typedef struct CODE
 {

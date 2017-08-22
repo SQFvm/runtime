@@ -1,3 +1,4 @@
+#include "textrange.h"
 #include "SQF.h"
 #include "SQF_types.h"
 #include "SQF_parse.h"
@@ -59,7 +60,7 @@ void CMD_DIVIDE(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_PRINT(PVM vm)
+void CMD_DIAG_LOG(PVM vm)
 {
 	PINST right;
 	PVALUE right_val;
@@ -72,6 +73,23 @@ void CMD_PRINT(PVM vm)
 	else
 	{
 		printf("%lf\n", right_val->val.f);
+	}
+
+	inst_destroy(right);
+}
+void CMD_PRIVATE(PVM vm)
+{
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm->work);
+	right_val = get_value(vm, right);
+	if (right_val->type == STRING_TYPE())
+	{
+		store_in_scope(vm, top_scope(vm), ((PSTRING)right_val)->val, value(find_type(vm, "any"), base_voidptr(0)));
+	}
+	else
+	{
+		error("Expected String", vm->stack);
 	}
 
 	inst_destroy(right);
@@ -156,7 +174,8 @@ void main(int argc, char** argv)
 	register_command(vm, create_command("-", 'b', CMD_MINUS, 8));
 	register_command(vm, create_command("*", 'b', CMD_MULTIPLY, 9));
 	register_command(vm, create_command("/", 'b', CMD_DIVIDE, 9));
-	register_command(vm, create_command("diag_log", 'u', CMD_PRINT, 0));
+	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0));
+	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0));
 
 
 	/*
@@ -168,39 +187,40 @@ void main(int argc, char** argv)
 			5: _foo = _test;
 			6: diag_log _foo;
 	*/
-
-	//Create root scope
-	push_stack(vm->stack, inst_scope("all"));
-	//diag_log _foo
-	push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	push_stack(vm->stack, inst_load_var("_foo"));
-	//_foo = _test
-	push_stack(vm->stack, inst_store_var("_foo"));
-	push_stack(vm->stack, inst_load_var("_test"));
-	//diag_log _foo
-	push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	push_stack(vm->stack, inst_load_var("_foo"));
-	//_foo = "test"
-	push_stack(vm->stack, inst_store_var("_foo"));
-	push_stack(vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("test")))));
-	//diag_log _test
-	push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	push_stack(vm->stack, inst_load_var("_test"));
-	//private _test = 10 + 12.5
-	push_stack(vm->stack, inst_store_var_local("_test"));
-	push_stack(vm->stack, inst_command(find_command(vm, "+", 'b')));
-	push_stack(vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(10))));
-	push_stack(vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(12.5))));
-
-	execute(vm);
-
-
-	//printf("Please enter a simple SQF expression: ");
+	
+	////Create root scope
+	//push_stack(vm->stack, inst_scope("all"));
+	////diag_log _foo
+	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
+	//push_stack(vm->stack, inst_load_var("_foo"));
+	////_foo = _test
+	//push_stack(vm->stack, inst_store_var("_foo"));
+	//push_stack(vm->stack, inst_load_var("_test"));
+	////diag_log _foo
+	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
+	//push_stack(vm->stack, inst_load_var("_foo"));
+	////_foo = "test"
+	//push_stack(vm->stack, inst_store_var("_foo"));
+	//push_stack(vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("test")))));
+	////diag_log _test
+	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
+	//push_stack(vm->stack, inst_load_var("_test"));
+	////private _test = 10 + 12.5
+	//push_stack(vm->stack, inst_store_var_local("_test"));
+	//push_stack(vm->stack, inst_command(find_command(vm, "+", 'b')));
+	//push_stack(vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(10))));
+	//push_stack(vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(12.5))));
 	//
-	//parse(cmd_reg, stack, getline(), -1);
-	//printf("\n\nResult:");
-	//execute(stack);
-	//printf("\n");
+	//execute(vm);
+	//
+	//parse(vm, "private _test = 10 + 12.5; diag_log _test; _foo = \"test\"; diag_log _foo; _foo = _test; diag_log _foo");
+	//execute(vm);
+
+	printf("Please enter a simple SQF expression:\n");
+	parse(vm, getline());
+	printf("-------------------------------------\n");
+	execute(vm);
+	printf("-------------------------------------\n");
 	printf("To Quit, Press any key.");
 	getchar();
 	destroy_sqfvm(vm);

@@ -30,6 +30,9 @@
     <ClCompile Include="SQF_types.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="textrange.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SQF.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SQF_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="textrange.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

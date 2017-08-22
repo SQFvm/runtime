@@ -7,10 +7,13 @@
 #ifndef _SQF_TYPES_H_
 #error "SQF_parse.h" has to be included after "SQF_parse.h" 
 #endif // !_SQF_TYPES_H_
+#ifndef _TEXTRANGE_H_
+#error "SQF_parse.h" has to be included after "textrange.h" 
+#endif // !_SQF_TYPES_H_
 
-PCODE parse_code_block(const char* codeblock);
-void parse_line(PSTACK stack, const char* line);
 
+
+void tokenize(TR_ARR* arr, const char* code);
 void parse(PVM vm, const char* code);
 
 

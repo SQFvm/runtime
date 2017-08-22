@@ -4,6 +4,15 @@
 #include <malloc.h>
 #include <string.h>
 
+PCMD SCALAR_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("SCALAR", 't', 0, 0);
+	}
+	return cmd;
+}
 void TYPE_CODE_CALLBACK(PVALUE val)
 {
 	PCODE code = val->val.ptr;
@@ -76,7 +85,8 @@ PSTRING string_create(unsigned int len)
 	string->refcount = 0;
 	if (len > 0)
 	{
-		string->val = malloc(sizeof(char) * len + 1);
+		string->val = malloc(sizeof(char) * (len + 1));
+		memset(string->val, 0, sizeof(char) * (len + 1));
 	}
 	return string;
 }

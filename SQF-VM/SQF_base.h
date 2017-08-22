@@ -24,6 +24,7 @@ typedef void(*CMD_CB)(void*);
 typedef struct CMD
 {
 	char type;
+	unsigned char type_code;
 	CMD_CB callback;
 	char precedence_level;
 	char* name;
