@@ -120,7 +120,9 @@ void tokenize(TR_ARR* arr, const char* code)
 			}
 			else
 			{
+				#ifdef _WIN32
 				__asm int 3;
+				#endif
 			}
 		}
 	}
@@ -182,7 +184,7 @@ void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsign
 void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end)
 {
 	int i, j = -1, k = -1;
-	char* str;
+	const char* str;
 	TEXTRANGE range;
 	int arrcount = 0;
 	int codecount = 0;
@@ -272,7 +274,7 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 }
 void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end)
 {
-	char* str;
+	const char* str;
 	char* endptr;
 	int i, j = -1, k;
 	float f;
