@@ -73,7 +73,7 @@ void resize_stack(PSTACK stack, unsigned int newsize)
 	if (stack->size == newsize)
 		return;
 	int i;
-	PINST** ptr;
+	PINST* ptr;
 	for (i = newsize; i < stack->top; i++)
 	{
 		inst_destroy(stack->data[i]);
