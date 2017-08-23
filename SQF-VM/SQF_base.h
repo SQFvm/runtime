@@ -47,10 +47,10 @@ typedef STACK* PSTACK;
 //Structure containing all VM related informations
 typedef struct VM
 {
-	volatile PSTACK stack;
-	volatile PSTACK work;
+	PSTACK stack;
+	PSTACK work;
 
-	volatile PCMD* cmds;
+	PCMD* cmds;
 	unsigned int cmds_size;
 	unsigned int cmds_top;
 	void(*error)(const char*, PSTACK);
