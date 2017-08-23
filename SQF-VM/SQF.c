@@ -20,6 +20,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 	memset(vm->cmds, 0, sizeof(PINST) * cmds_size);
 	vm->cmds_size = cmds_size;
 	vm->cmds_top = 0;
+	vm->error = error;
 
 
 	register_command(vm, SCALAR_TYPE());
@@ -37,15 +38,15 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 void destroy_sqfvm(PVM vm)
 {
 	int i;
-
-	for (i = 0; i < vm->cmds_top; i++)
+	destroy_stack(vm->stack);
+	destroy_stack(vm->work);
+	//6 being the "offset" of the pre-existing types (see sqfvm creation function, this number should correspond to the ammount of register_command calls in there)
+	for (i = 6; i < vm->cmds_top; i++)
 	{
 		destroy_command(vm->cmds[i]);
 	}
 	free(vm->cmds);
 
-	destroy_stack(vm->stack);
-	destroy_stack(vm->work);
 	free(vm);
 }
 

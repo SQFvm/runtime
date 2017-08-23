@@ -5,6 +5,58 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <math.h>
+#include <string.h>
+#include <setjmp.h>
+
+static PSTRING outputbuffer = 0;
+static jmp_buf program_exit;
+
+void stringify_value(PVM vm, PSTRING str, PVALUE val)
+{
+	PARRAY arr;
+	int i;
+	char* strptr;
+	if (val->type == STRING_TYPE())
+	{
+		string_modify_append(str, "\"");
+		string_modify_append(str, ((PSTRING)val->val.ptr)->val);
+		string_modify_append(str, "\"");
+	}
+	else if (val->type == SCALAR_TYPE())
+	{
+		strptr = alloca(sizeof(char) * 64);
+		sprintf(strptr, "%lf\0", val->val.f);
+		string_modify_append(str, strptr);
+	}
+	else if (val->type == BOOL_TYPE())
+	{
+		string_modify_append(str, val->val.i > 0 ? "true" : "false");
+	}
+	else if (val->type == CODE_TYPE())
+	{
+		string_modify_append(str, "{");
+		string_modify_append(str, ((PCODE)val->val.ptr)->val);
+		string_modify_append(str, "}");
+	}
+	else if (val->type == ARRAY_TYPE())
+	{
+		arr = ((PARRAY)val->val.ptr);
+		string_modify_append(str, "[");
+		for (i = 0; i < arr->top; i++)
+		{
+			if (i > 0)
+			{
+				string_modify_append(str, ", ");
+			}
+			stringify_value(vm, str, arr->data[i]);
+		}
+		string_modify_append(str, "]");
+	}
+	else
+	{
+		vm->error("STR TYPE MISSMATCH", vm->stack);
+	}
+}
 
 void CMD_PLUS(PVM vm)
 {
@@ -66,15 +118,23 @@ void CMD_DIAG_LOG(PVM vm)
 {
 	PINST right;
 	PVALUE right_val;
+	char* ptr;
+	int len;
 	right = pop_stack(vm->work);
 	right_val = get_value(vm, right);
 	if (right_val->type == STRING_TYPE())
 	{
-		printf("%.*s\n", 1024, ((PSTRING)right_val->val.ptr)->val);
+		len = ((PSTRING)right_val->val.ptr)->length;
+		if (len > 1024)
+			len = 1024;
+		ptr = alloca(sizeof(char) * (len + 2));
+		sprintf(ptr, "%.*s\n", 1024, ((PSTRING)right_val->val.ptr)->val);
+		ptr[len + 1] = '\0';
+		string_modify_append(outputbuffer, ptr);
 	}
 	else
 	{
-		error("expected string", vm->stack);
+		vm->error("expected string", vm->stack);
 	}
 
 	inst_destroy(right);
@@ -91,7 +151,7 @@ void CMD_PRIVATE(PVM vm)
 	}
 	else
 	{
-		error("Expected String", vm->stack);
+		vm->error("Expected String", vm->stack);
 	}
 
 	inst_destroy(right);
@@ -114,7 +174,7 @@ void CMD_IF(PVM vm)
 	}
 	else
 	{
-		error("expected bool", vm->stack);
+		vm->error("expected bool", vm->stack);
 	}
 	push_stack(vm->stack, inst_value(value(IF_TYPE(), base_int(flag))));
 
@@ -135,22 +195,22 @@ void CMD_THEN(PVM vm)
 
 	if (left_val->type != IF_TYPE())
 	{
-		error("expected left type to be IF", vm->stack);
+		vm->error("expected left type to be IF", vm->stack);
 	}
 	if (right_val->type == ARRAY_TYPE())
 	{
 		arr = right_val->val.ptr;
 		if (arr->top == 0)
 		{
-			error("Array is empty", vm->stack);
+			vm->error("Array is empty", vm->stack);
 		}
 		if (arr->data[0]->type != CODE_TYPE())
 		{
-			error("Array[0] was expected to be CODE", vm->stack);
+			vm->error("Array[0] was expected to be CODE", vm->stack);
 		}
 		if (arr->top > 1 && arr->data[1]->type != CODE_TYPE())
 		{
-			error("Array[1] was expected to be CODE", vm->stack);
+			vm->error("Array[1] was expected to be CODE", vm->stack);
 		}
 		if (left_val->val.i)
 		{
@@ -176,7 +236,7 @@ void CMD_THEN(PVM vm)
 	}
 	else
 	{
-		error("expected right type to be ARRAY or CODE", vm->stack);
+		vm->error("expected right type to be ARRAY or CODE", vm->stack);
 	}
 
 	inst_destroy(left);
@@ -225,52 +285,6 @@ void CMD_HELP(PVM vm)
 	
 }
 
-void CMD_STR_helper(PVM vm, PSTRING str, PVALUE val)
-{
-	PARRAY arr;
-	int i;
-	char* strptr;
-	if (val->type == STRING_TYPE())
-	{
-		string_modify_append(str, "\"");
-		string_modify_append(str, ((PSTRING)val->val.ptr)->val);
-		string_modify_append(str, "\"");
-	}
-	else if (val->type == SCALAR_TYPE())
-	{
-		strptr = alloca(sizeof(char) * 64);
-		sprintf(strptr, "%lf\0", val->val.f);
-		string_modify_append(str, strptr);
-	}
-	else if (val->type == BOOL_TYPE())
-	{
-		string_modify_append(str, val->val.i > 0 ? "true" : "false");
-	}
-	else if (val->type == CODE_TYPE())
-	{
-		string_modify_append(str, "{");
-		string_modify_append(str, ((PCODE)val->val.ptr)->val);
-		string_modify_append(str, "}");
-	}
-	else if (val->type == ARRAY_TYPE())
-	{
-		arr = ((PARRAY)val->val.ptr);
-		string_modify_append(str, "[");
-		for (i = 0; i < arr->top; i++)
-		{
-			if (i > 0)
-			{
-				string_modify_append(str, ", ");
-			}
-			CMD_STR_helper(vm, str, arr->data[i]);
-		}
-		string_modify_append(str, "]");
-	}
-	else
-	{
-		error("STR TYPE MISSMATCH", vm->stack);
-	}
-}
 void CMD_STR(PVM vm)
 {
 	PINST right;
@@ -278,7 +292,7 @@ void CMD_STR(PVM vm)
 	PSTRING str = string_create(0);
 	right = pop_stack(vm->work);
 	right_val = get_value(vm, right);
-	CMD_STR_helper(vm, str, right_val);
+	stringify_value(vm, str, right_val);
 	inst_destroy(right);
 	push_stack(vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
 }
@@ -365,7 +379,7 @@ void CMD_ANDAND(PVM vm)
 	right_val = get_value(vm, right);
 	if (left_val->type != BOOL_TYPE() || right_val->type != BOOL_TYPE())
 	{
-		error("Expected left and right to be of type BOOL", vm->stack);
+		vm->error("Expected left and right to be of type BOOL", vm->stack);
 	}
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.i && right_val->val.i))));
 	inst_destroy(left);
@@ -383,7 +397,7 @@ void CMD_OROR(PVM vm)
 	right_val = get_value(vm, right);
 	if (left_val->type != BOOL_TYPE() || right_val->type != BOOL_TYPE())
 	{
-		error("Expected left and right to be of type BOOL", vm->stack);
+		vm->error("Expected left and right to be of type BOOL", vm->stack);
 	}
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.i || right_val->val.i))));
 	inst_destroy(left);
@@ -414,12 +428,12 @@ void CMD_SELECT(PVM vm)
 		}
 		else
 		{
-			error("Expected SCALAR right", vm->stack);
+			vm->error("Expected SCALAR right", vm->stack);
 		}
 	}
 	else
 	{
-		error("Expected ARRAY left", vm->stack);
+		vm->error("Expected ARRAY left", vm->stack);
 	}
 
 
@@ -465,71 +479,12 @@ char * getline(char* line, size_t lenmax)
 }
 
 #define LINEBUFFER_SIZE 256
+__declspec(dllexport) char* start_program(char* input);
 void main(int argc, char** argv)
 {
-	PVM vm = sqfvm(1000, 50, 100);
 	char linebuffer[LINEBUFFER_SIZE];
+	char* ptr;
 	int i = 1;
-
-	/*
-		//register_command(vm, create_command("SCALAR", 't', 0, 0));
-		//register_command(vm, create_command("BOOL", 't', 0, 0));
-		//register_command(vm, create_command("ARRAY", 't', 0, 0));
-		//register_command(vm, create_command("STRING", 't', 0, 0));
-		register_command(vm, create_command("NOTHING", 't', 0, 0));
-		register_command(vm, create_command("ANY", 't', 0, 0));
-		register_command(vm, create_command("NAMESPACE", 't', 0, 0));
-		register_command(vm, create_command("NaN", 't', 0, 0));
-		//register_command(vm, create_command("IF", 't', 0, 0));
-		register_command(vm, create_command("WHILE", 't', 0, 0));
-		register_command(vm, create_command("FOR", 't', 0, 0));
-		register_command(vm, create_command("SWITCH", 't', 0, 0));
-		register_command(vm, create_command("EXCEPTION", 't', 0, 0));
-		register_command(vm, create_command("WITH", 't', 0, 0));
-		//register_command(vm, create_command("CODE", 't', 0, 0));
-		register_command(vm, create_command("OBJECT", 't', 0, 0));
-		register_command(vm, create_command("VECTOR", 't', 0, 0));
-		register_command(vm, create_command("TRANS", 't', 0, 0));
-		register_command(vm, create_command("ORIENT", 't', 0, 0));
-		register_command(vm, create_command("SIDE", 't', 0, 0));
-		register_command(vm, create_command("GROUP", 't', 0, 0));
-		register_command(vm, create_command("TEXT", 't', 0, 0));
-		register_command(vm, create_command("SCRIPT", 't', 0, 0));
-		register_command(vm, create_command("TARGET", 't', 0, 0));
-		register_command(vm, create_command("JCLASS", 't', 0, 0));
-		register_command(vm, create_command("CONFIG", 't', 0, 0));
-		register_command(vm, create_command("DISPLAY", 't', 0, 0));
-		register_command(vm, create_command("CONTROL", 't', 0, 0));
-		register_command(vm, create_command("NetObject", 't', 0, 0));
-		register_command(vm, create_command("SUBGROUP", 't', 0, 0));
-		register_command(vm, create_command("TEAM_MEMBER", 't', 0, 0));
-		register_command(vm, create_command("TASK", 't', 0, 0));
-		register_command(vm, create_command("DIARY_RECORD", 't', 0, 0));
-		register_command(vm, create_command("LOCATION", 't', 0, 0));
-	*/
-
-	register_command(vm, create_command("+", 'b', CMD_PLUS, 8));
-	register_command(vm, create_command("-", 'b', CMD_MINUS, 8));
-	register_command(vm, create_command("*", 'b', CMD_MULTIPLY, 9));
-	register_command(vm, create_command("/", 'b', CMD_DIVIDE, 9));
-	register_command(vm, create_command(">", 'b', CMD_LARGETTHEN, 7));
-	register_command(vm, create_command("<", 'b', CMD_LESSTHEN, 7));
-	register_command(vm, create_command(">=", 'b', CMD_LARGETTHENOREQUAL, 7));
-	register_command(vm, create_command("<=", 'b', CMD_LESSTHENOREQUAL, 7));
-	register_command(vm, create_command("==", 'b', CMD_EQUAL, 7));
-	register_command(vm, create_command("||", 'b', CMD_OROR, 5));
-	register_command(vm, create_command("&&", 'b', CMD_ANDAND, 6));
-	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0));
-	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0));
-	register_command(vm, create_command("if", 'u', CMD_IF, 5));
-	register_command(vm, create_command("then", 'b', CMD_THEN, 5));
-	register_command(vm, create_command("else", 'b', CMD_ELSE, 6));
-	register_command(vm, create_command("true", 'n', CMD_TRUE, 10));
-	register_command(vm, create_command("false", 'n', CMD_FALSE, 10));
-	register_command(vm, create_command("help", 'n', CMD_HELP, 10));
-	register_command(vm, create_command("str", 'u', CMD_STR, 0));
-	register_command(vm, create_command("select", 'b', CMD_SELECT, 10));
-
 
 	/*
 		Test 'file'
@@ -569,19 +524,118 @@ void main(int argc, char** argv)
 	//parse(vm, "private _test = 10 + 12.5; diag_log _test; _foo = \"test\"; diag_log _foo; _foo = _test; diag_log _foo");
 	//execute(vm);
 	PSTRING pstr = string_create(0);
-	printf("Please enter SQF (to start, commit empty line):\n");
+	printf("Please enter your SQF code.\nTo get the capabilities, use the `help` instruction.\nTo run the code, Press <ENTER> twice.\n");
 	printf("%d:\t", i++);
 	while (getline(linebuffer, LINEBUFFER_SIZE)[0] != '\n')
 	{
 		string_modify_append(pstr, linebuffer);
 		printf("%d:\t", i++);
 	}
-	parse(vm, pstr->val);
+	ptr = start_program(pstr->val);
 	printf("-------------------------------------\n");
-	execute(vm);
+	if (ptr == 0)
+	{
+		printf("<EMPTY>\n");
+	}
+	else
+	{
+		printf("%s", ptr);
+	}
 	printf("-------------------------------------\n");
-	printf("Press any key");
-	getchar();
+	printf("Press <ENTER> to finish.");
+	getline(linebuffer, LINEBUFFER_SIZE);
 	string_destroy(pstr);
+}
+
+void custom_error(const char* errMsg, PSTACK stack)
+{
+	int len = strlen(errMsg) + 8;
+	char* str = alloca(sizeof(char) * (len + 1));
+	sprintf(str, "ERROR: %s\n", errMsg);
+	str[len] = '\0';
+	string_modify_append(outputbuffer, str);
+	longjmp(program_exit, 1);
+}
+
+__declspec(dllexport) char* start_program(char* input)
+{
+	PVM vm = sqfvm(1000, 50, 100);
+	vm->error = custom_error;
+	int val;
+	if (outputbuffer == 0)
+	{
+		outputbuffer = string_create(0);
+	}
+	else
+	{
+		free(outputbuffer->val);
+		outputbuffer->val = 0;
+		outputbuffer->length = 0;
+	}
+	/*
+	//register_command(vm, create_command("SCALAR", 't', 0, 0));
+	//register_command(vm, create_command("BOOL", 't', 0, 0));
+	//register_command(vm, create_command("ARRAY", 't', 0, 0));
+	//register_command(vm, create_command("STRING", 't', 0, 0));
+	register_command(vm, create_command("NOTHING", 't', 0, 0));
+	register_command(vm, create_command("ANY", 't', 0, 0));
+	register_command(vm, create_command("NAMESPACE", 't', 0, 0));
+	register_command(vm, create_command("NaN", 't', 0, 0));
+	//register_command(vm, create_command("IF", 't', 0, 0));
+	register_command(vm, create_command("WHILE", 't', 0, 0));
+	register_command(vm, create_command("FOR", 't', 0, 0));
+	register_command(vm, create_command("SWITCH", 't', 0, 0));
+	register_command(vm, create_command("EXCEPTION", 't', 0, 0));
+	register_command(vm, create_command("WITH", 't', 0, 0));
+	//register_command(vm, create_command("CODE", 't', 0, 0));
+	register_command(vm, create_command("OBJECT", 't', 0, 0));
+	register_command(vm, create_command("VECTOR", 't', 0, 0));
+	register_command(vm, create_command("TRANS", 't', 0, 0));
+	register_command(vm, create_command("ORIENT", 't', 0, 0));
+	register_command(vm, create_command("SIDE", 't', 0, 0));
+	register_command(vm, create_command("GROUP", 't', 0, 0));
+	register_command(vm, create_command("TEXT", 't', 0, 0));
+	register_command(vm, create_command("SCRIPT", 't', 0, 0));
+	register_command(vm, create_command("TARGET", 't', 0, 0));
+	register_command(vm, create_command("JCLASS", 't', 0, 0));
+	register_command(vm, create_command("CONFIG", 't', 0, 0));
+	register_command(vm, create_command("DISPLAY", 't', 0, 0));
+	register_command(vm, create_command("CONTROL", 't', 0, 0));
+	register_command(vm, create_command("NetObject", 't', 0, 0));
+	register_command(vm, create_command("SUBGROUP", 't', 0, 0));
+	register_command(vm, create_command("TEAM_MEMBER", 't', 0, 0));
+	register_command(vm, create_command("TASK", 't', 0, 0));
+	register_command(vm, create_command("DIARY_RECORD", 't', 0, 0));
+	register_command(vm, create_command("LOCATION", 't', 0, 0));
+	*/
+
+	register_command(vm, create_command("+", 'b', CMD_PLUS, 8));
+	register_command(vm, create_command("-", 'b', CMD_MINUS, 8));
+	register_command(vm, create_command("*", 'b', CMD_MULTIPLY, 9));
+	register_command(vm, create_command("/", 'b', CMD_DIVIDE, 9));
+	register_command(vm, create_command(">", 'b', CMD_LARGETTHEN, 7));
+	register_command(vm, create_command("<", 'b', CMD_LESSTHEN, 7));
+	register_command(vm, create_command(">=", 'b', CMD_LARGETTHENOREQUAL, 7));
+	register_command(vm, create_command("<=", 'b', CMD_LESSTHENOREQUAL, 7));
+	register_command(vm, create_command("==", 'b', CMD_EQUAL, 7));
+	register_command(vm, create_command("||", 'b', CMD_OROR, 5));
+	register_command(vm, create_command("&&", 'b', CMD_ANDAND, 6));
+	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0));
+	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0));
+	register_command(vm, create_command("if", 'u', CMD_IF, 5));
+	register_command(vm, create_command("then", 'b', CMD_THEN, 5));
+	register_command(vm, create_command("else", 'b', CMD_ELSE, 6));
+	register_command(vm, create_command("true", 'n', CMD_TRUE, 10));
+	register_command(vm, create_command("false", 'n', CMD_FALSE, 10));
+	register_command(vm, create_command("help", 'n', CMD_HELP, 10));
+	register_command(vm, create_command("str", 'u', CMD_STR, 0));
+	register_command(vm, create_command("select", 'b', CMD_SELECT, 10));
+	val = setjmp(program_exit);
+	if (!val)
+	{
+		parse(vm, input);
+		execute(vm);
+	}
 	destroy_sqfvm(vm);
+	return outputbuffer->val;
 }

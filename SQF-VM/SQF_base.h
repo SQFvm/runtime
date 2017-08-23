@@ -53,6 +53,7 @@ typedef struct VM
 	volatile PCMD* cmds;
 	unsigned int cmds_size;
 	unsigned int cmds_top;
+	void(*error)(const char*, PSTACK);
 } VM;
 typedef VM* PVM;
 

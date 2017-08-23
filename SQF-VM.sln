@@ -5,22 +5,54 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SQF-VM", "SQF-VM\SQF-VM.vcxproj", "{262E778C-9733-435F-B97D-F8B78C333CC3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discrod-Bot", "Discrod-Bot\Discrod-Bot.csproj", "{35CAE851-429A-456D-84C9-E635882E9424}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		DLL|Any CPU = DLL|Any CPU
+		DLL|x64 = DLL|x64
+		DLL|x86 = DLL|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{262E778C-9733-435F-B97D-F8B78C333CC3}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{262E778C-9733-435F-B97D-F8B78C333CC3}.Debug|x64.ActiveCfg = Debug|x64
 		{262E778C-9733-435F-B97D-F8B78C333CC3}.Debug|x64.Build.0 = Debug|x64
 		{262E778C-9733-435F-B97D-F8B78C333CC3}.Debug|x86.ActiveCfg = Debug|Win32
 		{262E778C-9733-435F-B97D-F8B78C333CC3}.Debug|x86.Build.0 = Debug|Win32
+		{262E778C-9733-435F-B97D-F8B78C333CC3}.DLL|Any CPU.ActiveCfg = DLL|Win32
+		{262E778C-9733-435F-B97D-F8B78C333CC3}.DLL|x64.ActiveCfg = DLL|x64
+		{262E778C-9733-435F-B97D-F8B78C333CC3}.DLL|x64.Build.0 = DLL|x64
+		{262E778C-9733-435F-B97D-F8B78C333CC3}.DLL|x86.ActiveCfg = DLL|Win32
+		{262E778C-9733-435F-B97D-F8B78C333CC3}.DLL|x86.Build.0 = DLL|Win32
+		{262E778C-9733-435F-B97D-F8B78C333CC3}.Release|Any CPU.ActiveCfg = Release|Win32
 		{262E778C-9733-435F-B97D-F8B78C333CC3}.Release|x64.ActiveCfg = Release|x64
 		{262E778C-9733-435F-B97D-F8B78C333CC3}.Release|x64.Build.0 = Release|x64
 		{262E778C-9733-435F-B97D-F8B78C333CC3}.Release|x86.ActiveCfg = Release|Win32
 		{262E778C-9733-435F-B97D-F8B78C333CC3}.Release|x86.Build.0 = Release|Win32
+		{35CAE851-429A-456D-84C9-E635882E9424}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.Debug|x64.Build.0 = Debug|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.Debug|x86.Build.0 = Debug|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.DLL|Any CPU.ActiveCfg = Debug|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.DLL|Any CPU.Build.0 = Debug|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.DLL|x64.ActiveCfg = Debug|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.DLL|x64.Build.0 = Debug|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.DLL|x86.ActiveCfg = Release|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.DLL|x86.Build.0 = Release|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.Release|x64.ActiveCfg = Release|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.Release|x64.Build.0 = Release|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.Release|x86.ActiveCfg = Release|Any CPU
+		{35CAE851-429A-456D-84C9-E635882E9424}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
