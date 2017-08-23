@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Discrod_Bot
+namespace Discord_Bot
 {
     public static class SQF_VM
     {

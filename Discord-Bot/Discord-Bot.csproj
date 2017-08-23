@@ -7,8 +7,8 @@
     <ProjectGuid>{35CAE851-429A-456D-84C9-E635882E9424}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Discrod_Bot</RootNamespace>
-    <AssemblyName>Discrod-Bot</AssemblyName>
+    <RootNamespace>Discord_Bot</RootNamespace>
+    <AssemblyName>Discord-Bot</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

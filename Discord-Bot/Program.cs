@@ -8,7 +8,7 @@ using Discord;
 using Discord.Net;
 using Discord.WebSocket;
 
-namespace Discrod_Bot
+namespace Discord_Bot
 {
     class Program
     {

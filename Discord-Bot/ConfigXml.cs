@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Discrod_Bot
+namespace Discord_Bot
 {
     [XmlRoot("config")]
     public class ConfigXml
