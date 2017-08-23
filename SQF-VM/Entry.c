@@ -66,8 +66,8 @@ void CMD_PLUS(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f + right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -80,8 +80,8 @@ void CMD_MINUS(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f - right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -94,8 +94,8 @@ void CMD_MULTIPLY(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f * right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -108,8 +108,8 @@ void CMD_DIVIDE(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f / right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -121,7 +121,7 @@ void CMD_DIAG_LOG(PVM vm)
 	char* ptr;
 	int len;
 	right = pop_stack(vm->work);
-	right_val = get_value(vm, right);
+	right_val = get_value(vm->stack, right);
 	if (right_val->type == STRING_TYPE())
 	{
 		len = ((PSTRING)right_val->val.ptr)->length;
@@ -144,7 +144,7 @@ void CMD_PRIVATE(PVM vm)
 	PINST right;
 	PVALUE right_val;
 	right = pop_stack(vm->work);
-	right_val = get_value(vm, right);
+	right_val = get_value(vm->stack, right);
 	if (right_val->type == STRING_TYPE())
 	{
 		store_in_scope(vm, top_scope(vm), ((PSTRING)right_val)->val, value(find_type(vm, "any"), base_voidptr(0)));
@@ -163,7 +163,7 @@ void CMD_IF(PVM vm)
 	PVALUE right_val;
 	int flag;
 	right = pop_stack(vm->work);
-	right_val = get_value(vm, right);
+	right_val = get_value(vm->stack, right);
 	if (right_val->type == BOOL_TYPE())
 	{
 		flag = right_val->val.i > 0;
@@ -188,8 +188,8 @@ void CMD_THEN(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	PCODE code;
 	PARRAY arr;
 
@@ -250,8 +250,8 @@ void CMD_ELSE(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 
 	push_stack(vm->stack, inst_arr_push());
 	push_stack(vm->stack, inst_value(value(CODE_TYPE(), right_val->val)));
@@ -291,7 +291,7 @@ void CMD_STR(PVM vm)
 	PVALUE right_val;
 	PSTRING str = string_create(0);
 	right = pop_stack(vm->work);
-	right_val = get_value(vm, right);
+	right_val = get_value(vm->stack, right);
 	stringify_value(vm, str, right_val);
 	inst_destroy(right);
 	push_stack(vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
@@ -305,8 +305,8 @@ void CMD_LARGETTHEN(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f > right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -319,8 +319,8 @@ void CMD_LESSTHEN(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f < right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -333,8 +333,8 @@ void CMD_LARGETTHENOREQUAL(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f >= right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -347,8 +347,8 @@ void CMD_LESSTHENOREQUAL(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f <= right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -361,8 +361,8 @@ void CMD_EQUAL(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f == right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -375,8 +375,8 @@ void CMD_ANDAND(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	if (left_val->type != BOOL_TYPE() || right_val->type != BOOL_TYPE())
 	{
 		vm->error("Expected left and right to be of type BOOL", vm->stack);
@@ -393,8 +393,8 @@ void CMD_OROR(PVM vm)
 	PVALUE right_val;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	if (left_val->type != BOOL_TYPE() || right_val->type != BOOL_TYPE())
 	{
 		vm->error("Expected left and right to be of type BOOL", vm->stack);
@@ -414,8 +414,8 @@ void CMD_SELECT(PVM vm)
 	PVALUE tmp;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
-	left_val = get_value(vm, left);
-	right_val = get_value(vm, right);
+	left_val = get_value(vm->stack, left);
+	right_val = get_value(vm->stack, right);
 	//ToDo: implement more select variants https://community.bistudio.com/wiki/select
 
 	if (left_val->type == ARRAY_TYPE())

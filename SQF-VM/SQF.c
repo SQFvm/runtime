@@ -289,7 +289,7 @@ void execute(PVM vm)
 			}
 			else
 			{
-				val2 = get_value(vm, inst2);
+				val2 = get_value(vm->stack, inst2);
 				set_var(vm, get_var_name(vm->stack, inst), value(val2->type, val2->val));
 			}
 			inst_destroy(inst2);
