@@ -444,10 +444,9 @@ void CMD_SELECT(PVM vm)
 	inst_destroy(right);
 }
 
-//"stolen" from https://stackoverflow.com/a/314422/2684203
-char * getline(char* line, size_t lenmax)
+char* getline(char* line, size_t lenmax)
 {
-	char * *linep = line;
+	char* line_start = line;
 	size_t len = lenmax;
 	int c;
 
@@ -462,23 +461,15 @@ char * getline(char* line, size_t lenmax)
 
 		if (--len == 0)
 		{
-			len = lenmax;
-			char * linen = realloc(linep, lenmax *= 2);
-
-			if (linen == NULL)
-			{
-				free(linep);
-				return NULL;
-			}
-			line = linen + (line - linep);
-			linep = linen;
+			len++;
+			line--;
 		}
 
 		if ((*line++ = c) == '\n')
 			break;
 	}
 	*line = '\0';
-	return linep;
+	return line_start;
 }
 
 #define LINEBUFFER_SIZE 256
