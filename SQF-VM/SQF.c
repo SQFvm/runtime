@@ -56,6 +56,7 @@ PSTACK create_stack(unsigned int size)
 	memset(stack->data, 0, sizeof(PINST) * size);
 	stack->size = size;
 	stack->top = 0;
+	return stack;
 }
 void destroy_stack(PSTACK stack)
 {
