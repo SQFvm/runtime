@@ -88,23 +88,25 @@ void inst_destroy(PINST inst)
 			inst_destroy_value(get_value(0, inst));
 			break;
 		case INST_LOAD_VAR:
-			inst_destroy_var(get_var_name(0, inst));
+			inst_destroy_var((char*)get_var_name(0, inst));
 			break;
 		case INST_STORE_VAR:
-			inst_destroy_var(get_var_name(0, inst));
+			inst_destroy_var((char*)get_var_name(0, inst));
 			break;
 		case INST_SCOPE:
 			inst_destroy_scope(get_scope(0, inst));
 			break;
 		case INST_STORE_VAR_LOCAL:
-			inst_destroy_var(get_var_name(0, inst));
+			inst_destroy_var((char*)get_var_name(0, inst));
 			break;
 		case INST_ARR_PUSH:
 			break;
 		case INST_CODE_LOAD:
 			break;
 		default:
+			#if _WIN32
 			__asm int 3;
+			#endif
 			break;
 	}
 	free(inst);
