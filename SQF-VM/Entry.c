@@ -473,73 +473,6 @@ char* getline(char* line, size_t lenmax)
 }
 
 #define LINEBUFFER_SIZE 256
-__declspec(dllexport) char* start_program(char* input);
-void main(int argc, char** argv)
-{
-	char linebuffer[LINEBUFFER_SIZE];
-	char* ptr;
-	int i = 1;
-
-	/*
-		Test 'file'
-			1: private _test = 10 + 12.5;
-			2: diag_log _test;
-			3: _foo = "test";
-			4: diag_log _foo;
-			5: _foo = _test;
-			6: diag_log _foo;
-	*/
-	
-	////Create root scope
-	//push_stack(vm->stack, inst_scope("all"));
-	////diag_log _foo
-	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	//push_stack(vm->stack, inst_load_var("_foo"));
-	////_foo = _test
-	//push_stack(vm->stack, inst_store_var("_foo"));
-	//push_stack(vm->stack, inst_load_var("_test"));
-	////diag_log _foo
-	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	//push_stack(vm->stack, inst_load_var("_foo"));
-	////_foo = "test"
-	//push_stack(vm->stack, inst_store_var("_foo"));
-	//push_stack(vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("test")))));
-	////diag_log _test
-	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	//push_stack(vm->stack, inst_load_var("_test"));
-	////private _test = 10 + 12.5
-	//push_stack(vm->stack, inst_store_var_local("_test"));
-	//push_stack(vm->stack, inst_command(find_command(vm, "+", 'b')));
-	//push_stack(vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(10))));
-	//push_stack(vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(12.5))));
-	//
-	//execute(vm);
-	
-	//parse(vm, "private _test = 10 + 12.5; diag_log _test; _foo = \"test\"; diag_log _foo; _foo = _test; diag_log _foo");
-	//execute(vm);
-	PSTRING pstr = string_create(0);
-	printf("Please enter your SQF code.\nTo get the capabilities, use the `help` instruction.\nTo run the code, Press <ENTER> twice.\n");
-	printf("%d:\t", i++);
-	while (getline(linebuffer, LINEBUFFER_SIZE)[0] != '\n')
-	{
-		string_modify_append(pstr, linebuffer);
-		printf("%d:\t", i++);
-	}
-	ptr = start_program(pstr->val);
-	printf("-------------------------------------\n");
-	if (ptr == 0)
-	{
-		printf("<EMPTY>\n");
-	}
-	else
-	{
-		printf("%s", ptr);
-	}
-	printf("-------------------------------------\n");
-	printf("Press <ENTER> to finish.");
-	getline(linebuffer, LINEBUFFER_SIZE);
-	string_destroy(pstr);
-}
 
 void custom_error(const char* errMsg, PSTACK stack)
 {
@@ -551,7 +484,12 @@ void custom_error(const char* errMsg, PSTACK stack)
 	longjmp(program_exit, 1);
 }
 
+#ifdef _WIN32
 __declspec(dllexport) char* start_program(char* input)
+#else
+__attribute__((visibility("default"))) char* start_program(char* input)
+#endif
+
 {
 	PVM vm = sqfvm(1000, 50, 100);
 	vm->error = custom_error;
@@ -632,4 +570,70 @@ __declspec(dllexport) char* start_program(char* input)
 	}
 	destroy_sqfvm(vm);
 	return outputbuffer->val;
+}
+void main(int argc, char** argv)
+{
+	char linebuffer[LINEBUFFER_SIZE];
+	char* ptr;
+	int i = 1;
+
+	/*
+	Test 'file'
+	1: private _test = 10 + 12.5;
+	2: diag_log _test;
+	3: _foo = "test";
+	4: diag_log _foo;
+	5: _foo = _test;
+	6: diag_log _foo;
+	*/
+
+	////Create root scope
+	//push_stack(vm->stack, inst_scope("all"));
+	////diag_log _foo
+	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
+	//push_stack(vm->stack, inst_load_var("_foo"));
+	////_foo = _test
+	//push_stack(vm->stack, inst_store_var("_foo"));
+	//push_stack(vm->stack, inst_load_var("_test"));
+	////diag_log _foo
+	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
+	//push_stack(vm->stack, inst_load_var("_foo"));
+	////_foo = "test"
+	//push_stack(vm->stack, inst_store_var("_foo"));
+	//push_stack(vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("test")))));
+	////diag_log _test
+	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
+	//push_stack(vm->stack, inst_load_var("_test"));
+	////private _test = 10 + 12.5
+	//push_stack(vm->stack, inst_store_var_local("_test"));
+	//push_stack(vm->stack, inst_command(find_command(vm, "+", 'b')));
+	//push_stack(vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(10))));
+	//push_stack(vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(12.5))));
+	//
+	//execute(vm);
+
+	//parse(vm, "private _test = 10 + 12.5; diag_log _test; _foo = \"test\"; diag_log _foo; _foo = _test; diag_log _foo");
+	//execute(vm);
+	PSTRING pstr = string_create(0);
+	printf("Please enter your SQF code.\nTo get the capabilities, use the `help` instruction.\nTo run the code, Press <ENTER> twice.\n");
+	printf("%d:\t", i++);
+	while (getline(linebuffer, LINEBUFFER_SIZE)[0] != '\n')
+	{
+		string_modify_append(pstr, linebuffer);
+		printf("%d:\t", i++);
+	}
+	ptr = start_program(pstr->val);
+	printf("-------------------------------------\n");
+	if (ptr == 0)
+	{
+		printf("<EMPTY>\n");
+	}
+	else
+	{
+		printf("%s", ptr);
+	}
+	printf("-------------------------------------\n");
+	printf("Press <ENTER> to finish.");
+	getline(linebuffer, LINEBUFFER_SIZE);
+	string_destroy(pstr);
 }
