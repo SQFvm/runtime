@@ -12,6 +12,8 @@ typedef unsigned char DATA_TYPE;
 #define INST_STORE_VAR ((DATA_TYPE)4)
 #define INST_SCOPE ((DATA_TYPE)5)
 #define INST_STORE_VAR_LOCAL ((DATA_TYPE)6)
+#define INST_ARR_PUSH ((DATA_TYPE)7)
+#define INST_CODE_LOAD ((DATA_TYPE)8)
 typedef struct INST
 {
 	DATA_TYPE type;

@@ -1,3 +1,4 @@
+#include "SQF_base.h"
 #include "SQF_inst.h"
 
 #include <malloc.h>
@@ -66,33 +67,45 @@ PINST inst_scope(const char* name)
 	s->varstack_value = malloc(sizeof(VALUE*) * s->varstack_size);
 	return p;
 }
+PINST inst_arr_push(void)
+{
+	return inst(INST_ARR_PUSH);
+}
+PINST inst_code_load(void)
+{
+	return inst(INST_CODE_LOAD);
+}
 
 void inst_destroy(PINST inst)
 {
 	switch (inst->type)
 	{
-	case INST_NOP:
-	case INST_COMMAND:
-
-		break;
-	case INST_VALUE:
-		inst_destroy_value(get_value(0, inst));
-		break;
-	case INST_LOAD_VAR:
-		inst_destroy_var(get_var_name(0, inst));
-		break;
-	case INST_STORE_VAR:
-		inst_destroy_var(get_var_name(0, inst));
-		break;
-	case INST_STORE_VAR_LOCAL:
-		inst_destroy_var(get_var_name(0, inst));
-		break;
-	case INST_SCOPE:
-		inst_destroy_scope(get_scope(0, inst));
-		break;
-	default:
-		__asm int 3;
-		break;
+		case INST_NOP:
+			break;
+		case INST_COMMAND:
+			break;
+		case INST_VALUE:
+			inst_destroy_value(get_value(0, inst));
+			break;
+		case INST_LOAD_VAR:
+			inst_destroy_var(get_var_name(0, inst));
+			break;
+		case INST_STORE_VAR:
+			inst_destroy_var(get_var_name(0, inst));
+			break;
+		case INST_SCOPE:
+			inst_destroy_scope(get_scope(0, inst));
+			break;
+		case INST_STORE_VAR_LOCAL:
+			inst_destroy_var(get_var_name(0, inst));
+			break;
+		case INST_ARR_PUSH:
+			break;
+		case INST_CODE_LOAD:
+			break;
+		default:
+			__asm int 3;
+			break;
 	}
 	free(inst);
 }

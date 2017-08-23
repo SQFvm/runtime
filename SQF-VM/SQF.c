@@ -1,5 +1,7 @@
+#include "textrange.h"
 #include "SQF.h"
 #include "SQF_types.h"
+#include "SQF_parse.h"
 
 #include <malloc.h>
 #include <stdio.h>
@@ -20,11 +22,16 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 	vm->cmds_top = 0;
 
 
-	register_command(vm, create_command("SCALAR", 't', 0, 0));
-	register_command(vm, create_command("BOOL", 't', 0, 0));
-
+	register_command(vm, SCALAR_TYPE());
+	register_command(vm, BOOL_TYPE());
+	register_command(vm, ARRAY_TYPE());
 	register_command(vm, CODE_TYPE());
 	register_command(vm, STRING_TYPE());
+
+
+
+
+	register_command(vm, IF_TYPE());
 	return vm;
 }
 void destroy_sqfvm(PVM vm)
@@ -231,7 +238,8 @@ PCMD find_type(PVM vm, const char* name)
 void error(const char* errMsg, PSTACK stack)
 {
 	printf("ERROR: %s\n", errMsg);
-	__asm int 3;
+	getchar();
+	exit(-1);
 }
 
 void execute(PVM vm)
@@ -295,6 +303,21 @@ void execute(PVM vm)
 			break;
 		case INST_VALUE:
 			push_stack(vm->work, inst);
+			break;
+		case INST_ARR_PUSH:
+			inst_destroy(inst);
+			inst2 = pop_stack(vm->work);
+			inst = pop_stack(vm->work);
+			val = get_value(vm->stack, inst2);
+			array_push(((PARRAY)get_value(vm->stack, inst)->val.ptr), value(val->type, val->val));
+			push_stack(vm->work, inst);
+			inst_destroy(inst2);
+			break;
+		case INST_CODE_LOAD:
+			inst_destroy(inst);
+			inst = pop_stack(vm->work);
+			parse(vm, ((PCODE)get_value(vm->stack, inst)->val.ptr)->val);
+			inst_destroy(inst);
 			break;
 		}
 	}

@@ -22,6 +22,8 @@ PINST inst_load_var(const char* name);
 PINST inst_store_var(const char* name);
 PINST inst_store_var_local(char* name);
 PINST inst_scope(const char* name);
+PINST inst_arr_push(void);
+PINST inst_code_load(void);
 
 void inst_destroy(PINST inst);
 void inst_destroy_scope(PSCOPE scope);
@@ -77,5 +79,6 @@ inline PSCOPE get_scope(PSTACK stack, PINST inst)
 		return 0;
 	}
 }
+
 
 #endif
