@@ -9,8 +9,8 @@ typedef union BASE
 	char c;
 	void* ptr;
 	long l;
-	long float lf;
-	long long ll;
+	//long float lf;
+	//long long ll;
 } BASE;
 
 inline BASE base_float(float f)
@@ -43,17 +43,17 @@ inline BASE base_long(long l)
 	b.l = l;
 	return b;
 }
-inline BASE base_longfloat(long float lf)
-{
-	BASE b;
-	b.lf = lf;
-	return b;
-}
-inline BASE base_longlong(long long ll)
-{
-	BASE b;
-	b.ll = ll;
-	return b;
-}
+//inline BASE base_longfloat(long float lf)
+//{
+//	BASE b;
+//	b.lf = lf;
+//	return b;
+//}
+//inline BASE base_longlong(long long ll)
+//{
+//	BASE b;
+//	b.ll = ll;
+//	return b;
+//}
 
 #endif
