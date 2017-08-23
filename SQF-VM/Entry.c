@@ -444,7 +444,7 @@ void CMD_SELECT(PVM vm)
 	inst_destroy(right);
 }
 
-char* getline(char* line, size_t lenmax)
+char* get_line(char* line, size_t lenmax)
 {
 	char* line_start = line;
 	size_t len = lenmax;
@@ -617,7 +617,7 @@ void main(int argc, char** argv)
 	PSTRING pstr = string_create(0);
 	printf("Please enter your SQF code.\nTo get the capabilities, use the `help` instruction.\nTo run the code, Press <ENTER> twice.\n");
 	printf("%d:\t", i++);
-	while (getline(linebuffer, LINEBUFFER_SIZE)[0] != '\n')
+	while (get_line(linebuffer, LINEBUFFER_SIZE)[0] != '\n')
 	{
 		string_modify_append(pstr, linebuffer);
 		printf("%d:\t", i++);
@@ -634,6 +634,6 @@ void main(int argc, char** argv)
 	}
 	printf("-------------------------------------\n");
 	printf("Press <ENTER> to finish.");
-	getline(linebuffer, LINEBUFFER_SIZE);
+	get_line(linebuffer, LINEBUFFER_SIZE);
 	string_destroy(pstr);
 }
