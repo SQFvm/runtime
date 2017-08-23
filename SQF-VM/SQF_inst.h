@@ -20,7 +20,7 @@ PINST inst_command(CPCMD cmd);
 PINST inst_value(VALUE val);
 PINST inst_load_var(const char* name);
 PINST inst_store_var(const char* name);
-PINST inst_store_var_local(char* name);
+PINST inst_store_var_local(const char* name);
 PINST inst_scope(const char* name);
 PINST inst_arr_push(void);
 PINST inst_code_load(void);

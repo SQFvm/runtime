@@ -18,7 +18,7 @@ PINST inst_nop(void)
 PINST inst_command(CPCMD cmd)
 {
 	PINST p = inst(INST_COMMAND);
-	p->data.ptr = cmd;
+	p->data.cptr = cmd;
 	return p;
 }
 PINST inst_value(VALUE val)

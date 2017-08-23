@@ -117,7 +117,7 @@ PVALUE find_var(PVM vm, const char* name)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
-			scope = get_scope(vm, vm->stack->data[i]);
+			scope = get_scope(vm->stack, vm->stack->data[i]);
 			for (j = 0; j < scope->varstack_top; j++)
 			{
 				if (strcmpi(scope->varstack_name[j], name) == 0)
@@ -138,7 +138,7 @@ void set_var(PVM vm, const char* name, VALUE val)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
-			scope = get_scope(vm, vm->stack->data[i]);
+			scope = get_scope(vm->stack, vm->stack->data[i]);
 			if (first == 0)
 			{
 				first = scope;
@@ -164,7 +164,7 @@ PSCOPE top_scope(PVM vm)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
-			return get_scope(vm, vm->stack->data[i]);
+			return get_scope(vm->stack, vm->stack->data[i]);
 		}
 	}
 	return 0;

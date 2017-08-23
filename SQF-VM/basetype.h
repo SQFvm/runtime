@@ -8,6 +8,7 @@ typedef union BASE
 	int i;
 	char c;
 	void* ptr;
+	const void* cptr;
 	long l;
 	//long float lf;
 	//long long ll;
