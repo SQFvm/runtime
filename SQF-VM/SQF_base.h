@@ -116,13 +116,13 @@ inline void register_command(PVM vm, PCMD cmd)
 {
 	if (vm->cmds_top >= vm->cmds_size)
 	{
-		error("COMMAND REGISTER OVERFLOW", vm);
+		error("COMMAND REGISTER OVERFLOW", vm->stack);
 	}
 	else
 	{
 		if (cmd->type == 't' && vm->cmds_top != 0 && vm->cmds[vm->cmds_top - 1]->type != 't')
 		{
-			error("TYPE COMMAND REGISTERED AFTER NON-TYPE COMMANDS GOT REGISTERED", vm);
+			error("TYPE COMMAND REGISTERED AFTER NON-TYPE COMMANDS GOT REGISTERED", vm->stack);
 		}
 		vm->cmds[vm->cmds_top++] = cmd;
 	}
