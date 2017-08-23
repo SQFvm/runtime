@@ -4,6 +4,9 @@
 #include "SQF_parse.h"
 #include <stdio.h>
 #include <malloc.h>
+#ifdef __linux
+#include <alloca.h>
+#endif // _GCC
 #include <math.h>
 #include <string.h>
 #include <setjmp.h>
