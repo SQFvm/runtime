@@ -97,7 +97,7 @@ void resize_stack(PSTACK stack, unsigned int newsize)
 	}
 }
 
-PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence)
+PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, const char* desc)
 {
 	PCMD command = malloc(sizeof(CMD));
 	int len = strlen(name);
@@ -108,11 +108,27 @@ PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence)
 	command->type = type;
 	command->type_code = type == 't' ? 0 : type == 'b' ? 1 : type == 'u' ? 2 : 3;
 	command->callback = fnc;
+	len = strlen(desc);
+	if (desc != 0)
+	{
+		command->description = malloc(sizeof(char) * (len + 1));
+		command->description_len = len;
+		strcpy(command->description, desc);
+	}
+	else
+	{
+		command->description = 0;
+		command->description_len = 0;
+	}
 	return command;
 }
 void destroy_command(PCMD command)
 {
 	free(command->name);
+	if (command->description != 0)
+	{
+		free(command->description);
+	}
 	free(command);
 }
 

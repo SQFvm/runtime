@@ -9,7 +9,7 @@ PCMD SCALAR_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("SCALAR", 't', 0, 0);
+		cmd = create_command("SCALAR", 't', 0, 0, NULL);
 	}
 	return cmd;
 }
@@ -18,7 +18,7 @@ PCMD BOOL_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("BOOL", 't', 0, 0);
+		cmd = create_command("BOOL", 't', 0, 0, NULL);
 	}
 	return cmd;
 }
@@ -27,7 +27,7 @@ PCMD IF_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("IF", 't', 0, 0);
+		cmd = create_command("IF", 't', 0, 0, NULL);
 	}
 	return cmd;
 }
@@ -53,7 +53,7 @@ PCMD CODE_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("CODE", 't', TYPE_CODE_CALLBACK, 0);
+		cmd = create_command("CODE", 't', TYPE_CODE_CALLBACK, 0, NULL);
 	}
 	return cmd;
 }
@@ -96,7 +96,7 @@ PCMD STRING_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("STRING", 't', TYPE_STRING_CALLBACK, 0);
+		cmd = create_command("STRING", 't', TYPE_STRING_CALLBACK, 0, NULL);
 	}
 	return cmd;
 }
@@ -183,7 +183,7 @@ PCMD ARRAY_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("ARRAY", 't', TYPE_ARRAY_CALLBACK, 0);
+		cmd = create_command("ARRAY", 't', TYPE_ARRAY_CALLBACK, 0, NULL);
 	}
 	return cmd;
 }

@@ -11,7 +11,7 @@ void store_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val);
 
 void execute(PVM vm);
 
-PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence);
+PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, const char* desc);
 void destroy_command(PCMD command);
 
 PCMD find_command(PVM vm, const char* name, char type);

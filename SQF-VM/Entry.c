@@ -214,7 +214,7 @@ void CMD_THEN(void* input)
 		{
 			code = arr->data[0]->val.ptr;
 		}
-		else if(arr->top > 1)
+		else if (arr->top > 1)
 		{
 			code = arr->data[1]->val.ptr;
 		}
@@ -224,7 +224,7 @@ void CMD_THEN(void* input)
 			push_stack(vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(code))));
 		}
 	}
-	else if(right_val->type == CODE_TYPE())
+	else if (right_val->type == CODE_TYPE())
 	{
 		if (left_val->val.i)
 		{
@@ -278,11 +278,11 @@ void CMD_HELP(void* input)
 	CPCMD cmd;
 	printf("GLOBAL variables are treated as LOCAL too!\n");
 	printf("ERRORS will probably result in crash\n");
-	printf("NAME:TYPE:PRECEDENCE\n");
+	printf("NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
 	for (i = 0; i < vm->cmds_top; i++)
 	{
 		cmd = vm->cmds[i];
-		printf("%s:%c:%d\n", cmd->name, cmd->type, cmd->precedence_level);
+		printf("%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
 	}
 	
 }
@@ -549,27 +549,29 @@ __attribute__((visibility("default"))) char* start_program(char* input)
 	register_command(vm, create_command("LOCATION", 't', 0, 0));
 	*/
 
-	register_command(vm, create_command("+", 'b', CMD_PLUS, 8));
-	register_command(vm, create_command("-", 'b', CMD_MINUS, 8));
-	register_command(vm, create_command("*", 'b', CMD_MULTIPLY, 9));
-	register_command(vm, create_command("/", 'b', CMD_DIVIDE, 9));
-	register_command(vm, create_command(">", 'b', CMD_LARGETTHEN, 7));
-	register_command(vm, create_command("<", 'b', CMD_LESSTHEN, 7));
-	register_command(vm, create_command(">=", 'b', CMD_LARGETTHENOREQUAL, 7));
-	register_command(vm, create_command("<=", 'b', CMD_LESSTHENOREQUAL, 7));
-	register_command(vm, create_command("==", 'b', CMD_EQUAL, 7));
-	register_command(vm, create_command("||", 'b', CMD_OROR, 5));
-	register_command(vm, create_command("&&", 'b', CMD_ANDAND, 6));
-	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0));
-	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0));
-	register_command(vm, create_command("if", 'u', CMD_IF, 5));
-	register_command(vm, create_command("then", 'b', CMD_THEN, 5));
-	register_command(vm, create_command("else", 'b', CMD_ELSE, 6));
-	register_command(vm, create_command("true", 'n', CMD_TRUE, 10));
-	register_command(vm, create_command("false", 'n', CMD_FALSE, 10));
-	register_command(vm, create_command("help", 'n', CMD_HELP, 10));
-	register_command(vm, create_command("str", 'u', CMD_STR, 0));
-	register_command(vm, create_command("select", 'b', CMD_SELECT, 10));
+	register_command(vm, create_command("+", 'b', CMD_PLUS, 8, "<SCALAR> + <SCALAR> | <STRING> + <STRING> | <ARRAY> + <ANY>"));
+	register_command(vm, create_command("-", 'b', CMD_MINUS, 8, "<SCALAR> - <SCALAR> | <STRING> - <STRING> | <ARRAY> - <ANY>"));
+	register_command(vm, create_command("*", 'b', CMD_MULTIPLY, 9, "<SCALAR> * <SCALAR>"));
+	register_command(vm, create_command("/", 'b', CMD_DIVIDE, 9, "<SCALAR> / <SCALAR>"));
+	register_command(vm, create_command(">", 'b', CMD_LARGETTHEN, 7, "<SCALAR> > <SCALAR>"));
+	register_command(vm, create_command("<", 'b', CMD_LESSTHEN, 7, "<SCALAR> > <SCALAR>"));
+	register_command(vm, create_command(">=", 'b', CMD_LARGETTHENOREQUAL, 7, "<SCALAR> > <SCALAR>"));
+	register_command(vm, create_command("<=", 'b', CMD_LESSTHENOREQUAL, 7, "<SCALAR> > <SCALAR>"));
+	register_command(vm, create_command("==", 'b', CMD_EQUAL, 7, "<SCALAR> > <SCALAR>"));
+	register_command(vm, create_command("||", 'b', CMD_OROR, 5, "<BOOL> || <BOOL>"));
+	register_command(vm, create_command("&&", 'b', CMD_ANDAND, 6, "<BOOL> && <BOOL>"));
+	register_command(vm, create_command("select", 'b', CMD_SELECT, 10, "<ARRAY> select <SCALAR>"));
+	register_command(vm, create_command("then", 'b', CMD_THEN, 5, "<IF> then <ARRAY>"));
+	register_command(vm, create_command("else", 'b', CMD_ELSE, 6, "<CODE> else <CODE>"));
+
+	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>"));
+	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0, "private <STRING>"));
+	register_command(vm, create_command("if", 'u', CMD_IF, 5, "if <BOOL>"));
+	register_command(vm, create_command("str", 'u', CMD_STR, 0, "str <ANY>"));
+
+	register_command(vm, create_command("true", 'n', CMD_TRUE, 10, "true"));
+	register_command(vm, create_command("false", 'n', CMD_FALSE, 10, "false"));
+	register_command(vm, create_command("help", 'n', CMD_HELP, 10, "Displays this help text."));
 	val = setjmp(program_exit);
 	if (!val)
 	{

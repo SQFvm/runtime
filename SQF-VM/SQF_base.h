@@ -31,6 +31,8 @@ typedef struct CMD
 	char precedence_level;
 	char* name;
 	unsigned int name_len;
+	char* description;
+	unsigned int description_len;
 } CMD;
 typedef CMD* PCMD;
 typedef const CMD* CPCMD;
