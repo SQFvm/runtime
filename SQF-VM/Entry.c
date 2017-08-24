@@ -10,6 +10,7 @@
 #include <math.h>
 #include <string.h>
 #include <setjmp.h>
+#include <crtdbg.h>
 
 static PSTRING outputbuffer = 0;
 static jmp_buf program_exit;
@@ -199,6 +200,7 @@ void CMD_DIAG_LOG(void* input)
 	right_val = get_value(vm->stack, right);
 	stringify_value(vm, str, right_val);
 	string_modify_append(outputbuffer, str->val);
+	string_modify_append(outputbuffer, "\n");
 	string_destroy(str);
 	inst_destroy(right);
 }
@@ -655,7 +657,8 @@ void main(int argc, char** argv)
 	char linebuffer[LINEBUFFER_SIZE];
 	char* ptr;
 	int i = 1;
-
+	PVM vm;
+	//_CrtSetBreakAlloc(177);
 	/*
 	Test 'file'
 	1: private _test = 10 + 12.5;
@@ -701,6 +704,7 @@ void main(int argc, char** argv)
 		string_modify_append(pstr, linebuffer);
 		printf("%d:\t", i++);
 	}
+	//string_modify_append(pstr, "diag_log str [1, 2, \"test\", [1, 2, 3]]");
 	ptr = start_program(pstr->val);
 	printf("-------------------------------------\n");
 	if (ptr == 0)
@@ -715,4 +719,14 @@ void main(int argc, char** argv)
 	printf("Press <ENTER> to finish.");
 	get_line(linebuffer, LINEBUFFER_SIZE);
 	string_destroy(pstr);
+
+	string_destroy(outputbuffer);
+	vm = sqfvm(0, 0, 0);
+	for (i = 0; i < vm->cmds_top; i++)
+	{
+		destroy_command(vm->cmds[i]);
+	}
+	destroy_sqfvm(vm);
+
+	_CrtDumpMemoryLeaks();
 }
