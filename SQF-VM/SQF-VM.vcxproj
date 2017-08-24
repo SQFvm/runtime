@@ -33,6 +33,7 @@
     <ClCompile Include="SQF_inst.c" />
     <ClCompile Include="SQF_parse.c" />
     <ClCompile Include="SQF_types.c" />
+    <ClCompile Include="string_op.c" />
     <ClCompile Include="textrange.c" />
   </ItemGroup>
   <ItemGroup>
@@ -42,6 +43,7 @@
     <ClInclude Include="SQF_inst.h" />
     <ClInclude Include="SQF_parse.h" />
     <ClInclude Include="SQF_types.h" />
+    <ClInclude Include="string_op.h" />
     <ClInclude Include="textrange.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -1,3 +1,4 @@
+#include "string_op.h"
 #include "textrange.h"
 #include "SQF.h"
 #include "SQF_types.h"
@@ -8,10 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
-#ifdef __linux
-#define strcmpi strcasecmp
-#endif // !
 
 
 
@@ -130,7 +127,7 @@ PVALUE find_var(PVM vm, const char* name)
 			scope = get_scope(vm->stack, vm->stack->data[i]);
 			for (j = 0; j < scope->varstack_top; j++)
 			{
-				if (strcmpi(scope->varstack_name[j], name) == 0)
+				if (str_cmpi(scope->varstack_name[j], -1, name, -1) == 0)
 				{
 					return scope->varstack_value[j];
 				}
@@ -155,7 +152,7 @@ void set_var(PVM vm, const char* name, VALUE val)
 			}
 			for (j = 0; j < scope->varstack_top; j++)
 			{
-				if (strcmpi(scope->varstack_name[j], name) == 0)
+				if (str_cmpi(scope->varstack_name[j], -1, name, -1) == 0)
 				{
 					inst_destroy_value(scope->varstack_value[j]);
 					scope->varstack_value[j] = malloc(sizeof(VALUE));
@@ -209,7 +206,7 @@ PCMD find_command(PVM vm, const char* name, char type)
 		for (i = 0; i < vm->cmds_top; i++)
 		{
 			cmd = vm->cmds[i];
-			if (cmd->type == type && strcmpi(cmd->name, name) == 0)
+			if (cmd->type == type && str_cmpi(cmd->name, -1, name, -1) == 0)
 			{
 				return cmd;
 			}
@@ -220,7 +217,7 @@ PCMD find_command(PVM vm, const char* name, char type)
 		for (i = 0; i < vm->cmds_top; i++)
 		{
 			cmd = vm->cmds[i];
-			if (strcmpi(cmd->name, name) == 0)
+			if (str_cmpi(cmd->name, -1, name, -1) == 0)
 			{
 				return cmd;
 			}
@@ -235,7 +232,7 @@ PCMD find_type(PVM vm, const char* name)
 	for (i = 0; i < vm->cmds_top; i++)
 	{
 		cmd = vm->cmds[i];
-		if (strcmpi(cmd->name, name) == 0)
+		if (str_cmpi(cmd->name, -1, name, -1) == 0)
 		{
 			return cmd;
 		}

@@ -1,3 +1,4 @@
+#include "string_op.h"
 #include "textrange.h"
 #include "SQF.h"
 #include "SQF_types.h"
@@ -5,11 +6,6 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
-
-#ifdef __linux
-#define strcmpi strcasecmp
-#endif // !
-
 
 void tokenize(TR_ARR* arr, const char* code)
 {
@@ -366,7 +362,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		cmd = fndcmd(vm, str, range.length);
 		if (cmd == 0)
 		{
-			if (str[0] == '_' && smallest_cmd != 0 && strcmpi(smallest_cmd->name, "private") == 0)
+			if (str[0] == '_' && smallest_cmd != 0 && str_cmpi(smallest_cmd->name, -1, "private", -1) == 0)
 			{
 				smallest_cmd = 0;
 				j = -1;
