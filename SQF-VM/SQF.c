@@ -9,6 +9,11 @@
 #include <string.h>
 #include <ctype.h>
 
+#ifdef _linux
+#define strcmpi strcasecmp
+#endif // !
+
+
 
 extern inline void push_stack(PSTACK stack, PINST inst);
 extern inline PINST pop_stack(PSTACK stack);

@@ -6,6 +6,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef _linux
+#define strcmpi strcasecmp
+#endif // !
+
 
 void tokenize(TR_ARR* arr, const char* code)
 {
