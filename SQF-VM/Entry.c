@@ -827,7 +827,8 @@ void main(int argc, char** argv)
 	get_line(linebuffer, LINEBUFFER_SIZE);
 	string_destroy(pstr);
 
-	string_destroy(outputbuffer);
+	if(outputbuffer != 0)
+		string_destroy(outputbuffer);
 	vm = sqfvm(0, 0, 0);
 	for (i = 0; i < vm->cmds_top; i++)
 	{
