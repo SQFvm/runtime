@@ -125,9 +125,6 @@ void tokenize(TR_ARR* arr, const char* code)
 			}
 			else
 			{
-				#ifdef _WIN32
-				__asm int 3;
-				#endif
 			}
 		}
 	}
@@ -262,13 +259,21 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 		}
 		else if (str[0] == ',' || str[0] == '[')
 		{
-			c = (code + tr_arr_get(arr, k).start)[0];
+			if (k >= 0)
+			{
+				c = (code + tr_arr_get(arr, k).start)[0];
+			}
+			else
+			{
+				c = '\0';
+			}
 			if (c != '}' && c != ']')
 			{
 				push_stack(vm->stack, inst_arr_push());
 				parse_partial(vm, stack, code, arr, i + 1, j + 1);
 			}
 			j = -1;
+			k = -1;
 		}
 		else if(j == -1)
 		{
