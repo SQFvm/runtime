@@ -6,6 +6,11 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
+#ifdef __linx
+#include <alloca.h>
+#endif // __linx
+
 
 void tokenize(TR_ARR* arr, const char* code)
 {
