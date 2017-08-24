@@ -68,11 +68,55 @@ void CMD_PLUS(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
+	PARRAY arr;
+	PSTRING str;
+	int i, j;
 	left = pop_stack(vm->work);
 	right = pop_stack(vm->work);
 	left_val = get_value(vm->stack, left);
 	right_val = get_value(vm->stack, right);
-	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f + right_val->val.f))));
+	if (left_val->type == SCALAR_TYPE())
+	{
+		if (right_val->type != SCALAR_TYPE())
+		{
+			error("RIGHT TYPE NOT SCALAR", vm->stack);
+		}
+		push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f + right_val->val.f))));
+	}
+	else if (left_val->type == STRING_TYPE())
+	{
+		if (right_val->type != STRING_TYPE())
+		{
+			error("RIGHT TYPE NOT STRING", vm->stack);
+		}
+		str = string_concat(((PSTRING)left_val->val.ptr), ((PSTRING)right_val->val.ptr));
+		push_stack(vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
+	}
+	else if (left_val->type == ARRAY_TYPE())
+	{
+		j = 0;
+		if (right_val->type == ARRAY_TYPE())
+		{
+			arr = ((PARRAY)left_val->val.ptr);
+			for (i = arr->top - 1; i >= 0; i--, j++)
+			{
+				push_stack(vm->stack, inst_arr_push());
+				push_stack(vm->stack, inst_value(value(arr->data[i]->type, arr->data[i]->val)));
+			}
+		}
+		else
+		{
+			push_stack(vm->stack, inst_arr_push());
+			push_stack(vm->stack, inst_value(value(right_val->type, right_val->val)));
+		}
+		arr = ((PARRAY)left_val->val.ptr);
+		for (i = arr->top; i >= 0; i++)
+		{
+			push_stack(vm->stack, inst_arr_push());
+			push_stack(vm->stack, inst_value(value(arr->data[i]->type, arr->data[i]->val)));
+		}
+		push_stack(vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(j)))));
+	}
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -87,6 +131,14 @@ void CMD_MINUS(void* input)
 	right = pop_stack(vm->work);
 	left_val = get_value(vm->stack, left);
 	right_val = get_value(vm->stack, right);
+	if (left_val->type != SCALAR_TYPE())
+	{
+		error("LEFT TYPE NOT SCALAR", vm->stack);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		error("RIGHT TYPE NOT SCALAR", vm->stack);
+	}
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f - right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -102,6 +154,14 @@ void CMD_MULTIPLY(void* input)
 	right = pop_stack(vm->work);
 	left_val = get_value(vm->stack, left);
 	right_val = get_value(vm->stack, right);
+	if (left_val->type != SCALAR_TYPE())
+	{
+		error("LEFT TYPE NOT SCALAR", vm->stack);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		error("RIGHT TYPE NOT SCALAR", vm->stack);
+	}
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f * right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -117,6 +177,14 @@ void CMD_DIVIDE(void* input)
 	right = pop_stack(vm->work);
 	left_val = get_value(vm->stack, left);
 	right_val = get_value(vm->stack, right);
+	if (left_val->type != SCALAR_TYPE())
+	{
+		error("LEFT TYPE NOT SCALAR", vm->stack);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		error("RIGHT TYPE NOT SCALAR", vm->stack);
+	}
 	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f / right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -284,7 +352,7 @@ void CMD_HELP(void* input)
 		cmd = vm->cmds[i];
 		printf("%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
 	}
-	
+
 }
 
 void CMD_STR(void* input)
