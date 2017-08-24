@@ -669,9 +669,9 @@ void custom_error(const char* errMsg, PSTACK stack)
 }
 
 #ifdef _WIN32
-__declspec(dllexport) char* start_program(char* input)
+__declspec(dllexport) char* start_program(const char* input)
 #else
-__attribute__((visibility("default"))) char* start_program(char* input)
+__attribute__((visibility("default"))) char* start_program(const char* input)
 #endif
 
 {

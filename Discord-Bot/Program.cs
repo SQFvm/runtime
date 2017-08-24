@@ -53,8 +53,8 @@ namespace Discord_Bot
                 }
                 try
                 {
-                    string result = SQF_VM.start_program(sqf);
-                    await arg.Channel.SendMessageAsync($"```sqf\n{(result == null ? "<EMPTY>" : result)}```");
+                    string result = SQF_VM.StartProgram(sqf);
+                    await arg.Channel.SendMessageAsync($"```sqf\n{(string.IsNullOrWhiteSpace(result) ? "<EMPTY>" : result)}```");
                 }
                 catch(Exception ex)
                 {
