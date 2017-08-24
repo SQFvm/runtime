@@ -243,6 +243,7 @@ unsigned int str_cmpi(const char* lString, int lLen, const char* rString, int rL
 		{
 			return -1;
 		}
+		i++;
 	}
 
 	return 0;

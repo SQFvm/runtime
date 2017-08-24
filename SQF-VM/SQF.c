@@ -16,11 +16,11 @@ extern inline void push_stack(PVM vm, PSTACK stack, PINST inst);
 extern inline PINST pop_stack(PVM vm, PSTACK stack);
 extern inline void register_command(PVM vm, PCMD cmd);
 
-
+#define SQF_VM_INTERNAL_TYPE_COUNT 7
 PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size)
 {
 	PVM vm = malloc(sizeof(VM));
-	cmds_size += 6;
+	cmds_size += SQF_VM_INTERNAL_TYPE_COUNT;
 	vm->stack = create_stack(stack_size);
 	vm->work = create_stack(work_size);
 
@@ -41,6 +41,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 
 
 	register_command(vm, IF_TYPE());
+	register_command(vm, WHILE_TYPE());
 	return vm;
 }
 void destroy_sqfvm(PVM vm)
@@ -49,7 +50,7 @@ void destroy_sqfvm(PVM vm)
 	destroy_stack(vm->stack);
 	destroy_stack(vm->work);
 	//6 being the "offset" of the pre-existing types (see sqfvm creation function, this number should correspond to the ammount of register_command calls in there)
-	for (i = 6; i < vm->cmds_top; i++)
+	for (i = SQF_VM_INTERNAL_TYPE_COUNT; i < vm->cmds_top; i++)
 	{
 		destroy_command(vm->cmds[i]);
 	}
@@ -276,6 +277,7 @@ void execute(PVM vm)
 	PVALUE val;
 	PVALUE val2;
 	PSCOPE scope;
+	int i, j, k;
 	while (vm->stack->top > 0)
 	{
 		inst = pop_stack(vm, vm->stack);
@@ -285,7 +287,7 @@ void execute(PVM vm)
 			inst_destroy(inst);
 			break;
 		case INST_COMMAND:
-			get_command(vm, vm->stack, inst)->callback(vm);
+			get_command(vm, vm->stack, inst)->callback(vm, get_command(vm, vm->stack, inst));
 			inst_destroy(inst);
 			break;
 		case INST_SCOPE:
@@ -345,6 +347,27 @@ void execute(PVM vm)
 			inst = pop_stack(vm, vm->work);
 			parse(vm, ((PCODE)get_value(vm, vm->stack, inst)->val.ptr)->val);
 			inst_destroy(inst);
+			break;
+		case INST_POP_EVAL:
+			i = get_pop_eval(vm, vm->stack, inst)->popon ? 1 : 0;
+			j = get_pop_eval(vm, vm->stack, inst)->ammount;
+			inst_destroy(inst);
+			inst = pop_stack(vm, vm->work);
+			if (inst == 0)
+			{
+				for (; j >= 0; j--)
+				{
+					inst_destroy(pop_stack(vm, vm->stack));
+				}
+			}
+			val = get_value(vm, vm->stack, inst);
+			if (val == 0 || val->val.i > 0 && i || val->val.i == 0 && !i)
+			{
+				for (; j >= 0; j--)
+				{
+					inst_destroy(pop_stack(vm, vm->stack));
+				}
+			}
 			break;
 		}
 	}

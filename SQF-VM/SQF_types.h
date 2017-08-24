@@ -11,6 +11,7 @@
 PCMD SCALAR_TYPE(void);
 PCMD BOOL_TYPE(void);
 PCMD IF_TYPE(void);
+PCMD WHILE_TYPE(void);
 
 typedef struct CODE
 {
@@ -61,6 +62,8 @@ PARRAY array_create2(unsigned int initialsize);
 void array_destroy(PARRAY arr);
 void array_resize(PARRAY arr, unsigned int newsize);
 void array_push(PARRAY arr, VALUE val);
+
+
 
 
 #endif // !_SQF_TYPES_H_

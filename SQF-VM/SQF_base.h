@@ -14,6 +14,7 @@ typedef unsigned char DATA_TYPE;
 #define INST_STORE_VAR_LOCAL ((DATA_TYPE)6)
 #define INST_ARR_PUSH ((DATA_TYPE)7)
 #define INST_CODE_LOAD ((DATA_TYPE)8)
+#define INST_POP_EVAL ((DATA_TYPE)9)
 typedef struct INST
 {
 	DATA_TYPE type;
@@ -22,7 +23,8 @@ typedef struct INST
 typedef INST* PINST;
 
 //Structure containing VM Commands (eg. +, -, *, /)
-typedef void(*CMD_CB)(void*);
+struct CMD;
+typedef void(*CMD_CB)(void*, const struct CMD* self);
 typedef struct CMD
 {
 	char type;
@@ -79,6 +81,13 @@ typedef struct SCOPE
 	unsigned int varstack_top;
 }SCOPE;
 typedef SCOPE* PSCOPE;
+
+typedef struct POPEVAL
+{
+	unsigned int ammount;
+	unsigned char popon;
+}POPEVAL;
+typedef POPEVAL* PPOPEVAL;
 
 
 

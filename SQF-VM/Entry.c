@@ -62,7 +62,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	}
 }
 
-void CMD_PLUS(void* input)
+void CMD_PLUS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -127,7 +127,7 @@ void CMD_PLUS(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_MINUS(void* input)
+void CMD_MINUS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -156,7 +156,7 @@ void CMD_MINUS(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_MULTIPLY(void* input)
+void CMD_MULTIPLY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -185,7 +185,7 @@ void CMD_MULTIPLY(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_DIVIDE(void* input)
+void CMD_DIVIDE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -214,7 +214,7 @@ void CMD_DIVIDE(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_DIAG_LOG(void* input)
+void CMD_DIAG_LOG(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -234,7 +234,7 @@ void CMD_DIAG_LOG(void* input)
 	string_destroy(str);
 	inst_destroy(right);
 }
-void CMD_PRIVATE(void* input)
+void CMD_PRIVATE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -258,7 +258,7 @@ void CMD_PRIVATE(void* input)
 	inst_destroy(right);
 }
 
-void CMD_IF(void* input)
+void CMD_IF(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -287,7 +287,7 @@ void CMD_IF(void* input)
 
 	inst_destroy(right);
 }
-void CMD_THEN(void* input)
+void CMD_THEN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -356,7 +356,7 @@ void CMD_THEN(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_ELSE(void* input)
+void CMD_ELSE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -383,17 +383,17 @@ void CMD_ELSE(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_TRUE(void* input)
+void CMD_TRUE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(1))));
 }
-void CMD_FALSE(void* input)
+void CMD_FALSE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
 }
-void CMD_HELP(void* input)
+void CMD_HELP(void* input, CPCMD self)
 {
 	PVM vm = input;
 	int i;
@@ -409,7 +409,7 @@ void CMD_HELP(void* input)
 
 }
 
-void CMD_STR(void* input)
+void CMD_STR(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -427,7 +427,7 @@ void CMD_STR(void* input)
 	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
 }
 
-void CMD_LARGETTHEN(void* input)
+void CMD_LARGETTHEN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -448,7 +448,7 @@ void CMD_LARGETTHEN(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_LESSTHEN(void* input)
+void CMD_LESSTHEN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -469,7 +469,7 @@ void CMD_LESSTHEN(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_LARGETTHENOREQUAL(void* input)
+void CMD_LARGETTHENOREQUAL(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -490,7 +490,7 @@ void CMD_LARGETTHENOREQUAL(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_LESSTHENOREQUAL(void* input)
+void CMD_LESSTHENOREQUAL(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -511,7 +511,7 @@ void CMD_LESSTHENOREQUAL(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_EQUAL(void* input)
+void CMD_EQUAL(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -532,7 +532,7 @@ void CMD_EQUAL(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_ANDAND(void* input)
+void CMD_ANDAND(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -557,7 +557,7 @@ void CMD_ANDAND(void* input)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_OROR(void* input)
+void CMD_OROR(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -583,7 +583,7 @@ void CMD_OROR(void* input)
 	inst_destroy(right);
 }
 
-void CMD_SELECT(void* input)
+void CMD_SELECT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -626,6 +626,80 @@ void CMD_SELECT(void* input)
 
 	inst_destroy(left);
 	inst_destroy(right);
+}
+
+
+void CMD_WHILE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSTRING str = string_create(0);
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CODE_TYPE())
+	{
+		vm->error("EXPECTED RIGHT CODE", vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	right_val->type = WHILE_TYPE();
+	push_stack(vm, vm->stack, right);
+}
+void CMD_DO(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PCODE code;
+	PCODE pwhile;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CODE_TYPE())
+	{
+		vm->error("EXPECTED RIGHT TYPE TO BE CODE", vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	else
+	{
+		code = right_val->val.ptr;
+	}
+	if (left_val->type == WHILE_TYPE())
+	{
+		pwhile = left_val->val.ptr;
+		push_stack(vm, vm->stack, inst_command(find_command(vm, "do", 'b')));
+		push_stack(vm, vm->stack, left);
+		push_stack(vm, vm->stack, right);
+		push_stack(vm, vm->stack, inst_code_load());
+		push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(code))));
+		push_stack(vm, vm->stack, inst_pop_eval(5, 0));
+		push_stack(vm, vm->stack, inst_code_load());
+		push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), left_val->val)));
+	}
+	else
+	{
+		vm->error("UNEXPECTED LEFT TYPE", vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
 }
 
 char* get_line(char* line, size_t lenmax)
@@ -698,7 +772,7 @@ __attribute__((visibility("default"))) char* start_program(const char* input)
 	register_command(vm, create_command("NAMESPACE", 't', 0, 0));
 	register_command(vm, create_command("NaN", 't', 0, 0));
 	//register_command(vm, create_command("IF", 't', 0, 0));
-	register_command(vm, create_command("WHILE", 't', 0, 0));
+	//register_command(vm, create_command("WHILE", 't', 0, 0));
 	register_command(vm, create_command("FOR", 't', 0, 0));
 	register_command(vm, create_command("SWITCH", 't', 0, 0));
 	register_command(vm, create_command("EXCEPTION", 't', 0, 0));
@@ -739,15 +813,17 @@ __attribute__((visibility("default"))) char* start_program(const char* input)
 	register_command(vm, create_command("select", 'b', CMD_SELECT, 10, "<ARRAY> select <SCALAR>"));
 	register_command(vm, create_command("then", 'b', CMD_THEN, 5, "<IF> then <ARRAY>"));
 	register_command(vm, create_command("else", 'b', CMD_ELSE, 6, "<CODE> else <CODE>"));
+	register_command(vm, create_command("do", 'b', CMD_DO, 0, "<WHILE> DO <CODE>"));
 
 	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>"));
 	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0, "private <STRING>"));
-	register_command(vm, create_command("if", 'u', CMD_IF, 5, "if <BOOL>"));
+	register_command(vm, create_command("if", 'u', CMD_IF, 0, "if <BOOL>"));
 	register_command(vm, create_command("str", 'u', CMD_STR, 0, "str <ANY>"));
+	register_command(vm, create_command("while", 'u', CMD_WHILE, 0, "while <CODE>"));
 
-	register_command(vm, create_command("true", 'n', CMD_TRUE, 10, "true"));
-	register_command(vm, create_command("false", 'n', CMD_FALSE, 10, "false"));
-	register_command(vm, create_command("help", 'n', CMD_HELP, 10, "Displays this help text."));
+	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
+	register_command(vm, create_command("false", 'n', CMD_FALSE, 0, "false"));
+	register_command(vm, create_command("help", 'n', CMD_HELP, 0, "Displays this help text."));
 	val = setjmp(program_exit);
 	if (!val)
 	{

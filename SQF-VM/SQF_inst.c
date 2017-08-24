@@ -9,6 +9,7 @@ extern inline PVALUE get_value(PVM vm, PSTACK stack, PINST inst);
 extern inline const char* get_var_name(PVM vm, PSTACK stack, PINST inst);
 extern inline PSCOPE get_scope(PVM vm, PSTACK stack, PINST inst);
 extern inline VALUE value(CPCMD type, BASE val);
+extern inline PPOPEVAL get_pop_eval(PVM vm, PSTACK stack, PINST inst);
 
 static inline PINST inst(DATA_TYPE dt)
 {
@@ -89,6 +90,16 @@ PINST inst_code_load(void)
 {
 	return inst(INST_CODE_LOAD);
 }
+PINST inst_pop_eval(unsigned int ammount, unsigned char popon)
+{
+	PINST p = inst(INST_POP_EVAL);
+	PPOPEVAL popeval = malloc(sizeof(POPEVAL));
+	p->data.ptr = popeval;
+	popeval->ammount = ammount;
+	popeval->popon = popon;
+	return p;
+}
+
 
 void inst_destroy(PINST inst)
 {
@@ -118,6 +129,9 @@ void inst_destroy(PINST inst)
 		case INST_ARR_PUSH:
 			break;
 		case INST_CODE_LOAD:
+			break;
+		case INST_POP_EVAL:
+			inst_destroy_pop_eval(get_pop_eval(0, 0, inst));
 			break;
 		default:
 			#if _WIN32
@@ -149,13 +163,18 @@ void inst_destroy_value(PVALUE val)
 	val->type = 0;
 	if (cmd->callback != 0)
 	{
-		cmd->callback(val);
+		cmd->callback(val, cmd);
 	}
 	free(val);
 }
 void inst_destroy_var(char* name)
 {
 	free(name);
+}
+
+void inst_destroy_pop_eval(PPOPEVAL popeval)
+{
+	free(popeval);
 }
 
 

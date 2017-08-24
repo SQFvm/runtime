@@ -10,7 +10,7 @@ inline VALUE value(CPCMD type, BASE val)
 	v.val = val;
 	if (type->callback != 0)
 	{
-		type->callback(&v);
+		type->callback(&v, type);
 	}
 	return v;
 }
@@ -24,11 +24,13 @@ PINST inst_store_var_local(const char* name);
 PINST inst_scope(const char* name);
 PINST inst_arr_push(void);
 PINST inst_code_load(void);
+PINST inst_pop_eval(unsigned int ammount, unsigned char popon);
 
 void inst_destroy(PINST inst);
 void inst_destroy_scope(PSCOPE scope);
 void inst_destroy_value(PVALUE val);
 void inst_destroy_var(char* name);
+void inst_destroy_pop_eval(PPOPEVAL popeval);
 
 //inline void get_nop(PINST) {}
 inline CPCMD get_command(PVM vm, PSTACK stack, PINST inst)
@@ -72,6 +74,18 @@ inline PSCOPE get_scope(PVM vm, PSTACK stack, PINST inst)
 	if (inst != 0 && inst->type == INST_SCOPE)
 	{
 		return (PSCOPE)inst->data.ptr;
+	}
+	else
+	{
+		vm->error("TYPE MISSMATCH", stack);
+		return 0;
+	}
+}
+inline PPOPEVAL get_pop_eval(PVM vm, PSTACK stack, PINST inst)
+{
+	if (inst != 0 && inst->type == INST_POP_EVAL)
+	{
+		return (PPOPEVAL)inst->data.ptr;
 	}
 	else
 	{

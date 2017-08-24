@@ -4,34 +4,7 @@
 #include <malloc.h>
 #include <string.h>
 
-PCMD SCALAR_TYPE(void)
-{
-	static PCMD cmd = 0;
-	if (cmd == 0)
-	{
-		cmd = create_command("SCALAR", 't', 0, 0, NULL);
-	}
-	return cmd;
-}
-PCMD BOOL_TYPE(void)
-{
-	static PCMD cmd = 0;
-	if (cmd == 0)
-	{
-		cmd = create_command("BOOL", 't', 0, 0, NULL);
-	}
-	return cmd;
-}
-PCMD IF_TYPE(void)
-{
-	static PCMD cmd = 0;
-	if (cmd == 0)
-	{
-		cmd = create_command("IF", 't', 0, 0, NULL);
-	}
-	return cmd;
-}
-void TYPE_CODE_CALLBACK(void* input)
+void TYPE_CODE_CALLBACK(void* input, CPCMD self)
 {
 	PVALUE val = input;
 	PCODE code = val->val.ptr;
@@ -74,7 +47,7 @@ void code_destroy(PCODE code)
 }
 
 
-void TYPE_STRING_CALLBACK(void* input)
+void TYPE_STRING_CALLBACK(void* input, CPCMD self)
 {
 	PVALUE val = input;
 	PSTRING string = val->val.ptr;
@@ -161,7 +134,7 @@ void string_modify_append(PSTRING string, const char* append)
 }
 
 
-void TYPE_ARRAY_CALLBACK(void* input)
+void TYPE_ARRAY_CALLBACK(void* input, CPCMD self)
 {
 	PVALUE val = input;
 	PARRAY arr = val->val.ptr;
@@ -219,7 +192,6 @@ void array_resize(PARRAY arr, unsigned int newsize)
 		arr->size = newsize;
 	}
 }
-
 void array_push(PARRAY arr, VALUE val)
 {
 	if (arr->top >= arr->size)
@@ -230,4 +202,44 @@ void array_push(PARRAY arr, VALUE val)
 	arr->data[arr->top]->type = val.type;
 	arr->data[arr->top]->val = val.val;
 	arr->top++;
+}
+
+
+
+
+PCMD SCALAR_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("SCALAR", 't', 0, 0, NULL);
+	}
+	return cmd;
+}
+PCMD BOOL_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("BOOL", 't', 0, 0, NULL);
+	}
+	return cmd;
+}
+PCMD IF_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("IF", 't', 0, 0, NULL);
+	}
+	return cmd;
+}
+PCMD WHILE_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("WHILE", 't', TYPE_CODE_CALLBACK, 0, NULL);
+	}
+	return cmd;
 }
