@@ -9,7 +9,7 @@ extern inline PVALUE get_value(PSTACK stack, PINST inst);
 extern inline const char* get_var_name(PSTACK stack, PINST inst);
 extern inline PSCOPE get_scope(PSTACK stack, PINST inst);
 
-inline PINST inst(DATA_TYPE dt)
+static inline PINST inst(DATA_TYPE dt)
 {
 	PINST inst = malloc(sizeof(INST));
 	inst->type = dt;
