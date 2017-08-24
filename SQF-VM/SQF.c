@@ -20,6 +20,7 @@ extern inline void register_command(PVM vm, PCMD cmd);
 PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size)
 {
 	PVM vm = malloc(sizeof(VM));
+	cmds_size += 6;
 	vm->stack = create_stack(stack_size);
 	vm->work = create_stack(work_size);
 
@@ -73,6 +74,7 @@ void destroy_stack(PSTACK stack)
 	{
 		inst_destroy(stack->data[i]);
 	}
+	free(stack->data);
 	free(stack);
 }
 void resize_stack(PSTACK stack, unsigned int newsize)
