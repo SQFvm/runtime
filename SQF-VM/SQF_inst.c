@@ -4,6 +4,11 @@
 #include <malloc.h>
 #include <string.h>
 
+extern inline CPCMD get_command(PSTACK stack, PINST inst);
+extern inline PVALUE get_value(PSTACK stack, PINST inst);
+extern inline const char* get_var_name(PSTACK stack, PINST inst);
+extern inline PSCOPE get_scope(PSTACK stack, PINST inst);
+
 inline PINST inst(DATA_TYPE dt)
 {
 	PINST inst = malloc(sizeof(INST));

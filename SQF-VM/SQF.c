@@ -10,6 +10,11 @@
 #include <ctype.h>
 
 
+extern inline void push_stack(PSTACK stack, PINST inst);
+extern inline PINST pop_stack(PSTACK stack);
+extern inline void register_command(PVM vm, PCMD cmd);
+
+
 PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size)
 {
 	PVM vm = malloc(sizeof(VM));

@@ -80,5 +80,4 @@ inline PSCOPE get_scope(PSTACK stack, PINST inst)
 	}
 }
 
-
 #endif

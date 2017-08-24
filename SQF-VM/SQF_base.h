@@ -127,5 +127,4 @@ inline void register_command(PVM vm, PCMD cmd)
 		vm->cmds[vm->cmds_top++] = cmd;
 	}
 }
-
 #endif

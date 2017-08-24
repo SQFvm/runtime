@@ -33,6 +33,9 @@
     <ClCompile Include="textrange.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="basetype.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SQF.h">
