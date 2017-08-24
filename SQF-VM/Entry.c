@@ -61,8 +61,9 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	}
 }
 
-void CMD_PLUS(PVM vm)
+void CMD_PLUS(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -75,8 +76,9 @@ void CMD_PLUS(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_MINUS(PVM vm)
+void CMD_MINUS(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -89,8 +91,9 @@ void CMD_MINUS(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_MULTIPLY(PVM vm)
+void CMD_MULTIPLY(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -103,8 +106,9 @@ void CMD_MULTIPLY(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_DIVIDE(PVM vm)
+void CMD_DIVIDE(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -117,8 +121,9 @@ void CMD_DIVIDE(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_DIAG_LOG(PVM vm)
+void CMD_DIAG_LOG(void* input)
 {
+	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
 	char* ptr;
@@ -142,8 +147,9 @@ void CMD_DIAG_LOG(PVM vm)
 
 	inst_destroy(right);
 }
-void CMD_PRIVATE(PVM vm)
+void CMD_PRIVATE(void* input)
 {
+	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
 	right = pop_stack(vm->work);
@@ -160,8 +166,9 @@ void CMD_PRIVATE(PVM vm)
 	inst_destroy(right);
 }
 
-void CMD_IF(PVM vm)
+void CMD_IF(void* input)
 {
+	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
 	int flag;
@@ -183,8 +190,9 @@ void CMD_IF(PVM vm)
 
 	inst_destroy(right);
 }
-void CMD_THEN(PVM vm)
+void CMD_THEN(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -245,8 +253,9 @@ void CMD_THEN(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_ELSE(PVM vm)
+void CMD_ELSE(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -265,16 +274,19 @@ void CMD_ELSE(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_TRUE(PVM vm)
+void CMD_TRUE(void* input)
 {
+	PVM vm = input;
 	push_stack(vm->stack, inst_value(value(BOOL_TYPE(), base_int(1))));
 }
-void CMD_FALSE(PVM vm)
+void CMD_FALSE(void* input)
 {
+	PVM vm = input;
 	push_stack(vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
 }
-void CMD_HELP(PVM vm)
+void CMD_HELP(void* input)
 {
+	PVM vm = input;
 	int i;
 	CPCMD cmd;
 	printf("GLOBAL variables are treated as LOCAL too!\n");
@@ -288,8 +300,9 @@ void CMD_HELP(PVM vm)
 	
 }
 
-void CMD_STR(PVM vm)
+void CMD_STR(void* input)
 {
+	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
 	PSTRING str = string_create(0);
@@ -300,8 +313,9 @@ void CMD_STR(PVM vm)
 	push_stack(vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
 }
 
-void CMD_LARGETTHEN(PVM vm)
+void CMD_LARGETTHEN(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -314,8 +328,9 @@ void CMD_LARGETTHEN(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_LESSTHEN(PVM vm)
+void CMD_LESSTHEN(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -328,8 +343,9 @@ void CMD_LESSTHEN(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_LARGETTHENOREQUAL(PVM vm)
+void CMD_LARGETTHENOREQUAL(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -342,8 +358,9 @@ void CMD_LARGETTHENOREQUAL(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_LESSTHENOREQUAL(PVM vm)
+void CMD_LESSTHENOREQUAL(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -356,8 +373,9 @@ void CMD_LESSTHENOREQUAL(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_EQUAL(PVM vm)
+void CMD_EQUAL(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -370,8 +388,9 @@ void CMD_EQUAL(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_ANDAND(PVM vm)
+void CMD_ANDAND(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -388,8 +407,9 @@ void CMD_ANDAND(PVM vm)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_OROR(PVM vm)
+void CMD_OROR(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
@@ -407,8 +427,9 @@ void CMD_OROR(PVM vm)
 	inst_destroy(right);
 }
 
-void CMD_SELECT(PVM vm)
+void CMD_SELECT(void* input)
 {
+	PVM vm = input;
 	PINST left;
 	PINST right;
 	PVALUE left_val;
