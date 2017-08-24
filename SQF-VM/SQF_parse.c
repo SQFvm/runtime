@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef _linux
+#ifdef __linux
 #define strcmpi strcasecmp
 #endif // !
 

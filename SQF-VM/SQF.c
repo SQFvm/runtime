@@ -9,7 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef _linux
+#ifdef __linux
 #define strcmpi strcasecmp
 #endif // !
 
