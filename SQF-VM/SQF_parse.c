@@ -553,4 +553,5 @@ void parse(PVM vm, const char* code)
 			}
 		}
 	}
+	tr_arr_destroy(arr);
 }
