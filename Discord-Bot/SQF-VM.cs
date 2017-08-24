@@ -10,6 +10,6 @@ namespace Discord_Bot
     public static class SQF_VM
     {
         [DllImport(@"SQF-VM.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern string start_program(string content);
+        public static extern unsafe string start_program(string content);
     }
 }

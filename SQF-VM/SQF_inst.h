@@ -31,51 +31,51 @@ void inst_destroy_value(PVALUE val);
 void inst_destroy_var(char* name);
 
 //inline void get_nop(PINST) {}
-inline CPCMD get_command(PSTACK stack, PINST inst)
+inline CPCMD get_command(PVM vm, PSTACK stack, PINST inst)
 {
-	if (inst->type == INST_COMMAND)
+	if (inst != 0 && inst->type == INST_COMMAND)
 	{
 		return (CPCMD)inst->data.ptr;
 	}
 	else
 	{
-		error("TYPE MISSMATCH", stack);
+		vm->error("TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
-inline PVALUE get_value(PSTACK stack, PINST inst)
+inline PVALUE get_value(PVM vm, PSTACK stack, PINST inst)
 {
-	if (inst->type == INST_VALUE)
+	if (inst != 0 && inst->type == INST_VALUE)
 	{
 		return (PVALUE)inst->data.ptr;
 	}
 	else
 	{
-		error("TYPE MISSMATCH", stack);
+		vm->error("TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
-inline const char* get_var_name(PSTACK stack, PINST inst)
+inline const char* get_var_name(PVM vm, PSTACK stack, PINST inst)
 {
-	if (inst->type == INST_LOAD_VAR || inst->type == INST_STORE_VAR || inst->type == INST_STORE_VAR_LOCAL)
+	if (inst != 0 && inst->type == INST_LOAD_VAR || inst->type == INST_STORE_VAR || inst->type == INST_STORE_VAR_LOCAL)
 	{
 		return (const char*)inst->data.ptr;
 	}
 	else
 	{
-		error("TYPE MISSMATCH", stack);
+		vm->error("TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
-inline PSCOPE get_scope(PSTACK stack, PINST inst)
+inline PSCOPE get_scope(PVM vm, PSTACK stack, PINST inst)
 {
-	if (inst->type == INST_SCOPE)
+	if (inst != 0 && inst->type == INST_SCOPE)
 	{
 		return (PSCOPE)inst->data.ptr;
 	}
 	else
 	{
-		error("TYPE MISSMATCH", stack);
+		vm->error("TYPE MISSMATCH", stack);
 		return 0;
 	}
 }

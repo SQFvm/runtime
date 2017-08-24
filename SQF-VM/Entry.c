@@ -10,7 +10,7 @@
 #include <math.h>
 #include <string.h>
 #include <setjmp.h>
-#include <crtdbg.h>
+//#include <crtdbg.h>
 
 static PSTRING outputbuffer = 0;
 static jmp_buf program_exit;
@@ -72,26 +72,32 @@ void CMD_PLUS(void* input)
 	PARRAY arr;
 	PSTRING str;
 	int i, j;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
 	if (left_val->type == SCALAR_TYPE())
 	{
 		if (right_val->type != SCALAR_TYPE())
 		{
-			error("RIGHT TYPE NOT SCALAR", vm->stack);
+			vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
 		}
-		push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f + right_val->val.f))));
+		push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f + right_val->val.f))));
 	}
 	else if (left_val->type == STRING_TYPE())
 	{
 		if (right_val->type != STRING_TYPE())
 		{
-			error("RIGHT TYPE NOT STRING", vm->stack);
+			vm->error("RIGHT TYPE NOT STRING", vm->stack);
 		}
 		str = string_concat(((PSTRING)left_val->val.ptr), ((PSTRING)right_val->val.ptr));
-		push_stack(vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
+		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
 	}
 	else if (left_val->type == ARRAY_TYPE())
 	{
@@ -101,22 +107,22 @@ void CMD_PLUS(void* input)
 			arr = ((PARRAY)left_val->val.ptr);
 			for (i = arr->top - 1; i >= 0; i--, j++)
 			{
-				push_stack(vm->stack, inst_arr_push());
-				push_stack(vm->stack, inst_value(value(arr->data[i]->type, arr->data[i]->val)));
+				push_stack(vm, vm->stack, inst_arr_push());
+				push_stack(vm, vm->stack, inst_value(value(arr->data[i]->type, arr->data[i]->val)));
 			}
 		}
 		else
 		{
-			push_stack(vm->stack, inst_arr_push());
-			push_stack(vm->stack, inst_value(value(right_val->type, right_val->val)));
+			push_stack(vm, vm->stack, inst_arr_push());
+			push_stack(vm, vm->stack, inst_value(value(right_val->type, right_val->val)));
 		}
 		arr = ((PARRAY)left_val->val.ptr);
 		for (i = arr->top; i >= 0; i++)
 		{
-			push_stack(vm->stack, inst_arr_push());
-			push_stack(vm->stack, inst_value(value(arr->data[i]->type, arr->data[i]->val)));
+			push_stack(vm, vm->stack, inst_arr_push());
+			push_stack(vm, vm->stack, inst_value(value(arr->data[i]->type, arr->data[i]->val)));
 		}
-		push_stack(vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(j)))));
+		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(j)))));
 	}
 	inst_destroy(left);
 	inst_destroy(right);
@@ -128,19 +134,25 @@ void CMD_MINUS(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
 	if (left_val->type != SCALAR_TYPE())
 	{
-		error("LEFT TYPE NOT SCALAR", vm->stack);
+		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		error("RIGHT TYPE NOT SCALAR", vm->stack);
+		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
 	}
-	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f - right_val->val.f))));
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f - right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -151,19 +163,25 @@ void CMD_MULTIPLY(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
 	if (left_val->type != SCALAR_TYPE())
 	{
-		error("LEFT TYPE NOT SCALAR", vm->stack);
+		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		error("RIGHT TYPE NOT SCALAR", vm->stack);
+		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
 	}
-	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f * right_val->val.f))));
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f * right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -174,19 +192,25 @@ void CMD_DIVIDE(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
 	if (left_val->type != SCALAR_TYPE())
 	{
-		error("LEFT TYPE NOT SCALAR", vm->stack);
+		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		error("RIGHT TYPE NOT SCALAR", vm->stack);
+		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
 	}
-	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f / right_val->val.f))));
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f / right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -196,8 +220,14 @@ void CMD_DIAG_LOG(void* input)
 	PINST right;
 	PVALUE right_val;
 	PSTRING str = string_create(0);
-	right = pop_stack(vm->work);
-	right_val = get_value(vm->stack, right);
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		string_destroy(str);
+		inst_destroy(right);
+		return;
+	}
 	stringify_value(vm, str, right_val);
 	string_modify_append(outputbuffer, str->val);
 	string_modify_append(outputbuffer, "\n");
@@ -209,8 +239,13 @@ void CMD_PRIVATE(void* input)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	right = pop_stack(vm->work);
-	right_val = get_value(vm->stack, right);
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
 	if (right_val->type == STRING_TYPE())
 	{
 		store_in_scope(vm, top_scope(vm), ((PSTRING)right_val)->val, value(find_type(vm, "any"), base_voidptr(0)));
@@ -229,8 +264,13 @@ void CMD_IF(void* input)
 	PINST right;
 	PVALUE right_val;
 	int flag;
-	right = pop_stack(vm->work);
-	right_val = get_value(vm->stack, right);
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
 	if (right_val->type == BOOL_TYPE())
 	{
 		flag = right_val->val.i > 0;
@@ -243,7 +283,7 @@ void CMD_IF(void* input)
 	{
 		vm->error("expected bool", vm->stack);
 	}
-	push_stack(vm->stack, inst_value(value(IF_TYPE(), base_int(flag))));
+	push_stack(vm, vm->stack, inst_value(value(IF_TYPE(), base_int(flag))));
 
 	inst_destroy(right);
 }
@@ -254,12 +294,18 @@ void CMD_THEN(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
 	PCODE code;
 	PARRAY arr;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
 
 	if (left_val->type != IF_TYPE())
 	{
@@ -290,16 +336,16 @@ void CMD_THEN(void* input)
 		}
 		if (code != 0)
 		{
-			push_stack(vm->stack, inst_code_load());
-			push_stack(vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(code))));
+			push_stack(vm, vm->stack, inst_code_load());
+			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(code))));
 		}
 	}
 	else if (right_val->type == CODE_TYPE())
 	{
 		if (left_val->val.i)
 		{
-			push_stack(vm->stack, inst_code_load());
-			push_stack(vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(right_val->val.ptr))));
+			push_stack(vm, vm->stack, inst_code_load());
+			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(right_val->val.ptr))));
 		}
 	}
 	else
@@ -317,16 +363,22 @@ void CMD_ELSE(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
 
-	push_stack(vm->stack, inst_arr_push());
-	push_stack(vm->stack, inst_value(value(CODE_TYPE(), right_val->val)));
-	push_stack(vm->stack, inst_arr_push());
-	push_stack(vm->stack, inst_value(value(CODE_TYPE(), left_val->val)));
-	push_stack(vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(2)))));
+	push_stack(vm, vm->stack, inst_arr_push());
+	push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), right_val->val)));
+	push_stack(vm, vm->stack, inst_arr_push());
+	push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), left_val->val)));
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(2)))));
 
 	inst_destroy(left);
 	inst_destroy(right);
@@ -334,12 +386,12 @@ void CMD_ELSE(void* input)
 void CMD_TRUE(void* input)
 {
 	PVM vm = input;
-	push_stack(vm->stack, inst_value(value(BOOL_TYPE(), base_int(1))));
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(1))));
 }
 void CMD_FALSE(void* input)
 {
 	PVM vm = input;
-	push_stack(vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
 }
 void CMD_HELP(void* input)
 {
@@ -363,11 +415,16 @@ void CMD_STR(void* input)
 	PINST right;
 	PVALUE right_val;
 	PSTRING str = string_create(0);
-	right = pop_stack(vm->work);
-	right_val = get_value(vm->stack, right);
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
 	stringify_value(vm, str, right_val);
 	inst_destroy(right);
-	push_stack(vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
 }
 
 void CMD_LARGETTHEN(void* input)
@@ -377,11 +434,17 @@ void CMD_LARGETTHEN(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
-	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f > right_val->val.f))));
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f > right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -392,11 +455,17 @@ void CMD_LESSTHEN(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
-	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f < right_val->val.f))));
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f < right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -407,11 +476,17 @@ void CMD_LARGETTHENOREQUAL(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
-	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f >= right_val->val.f))));
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f >= right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -422,11 +497,17 @@ void CMD_LESSTHENOREQUAL(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
-	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f <= right_val->val.f))));
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f <= right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -437,11 +518,17 @@ void CMD_EQUAL(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
-	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f == right_val->val.f))));
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f == right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -452,15 +539,21 @@ void CMD_ANDAND(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
 	if (left_val->type != BOOL_TYPE() || right_val->type != BOOL_TYPE())
 	{
 		vm->error("Expected left and right to be of type BOOL", vm->stack);
 	}
-	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.i && right_val->val.i))));
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.i && right_val->val.i))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -471,15 +564,21 @@ void CMD_OROR(void* input)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
 	if (left_val->type != BOOL_TYPE() || right_val->type != BOOL_TYPE())
 	{
 		vm->error("Expected left and right to be of type BOOL", vm->stack);
 	}
-	push_stack(vm->stack, inst_value(value(left_val->type, base_float(left_val->val.i || right_val->val.i))));
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.i || right_val->val.i))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -493,11 +592,18 @@ void CMD_SELECT(void* input)
 	PVALUE right_val;
 	PARRAY arr;
 	PVALUE tmp;
-	left = pop_stack(vm->work);
-	right = pop_stack(vm->work);
-	left_val = get_value(vm->stack, left);
-	right_val = get_value(vm->stack, right);
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
 	//ToDo: implement more select variants https://community.bistudio.com/wiki/select
+
 
 	if (left_val->type == ARRAY_TYPE())
 	{
@@ -505,7 +611,7 @@ void CMD_SELECT(void* input)
 		if (right_val->type == SCALAR_TYPE())
 		{
 			tmp = arr->data[(int)roundf(right_val->val.f)];
-			push_stack(vm->stack, inst_value(value(tmp->type, tmp->val)));
+			push_stack(vm, vm->stack, inst_value(value(tmp->type, tmp->val)));
 		}
 		else
 		{
@@ -559,7 +665,7 @@ void custom_error(const char* errMsg, PSTACK stack)
 	sprintf(str, "ERROR: %s\n", errMsg);
 	str[len] = '\0';
 	string_modify_append(outputbuffer, str);
-	longjmp(program_exit, 1);
+	//longjmp(program_exit, 1);
 }
 
 #ifdef _WIN32
@@ -645,7 +751,7 @@ __attribute__((visibility("default"))) char* start_program(char* input)
 	val = setjmp(program_exit);
 	if (!val)
 	{
-		push_stack(vm->stack, inst_scope("all"));
+		push_stack(vm, vm->stack, inst_scope("all"));
 		parse(vm, input);
 		execute(vm);
 	}
@@ -655,10 +761,10 @@ __attribute__((visibility("default"))) char* start_program(char* input)
 void main(int argc, char** argv)
 {
 	char linebuffer[LINEBUFFER_SIZE];
-	char* ptr;
+	char* ptr = 0;
 	int i = 1;
 	PVM vm;
-	//_CrtSetBreakAlloc(177);
+	//_CrtSetBreakAlloc(447);
 	/*
 	Test 'file'
 	1: private _test = 10 + 12.5;
@@ -670,27 +776,27 @@ void main(int argc, char** argv)
 	*/
 
 	////Create root scope
-	//push_stack(vm->stack, inst_scope("all"));
+	//push_stack(vm, vm->stack, inst_scope("all"));
 	////diag_log _foo
-	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	//push_stack(vm->stack, inst_load_var("_foo"));
+	//push_stack(vm, vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
+	//push_stack(vm, vm->stack, inst_load_var("_foo"));
 	////_foo = _test
-	//push_stack(vm->stack, inst_store_var("_foo"));
-	//push_stack(vm->stack, inst_load_var("_test"));
+	//push_stack(vm, vm->stack, inst_store_var("_foo"));
+	//push_stack(vm, vm->stack, inst_load_var("_test"));
 	////diag_log _foo
-	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	//push_stack(vm->stack, inst_load_var("_foo"));
+	//push_stack(vm, vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
+	//push_stack(vm, vm->stack, inst_load_var("_foo"));
 	////_foo = "test"
-	//push_stack(vm->stack, inst_store_var("_foo"));
-	//push_stack(vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("test")))));
+	//push_stack(vm, vm->stack, inst_store_var("_foo"));
+	//push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("test")))));
 	////diag_log _test
-	//push_stack(vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	//push_stack(vm->stack, inst_load_var("_test"));
+	//push_stack(vm, vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
+	//push_stack(vm, vm->stack, inst_load_var("_test"));
 	////private _test = 10 + 12.5
-	//push_stack(vm->stack, inst_store_var_local("_test"));
-	//push_stack(vm->stack, inst_command(find_command(vm, "+", 'b')));
-	//push_stack(vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(10))));
-	//push_stack(vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(12.5))));
+	//push_stack(vm, vm->stack, inst_store_var_local("_test"));
+	//push_stack(vm, vm->stack, inst_command(find_command(vm, "+", 'b')));
+	//push_stack(vm, vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(10))));
+	//push_stack(vm, vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(12.5))));
 	//
 	//execute(vm);
 
@@ -705,7 +811,10 @@ void main(int argc, char** argv)
 		printf("%d:\t", i++);
 	}
 	//string_modify_append(pstr, "diag_log str [1, 2, \"test\", [1, 2, 3]]");
-	ptr = start_program(pstr->val);
+	if(pstr->length > 0)
+		ptr = start_program(pstr->val);
+	ptr = start_program("diag_log ([1,2,3,4,5,6,7,8,9,10,[1,2,3],[1,2,3],[1,2,3],[1,2,3]] select 11 select 1)");
+	ptr = start_program("diag_log ([1,2,3,4,5,6,7,8,9,10,[1,2,3],[1,2,3],[1,2,3],[1,2,3]] select 11 select 1)");
 	printf("-------------------------------------\n");
 	if (ptr == 0)
 	{
@@ -728,5 +837,5 @@ void main(int argc, char** argv)
 	}
 	destroy_sqfvm(vm);
 
-	_CrtDumpMemoryLeaks();
+	//_CrtDumpMemoryLeaks();
 }

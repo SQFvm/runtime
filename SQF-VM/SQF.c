@@ -12,8 +12,8 @@
 
 
 
-extern inline void push_stack(PSTACK stack, PINST inst);
-extern inline PINST pop_stack(PSTACK stack);
+extern inline void push_stack(PVM vm, PSTACK stack, PINST inst);
+extern inline PINST pop_stack(PVM vm, PSTACK stack);
 extern inline void register_command(PVM vm, PCMD cmd);
 
 
@@ -142,7 +142,7 @@ PVALUE find_var(PVM vm, const char* name)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
-			scope = get_scope(vm->stack, vm->stack->data[i]);
+			scope = get_scope(vm, vm->stack, vm->stack->data[i]);
 			for (j = 0; j < scope->varstack_top; j++)
 			{
 				if (str_cmpi(scope->varstack_name[j], -1, name, -1) == 0)
@@ -163,7 +163,7 @@ void set_var(PVM vm, const char* name, VALUE val)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
-			scope = get_scope(vm->stack, vm->stack->data[i]);
+			scope = get_scope(vm, vm->stack, vm->stack->data[i]);
 			if (first == 0)
 			{
 				first = scope;
@@ -189,7 +189,7 @@ PSCOPE top_scope(PVM vm)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
-			return get_scope(vm->stack, vm->stack->data[i]);
+			return get_scope(vm, vm->stack, vm->stack->data[i]);
 		}
 	}
 	return 0;
@@ -278,72 +278,72 @@ void execute(PVM vm)
 	PSCOPE scope;
 	while (vm->stack->top > 0)
 	{
-		inst = pop_stack(vm->stack);
+		inst = pop_stack(vm, vm->stack);
 		switch (inst->type)
 		{
 		case INST_NOP:
 			inst_destroy(inst);
 			break;
 		case INST_COMMAND:
-			get_command(vm->stack, inst)->callback(vm);
+			get_command(vm, vm->stack, inst)->callback(vm);
 			inst_destroy(inst);
 			break;
 		case INST_SCOPE:
 			inst_destroy(inst);
 			break;
 		case INST_LOAD_VAR:
-			val = find_var(vm, get_var_name(vm->stack, inst));
+			val = find_var(vm, get_var_name(vm, vm->stack, inst));
 			if (val == 0)
 			{
-				push_stack(vm->work, inst_nop());
+				push_stack(vm, vm->work, inst_nop());
 			}
 			else
 			{
-				push_stack(vm->work, inst_value(value(val->type, val->val)));
+				push_stack(vm, vm->work, inst_value(value(val->type, val->val)));
 			}
 			inst_destroy(inst);
 			break;
 		case INST_STORE_VAR:
-			val = find_var(vm, get_var_name(vm->stack, inst));
-			inst2 = pop_stack(vm->work);
+			val = find_var(vm, get_var_name(vm, vm->stack, inst));
+			inst2 = pop_stack(vm, vm->work);
 			if (val == 0)
 			{
 				scope = top_scope(vm);
-				val = get_value(vm->stack, inst2);
-				store_in_scope(vm, scope, get_var_name(vm->stack, inst), value(val->type, val->val));
+				val = get_value(vm, vm->stack, inst2);
+				store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
 			}
 			else
 			{
-				val2 = get_value(vm->stack, inst2);
-				set_var(vm, get_var_name(vm->stack, inst), value(val2->type, val2->val));
+				val2 = get_value(vm, vm->stack, inst2);
+				set_var(vm, get_var_name(vm, vm->stack, inst), value(val2->type, val2->val));
 			}
 			inst_destroy(inst2);
 			inst_destroy(inst);
 			break;
 		case INST_STORE_VAR_LOCAL:
 			scope = top_scope(vm);
-			inst2 = pop_stack(vm->work);
-			val = get_value(vm->stack, inst2);
-			store_in_scope(vm, scope, get_var_name(vm->stack, inst), value(val->type, val->val));
+			inst2 = pop_stack(vm, vm->work);
+			val = get_value(vm, vm->stack, inst2);
+			store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
 			inst_destroy(inst2);
 			inst_destroy(inst);
 			break;
 		case INST_VALUE:
-			push_stack(vm->work, inst);
+			push_stack(vm, vm->work, inst);
 			break;
 		case INST_ARR_PUSH:
 			inst_destroy(inst);
-			inst2 = pop_stack(vm->work);
-			inst = pop_stack(vm->work);
-			val = get_value(vm->stack, inst2);
-			array_push(((PARRAY)get_value(vm->stack, inst)->val.ptr), value(val->type, val->val));
-			push_stack(vm->work, inst);
+			inst2 = pop_stack(vm, vm->work);
+			inst = pop_stack(vm, vm->work);
+			val = get_value(vm, vm->stack, inst2);
+			array_push(((PARRAY)get_value(vm, vm->stack, inst)->val.ptr), value(val->type, val->val));
+			push_stack(vm, vm->work, inst);
 			inst_destroy(inst2);
 			break;
 		case INST_CODE_LOAD:
 			inst_destroy(inst);
-			inst = pop_stack(vm->work);
-			parse(vm, ((PCODE)get_value(vm->stack, inst)->val.ptr)->val);
+			inst = pop_stack(vm, vm->work);
+			parse(vm, ((PCODE)get_value(vm, vm->stack, inst)->val.ptr)->val);
 			inst_destroy(inst);
 			break;
 		}

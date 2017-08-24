@@ -4,10 +4,10 @@
 #include <malloc.h>
 #include <string.h>
 
-extern inline CPCMD get_command(PSTACK stack, PINST inst);
-extern inline PVALUE get_value(PSTACK stack, PINST inst);
-extern inline const char* get_var_name(PSTACK stack, PINST inst);
-extern inline PSCOPE get_scope(PSTACK stack, PINST inst);
+extern inline CPCMD get_command(PVM vm, PSTACK stack, PINST inst);
+extern inline PVALUE get_value(PVM vm, PSTACK stack, PINST inst);
+extern inline const char* get_var_name(PVM vm, PSTACK stack, PINST inst);
+extern inline PSCOPE get_scope(PVM vm, PSTACK stack, PINST inst);
 extern inline VALUE value(CPCMD type, BASE val);
 
 static inline PINST inst(DATA_TYPE dt)
@@ -92,6 +92,8 @@ PINST inst_code_load(void)
 
 void inst_destroy(PINST inst)
 {
+	if (inst == 0)
+		return;
 	switch (inst->type)
 	{
 		case INST_NOP:
@@ -99,19 +101,19 @@ void inst_destroy(PINST inst)
 		case INST_COMMAND:
 			break;
 		case INST_VALUE:
-			inst_destroy_value(get_value(0, inst));
+			inst_destroy_value(get_value(0, 0, inst));
 			break;
 		case INST_LOAD_VAR:
-			inst_destroy_var((char*)get_var_name(0, inst));
+			inst_destroy_var((char*)get_var_name(0, 0, inst));
 			break;
 		case INST_STORE_VAR:
-			inst_destroy_var((char*)get_var_name(0, inst));
+			inst_destroy_var((char*)get_var_name(0, 0, inst));
 			break;
 		case INST_SCOPE:
-			inst_destroy_scope(get_scope(0, inst));
+			inst_destroy_scope(get_scope(0, 0, inst));
 			break;
 		case INST_STORE_VAR_LOCAL:
-			inst_destroy_var((char*)get_var_name(0, inst));
+			inst_destroy_var((char*)get_var_name(0, 0, inst));
 			break;
 		case INST_ARR_PUSH:
 			break;
