@@ -31,8 +31,9 @@ PCMD IF_TYPE(void)
 	}
 	return cmd;
 }
-void TYPE_CODE_CALLBACK(PVALUE val)
+void TYPE_CODE_CALLBACK(void* input)
 {
+	PVALUE val = input;
 	PCODE code = val->val.ptr;
 	if (val->type == 0)
 	{
@@ -73,8 +74,9 @@ void code_destroy(PCODE code)
 }
 
 
-void TYPE_STRING_CALLBACK(PVALUE val)
+void TYPE_STRING_CALLBACK(void* input)
 {
+	PVALUE val = input;
 	PSTRING string = val->val.ptr;
 	if (val->type == 0)
 	{
@@ -159,8 +161,9 @@ void string_modify_append(PSTRING string, const char* append)
 }
 
 
-void TYPE_ARRAY_CALLBACK(PVALUE val)
+void TYPE_ARRAY_CALLBACK(void* input)
 {
+	PVALUE val = input;
 	PARRAY arr = val->val.ptr;
 	if (val->type == 0)
 	{

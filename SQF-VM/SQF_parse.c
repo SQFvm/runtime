@@ -7,9 +7,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#ifdef __linx
+#ifdef __linux
 #include <alloca.h>
-#endif // __linx
+#endif // __linux
 
 
 void tokenize(TR_ARR* arr, const char* code)
@@ -505,7 +505,7 @@ void parse(PVM vm, const char* code)
 	TR_ARR* arr = tr_arr_create();
 	int i, j = -1;
 	int codecount = 0;
-	char* str;
+	const char* str;
 	TEXTRANGE range;
 	tokenize(arr, code);
 	push_stack(vm->stack, inst_scope("all"));

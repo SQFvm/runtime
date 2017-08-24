@@ -1,4 +1,5 @@
 #include "textrange.h"
+#include <malloc.h>
 
 TR_ARR* tr_arr_create(void)
 {
