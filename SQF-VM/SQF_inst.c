@@ -64,9 +64,17 @@ PINST inst_scope(const char* name)
 	PINST p = inst(INST_SCOPE);
 	PSCOPE s = malloc(sizeof(SCOPE));
 	p->data.ptr = s;
-	s->name_len = strlen(name);
-	s->name = malloc(sizeof(char) * (s->name_len + 1));
-	strcpy(s->name, name);
+	if (name != 0)
+	{
+		s->name_len = strlen(name);
+		s->name = malloc(sizeof(char) * (s->name_len + 1));
+		strcpy(s->name, name);
+	}
+	else
+	{
+		s->name = 0;
+		s->name_len = 0;
+	}
 	s->varstack_size = 32;
 	s->varstack_top = 0;
 	s->varstack_name = malloc(sizeof(char*) * s->varstack_size);
@@ -120,7 +128,10 @@ void inst_destroy(PINST inst)
 void inst_destroy_scope(PSCOPE scope)
 {
 	int i;
-	free(scope->name);
+	if (scope->name != 0)
+	{
+		free(scope->name);
+	}
 	for (i = 0; i < scope->varstack_top; i++)
 	{
 		inst_destroy_value(scope->varstack_value[i]);
