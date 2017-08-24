@@ -176,6 +176,22 @@ CPCMD fndcmd(PVM vm, const char* name, unsigned int len)
 	}
 	return 0;
 }
+CPCMD fndcmd2(PVM vm, const char* name, unsigned int len, unsigned char filter)
+{
+	int i;
+	PCMD cmd;
+	for (i = 0; i < vm->cmds_top; i++)
+	{
+		cmd = vm->cmds[i];
+		if (!(cmd->type_code & filter))
+			continue;
+		if (strncmpi(cmd->name, cmd->name_len, name, len) == 0)
+		{
+			return cmd;
+		}
+	}
+	return 0;
+}
 void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end)
 {
 	TEXTRANGE range;
@@ -369,7 +385,14 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 				bracecount++;
 			}
 		}
-		cmd = fndcmd(vm, str, range.length);
+		if (arr_start == i)
+		{
+			cmd = fndcmd2(vm, str, range.length, 4|8);
+		}
+		else
+		{
+			cmd = fndcmd(vm, str, range.length);
+		}
 		if (cmd == 0)
 		{
 			if (str[0] == '_' && smallest_cmd != 0 && str_cmpi(smallest_cmd->name, -1, "private", -1) == 0)
@@ -505,7 +528,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	parse_partial(vm, stack, code, arr, arr_start, j);
 	parse_partial(vm, stack, code, arr, j + 1, arr_end);
 }
-void parse(PVM vm, const char* code)
+void parse(PVM vm, const char* code, unsigned char createscope)
 {
 	TR_ARR* arr = tr_arr_create();
 	int i, j = -1;
@@ -513,7 +536,10 @@ void parse(PVM vm, const char* code)
 	const char* str;
 	TEXTRANGE range;
 	tokenize(arr, code);
-	push_stack(vm, vm->stack, inst_scope(NULL));
+	if (createscope)
+	{
+		push_stack(vm, vm->stack, inst_scope(NULL));
+	}
 	if (arr->top == 1)
 	{
 		parse_partial(vm, vm->stack, code, arr, 0, 1);

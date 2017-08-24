@@ -243,3 +243,56 @@ PCMD WHILE_TYPE(void)
 	}
 	return cmd;
 }
+
+
+
+void TYPE_FOR_CALLBACK(void* input, CPCMD self)
+{
+	PVALUE val = input;
+	PFOR f = val->val.ptr;
+	if (val->type == 0)
+	{
+		f->refcount--;
+		if (f->refcount <= 0)
+		{
+			for_destroy(f);
+		}
+	}
+	else
+	{
+		f->refcount++;
+	}
+}
+PCMD FOR_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("FOR", 't', TYPE_FOR_CALLBACK, 0, NULL);
+	}
+	return cmd;
+}
+PFOR for_create(const char* varname)
+{
+	PFOR f = malloc(sizeof(FOR));
+	int len = strlen(varname);
+	f->variable = malloc(sizeof(char) * (len + 1));
+	strcpy(f->variable, varname);
+	f->variable[len] = '\0';
+	f->variable_length = len;
+	f->start = 0;
+	f->end = 0;
+	f->step = 1;
+	f->started = 0;
+	f->refcount = 0;
+
+	return f;
+}
+void for_destroy(PFOR f)
+{
+	if (f->variable != 0)
+	{
+		free(f->variable);
+	}
+	free(f);
+}

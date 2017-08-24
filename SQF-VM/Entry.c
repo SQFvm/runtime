@@ -36,7 +36,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	{
 		string_modify_append(str, val->val.i > 0 ? "true" : "false");
 	}
-	else if (val->type == CODE_TYPE())
+	else if (val->type == CODE_TYPE() || val->type == WHILE_TYPE())
 	{
 		string_modify_append(str, "{");
 		string_modify_append(str, ((PCODE)val->val.ptr)->val);
@@ -154,6 +154,24 @@ void CMD_MINUS(void* input, CPCMD self)
 	}
 	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f - right_val->val.f))));
 	inst_destroy(left);
+	inst_destroy(right);
+}void CMD_MINUS_UNARY(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
+	}
+	push_stack(vm, vm->stack, inst_value(value(right_val->type, base_float(-right_val->val.f))));
 	inst_destroy(right);
 }
 void CMD_MULTIPLY(void* input, CPCMD self)
@@ -336,7 +354,7 @@ void CMD_THEN(void* input, CPCMD self)
 		}
 		if (code != 0)
 		{
-			push_stack(vm, vm->stack, inst_code_load());
+			push_stack(vm, vm->stack, inst_code_load(1));
 			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(code))));
 		}
 	}
@@ -344,7 +362,7 @@ void CMD_THEN(void* input, CPCMD self)
 	{
 		if (left_val->val.i)
 		{
-			push_stack(vm, vm->stack, inst_code_load());
+			push_stack(vm, vm->stack, inst_code_load(1));
 			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(right_val->val.ptr))));
 		}
 	}
@@ -399,7 +417,7 @@ void CMD_HELP(void* input, CPCMD self)
 	int i;
 	CPCMD cmd;
 	printf("GLOBAL variables are treated as LOCAL too!\n");
-	printf("ERRORS will probably result in crash\n");
+	printf("ERRORS might result in crash\n\n");
 	printf("NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
 	for (i = 0; i < vm->cmds_top; i++)
 	{
@@ -444,7 +462,21 @@ void CMD_LARGETTHEN(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f > right_val->val.f))));
+	if (left_val->type != SCALAR_TYPE())
+	{
+		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f > right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -465,7 +497,21 @@ void CMD_LESSTHEN(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f < right_val->val.f))));
+	if (left_val->type != SCALAR_TYPE())
+	{
+		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f < right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -486,7 +532,21 @@ void CMD_LARGETTHENOREQUAL(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f >= right_val->val.f))));
+	if (left_val->type != SCALAR_TYPE())
+	{
+		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f >= right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -507,7 +567,21 @@ void CMD_LESSTHENOREQUAL(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f <= right_val->val.f))));
+	if (left_val->type != SCALAR_TYPE())
+	{
+		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f <= right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -528,7 +602,21 @@ void CMD_EQUAL(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f == right_val->val.f))));
+	if (left_val->type != SCALAR_TYPE())
+	{
+		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f == right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -660,6 +748,7 @@ void CMD_DO(void* input, CPCMD self)
 	PVALUE right_val;
 	PCODE code;
 	PCODE pwhile;
+	PFOR pfor;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
 	left_val = get_value(vm, vm->stack, left);
@@ -687,11 +776,40 @@ void CMD_DO(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_command(find_command(vm, "do", 'b')));
 		push_stack(vm, vm->stack, left);
 		push_stack(vm, vm->stack, right);
-		push_stack(vm, vm->stack, inst_code_load());
+		push_stack(vm, vm->stack, inst_code_load(0));
 		push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(code))));
 		push_stack(vm, vm->stack, inst_pop_eval(5, 0));
-		push_stack(vm, vm->stack, inst_code_load());
+		push_stack(vm, vm->stack, inst_code_load(0));
 		push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), left_val->val)));
+	}
+	else if (left_val->type == FOR_TYPE())
+	{
+		pfor = left_val->val.ptr;
+		if (pfor->started)
+		{
+			pfor->current += pfor->step;
+		}
+		else
+		{
+			pfor->current = pfor->start;
+			pfor->started = 1;
+		}
+		if (pfor->step > 0 ? pfor->current < pfor->end : pfor->current > pfor->end)
+		{
+			push_stack(vm, vm->stack, inst_command(find_command(vm, "do", 'b')));
+			push_stack(vm, vm->stack, left);
+			push_stack(vm, vm->stack, right);
+			push_stack(vm, vm->stack, inst_scope("loop"));
+			push_stack(vm, vm->stack, inst_code_load(0));
+			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), right_val->val)));
+			push_stack(vm, vm->stack, inst_store_var_local(pfor->variable));
+			push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(pfor->current))));
+		}
+		else
+		{
+			inst_destroy(left);
+			inst_destroy(right);
+		}
 	}
 	else
 	{
@@ -701,6 +819,160 @@ void CMD_DO(void* input, CPCMD self)
 		return;
 	}
 }
+void CMD_TYPENAME(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSTRING str;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	str = string_create2(right_val->type->name);
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
+	inst_destroy(right);
+}
+
+void CMD_FOR(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PFOR f;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error("EXPECTED RIGHT TYPE TO BE STRING", vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = for_create(((PSTRING)right_val->val.ptr)->val);
+	push_stack(vm, vm->stack, inst_value(value(FOR_TYPE(), base_voidptr(f))));
+	inst_destroy(right);
+}
+void CMD_FROM(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PFOR f;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != FOR_TYPE())
+	{
+		vm->error("EXPECTED LEFT TYPE TO BE FOR", vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error("EXPECTED RIGHT TYPE TO BE SCALAR", vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	f = left_val->val.ptr;
+	f->start = (int)roundf(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(FOR_TYPE(), base_voidptr(f))));
+	inst_destroy(left);
+	inst_destroy(right);
+}
+void CMD_TO(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PFOR f;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != FOR_TYPE())
+	{
+		vm->error("EXPECTED LEFT TYPE TO BE FOR", vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error("EXPECTED RIGHT TYPE TO BE SCALAR", vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	f = left_val->val.ptr;
+	f->end = (int)roundf(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(FOR_TYPE(), base_voidptr(f))));
+	inst_destroy(left);
+	inst_destroy(right);
+}
+void CMD_STEP(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PFOR f;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != FOR_TYPE())
+	{
+		vm->error("EXPECTED LEFT TYPE TO BE FOR", vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error("EXPECTED RIGHT TYPE TO BE SCALAR", vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	f = left_val->val.ptr;
+	f->step = right_val->val.f;
+	push_stack(vm, vm->stack, inst_value(value(FOR_TYPE(), base_voidptr(f))));
+	inst_destroy(left);
+	inst_destroy(right);
+}
+
 
 char* get_line(char* line, size_t lenmax)
 {
@@ -747,7 +1019,6 @@ __declspec(dllexport) char* start_program(const char* input)
 #else
 __attribute__((visibility("default"))) char* start_program(const char* input)
 #endif
-
 {
 	PVM vm = sqfvm(1000, 50, 100);
 	vm->error = custom_error;
@@ -773,7 +1044,7 @@ __attribute__((visibility("default"))) char* start_program(const char* input)
 	register_command(vm, create_command("NaN", 't', 0, 0));
 	//register_command(vm, create_command("IF", 't', 0, 0));
 	//register_command(vm, create_command("WHILE", 't', 0, 0));
-	register_command(vm, create_command("FOR", 't', 0, 0));
+	/register_command(vm, create_command("FOR", 't', 0, 0));
 	register_command(vm, create_command("SWITCH", 't', 0, 0));
 	register_command(vm, create_command("EXCEPTION", 't', 0, 0));
 	register_command(vm, create_command("WITH", 't', 0, 0));
@@ -813,22 +1084,33 @@ __attribute__((visibility("default"))) char* start_program(const char* input)
 	register_command(vm, create_command("select", 'b', CMD_SELECT, 10, "<ARRAY> select <SCALAR>"));
 	register_command(vm, create_command("then", 'b', CMD_THEN, 5, "<IF> then <ARRAY>"));
 	register_command(vm, create_command("else", 'b', CMD_ELSE, 6, "<CODE> else <CODE>"));
-	register_command(vm, create_command("do", 'b', CMD_DO, 0, "<WHILE> DO <CODE>"));
+	register_command(vm, create_command("do", 'b', CMD_DO, 0, "<WHILE> do <CODE>"));
+	register_command(vm, create_command("from", 'b', CMD_FROM, 0, "<FOR> from <SCALAR>"));
+	register_command(vm, create_command("to", 'b', CMD_TO, 0, "<FOR> to <SCALAR>"));
+	register_command(vm, create_command("step", 'b', CMD_STEP, 0, "<FOR> step <SCALAR>"));
 
 	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>"));
 	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0, "private <STRING>"));
 	register_command(vm, create_command("if", 'u', CMD_IF, 0, "if <BOOL>"));
 	register_command(vm, create_command("str", 'u', CMD_STR, 0, "str <ANY>"));
 	register_command(vm, create_command("while", 'u', CMD_WHILE, 0, "while <CODE>"));
+	register_command(vm, create_command("typeName", 'u', CMD_TYPENAME, 0, "typeName <ANY>"));
+	register_command(vm, create_command("for", 'u', CMD_FOR, 0, "for <STRING>"));
+	register_command(vm, create_command("-", 'u', CMD_MINUS_UNARY, 8, "- <SCALAR>"));
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
 	register_command(vm, create_command("false", 'n', CMD_FALSE, 0, "false"));
+
+
+
+
+
 	register_command(vm, create_command("help", 'n', CMD_HELP, 0, "Displays this help text."));
 	val = setjmp(program_exit);
 	if (!val)
 	{
 		push_stack(vm, vm->stack, inst_scope("all"));
-		parse(vm, input);
+		parse(vm, input, 1);
 		execute(vm);
 	}
 	destroy_sqfvm(vm);

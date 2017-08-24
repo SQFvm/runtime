@@ -15,7 +15,7 @@
 
 void tokenize(TR_ARR* arr, const char* code);
 void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end);
-void parse(PVM vm, const char* code);
+void parse(PVM vm, const char* code, unsigned char createscope);
 
 
 #endif // !_SQF_PARSE_H_

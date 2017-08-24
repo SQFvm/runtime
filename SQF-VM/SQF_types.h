@@ -13,6 +13,7 @@ PCMD BOOL_TYPE(void);
 PCMD IF_TYPE(void);
 PCMD WHILE_TYPE(void);
 
+
 typedef struct CODE
 {
 	char* val;
@@ -63,6 +64,22 @@ void array_destroy(PARRAY arr);
 void array_resize(PARRAY arr, unsigned int newsize);
 void array_push(PARRAY arr, VALUE val);
 
+
+typedef struct FOR
+{
+	char* variable;
+	unsigned int variable_length;
+	int start;
+	int end;
+	float step;
+	float current;
+	int refcount;
+	unsigned char started;
+}FOR;
+PCMD FOR_TYPE(void);
+typedef FOR* PFOR;
+PFOR for_create(const char* varname);
+void for_destroy(PFOR f);
 
 
 

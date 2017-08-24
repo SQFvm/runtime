@@ -86,9 +86,11 @@ PINST inst_arr_push(void)
 {
 	return inst(INST_ARR_PUSH);
 }
-PINST inst_code_load(void)
+PINST inst_code_load(unsigned char createscope)
 {
-	return inst(INST_CODE_LOAD);
+	PINST p = inst(INST_CODE_LOAD);
+	p->data.c = createscope;
+	return p;
 }
 PINST inst_pop_eval(unsigned int ammount, unsigned char popon)
 {

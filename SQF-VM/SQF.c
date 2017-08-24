@@ -16,7 +16,7 @@ extern inline void push_stack(PVM vm, PSTACK stack, PINST inst);
 extern inline PINST pop_stack(PVM vm, PSTACK stack);
 extern inline void register_command(PVM vm, PCMD cmd);
 
-#define SQF_VM_INTERNAL_TYPE_COUNT 7
+#define SQF_VM_INTERNAL_TYPE_COUNT 8
 PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size)
 {
 	PVM vm = malloc(sizeof(VM));
@@ -42,6 +42,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 
 	register_command(vm, IF_TYPE());
 	register_command(vm, WHILE_TYPE());
+	register_command(vm, FOR_TYPE());
 	return vm;
 }
 void destroy_sqfvm(PVM vm)
@@ -109,7 +110,7 @@ PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, co
 	strcpy(command->name, name);
 	command->precedence_level = precedence;
 	command->type = type;
-	command->type_code = type == 't' ? 0 : type == 'b' ? 1 : type == 'u' ? 2 : 3;
+	command->type_code = type == 't' ? 1 : type == 'b' ? 2 : type == 'u' ? 4 : 8;
 	command->callback = fnc;
 	if (desc != 0)
 	{
@@ -343,9 +344,11 @@ void execute(PVM vm)
 			inst_destroy(inst2);
 			break;
 		case INST_CODE_LOAD:
+			i = inst->data.c ? 0 : 1;
 			inst_destroy(inst);
 			inst = pop_stack(vm, vm->work);
-			parse(vm, ((PCODE)get_value(vm, vm->stack, inst)->val.ptr)->val);
+			val = get_value(vm, vm->stack, inst);
+			parse(vm, ((PCODE)val->val.ptr)->val, i);
 			inst_destroy(inst);
 			break;
 		case INST_POP_EVAL:
