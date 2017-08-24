@@ -108,9 +108,9 @@ PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, co
 	command->type = type;
 	command->type_code = type == 't' ? 0 : type == 'b' ? 1 : type == 'u' ? 2 : 3;
 	command->callback = fnc;
-	len = strlen(desc);
 	if (desc != 0)
 	{
+		len = strlen(desc);
 		command->description = malloc(sizeof(char) * (len + 1));
 		command->description_len = len;
 		strcpy(command->description, desc);
