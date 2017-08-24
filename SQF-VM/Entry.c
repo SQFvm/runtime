@@ -813,8 +813,6 @@ void main(int argc, char** argv)
 	//string_modify_append(pstr, "diag_log str [1, 2, \"test\", [1, 2, 3]]");
 	if(pstr->length > 0)
 		ptr = start_program(pstr->val);
-	ptr = start_program("diag_log ([1,2,3,4,5,6,7,8,9,10,[1,2,3],[1,2,3],[1,2,3],[1,2,3]] select 11 select 1)");
-	ptr = start_program("diag_log ([1,2,3,4,5,6,7,8,9,10,[1,2,3],[1,2,3],[1,2,3],[1,2,3]] select 11 select 1)");
 	printf("-------------------------------------\n");
 	if (ptr == 0)
 	{
