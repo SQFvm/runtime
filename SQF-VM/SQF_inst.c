@@ -8,6 +8,7 @@ extern inline CPCMD get_command(PSTACK stack, PINST inst);
 extern inline PVALUE get_value(PSTACK stack, PINST inst);
 extern inline const char* get_var_name(PSTACK stack, PINST inst);
 extern inline PSCOPE get_scope(PSTACK stack, PINST inst);
+extern inline VALUE value(CPCMD type, BASE val);
 
 static inline PINST inst(DATA_TYPE dt)
 {
