@@ -126,25 +126,12 @@ void CMD_DIAG_LOG(void* input)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	char* ptr;
-	int len;
+	PSTRING str = string_create(0);
 	right = pop_stack(vm->work);
 	right_val = get_value(vm->stack, right);
-	if (right_val->type == STRING_TYPE())
-	{
-		len = ((PSTRING)right_val->val.ptr)->length;
-		if (len > 1024)
-			len = 1024;
-		ptr = alloca(sizeof(char) * (len + 2));
-		sprintf(ptr, "%.*s\n", 1024, ((PSTRING)right_val->val.ptr)->val);
-		ptr[len + 1] = '\0';
-		string_modify_append(outputbuffer, ptr);
-	}
-	else
-	{
-		vm->error("expected string", vm->stack);
-	}
-
+	stringify_value(vm, str, right_val);
+	string_modify_append(outputbuffer, str->val);
+	string_destroy(str);
 	inst_destroy(right);
 }
 void CMD_PRIVATE(void* input)
@@ -586,6 +573,7 @@ __attribute__((visibility("default"))) char* start_program(char* input)
 	val = setjmp(program_exit);
 	if (!val)
 	{
+		push_stack(vm->stack, inst_scope("all"));
 		parse(vm, input);
 		execute(vm);
 	}

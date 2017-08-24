@@ -508,7 +508,7 @@ void parse(PVM vm, const char* code)
 	const char* str;
 	TEXTRANGE range;
 	tokenize(arr, code);
-	push_stack(vm->stack, inst_scope("all"));
+	push_stack(vm->stack, inst_scope(NULL));
 	if (arr->top == 1)
 	{
 		parse_partial(vm, vm->stack, code, arr, 0, 1);
