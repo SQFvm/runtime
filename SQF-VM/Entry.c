@@ -1,3 +1,4 @@
+
 #include "textrange.h"
 #include "SQF.h"
 #include "SQF_types.h"
@@ -11,6 +12,7 @@
 #include <string.h>
 #include <setjmp.h>
 //#include <crtdbg.h>
+
 
 static PSTRING outputbuffer = 0;
 static jmp_buf program_exit;
@@ -1116,12 +1118,14 @@ __attribute__((visibility("default"))) char* start_program(const char* input)
 	destroy_sqfvm(vm);
 	return outputbuffer->val;
 }
+
 void main(int argc, char** argv)
 {
 	char linebuffer[LINEBUFFER_SIZE];
 	char* ptr = 0;
 	int i = 1;
 	PVM vm;
+	PSTRING pstr;
 	//_CrtSetBreakAlloc(447);
 	/*
 	Test 'file'
@@ -1160,7 +1164,8 @@ void main(int argc, char** argv)
 
 	//parse(vm, "private _test = 10 + 12.5; diag_log _test; _foo = \"test\"; diag_log _foo; _foo = _test; diag_log _foo");
 	//execute(vm);
-	PSTRING pstr = string_create(0);
+
+	pstr = string_create(0);
 	printf("Please enter your SQF code.\nTo get the capabilities, use the `help` instruction.\nTo run the code, Press <ENTER> twice.\n");
 	printf("%d:\t", i++);
 	while (get_line(linebuffer, LINEBUFFER_SIZE)[0] != '\n')
