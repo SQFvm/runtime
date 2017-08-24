@@ -137,6 +137,8 @@ void inst_destroy_scope(PSCOPE scope)
 		inst_destroy_value(scope->varstack_value[i]);
 		free(scope->varstack_name[i]);
 	}
+	free(scope->varstack_name);
+	free(scope->varstack_value);
 	free(scope);
 }
 void inst_destroy_value(PVALUE val)
