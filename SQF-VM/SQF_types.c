@@ -1,8 +1,59 @@
+#include "string_map.h"
 #include "SQF.h"
 #include "SQF_types.h"
 
 #include <malloc.h>
 #include <string.h>
+
+PCMD SCALAR_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("SCALAR", 't', 0, 0, NULL);
+	}
+	return cmd;
+}
+PCMD BOOL_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("BOOL", 't', 0, 0, NULL);
+	}
+	return cmd;
+}
+PCMD IF_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("IF", 't', 0, 0, NULL);
+	}
+	return cmd;
+}
+PCMD WHILE_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("WHILE", 't', TYPE_CODE_CALLBACK, 0, NULL);
+	}
+	return cmd;
+}
+PCMD NOTHING_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("NOTHING", 't', TYPE_CODE_CALLBACK, 0, NULL);
+	}
+	return cmd;
+}
+
+
+
+
 
 void TYPE_CODE_CALLBACK(void* input, CPCMD self)
 {
@@ -207,42 +258,6 @@ void array_push(PARRAY arr, VALUE val)
 
 
 
-PCMD SCALAR_TYPE(void)
-{
-	static PCMD cmd = 0;
-	if (cmd == 0)
-	{
-		cmd = create_command("SCALAR", 't', 0, 0, NULL);
-	}
-	return cmd;
-}
-PCMD BOOL_TYPE(void)
-{
-	static PCMD cmd = 0;
-	if (cmd == 0)
-	{
-		cmd = create_command("BOOL", 't', 0, 0, NULL);
-	}
-	return cmd;
-}
-PCMD IF_TYPE(void)
-{
-	static PCMD cmd = 0;
-	if (cmd == 0)
-	{
-		cmd = create_command("IF", 't', 0, 0, NULL);
-	}
-	return cmd;
-}
-PCMD WHILE_TYPE(void)
-{
-	static PCMD cmd = 0;
-	if (cmd == 0)
-	{
-		cmd = create_command("WHILE", 't', TYPE_CODE_CALLBACK, 0, NULL);
-	}
-	return cmd;
-}
 
 
 
@@ -295,4 +310,102 @@ void for_destroy(PFOR f)
 		free(f->variable);
 	}
 	free(f);
+}
+
+
+void TYPE_NAMESPACE_CALLBACK(void* input, CPCMD self)
+{
+	PVALUE val = input;
+	PNAMESPACE namespace = val->val.ptr;
+	if (val->type == 0)
+	{
+		namespace->refcount--;
+		if (namespace->refcount <= 0)
+		{
+			namespace_destroy(namespace);
+		}
+	}
+	else
+	{
+		namespace->refcount++;
+	}
+}
+PCMD NAMESPACE_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("NAMESPACE", 't', TYPE_NAMESPACE_CALLBACK, 0, NULL);
+	}
+	return cmd;
+}
+PNAMESPACE namespace_create(void)
+{
+	PNAMESPACE namespace = malloc(sizeof(NAMESPACE));
+	namespace->refcount = 0;
+	namespace->data = sm_create_list(74, 10, 10);
+	return namespace;
+}
+void NAMESPACE_SM_LIST_DESTROY(void* ptr)
+{
+	PVALUE val = ptr;
+	inst_destroy_value(val);
+}
+void namespace_destroy(PNAMESPACE namespace)
+{
+	sm_destroy_list(namespace->data, NAMESPACE_SM_LIST_DESTROY);
+	free(namespace);
+}
+void namespace_set_var(PNAMESPACE namespace, const char* var, VALUE val)
+{
+	PVALUE value = malloc(sizeof(VALUE));
+	value->type = val.type;
+	value->val = val.val;
+	value = sm_set_value(namespace->data, var, value);
+	if (value != 0)
+	{
+		NAMESPACE_SM_LIST_DESTROY(value);
+	}
+}
+PVALUE namespace_get_var(PNAMESPACE namespace, const char* var)
+{
+	return sm_get_value(namespace->data, var);
+}
+
+
+PNAMESPACE sqf_missionNamespace(void)
+{
+	static PNAMESPACE ns = 0;
+	if (ns == 0)
+	{
+		ns = namespace_create();
+	}
+	return ns;
+}
+PNAMESPACE sqf_uiNamespace(void)
+{
+	static PNAMESPACE ns = 0;
+	if (ns == 0)
+	{
+		ns = namespace_create();
+	}
+	return ns;
+}
+PNAMESPACE sqf_profileNamespace(void)
+{
+	static PNAMESPACE ns = 0;
+	if (ns == 0)
+	{
+		ns = namespace_create();
+	}
+	return ns;
+}
+PNAMESPACE sqf_parsingNamespace(void)
+{
+	static PNAMESPACE ns = 0;
+	if (ns == 0)
+	{
+		ns = namespace_create();
+	}
+	return ns;
 }

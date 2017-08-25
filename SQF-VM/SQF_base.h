@@ -70,6 +70,7 @@ typedef struct VALUE
 typedef VALUE* PVALUE;
 
 //Scope structure containing required scope informations
+typedef struct NAMESPACE;
 typedef struct SCOPE
 {
 	char* name;
@@ -79,6 +80,7 @@ typedef struct SCOPE
 	VALUE** varstack_value;
 	unsigned int varstack_size;
 	unsigned int varstack_top;
+	NAMESPACE* ns;
 }SCOPE;
 typedef SCOPE* PSCOPE;
 

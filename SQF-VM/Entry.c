@@ -1,4 +1,4 @@
-
+#include "string_map.h"
 #include "textrange.h"
 #include "SQF.h"
 #include "SQF_types.h"
@@ -418,7 +418,6 @@ void CMD_HELP(void* input, CPCMD self)
 	PVM vm = input;
 	int i;
 	CPCMD cmd;
-	printf("GLOBAL variables are treated as LOCAL too!\n");
 	printf("ERRORS might result in crash\n\n");
 	printf("NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
 	for (i = 0; i < vm->cmds_top; i++)
@@ -974,6 +973,26 @@ void CMD_STEP(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
+void CMD_PARSINGNAMESPACE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_parsingNamespace()))));
+}
+void CMD_MISSIONNAMESPACE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_missionNamespace()))));
+}
+void CMD_UINAMESPACE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_uiNamespace()))));
+}
+void CMD_PROFILENAMESPACE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_profileNamespace()))));
+}
 
 
 char* get_line(char* line, size_t lenmax)
@@ -1040,9 +1059,9 @@ __attribute__((visibility("default"))) char* start_program(const char* input)
 	//register_command(vm, create_command("BOOL", 't', 0, 0));
 	//register_command(vm, create_command("ARRAY", 't', 0, 0));
 	//register_command(vm, create_command("STRING", 't', 0, 0));
-	register_command(vm, create_command("NOTHING", 't', 0, 0));
+	//register_command(vm, create_command("NOTHING", 't', 0, 0));
 	register_command(vm, create_command("ANY", 't', 0, 0));
-	register_command(vm, create_command("NAMESPACE", 't', 0, 0));
+	//register_command(vm, create_command("NAMESPACE", 't', 0, 0));
 	register_command(vm, create_command("NaN", 't', 0, 0));
 	//register_command(vm, create_command("IF", 't', 0, 0));
 	//register_command(vm, create_command("WHILE", 't', 0, 0));
@@ -1102,6 +1121,10 @@ __attribute__((visibility("default"))) char* start_program(const char* input)
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
 	register_command(vm, create_command("false", 'n', CMD_FALSE, 0, "false"));
+	register_command(vm, create_command("parsingNamespace", 'n', CMD_PARSINGNAMESPACE, 0, "parsingNamespace"));
+	register_command(vm, create_command("missionNamespace", 'n', CMD_MISSIONNAMESPACE, 0, "missionNamespace"));
+	register_command(vm, create_command("uiNamespace", 'n', CMD_UINAMESPACE, 0, "uiNamespace"));
+	register_command(vm, create_command("profileNamespace", 'n', CMD_PROFILENAMESPACE, 0, "profileNamespace"));
 
 
 

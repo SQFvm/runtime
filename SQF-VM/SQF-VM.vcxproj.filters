@@ -39,6 +39,9 @@
     <ClCompile Include="string_op.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="string_map.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SQF.h">
@@ -63,6 +66,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="string_op.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="string_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

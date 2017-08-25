@@ -1,5 +1,8 @@
+#include "basetype.h"
+#include "string_map.h"
 #include "SQF_base.h"
 #include "SQF_inst.h"
+#include "SQF_types.h"
 
 #include <malloc.h>
 #include <string.h>
@@ -80,6 +83,7 @@ PINST inst_scope(const char* name)
 	s->varstack_top = 0;
 	s->varstack_name = malloc(sizeof(char*) * s->varstack_size);
 	s->varstack_value = malloc(sizeof(VALUE*) * s->varstack_size);
+	s->ns = sqf_missionNamespace();
 	return p;
 }
 PINST inst_arr_push(void)

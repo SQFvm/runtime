@@ -1,3 +1,4 @@
+#include "string_map.h"
 #include "string_op.h"
 #include "textrange.h"
 #include "SQF.h"
@@ -16,7 +17,7 @@ extern inline void push_stack(PVM vm, PSTACK stack, PINST inst);
 extern inline PINST pop_stack(PVM vm, PSTACK stack);
 extern inline void register_command(PVM vm, PCMD cmd);
 
-#define SQF_VM_INTERNAL_TYPE_COUNT 8
+#define SQF_VM_INTERNAL_TYPE_COUNT 10
 PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size)
 {
 	PVM vm = malloc(sizeof(VM));
@@ -36,9 +37,9 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 	register_command(vm, ARRAY_TYPE());
 	register_command(vm, CODE_TYPE());
 	register_command(vm, STRING_TYPE());
+	register_command(vm, NOTHING_TYPE());
 
-
-
+	register_command(vm, NAMESPACE_TYPE());
 
 	register_command(vm, IF_TYPE());
 	register_command(vm, WHILE_TYPE());
@@ -295,39 +296,72 @@ void execute(PVM vm)
 			inst_destroy(inst);
 			break;
 		case INST_LOAD_VAR:
-			val = find_var(vm, get_var_name(vm, vm->stack, inst));
-			if (val == 0)
+			if (get_var_name(vm, vm->stack, inst)[0] == '_')
 			{
-				push_stack(vm, vm->work, inst_nop());
+				val = find_var(vm, get_var_name(vm, vm->stack, inst));
+				if (val == 0)
+				{
+					push_stack(vm, vm->work, inst_value(value(NOTHING_TYPE(), base_int(0))));
+				}
+				else
+				{
+					push_stack(vm, vm->work, inst_value(value(val->type, val->val)));
+				}
 			}
 			else
-			{
-				push_stack(vm, vm->work, inst_value(value(val->type, val->val)));
-			}
-			inst_destroy(inst);
-			break;
-		case INST_STORE_VAR:
-			val = find_var(vm, get_var_name(vm, vm->stack, inst));
-			inst2 = pop_stack(vm, vm->work);
-			if (val == 0)
 			{
 				scope = top_scope(vm);
-				val = get_value(vm, vm->stack, inst2);
-				store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+				val = namespace_get_var(scope->ns, get_var_name(vm, vm->stack, inst));
+				if (val == 0)
+				{
+					push_stack(vm, vm->work, inst_value(value(NOTHING_TYPE(), base_int(0))));
+				}
+				else
+				{
+					push_stack(vm, vm->work, inst_value(value(val->type, val->val)));
+				}
 			}
-			else
-			{
-				val2 = get_value(vm, vm->stack, inst2);
-				set_var(vm, get_var_name(vm, vm->stack, inst), value(val2->type, val2->val));
-			}
-			inst_destroy(inst2);
 			inst_destroy(inst);
 			break;
 		case INST_STORE_VAR_LOCAL:
 			scope = top_scope(vm);
 			inst2 = pop_stack(vm, vm->work);
 			val = get_value(vm, vm->stack, inst2);
-			store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+			if (get_var_name(vm, vm->stack, inst)[0] != '_')
+			{
+				vm->error("CANNOT PRIVATE GLOBAL VARIABLES", vm->stack);
+				push_stack(vm, vm->work, inst2);
+			}
+			else
+			{
+				store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+				inst_destroy(inst2);
+				inst_destroy(inst);
+				break;
+			}
+		case INST_STORE_VAR:
+			inst2 = pop_stack(vm, vm->work);
+			if (get_var_name(vm, vm->stack, inst)[0] == '_')
+			{
+				val = find_var(vm, get_var_name(vm, vm->stack, inst));
+				if (val == 0)
+				{
+					scope = top_scope(vm);
+					val = get_value(vm, vm->stack, inst2);
+					store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+				}
+				else
+				{
+					val2 = get_value(vm, vm->stack, inst2);
+					set_var(vm, get_var_name(vm, vm->stack, inst), value(val2->type, val2->val));
+				}
+			}
+			else
+			{
+				scope = top_scope(vm);
+				namespace_set_var(scope->ns, get_var_name(vm, vm->stack, inst), value(val2->type, val2->val));
+			}
+
 			inst_destroy(inst2);
 			inst_destroy(inst);
 			break;

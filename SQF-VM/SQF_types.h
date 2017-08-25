@@ -5,6 +5,9 @@
 #ifndef _SQF_H_
 #error "SQF_parse.h" has to be included after "SQF.h" 
 #endif // !_SQF_H_
+#ifndef _STRING_MAP_H_
+#error "SQF_parse.h" has to be included after "string_map.h" 
+#endif // !_STRING_MAP_H_
 
 //SQF.c --> sqfvm | Add TYPE command and if required deletion callback
 
@@ -12,6 +15,7 @@ PCMD SCALAR_TYPE(void);
 PCMD BOOL_TYPE(void);
 PCMD IF_TYPE(void);
 PCMD WHILE_TYPE(void);
+PCMD NOTHING_TYPE(void);
 
 
 typedef struct CODE
@@ -80,6 +84,25 @@ PCMD FOR_TYPE(void);
 typedef FOR* PFOR;
 PFOR for_create(const char* varname);
 void for_destroy(PFOR f);
+
+
+typedef struct NAMESPACE
+{
+	sm_list* data;
+	int refcount;
+}NAMESPACE;
+PCMD NAMESPACE_TYPE(void);
+typedef NAMESPACE* PNAMESPACE;
+PNAMESPACE namespace_create(void);
+void namespace_destroy(PNAMESPACE namespace);
+void namespace_set_var(PNAMESPACE namespace, const char* var, VALUE val);
+PVALUE namespace_get_var(PNAMESPACE namespace, const char* var);
+
+PNAMESPACE sqf_missionNamespace(void);
+PNAMESPACE sqf_uiNamespace(void);
+PNAMESPACE sqf_profileNamespace(void);
+PNAMESPACE sqf_parsingNamespace(void);
+
 
 
 

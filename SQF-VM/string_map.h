@@ -1,5 +1,5 @@
 #ifndef _STRING_MAP_H_
-
+#define _STRING_MAP_H_
 
 typedef struct sm_bucket
 {

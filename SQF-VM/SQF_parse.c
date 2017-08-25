@@ -1,3 +1,4 @@
+#include "string_map.h"
 #include "string_op.h"
 #include "textrange.h"
 #include "SQF.h"
