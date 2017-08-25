@@ -33,15 +33,7 @@ void tokenize(TR_ARR* arr, const char* code)
 		else
 		{
 			s = code[start];
-			if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
-			{
-				tr_arr_push(arr, (TEXTRANGE)
-				{
-					.start = start, .length = i - start
-				});
-				start = -1;
-			}
-			else if (s == '(' || s == '{' || s == '[' || s == ')' || s == '}' || s == ']' || s == ';' || s == '+' || s == '-' || s == '*' || s == '/' || s == ',')
+			if (s == '(' || s == '{' || s == '[' || s == ')' || s == '}' || s == ']' || s == ';' || s == '+' || s == '-' || s == '*' || s == '/' || s == ',')
 			{
 				tr_arr_push(arr, (TEXTRANGE)
 				{
@@ -123,6 +115,14 @@ void tokenize(TR_ARR* arr, const char* code)
 					});
 					start = -1;
 				}
+			}
+			else if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+			{
+				tr_arr_push(arr, (TEXTRANGE)
+				{
+					.start = start, .length = i - start
+				});
+				start = -1;
 			}
 			else
 			{
