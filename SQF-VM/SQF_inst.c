@@ -5,7 +5,7 @@
 #include "SQF_inst.h"
 #include "SQF_types.h"
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 
 extern inline CPCMD get_command(PVM vm, PSTACK stack, PINST inst);

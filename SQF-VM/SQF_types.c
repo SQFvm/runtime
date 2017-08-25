@@ -2,7 +2,7 @@
 #include "SQF.h"
 #include "SQF_types.h"
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 
 void TYPE_CODE_CALLBACK(void* input, CPCMD self);

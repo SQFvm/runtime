@@ -4,7 +4,7 @@
 #include "SQF.h"
 #include "SQF_types.h"
 #include "SQF_parse.h"
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
