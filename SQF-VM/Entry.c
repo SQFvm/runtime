@@ -4,7 +4,7 @@
 #include "SQF_types.h"
 #include "SQF_parse.h"
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 #ifdef __linux
 #include <alloca.h>
 #endif // _GCC
@@ -1145,7 +1145,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	return outputbuffer->val;
 }
 
-void main(int argc, char** argv)
+int main(int argc, char** argv)
 {
 	char linebuffer[LINEBUFFER_SIZE];
 	char* ptr = 0;
