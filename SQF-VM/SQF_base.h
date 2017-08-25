@@ -70,7 +70,7 @@ typedef struct VALUE
 typedef VALUE* PVALUE;
 
 //Scope structure containing required scope informations
-typedef struct NAMESPACE;
+struct NAMESPACE;
 typedef struct SCOPE
 {
 	char* name;
