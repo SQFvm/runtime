@@ -175,6 +175,8 @@ PSTRING string_substring(const PSTRING string, unsigned int start, int length)
 }
 void string_modify_append(PSTRING string, const char* append)
 {
+	if (append == 0)
+		return;
 	unsigned int len = strlen(append);
 	char* ptr = realloc(string->val, sizeof(char) * (string->length + len + 1));
 	if (ptr == 0)
