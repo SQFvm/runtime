@@ -41,29 +41,39 @@ namespace Discord_Bot
 
         private async Task Client_MessageReceived(SocketMessage arg)
         {
-            if (arg.MentionedUsers.Any((u) => Client.CurrentUser.Id == u.Id))
+            foreach(var u in arg.MentionedUsers)
             {
-                Console.WriteLine(string.Format("{0}#{1}\t{2}", arg.Source, arg.Author.Discriminator, arg.Content.Replace("\n", "\\n")));
-                string sqf = Regex.Replace(arg.Content, "<@[0-9]*>", string.Empty).Replace("```SQF", string.Empty).Replace("`", string.Empty).Trim();
-                sqf = Regex.Replace(sqf, @"[^\u0000-\u007F]+", string.Empty);
-                if(sqf.Length == 0)
+                if (Client.CurrentUser.Id == u.Id)
                 {
-                    await arg.Channel.SendMessageAsync("ERROR: `empty message`");
-                    return;
+                    Console.WriteLine(string.Format("{0}#{1}\t{2}", arg.Source, arg.Author.Discriminator, arg.Content.Replace("\n", "\\n")));
+                    string sqf = Regex.Replace(arg.Content, "<@[0-9]*>", string.Empty).Replace("```SQF", string.Empty).Replace("`", string.Empty).Trim();
+                    sqf = Regex.Replace(sqf, @"[^\u0000-\u007F]+", string.Empty);
+                    Exception exc = null;
+                    if (sqf.Length == 0)
+                    {
+                        await arg.Channel.SendMessageAsync("ERROR: `empty message`");
+                        return;
+                    }
+                    try
+                    {
+                        string result = SQF_VM.StartProgram(sqf);
+                        await arg.Channel.SendMessageAsync(string.Format("```sqf\n{0}```", string.IsNullOrWhiteSpace(result) ? "<EMPTY>" : result));
+                    }
+                    catch (Exception ex)
+                    {
+                        exc = ex;
+                    }
+                    if (exc != null)
+                    {
+                        await arg.Channel.SendMessageAsync(string.Format("ERROR: `{0}`", exc.Message));
+                    }
+                    break;
                 }
-                try
+                else if (arg.Author.Id == Client.CurrentUser.Id)
                 {
-                    string result = SQF_VM.StartProgram(sqf);
-                    await arg.Channel.SendMessageAsync(string.Format("```sqf\n{0}```", string.IsNullOrWhiteSpace(result) ? "<EMPTY>" : result));
+                    Console.WriteLine(string.Format("<SELF>\t{0}", arg.Content.Replace("\n", "\\n")));
+                    break;
                 }
-                catch(Exception ex)
-                {
-                    await arg.Channel.SendMessageAsync(string.Format("ERROR: `{0}`", ex.Message));
-                }
-            }
-            else if(arg.Author.Id == Client.CurrentUser.Id)
-            {
-                Console.WriteLine(string.Format("<SELF>\t{0}", arg.Content.Replace("\n", "\\n")));
             }
         }
 
