@@ -157,7 +157,8 @@ void CMD_MINUS(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f - right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
-}void CMD_MINUS_UNARY(void* input, CPCMD self)
+}
+void CMD_MINUS_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1036,9 +1037,9 @@ void custom_error(const char* errMsg, PSTACK stack)
 }
 
 #ifdef _WIN32
-__declspec(dllexport) char* start_program(const char* input)
+__declspec(dllexport) const char* start_program(const char* input)
 #else
-__attribute__((visibility("default"))) char* start_program(const char* input)
+__attribute__((visibility("default"))) const char* start_program(const char* input)
 #endif
 {
 	PVM vm = sqfvm(1000, 50, 100);
