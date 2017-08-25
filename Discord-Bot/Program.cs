@@ -23,7 +23,7 @@ namespace Discord_Bot
             var config = ConfigXml.Load("config.xml");
             Client = new DiscordSocketClient();
 
-            Console.WriteLine($"Logging in with token {config.Token}");
+            Console.WriteLine(string.Format("Logging in with token {0}", config.Token));
             await Client.LoginAsync(TokenType.Bot, config.Token);
             if(Client.LoginState == LoginState.LoggedOut)
             {
@@ -43,33 +43,33 @@ namespace Discord_Bot
         {
             if (arg.MentionedUsers.Any((u) => Client.CurrentUser.Id == u.Id))
             {
-                Console.WriteLine($"{arg.Author.Username}#{arg.Author.Discriminator}\t{arg.Content.Replace("\n", "\\n")}");
+                Console.WriteLine(string.Format("{0}#{1}\t{2}", arg.Source, arg.Author.Discriminator, arg.Content.Replace("\n", "\\n")));
                 string sqf = Regex.Replace(arg.Content, "<@[0-9]*>", string.Empty).Replace("```SQF", string.Empty).Replace("`", string.Empty).Trim();
                 sqf = Regex.Replace(sqf, @"[^\u0000-\u007F]+", string.Empty);
                 if(sqf.Length == 0)
                 {
-                    await arg.Channel.SendMessageAsync($"ERROR: `empty message`");
+                    await arg.Channel.SendMessageAsync("ERROR: `empty message`");
                     return;
                 }
                 try
                 {
                     string result = SQF_VM.StartProgram(sqf);
-                    await arg.Channel.SendMessageAsync($"```sqf\n{(string.IsNullOrWhiteSpace(result) ? "<EMPTY>" : result)}```");
+                    await arg.Channel.SendMessageAsync(string.Format("```sqf\n{0}```", string.IsNullOrWhiteSpace(result) ? "<EMPTY>" : result));
                 }
                 catch(Exception ex)
                 {
-                    await arg.Channel.SendMessageAsync($"ERROR: `{ex.Message}`");
+                    await arg.Channel.SendMessageAsync(string.Format("ERROR: `{0}`", ex.Message));
                 }
             }
             else if(arg.Author.Id == Client.CurrentUser.Id)
             {
-                Console.WriteLine($"<SELF>\t{arg.Content.Replace("\n", "\\n")}");
+                Console.WriteLine(string.Format("<SELF>\t{0}", arg.Content.Replace("\n", "\\n")));
             }
         }
 
         private static Task Client_Log(LogMessage arg)
         {
-            Console.WriteLine($"{arg.Source}:{arg.Severity}:{arg.Message}");
+            Console.WriteLine(string.Format("{0}:{1}:{2}", arg.Source, arg.Severity, arg.Message));
             return TaskDone;
         }
     }
