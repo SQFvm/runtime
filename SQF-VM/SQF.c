@@ -399,7 +399,7 @@ void execute(PVM vm)
 				}
 			}
 			val = get_value(vm, vm->stack, inst);
-			if (val == 0 || val->val.i > 0 && i || val->val.i == 0 && !i)
+			if (val == 0 || (val->val.i > 0 && i) || (val->val.i == 0 && !i))
 			{
 				for (; j >= 0; j--)
 				{
