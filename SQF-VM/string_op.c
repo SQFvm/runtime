@@ -221,7 +221,7 @@ unsigned int str_cmp(const char* lString, int lLen, const char* rString, int rLe
 	if (lLen != -1 && rLen != -1 && lLen != rLen)
 		return -1;
 	i = 0;
-	while (lLen != -1 && rLen != -1 && i < lLen || lString[i] != '\0' || rString[i] != '\0')
+	while ((lLen != -1 && rLen != -1 && i < lLen) || lString[i] != '\0' || rString[i] != '\0')
 	{
 		if (lString[i] != rString[i])
 		{
@@ -237,7 +237,7 @@ unsigned int str_cmpi(const char* lString, int lLen, const char* rString, int rL
 	if (lLen != -1 && rLen != -1 && lLen != rLen)
 		return -1;
 	i = 0;
-	while (lLen != -1 && rLen != -1 && i < lLen || lString[i] != '\0' || rString[i] != '\0')
+	while ((lLen != -1 && rLen != -1 && i < lLen) || lString[i] != '\0' || rString[i] != '\0')
 	{
 		if (tolower(lString[i]) != tolower(rString[i]))
 		{
