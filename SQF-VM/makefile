@@ -16,6 +16,8 @@ prog: basetype.c Entry.c SQF.c SQF_inst.c SQF_parse.c SQF_types.c string_map.c s
 	$(COMPILER) $(ARGS) -o prog basetype.o Entry.o SQF.o SQF_inst.o SQF_parse.o SQF_types.o string_map.o string_op.o textrange.o $(LIBS)
 
 clean:
+	rm prog
+	rm -f *.so
 	rm -f *.o
 	rm -f *.bak *~
 
