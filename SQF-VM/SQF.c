@@ -359,7 +359,8 @@ void execute(PVM vm)
 			else
 			{
 				scope = top_scope(vm);
-				namespace_set_var(scope->ns, get_var_name(vm, vm->stack, inst), value(val2->type, val2->val));
+				val = get_value(vm, vm->stack, inst2);
+				namespace_set_var(scope->ns, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
 			}
 
 			inst_destroy(inst2);
