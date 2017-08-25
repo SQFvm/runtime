@@ -80,7 +80,7 @@ typedef struct SCOPE
 	VALUE** varstack_value;
 	unsigned int varstack_size;
 	unsigned int varstack_top;
-	NAMESPACE* ns;
+	struct NAMESPACE* ns;
 }SCOPE;
 typedef SCOPE* PSCOPE;
 

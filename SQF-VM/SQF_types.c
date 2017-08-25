@@ -5,6 +5,7 @@
 #include <malloc.h>
 #include <string.h>
 
+void TYPE_CODE_CALLBACK(void* input, CPCMD self);
 PCMD SCALAR_TYPE(void)
 {
 	static PCMD cmd = 0;
@@ -46,7 +47,7 @@ PCMD NOTHING_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("NOTHING", 't', TYPE_CODE_CALLBACK, 0, NULL);
+		cmd = create_command("NOTHING", 't', 0, 0, NULL);
 	}
 	return cmd;
 }

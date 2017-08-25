@@ -3,10 +3,10 @@
 
 
 #ifndef _SQF_H_
-#error "SQF_parse.h" has to be included after "SQF.h" 
+#error "SQF_types.h" has to be included after "SQF.h" 
 #endif // !_SQF_H_
 #ifndef _STRING_MAP_H_
-#error "SQF_parse.h" has to be included after "string_map.h" 
+#error "SQF_types.h" has to be included after "string_map.h" 
 #endif // !_STRING_MAP_H_
 
 //SQF.c --> sqfvm | Add TYPE command and if required deletion callback
