@@ -58,9 +58,13 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 		}
 		string_modify_append(str, "]");
 	}
+	else if (val->type == NOTHING_TYPE())
+	{
+		string_modify_append(str, "<NOTHING>");
+	}
 	else
 	{
-		vm->error("STR TYPE MISSMATCH", vm->stack);
+		vm->error("STRINGIFY UNKNOWN TYPE", vm->stack);
 	}
 }
 
