@@ -33,7 +33,41 @@ void tokenize(TR_ARR* arr, const char* code)
 		else
 		{
 			s = code[start];
-			if (s == '(' || s == '{' || s == '[' || s == ')' || s == '}' || s == ']' || s == ';' || s == '+' || s == '-' || s == '*' || s == '/' || s == ',')
+			if (s == '"')
+			{
+				if (c == '"' && code[i + 1] == '"')
+				{
+					i++;
+				}
+				else if (c == '"')
+				{
+					tr_arr_push(arr, (TEXTRANGE)
+					{
+						.start = start, .length = i - start + 1
+					});
+					start = -1;
+				}
+			}
+			else if (s == '\'')
+			{
+				if (c == '\'')
+				{
+					tr_arr_push(arr, (TEXTRANGE)
+					{
+						.start = start, .length = i - start + 1
+					});
+					start = -1;
+				}
+			}
+			else if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+			{
+				tr_arr_push(arr, (TEXTRANGE)
+				{
+					.start = start, .length = i - start
+				});
+				start = -1;
+			}
+			else if (s == '(' || s == '{' || s == '[' || s == ')' || s == '}' || s == ']' || s == ';' || s == '+' || s == '-' || s == '*' || s == '/' || s == ',')
 			{
 				tr_arr_push(arr, (TEXTRANGE)
 				{
@@ -90,41 +124,7 @@ void tokenize(TR_ARR* arr, const char* code)
 					i--;
 				}
 			}
-			else if (s == '"')
-			{
-				if (c == '"' && code[i + 1] == '"')
-				{
-					i++;
-				}
-				else if (c == '"')
-				{
-					tr_arr_push(arr, (TEXTRANGE)
-					{
-						.start = start, .length = i - start + 1
-					});
-					start = -1;
-				}
-			}
-			else if (s == '\'')
-			{
-				if (c == '\'')
-				{
-					tr_arr_push(arr, (TEXTRANGE)
-					{
-						.start = start, .length = i - start + 1
-					});
-					start = -1;
-				}
-			}
-			else if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
-			{
-				tr_arr_push(arr, (TEXTRANGE)
-				{
-					.start = start, .length = i - start
-				});
-				start = -1;
-			}
-			else
+			else 
 			{
 			}
 		}
