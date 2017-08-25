@@ -78,7 +78,7 @@ void tokenize(TR_ARR* arr, const char* code)
 			}
 			else if (s >= '0' && s <= '9')
 			{
-				if (!(c >= '0' && c <= '9' || c == '.'))
+				if (!((c >= '0' && c <= '9') || c == '.'))
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
@@ -88,9 +88,9 @@ void tokenize(TR_ARR* arr, const char* code)
 					i--;
 				}
 			}
-			else if (s >= 'a' && s <= 'z' || s >= 'A' && s <= 'Z' || s == '_')
+			else if ((s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z') || s == '_')
 			{
-				if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_' || c >= '0' && c <= '9'))
+				if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || (c >= '0' && c <= '9')))
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
@@ -415,7 +415,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 			}
 			else
 			{
-				if (cmd->type_code < smallest_cmd->type_code || cmd->type_code == smallest_cmd->type_code && cmd->precedence_level <= smallest_cmd->precedence_level)
+				if (cmd->type_code < smallest_cmd->type_code || (cmd->type_code == smallest_cmd->type_code && cmd->precedence_level <= smallest_cmd->precedence_level))
 				{
 					smallest_cmd = cmd;
 					j = i;

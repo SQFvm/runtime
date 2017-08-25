@@ -59,7 +59,7 @@ inline PVALUE get_value(PVM vm, PSTACK stack, PINST inst)
 }
 inline const char* get_var_name(PVM vm, PSTACK stack, PINST inst)
 {
-	if (inst != 0 && inst->type == INST_LOAD_VAR || inst->type == INST_STORE_VAR || inst->type == INST_STORE_VAR_LOCAL)
+	if (inst != 0 && (inst->type == INST_LOAD_VAR || inst->type == INST_STORE_VAR || inst->type == INST_STORE_VAR_LOCAL))
 	{
 		return (const char*)inst->data.ptr;
 	}
