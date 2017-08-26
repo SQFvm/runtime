@@ -1,6 +1,6 @@
 #include "string_map.h"
 #include "string_op.h"
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 
 extern inline void* sm_get_value(sm_list* list, const char* name);

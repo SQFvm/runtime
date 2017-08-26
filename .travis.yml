@@ -4,10 +4,6 @@ os:
   - linux
   - osx
 
-matrix:
-  allow_failures:
-    - os: osx
-
 script:
   - cd SQF-VM
   - make
