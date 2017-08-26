@@ -15,6 +15,7 @@ typedef unsigned char DATA_TYPE;
 #define INST_ARR_PUSH ((DATA_TYPE)7)
 #define INST_CODE_LOAD ((DATA_TYPE)8)
 #define INST_POP_EVAL ((DATA_TYPE)9)
+#define INST_CLEAR_WORK ((DATA_TYPE)10)
 typedef struct INST
 {
 	DATA_TYPE type;

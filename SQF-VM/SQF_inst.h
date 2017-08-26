@@ -25,6 +25,7 @@ PINST inst_scope(const char* name);
 PINST inst_arr_push(void);
 PINST inst_code_load(unsigned char createscope);
 PINST inst_pop_eval(unsigned int ammount, unsigned char popon);
+PINST inst_clear_work(void);
 
 void inst_destroy(PINST inst);
 void inst_destroy_scope(PSCOPE scope);

@@ -106,6 +106,10 @@ PINST inst_pop_eval(unsigned int ammount, unsigned char popon)
 	popeval->popon = popon;
 	return p;
 }
+PINST inst_clear_work(void)
+{
+	return inst(INST_CLEAR_WORK);
+}
 
 
 void inst_destroy(PINST inst)
@@ -139,6 +143,8 @@ void inst_destroy(PINST inst)
 			break;
 		case INST_POP_EVAL:
 			inst_destroy_pop_eval(get_pop_eval(0, 0, inst));
+			break;
+		case INST_CLEAR_WORK:
 			break;
 		default:
 			#if _WIN32

@@ -576,6 +576,7 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 				else
 				{
 					parse_partial(vm, vm->stack, code, arr, i, j);
+					push_stack(vm, vm->stack, inst_clear_work());
 					j = i;
 				}
 			}
