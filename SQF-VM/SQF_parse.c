@@ -11,6 +11,9 @@
 #ifdef __linux
 #include <alloca.h>
 #endif // __linux
+#ifdef _WIN32
+#include <malloc.h>
+#endif // _WIN32
 
 
 void tokenize(TR_ARR* arr, const char* code)

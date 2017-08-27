@@ -8,6 +8,9 @@
 #ifdef __linux
 #include <alloca.h>
 #endif // _GCC
+#ifdef _WIN32
+#include <malloc.h>
+#endif // _WIN32
 #include <math.h>
 #include <string.h>
 #include <setjmp.h>
