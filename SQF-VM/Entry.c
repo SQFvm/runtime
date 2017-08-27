@@ -259,6 +259,7 @@ void CMD_DIAG_LOG(void* input, CPCMD self)
 	string_modify_append(outputbuffer, "\n");
 	string_destroy(str);
 	inst_destroy(right);
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
 void CMD_PRIVATE(void* input, CPCMD self)
 {
@@ -424,14 +425,25 @@ void CMD_HELP(void* input, CPCMD self)
 	PVM vm = input;
 	int i;
 	CPCMD cmd;
-	printf("ERRORS might result in crash\n\n");
-	printf("NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
+	char* buffer = 0;
+	unsigned int buffsize = 0, buffsize2;
+	string_modify_append(outputbuffer, "ERRORS might result in crash\n\n");
+	string_modify_append(outputbuffer, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
 	for (i = 0; i < vm->cmds_top; i++)
 	{
 		cmd = vm->cmds[i];
-		printf("%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+		string_modify_append(outputbuffer, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
+		buffsize2 = snprintf(0, 0, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+		if (buffsize2 > buffsize)
+		{
+			buffer = realloc(buffer, sizeof(char) * (buffsize2 + 1));
+			buffsize = buffsize2;
+		}
+		snprintf(buffer, buffsize, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+		string_modify_append(outputbuffer, buffer);
 	}
-
+	free(buffer);
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
 
 void CMD_STR(void* input, CPCMD self)
