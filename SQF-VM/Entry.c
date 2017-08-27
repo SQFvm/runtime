@@ -1200,7 +1200,7 @@ void custom_error(const char* errMsg, PSTACK stack)
 				{
 					if (j < dbginf->offset)
 					{
-						i = j;
+						i = j + 1;
 					}
 					else
 					{
