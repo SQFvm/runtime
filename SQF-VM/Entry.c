@@ -980,6 +980,36 @@ void CMD_TYPENAME(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
 	inst_destroy(right);
 }
+void CMD_COUNT_UNARY(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PCODE code;
+	PARRAY arr;
+	right = pop_stack(vm, vm->work);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	right_val = get_value(vm, vm->stack, right);
+
+	if (right_val->type == STRING_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(((PSTRING)right_val->val.ptr)->length))));
+	}
+	else if (right_val->type == ARRAY_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(((PARRAY)right_val->val.ptr)->top))));
+	}
+	else
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_STRING ERR_OR ERR_ARRAY, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+	}
+	inst_destroy(right);
+}
 
 void CMD_FOR(void* input, CPCMD self)
 {
@@ -1319,7 +1349,8 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("while", 'u', CMD_WHILE, 0, "while <CODE>"));
 	register_command(vm, create_command("typeName", 'u', CMD_TYPENAME, 0, "typeName <ANY>"));
 	register_command(vm, create_command("for", 'u', CMD_FOR, 0, "for <STRING>"));
-	register_command(vm, create_command("-", 'u', CMD_MINUS_UNARY, 8, "- <SCALAR>"));
+	register_command(vm, create_command("-", 'u', CMD_MINUS_UNARY, 0, "- <SCALAR>"));
+	register_command(vm, create_command("count", 'u', CMD_COUNT_UNARY, 0, "count <STRING> | count <ARRAY>"));
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
 	register_command(vm, create_command("false", 'n', CMD_FALSE, 0, "false"));
