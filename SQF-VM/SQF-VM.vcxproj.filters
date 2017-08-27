@@ -71,5 +71,8 @@
     <ClInclude Include="string_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="errors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

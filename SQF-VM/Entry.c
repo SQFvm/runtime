@@ -3,6 +3,7 @@
 #include "SQF.h"
 #include "SQF_types.h"
 #include "SQF_parse.h"
+#include "errors.h"
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef __linux
@@ -93,7 +94,7 @@ void CMD_PLUS(void* input, CPCMD self)
 	{
 		if (right_val->type != SCALAR_TYPE())
 		{
-			vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
+			vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 		}
 		push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f + right_val->val.f))));
 	}
@@ -101,7 +102,7 @@ void CMD_PLUS(void* input, CPCMD self)
 	{
 		if (right_val->type != STRING_TYPE())
 		{
-			vm->error("RIGHT TYPE NOT STRING", vm->stack);
+			vm->error(ERR_RIGHT_TYPE ERR_STRING, vm->stack);
 		}
 		str = string_concat(((PSTRING)left_val->val.ptr), ((PSTRING)right_val->val.ptr));
 		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
@@ -153,11 +154,11 @@ void CMD_MINUS(void* input, CPCMD self)
 	}
 	if (left_val->type != SCALAR_TYPE())
 	{
-		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 	}
 	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f - right_val->val.f))));
 	inst_destroy(left);
@@ -177,7 +178,7 @@ void CMD_MINUS_UNARY(void* input, CPCMD self)
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 	}
 	push_stack(vm, vm->stack, inst_value(value(right_val->type, base_float(-right_val->val.f))));
 	inst_destroy(right);
@@ -201,11 +202,11 @@ void CMD_MULTIPLY(void* input, CPCMD self)
 	}
 	if (left_val->type != SCALAR_TYPE())
 	{
-		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 	}
 	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f * right_val->val.f))));
 	inst_destroy(left);
@@ -230,11 +231,11 @@ void CMD_DIVIDE(void* input, CPCMD self)
 	}
 	if (left_val->type != SCALAR_TYPE())
 	{
-		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 	}
 	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f / right_val->val.f))));
 	inst_destroy(left);
@@ -266,6 +267,9 @@ void CMD_PRIVATE(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
+	PSTRING str;
+	PARRAY arr;
+	int i;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -275,14 +279,54 @@ void CMD_PRIVATE(void* input, CPCMD self)
 	}
 	if (right_val->type == STRING_TYPE())
 	{
-		store_in_scope(vm, top_scope(vm), ((PSTRING)right_val)->val, value(find_type(vm, "any"), base_voidptr(0)));
+		str = (PSTRING)right_val;
+		if (str->length == 0)
+		{
+			vm->error(ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
+		}
+		else if (str->val[0] != '_')
+		{
+			vm->error(ERR_SPECIAL_PRIVATE_1, vm->stack);
+		}
+		else
+		{
+			store_in_scope(vm, top_scope(vm), str->val, value(find_type(vm, "any"), base_voidptr(0)));
+		}
+	}
+	else if (right_val->type == ARRAY_TYPE())
+	{
+		arr = right_val->val.ptr;
+		for (i = 0; i < arr->top; i++)
+		{
+			if (arr->data[i]->type != STRING_TYPE())
+			{
+				vm->error(ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+			}
+			else
+			{
+				str = arr->data[i]->val.ptr;
+				if (str->length == 0)
+				{
+					vm->error(ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
+				}
+				else if (str->val[0] != '_')
+				{
+					vm->error(ERR_SPECIAL_PRIVATE_1, vm->stack);
+				}
+				else
+				{
+					store_in_scope(vm, top_scope(vm), str->val, value(find_type(vm, "any"), base_voidptr(0)));
+				}
+			}
+		}
 	}
 	else
 	{
-		vm->error("Expected String", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_STRING ERR_OR ERR_ARRAY, vm->stack);
 	}
 
 	inst_destroy(right);
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
 
 void CMD_IF(void* input, CPCMD self)
@@ -308,7 +352,7 @@ void CMD_IF(void* input, CPCMD self)
 	}
 	else
 	{
-		vm->error("expected bool", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_BOOL ERR_OR ERR_SCALAR, vm->stack);
 	}
 	push_stack(vm, vm->stack, inst_value(value(IF_TYPE(), base_int(flag))));
 
@@ -336,35 +380,38 @@ void CMD_THEN(void* input, CPCMD self)
 
 	if (left_val->type != IF_TYPE())
 	{
-		vm->error("expected left type to be IF", vm->stack);
+		vm->error(ERR_LEFT_TYPE ERR_IF, vm->stack);
 	}
 	if (right_val->type == ARRAY_TYPE())
 	{
 		arr = right_val->val.ptr;
 		if (arr->top == 0)
 		{
-			vm->error("Array is empty", vm->stack);
+			vm->error(ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
 		}
-		if (arr->data[0]->type != CODE_TYPE())
+		else if (arr->data[0]->type != CODE_TYPE())
 		{
-			vm->error("Array[0] was expected to be CODE", vm->stack);
+			vm->error(ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_CODE, vm->stack);
 		}
-		if (arr->top > 1 && arr->data[1]->type != CODE_TYPE())
+		else if (arr->top > 1 && arr->data[1]->type != CODE_TYPE())
 		{
-			vm->error("Array[1] was expected to be CODE", vm->stack);
+			vm->error(ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_CODE, vm->stack);
 		}
-		if (left_val->val.i)
+		else
 		{
-			code = arr->data[0]->val.ptr;
-		}
-		else if (arr->top > 1)
-		{
-			code = arr->data[1]->val.ptr;
-		}
-		if (code != 0)
-		{
-			push_stack(vm, vm->stack, inst_code_load(1));
-			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(code))));
+			if (left_val->val.i)
+			{
+				code = arr->data[0]->val.ptr;
+			}
+			else if (arr->top > 1)
+			{
+				code = arr->data[1]->val.ptr;
+			}
+			if (code != 0)
+			{
+				push_stack(vm, vm->stack, inst_code_load(1));
+				push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(code))));
+			}
 		}
 	}
 	else if (right_val->type == CODE_TYPE())
@@ -377,7 +424,7 @@ void CMD_THEN(void* input, CPCMD self)
 	}
 	else
 	{
-		vm->error("expected right type to be ARRAY or CODE", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_CODE ERR_OR ERR_ARRAY, vm->stack);
 	}
 
 	inst_destroy(left);
@@ -483,17 +530,19 @@ void CMD_LARGETTHEN(void* input, CPCMD self)
 	}
 	if (left_val->type != SCALAR_TYPE())
 	{
-		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
-		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
+		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
-		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
+		return;
 	}
 	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f > right_val->val.f))));
 	inst_destroy(left);
@@ -518,17 +567,19 @@ void CMD_LESSTHEN(void* input, CPCMD self)
 	}
 	if (left_val->type != SCALAR_TYPE())
 	{
-		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
-		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
+		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
-		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
+		return;
 	}
 	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f < right_val->val.f))));
 	inst_destroy(left);
@@ -553,17 +604,19 @@ void CMD_LARGETTHENOREQUAL(void* input, CPCMD self)
 	}
 	if (left_val->type != SCALAR_TYPE())
 	{
-		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
-		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
+		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
-		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
+		return;
 	}
 	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f >= right_val->val.f))));
 	inst_destroy(left);
@@ -588,17 +641,19 @@ void CMD_LESSTHENOREQUAL(void* input, CPCMD self)
 	}
 	if (left_val->type != SCALAR_TYPE())
 	{
-		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
-		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
+		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
-		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
+		return;
 	}
 	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f <= right_val->val.f))));
 	inst_destroy(left);
@@ -623,17 +678,19 @@ void CMD_EQUAL(void* input, CPCMD self)
 	}
 	if (left_val->type != SCALAR_TYPE())
 	{
-		vm->error("LEFT TYPE NOT SCALAR", vm->stack);
-		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
+		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("RIGHT TYPE NOT SCALAR", vm->stack);
-		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
+		return;
 	}
 	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f == right_val->val.f))));
 	inst_destroy(left);
@@ -656,9 +713,21 @@ void CMD_ANDAND(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	if (left_val->type != BOOL_TYPE() || right_val->type != BOOL_TYPE())
+	if (left_val->type != BOOL_TYPE())
 	{
-		vm->error("Expected left and right to be of type BOOL", vm->stack);
+		vm->error(ERR_LEFT_TYPE ERR_BOOL, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != BOOL_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
 	}
 	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.i && right_val->val.i))));
 	inst_destroy(left);
@@ -681,9 +750,21 @@ void CMD_OROR(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	if (left_val->type != BOOL_TYPE() || right_val->type != BOOL_TYPE())
+	if (left_val->type != BOOL_TYPE())
 	{
-		vm->error("Expected left and right to be of type BOOL", vm->stack);
+		vm->error(ERR_LEFT_TYPE ERR_BOOL, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != BOOL_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
 	}
 	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.i || right_val->val.i))));
 	inst_destroy(left);
@@ -722,12 +803,12 @@ void CMD_SELECT(void* input, CPCMD self)
 		}
 		else
 		{
-			vm->error("Expected SCALAR right", vm->stack);
+			vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 		}
 	}
 	else
 	{
-		vm->error("Expected ARRAY left", vm->stack);
+		vm->error(ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
 	}
 
 
@@ -751,7 +832,7 @@ void CMD_WHILE(void* input, CPCMD self)
 	}
 	if (right_val->type != CODE_TYPE())
 	{
-		vm->error("EXPECTED RIGHT CODE", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_CODE, vm->stack);
 		inst_destroy(right);
 		return;
 	}
@@ -780,7 +861,7 @@ void CMD_DO(void* input, CPCMD self)
 	}
 	if (right_val->type != CODE_TYPE())
 	{
-		vm->error("EXPECTED RIGHT TYPE TO BE CODE", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_CODE, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -832,7 +913,7 @@ void CMD_DO(void* input, CPCMD self)
 	}
 	else
 	{
-		vm->error("UNEXPECTED LEFT TYPE", vm->stack);
+		vm->error(ERR_LEFT_TYPE ERR_WHILE ERR_OR ERR_FOR, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -869,7 +950,7 @@ void CMD_FOR(void* input, CPCMD self)
 	}
 	if (right_val->type != STRING_TYPE())
 	{
-		vm->error("EXPECTED RIGHT TYPE TO BE STRING", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_STRING, vm->stack);
 		inst_destroy(right);
 		return;
 	}
@@ -897,14 +978,14 @@ void CMD_FROM(void* input, CPCMD self)
 	}
 	if (left_val->type != FOR_TYPE())
 	{
-		vm->error("EXPECTED LEFT TYPE TO BE FOR", vm->stack);
+		vm->error(ERR_LEFT_TYPE ERR_FOR, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("EXPECTED RIGHT TYPE TO BE SCALAR", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -935,14 +1016,14 @@ void CMD_TO(void* input, CPCMD self)
 	}
 	if (left_val->type != FOR_TYPE())
 	{
-		vm->error("EXPECTED LEFT TYPE TO BE FOR", vm->stack);
+		vm->error(ERR_LEFT_TYPE ERR_FOR, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("EXPECTED RIGHT TYPE TO BE SCALAR", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -973,14 +1054,14 @@ void CMD_STEP(void* input, CPCMD self)
 	}
 	if (left_val->type != FOR_TYPE())
 	{
-		vm->error("EXPECTED LEFT TYPE TO BE FOR", vm->stack);
+		vm->error(ERR_LEFT_TYPE ERR_FOR, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
-		vm->error("EXPECTED RIGHT TYPE TO BE SCALAR", vm->stack);
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -1047,7 +1128,7 @@ void custom_error(const char* errMsg, PSTACK stack)
 {
 	int len = strlen(errMsg) + 8;
 	char* str = alloca(sizeof(char) * (len + 1));
-	sprintf(str, "ERROR: %s\n", errMsg);
+	sprintf(str, "[ERR] %s\n", errMsg);
 	str[len] = '\0';
 	string_modify_append(outputbuffer, str);
 	//longjmp(program_exit, 1);
