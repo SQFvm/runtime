@@ -279,7 +279,7 @@ void execute(PVM vm)
 	PVALUE val;
 	PVALUE val2;
 	PSCOPE scope;
-	int i, j, k;
+	int i, j;
 	while (vm->stack->top > 0)
 	{
 		inst = pop_stack(vm, vm->stack);
