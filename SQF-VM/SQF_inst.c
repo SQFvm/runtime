@@ -110,6 +110,16 @@ PINST inst_clear_work(void)
 {
 	return inst(INST_CLEAR_WORK);
 }
+PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off)
+{
+	PINST p = inst(INST_DEBUG_INFO);
+	PDBGINF dbginf = malloc(sizeof(DBGINF));
+	p->data.ptr = dbginf;
+	dbginf->col = col;
+	dbginf->line = line;
+	dbginf->offset = off;
+	return p;
+}
 
 
 void inst_destroy(PINST inst)
@@ -146,6 +156,9 @@ void inst_destroy(PINST inst)
 			break;
 		case INST_CLEAR_WORK:
 			break;
+		case INST_DEBUG_INFO:
+			inst_destroy_dbginf(get_dbginf(0, 0, inst));
+			break;
 		default:
 			#if _WIN32
 			__asm int 3;
@@ -179,6 +192,10 @@ void inst_destroy_value(PVALUE val)
 		cmd->callback(val, cmd);
 	}
 	free(val);
+}
+void inst_destroy_dbginf(PDBGINF dbginf)
+{
+	free(dbginf);
 }
 void inst_destroy_var(char* name)
 {

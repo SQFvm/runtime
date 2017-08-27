@@ -16,6 +16,7 @@ typedef unsigned char DATA_TYPE;
 #define INST_CODE_LOAD ((DATA_TYPE)8)
 #define INST_POP_EVAL ((DATA_TYPE)9)
 #define INST_CLEAR_WORK ((DATA_TYPE)10)
+#define INST_DEBUG_INFO ((DATA_TYPE)11)
 typedef struct INST
 {
 	DATA_TYPE type;
@@ -46,6 +47,7 @@ typedef struct STACK
 	PINST* data;
 	unsigned int size;
 	unsigned int top;
+	unsigned char allow_dbg;
 } STACK;
 typedef STACK* PSTACK;
 
@@ -92,39 +94,26 @@ typedef struct POPEVAL
 }POPEVAL;
 typedef POPEVAL* PPOPEVAL;
 
+typedef struct DBGINF
+{
+	unsigned int line;
+	unsigned int col;
+	unsigned long offset;
+}DBGINF;
+typedef DBGINF* PDBGINF;
+
 
 
 
 
 void error(const char* errMsg, PSTACK stack);
-PSTACK create_stack(unsigned int size);
+PSTACK create_stack(unsigned int size, unsigned char allow_dbg);
 void destroy_stack(PSTACK stack);
 void resize_stack(PSTACK stack, unsigned int newsize);
-inline void push_stack(PVM vm, PSTACK stack, PINST inst)
-{
-	if (stack->top >= stack->size)
-	{
-		vm->error("STACK OVERFLOW", stack);
-	}
-	else
-	{
-		stack->data[stack->top++] = inst;
-	}
-}
-inline PINST pop_stack(PVM vm, PSTACK stack)
-{
-	if (stack->top == 0)
-	{
-		vm->error("STACK UNDERFLOW", stack);
-		return 0;
-	}
-	else
-	{
-		return stack->data[--stack->top];
-	}
-}
+void push_stack(PVM vm, PSTACK stack, PINST inst);
+PINST pop_stack(PVM vm, PSTACK stack);
 
-PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size);
+PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg);
 void destroy_sqfvm(PVM vm);
 
 inline void register_command(PVM vm, PCMD cmd)

@@ -6,6 +6,8 @@ typedef struct TEXTRANGE
 {
 	unsigned int start;
 	unsigned int length;
+	unsigned int line;
+	unsigned int col;
 }TEXTRANGE;
 
 

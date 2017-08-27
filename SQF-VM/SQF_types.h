@@ -50,6 +50,8 @@ PSTRING string_concat(const PSTRING l, const PSTRING r);
 PSTRING string_substring(const PSTRING string, unsigned int start, int length);
 ///Appends provided cstring onto STRING object
 void string_modify_append(PSTRING string, const char* append);
+///Appends n characters of provided cstring onto STRING object
+void string_modify_nappend(PSTRING string, const char* append, unsigned int len);
 
 #define ARRAY_DEFAULT_INC 10
 typedef struct ARRAY

@@ -26,8 +26,11 @@ PINST inst_arr_push(void);
 PINST inst_code_load(unsigned char createscope);
 PINST inst_pop_eval(unsigned int ammount, unsigned char popon);
 PINST inst_clear_work(void);
+PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off);
+
 
 void inst_destroy(PINST inst);
+void inst_destroy_dbginf(PDBGINF dbginf);
 void inst_destroy_scope(PSCOPE scope);
 void inst_destroy_value(PVALUE val);
 void inst_destroy_var(char* name);
@@ -87,6 +90,18 @@ inline PPOPEVAL get_pop_eval(PVM vm, PSTACK stack, PINST inst)
 	if (inst != 0 && inst->type == INST_POP_EVAL)
 	{
 		return (PPOPEVAL)inst->data.ptr;
+	}
+	else
+	{
+		vm->error("TYPE MISSMATCH", stack);
+		return 0;
+	}
+}
+inline PDBGINF get_dbginf(PVM vm, PSTACK stack, PINST inst)
+{
+	if (inst != 0 && inst->type == INST_DEBUG_INFO)
+	{
+		return (PDBGINF)inst->data.ptr;
 	}
 	else
 	{

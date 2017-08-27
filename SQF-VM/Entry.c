@@ -20,6 +20,7 @@
 
 static PSTRING outputbuffer = 0;
 static jmp_buf program_exit;
+static const char* current_code = 0;
 
 void stringify_value(PVM vm, PSTRING str, PVALUE val)
 {
@@ -95,6 +96,10 @@ void CMD_PLUS(void* input, CPCMD self)
 		if (right_val->type != SCALAR_TYPE())
 		{
 			vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
 		}
 		push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f + right_val->val.f))));
 	}
@@ -103,6 +108,10 @@ void CMD_PLUS(void* input, CPCMD self)
 		if (right_val->type != STRING_TYPE())
 		{
 			vm->error(ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
 		}
 		str = string_concat(((PSTRING)left_val->val.ptr), ((PSTRING)right_val->val.ptr));
 		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
@@ -132,6 +141,17 @@ void CMD_PLUS(void* input, CPCMD self)
 		}
 		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(j)))));
 	}
+	else
+	{
+		if (right_val->type != STRING_TYPE())
+		{
+			vm->error(ERR_ERR, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
+	}
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -155,10 +175,18 @@ void CMD_MINUS(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
 	}
 	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f - right_val->val.f))));
 	inst_destroy(left);
@@ -179,6 +207,9 @@ void CMD_MINUS_UNARY(void* input, CPCMD self)
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
 	}
 	push_stack(vm, vm->stack, inst_value(value(right_val->type, base_float(-right_val->val.f))));
 	inst_destroy(right);
@@ -203,10 +234,18 @@ void CMD_MULTIPLY(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
 	}
 	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f * right_val->val.f))));
 	inst_destroy(left);
@@ -232,10 +271,18 @@ void CMD_DIVIDE(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
 	}
 	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f / right_val->val.f))));
 	inst_destroy(left);
@@ -1124,11 +1171,67 @@ char* get_line(char* line, size_t lenmax)
 
 void custom_error(const char* errMsg, PSTACK stack)
 {
-	int len = strlen(errMsg) + 8;
-	char* str = alloca(sizeof(char) * (len + 1));
-	sprintf(str, "[ERR] %s\n", errMsg);
-	str[len] = '\0';
-	string_modify_append(outputbuffer, str);
+	int len, i, j;
+	char* str;
+	PDBGINF dbginf;
+	if (current_code != 0 && stack->allow_dbg)
+	{
+		dbginf = 0;
+		for (i = stack->top - 1; i >= 0; i--)
+		{
+			if (stack->data[i]->type == INST_DEBUG_INFO)
+			{
+				dbginf = get_dbginf(0, 0, stack->data[i]);
+				break;
+			}
+		}
+		if (dbginf != 0)
+		{
+			i = dbginf->offset - 15;
+			len = 30;
+			if (i < 0)
+			{
+				len += i;
+				i = 0;
+			}
+			for (j = i; j < i + len; j++)
+			{
+				if (current_code[j] == '\0' || current_code[j] == '\n')
+				{
+					if (j < dbginf->offset)
+					{
+						i = j;
+					}
+					else
+					{
+						len = j - i;
+						break;
+					}
+				}
+			}
+			str = current_code + i;
+			string_modify_nappend(outputbuffer, str, len);
+			string_modify_append(outputbuffer, "\n");
+			for (; i < dbginf->offset; i++)
+			{
+				string_modify_append(outputbuffer, " ");
+			}
+			string_modify_append(outputbuffer, "^\n");
+		}
+		len = snprintf(0, 0, "[ERR][L%d|C%d]%s\n", dbginf->line, dbginf->col, errMsg);
+		str = alloca(sizeof(char) * (len + 1));
+		snprintf(str, len + 1, "[ERR][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
+		str[len] = '\0';
+		string_modify_append(outputbuffer, str);
+	}
+	else
+	{
+		len = snprintf(0, 0, "[ERR]%s\n", errMsg);
+		str = alloca(sizeof(char) * (len + 1));
+		snprintf(str, len + 1, "[ERR] %s\n", errMsg);
+		str[len] = '\0';
+		string_modify_append(outputbuffer, str);
+	}
 	//longjmp(program_exit, 1);
 }
 
@@ -1138,7 +1241,7 @@ __declspec(dllexport) const char* start_program(const char* input)
 __attribute__((visibility("default"))) const char* start_program(const char* input)
 #endif
 {
-	PVM vm = sqfvm(1000, 50, 100);
+	PVM vm = sqfvm(1000, 50, 100, 1);
 	vm->error = custom_error;
 	int val;
 	if (outputbuffer == 0)
@@ -1228,7 +1331,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 
 
 
-
+	current_code = input;
 	register_command(vm, create_command("help", 'n', CMD_HELP, 0, "Displays this help text."));
 	val = setjmp(program_exit);
 	if (!val)
@@ -1238,6 +1341,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 		execute(vm);
 	}
 	destroy_sqfvm(vm);
+	current_code = 0;
 	return outputbuffer->val;
 }
 
@@ -1314,7 +1418,7 @@ int main(int argc, char** argv)
 
 	if(outputbuffer != 0)
 		string_destroy(outputbuffer);
-	vm = sqfvm(0, 0, 0);
+	vm = sqfvm(0, 0, 0, 0);
 	for (i = 0; i < vm->cmds_top; i++)
 	{
 		destroy_command(vm->cmds[i]);

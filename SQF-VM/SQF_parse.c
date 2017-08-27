@@ -21,13 +21,21 @@ void tokenize(TR_ARR* arr, const char* code)
 	int i;
 	char c, s;
 	int start = -1;
-	for (i = 0; code[i] != '\0'; i++)
+	int line = 1;
+	int col = 0;
+	for (i = 0; code[i] != '\0'; i++, col++)
 	{
 		c = code[i];
 		if (start == -1)
 		{
-			if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+			if (c == ' ' || c == '\t' || c == '\r')
 			{
+				continue;
+			}
+			else if (c == '\n')
+			{
+				line++;
+				col = 0;
 				continue;
 			}
 			start = i;
@@ -45,7 +53,7 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start + 1
+						.start = start, .length = i - start + 1, .line = line, .col = col
 					});
 					start = -1;
 				}
@@ -56,7 +64,7 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start + 1
+						.start = start, .length = i - start + 1, .line = line, .col = col
 					});
 					start = -1;
 				}
@@ -65,15 +73,21 @@ void tokenize(TR_ARR* arr, const char* code)
 			{
 				tr_arr_push(arr, (TEXTRANGE)
 				{
-					.start = start, .length = i - start
+					.start = start, .length = i - start, .line = line, .col = col
 				});
 				start = -1;
+				if (c == '\n')
+				{
+					line++;
+					col = 0;
+					continue;
+				}
 			}
 			else if (s == '(' || s == '{' || s == '[' || s == ')' || s == '}' || s == ']' || s == ';' || s == '+' || s == '-' || s == '*' || s == '/' || s == ',')
 			{
 				tr_arr_push(arr, (TEXTRANGE)
 				{
-					.start = start, .length = i - start
+					.start = start, .length = i - start, .line = line, .col = col
 				});
 				start = -1;
 				i--;
@@ -84,7 +98,7 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start
+						.start = start, .length = i - start, .line = line, .col = col
 					});
 					start = -1;
 					i--;
@@ -96,7 +110,7 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start
+						.start = start, .length = i - start, .line = line, .col = col
 					});
 					start = -1;
 					i--;
@@ -108,7 +122,7 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start + 1
+						.start = start, .length = i - start + 1, .line = line, .col = col
 					});
 					start = -1;
 					i--;
@@ -120,7 +134,7 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start + 1
+						.start = start, .length = i - start + 1, .line = line, .col = col
 					});
 					start = -1;
 					i--;
@@ -427,13 +441,15 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	}
 	if (j == -1)
 		return;
+	range = tr_arr_get(arr, j);
+	push_stack(vm, stack, inst_debug_info(range.line, range.col, range.start));
 	if (smallest_cmd == 0)
 	{
-		str = code + tr_arr_get(arr, j).start;
+		str = code + range.start;
 		if (str[0] == '"' || str[0] == '\'')
 		{
-			value_string = string_create(tr_arr_get(arr, j).length - 2);
-			strncpy(value_string->val, str + 1, tr_arr_get(arr, j).length - 2);
+			value_string = string_create(range.length - 2);
+			strncpy(value_string->val, str + 1, range.length - 2);
 			push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
 		}
 		else if (str[0] == '(')
@@ -502,9 +518,9 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 			}
 			else
 			{
-				endptr = alloca(sizeof(char) * (tr_arr_get(arr, j).length + 1));
-				endptr[tr_arr_get(arr, j).length] = '\0';
-				strncpy(endptr, str, tr_arr_get(arr, j).length);
+				endptr = alloca(sizeof(char) * (range.length + 1));
+				endptr[range.length] = '\0';
+				strncpy(endptr, str, range.length);
 				if (strncmpi(code + tr_arr_get(arr, j + 1).start, tr_arr_get(arr, j + 1).length, "=", -1) == 0)
 				{
 					if (j > 0 && strncmpi(code + tr_arr_get(arr, j - 1).start, tr_arr_get(arr, j - 1).length, "private", -1) == 0)

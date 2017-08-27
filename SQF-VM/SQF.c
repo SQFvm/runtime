@@ -13,17 +13,42 @@
 
 
 
-extern inline void push_stack(PVM vm, PSTACK stack, PINST inst);
-extern inline PINST pop_stack(PVM vm, PSTACK stack);
+void push_stack(PVM vm, PSTACK stack, PINST inst)
+{
+	if (stack->top >= stack->size)
+	{
+		vm->error("STACK OVERFLOW", stack);
+	}
+	else if (inst->type == INST_DEBUG_INFO && !stack->allow_dbg)
+	{
+		inst_destroy(inst);
+	}
+	else
+	{
+		stack->data[stack->top++] = inst;
+	}
+}
+PINST pop_stack(PVM vm, PSTACK stack)
+{
+	if (stack->top == 0)
+	{
+		vm->error("STACK UNDERFLOW", stack);
+		return 0;
+	}
+	else
+	{
+		return stack->data[--stack->top];
+	}
+}
 extern inline void register_command(PVM vm, PCMD cmd);
 
 #define SQF_VM_INTERNAL_TYPE_COUNT 10
-PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size)
+PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg)
 {
 	PVM vm = malloc(sizeof(VM));
 	cmds_size += SQF_VM_INTERNAL_TYPE_COUNT;
-	vm->stack = create_stack(stack_size);
-	vm->work = create_stack(work_size);
+	vm->stack = create_stack(stack_size, allow_dbg);
+	vm->work = create_stack(work_size, 0);
 
 	vm->cmds = malloc(sizeof(PCMD) * cmds_size);
 	memset(vm->cmds, 0, sizeof(PINST) * cmds_size);
@@ -61,13 +86,14 @@ void destroy_sqfvm(PVM vm)
 	free(vm);
 }
 
-PSTACK create_stack(unsigned int size)
+PSTACK create_stack(unsigned int size, unsigned char allow_dbg)
 {
 	PSTACK stack = malloc(sizeof(STACK));
 	stack->data = malloc(sizeof(PINST) * size);
 	memset(stack->data, 0, sizeof(PINST) * size);
 	stack->size = size;
 	stack->top = 0;
+	stack->allow_dbg = allow_dbg;
 	return stack;
 }
 void destroy_stack(PSTACK stack)
@@ -412,6 +438,9 @@ void execute(PVM vm)
 			{
 				inst_destroy(pop_stack(vm, vm->work));
 			}
+			break;
+		case INST_DEBUG_INFO:
+			inst_destroy(inst);
 			break;
 		}
 	}
