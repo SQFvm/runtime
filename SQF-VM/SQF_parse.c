@@ -418,7 +418,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 			}
 			else
 			{
-				if (cmd->type_code < smallest_cmd->type_code || (cmd->type_code == smallest_cmd->type_code && cmd->precedence_level <= smallest_cmd->precedence_level))
+				if (cmd->type_code < smallest_cmd->type_code || (cmd->type_code == smallest_cmd->type_code && smallest_cmd->type == 'b' && cmd->precedence_level <= smallest_cmd->precedence_level))
 				{
 					smallest_cmd = cmd;
 					j = i;
