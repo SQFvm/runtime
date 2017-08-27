@@ -19,7 +19,6 @@
 void tokenize(TR_ARR* arr, const char* code)
 {
 	int i;
-	int j;
 	char c, s;
 	int start = -1;
 	for (i = 0; code[i] != '\0'; i++)
