@@ -22,7 +22,7 @@ class MyClient(discord.Client):
         print(self.user.name)
         print(self.user.id)
         print('------------')
-        self.allowsqf = true
+        self.allowsqf = True
 
     async def on_message(self, message):
         if message.content.startswith('<@{}>'.format(self.user.id)):
@@ -41,7 +41,7 @@ class MyClient(discord.Client):
             if cmd == 'REBUILD':
                 tmp = await message.channel.send("```Freeing current...```")
                 try:
-                    self.allowsqf = false
+                    self.allowsqf = False
                     _ctypes.dlclose(libsqfvm._handle)
                     await tmp.edit(content="```Pulling latest sources...```")
                     subprocess.call(['git', 'pull'])
@@ -50,7 +50,7 @@ class MyClient(discord.Client):
                     await tmp.edit(content="```Loading libsqfvm...```")
                     init_libsqfvm()
                     await tmp.edit(content="```DONE!```")
-                    self.allowsqf = true
+                    self.allowsqf = True
                 except:
                     await tmp.edit(content="```!FAILED!```")
             else:
