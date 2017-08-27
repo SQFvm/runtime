@@ -294,3 +294,4 @@ __pycache__/
 *.a
 *.so
 prog
+DISCORD.TOKEN
