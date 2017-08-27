@@ -479,7 +479,6 @@ void CMD_HELP(void* input, CPCMD self)
 	for (i = 0; i < vm->cmds_top; i++)
 	{
 		cmd = vm->cmds[i];
-		string_modify_append(outputbuffer, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
 		buffsize2 = snprintf(0, 0, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
 		if (buffsize2 > buffsize)
 		{
