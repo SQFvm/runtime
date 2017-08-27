@@ -1210,7 +1210,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("step", 'b', CMD_STEP, 0, "<FOR> step <SCALAR>"));
 
 	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>"));
-	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0, "private <STRING>"));
+	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>"));
 	register_command(vm, create_command("if", 'u', CMD_IF, 0, "if <BOOL>"));
 	register_command(vm, create_command("str", 'u', CMD_STR, 0, "str <ANY>"));
 	register_command(vm, create_command("while", 'u', CMD_WHILE, 0, "while <CODE>"));
