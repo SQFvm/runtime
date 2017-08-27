@@ -14,6 +14,7 @@ extern inline const char* get_var_name(PVM vm, PSTACK stack, PINST inst);
 extern inline PSCOPE get_scope(PVM vm, PSTACK stack, PINST inst);
 extern inline VALUE value(CPCMD type, BASE val);
 extern inline PPOPEVAL get_pop_eval(PVM vm, PSTACK stack, PINST inst);
+extern inline PDBGINF get_dbginf(PVM vm, PSTACK stack, PINST inst);
 
 static inline PINST inst(DATA_TYPE dt)
 {
