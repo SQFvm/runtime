@@ -55,6 +55,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 	vm->cmds_size = cmds_size;
 	vm->cmds_top = 0;
 	vm->error = error;
+	vm->die_flag = 0;
 
 
 	register_command(vm, SCALAR_TYPE());
@@ -325,6 +326,11 @@ void execute(PVM vm)
 	while (vm->stack->top > 0)
 	{
 		inst = pop_stack(vm, vm->stack);
+		if (vm->die_flag)
+		{
+			inst_destroy(inst);
+			continue;
+		}
 		switch (inst->type)
 		{
 		case INST_NOP:

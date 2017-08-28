@@ -61,6 +61,7 @@ typedef struct VM
 	unsigned int cmds_size;
 	unsigned int cmds_top;
 	void(*error)(const char*, PSTACK);
+	unsigned char die_flag;
 } VM;
 typedef VM* PVM;
 

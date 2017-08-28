@@ -559,7 +559,11 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 	{
 		push_stack(vm, vm->stack, inst_scope(NULL));
 	}
-	if (arr->top == 1)
+	if (arr->top == 0)
+	{
+		return;
+	}
+	else if (arr->top == 1)
 	{
 		parse_partial(vm, vm->stack, code, arr, 0, 1);
 	}
@@ -602,6 +606,11 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 			{
 				j = i + 1;
 			}
+		}
+		if (j != 0)
+		{
+			parse_partial(vm, vm->stack, code, arr, i + 1, j);
+			push_stack(vm, vm->stack, inst_clear_work());
 		}
 	}
 	tr_arr_destroy(arr);

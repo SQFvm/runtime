@@ -1286,6 +1286,7 @@ char* get_line(char* line, size_t lenmax)
 
 #define LINEBUFFER_SIZE 256
 
+static PVM vm;
 void custom_error(const char* errMsg, PSTACK stack)
 {
 	int len, i, j;
@@ -1349,6 +1350,7 @@ void custom_error(const char* errMsg, PSTACK stack)
 		str[len] = '\0';
 		string_modify_append(outputbuffer, str);
 	}
+	vm->die_flag = 1;
 	//longjmp(program_exit, 1);
 }
 
@@ -1358,7 +1360,7 @@ __declspec(dllexport) const char* start_program(const char* input)
 __attribute__((visibility("default"))) const char* start_program(const char* input)
 #endif
 {
-	PVM vm = sqfvm(1000, 50, 100, 1);
+	vm = sqfvm(1000, 50, 100, 1);
 	vm->error = custom_error;
 	int val;
 	if (outputbuffer == 0)
@@ -1460,6 +1462,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 		execute(vm);
 	}
 	destroy_sqfvm(vm);
+	vm = 0;
 	current_code = 0;
 	return outputbuffer->val;
 }
