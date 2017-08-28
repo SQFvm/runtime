@@ -46,7 +46,9 @@ class MyClient(discord.Client):
                     await tmp.edit(content="```Pulling latest sources...```")
                     subprocess.call(['git', 'pull'])
                     await tmp.edit(content="```Building libsqfvm...```")
-                    subprocess.call(['make', 'all', '-C' ,'../SQF-VM/'])
+                    if subprocess.call(['make', 'all', '-C' ,'../SQF-VM/']):
+                        await tmp.edit(content="```!BUILD FAILED!```")
+                        return
                     await tmp.edit(content="```Loading libsqfvm...```")
                     init_libsqfvm()
                     await tmp.edit(content="```DONE!```")
