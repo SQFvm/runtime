@@ -15,12 +15,28 @@
 #include <math.h>
 #include <string.h>
 #include <setjmp.h>
+#include <sys\timeb.h>
+#include <stdint.h>
 //#include <crtdbg.h>
 
+int64_t system_time_ms()
+{
+	#ifdef _WIN32
+	struct _timeb timebuffer;
+	_ftime(&timebuffer);
+	return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
+	#else
+	struct timeb timebuffer;
+	ftime(&timebuffer);
+	return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
+	#endif
+}
 
 static PSTRING outputbuffer = 0;
 static jmp_buf program_exit;
 static const char* current_code = 0;
+static PVM vm = 0;
+static int64_t systime_start = 0;
 
 void stringify_value(PVM vm, PSTRING str, PVALUE val)
 {
@@ -1254,6 +1270,12 @@ void CMD_PROFILENAMESPACE(void* input, CPCMD self)
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_profileNamespace()))));
 }
+void CMD_DIAG_TICKTIME(void* input, CPCMD self)
+{
+	PVM vm = input;
+	int64_t systime_cur = system_time_ms();
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(systime_cur - systime_start))));
+}
 
 
 char* get_line(char* line, size_t lenmax)
@@ -1286,7 +1308,6 @@ char* get_line(char* line, size_t lenmax)
 
 #define LINEBUFFER_SIZE 256
 
-static PVM vm;
 void custom_error(const char* errMsg, PSTACK stack)
 {
 	int len, i, j;
@@ -1373,6 +1394,10 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 		outputbuffer->val = 0;
 		outputbuffer->length = 0;
 	}
+	if (systime_start == 0)
+	{
+		systime_start = system_time_ms();
+	}
 	/*
 	//register_command(vm, create_command("SCALAR", 't', 0, 0));
 	//register_command(vm, create_command("BOOL", 't', 0, 0));
@@ -1448,6 +1473,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("missionNamespace", 'n', CMD_MISSIONNAMESPACE, 0, "missionNamespace"));
 	register_command(vm, create_command("uiNamespace", 'n', CMD_UINAMESPACE, 0, "uiNamespace"));
 	register_command(vm, create_command("profileNamespace", 'n', CMD_PROFILENAMESPACE, 0, "profileNamespace"));
+	register_command(vm, create_command("diag_tickTime", 'n', CMD_DIAG_TICKTIME , 0, "diag_tickTime"));
 
 
 
