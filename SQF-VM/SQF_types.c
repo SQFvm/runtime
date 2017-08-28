@@ -178,7 +178,10 @@ void string_modify_append(PSTRING string, const char* append)
 	if (append == 0)
 		return;
 	unsigned int len = strlen(append);
-	char* ptr = realloc(string->val, sizeof(char) * (string->length + len + 1));
+	char* ptr;
+	if (len == 0)
+		return;
+	ptr = realloc(string->val, sizeof(char) * (string->length + len + 1));
 	if (ptr == 0)
 		error("failed", 0);
 	string->val = ptr;
@@ -188,7 +191,7 @@ void string_modify_append(PSTRING string, const char* append)
 }
 void string_modify_nappend(PSTRING string, const char* append, unsigned int len)
 {
-	if (append == 0)
+	if (append == 0 || len == 0)
 		return;
 	char* ptr = realloc(string->val, sizeof(char) * (string->length + len + 1));
 	if (ptr == 0)

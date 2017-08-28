@@ -1,4 +1,5 @@
 #include "string_map.h"
+#include "string_op.h"
 #include "textrange.h"
 #include "SQF.h"
 #include "SQF_types.h"
@@ -1113,6 +1114,134 @@ void CMD_COUNT_UNARY(void* input, CPCMD self)
 	}
 	inst_destroy(right);
 }
+void CMD_FORMAT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSTRING str;
+	PSTRING str_out;
+	PARRAY arr;
+	char* ptr;
+	char* ptr_last;
+	char* endptr;
+	int index;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+
+	if (right_val->type == ARRAY_TYPE())
+	{
+		arr = right_val->val.ptr;
+		if (arr->top == 0)
+		{
+			vm->error(ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		}
+		else if (arr->data[0]->type != STRING_TYPE())
+		{
+			vm->error(ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		}
+		else
+		{
+			str = arr->data[0]->val.ptr;
+			str_out = string_create(0);
+			ptr_last = str->val;
+			while ((ptr = strchr(ptr_last, '%')) != 0)
+			{
+				string_modify_nappend(str_out, ptr_last, ptr - ptr_last);
+				index = strtof(ptr + 1, &endptr);
+				if (endptr == ptr)
+				{
+					vm->error(ERR_ERR ERR_SPECIAL_FORMAT_1, vm->stack);
+				}
+				else if (index >= arr->top)
+				{
+					vm->error(ERR_ERR ERR_SPECIAL_FORMAT_2, vm->stack);
+				}
+				else
+				{
+					stringify_value(vm, str_out, arr->data[index]);
+				}
+				ptr_last = endptr;
+			}
+			string_modify_append(str_out, ptr_last);
+			push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str_out))));
+		}
+	}
+	else
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+	}
+	inst_destroy(right);
+}
+void CMD_CALL(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	if (right_val->type == CODE_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_scope(0));
+		push_stack(vm, vm->stack, inst_code_load(0));
+		push_stack(vm, vm->stack, right);
+		push_stack(vm, vm->stack, inst_store_var_local("_this"));
+		push_stack(vm, vm->stack, inst_value(value(left_val->type, left_val->val)));
+	}
+	else
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_CODE, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(right);
+	}
+}
+void CMD_CALL_UNARY(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+
+	if (right_val->type == CODE_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_scope(0));
+		push_stack(vm, vm->stack, inst_code_load(0));
+		push_stack(vm, vm->stack, right);
+		push_stack(vm, vm->stack, inst_store_var_local("_this"));
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+	}
+	else
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_CODE, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(right);
+	}
+}
 
 void CMD_FOR(void* input, CPCMD self)
 {
@@ -1456,6 +1585,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("to", 'b', CMD_TO, 0, "<FOR> to <SCALAR>"));
 	register_command(vm, create_command("step", 'b', CMD_STEP, 0, "<FOR> step <SCALAR>"));
 	register_command(vm, create_command("count", 'b', CMD_COUNT, 0, "<CODE> count <ARRAY> | <COUNT> count <BOOL>"));
+	register_command(vm, create_command("call", 'b', CMD_CALL, 0, "<ANY> call <CODE>"));
 
 	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>"));
 	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>"));
@@ -1466,6 +1596,8 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("for", 'u', CMD_FOR, 0, "for <STRING>"));
 	register_command(vm, create_command("-", 'u', CMD_MINUS_UNARY, 0, "- <SCALAR>"));
 	register_command(vm, create_command("count", 'u', CMD_COUNT_UNARY, 0, "count <STRING> | count <ARRAY>"));
+	register_command(vm, create_command("format", 'u', CMD_FORMAT, 0, "format <ARRAY>"));
+	register_command(vm, create_command("call", 'u', CMD_CALL_UNARY, 0, "call <CODE>"));
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
 	register_command(vm, create_command("false", 'n', CMD_FALSE, 0, "false"));
