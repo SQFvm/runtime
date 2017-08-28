@@ -225,6 +225,22 @@ PSCOPE top_scope(PVM vm)
 }
 void store_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val)
 {
+	int i;
+	for (i = 0; i < scope->varstack_top; i++)
+	{
+		if (str_cmpi(scope->varstack_name[i], -1, name, -1) == 0)
+		{
+			inst_destroy_value(scope->varstack_value[i]);
+			scope->varstack_value[i] = malloc(sizeof(VALUE));
+			scope->varstack_value[i]->type = val.type;
+			scope->varstack_value[i]->val = val.val;
+			return;
+		}
+	}
+	push_in_scope(vm, scope, name, val);
+}
+void push_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val)
+{
 	int len;
 	if (scope->varstack_top >= scope->varstack_size)
 	{

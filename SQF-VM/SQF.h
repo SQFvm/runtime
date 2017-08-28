@@ -8,6 +8,7 @@ PVALUE find_var(PVM vm, const char* name);
 void set_var(PVM vm, const char* name, VALUE val);
 PSCOPE top_scope(PVM vm);
 void store_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val);
+void push_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val);
 
 void execute(PVM vm);
 
