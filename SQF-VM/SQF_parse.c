@@ -323,7 +323,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	float f;
 	TEXTRANGE range;
 	PSTRING value_string;
-	CPCMD cmd, smallest_cmd = 0;
+	CPCMD cmd = 0, smallest_cmd = 0;
 	int arrcount = 0;
 	int codecount = 0;
 	int bracecount = 0;
@@ -402,7 +402,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 				bracecount++;
 			}
 		}
-		if (arr_start == i)
+		if (arr_start == i || (cmd != 0 && cmd->type_code & (2 | 4)))
 		{
 			cmd = fndcmd2(vm, str, range.length, 4|8);
 		}
