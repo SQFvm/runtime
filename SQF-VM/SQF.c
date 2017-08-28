@@ -323,8 +323,15 @@ void execute(PVM vm)
 	PVALUE val2;
 	PSCOPE scope;
 	int i, j;
+	unsigned int inst_executed = 0;
 	while (vm->stack->top > 0)
 	{
+		//ToDo: Make it soft-coded somehow
+		if (inst_executed > 10000)
+		{
+			vm->error("MAX ALLOWED INSTRUCTION COUNT REACHED", vm->stack);
+			vm->die_flag = 1;
+		}
 		inst = pop_stack(vm, vm->stack);
 		if (vm->die_flag)
 		{
@@ -465,5 +472,6 @@ void execute(PVM vm)
 			inst_destroy(inst);
 			break;
 		}
+		inst_executed++;
 	}
 }
