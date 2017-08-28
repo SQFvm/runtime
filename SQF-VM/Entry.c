@@ -1510,9 +1510,10 @@ __declspec(dllexport) const char* start_program(const char* input)
 __attribute__((visibility("default"))) const char* start_program(const char* input)
 #endif
 {
+	int val;
+	int i;
 	vm = sqfvm(1000, 50, 100, 1);
 	vm->error = custom_error;
-	int val;
 	if (outputbuffer == 0)
 	{
 		outputbuffer = string_create(0);
@@ -1618,6 +1619,18 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 		push_stack(vm, vm->stack, inst_scope("all"));
 		parse(vm, input, 1);
 		execute(vm);
+	}
+	if (vm->work->top != 0)
+	{
+		for (i = 0; i < vm->work->top; i++)
+		{
+			if (vm->work->data[i]->type == INST_VALUE)
+			{
+				string_modify_append(outputbuffer, "[WORK]: ");
+				stringify_value(vm, outputbuffer, get_value(vm, vm->stack, vm->work->data[i]));
+				string_modify_append(outputbuffer, "\n");
+			}
+		}
 	}
 	destroy_sqfvm(vm);
 	vm = 0;
