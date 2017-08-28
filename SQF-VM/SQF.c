@@ -322,6 +322,7 @@ void execute(PVM vm)
 	PVALUE val;
 	PVALUE val2;
 	PSCOPE scope;
+	PARRAY arr;
 	int i, j;
 	unsigned int inst_executed = 0;
 	while (vm->stack->top > 0)
@@ -429,7 +430,12 @@ void execute(PVM vm)
 			inst2 = pop_stack(vm, vm->work);
 			inst = pop_stack(vm, vm->work);
 			val = get_value(vm, vm->stack, inst2);
-			array_push(((PARRAY)get_value(vm, vm->stack, inst)->val.ptr), value(val->type, val->val));
+			arr = get_value(vm, vm->stack, inst)->val.ptr;
+			if (arr == 0)
+			{
+				error("ARRAY NULL", vm->stack);
+			}
+			array_push(arr, value(val->type, val->val));
 			push_stack(vm, vm->work, inst);
 			inst_destroy(inst2);
 			break;
@@ -469,6 +475,11 @@ void execute(PVM vm)
 			}
 			break;
 		case INST_DEBUG_INFO:
+			inst_destroy(inst);
+			break;
+		case INST_ERROR:
+			vm->error(get_var_name(vm, vm->stack, inst), vm->stack);
+			vm->die_flag = 1;
 			inst_destroy(inst);
 			break;
 		}

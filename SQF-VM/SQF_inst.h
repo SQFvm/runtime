@@ -27,6 +27,7 @@ PINST inst_code_load(unsigned char createscope);
 PINST inst_pop_eval(unsigned int ammount, unsigned char popon);
 PINST inst_clear_work(void);
 PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off);
+PINST inst_error(const char* err);
 
 
 void inst_destroy(PINST inst);
@@ -35,6 +36,7 @@ void inst_destroy_scope(PSCOPE scope);
 void inst_destroy_value(PVALUE val);
 void inst_destroy_var(char* name);
 void inst_destroy_pop_eval(PPOPEVAL popeval);
+void inst_destroy_error(char* name);
 
 //inline void get_nop(PINST) {}
 inline CPCMD get_command(PVM vm, PSTACK stack, PINST inst)
@@ -63,7 +65,7 @@ inline PVALUE get_value(PVM vm, PSTACK stack, PINST inst)
 }
 inline const char* get_var_name(PVM vm, PSTACK stack, PINST inst)
 {
-	if (inst != 0 && (inst->type == INST_LOAD_VAR || inst->type == INST_STORE_VAR || inst->type == INST_STORE_VAR_LOCAL))
+	if (inst != 0 && (inst->type == INST_LOAD_VAR || inst->type == INST_STORE_VAR || inst->type == INST_STORE_VAR_LOCAL || inst->type == INST_ERROR))
 	{
 		return (const char*)inst->data.ptr;
 	}

@@ -224,8 +224,9 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 	int arrcount = 0;
 	int codecount = 0;
 	int bracecount = 0;
+	int curstack;
 	char c;
-	for (i = arr_end - 1; i >= arr_start; i--)
+	for (i = arr_end - 1; i >= (int)arr_start; i--)
 	{
 		range = tr_arr_get(arr, i);
 		str = code + range.start;
@@ -303,7 +304,12 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 			if (c != '}' && c != ']')
 			{
 				push_stack(vm, vm->stack, inst_arr_push());
+				curstack = vm->stack->top;
 				parse_partial(vm, stack, code, arr, i + 1, j + 1);
+				if((vm->stack->allow_dbg && vm->stack->top - 2 != curstack) || (!vm->stack->allow_dbg && vm->stack->top - 1 != curstack))
+				{
+					push_stack(vm, vm->stack, inst_error("INVALID SYNTAX (UNKNOWN COMMAND?)"));
+				}
 			}
 			j = -1;
 			k = -1;

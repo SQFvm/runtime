@@ -121,6 +121,14 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off)
 	dbginf->offset = off;
 	return p;
 }
+PINST inst_error(const char* err)
+{
+	PINST p = inst(INST_ERROR);
+	int len = strlen(err);
+	p->data.ptr = malloc(sizeof(char) * (len + 1));
+	strcpy(p->data.ptr, err);
+	return p;
+}
 
 
 void inst_destroy(PINST inst)
@@ -159,6 +167,9 @@ void inst_destroy(PINST inst)
 			break;
 		case INST_DEBUG_INFO:
 			inst_destroy_dbginf(get_dbginf(0, 0, inst));
+			break;
+		case INST_ERROR:
+			inst_destroy_error(get_var_name(0, 0, inst));
 			break;
 		default:
 			#if _WIN32
@@ -208,4 +219,8 @@ void inst_destroy_pop_eval(PPOPEVAL popeval)
 	free(popeval);
 }
 
+void inst_destroy_error(char* err)
+{
+	free(err);
+}
 
