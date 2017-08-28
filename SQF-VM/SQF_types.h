@@ -107,5 +107,21 @@ PNAMESPACE sqf_parsingNamespace(void);
 
 
 
+//NON-SQF compliant types
+
+
+typedef struct COUNT
+{
+	PVALUE code;
+	PVALUE arr;
+	unsigned int curtop;
+	unsigned int count;
+	int refcount;
+}COUNT;
+typedef COUNT* PCOUNT;
+PCMD COUNT_TYPE(void);
+PCOUNT count_create(PCODE code, PARRAY arr);
+void count_destroy(PCOUNT count);
+
 
 #endif // !_SQF_TYPES_H_

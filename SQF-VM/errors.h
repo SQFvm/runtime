@@ -14,6 +14,7 @@
 #define ERR_CODE "CODE"
 #define ERR_WHILE "WHILE"
 #define ERR_FOR "FOR"
+#define ERR_COUNT "COUNT"
 
 #define ERR_NOT_EMPTY "NOT EMPTY "
 

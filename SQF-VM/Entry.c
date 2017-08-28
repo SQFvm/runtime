@@ -980,6 +980,93 @@ void CMD_TYPENAME(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
 	inst_destroy(right);
 }
+void CMD_COUNT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PCOUNT count;
+	PARRAY arr;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type == CODE_TYPE())
+	{
+		if (right_val->type != ARRAY_TYPE())
+		{
+			vm->error(ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			return;
+		}
+		arr = right_val->val.ptr;
+		if (arr->top == 0)
+		{
+			inst_destroy(left);
+			inst_destroy(right);
+		}
+		else
+		{
+			count = count_create(left_val->val.ptr, right_val->val.ptr);
+			push_stack(vm, vm->stack, inst_command(self));
+			push_stack(vm, vm->stack, inst_value(value(COUNT_TYPE(), base_voidptr(count))));
+			push_stack(vm, vm->stack, inst_scope(0));
+			push_stack(vm, vm->stack, inst_code_load(0));
+			push_stack(vm, vm->stack, left);
+			push_stack(vm, vm->stack, inst_store_var_local("_x"));
+			push_stack(vm, vm->stack, inst_value(value(arr->data[count->curtop]->type, arr->data[count->curtop]->val)));
+			inst_destroy(right);
+		}
+	}
+	else if (left_val->type == COUNT_TYPE())
+	{
+		if (right_val->type != BOOL_TYPE())
+		{
+			vm->error(ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			return;
+		}
+		count = left_val->val.ptr;
+		arr = count->arr->val.ptr;
+		if (right_val->val.i)
+		{
+			count->count++;
+		}
+		if (++(count->curtop) == arr->top)
+		{
+			push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(count->count))));
+			inst_destroy(left);
+			inst_destroy(right);
+		}
+		else
+		{
+			push_stack(vm, vm->stack, inst_command(self));
+			push_stack(vm, vm->stack, left);
+			push_stack(vm, vm->stack, inst_scope(0));
+			push_stack(vm, vm->stack, inst_code_load(0));
+			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(count->code->val.ptr))));
+			push_stack(vm, vm->stack, inst_store_var_local("_x"));
+			push_stack(vm, vm->stack, inst_value(value(arr->data[count->curtop]->type, arr->data[count->curtop]->val)));
+			inst_destroy(right);
+		}
+	}
+	else
+	{
+		vm->error(ERR_LEFT_TYPE ERR_CODE ERR_OR ERR_COUNT, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+}
 void CMD_COUNT_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
@@ -988,12 +1075,12 @@ void CMD_COUNT_UNARY(void* input, CPCMD self)
 	PCODE code;
 	PARRAY arr;
 	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
 	{
 		inst_destroy(right);
 		return;
 	}
-	right_val = get_value(vm, vm->stack, right);
 
 	if (right_val->type == STRING_TYPE())
 	{
@@ -1341,6 +1428,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("from", 'b', CMD_FROM, 0, "<FOR> from <SCALAR>"));
 	register_command(vm, create_command("to", 'b', CMD_TO, 0, "<FOR> to <SCALAR>"));
 	register_command(vm, create_command("step", 'b', CMD_STEP, 0, "<FOR> step <SCALAR>"));
+	register_command(vm, create_command("count", 'b', CMD_COUNT, 0, "<CODE> count <ARRAY> | <COUNT> count <BOOL>"));
 
 	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>"));
 	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>"));

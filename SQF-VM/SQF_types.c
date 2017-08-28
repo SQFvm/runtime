@@ -424,3 +424,61 @@ PNAMESPACE sqf_parsingNamespace(void)
 	}
 	return ns;
 }
+
+
+
+//NON-SQF TYPES
+
+void TYPE_COUNT_CALLBACK(void* input, CPCMD self)
+{
+	PVALUE val = input;
+	PCOUNT count = val->val.ptr;
+	if (val->type == 0)
+	{
+		count->refcount--;
+		if (count->refcount <= 0)
+		{
+			count_destroy(count);
+		}
+	}
+	else
+	{
+		count->refcount++;
+	}
+}
+PCMD COUNT_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("COUNT", 't', TYPE_COUNT_CALLBACK, 0, "non-sqf compliant helper type");
+	}
+	return cmd;
+}
+PCOUNT count_create(PCODE code, PARRAY arr)
+{
+	PCOUNT count = malloc(sizeof(COUNT));
+
+	PVALUE pvalue = malloc(sizeof(VALUE));
+	VALUE val = value(CODE_TYPE(), base_voidptr(code));
+	pvalue->type = val.type;
+	pvalue->val = val.val;
+	count->code = pvalue;
+
+	pvalue = malloc(sizeof(VALUE));
+	val = value(ARRAY_TYPE(), base_voidptr(arr));
+	pvalue->type = val.type;
+	pvalue->val = val.val;
+	count->arr = pvalue;
+
+	count->curtop = 0;
+	count->refcount = 0;
+	count->count = 0;
+	return count;
+}
+void count_destroy(PCOUNT count)
+{
+	inst_destroy_value(count->code);
+	inst_destroy_value(count->arr);
+	free(count);
+}
