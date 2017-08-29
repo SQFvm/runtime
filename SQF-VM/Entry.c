@@ -1642,81 +1642,55 @@ int main(int argc, char** argv)
 {
 	char linebuffer[LINEBUFFER_SIZE];
 	char* ptr = 0;
-	int i = 1;
+	int i;
+	char* code = 0;
 	PVM vm;
 	PSTRING pstr;
 	//_CrtSetBreakAlloc(447);
-	/*
-	Test 'file'
-	1: private _test = 10 + 12.5;
-	2: diag_log _test;
-	3: _foo = "test";
-	4: diag_log _foo;
-	5: _foo = _test;
-	6: diag_log _foo;
-	*/
 
-	////Create root scope
-	//push_stack(vm, vm->stack, inst_scope("all"));
-	////diag_log _foo
-	//push_stack(vm, vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	//push_stack(vm, vm->stack, inst_load_var("_foo"));
-	////_foo = _test
-	//push_stack(vm, vm->stack, inst_store_var("_foo"));
-	//push_stack(vm, vm->stack, inst_load_var("_test"));
-	////diag_log _foo
-	//push_stack(vm, vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	//push_stack(vm, vm->stack, inst_load_var("_foo"));
-	////_foo = "test"
-	//push_stack(vm, vm->stack, inst_store_var("_foo"));
-	//push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("test")))));
-	////diag_log _test
-	//push_stack(vm, vm->stack, inst_command(find_command(vm, "diag_log", 'u')));
-	//push_stack(vm, vm->stack, inst_load_var("_test"));
-	////private _test = 10 + 12.5
-	//push_stack(vm, vm->stack, inst_store_var_local("_test"));
-	//push_stack(vm, vm->stack, inst_command(find_command(vm, "+", 'b')));
-	//push_stack(vm, vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(10))));
-	//push_stack(vm, vm->stack, inst_value(value(find_type(vm, "SCALAR"), base_float(12.5))));
-	//
-	//execute(vm);
 
-	//parse(vm, "private _test = 10 + 12.5; diag_log _test; _foo = \"test\"; diag_log _foo; _foo = _test; diag_log _foo");
-	//execute(vm);
-
-	pstr = string_create(0);
-	printf("Please enter your SQF code.\nTo get the capabilities, use the `help` instruction.\nTo run the code, Press <ENTER> twice.\n");
-	printf("%d:\t", i++);
-	while (get_line(linebuffer, LINEBUFFER_SIZE)[0] != '\n')
+	if (code == 0)
 	{
-		string_modify_append(pstr, linebuffer);
+		i = 1;
+		pstr = string_create(0);
+		printf("Please enter your SQF code.\nTo get the capabilities, use the `help` instruction.\nTo run the code, Press <ENTER> twice.\n");
 		printf("%d:\t", i++);
-	}
-	//string_modify_append(pstr, "diag_log str [1, 2, \"test\", [1, 2, 3]]");
-	if(pstr->length > 0)
-		ptr = start_program(pstr->val);
-	printf("-------------------------------------\n");
-	if (ptr == 0)
-	{
-		printf("<EMPTY>\n");
+		while (get_line(linebuffer, LINEBUFFER_SIZE)[0] != '\n')
+		{
+			string_modify_append(pstr, linebuffer);
+			printf("%d:\t", i++);
+		}
+		//string_modify_append(pstr, "diag_log str [1, 2, \"test\", [1, 2, 3]]");
+		if (pstr->length > 0)
+			ptr = start_program(pstr->val);
+		printf("-------------------------------------\n");
+		if (ptr == 0)
+		{
+			printf("<EMPTY>\n");
+		}
+		else
+		{
+			printf("%s", ptr);
+		}
+		printf("-------------------------------------\n");
+		printf("Press <ENTER> to finish.");
+		get_line(linebuffer, LINEBUFFER_SIZE);
+		string_destroy(pstr);
+
+		if (outputbuffer != 0)
+			string_destroy(outputbuffer);
+		vm = sqfvm(0, 0, 0, 0);
+		for (i = 0; i < vm->cmds_top; i++)
+		{
+			destroy_command(vm->cmds[i]);
+		}
+		destroy_sqfvm(vm);
+		return i;
 	}
 	else
 	{
-		printf("%s", ptr);
-	}
-	printf("-------------------------------------\n");
-	printf("Press <ENTER> to finish.");
-	get_line(linebuffer, LINEBUFFER_SIZE);
-	string_destroy(pstr);
 
-	if(outputbuffer != 0)
-		string_destroy(outputbuffer);
-	vm = sqfvm(0, 0, 0, 0);
-	for (i = 0; i < vm->cmds_top; i++)
-	{
-		destroy_command(vm->cmds[i]);
 	}
-	destroy_sqfvm(vm);
 
 	//_CrtDumpMemoryLeaks();
 }
