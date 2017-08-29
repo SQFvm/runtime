@@ -943,6 +943,7 @@ void CMD_DO(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_pop_eval(5, 0));
 		push_stack(vm, vm->stack, inst_code_load(0));
 		push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), left_val->val)));
+		push_stack(vm, vm->stack, inst_clear_work());
 	}
 	else if (left_val->type == FOR_TYPE())
 	{
@@ -966,6 +967,7 @@ void CMD_DO(void* input, CPCMD self)
 			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), right_val->val)));
 			push_stack(vm, vm->stack, inst_store_var_local(pfor->variable));
 			push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(pfor->current))));
+			push_stack(vm, vm->stack, inst_clear_work());
 		}
 		else
 		{
