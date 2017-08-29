@@ -796,7 +796,7 @@ void CMD_ANDAND(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.i && right_val->val.i))));
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(left_val->val.i && right_val->val.i))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -833,7 +833,7 @@ void CMD_OROR(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.i || right_val->val.i))));
+	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(left_val->val.i || right_val->val.i))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -1639,7 +1639,6 @@ void CMD_ATAN(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-
 void CMD_RAD(void* input, CPCMD self)
 {
 	PVM vm = input;
@@ -1793,6 +1792,180 @@ void CMD_ROUND(void* input, CPCMD self)
 	}
 	f = round(right_val->val.f);
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+
+void CMD_ATAN2(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	float l, r;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	l = left_val->val.f;
+	r = right_val->val.f;
+
+	l = atan2(l, r);
+
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE, base_float(l))));
+	inst_destroy(left);
+	inst_destroy(right);
+}
+void CMD_MIN(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	float l, r;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	l = left_val->val.f;
+	r = right_val->val.f;
+
+	l = l < r ? l : r;
+
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE, base_float(l))));
+	inst_destroy(left);
+	inst_destroy(right);
+}
+void CMD_MAX(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	float l, r;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	l = left_val->val.f;
+	r = right_val->val.f;
+
+	l = l > r ? l : r;
+
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE, base_float(l))));
+	inst_destroy(left);
+	inst_destroy(right);
+}
+void CMD_MOD(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	float l, r;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	l = left_val->val.f;
+	r = right_val->val.f;
+
+	
+	l = fmod(l, r);
+
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE, base_float(l))));
+	inst_destroy(left);
 	inst_destroy(right);
 }
 
@@ -2011,6 +2184,10 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("floor", 'u', CMD_FLOOR, 0, "floor <SCALAR>"));
 	register_command(vm, create_command("ln", 'u', CMD_LN, 0, "ln <SCALAR>"));
 	register_command(vm, create_command("round", 'u', CMD_ROUND, 0, "round <SCALAR>"));
+	register_command(vm, create_command("atan2", 'u', CMD_ATAN2, 0, "atan2 <SCALAR>"));
+	register_command(vm, create_command("min", 'u', CMD_MIN, 0, "min <SCALAR>"));
+	register_command(vm, create_command("max", 'u', CMD_MAX, 0, "max <SCALAR>"));
+	register_command(vm, create_command("mod", 'u', CMD_MOD, 0, "mod <SCALAR>"));
 
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
