@@ -259,13 +259,6 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 			{
 				codecount++;
 			}
-			if (codecount == 0)
-			{
-				push_stack(vm, vm->stack, inst_arr_push());
-				parse_form_code(vm, stack, code, arr, i, j);
-				k = j;
-				j = -1;
-			}
 			continue;
 		}
 		if (bracecount > 0)
@@ -300,10 +293,18 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 			{
 				c = '\0';
 			}
-			if (c != '}' && c != ']')
+			if (c != ']')
 			{
-				push_stack(vm, vm->stack, inst_arr_push());
-				parse_partial(vm, stack, code, arr, i + 1, j + 1);
+				if (c == '}' && (code + tr_arr_get(arr, i + 1).start)[0] == '{')
+				{
+					push_stack(vm, vm->stack, inst_arr_push());
+					parse_form_code(vm, stack, code, arr, i + 1, k);
+				}
+				else
+				{
+					push_stack(vm, vm->stack, inst_arr_push());
+					parse_partial(vm, stack, code, arr, i + 1, j + 1);
+				}
 			}
 			j = -1;
 			k = -1;
