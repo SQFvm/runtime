@@ -41,7 +41,7 @@ PINST pop_stack(PVM vm, PSTACK stack)
 		return stack->data[--stack->top];
 	}
 }
-PINST insert_stack(PVM vm, PSTACK stack, PINST inst, int offset)
+void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset)
 {
 	PINST tmp;
 	if (stack->top >= stack->size)

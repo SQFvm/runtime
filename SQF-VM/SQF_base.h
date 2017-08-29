@@ -121,7 +121,7 @@ void destroy_stack(PSTACK stack);
 void resize_stack(PSTACK stack, unsigned int newsize);
 void push_stack(PVM vm, PSTACK stack, PINST inst);
 PINST pop_stack(PVM vm, PSTACK stack);
-PINST insert_stack(PVM vm, PSTACK stack, PINST inst, int offset);
+void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset);
 
 PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg);
 void destroy_sqfvm(PVM vm);

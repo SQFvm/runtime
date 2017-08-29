@@ -57,7 +57,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	else if (val->type == SCALAR_TYPE())
 	{
 		strptr = alloca(sizeof(char) * 64);
-		sprintf(strptr, "%lf\0", val->val.f);
+		sprintf(strptr, "%lf", val->val.f);
 		string_modify_append(str, strptr);
 	}
 	else if (val->type == BOOL_TYPE())
@@ -913,7 +913,6 @@ void CMD_DO(void* input, CPCMD self)
 	PVALUE left_val;
 	PVALUE right_val;
 	PCODE code;
-	PCODE pwhile;
 	PFOR pfor;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
@@ -938,7 +937,6 @@ void CMD_DO(void* input, CPCMD self)
 	}
 	if (left_val->type == WHILE_TYPE())
 	{
-		pwhile = left_val->val.ptr;
 		push_stack(vm, vm->stack, inst_command(find_command(vm, "do", 'b')));
 		push_stack(vm, vm->stack, left);
 		push_stack(vm, vm->stack, right);
@@ -1095,8 +1093,6 @@ void CMD_COUNT_UNARY(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PCODE code;
-	PARRAY arr;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -1225,7 +1221,6 @@ void CMD_CALL_UNARY(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	int i;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -1834,7 +1829,7 @@ void CMD_ATAN2(void* input, CPCMD self)
 
 	l = atan2(l, r);
 
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE, base_float(l))));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(l))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -1877,7 +1872,7 @@ void CMD_MIN(void* input, CPCMD self)
 
 	l = l < r ? l : r;
 
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE, base_float(l))));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(l))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -1920,7 +1915,7 @@ void CMD_MAX(void* input, CPCMD self)
 
 	l = l > r ? l : r;
 
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE, base_float(l))));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(l))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -1964,7 +1959,7 @@ void CMD_MOD(void* input, CPCMD self)
 	
 	l = fmod(l, r);
 
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE, base_float(l))));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(l))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -2002,7 +1997,8 @@ char* get_line(char* line, size_t lenmax)
 void custom_error(const char* errMsg, PSTACK stack)
 {
 	int len, i, j;
-	char* str;
+	const char* str;
+	char* str2;
 	PDBGINF dbginf;
 	if (current_code != 0 && stack->allow_dbg)
 	{
@@ -2048,10 +2044,10 @@ void custom_error(const char* errMsg, PSTACK stack)
 			}
 			string_modify_append(outputbuffer, "^\n");
 			len = snprintf(0, 0, "[ERR][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
-			str = alloca(sizeof(char) * (len + 1));
-			snprintf(str, len + 1, "[ERR][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
-			str[len] = '\0';
-			string_modify_append(outputbuffer, str);
+			str2 = alloca(sizeof(char) * (len + 1));
+			snprintf(str2, len + 1, "[ERR][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
+			str2[len] = '\0';
+			string_modify_append(outputbuffer, str2);
 		}
 		else
 		{
@@ -2062,10 +2058,10 @@ void custom_error(const char* errMsg, PSTACK stack)
 	{
 normal:
 		len = snprintf(0, 0, "[ERR] %s\n", errMsg);
-		str = alloca(sizeof(char) * (len + 1));
-		snprintf(str, len + 1, "[ERR] %s\n", errMsg);
-		str[len] = '\0';
-		string_modify_append(outputbuffer, str);
+		str2 = alloca(sizeof(char) * (len + 1));
+		snprintf(str2, len + 1, "[ERR] %s\n", errMsg);
+		str2[len] = '\0';
+		string_modify_append(outputbuffer, str2);
 	}
 	vm->die_flag = 1;
 	//longjmp(program_exit, 1);
@@ -2232,7 +2228,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 int main(int argc, char** argv)
 {
 	char linebuffer[LINEBUFFER_SIZE];
-	char* ptr = 0;
+	const char* ptr = 0;
 	int i;
 	char* code = 0;
 	PVM vm;
