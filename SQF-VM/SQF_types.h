@@ -50,6 +50,7 @@ PSTRING string_concat(const PSTRING l, const PSTRING r);
 PSTRING string_substring(const PSTRING string, unsigned int start, int length);
 ///Appends provided cstring onto STRING object
 void string_modify_append(PSTRING string, const char* append);
+void string_modify_append2(PSTRING string, unsigned int len);
 ///Appends n characters of provided cstring onto STRING object
 void string_modify_nappend(PSTRING string, const char* append, unsigned int len);
 

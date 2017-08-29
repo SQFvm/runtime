@@ -201,6 +201,20 @@ void string_modify_nappend(PSTRING string, const char* append, unsigned int len)
 	string->length += len;
 	string->val[string->length] = '\0';
 }
+void string_modify_append2(PSTRING string, unsigned int len)
+{
+	if (len == 0)
+		return;
+	char* ptr;
+	if (len == 0)
+		return;
+	ptr = realloc(string->val, sizeof(char) * (string->length + len + 1));
+	if (ptr == 0)
+		error("failed", 0);
+	string->val = ptr;
+	string->length += len;
+	string->val[string->length] = '\0';
+}
 
 
 void TYPE_ARRAY_CALLBACK(void* input, CPCMD self)

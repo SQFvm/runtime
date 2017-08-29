@@ -514,6 +514,7 @@ void execute(PVM vm)
 			{
 				inst_destroy(pop_stack(vm, vm->work));
 			}
+			inst_destroy(inst);
 			break;
 		case INST_DEBUG_INFO:
 			inst_destroy(inst);

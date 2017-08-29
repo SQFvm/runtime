@@ -2071,10 +2071,11 @@ normal:
 
 #ifdef _WIN32
 __declspec(dllexport) const char* start_program(const char* input)
+{
 #else
 __attribute__((visibility("default"))) const char* start_program(const char* input)
-#endif
 {
+#endif
 	int val;
 	int i;
 	vm = sqfvm(1000, 50, 100, 1);
@@ -2229,21 +2230,104 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	return outputbuffer->val;
 }
 
+
+#define RETCDE_OK 0
+#define RETCDE_ERROR 1
+
+int load_file(PSTRING buffer, const char* fpath)
+{
+	FILE* fptr = fopen(fpath, 'r');
+	size_t size;
+	size_t curlen = buffer->length;
+	int lcount = 1;
+	if (fptr == 0)
+	{
+		printf("[ERR] Could not open file '%s'", fpath);
+		return -1;
+	}
+	fseek(fptr, 0, SEEK_END);
+	size = ftell(fptr);;
+	rewind(fptr);
+	string_modify_append2(buffer, size);
+	fread(buffer->val + curlen, sizeof(char), size, fptr);
+	for (; curlen < buffer->length; curlen++)
+	{
+		if (buffer->val[curlen] == '\n')
+			lcount++;
+	}
+	return lcount;
+}
+
 int main(int argc, char** argv)
 {
 	char linebuffer[LINEBUFFER_SIZE];
-	const char* ptr = 0;
-	int i;
+	const char* ptr;
+	int i, j, k;
 	char* code = 0;
+	unsigned char just_execute = 0;
 	PVM vm;
 	PSTRING pstr;
-	//_CrtSetBreakAlloc(447);
-
-
-	if (code == 0)
+	pstr = string_create(0);
+	_CrtSetBreakAlloc(539);
+	j = 0;
+	for (i = 0; i < argc; i++)
 	{
-		i = 1;
-		pstr = string_create(0);
+		ptr = argv[i];
+		if (ptr[0] == '-')
+		{
+			switch (ptr[1])
+			{
+				case '\0':
+					printf("[ERR] empty argument passed.");
+					return RETCDE_ERROR;
+				case '?':
+					printf("SQF-VM Help page\n");
+					printf("./prog [-j] [-i <FILE>] [-I <CODE>]\n");
+					printf("\t-?\tOutputs this help\n");
+					printf("\t-i\tLoads provided input file into the code-buffer.\n");
+					printf("\t-I\tLoads provided input SQF code into the code-buffer.\n");
+					printf("\t-a\tDisables user input and just executes the code-buffer.\n");
+					return RETCDE_OK;
+					break;
+				case 'i':
+					if (i + 1 < argc)
+					{
+						k = load_file(pstr, argv[++i]);
+						if (k < 0)
+							return RETCDE_ERROR;
+						j += k;
+					}
+					else
+					{
+						printf("[ERR] -i empty parameter");
+						return RETCDE_ERROR;
+					}
+					break;
+				case 'I':
+					if (i + 1 < argc)
+					{
+						string_modify_append(pstr, argv[++i]);
+						j++;
+					}
+					else
+					{
+						printf("[ERR] -I empty parameter");
+						return RETCDE_ERROR;
+					}
+					break;
+				case 'a':
+					just_execute = 1;
+					break;
+				default:
+					break;
+			}
+		}
+	}
+	ptr = 0;
+	i = j;
+
+	if (!just_execute)
+	{
 		printf("Please enter your SQF code.\nTo get the capabilities, use the `help` instruction.\nTo run the code, Press <ENTER> twice.\n");
 		printf("%d:\t", i++);
 		while (get_line(linebuffer, LINEBUFFER_SIZE)[0] != '\n')
@@ -2252,8 +2336,18 @@ int main(int argc, char** argv)
 			printf("%d:\t", i++);
 		}
 		//string_modify_append(pstr, "diag_log str [1, 2, \"test\", [1, 2, 3]]");
-		if (pstr->length > 0)
-			ptr = start_program(pstr->val);
+	}
+	if (pstr->length > 0)
+		ptr = start_program(pstr->val);
+	if (just_execute)
+	{
+		if (ptr != 0)
+		{
+			printf("%s", ptr);
+		}
+	}
+	else
+	{
 		printf("-------------------------------------\n");
 		if (ptr == 0)
 		{
@@ -2266,23 +2360,20 @@ int main(int argc, char** argv)
 		printf("-------------------------------------\n");
 		printf("Press <ENTER> to finish.");
 		get_line(linebuffer, LINEBUFFER_SIZE);
-		string_destroy(pstr);
-
-		if (outputbuffer != 0)
-			string_destroy(outputbuffer);
-		vm = sqfvm(0, 0, 0, 0);
-		for (i = 0; i < vm->cmds_top; i++)
-		{
-			destroy_command(vm->cmds[i]);
-		}
-		destroy_sqfvm(vm);
-		return i;
 	}
-	else
+	string_destroy(pstr);
+
+	if (outputbuffer != 0)
+		string_destroy(outputbuffer);
+	vm = sqfvm(0, 0, 0, 0);
+	for (i = 0; i < vm->cmds_top; i++)
 	{
-
+		destroy_command(vm->cmds[i]);
 	}
+	destroy_sqfvm(vm);
+
 	#if _WIN32 & _DEBUG
 	_CrtDumpMemoryLeaks();
 	#endif
+	return RETCDE_OK;
 }
