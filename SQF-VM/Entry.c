@@ -1549,6 +1549,94 @@ void CMD_TAN(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
+void CMD_EXP(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = exp(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_ASIN(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = asin(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_ACOS(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = acos(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_ATAN(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = atan(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
 
 
 char* get_line(char* line, size_t lenmax)
@@ -1754,6 +1842,11 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("sin", 'u', CMD_SIN, 0, "sin <SCALAR>"));
 	register_command(vm, create_command("cos", 'u', CMD_COS, 0, "cos <SCALAR>"));
 	register_command(vm, create_command("tan", 'u', CMD_TAN, 0, "tan <SCALAR>"));
+	register_command(vm, create_command("exp", 'u', CMD_EXP, 0, "exp <SCALAR>"));
+	register_command(vm, create_command("asin", 'u', CMD_ASIN, 0, "asin <SCALAR>"));
+	register_command(vm, create_command("acos", 'u', CMD_ACOS, 0, "acos <SCALAR>"));
+	register_command(vm, create_command("atan", 'u', CMD_ATAN, 0, "atan <SCALAR>"));
+	register_command(vm, create_command("atn", 'u', CMD_ATAN, 0, "atn <SCALAR>"));
 
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
