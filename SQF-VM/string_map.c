@@ -81,6 +81,7 @@ void sm_destroy_list(sm_list* list, void(*destroy_ptr)(void*))
 	{
 		sm_destroy_bucket(list->buckets[i], destroy_ptr);
 	}
+	free(list->buckets);
 	free(list);
 }
 

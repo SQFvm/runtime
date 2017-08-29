@@ -51,6 +51,15 @@ PCMD NOTHING_TYPE(void)
 	}
 	return cmd;
 }
+PCMD ANY_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("ANY", 't', 0, 0, NULL);
+	}
+	return cmd;
+}
 
 
 
@@ -201,13 +210,11 @@ void string_modify_nappend(PSTRING string, const char* append, unsigned int len)
 	string->length += len;
 	string->val[string->length] = '\0';
 }
-void string_modify_append2(PSTRING string, unsigned int len)
+void string_modify_append2(PSTRING string, int len)
 {
 	if (len == 0)
 		return;
 	char* ptr;
-	if (len == 0)
-		return;
 	ptr = realloc(string->val, sizeof(char) * (string->length + len + 1));
 	if (ptr == 0)
 		error("failed", 0);
@@ -411,6 +418,7 @@ PNAMESPACE sqf_missionNamespace(void)
 	if (ns == 0)
 	{
 		ns = namespace_create();
+		ns->refcount++;
 	}
 	return ns;
 }
@@ -420,6 +428,7 @@ PNAMESPACE sqf_uiNamespace(void)
 	if (ns == 0)
 	{
 		ns = namespace_create();
+		ns->refcount++;
 	}
 	return ns;
 }
@@ -429,6 +438,7 @@ PNAMESPACE sqf_profileNamespace(void)
 	if (ns == 0)
 	{
 		ns = namespace_create();
+		ns->refcount++;
 	}
 	return ns;
 }
@@ -438,6 +448,7 @@ PNAMESPACE sqf_parsingNamespace(void)
 	if (ns == 0)
 	{
 		ns = namespace_create();
+		ns->refcount++;
 	}
 	return ns;
 }

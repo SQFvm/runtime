@@ -360,7 +360,7 @@ void CMD_PRIVATE(void* input, CPCMD self)
 		}
 		else
 		{
-			store_in_scope(vm, top_scope(vm), str->val, value(find_type(vm, "any"), base_voidptr(0)));
+			store_in_scope(vm, top_scope(vm), str->val, value(ANY_TYPE(), base_voidptr(0)));
 		}
 	}
 	else if (right_val->type == ARRAY_TYPE())
@@ -385,7 +385,7 @@ void CMD_PRIVATE(void* input, CPCMD self)
 				}
 				else
 				{
-					store_in_scope(vm, top_scope(vm), str->val, value(find_type(vm, "any"), base_voidptr(0)));
+					store_in_scope(vm, top_scope(vm), str->val, value(ANY_TYPE(), base_voidptr(0)));
 				}
 			}
 		}
@@ -2236,9 +2236,10 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 
 int load_file(PSTRING buffer, const char* fpath)
 {
-	FILE* fptr = fopen(fpath, 'r');
+	FILE* fptr = fopen(fpath, "r");
 	size_t size;
 	size_t curlen = buffer->length;
+	int tailing = 0;
 	int lcount = 1;
 	if (fptr == 0)
 	{
@@ -2249,11 +2250,18 @@ int load_file(PSTRING buffer, const char* fpath)
 	size = ftell(fptr);;
 	rewind(fptr);
 	string_modify_append2(buffer, size);
+	memset(buffer->val + curlen, 0, sizeof(char) * size);
 	fread(buffer->val + curlen, sizeof(char), size, fptr);
 	for (; curlen < buffer->length; curlen++)
 	{
 		if (buffer->val[curlen] == '\n')
 			lcount++;
+		else if (buffer->val[curlen] == '\0')
+			tailing++;
+	}
+	if (tailing > 0)
+	{
+		string_modify_append2(buffer, -tailing);
 	}
 	return lcount;
 }
@@ -2268,7 +2276,7 @@ int main(int argc, char** argv)
 	PVM vm;
 	PSTRING pstr;
 	pstr = string_create(0);
-	_CrtSetBreakAlloc(539);
+	//_CrtSetBreakAlloc(1007);
 	j = 0;
 	for (i = 0; i < argc; i++)
 	{
@@ -2365,6 +2373,10 @@ int main(int argc, char** argv)
 
 	if (outputbuffer != 0)
 		string_destroy(outputbuffer);
+	namespace_destroy(sqf_missionNamespace());
+	namespace_destroy(sqf_parsingNamespace());
+	namespace_destroy(sqf_profileNamespace());
+	namespace_destroy(sqf_uiNamespace());
 	vm = sqfvm(0, 0, 0, 0);
 	for (i = 0; i < vm->cmds_top; i++)
 	{

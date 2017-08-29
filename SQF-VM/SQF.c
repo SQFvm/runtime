@@ -69,7 +69,7 @@ void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset)
 }
 extern inline void register_command(PVM vm, PCMD cmd);
 
-#define SQF_VM_INTERNAL_TYPE_COUNT 10
+#define SQF_VM_INTERNAL_TYPE_COUNT 11
 PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg)
 {
 	PVM vm = malloc(sizeof(VM));
@@ -91,6 +91,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 	register_command(vm, CODE_TYPE());
 	register_command(vm, STRING_TYPE());
 	register_command(vm, NOTHING_TYPE());
+	register_command(vm, ANY_TYPE());
 
 	register_command(vm, NAMESPACE_TYPE());
 
