@@ -22,7 +22,9 @@
 #include <setjmp.h>
 #include <sys/timeb.h>
 #include <stdint.h>
-//#include <crtdbg.h>
+#if _WIN32 & _DEBUG
+#include <crtdbg.h>
+#endif
 
 int64_t system_time_ms()
 {
@@ -2213,6 +2215,8 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 		{
 			if (vm->work->data[i]->type == INST_VALUE)
 			{
+				if (get_value(vm, vm->stack, vm->work->data[i])->type == NOTHING_TYPE())
+					continue;
 				string_modify_append(outputbuffer, "[WORK]: ");
 				stringify_value(vm, outputbuffer, get_value(vm, vm->stack, vm->work->data[i]));
 				string_modify_append(outputbuffer, "\n");
@@ -2278,6 +2282,7 @@ int main(int argc, char** argv)
 	{
 
 	}
-
-	//_CrtDumpMemoryLeaks();
+	#if _WIN32 & _DEBUG
+	_CrtDumpMemoryLeaks();
+	#endif
 }
