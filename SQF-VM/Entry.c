@@ -1210,6 +1210,7 @@ void CMD_CALL(void* input, CPCMD self)
 		push_stack(vm, vm->stack, right);
 		push_stack(vm, vm->stack, inst_store_var_local("_this"));
 		push_stack(vm, vm->stack, inst_value(value(left_val->type, left_val->val)));
+		inst_destroy(left);
 	}
 	else
 	{
@@ -2276,7 +2277,7 @@ int main(int argc, char** argv)
 	PVM vm;
 	PSTRING pstr;
 	pstr = string_create(0);
-	//_CrtSetBreakAlloc(1007);
+	//_CrtSetBreakAlloc(593);
 	j = 0;
 	for (i = 0; i < argc; i++)
 	{
