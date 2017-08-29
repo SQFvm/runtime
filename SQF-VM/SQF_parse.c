@@ -225,7 +225,7 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 	int codecount = 0;
 	int bracecount = 0;
 	char c;
-	for (i = arr_end - 1; i >= arr_start; i--)
+	for (i = arr_end - 1; i >= (int)arr_start; i--)
 	{
 		range = tr_arr_get(arr, i);
 		str = code + range.start;

@@ -4,6 +4,7 @@
 #include "SQF.h"
 #include "SQF_types.h"
 #include "SQF_parse.h"
+#include "errors.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -429,7 +430,16 @@ void execute(PVM vm)
 			inst2 = pop_stack(vm, vm->work);
 			inst = pop_stack(vm, vm->work);
 			val = get_value(vm, vm->stack, inst2);
-			array_push(((PARRAY)get_value(vm, vm->stack, inst)->val.ptr), value(val->type, val->val));
+			val2 = get_value(vm, vm->stack, inst);
+			if (val2->type != ARRAY_TYPE())
+			{
+				vm->error("INST_ARRAY_PUSH FAILED TO FIND ARRAY", vm->stack);
+				vm->die_flag = 1;
+			}
+			else
+			{
+				array_push(((PARRAY)val2->val.ptr), value(val->type, val->val));
+			}
 			push_stack(vm, vm->work, inst);
 			inst_destroy(inst2);
 			break;
