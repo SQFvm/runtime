@@ -27,6 +27,8 @@ PINST inst_code_load(unsigned char createscope);
 PINST inst_pop_eval(unsigned int ammount, unsigned char popon);
 PINST inst_clear_work(void);
 PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off);
+PINST inst_move(int off);
+
 
 
 void inst_destroy(PINST inst);

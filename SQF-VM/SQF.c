@@ -20,7 +20,7 @@ void push_stack(PVM vm, PSTACK stack, PINST inst)
 	{
 		vm->error("STACK OVERFLOW", stack);
 	}
-	else if (inst->type == INST_DEBUG_INFO && !stack->allow_dbg)
+	else if (inst != 0 && inst->type == INST_DEBUG_INFO && !stack->allow_dbg)
 	{
 		inst_destroy(inst);
 	}
@@ -39,6 +39,32 @@ PINST pop_stack(PVM vm, PSTACK stack)
 	else
 	{
 		return stack->data[--stack->top];
+	}
+}
+PINST insert_stack(PVM vm, PSTACK stack, PINST inst, int offset)
+{
+	PINST tmp;
+	if (stack->top >= stack->size)
+	{
+		vm->error("STACK OVERFLOW", stack);
+	}
+	else if (offset > 0)
+	{
+		vm->error("CANNOT PUSH USING INSERT_STACK", stack);
+	}
+	else if (inst != 0 && inst->type == INST_DEBUG_INFO && !stack->allow_dbg)
+	{
+		inst_destroy(inst);
+	}
+	else
+	{
+		for (; offset < 0; offset++)
+		{
+			tmp = stack->data[stack->top + offset];
+			stack->data[stack->top + offset] = inst;
+			inst = tmp;
+		}
+		stack->data[stack->top++] = inst;
 	}
 }
 extern inline void register_command(PVM vm, PCMD cmd);
@@ -431,7 +457,7 @@ void execute(PVM vm)
 			inst = pop_stack(vm, vm->work);
 			val = get_value(vm, vm->stack, inst2);
 			val2 = get_value(vm, vm->stack, inst);
-			if (val2->type != ARRAY_TYPE())
+			if (val == 0 || val2 == 0 || val2->type != ARRAY_TYPE())
 			{
 				vm->error("INST_ARRAY_PUSH FAILED TO FIND ARRAY", vm->stack);
 				vm->die_flag = 1;
@@ -479,6 +505,11 @@ void execute(PVM vm)
 			}
 			break;
 		case INST_DEBUG_INFO:
+			inst_destroy(inst);
+			break;
+		case INST_MOVE:
+			inst2 = pop_stack(vm, vm->work);
+			insert_stack(vm, vm->stack, inst2, inst->data.i);
 			inst_destroy(inst);
 			break;
 		}

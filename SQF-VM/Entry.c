@@ -1219,6 +1219,7 @@ void CMD_CALL_UNARY(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
+	int i;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -1229,6 +1230,12 @@ void CMD_CALL_UNARY(void* input, CPCMD self)
 
 	if (right_val->type == CODE_TYPE())
 	{
+		i = -(vm->work->top);
+		while (vm->work->top != 0)
+		{
+			push_stack(vm, vm->stack, pop_stack(vm, vm->work));
+		}
+		push_stack(vm, vm->stack, inst_move(i));
 		push_stack(vm, vm->stack, inst_scope(0));
 		push_stack(vm, vm->stack, inst_code_load(0));
 		push_stack(vm, vm->stack, right);

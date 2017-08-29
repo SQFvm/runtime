@@ -121,6 +121,12 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off)
 	dbginf->offset = off;
 	return p;
 }
+PINST inst_move(int off)
+{
+	PINST p = inst(INST_MOVE);
+	p->data.i = off;
+	return p;
+}
 
 
 void inst_destroy(PINST inst)
@@ -159,6 +165,8 @@ void inst_destroy(PINST inst)
 			break;
 		case INST_DEBUG_INFO:
 			inst_destroy_dbginf(get_dbginf(0, 0, inst));
+			break;
+		case INST_MOVE:
 			break;
 		default:
 			#if _WIN32
