@@ -2071,10 +2071,10 @@ normal:
 }
 
 #ifdef _WIN32
-__declspec(dllexport) const char* start_program(const char* input)
+__declspec(dllexport) const char* start_program(const char* input, unsigned char* success)
 {
 #else
-__attribute__((visibility("default"))) const char* start_program(const char* input)
+__attribute__((visibility("default"))) const char* start_program(const char* input, unsigned char* success)
 {
 #endif
 	int val;
@@ -2210,6 +2210,8 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 		push_stack(vm, vm->stack, inst_scope("all"));
 		parse(vm, input, 1);
 		execute(vm);
+		if(success != 0)
+			*success = vm->die_flag;
 	}
 	if (vm->work->top != 0)
 	{
@@ -2272,7 +2274,6 @@ int main(int argc, char** argv)
 	char linebuffer[LINEBUFFER_SIZE];
 	const char* ptr;
 	int i, j, k;
-	char* code = 0;
 	unsigned char just_execute = 0;
 	PVM vm;
 	PSTRING pstr;
@@ -2347,7 +2348,7 @@ int main(int argc, char** argv)
 		//string_modify_append(pstr, "diag_log str [1, 2, \"test\", [1, 2, 3]]");
 	}
 	if (pstr->length > 0)
-		ptr = start_program(pstr->val);
+		ptr = start_program(pstr->val, 0);
 	if (just_execute)
 	{
 		if (ptr != 0)
@@ -2372,7 +2373,7 @@ int main(int argc, char** argv)
 	}
 	string_destroy(pstr);
 
-	if (outputbuffer != 0)
+        if (outputbuffer != 0)
 		string_destroy(outputbuffer);
 	namespace_destroy(sqf_missionNamespace());
 	namespace_destroy(sqf_parsingNamespace());

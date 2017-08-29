@@ -13,7 +13,7 @@ def init_libsqfvm():
     global libsqfvm
     libsqfvm = CDLL(path)
     libsqfvm.start_program.restype = c_char_p
-    libsqfvm.start_program.argtypes = [c_char_p]
+    libsqfvm.start_program.argtypes = [c_char_p, c_char_p]
 
 
 class MyClient(discord.Client):
@@ -29,8 +29,9 @@ class MyClient(discord.Client):
             if not self.allowsqf:
                 await message.channel.send("Currently not possible.")
                 return
+            res = c_char(0)
             sqf = unidecode.unidecode(message.content.replace('<@{}>'.format(self.user.id), ""))
-            result = libsqfvm.start_program(sqf.encode('utf-8').strip())
+            result = libsqfvm.start_program(sqf.encode('utf-8').strip(), byref(res))
             if not result:
                 result = '<EMPTY>'
             else:
