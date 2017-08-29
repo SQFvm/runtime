@@ -480,7 +480,10 @@ void execute(PVM vm)
 			{
 				push_stack(vm, vm->stack, pop_stack(vm, vm->work));
 			}
-			push_stack(vm, vm->stack, inst_move(i));
+			if (i != 0)
+			{
+				push_stack(vm, vm->stack, inst_move(i));
+			}
 
 			parse(vm, ((PCODE)val->val.ptr)->val, i);
 			inst_destroy(inst);
