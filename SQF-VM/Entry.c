@@ -1412,6 +1412,8 @@ void CMD_DIAG_TICKTIME(void* input, CPCMD self)
 	int64_t systime_cur = system_time_ms();
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(systime_cur - systime_start))));
 }
+
+//https://community.bistudio.com/wiki/Math_Commands
 void CMD_ABS(void* input, CPCMD self)
 {
 	PVM vm = input;
@@ -1638,6 +1640,161 @@ void CMD_ATAN(void* input, CPCMD self)
 	inst_destroy(right);
 }
 
+void CMD_RAD(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = right_val->val.f / 360 * M_PI * 2;
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_SQRT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = sqrt(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_CEIL(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = ceil(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_RANDOM(void* input, CPCMD self)
+{
+	//ToDo: https://community.bistudio.com/wiki/random implement Alternative Syntax 1 & 2 & 3
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = ((double)rand() / (double)(RAND_MAX / right_val->val.f));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_FLOOR(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = floor(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_LN(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = log(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_ROUND(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = round(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
 
 char* get_line(char* line, size_t lenmax)
 {
@@ -1847,6 +2004,13 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("acos", 'u', CMD_ACOS, 0, "acos <SCALAR>"));
 	register_command(vm, create_command("atan", 'u', CMD_ATAN, 0, "atan <SCALAR>"));
 	register_command(vm, create_command("atg", 'u', CMD_ATAN, 0, "atg <SCALAR>"));
+	register_command(vm, create_command("rad", 'u', CMD_RAD, 0, "rad <SCALAR>"));
+	register_command(vm, create_command("sqrt", 'u', CMD_SQRT, 0, "sqrt <SCALAR>"));
+	register_command(vm, create_command("ceil", 'u', CMD_CEIL, 0, "ceil <SCALAR>"));
+	register_command(vm, create_command("random", 'u', CMD_RANDOM, 0, "random <SCALAR>"));
+	register_command(vm, create_command("floor", 'u', CMD_FLOOR, 0, "floor <SCALAR>"));
+	register_command(vm, create_command("ln", 'u', CMD_LN, 0, "ln <SCALAR>"));
+	register_command(vm, create_command("round", 'u', CMD_ROUND, 0, "round <SCALAR>"));
 
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
