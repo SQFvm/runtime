@@ -2236,6 +2236,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 
 #define RETCDE_OK 0
 #define RETCDE_ERROR 1
+#define RETCDE_RUNTIME_ERROR 2
 
 int load_file(PSTRING buffer, const char* fpath)
 {
@@ -2275,6 +2276,7 @@ int main(int argc, char** argv)
 	const char* ptr;
 	int i, j, k;
 	unsigned char just_execute = 0;
+	unsigned char prog_success = 0;
 	PVM vm;
 	PSTRING pstr;
 	pstr = string_create(0);
@@ -2348,7 +2350,7 @@ int main(int argc, char** argv)
 		//string_modify_append(pstr, "diag_log str [1, 2, \"test\", [1, 2, 3]]");
 	}
 	if (pstr->length > 0)
-		ptr = start_program(pstr->val, 0);
+		ptr = start_program(pstr->val, &prog_success);
 	if (just_execute)
 	{
 		if (ptr != 0)
@@ -2389,5 +2391,5 @@ int main(int argc, char** argv)
 	#if _WIN32 & _DEBUG
 	_CrtDumpMemoryLeaks();
 	#endif
-	return RETCDE_OK;
+	return prog_success ? RETCDE_OK : RETCDE_RUNTIME_ERROR;
 }
