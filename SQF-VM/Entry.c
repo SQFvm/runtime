@@ -1488,15 +1488,20 @@ void custom_error(const char* errMsg, PSTACK stack)
 				string_modify_append(outputbuffer, " ");
 			}
 			string_modify_append(outputbuffer, "^\n");
+			len = snprintf(0, 0, "[ERR][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
+			str = alloca(sizeof(char) * (len + 1));
+			snprintf(str, len + 1, "[ERR][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
+			str[len] = '\0';
+			string_modify_append(outputbuffer, str);
 		}
-		len = snprintf(0, 0, "[ERR][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
-		str = alloca(sizeof(char) * (len + 1));
-		snprintf(str, len + 1, "[ERR][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
-		str[len] = '\0';
-		string_modify_append(outputbuffer, str);
+		else
+		{
+			goto normal;
+		}
 	}
 	else
 	{
+normal:
 		len = snprintf(0, 0, "[ERR] %s\n", errMsg);
 		str = alloca(sizeof(char) * (len + 1));
 		snprintf(str, len + 1, "[ERR] %s\n", errMsg);

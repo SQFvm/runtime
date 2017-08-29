@@ -354,9 +354,9 @@ void execute(PVM vm)
 	while (vm->stack->top > 0)
 	{
 		//ToDo: Make it soft-coded somehow
-		if (inst_executed > 10000)
+		if (inst_executed > 10000 && !vm->die_flag)
 		{
-			vm->error("MAX ALLOWED INSTRUCTION COUNT REACHED", vm->stack);
+			vm->error("MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
 			vm->die_flag = 1;
 		}
 		inst = pop_stack(vm, vm->stack);
