@@ -263,8 +263,6 @@ void array_resize(PARRAY arr, unsigned int newsize)
 }
 void array_push(PARRAY arr, VALUE val)
 {
-	if (arr == 0)
-		return;
 	if (arr->top >= arr->size)
 	{
 		array_resize(arr, arr->size + ARRAY_DEFAULT_INC);
