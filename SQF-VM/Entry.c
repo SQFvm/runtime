@@ -14,6 +14,10 @@
 #include <malloc.h>
 #endif // _WIN32
 #include <math.h>
+#ifndef M_PI
+#define M_PI 3.1415926535
+#endif // !M_PI 3.1415926535
+
 #include <string.h>
 #include <setjmp.h>
 #include <sys/timeb.h>
@@ -1408,6 +1412,143 @@ void CMD_DIAG_TICKTIME(void* input, CPCMD self)
 	int64_t systime_cur = system_time_ms();
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(systime_cur - systime_start))));
 }
+void CMD_ABS(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = abs((int)right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_DEG(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = right_val->val.f * (180 / M_PI);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_LOG(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = log10(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_PI(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(M_PI))));
+}
+void CMD_SIN(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = sin(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_COS(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = cos(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
+void CMD_TAN(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	float f;
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	f = tan(right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+	inst_destroy(right);
+}
 
 
 char* get_line(char* line, size_t lenmax)
@@ -1607,6 +1748,13 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("count", 'u', CMD_COUNT_UNARY, 0, "count <STRING> | count <ARRAY>"));
 	register_command(vm, create_command("format", 'u', CMD_FORMAT, 0, "format <ARRAY>"));
 	register_command(vm, create_command("call", 'u', CMD_CALL_UNARY, 0, "call <CODE>"));
+	register_command(vm, create_command("abs", 'u', CMD_ABS, 0, "abs <SCALAR>"));
+	register_command(vm, create_command("deg", 'u', CMD_DEG, 0, "deg <SCALAR>"));
+	register_command(vm, create_command("log", 'u', CMD_LOG, 0, "log <SCALAR>"));
+	register_command(vm, create_command("sin", 'u', CMD_SIN, 0, "sin <SCALAR>"));
+	register_command(vm, create_command("cos", 'u', CMD_COS, 0, "cos <SCALAR>"));
+	register_command(vm, create_command("tan", 'u', CMD_TAN, 0, "tan <SCALAR>"));
+
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
 	register_command(vm, create_command("false", 'n', CMD_FALSE, 0, "false"));
@@ -1615,6 +1763,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("uiNamespace", 'n', CMD_UINAMESPACE, 0, "uiNamespace"));
 	register_command(vm, create_command("profileNamespace", 'n', CMD_PROFILENAMESPACE, 0, "profileNamespace"));
 	register_command(vm, create_command("diag_tickTime", 'n', CMD_DIAG_TICKTIME , 0, "diag_tickTime"));
+	register_command(vm, create_command("pi", 'n', CMD_PI, 0, "pi"));
 
 
 
