@@ -474,6 +474,14 @@ void execute(PVM vm)
 			inst_destroy(inst);
 			inst = pop_stack(vm, vm->work);
 			val = get_value(vm, vm->stack, inst);
+
+			i = -(vm->work->top);
+			while (vm->work->top != 0)
+			{
+				push_stack(vm, vm->stack, pop_stack(vm, vm->work));
+			}
+			push_stack(vm, vm->stack, inst_move(i));
+
 			parse(vm, ((PCODE)val->val.ptr)->val, i);
 			inst_destroy(inst);
 			break;
