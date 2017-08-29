@@ -1846,7 +1846,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("asin", 'u', CMD_ASIN, 0, "asin <SCALAR>"));
 	register_command(vm, create_command("acos", 'u', CMD_ACOS, 0, "acos <SCALAR>"));
 	register_command(vm, create_command("atan", 'u', CMD_ATAN, 0, "atan <SCALAR>"));
-	register_command(vm, create_command("atn", 'u', CMD_ATAN, 0, "atn <SCALAR>"));
+	register_command(vm, create_command("atg", 'u', CMD_ATAN, 0, "atg <SCALAR>"));
 
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
