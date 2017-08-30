@@ -790,7 +790,27 @@ void CMD_ANDAND(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	if (right_val->type != BOOL_TYPE())
+	if (right_val->type == BOOL_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(left_val->val.i && right_val->val.i))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	else if (right_val->type == CODE_TYPE())
+	{
+		if (!left_val->val.i)
+		{
+			push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(0))));
+		}
+		else
+		{
+			push_stack(vm, vm->stack, inst_command(self));
+			push_stack(vm, vm->stack, left);
+			push_stack(vm, vm->stack, inst_code_load(1));
+			push_stack(vm, vm->stack, right);
+		}
+	}
+	else
 	{
 		vm->error(ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
@@ -798,9 +818,6 @@ void CMD_ANDAND(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(left_val->val.i && right_val->val.i))));
-	inst_destroy(left);
-	inst_destroy(right);
 }
 void CMD_OROR(void* input, CPCMD self)
 {
@@ -827,7 +844,27 @@ void CMD_OROR(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	if (right_val->type != BOOL_TYPE())
+	if (right_val->type == BOOL_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(left_val->val.i || right_val->val.i))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	else if (right_val->type == CODE_TYPE())
+	{
+		if (left_val->val.i)
+		{
+			push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(1))));
+		}
+		else
+		{
+			push_stack(vm, vm->stack, inst_command(self));
+			push_stack(vm, vm->stack, left);
+			push_stack(vm, vm->stack, inst_code_load(1));
+			push_stack(vm, vm->stack, right);
+		}
+	}
+	else
 	{
 		vm->error(ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
@@ -835,9 +872,6 @@ void CMD_OROR(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(left_val->val.i || right_val->val.i))));
-	inst_destroy(left);
-	inst_destroy(right);
 }
 
 void CMD_SELECT(void* input, CPCMD self)
@@ -2165,9 +2199,9 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command(">=", 'b', CMD_LARGETTHENOREQUAL, 7, "<SCALAR> >= <SCALAR>"));
 	register_command(vm, create_command("<=", 'b', CMD_LESSTHENOREQUAL, 7, "<SCALAR> <= <SCALAR>"));
 	register_command(vm, create_command("==", 'b', CMD_EQUAL, 7, "<SCALAR> > <SCALAR>"));
-	register_command(vm, create_command("||", 'b', CMD_OROR, 5, "<BOOL> || <BOOL>"));
-	register_command(vm, create_command("&&", 'b', CMD_ANDAND, 6, "<BOOL> && <BOOL>"));
-	register_command(vm, create_command("or", 'b', CMD_OROR, 5, "<BOOL> or <BOOL>"));
+	register_command(vm, create_command("||", 'b', CMD_OROR, 5, "<BOOL> || <BOOL> | <BOOL> || <CODE>"));
+	register_command(vm, create_command("&&", 'b', CMD_ANDAND, 6, "<BOOL> && <BOOL> | <BOOL> && <CODE>"));
+	register_command(vm, create_command("or", 'b', CMD_OROR, 5, "<BOOL> or <BOOL> | <BOOL> && <CODE>"));
 	register_command(vm, create_command("and", 'b', CMD_ANDAND, 6, "<BOOL> and <BOOL>"));
 	register_command(vm, create_command("select", 'b', CMD_SELECT, 10, "<ARRAY> select <SCALAR>"));
 	register_command(vm, create_command("then", 'b', CMD_THEN, 5, "<IF> then <ARRAY>"));
