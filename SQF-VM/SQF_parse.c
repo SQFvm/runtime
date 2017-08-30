@@ -83,7 +83,7 @@ void tokenize(TR_ARR* arr, const char* code)
 					continue;
 				}
 			}
-			else if (s == '(' || s == '{' || s == '[' || s == ')' || s == '}' || s == ']' || s == ';' || s == '+' || s == '-' || s == '*' || s == '/' || s == ',')
+			else if (s == '(' || s == '{' || s == '[' || s == ')' || s == '}' || s == ']' || s == ';' || s == '+' || s == '-' || s == '*' || s == '/' || s == ',' || s == '%' || s == '^')
 			{
 				tr_arr_push(arr, (TEXTRANGE)
 				{
