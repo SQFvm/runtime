@@ -23,10 +23,40 @@ void tokenize(TR_ARR* arr, const char* code)
 	int start = -1;
 	int line = 1;
 	int col = 0;
+	unsigned char in_line_comment_mode = 0;
+	unsigned char in_block_comment_mode = 0;
 	for (i = 0; code[i] != '\0'; i++, col++)
 	{
 		c = code[i];
-		if (start == -1)
+		if (in_line_comment_mode)
+		{
+			if (c == '\n')
+			{
+				in_line_comment_mode = 0;
+			}
+			continue;
+		}
+		if(in_block_comment_mode)
+		{
+			if (c == '/' && code[i - 1] == '*')
+			{
+				in_block_comment_mode = 0;
+			}
+			continue;
+		}
+		if (c == '/' && code[i + 1] == '/')
+		{
+			in_line_comment_mode = 1;
+			start = -1;
+			continue;
+		}
+		else if (c == '/' &&  code[i + 1] == '*')
+		{
+			in_block_comment_mode = 1;
+			start = -1;
+			continue;
+		}
+		else if (start == -1)
 		{
 			if (c == ' ' || c == '\t' || c == '\r')
 			{
@@ -40,7 +70,7 @@ void tokenize(TR_ARR* arr, const char* code)
 			}
 			start = i;
 		}
-		else
+		else 
 		{
 			s = code[start];
 			if (s == '"')
