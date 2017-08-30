@@ -122,7 +122,7 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start + 1, .line = line, .col = col
+						.start = start, .length = i - start, .line = line, .col = col
 					});
 					start = -1;
 					i--;
