@@ -2178,6 +2178,10 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("step", 'b', CMD_STEP, 0, "<FOR> step <SCALAR>"));
 	register_command(vm, create_command("count", 'b', CMD_COUNT, 0, "<CODE> count <ARRAY> | <COUNT> count <BOOL>"));
 	register_command(vm, create_command("call", 'b', CMD_CALL, 0, "<ANY> call <CODE>"));
+	register_command(vm, create_command("atan2", 'b', CMD_ATAN2, 0, "atan2 <SCALAR>"));
+	register_command(vm, create_command("min", 'b', CMD_MIN, 0, "min <SCALAR>"));
+	register_command(vm, create_command("max", 'b', CMD_MAX, 0, "max <SCALAR>"));
+	register_command(vm, create_command("mod", 'b', CMD_MOD, 0, "mod <SCALAR>"));
 
 	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>"));
 	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>"));
@@ -2208,10 +2212,6 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("floor", 'u', CMD_FLOOR, 0, "floor <SCALAR>"));
 	register_command(vm, create_command("ln", 'u', CMD_LN, 0, "ln <SCALAR>"));
 	register_command(vm, create_command("round", 'u', CMD_ROUND, 0, "round <SCALAR>"));
-	register_command(vm, create_command("atan2", 'u', CMD_ATAN2, 0, "atan2 <SCALAR>"));
-	register_command(vm, create_command("min", 'u', CMD_MIN, 0, "min <SCALAR>"));
-	register_command(vm, create_command("max", 'u', CMD_MAX, 0, "max <SCALAR>"));
-	register_command(vm, create_command("mod", 'u', CMD_MOD, 0, "mod <SCALAR>"));
 	register_command(vm, create_command("!", 'u', CMD_NOT, 0, "! <BOOL>"));
 
 
