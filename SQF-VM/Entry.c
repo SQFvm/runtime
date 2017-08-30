@@ -2068,6 +2068,29 @@ void CMD_POWEROF(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
+void CMD_COMMENT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	float l, r;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(right);
+		return;
+	}
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+	inst_destroy(right);
+}
 
 char* get_line(char* line, size_t lenmax)
 {
@@ -2293,6 +2316,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("ln", 'u', CMD_LN, 0, "ln <SCALAR>"));
 	register_command(vm, create_command("round", 'u', CMD_ROUND, 0, "round <SCALAR>"));
 	register_command(vm, create_command("!", 'u', CMD_NOT, 0, "! <BOOL>"));
+	register_command(vm, create_command("comment", 'u', CMD_NOT, 0, "comment <BOOL>"));
 
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
