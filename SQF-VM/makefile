@@ -5,7 +5,7 @@ LIBS = -lm -ldl
 OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
 HEADERS = $(wildcard *.h)
 
-all: libsqfvm.so prog
+all: libsqfvm.so sqfvm
 
 %.o: %.c $(HEADERS)
 	$(COMPILER) $(ARGS) $(CARGS) -c $< -o $@
@@ -13,11 +13,11 @@ all: libsqfvm.so prog
 libsqfvm.so: $(OBJECTS)
 	$(COMPILER) $(ARGS) -shared -o $@ $(OBJECTS) $(LIBS)
 
-prog: libsqfvm.so
+sqfvm: libsqfvm.so
 	$(COMPILER) $(ARGS) -o $@ -L. -lsqfvm $(LIBS)
 
 clean:
-	rm prog
+	rm sqfvm
 	rm -f *.so
 	rm -f *.o
 	rm -f *.bak *~
