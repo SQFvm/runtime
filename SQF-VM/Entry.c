@@ -1959,12 +1959,36 @@ void CMD_MOD(void* input, CPCMD self)
 	l = left_val->val.f;
 	r = right_val->val.f;
 
-	
+
 	l = fmod(l, r);
 
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(l))));
 	inst_destroy(left);
 	inst_destroy(right);
+}
+void CMD_NOT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == BOOL_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(right_val->val.i))));
+	}
+	else
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(right);
+		return;
+	}
 }
 
 char* get_line(char* line, size_t lenmax)
@@ -2188,6 +2212,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("min", 'u', CMD_MIN, 0, "min <SCALAR>"));
 	register_command(vm, create_command("max", 'u', CMD_MAX, 0, "max <SCALAR>"));
 	register_command(vm, create_command("mod", 'u', CMD_MOD, 0, "mod <SCALAR>"));
+	register_command(vm, create_command("!", 'u', CMD_NOT, 0, "! <BOOL>"));
 
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
