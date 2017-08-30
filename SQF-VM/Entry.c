@@ -157,7 +157,7 @@ void CMD_PLUS(void* input, CPCMD self)
 			push_stack(vm, vm->stack, inst_value(value(right_val->type, right_val->val)));
 		}
 		arr = ((PARRAY)left_val->val.ptr);
-		for (i = arr->top; i >= 0; i++)
+		for (i = arr->top - 1; i >= 0; i--)
 		{
 			push_stack(vm, vm->stack, inst_arr_push());
 			push_stack(vm, vm->stack, inst_value(value(arr->data[i]->type, arr->data[i]->val)));
