@@ -144,7 +144,7 @@ void CMD_PLUS(void* input, CPCMD self)
 		j = 0;
 		if (right_val->type == ARRAY_TYPE())
 		{
-			arr = ((PARRAY)left_val->val.ptr);
+			arr = ((PARRAY)right_val->val.ptr);
 			for (i = arr->top - 1; i >= 0; i--, j++)
 			{
 				push_stack(vm, vm->stack, inst_arr_push());

@@ -217,6 +217,7 @@ void set_var(PVM vm, const char* name, VALUE val)
 	int i, j;
 	PSCOPE first = 0;
 	PSCOPE scope;
+	PVALUE tmp;
 	for (i = vm->stack->top; i >= 0; i--)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
@@ -230,10 +231,12 @@ void set_var(PVM vm, const char* name, VALUE val)
 			{
 				if (str_cmpi(scope->varstack_name[j], -1, name, -1) == 0)
 				{
-					inst_destroy_value(scope->varstack_value[j]);
+					tmp = scope->varstack_value[j];
 					scope->varstack_value[j] = malloc(sizeof(VALUE));
 					scope->varstack_value[j]->type = val.type;
 					scope->varstack_value[j]->val = val.val;
+					inst_destroy_value(tmp);
+					return;
 				}
 			}
 		}
