@@ -2024,6 +2024,50 @@ void CMD_NOT(void* input, CPCMD self)
 		return;
 	}
 }
+void CMD_POWEROF(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	float l, r;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	l = left_val->val.f;
+	r = right_val->val.f;
+
+
+	l = pow(l, r);
+
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(l))));
+	inst_destroy(left);
+	inst_destroy(right);
+}
 
 char* get_line(char* line, size_t lenmax)
 {
@@ -2217,6 +2261,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("max", 'b', CMD_MAX, 0, "<SCALAR> max <SCALAR>"));
 	register_command(vm, create_command("mod", 'b', CMD_MOD, 0, "<SCALAR> mod <SCALAR>"));
 	register_command(vm, create_command("%", 'b', CMD_MOD, 0, "<SCALAR> % <SCALAR>"));
+	register_command(vm, create_command("^", 'b', CMD_POWEROF, 0, "<SCALAR> ^ <SCALAR>"));
 
 	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>"));
 	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>"));
