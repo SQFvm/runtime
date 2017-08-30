@@ -283,6 +283,10 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 			j = i;
 			codecount++;
 		}
+		else if (j == -1)
+		{
+			j = i;
+		}
 		else if (str[0] == ',' || str[0] == '[')
 		{
 			if (k >= 0)
@@ -308,10 +312,6 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 			}
 			j = -1;
 			k = -1;
-		}
-		else if(j == -1)
-		{
-			j = i;
 		}
 	}
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create()))));
