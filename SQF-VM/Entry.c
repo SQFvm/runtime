@@ -2316,7 +2316,7 @@ __attribute__((visibility("default"))) const char* start_program(const char* inp
 	register_command(vm, create_command("ln", 'u', CMD_LN, 0, "ln <SCALAR>"));
 	register_command(vm, create_command("round", 'u', CMD_ROUND, 0, "round <SCALAR>"));
 	register_command(vm, create_command("!", 'u', CMD_NOT, 0, "! <BOOL>"));
-	register_command(vm, create_command("comment", 'u', CMD_NOT, 0, "comment <BOOL>"));
+	register_command(vm, create_command("comment", 'u', CMD_COMMENT, 0, "comment <BOOL>"));
 
 
 	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
