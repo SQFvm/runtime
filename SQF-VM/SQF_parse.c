@@ -337,6 +337,11 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	{
 		range = tr_arr_get(arr, i);
 		str = code + range.start;
+		if (i == arr_start && range.length == 1 && str[0] == ';')
+		{
+			arr_start++;
+			continue;
+		}
 		if (arrcount > 0)
 		{
 			if (str[0] == '[')
