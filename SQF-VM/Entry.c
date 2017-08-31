@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <string.h>
@@ -69,7 +70,6 @@ void custom_error(PVM vm, const char* errMsg, PSTACK stack)
 {
 	int len, i, j;
 	const char* str;
-	char* str2;
 	PDBGINF dbginf;
 	if (current_code != 0 && stack->allow_dbg)
 	{
