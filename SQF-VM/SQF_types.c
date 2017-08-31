@@ -168,8 +168,14 @@ void string_destroy(PSTRING string)
 PSTRING string_concat(const PSTRING l, const PSTRING r)
 {
 	PSTRING string = string_create(l->length + r->length);
-	strcpy(string->val, l->val);
-	strcpy(string->val + l->length, r->val);
+	if (l->length != 0)
+	{
+		strcpy(string->val, l->val);
+	}
+	if (r->length != 0)
+	{
+		strcpy(string->val + l->length, r->val);
+	}
 	return string;
 }
 PSTRING string_substring(const PSTRING string, unsigned int start, int length)
