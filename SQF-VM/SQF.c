@@ -513,6 +513,7 @@ void execute(PVM vm)
 					inst_destroy(pop_stack(vm, vm->stack));
 				}
 			}
+			inst_destroy(inst);
 			break;
 		case INST_CLEAR_WORK:
 			while (vm->work->top > 0)
