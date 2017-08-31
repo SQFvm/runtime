@@ -2074,7 +2074,6 @@ void CMD_COMMENT(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	float l, r;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
