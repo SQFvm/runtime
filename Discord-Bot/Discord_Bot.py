@@ -35,8 +35,8 @@ class MyClient(discord.Client):
             libsqfvm.start_program(sqf.encode('utf-8').strip(), 10000, self.stringbuffer, 2000)
             try:
                 tmp = await message.channel.send("```sqf\n{}```".format(self.stringbuffer.raw))
-            except Exception, e:
-                await tmp.edit(content="```!DISCORD ERROR!\n{}```".format(str(e)))
+            except Exception as e:
+                await tmp.edit(content="```!DISCORD ERROR!\n{}```".format(e))
         elif message.content.startswith('!<@{}>'.format(self.user.id)):
             cmd = message.content.replace('!<@{}>'.format(self.user.id), "").strip()
             if cmd == 'REBUILD':
@@ -54,8 +54,8 @@ class MyClient(discord.Client):
                     init_libsqfvm()
                     await tmp.edit(content="```DONE!```")
                     self.allowsqf = True
-                except Exception, e:
-                    await tmp.edit(content="```!FAILED!\n{}```".format(str(e)))
+                except Exception as e:
+                    await tmp.edit(content="```!FAILED!\n{}```".format(e))
             else:
                 await message.channel.send("Unknown command `{}`".format(cmd))
 
