@@ -34,9 +34,9 @@ class MyClient(discord.Client):
             sqf = unidecode.unidecode(message.content.replace('<@{}>'.format(self.user.id), ""))
             libsqfvm.start_program(sqf.encode('utf-8').strip(), 10000, self.stringbuffer, 2000)
             try:
-                tmp = await message.channel.send("```sqf\n{}```".format(self.stringbuffer.raw))
+                tmp = await message.channel.send("```sqf\n{}```".format(self.stringbuffer.raw.decode('utf-8'))
             except Exception as e:
-                await tmp.edit(content="```!DISCORD ERROR!\n{}```".format(e))
+                await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
         elif message.content.startswith('!<@{}>'.format(self.user.id)):
             cmd = message.content.replace('!<@{}>'.format(self.user.id), "").strip()
             if cmd == 'REBUILD':
