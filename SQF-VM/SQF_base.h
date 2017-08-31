@@ -120,7 +120,7 @@ typedef MOVE* PMOVE;
 
 
 
-void error(const char* errMsg, PSTACK stack);
+void orig_error(PVM vm, const char* errMsg, PSTACK stack);
 PSTACK create_stack(unsigned int size, unsigned char allow_dbg);
 void destroy_stack(PSTACK stack);
 void resize_stack(PSTACK stack, unsigned int newsize);

@@ -92,7 +92,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 	memset(vm->cmds, 0, sizeof(PINST) * cmds_size);
 	vm->cmds_size = cmds_size;
 	vm->cmds_top = 0;
-	vm->error = error;
+	vm->error = orig_error;
 	vm->die_flag = 0;
 	vm->enable_instruction_limit = max_instructions == 0 ? 0 : 1;
 	vm->max_instructions = max_instructions;
@@ -354,7 +354,7 @@ PCMD find_type(PVM vm, const char* name)
 	return 0;
 }
 
-void error(PVM vm, const char* errMsg, PSTACK stack)
+void orig_error(PVM vm, const char* errMsg, PSTACK stack)
 {
 	printf("ERROR: %s\n", errMsg);
 	getchar();
