@@ -12,7 +12,7 @@ def init_libsqfvm():
     print('Loading libsqfvm from {}'.format(path))
     global libsqfvm
     libsqfvm = CDLL(path)
-    libsqfvm.start_program.restype = c_char_p
+    libsqfvm.start_program.restype = c_ubyte
     libsqfvm.start_program.argtypes = [c_char_p, c_ulong, c_char_p, c_size_t]
 
 
