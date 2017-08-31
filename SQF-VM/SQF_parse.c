@@ -478,7 +478,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	if (j == -1)
 		return;
 	range = tr_arr_get(arr, j);
-	push_stack(vm, stack, inst_debug_info(range.line, range.col, range.start));
+	push_stack(vm, stack, inst_debug_info(range.line, range.col, range.start, range.length));
 	if (smallest_cmd == 0)
 	{
 		str = code + range.start;
