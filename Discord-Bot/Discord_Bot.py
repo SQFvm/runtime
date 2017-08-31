@@ -23,7 +23,7 @@ class MyClient(discord.Client):
         print(self.user.id)
         print('------------')
         self.allowsqf = True
-        self.stringbuffer = create_string_buffer(2000)
+        self.stringbuffer = create_string_buffer(1990)
 
     async def on_message(self, message):
         if message.content.startswith('<@{}>'.format(self.user.id)):
@@ -32,7 +32,7 @@ class MyClient(discord.Client):
                 return
             res = c_char(0)
             sqf = unidecode.unidecode(message.content.replace('<@{}>'.format(self.user.id), ""))
-            libsqfvm.start_program(sqf.encode('utf-8').strip(), 10000, self.stringbuffer, 2000)
+            libsqfvm.start_program(sqf.encode('utf-8').strip(), 10000, self.stringbuffer, 1990)
             try:
                 tmp = await message.channel.send("```sqf\n{}```".format(self.stringbuffer.value.decode()))
             except Exception as e:
