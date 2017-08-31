@@ -150,7 +150,7 @@ void destroy_stack(PSTACK stack)
 	free(stack->data);
 	free(stack);
 }
-void resize_stack(PSTACK stack, unsigned int newsize)
+void resize_stack(PVM vm, PSTACK stack, unsigned int newsize)
 {
 	if (stack->size == newsize)
 		return;
@@ -163,7 +163,7 @@ void resize_stack(PSTACK stack, unsigned int newsize)
 	ptr = realloc(stack->data, sizeof(PINST) * newsize);
 	if (ptr == 0)
 	{
-		error("RESIZE OF STACK FAILED", stack);
+		vm->error(vm, "RESIZE OF STACK FAILED", stack);
 	}
 	else
 	{
@@ -291,7 +291,7 @@ void push_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val)
 	int len;
 	if (scope->varstack_top >= scope->varstack_size)
 	{
-		error("VARSTACK OVERFLOW", vm->stack);
+		vm->error(vm, "VARSTACK OVERFLOW", vm->stack);
 	}
 	else
 	{
