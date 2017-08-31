@@ -535,7 +535,6 @@ void CMD_HELP(void* input, CPCMD self)
 	int i;
 	CPCMD cmd;
 	char* buffer = 0;
-	unsigned int buffsize = 0, buffsize2;
 	vm->print(vm, "ERRORS might result in crash\n\n");
 	vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
 	for (i = 0; i < vm->cmds_top; i++)
