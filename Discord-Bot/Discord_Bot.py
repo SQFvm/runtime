@@ -5,7 +5,6 @@ import unidecode
 import subprocess
 from ctypes import *
 import _ctypes
-import feedparser
 
 def init_libsqfvm():
     path = os.path.dirname(os.path.realpath(__file__))
