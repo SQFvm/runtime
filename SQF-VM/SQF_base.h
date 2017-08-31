@@ -63,6 +63,8 @@ typedef struct VM
 	unsigned int cmds_top;
 	void(*error)(const char*, PSTACK);
 	unsigned char die_flag;
+	unsigned long max_instructions;
+	unsigned char enable_instruction_limit;
 } VM;
 typedef VM* PVM;
 
@@ -123,7 +125,7 @@ void push_stack(PVM vm, PSTACK stack, PINST inst);
 PINST pop_stack(PVM vm, PSTACK stack);
 void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset);
 
-PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg);
+PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg, unsigned long max_instructions);
 void destroy_sqfvm(PVM vm);
 
 inline void register_command(PVM vm, PCMD cmd)

@@ -70,7 +70,7 @@ void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset)
 extern inline void register_command(PVM vm, PCMD cmd);
 
 #define SQF_VM_INTERNAL_TYPE_COUNT 11
-PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg)
+PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg, unsigned long max_instructions)
 {
 	PVM vm = malloc(sizeof(VM));
 	cmds_size += SQF_VM_INTERNAL_TYPE_COUNT;
@@ -83,6 +83,8 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 	vm->cmds_top = 0;
 	vm->error = error;
 	vm->die_flag = 0;
+	vm->enable_instruction_limit = max_instructions == 0 ? 0 : 1;
+	vm->max_instructions = max_instructions;
 
 
 	register_command(vm, SCALAR_TYPE());
@@ -354,11 +356,10 @@ void execute(PVM vm)
 	PVALUE val2;
 	PSCOPE scope;
 	int i, j;
-	unsigned int inst_executed = 0;
+	unsigned long inst_executed = 0;
 	while (vm->stack->top > 0)
 	{
-		//ToDo: Make it soft-coded somehow
-		if (inst_executed > 10000 && !vm->die_flag)
+		if (vm->enable_instruction_limit && inst_executed >= vm->max_instructions && !vm->die_flag)
 		{
 			vm->error("MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
 			vm->die_flag = 1;

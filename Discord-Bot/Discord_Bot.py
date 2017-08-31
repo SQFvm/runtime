@@ -5,6 +5,7 @@ import unidecode
 import subprocess
 from ctypes import *
 import _ctypes
+import feedparser
 
 def init_libsqfvm():
     path = os.path.dirname(os.path.realpath(__file__))
@@ -13,7 +14,7 @@ def init_libsqfvm():
     global libsqfvm
     libsqfvm = CDLL(path)
     libsqfvm.start_program.restype = c_char_p
-    libsqfvm.start_program.argtypes = [c_char_p, c_char_p]
+    libsqfvm.start_program.argtypes = [c_char_p, c_char_p, c_ulong]
 
 
 class MyClient(discord.Client):
@@ -31,7 +32,7 @@ class MyClient(discord.Client):
                 return
             res = c_char(0)
             sqf = unidecode.unidecode(message.content.replace('<@{}>'.format(self.user.id), ""))
-            result = libsqfvm.start_program(sqf.encode('utf-8').strip(), byref(res))
+            result = libsqfvm.start_program(sqf.encode('utf-8').strip(), byref(res), 10000)
             if not result:
                 result = '<EMPTY>'
             else:

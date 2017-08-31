@@ -2196,15 +2196,15 @@ normal:
 }
 
 #ifdef _WIN32
-__declspec(dllexport) const char* start_program(const char* input, unsigned char* success)
+__declspec(dllexport) const char* start_program(const char* input, unsigned char* success, unsigned long max_instructions)
 {
 #else
-__attribute__((visibility("default"))) const char* start_program(const char* input, unsigned char* success)
+__attribute__((visibility("default"))) const char* start_program(const char* input, unsigned char* success, unsigned long max_instructions)
 {
 #endif
 	int val;
 	int i;
-	vm = sqfvm(1000, 50, 100, 1);
+	vm = sqfvm(1000, 50, 100, 1, max_instructions);
 	vm->error = custom_error;
 	if (outputbuffer == 0)
 	{
@@ -2408,6 +2408,7 @@ int main(int argc, char** argv)
 	unsigned char prog_success = 0;
 	PVM vm;
 	PSTRING pstr;
+	unsigned long max_inst = 10000;
 	pstr = string_create(0);
 	//_CrtSetBreakAlloc(593);
 	j = 0;
@@ -2423,11 +2424,14 @@ int main(int argc, char** argv)
 					return RETCDE_ERROR;
 				case '?':
 					printf("SQF-VM Help page\n");
-					printf("./prog [-j] [-i <FILE>] [-I <CODE>]\n");
+					printf("./prog [-j] [-s 10000] [-i <FILE>] [-I <CODE>]\n");
 					printf("\t-?\tOutputs this help\n");
 					printf("\t-i\tLoads provided input file into the code-buffer.\n");
 					printf("\t-I\tLoads provided input SQF code into the code-buffer.\n");
 					printf("\t-a\tDisables user input and just executes the code-buffer.\n");
+					printf("\t-s\tSets the maximum instruction count allowed before termination.\n");
+					printf("\t  \tMaximum value is %lu.\n", LONG_MAX);
+					printf("\t  \tIf `0` is passed, the limit will be disabled.\n");
 					return RETCDE_OK;
 					break;
 				case 'i':
@@ -2459,6 +2463,18 @@ int main(int argc, char** argv)
 				case 'a':
 					just_execute = 1;
 					break;
+				case 's':
+					if (i + 1 < argc)
+					{
+						max_inst = strtoul(argv[i + 1], 0, 10);
+						j++;
+					}
+					else
+					{
+						printf("[ERR] -I empty parameter");
+						return RETCDE_ERROR;
+					}
+					break;
 				default:
 					break;
 			}
@@ -2479,7 +2495,7 @@ int main(int argc, char** argv)
 		//string_modify_append(pstr, "diag_log str [1, 2, \"test\", [1, 2, 3]]");
 	}
 	if (pstr->length > 0)
-		ptr = start_program(pstr->val, &prog_success);
+		ptr = start_program(pstr->val, &prog_success, max_inst);
 	if (just_execute)
 	{
 		if (ptr != 0)
@@ -2510,7 +2526,7 @@ int main(int argc, char** argv)
 	namespace_destroy(sqf_parsingNamespace());
 	namespace_destroy(sqf_profileNamespace());
 	namespace_destroy(sqf_uiNamespace());
-	vm = sqfvm(0, 0, 0, 0);
+	vm = sqfvm(0, 0, 0, 0, 0);
 	for (i = 0; i < vm->cmds_top; i++)
 	{
 		destroy_command(vm->cmds[i]);
