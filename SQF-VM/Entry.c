@@ -7,6 +7,7 @@
 #include "errors.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #ifdef __linux
 #include <alloca.h>
 #endif // _GCC
@@ -25,9 +26,6 @@
 #if _WIN32 & _DEBUG
 #include <crtdbg.h>
 #endif
-#if __linux
-#include <limits.h>
-#endif //_GCC
 
 int64_t system_time_ms()
 {
