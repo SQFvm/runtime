@@ -461,7 +461,7 @@ int main(int argc, char** argv)
 	{
 		printf("-------------------------------------\n");
 		if (pstr->length > 0)
-			prog_success = start_program(pstr->val, max_inst, 0, 2000);
+			prog_success = start_program(pstr->val, max_inst, 0, 0);
 		printf("-------------------------------------\n");
 		printf("Press <ENTER> to finish.");
 		get_line(linebuffer, LINEBUFFER_SIZE);
