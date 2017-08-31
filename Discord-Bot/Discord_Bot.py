@@ -13,7 +13,7 @@ def init_libsqfvm():
     global libsqfvm
     libsqfvm = CDLL(path)
     libsqfvm.start_program.restype = c_char_p
-    libsqfvm.start_program.argtypes = [c_char_p, c_char_p, c_ulong]
+    libsqfvm.start_program.argtypes = [c_char_p, c_ulong, c_char_p, c_size_t]
 
 
 class MyClient(discord.Client):
@@ -23,6 +23,7 @@ class MyClient(discord.Client):
         print(self.user.id)
         print('------------')
         self.allowsqf = True
+		self.stringbuffer = create_string_buffer(2000)
 
     async def on_message(self, message):
         if message.content.startswith('<@{}>'.format(self.user.id)):
@@ -31,12 +32,11 @@ class MyClient(discord.Client):
                 return
             res = c_char(0)
             sqf = unidecode.unidecode(message.content.replace('<@{}>'.format(self.user.id), ""))
-            result = libsqfvm.start_program(sqf.encode('utf-8').strip(), byref(res), 10000)
-            if not result:
-                result = '<EMPTY>'
-            else:
-                result = result.decode()
-            tmp = await message.channel.send("```sqf\n{}```".format(result))
+            libsqfvm.start_program(sqf.encode('utf-8').strip(), 10000, self.stringbuffer, 2000)
+			try:
+				tmp = await message.channel.send("```sqf\n{}```".format(self.stringbuffer.raw))
+			except Exception, e:
+				await tmp.edit(content="```!DISCORD ERROR!\n{}```".format(str(e)))
         elif message.content.startswith('!<@{}>'.format(self.user.id)):
             cmd = message.content.replace('!<@{}>'.format(self.user.id), "").strip()
             if cmd == 'REBUILD':
@@ -54,8 +54,8 @@ class MyClient(discord.Client):
                     init_libsqfvm()
                     await tmp.edit(content="```DONE!```")
                     self.allowsqf = True
-                except:
-                    await tmp.edit(content="```!FAILED!```")
+                except Exception, e:
+                    await tmp.edit(content="```!FAILED!\n{}```".format(str(e)))
             else:
                 await message.channel.send("Unknown command `{}`".format(cmd))
 
