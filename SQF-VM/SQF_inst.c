@@ -111,7 +111,7 @@ PINST inst_clear_work(void)
 {
 	return inst(INST_CLEAR_WORK);
 }
-PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off)
+PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, unsigned int length)
 {
 	PINST p = inst(INST_DEBUG_INFO);
 	PDBGINF dbginf = malloc(sizeof(DBGINF));
@@ -119,6 +119,7 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off)
 	dbginf->col = col;
 	dbginf->line = line;
 	dbginf->offset = off;
+	dbginf->length = length;
 	return p;
 }
 PINST inst_move(int off)

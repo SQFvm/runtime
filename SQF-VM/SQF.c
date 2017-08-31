@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdarg.h>
 
 
 
@@ -18,7 +19,7 @@ void push_stack(PVM vm, PSTACK stack, PINST inst)
 {
 	if (stack->top >= stack->size)
 	{
-		vm->error("STACK OVERFLOW", stack);
+		vm->error(vm, "STACK OVERFLOW", stack);
 	}
 	else if (inst != 0 && inst->type == INST_DEBUG_INFO && !stack->allow_dbg)
 	{
@@ -33,7 +34,7 @@ PINST pop_stack(PVM vm, PSTACK stack)
 {
 	if (stack->top == 0)
 	{
-		vm->error("STACK UNDERFLOW", stack);
+		vm->error(vm, "STACK UNDERFLOW", stack);
 		return 0;
 	}
 	else
@@ -46,11 +47,11 @@ void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset)
 	PINST tmp;
 	if (stack->top >= stack->size)
 	{
-		vm->error("STACK OVERFLOW", stack);
+		vm->error(vm, "STACK OVERFLOW", stack);
 	}
 	else if (offset > 0)
 	{
-		vm->error("CANNOT PUSH USING INSERT_STACK", stack);
+		vm->error(vm, "CANNOT PUSH USING INSERT_STACK", stack);
 	}
 	else if (inst != 0 && inst->type == INST_DEBUG_INFO && !stack->allow_dbg)
 	{
@@ -68,7 +69,17 @@ void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset)
 	}
 }
 extern inline void register_command(PVM vm, PCMD cmd);
+int sqfvm_print(PVM vm, const char* format, ...)
+{
+	va_list args;
+	int res;
+	va_start(args, format);
 
+	res = vprintf(format, args);
+
+	va_end(args);
+	return res;
+}
 #define SQF_VM_INTERNAL_TYPE_COUNT 11
 PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg, unsigned long max_instructions)
 {
@@ -85,6 +96,8 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 	vm->die_flag = 0;
 	vm->enable_instruction_limit = max_instructions == 0 ? 0 : 1;
 	vm->max_instructions = max_instructions;
+	vm->print = sqfvm_print;
+	vm->print_custom_data = 0;
 
 
 	register_command(vm, SCALAR_TYPE());
@@ -341,7 +354,7 @@ PCMD find_type(PVM vm, const char* name)
 	return 0;
 }
 
-void error(const char* errMsg, PSTACK stack)
+void error(PVM vm, const char* errMsg, PSTACK stack)
 {
 	printf("ERROR: %s\n", errMsg);
 	getchar();
@@ -361,7 +374,7 @@ void execute(PVM vm)
 	{
 		if (vm->enable_instruction_limit && inst_executed >= vm->max_instructions && !vm->die_flag)
 		{
-			vm->error("MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
+			vm->error(vm, "MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
 			vm->die_flag = 1;
 		}
 		inst = pop_stack(vm, vm->stack);
@@ -416,7 +429,7 @@ void execute(PVM vm)
 			val = get_value(vm, vm->stack, inst2);
 			if (get_var_name(vm, vm->stack, inst)[0] != '_')
 			{
-				vm->error("CANNOT PRIVATE GLOBAL VARIABLES", vm->stack);
+				vm->error(vm, "CANNOT PRIVATE GLOBAL VARIABLES", vm->stack);
 				push_stack(vm, vm->work, inst2);
 			}
 			else
@@ -464,7 +477,7 @@ void execute(PVM vm)
 			val2 = get_value(vm, vm->stack, inst);
 			if (val == 0 || val2 == 0 || val2->type != ARRAY_TYPE())
 			{
-				vm->error("INST_ARRAY_PUSH FAILED TO FIND ARRAY", vm->stack);
+				vm->error(vm, "INST_ARRAY_PUSH FAILED TO FIND ARRAY", vm->stack);
 				vm->die_flag = 1;
 			}
 			else

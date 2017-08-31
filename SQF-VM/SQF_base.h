@@ -61,10 +61,12 @@ typedef struct VM
 	PCMD* cmds;
 	unsigned int cmds_size;
 	unsigned int cmds_top;
-	void(*error)(const char*, PSTACK);
+	void(*error)(struct VM* vm, const char*, PSTACK);
 	unsigned char die_flag;
 	unsigned long max_instructions;
 	unsigned char enable_instruction_limit;
+	int(*print)(struct VM* vm, const char* format, ...);
+	void* print_custom_data;
 } VM;
 typedef VM* PVM;
 
@@ -103,6 +105,7 @@ typedef struct DBGINF
 	unsigned int line;
 	unsigned int col;
 	unsigned long offset;
+	unsigned long length;
 }DBGINF;
 typedef DBGINF* PDBGINF;
 typedef struct MOVE
@@ -132,13 +135,13 @@ inline void register_command(PVM vm, PCMD cmd)
 {
 	if (vm->cmds_top >= vm->cmds_size)
 	{
-		vm->error("COMMAND REGISTER OVERFLOW", vm->stack);
+		vm->error(vm, "COMMAND REGISTER OVERFLOW", vm->stack);
 	}
 	else
 	{
 		if (cmd->type == 't' && vm->cmds_top != 0 && vm->cmds[vm->cmds_top - 1]->type != 't')
 		{
-			vm->error("TYPE COMMAND REGISTERED AFTER NON-TYPE COMMANDS GOT REGISTERED", vm->stack);
+			vm->error(vm, "TYPE COMMAND REGISTERED AFTER NON-TYPE COMMANDS GOT REGISTERED", vm->stack);
 		}
 		vm->cmds[vm->cmds_top++] = cmd;
 	}

@@ -47,7 +47,7 @@ inline CPCMD get_command(PVM vm, PSTACK stack, PINST inst)
 	}
 	else
 	{
-		vm->error("TYPE MISSMATCH", stack);
+		vm->error(vm, "TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
@@ -59,7 +59,7 @@ inline PVALUE get_value(PVM vm, PSTACK stack, PINST inst)
 	}
 	else
 	{
-		vm->error("TYPE MISSMATCH", stack);
+		vm->error(vm, "TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
@@ -71,7 +71,7 @@ inline const char* get_var_name(PVM vm, PSTACK stack, PINST inst)
 	}
 	else
 	{
-		vm->error("TYPE MISSMATCH", stack);
+		vm->error(vm, "TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
@@ -83,7 +83,7 @@ inline PSCOPE get_scope(PVM vm, PSTACK stack, PINST inst)
 	}
 	else
 	{
-		vm->error("TYPE MISSMATCH", stack);
+		vm->error(vm, "TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
@@ -95,7 +95,7 @@ inline PPOPEVAL get_pop_eval(PVM vm, PSTACK stack, PINST inst)
 	}
 	else
 	{
-		vm->error("TYPE MISSMATCH", stack);
+		vm->error(vm, "TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
@@ -107,7 +107,7 @@ inline PDBGINF get_dbginf(PVM vm, PSTACK stack, PINST inst)
 	}
 	else
 	{
-		vm->error("TYPE MISSMATCH", stack);
+		vm->error(vm, "TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
