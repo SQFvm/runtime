@@ -23,7 +23,7 @@ class MyClient(discord.Client):
         print(self.user.id)
         print('------------')
         self.allowsqf = True
-		self.stringbuffer = create_string_buffer(2000)
+        self.stringbuffer = create_string_buffer(2000)
 
     async def on_message(self, message):
         if message.content.startswith('<@{}>'.format(self.user.id)):
@@ -33,10 +33,10 @@ class MyClient(discord.Client):
             res = c_char(0)
             sqf = unidecode.unidecode(message.content.replace('<@{}>'.format(self.user.id), ""))
             libsqfvm.start_program(sqf.encode('utf-8').strip(), 10000, self.stringbuffer, 2000)
-			try:
-				tmp = await message.channel.send("```sqf\n{}```".format(self.stringbuffer.raw))
-			except Exception, e:
-				await tmp.edit(content="```!DISCORD ERROR!\n{}```".format(str(e)))
+            try:
+                tmp = await message.channel.send("```sqf\n{}```".format(self.stringbuffer.raw))
+            except Exception, e:
+                await tmp.edit(content="```!DISCORD ERROR!\n{}```".format(str(e)))
         elif message.content.startswith('!<@{}>'.format(self.user.id)):
             cmd = message.content.replace('!<@{}>'.format(self.user.id), "").strip()
             if cmd == 'REBUILD':
