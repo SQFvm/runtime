@@ -455,13 +455,13 @@ int main(int argc, char** argv)
 	if (just_execute)
 	{
 		if (pstr->length > 0)
-			prog_success = start_program(pstr->val, &prog_success, max_inst, 0, 0);
+			prog_success = start_program(pstr->val, max_inst, 0, 0);
 	}
 	else
 	{
 		printf("-------------------------------------\n");
 		if (pstr->length > 0)
-			prog_success = start_program(pstr->val, &prog_success, max_inst, 0, 0);
+			prog_success = start_program(pstr->val, max_inst, 0, 2000);
 		printf("-------------------------------------\n");
 		printf("Press <ENTER> to finish.");
 		get_line(linebuffer, LINEBUFFER_SIZE);
