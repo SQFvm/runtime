@@ -1205,7 +1205,14 @@ void CMD_FORMAT(void* input, CPCMD self)
 				}
 				else
 				{
-					stringify_value(vm, str_out, arr->data[index]);
+					if (arr->data[index]->type != STRING_TYPE())
+					{
+						stringify_value(vm, str_out, arr->data[index]);
+					}
+					else
+					{
+						string_modify_append(str_out, ((PSTRING)arr->data[index]->val.ptr)->val);
+					}
 				}
 				ptr_last = endptr;
 			}
