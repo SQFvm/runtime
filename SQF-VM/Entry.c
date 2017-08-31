@@ -131,9 +131,9 @@ void register_commmands(PVM vm)
 	//register_command(vm, create_command("ARRAY", 't', 0, 0));
 	//register_command(vm, create_command("STRING", 't', 0, 0));
 	//register_command(vm, create_command("NOTHING", 't', 0, 0));
-	register_command(vm, create_command("ANY", 't', 0, 0));
+	//register_command(vm, create_command("ANY", 't', 0, 0));
 	//register_command(vm, create_command("NAMESPACE", 't', 0, 0));
-	register_command(vm, create_command("NaN", 't', 0, 0));
+	//register_command(vm, create_command("NaN", 't', 0, 0));
 	//register_command(vm, create_command("IF", 't', 0, 0));
 	//register_command(vm, create_command("WHILE", 't', 0, 0));
 	/register_command(vm, create_command("FOR", 't', 0, 0));

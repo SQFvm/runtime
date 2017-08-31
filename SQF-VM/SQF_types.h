@@ -17,6 +17,7 @@ PCMD IF_TYPE(void);
 PCMD WHILE_TYPE(void);
 PCMD NOTHING_TYPE(void);
 PCMD ANY_TYPE(void);
+PCMD NAN_TYPE(void);
 
 
 typedef struct CODE

@@ -300,6 +300,14 @@ void CMD_DIVIDE(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
+	if (right_val->val.f == 0)
+	{
+		vm->error(vm, ERR_SPECIAL_DIVIDE_1, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NAN_TYPE(), base_int(0))));
+		return;
+	}
 	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f / right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
@@ -867,6 +875,7 @@ void CMD_SELECT(void* input, CPCMD self)
 	PVALUE right_val;
 	PARRAY arr;
 	PVALUE tmp;
+	int index;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
 	left_val = get_value(vm, vm->stack, left);
@@ -885,8 +894,16 @@ void CMD_SELECT(void* input, CPCMD self)
 		arr = left_val->val.ptr;
 		if (right_val->type == SCALAR_TYPE())
 		{
-			tmp = arr->data[(int)roundf(right_val->val.f)];
-			push_stack(vm, vm->stack, inst_value(value(tmp->type, tmp->val)));
+			index = roundf(right_val->val.f);
+			if (index < 0 || index >= arr->top)
+			{
+				vm->error(vm, ERR_SPECIAL_SELECT_1, vm->stack);
+			}
+			else
+			{
+				tmp = arr->data[index];
+				push_stack(vm, vm->stack, inst_value(value(tmp->type, tmp->val)));
+			}
 		}
 		else
 		{

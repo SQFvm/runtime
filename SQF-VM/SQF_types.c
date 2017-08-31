@@ -60,6 +60,15 @@ PCMD ANY_TYPE(void)
 	}
 	return cmd;
 }
+PCMD NAN_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("NaN", 't', 0, 0, NULL);
+	}
+	return cmd;
+}
 
 
 

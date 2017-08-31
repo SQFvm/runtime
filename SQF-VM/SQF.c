@@ -80,7 +80,7 @@ int sqfvm_print(PVM vm, const char* format, ...)
 	va_end(args);
 	return res;
 }
-#define SQF_VM_INTERNAL_TYPE_COUNT 11
+#define SQF_VM_INTERNAL_TYPE_COUNT 12
 PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg, unsigned long max_instructions)
 {
 	PVM vm = malloc(sizeof(VM));
@@ -107,9 +107,8 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 	register_command(vm, STRING_TYPE());
 	register_command(vm, NOTHING_TYPE());
 	register_command(vm, ANY_TYPE());
-
 	register_command(vm, NAMESPACE_TYPE());
-
+	register_command(vm, NAN_TYPE());
 	register_command(vm, IF_TYPE());
 	register_command(vm, WHILE_TYPE());
 	register_command(vm, FOR_TYPE());
