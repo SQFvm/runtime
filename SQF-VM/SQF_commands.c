@@ -86,6 +86,49 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	}
 }
 
+unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
+{
+	unsigned char flag = 1;
+	PARRAY arrl;
+	PARRAY arrr;
+	int i;
+	if (l->type != r->type)
+		return 0;
+	if (l->type == ARRAY_TYPE())
+	{
+		arrl = l->val.ptr;
+		arrr = r->val.ptr;
+		if (arrl->top != arrr->top)
+		{
+			return 0;
+		}
+		for (i = 0; i < arrl->top; i++)
+		{
+			flag &= is_equal_to(vm, arrl->data[i], arrr->data[i]);
+		}
+	}
+	else if (l->type == STRING_TYPE())
+	{
+		return !strcmp(((PSTRING)l->val.ptr)->val, ((PSTRING)r->val.ptr)->val);
+	}
+	else if (l->type == CODE_TYPE())
+	{
+
+	}
+	else if (l->type == SCALAR_TYPE())
+	{
+		return l->val.f == r->val.f;
+	}
+	else if (l->type == BOOL_TYPE())
+	{
+		return l->val.i > 0 ? 1 : 0 == r->val.i > 0 ? 1 : 0;
+	}
+	else
+	{
+		vm->error(vm, ERR_ERR ERR_TYPES ERR_OF_TYPE ERR_ARRAY ERR_OR ERR_STRING ERR_OR ERR_CODE ERR_OR ERR_SCALAR ERR_OR ERR_BOOL, vm->stack);
+	}
+}
+
 
 void CMD_PLUS(void* input, CPCMD self)
 {
