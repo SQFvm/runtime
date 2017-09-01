@@ -24,6 +24,7 @@ class MyClient(discord.Client):
         print('------------')
         self.allowsqf = True
         self.stringbuffer = create_string_buffer(1990)
+        self.admins = [105784568346324992]
 
     async def on_message(self, message):
         if message.content.startswith('<@{}>'.format(self.user.id)):
@@ -38,6 +39,9 @@ class MyClient(discord.Client):
             except Exception as e:
                 await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
         elif message.content.startswith('!<@{}>'.format(self.user.id)):
+            if not message.author.id in self.admins:
+                await message.channel.send("You are not allowed to execute commands")
+                return
             cmd = message.content.replace('!<@{}>'.format(self.user.id), "").strip()
             if cmd == 'REBUILD':
                 tmp = await message.channel.send("```Freeing current...```")
