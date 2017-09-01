@@ -2137,3 +2137,74 @@ void CMD_PUSHBACK(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
+void CMD_SET(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PARRAY arrl, arrr;
+	int index, i;
+	PVALUE val;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (right_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	arrl = left_val->val.ptr;
+	arrr = right_val->val.ptr;
+	if (arrr->top < 1 || arrr->data[0]->type != SCALAR_TYPE())
+	{
+		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_SCALAR, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (arrr->top < 2)
+	{
+		vm->error(vm, ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_EXISTING, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	index = floor(arrr->data[0]->val.f);
+	val = arrr->data[1];
+	if (index > arrl->size)
+	{
+		array_resize(arrl, index + 1);
+	}
+	for (i = arrl->top; i < index; i++)
+	{
+		array_push(arrl, value(NOTHING_TYPE(), base_int(0)));
+	}
+	array_push(arrl, value(val->type, val->val));
+	
+
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+	inst_destroy(left);
+	inst_destroy(right);
+}

@@ -191,6 +191,7 @@ void register_commmands(PVM vm)
 	register_command(vm, create_command("%", 'b', CMD_MOD, 0, "<SCALAR> % <SCALAR>"));
 	register_command(vm, create_command("^", 'b', CMD_POWEROF, 0, "<SCALAR> ^ <SCALAR>"));
 	register_command(vm, create_command("pushBack", 'b', CMD_PUSHBACK, 0, "<ARRAY> pushBack <ANY>"));
+	register_command(vm, create_command("set", 'b', CMD_SET , 0, "<ARRAY> set <ANY>"));
 
 	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>"));
 	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>"));

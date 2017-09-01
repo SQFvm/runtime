@@ -17,6 +17,7 @@
 #define ERR_COUNT "COUNT"
 
 #define ERR_NOT_EMPTY "NOT EMPTY "
+#define ERR_EXISTING "EXISTING "
 
 #define ERR_OR " OR "
 
