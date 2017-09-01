@@ -2103,3 +2103,37 @@ void CMD_COMMENT(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(right);
 }
+
+
+void CMD_PUSHBACK(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PARRAY arr;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	arr = left_val->val.ptr;
+	array_push(arr, value(right_val->type, right_val->val));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(arr->top - 1))));
+	inst_destroy(left);
+	inst_destroy(right);
+}
