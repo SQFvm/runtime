@@ -447,7 +447,14 @@ void execute(PVM vm)
 				{
 					scope = top_scope(vm);
 					val = get_value(vm, vm->stack, inst2);
-					store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+					if (val == 0)
+					{
+						vm->error(vm, "NO VALUE GIVEN", vm->stack);
+					}
+					else
+					{
+						store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+					}
 				}
 				else
 				{
