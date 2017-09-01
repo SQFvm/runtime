@@ -239,14 +239,25 @@ CPCMD fndcmd2(PVM vm, const char* name, unsigned int len, unsigned char filter)
 	}
 	return 0;
 }
-void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end)
+void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
 {
 	TEXTRANGE range;
+	PCODE pcode;
+	int stack_size;
 	range.start = tr_arr_get(arr, arr_start + 1).start;
 	range.length = tr_arr_get(arr, arr_end).start - range.start;
-	push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(code_create(code, range.start, range.length)))));
+	if (stack != 0)
+	{
+		pcode = code_create(code, range.start, range.length);
+		stack_size = 0;
+		parse_partial(vm, 0, code, arr, arr_start + 1, arr_end - 1, &stack_size);
+		resize_stack(vm, pcode->stack, stack_size + 1);
+		parse_partial(vm, pcode->stack, code, arr, arr_start + 1, arr_end - 1, &stack_size);
+		push_stack(vm, stack, inst_value(value(CODE_TYPE(), base_voidptr(pcode))));
+	}
+	(*stack_counter)++;
 }
-void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end)
+void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
 {
 	int i, j = -1, k = -1;
 	const char* str;
@@ -272,8 +283,12 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 			}
 			if (arrcount == 0)
 			{
-				push_stack(vm, vm->stack, inst_arr_push());
-				parse_form_array(vm, stack, code, arr, i, j);
+				if (stack != 0)
+				{
+					push_stack(vm, stack, inst_arr_push());
+				}
+				(*stack_counter)++;
+				parse_form_array(vm, stack, code, arr, i, j, stack_counter);
 				k = j;
 				j = -1;
 			}
@@ -331,22 +346,34 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 			{
 				if (c == '}' && (code + tr_arr_get(arr, i + 1).start)[0] == '{')
 				{
-					push_stack(vm, vm->stack, inst_arr_push());
-					parse_form_code(vm, stack, code, arr, i + 1, k);
+					if (stack != 0)
+					{
+						push_stack(vm, stack, inst_arr_push());
+					}
+					(*stack_counter)++;
+					parse_form_code(vm, stack, code, arr, i + 1, k, stack_counter);
 				}
 				else
 				{
-					push_stack(vm, vm->stack, inst_arr_push());
-					parse_partial(vm, stack, code, arr, i + 1, j + 1);
+					if (stack != 0)
+					{
+						push_stack(vm, stack, inst_arr_push());
+					}
+					(*stack_counter)++;
+					parse_partial(vm, stack, code, arr, i + 1, j + 1, stack_counter);
 				}
 			}
 			j = -1;
 			k = -1;
 		}
 	}
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create()))));
+	if (stack != 0)
+	{
+		push_stack(vm, stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create()))));
+	}
+	(*stack_counter)++;
 }
-void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end)
+void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
 {
 	const char* str;
 	char* endptr;
@@ -440,7 +467,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		}
 		if (arr_start == i || (cmd != 0 && cmd->type_code & (2 | 4)))
 		{
-			cmd = fndcmd2(vm, str, range.length, 4|8);
+			cmd = fndcmd2(vm, str, range.length, 4 | 8);
 		}
 		else
 		{
@@ -478,15 +505,23 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	if (j == -1)
 		return;
 	range = tr_arr_get(arr, j);
-	push_stack(vm, stack, inst_debug_info(range.line, range.col, range.start, range.length));
+	if (stack != 0)
+	{
+		push_stack(vm, stack, inst_debug_info(range.line, range.col, range.start, range.length));
+	}
+	(*stack_counter)++;
 	if (smallest_cmd == 0)
 	{
 		str = code + range.start;
 		if (str[0] == '"' || str[0] == '\'')
 		{
-			value_string = string_create(range.length - 2);
-			strncpy(value_string->val, str + 1, range.length - 2);
-			push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
+			if (stack != 0)
+			{
+				value_string = string_create(range.length - 2);
+				strncpy(value_string->val, str + 1, range.length - 2);
+				push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
+			}
+			(*stack_counter)++;
 		}
 		else if (str[0] == '(')
 		{
@@ -499,12 +534,12 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 				{
 					k++;
 				}
-				else if(c == ')')
+				else if (c == ')')
 				{
 					k--;
 				}
 			}
-			parse_partial(vm, stack, code, arr, j + 1, i);
+			parse_partial(vm, stack, code, arr, j + 1, i, &stack_counter);
 			return;
 		}
 		else if (str[0] == '[')
@@ -523,7 +558,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 					k--;
 				}
 			}
-			parse_form_array(vm, stack, code, arr, j, i);
+			parse_form_array(vm, stack, code, arr, j, i, &stack_counter);
 			return;
 		}
 		else if (str[0] == '{')
@@ -542,7 +577,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 					k--;
 				}
 			}
-			parse_form_code(vm, stack, code, arr, j, i);
+			parse_form_code(vm, stack, code, arr, j, i, &stack_counter);
 			return;
 		}
 		else
@@ -550,7 +585,11 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 			f = strtof(str, &endptr);
 			if (endptr != str)
 			{
-				push_stack(vm, stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+				if (stack != 0)
+				{
+					push_stack(vm, stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
+				}
+				(*stack_counter)++;
 			}
 			else
 			{
@@ -561,27 +600,43 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 				{
 					if (j > 0 && strncmpi(code + tr_arr_get(arr, j - 1).start, tr_arr_get(arr, j - 1).length, "private", -1) == 0)
 					{
-						push_stack(vm, stack, inst_store_var_local(endptr));
+						if (stack != 0)
+						{
+							push_stack(vm, stack, inst_store_var_local(endptr));
+						}
+						(*stack_counter)++;
 						arr_start++;
 					}
 					else
 					{
-						push_stack(vm, stack, inst_store_var(endptr));
+						if (stack != 0)
+						{
+							push_stack(vm, stack, inst_store_var(endptr));
+						}
+						(*stack_counter)++;
 					}
 				}
 				else
 				{
-					push_stack(vm, stack, inst_load_var(endptr));
+					if (stack != 0)
+					{
+						push_stack(vm, stack, inst_load_var(endptr));
+					}
+					(*stack_counter)++;
 				}
 			}
 		}
 	}
 	else
 	{
-		push_stack(vm, stack, inst_command(smallest_cmd));
+		if (stack != 0)
+		{
+			push_stack(vm, stack, inst_command(smallest_cmd));
+		}
+		(*stack_counter)++;
 	}
-	parse_partial(vm, stack, code, arr, arr_start, j);
-	parse_partial(vm, stack, code, arr, j + 1, arr_end);
+	parse_partial(vm, stack, code, arr, arr_start, j, stack_counter);
+	parse_partial(vm, stack, code, arr, j + 1, arr_end, stack_counter);
 }
 void parse(PVM vm, const char* code, unsigned char createscope)
 {
@@ -589,6 +644,7 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 	int i, j = -1;
 	int codecount = 0;
 	const char* str;
+	unsigned int stack_counter = 0;
 	TEXTRANGE range;
 	tokenize(arr, code);
 	if (createscope)
@@ -597,7 +653,7 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 	}
 	if (arr->top == 1)
 	{
-		parse_partial(vm, vm->stack, code, arr, 0, 1);
+		parse_partial(vm, vm->stack, code, arr, 0, 1, &stack_counter);
 	}
 	else if(arr->top != 0)
 	{
@@ -629,7 +685,7 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 				}
 				else
 				{
-					parse_partial(vm, vm->stack, code, arr, i, j);
+					parse_partial(vm, vm->stack, code, arr, i, j, &stack_counter);
 					push_stack(vm, vm->stack, inst_clear_work());
 					j = i;
 				}
@@ -641,7 +697,7 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 		}
 		if (j != 0)
 		{
-			parse_partial(vm, vm->stack, code, arr, i + 1, j);
+			parse_partial(vm, vm->stack, code, arr, i + 1, j, &stack_counter);
 			push_stack(vm, vm->stack, inst_clear_work());
 		}
 	}

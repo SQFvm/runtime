@@ -68,6 +68,68 @@ void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset)
 		stack->data[stack->top++] = inst;
 	}
 }
+void copy_into_stack(PVM vm, PSTACK target, const PSTACK source)
+{
+	int i;
+	PINST inst;
+	PVALUE val;
+	PPOPEVAL ppopeval;
+	PDBGINF dbginf;
+	for (i = 0; i < source->top; i++)
+	{
+		inst = source->data[i];
+		switch (inst->type)
+		{
+			case INST_NOP:
+				push_stack(vm, target, inst_nop());
+				break;
+			case INST_COMMAND:
+				push_stack(vm, target, inst_command(get_command(vm, vm->stack, inst)));
+				break;
+			case INST_VALUE:
+				val = get_value(vm, vm->stack, inst);
+				push_stack(vm, target, inst_value(value(val->type, val->val)));
+				break;
+			case INST_LOAD_VAR:
+				push_stack(vm, target, inst_load_var(get_var_name(vm, vm->stack, inst)));
+				break;
+			case INST_STORE_VAR:
+				push_stack(vm, target, inst_store_var(get_var_name(vm, vm->stack, inst)));
+				break;
+			case INST_SCOPE:
+				push_stack(vm, target, inst_scope(get_scope(vm, vm->stack, inst)->name));
+				break;
+			case INST_STORE_VAR_LOCAL:
+				push_stack(vm, target, inst_store_var_local(get_var_name(vm, vm->stack, inst)));
+				break;
+			case INST_ARR_PUSH:
+				push_stack(vm, target, inst_arr_push());
+				break;
+			case INST_CODE_LOAD:
+				push_stack(vm, target, inst_code_load(inst->data.c));
+				break;
+			case INST_POP_EVAL:
+				ppopeval = get_pop_eval(vm, vm->stack, inst);
+				push_stack(vm, target, inst_pop_eval(ppopeval->ammount, ppopeval->popon));
+				break;
+			case INST_CLEAR_WORK:
+				push_stack(vm, target, inst_clear_work());
+				break;
+			case INST_DEBUG_INFO:
+				dbginf = get_dbginf(vm, vm->stack, inst);
+				push_stack(vm, target, inst_debug_info(dbginf->line, dbginf->col, dbginf->offset, dbginf->length));
+				break;
+			case INST_MOVE:
+				push_stack(vm, target, inst_move(inst->data.i));
+				break;
+			default:
+				#if _WIN32
+				__asm int 3;
+				#endif
+				break;
+		}
+	}
+}
 extern inline void register_command(PVM vm, PCMD cmd);
 int sqfvm_print(PVM vm, const char* format, ...)
 {
@@ -132,8 +194,15 @@ void destroy_sqfvm(PVM vm)
 PSTACK create_stack(unsigned int size, unsigned char allow_dbg)
 {
 	PSTACK stack = malloc(sizeof(STACK));
-	stack->data = malloc(sizeof(PINST) * size);
-	memset(stack->data, 0, sizeof(PINST) * size);
+	if (size == 0)
+	{
+		stack->data = 0;
+	}
+	else
+	{
+		stack->data = malloc(sizeof(PINST) * size);
+		memset(stack->data, 0, sizeof(PINST) * size);
+	}
 	stack->size = size;
 	stack->top = 0;
 	stack->allow_dbg = allow_dbg;
@@ -508,8 +577,7 @@ void execute(PVM vm)
 			{
 				push_stack(vm, vm->stack, inst_move(i));
 			}
-
-			parse(vm, ((PCODE)val->val.ptr)->val, i);
+			copy_into_stack(vm, vm->stack, ((PCODE)val->val.ptr)->stack);
 			inst_destroy(inst);
 			break;
 		case INST_POP_EVAL:

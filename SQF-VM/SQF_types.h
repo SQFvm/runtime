@@ -25,6 +25,7 @@ typedef struct CODE
 	char* val;
 	unsigned int length;
 	int refcount;
+	PSTACK stack;
 }CODE;
 typedef CODE* PCODE;
 PCMD CODE_TYPE(void);

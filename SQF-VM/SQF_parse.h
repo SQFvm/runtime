@@ -14,7 +14,11 @@
 
 
 void tokenize(TR_ARR* arr, const char* code);
-void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end);
+CPCMD fndcmd(PVM vm, const char* name, unsigned int len);
+CPCMD fndcmd2(PVM vm, const char* name, unsigned int len, unsigned char filter);
+void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter);
+void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter);
+void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter);
 void parse(PVM vm, const char* code, unsigned char createscope);
 
 
