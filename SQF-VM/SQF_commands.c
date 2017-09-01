@@ -895,9 +895,14 @@ void CMD_SELECT(void* input, CPCMD self)
 		if (right_val->type == SCALAR_TYPE())
 		{
 			index = roundf(right_val->val.f);
-			if (index < 0 || index >= arr->top)
+			if (index < 0 || index > arr->top)
 			{
 				vm->error(vm, ERR_SPECIAL_SELECT_1, vm->stack);
+				push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			}
+			else if (index == arr->top)
+			{
+				push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 			}
 			else
 			{
