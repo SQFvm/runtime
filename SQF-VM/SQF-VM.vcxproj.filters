@@ -45,6 +45,9 @@
     <ClCompile Include="SQF_commands.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SQF_base.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SQF.h">

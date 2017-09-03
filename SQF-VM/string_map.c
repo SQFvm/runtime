@@ -134,3 +134,34 @@ void* sm_set_value_in_bucket(sm_bucket* bucket, const char* name, void* value)
 	bucket->top++;
 	return 0;
 }
+
+unsigned int sm_count(sm_list* list)
+{
+	unsigned int count = 0;
+	int i;
+	sm_bucket* cur;
+	for (i = 0; i < list->buckets_size; i++)
+	{
+		cur = list->buckets[i];
+		count += cur->top;
+	}
+	return count;
+}
+void* sm_get_value_index(sm_list* list, unsigned int index)
+{
+	unsigned int count = 0;
+	int i;
+	sm_bucket* cur;
+	for (i = 0; i < list->buckets_size; i++)
+	{
+		cur = list->buckets[i];
+		count += cur->top;
+		if (count > index)
+		{
+			count -= cur->top;
+			index -= count;
+			return list->buckets[index];
+		}
+	}
+	return 0;
+}

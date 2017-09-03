@@ -58,15 +58,22 @@ typedef struct STACK
 } STACK;
 typedef STACK* PSTACK;
 
+typedef struct CMDCNT
+{
+	sm_list* types;
+	sm_list* nullar;
+	sm_list* unary;
+	sm_list* binary;
+} CMDCNT;
+typedef CMDCNT* PCMDCNT;
+
 //Structure containing all VM related informations
 typedef struct VM
 {
 	PSTACK stack;
 	PSTACK work;
 
-	PCMD* cmds;
-	unsigned int cmds_size;
-	unsigned int cmds_top;
+	PCMDCNT cmd_container;
 	void(*error)(struct VM* vm, const char*, PSTACK);
 	unsigned char die_flag;
 	unsigned long max_instructions;
@@ -122,9 +129,11 @@ typedef struct MOVE
 }MOVE;
 typedef MOVE* PMOVE;
 
+void cb_cmdcnt_destroy(void* data);
+PCMDCNT create_cmdcnt(void);
+void destroy_cmdcnt(PCMDCNT cmdcnt);
 
-
-
+PCMDCNT GET_PCMDCNT(void);
 
 void orig_error(PVM vm, const char* errMsg, PSTACK stack);
 PSTACK create_stack(unsigned int size, unsigned char allow_dbg);
@@ -135,7 +144,7 @@ PINST pop_stack(PVM vm, PSTACK stack);
 void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset);
 void copy_into_stack(PVM vm, PSTACK target, const PSTACK source);
 
-PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg, unsigned long max_instructions);
+PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_dbg, unsigned long max_instructions);
 void destroy_sqfvm(PVM vm);
 int sqfvm_print(PVM vm, const char* format, ...);
 void register_command(PVM vm, PCMD cmd);

@@ -1,3 +1,4 @@
+#include "basetype.h"
 #include "string_map.h"
 #include "string_op.h"
 #include "textrange.h"
@@ -209,35 +210,34 @@ int strncmpi(const char* left, int left_len, const char* right, int right_len)
 
 CPCMD fndcmd(PVM vm, const char* name, unsigned int len)
 {
-	int i;
-	PCMD cmd;
-	for (i = 0; i < vm->cmds_top; i++)
-	{
-		cmd = vm->cmds[i];
-		if (cmd->type == 't')
-			continue;
-		if (strncmpi(cmd->name, cmd->name_len, name, len) == 0)
-		{
-			return cmd;
-		}
-	}
-	return 0;
+	char* name_buff = alloca(sizeof(char) * (len + 1));
+	strncpy(name_buff, name, len);
+	name_buff[len] = '\0';
+	return find_command(vm, name_buff, 'C');
 }
 CPCMD fndcmd2(PVM vm, const char* name, unsigned int len, unsigned char filter)
 {
-	int i;
-	PCMD cmd;
-	for (i = 0; i < vm->cmds_top; i++)
+	char* name_buff = alloca(sizeof(char) * (len + 1));
+	strncpy(name_buff, name, len);
+	name_buff[len] = '\0';
+	CPCMD cmd = 0;
+	if (ENUM_CMD_NULLAR & filter && (cmd = find_command(vm, name_buff, 'n')) != 0)
 	{
-		cmd = vm->cmds[i];
-		if (!(cmd->type_code & filter))
-			continue;
-		if (strncmpi(cmd->name, cmd->name_len, name, len) == 0)
-		{
-			return cmd;
-		}
+		return cmd;
 	}
-	return 0;
+	if (ENUM_CMD_UNARY & filter && (cmd = find_command(vm, name_buff, 'u')) != 0)
+	{
+		return cmd;
+	}
+	if (ENUM_CMD_BINARY & filter && (cmd = find_command(vm, name_buff, 'b')) != 0)
+	{
+		return cmd;
+	}
+	if (ENUM_CMD_TYPE & filter && (cmd = find_command(vm, name_buff, 't')) != 0)
+	{
+		return cmd;
+	}
+	return cmd;
 }
 void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
 {
@@ -539,7 +539,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 					k--;
 				}
 			}
-			parse_partial(vm, stack, code, arr, j + 1, i, &stack_counter);
+			parse_partial(vm, stack, code, arr, j + 1, i, stack_counter);
 			return;
 		}
 		else if (str[0] == '[')
@@ -558,7 +558,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 					k--;
 				}
 			}
-			parse_form_array(vm, stack, code, arr, j, i, &stack_counter);
+			parse_form_array(vm, stack, code, arr, j, i, stack_counter);
 			return;
 		}
 		else if (str[0] == '{')
@@ -577,7 +577,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 					k--;
 				}
 			}
-			parse_form_code(vm, stack, code, arr, j, i, &stack_counter);
+			parse_form_code(vm, stack, code, arr, j, i, stack_counter);
 			return;
 		}
 		else

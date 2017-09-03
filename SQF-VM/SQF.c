@@ -17,7 +17,6 @@
 
 
 
-
 PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, const char* desc)
 {
 	PCMD command = malloc(sizeof(CMD));
@@ -157,47 +156,55 @@ PCMD find_command(PVM vm, const char* name, char type)
 {
 	int i;
 	PCMD cmd;
-	if (type != '*')
+
+	switch (type)
 	{
-		for (i = 0; i < vm->cmds_top; i++)
-		{
-			cmd = vm->cmds[i];
-			if (cmd->type == type && str_cmpi(cmd->name, -1, name, -1) == 0)
-			{
+		case 't':
+			return sm_get_value(vm->cmd_container->types, name);
+		case 'n':
+			return sm_get_value(vm->cmd_container->nullar, name);
+		case 'u':
+			return sm_get_value(vm->cmd_container->unary, name);
+		case 'b':
+			return sm_get_value(vm->cmd_container->binary, name);
+		case '*':
+			cmd = sm_get_value(vm->cmd_container->types, name);
+			if (cmd != 0)
 				return cmd;
-			}
-		}
-	}
-	else
-	{
-		for (i = 0; i < vm->cmds_top; i++)
-		{
-			cmd = vm->cmds[i];
-			if (str_cmpi(cmd->name, -1, name, -1) == 0)
-			{
+			cmd = sm_get_value(vm->cmd_container->nullar, name);
+			if (cmd != 0)
 				return cmd;
-			}
-		}
+			cmd = sm_get_value(vm->cmd_container->unary, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = sm_get_value(vm->cmd_container->binary, name);
+			return cmd;
+		case 'c':
+			cmd = sm_get_value(vm->cmd_container->nullar, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = sm_get_value(vm->cmd_container->unary, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = sm_get_value(vm->cmd_container->binary, name);
+			return cmd;
+		case 'C':
+			cmd = sm_get_value(vm->cmd_container->binary, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = sm_get_value(vm->cmd_container->unary, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = sm_get_value(vm->cmd_container->nullar, name);
+			return cmd;
+		default:
+			vm->error(vm, "UNKOWN FILTER TYPE", vm->stack);
 	}
 	return 0;
 }
 PCMD find_type(PVM vm, const char* name)
 {
-	int i;
-	PCMD cmd;
-	for (i = 0; i < vm->cmds_top; i++)
-	{
-		cmd = vm->cmds[i];
-		if (str_cmpi(cmd->name, -1, name, -1) == 0)
-		{
-			return cmd;
-		}
-		else if (cmd->type != 't')
-		{
-			break;
-		}
-	}
-	return 0;
+	return find_command(vm, name, 't');
 }
 
 

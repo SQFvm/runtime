@@ -15,6 +15,7 @@
 	#include <malloc.h>
 #endif // _WIN32
 
+#include "basetype.h"
 #include "string_map.h"
 #include "textrange.h"
 #include "SQF.h"
@@ -123,6 +124,13 @@ void custom_error(PVM vm, const char* errMsg, PSTACK stack)
 	//longjmp(program_exit, 1);
 }
 
+void create_if_not_exist(PVM vm, const char* name, char type, CMD_CB fnc, char precedence, const char* desc)
+{
+	if (find_command(vm, name, type) == 0)
+	{
+		register_command(vm, create_command(name, type, fnc, precedence, desc));
+	}
+}
 void register_commmands(PVM vm)
 {
 	/*
@@ -162,78 +170,82 @@ void register_commmands(PVM vm)
 	register_command(vm, create_command("LOCATION", 't', 0, 0));
 	*/
 
-	register_command(vm, create_command("+", 'b', CMD_PLUS, 8, "<SCALAR> + <SCALAR> | <STRING> + <STRING> | <ARRAY> + <ANY>"));
-	register_command(vm, create_command("-", 'b', CMD_MINUS, 8, "<SCALAR> - <SCALAR> "));
-	register_command(vm, create_command("*", 'b', CMD_MULTIPLY, 9, "<SCALAR> * <SCALAR>"));
-	register_command(vm, create_command("/", 'b', CMD_DIVIDE, 9, "<SCALAR> / <SCALAR>"));
-	register_command(vm, create_command(">", 'b', CMD_LARGETTHEN, 7, "<SCALAR> > <SCALAR>"));
-	register_command(vm, create_command("<", 'b', CMD_LESSTHEN, 7, "<SCALAR> < <SCALAR>"));
-	register_command(vm, create_command(">=", 'b', CMD_LARGETTHENOREQUAL, 7, "<SCALAR> >= <SCALAR>"));
-	register_command(vm, create_command("<=", 'b', CMD_LESSTHENOREQUAL, 7, "<SCALAR> <= <SCALAR>"));
-	register_command(vm, create_command("==", 'b', CMD_EQUAL, 7, "<SCALAR> > <SCALAR>"));
-	register_command(vm, create_command("||", 'b', CMD_OROR, 5, "<BOOL> || <BOOL> | <BOOL> || <CODE>"));
-	register_command(vm, create_command("&&", 'b', CMD_ANDAND, 6, "<BOOL> && <BOOL> | <BOOL> && <CODE>"));
-	register_command(vm, create_command("or", 'b', CMD_OROR, 5, "<BOOL> or <BOOL> | <BOOL> && <CODE>"));
-	register_command(vm, create_command("and", 'b', CMD_ANDAND, 6, "<BOOL> and <BOOL>"));
-	register_command(vm, create_command("select", 'b', CMD_SELECT, 10, "<ARRAY> select <SCALAR>"));
-	register_command(vm, create_command("then", 'b', CMD_THEN, 5, "<IF> then <ARRAY>"));
-	register_command(vm, create_command("else", 'b', CMD_ELSE, 6, "<CODE> else <CODE>"));
-	register_command(vm, create_command("do", 'b', CMD_DO, 0, "<WHILE> do <CODE> | <FOR> do <CODE>"));
-	register_command(vm, create_command("from", 'b', CMD_FROM, 0, "<FOR> from <SCALAR>"));
-	register_command(vm, create_command("to", 'b', CMD_TO, 0, "<FOR> to <SCALAR>"));
-	register_command(vm, create_command("step", 'b', CMD_STEP, 0, "<FOR> step <SCALAR>"));
-	register_command(vm, create_command("count", 'b', CMD_COUNT, 0, "<CODE> count <ARRAY> | <COUNT> count <BOOL>"));
-	register_command(vm, create_command("call", 'b', CMD_CALL, 0, "<ANY> call <CODE>"));
-	register_command(vm, create_command("atan2", 'b', CMD_ATAN2, 0, "<SCALAR> atan2 <SCALAR>"));
-	register_command(vm, create_command("min", 'b', CMD_MIN, 0, "<SCALAR> min <SCALAR>"));
-	register_command(vm, create_command("max", 'b', CMD_MAX, 0, "<SCALAR> max <SCALAR>"));
-	register_command(vm, create_command("mod", 'b', CMD_MOD, 0, "<SCALAR> mod <SCALAR>"));
-	register_command(vm, create_command("%", 'b', CMD_MOD, 0, "<SCALAR> % <SCALAR>"));
-	register_command(vm, create_command("^", 'b', CMD_POWEROF, 0, "<SCALAR> ^ <SCALAR>"));
-	register_command(vm, create_command("pushBack", 'b', CMD_PUSHBACK, 0, "<ARRAY> pushBack <ANY>"));
-	register_command(vm, create_command("set", 'b', CMD_SET , 0, "<ARRAY> set <ANY>"));
+	create_if_not_exist(vm, "+", 'b', CMD_PLUS, 8, "<SCALAR> + <SCALAR> | <STRING> + <STRING> | <ARRAY> + <ANY>");
+	create_if_not_exist(vm, "-", 'b', CMD_MINUS, 8, "<SCALAR> - <SCALAR> ");
+	create_if_not_exist(vm, "*", 'b', CMD_MULTIPLY, 9, "<SCALAR> * <SCALAR>");
+	create_if_not_exist(vm, "/", 'b', CMD_DIVIDE, 9, "<SCALAR> / <SCALAR>");
+	create_if_not_exist(vm, ">", 'b', CMD_LARGETTHEN, 7, "<SCALAR> > <SCALAR>");
+	create_if_not_exist(vm, "<", 'b', CMD_LESSTHEN, 7, "<SCALAR> < <SCALAR>");
+	create_if_not_exist(vm, ">=", 'b', CMD_LARGETTHENOREQUAL, 7, "<SCALAR> >= <SCALAR>");
+	create_if_not_exist(vm, "<=", 'b', CMD_LESSTHENOREQUAL, 7, "<SCALAR> <= <SCALAR>");
+	create_if_not_exist(vm, "==", 'b', CMD_EQUAL, 7, "<SCALAR> > <SCALAR>");
+	create_if_not_exist(vm, "||", 'b', CMD_OROR, 5, "<BOOL> || <BOOL> | <BOOL> || <CODE>");
+	create_if_not_exist(vm, "&&", 'b', CMD_ANDAND, 6, "<BOOL> && <BOOL> | <BOOL> && <CODE>");
+	create_if_not_exist(vm, "or", 'b', CMD_OROR, 5, "<BOOL> or <BOOL> | <BOOL> && <CODE>");
+	create_if_not_exist(vm, "and", 'b', CMD_ANDAND, 6, "<BOOL> and <BOOL>");
+	create_if_not_exist(vm, "select", 'b', CMD_SELECT, 10, "<ARRAY> select <SCALAR>");
+	create_if_not_exist(vm, "then", 'b', CMD_THEN, 5, "<IF> then <ARRAY>");
+	create_if_not_exist(vm, "else", 'b', CMD_ELSE, 6, "<CODE> else <CODE>");
+	create_if_not_exist(vm, "do", 'b', CMD_DO, 0, "<WHILE> do <CODE> | <FOR> do <CODE>");
+	create_if_not_exist(vm, "from", 'b', CMD_FROM, 0, "<FOR> from <SCALAR>");
+	create_if_not_exist(vm, "to", 'b', CMD_TO, 0, "<FOR> to <SCALAR>");
+	create_if_not_exist(vm, "step", 'b', CMD_STEP, 0, "<FOR> step <SCALAR>");
+	create_if_not_exist(vm, "count", 'b', CMD_COUNT, 0, "<CODE> count <ARRAY> | <COUNT> count <BOOL>");
+	create_if_not_exist(vm, "call", 'b', CMD_CALL, 0, "<ANY> call <CODE>");
+	create_if_not_exist(vm, "atan2", 'b', CMD_ATAN2, 0, "<SCALAR> atan2 <SCALAR>");
+	create_if_not_exist(vm, "min", 'b', CMD_MIN, 0, "<SCALAR> min <SCALAR>");
+	create_if_not_exist(vm, "max", 'b', CMD_MAX, 0, "<SCALAR> max <SCALAR>");
+	create_if_not_exist(vm, "mod", 'b', CMD_MOD, 0, "<SCALAR> mod <SCALAR>");
+	create_if_not_exist(vm, "%", 'b', CMD_MOD, 0, "<SCALAR> % <SCALAR>");
+	create_if_not_exist(vm, "^", 'b', CMD_POWEROF, 0, "<SCALAR> ^ <SCALAR>");
+	create_if_not_exist(vm, "pushBack", 'b', CMD_PUSHBACK, 0, "<ARRAY> pushBack <ANY>");
+	create_if_not_exist(vm, "set", 'b', CMD_SET , 0, "<ARRAY> set <ANY>");
 
-	register_command(vm, create_command("diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>"));
-	register_command(vm, create_command("private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>"));
-	register_command(vm, create_command("if", 'u', CMD_IF, 0, "if <BOOL>"));
-	register_command(vm, create_command("str", 'u', CMD_STR, 0, "str <ANY>"));
-	register_command(vm, create_command("while", 'u', CMD_WHILE, 0, "while <CODE>"));
-	register_command(vm, create_command("typeName", 'u', CMD_TYPENAME, 0, "typeName <ANY>"));
-	register_command(vm, create_command("for", 'u', CMD_FOR, 0, "for <STRING>"));
-	register_command(vm, create_command("-", 'u', CMD_MINUS_UNARY, 0, "- <SCALAR>"));
-	register_command(vm, create_command("count", 'u', CMD_COUNT_UNARY, 0, "count <STRING> | count <ARRAY>"));
-	register_command(vm, create_command("format", 'u', CMD_FORMAT, 0, "format <ARRAY>"));
-	register_command(vm, create_command("call", 'u', CMD_CALL_UNARY, 0, "call <CODE>"));
-	register_command(vm, create_command("abs", 'u', CMD_ABS, 0, "abs <SCALAR>"));
-	register_command(vm, create_command("deg", 'u', CMD_DEG, 0, "deg <SCALAR>"));
-	register_command(vm, create_command("log", 'u', CMD_LOG, 0, "log <SCALAR>"));
-	register_command(vm, create_command("sin", 'u', CMD_SIN, 0, "sin <SCALAR>"));
-	register_command(vm, create_command("cos", 'u', CMD_COS, 0, "cos <SCALAR>"));
-	register_command(vm, create_command("tan", 'u', CMD_TAN, 0, "tan <SCALAR>"));
-	register_command(vm, create_command("exp", 'u', CMD_EXP, 0, "exp <SCALAR>"));
-	register_command(vm, create_command("asin", 'u', CMD_ASIN, 0, "asin <SCALAR>"));
-	register_command(vm, create_command("acos", 'u', CMD_ACOS, 0, "acos <SCALAR>"));
-	register_command(vm, create_command("atan", 'u', CMD_ATAN, 0, "atan <SCALAR>"));
-	register_command(vm, create_command("atg", 'u', CMD_ATAN, 0, "atg <SCALAR>"));
-	register_command(vm, create_command("rad", 'u', CMD_RAD, 0, "rad <SCALAR>"));
-	register_command(vm, create_command("sqrt", 'u', CMD_SQRT, 0, "sqrt <SCALAR>"));
-	register_command(vm, create_command("ceil", 'u', CMD_CEIL, 0, "ceil <SCALAR>"));
-	register_command(vm, create_command("random", 'u', CMD_RANDOM, 0, "random <SCALAR>"));
-	register_command(vm, create_command("floor", 'u', CMD_FLOOR, 0, "floor <SCALAR>"));
-	register_command(vm, create_command("ln", 'u', CMD_LN, 0, "ln <SCALAR>"));
-	register_command(vm, create_command("round", 'u', CMD_ROUND, 0, "round <SCALAR>"));
-	register_command(vm, create_command("!", 'u', CMD_NOT, 0, "! <BOOL>"));
-	register_command(vm, create_command("comment", 'u', CMD_COMMENT, 0, "comment <BOOL>"));
+	create_if_not_exist(vm, "diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>");
+	create_if_not_exist(vm, "private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>");
+	create_if_not_exist(vm, "if", 'u', CMD_IF, 0, "if <BOOL>");
+	create_if_not_exist(vm, "str", 'u', CMD_STR, 0, "str <ANY>");
+	create_if_not_exist(vm, "while", 'u', CMD_WHILE, 0, "while <CODE>");
+	create_if_not_exist(vm, "typeName", 'u', CMD_TYPENAME, 0, "typeName <ANY>");
+	create_if_not_exist(vm, "for", 'u', CMD_FOR, 0, "for <STRING>");
+	create_if_not_exist(vm, "-", 'u', CMD_MINUS_UNARY, 0, "- <SCALAR>");
+	create_if_not_exist(vm, "count", 'u', CMD_COUNT_UNARY, 0, "count <STRING> | count <ARRAY>");
+	create_if_not_exist(vm, "format", 'u', CMD_FORMAT, 0, "format <ARRAY>");
+	create_if_not_exist(vm, "call", 'u', CMD_CALL_UNARY, 0, "call <CODE>");
+	create_if_not_exist(vm, "abs", 'u', CMD_ABS, 0, "abs <SCALAR>");
+	create_if_not_exist(vm, "deg", 'u', CMD_DEG, 0, "deg <SCALAR>");
+	create_if_not_exist(vm, "log", 'u', CMD_LOG, 0, "log <SCALAR>");
+	create_if_not_exist(vm, "sin", 'u', CMD_SIN, 0, "sin <SCALAR>");
+	create_if_not_exist(vm, "cos", 'u', CMD_COS, 0, "cos <SCALAR>");
+	create_if_not_exist(vm, "tan", 'u', CMD_TAN, 0, "tan <SCALAR>");
+	create_if_not_exist(vm, "exp", 'u', CMD_EXP, 0, "exp <SCALAR>");
+	create_if_not_exist(vm, "asin", 'u', CMD_ASIN, 0, "asin <SCALAR>");
+	create_if_not_exist(vm, "acos", 'u', CMD_ACOS, 0, "acos <SCALAR>");
+	create_if_not_exist(vm, "atan", 'u', CMD_ATAN, 0, "atan <SCALAR>");
+	create_if_not_exist(vm, "atg", 'u', CMD_ATAN, 0, "atg <SCALAR>");
+	create_if_not_exist(vm, "rad", 'u', CMD_RAD, 0, "rad <SCALAR>");
+	create_if_not_exist(vm, "sqrt", 'u', CMD_SQRT, 0, "sqrt <SCALAR>");
+	create_if_not_exist(vm, "ceil", 'u', CMD_CEIL, 0, "ceil <SCALAR>");
+	create_if_not_exist(vm, "random", 'u', CMD_RANDOM, 0, "random <SCALAR>");
+	create_if_not_exist(vm, "floor", 'u', CMD_FLOOR, 0, "floor <SCALAR>");
+	create_if_not_exist(vm, "ln", 'u', CMD_LN, 0, "ln <SCALAR>");
+	create_if_not_exist(vm, "round", 'u', CMD_ROUND, 0, "round <SCALAR>");
+	create_if_not_exist(vm, "!", 'u', CMD_NOT, 0, "! <BOOL>");
+	create_if_not_exist(vm, "comment", 'u', CMD_COMMENT, 0, "comment <BOOL>");
 
 
-	register_command(vm, create_command("true", 'n', CMD_TRUE, 0, "true"));
-	register_command(vm, create_command("false", 'n', CMD_FALSE, 0, "false"));
-	register_command(vm, create_command("parsingNamespace", 'n', CMD_PARSINGNAMESPACE, 0, "parsingNamespace"));
-	register_command(vm, create_command("missionNamespace", 'n', CMD_MISSIONNAMESPACE, 0, "missionNamespace"));
-	register_command(vm, create_command("uiNamespace", 'n', CMD_UINAMESPACE, 0, "uiNamespace"));
-	register_command(vm, create_command("profileNamespace", 'n', CMD_PROFILENAMESPACE, 0, "profileNamespace"));
-	register_command(vm, create_command("diag_tickTime", 'n', CMD_DIAG_TICKTIME, 0, "diag_tickTime"));
-	register_command(vm, create_command("pi", 'n', CMD_PI, 0, "pi"));
+	create_if_not_exist(vm, "true", 'n', CMD_TRUE, 0, "true");
+	create_if_not_exist(vm, "false", 'n', CMD_FALSE, 0, "false");
+	create_if_not_exist(vm, "parsingNamespace", 'n', CMD_PARSINGNAMESPACE, 0, "parsingNamespace");
+	create_if_not_exist(vm, "missionNamespace", 'n', CMD_MISSIONNAMESPACE, 0, "missionNamespace");
+	create_if_not_exist(vm, "uiNamespace", 'n', CMD_UINAMESPACE, 0, "uiNamespace");
+	create_if_not_exist(vm, "profileNamespace", 'n', CMD_PROFILENAMESPACE, 0, "profileNamespace");
+	create_if_not_exist(vm, "diag_tickTime", 'n', CMD_DIAG_TICKTIME, 0, "diag_tickTime");
+	create_if_not_exist(vm, "pi", 'n', CMD_PI, 0, "pi");
+
+
+
+	create_if_not_exist(vm, "help", 'n', CMD_HELP, 0, "Displays this help text.");
 }
 
 int vm_output_print(PVM vm, const char* format, ...)
@@ -258,7 +270,7 @@ DLLEXPORT_PREFIX unsigned char start_program(const char* input, unsigned long ma
 	int val;
 	int i;
 	unsigned char success;
-	PVM vm = sqfvm(1000, 50, 100, 1, max_instructions);
+	PVM vm = sqfvm(1000, 50, 1, max_instructions);
 	vm->error = custom_error;
 	if (systime_start == 0)
 	{
@@ -271,7 +283,6 @@ DLLEXPORT_PREFIX unsigned char start_program(const char* input, unsigned long ma
 	vm->print_custom_data = string_create(0);
 
 	current_code = input;
-	register_command(vm, create_command("help", 'n', CMD_HELP, 0, "Displays this help text."));
 	val = setjmp(program_exit);
 	if (!val)
 	{
@@ -372,6 +383,7 @@ int main(int argc, char** argv)
 	pstr = string_create(0);
 	//_CrtSetBreakAlloc(593);
 	j = 0;
+
 	for (i = 0; i < argc; i++)
 	{
 		ptr = argv[i];
@@ -473,12 +485,8 @@ int main(int argc, char** argv)
 	namespace_destroy(sqf_parsingNamespace());
 	namespace_destroy(sqf_profileNamespace());
 	namespace_destroy(sqf_uiNamespace());
-	vm = sqfvm(0, 0, 0, 0, 0);
-	for (i = 0; i < vm->cmds_top; i++)
-	{
-		destroy_command(vm->cmds[i]);
-	}
-	destroy_sqfvm(vm);
+
+	destroy_cmdcnt(GET_PCMDCNT());
 
 	#if _WIN32 & _DEBUG
 	_CrtDumpMemoryLeaks();

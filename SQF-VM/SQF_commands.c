@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "basetype.h"
 #include "string_op.h"
 #include "string_map.h"
 #include "textrange.h"
@@ -584,16 +585,34 @@ void CMD_HELP(void* input, CPCMD self)
 {
 	PVM vm = input;
 	int i;
+	int count;
 	CPCMD cmd;
-	char* buffer = 0;
 	vm->print(vm, "ERRORS might result in crash\n\n");
 	vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
-	for (i = 0; i < vm->cmds_top; i++)
+	count = sm_count(vm->cmd_container->types);
+	for (i = 0; i < count; i++)
 	{
-		cmd = vm->cmds[i];
+		cmd = sm_get_value_index(vm->cmd_container->types, i);
 		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
 	}
-	free(buffer);
+	count = sm_count(vm->cmd_container->nullar);
+	for (i = 0; i < count; i++)
+	{
+		cmd = sm_get_value_index(vm->cmd_container->nullar, i);
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+	}
+	count = sm_count(vm->cmd_container->unary);
+	for (i = 0; i < count; i++)
+	{
+		cmd = sm_get_value_index(vm->cmd_container->unary, i);
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+	}
+	count = sm_count(vm->cmd_container->binary);
+	for (i = 0; i < count; i++)
+	{
+		cmd = sm_get_value_index(vm->cmd_container->binary, i);
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+	}
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
 

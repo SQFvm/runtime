@@ -14,6 +14,38 @@
 #include <ctype.h>
 #include <stdarg.h>
 
+void cb_cmdcnt_destroy(void* data)
+{
+	PCMD cmd = data;
+	destroy_command(cmd);
+}
+PCMDCNT create_cmdcnt(void)
+{
+	PCMDCNT cmdcnt = malloc(sizeof(CMDCNT));
+	cmdcnt->types = sm_create_list(10, 10, 10);
+	cmdcnt->nullar = sm_create_list(10, 10, 10);
+	cmdcnt->unary = sm_create_list(10, 10, 10);
+	cmdcnt->binary = sm_create_list(10, 10, 10);
+	return cmdcnt;
+}
+void destroy_cmdcnt(PCMDCNT cmdcnt)
+{
+	sm_destroy_list(cmdcnt->types, cb_cmdcnt_destroy);
+	sm_destroy_list(cmdcnt->nullar, cb_cmdcnt_destroy);
+	sm_destroy_list(cmdcnt->unary, cb_cmdcnt_destroy);
+	sm_destroy_list(cmdcnt->binary, cb_cmdcnt_destroy);
+	free(cmdcnt);
+}
+
+PCMDCNT GET_PCMDCNT(void)
+{
+	static PCMDCNT pcmdcnt = 0;
+	if (pcmdcnt == 0)
+	{
+		pcmdcnt = create_cmdcnt();
+	}
+	return pcmdcnt;
+}
 
 void orig_error(PVM vm, const char* errMsg, PSTACK stack)
 {
@@ -185,18 +217,13 @@ void copy_into_stack(PVM vm, PSTACK target, const PSTACK source)
 	}
 }
 
-#define SQF_VM_INTERNAL_TYPE_COUNT 12
-PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg, unsigned long max_instructions)
+PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_dbg, unsigned long max_instructions)
 {
 	PVM vm = malloc(sizeof(VM));
-	cmds_size += SQF_VM_INTERNAL_TYPE_COUNT;
 	vm->stack = create_stack(stack_size, allow_dbg);
 	vm->work = create_stack(work_size, 0);
 
-	vm->cmds = malloc(sizeof(PCMD) * cmds_size);
-	memset(vm->cmds, 0, sizeof(PINST) * cmds_size);
-	vm->cmds_size = cmds_size;
-	vm->cmds_top = 0;
+	vm->cmd_container = GET_PCMDCNT();
 	vm->error = orig_error;
 	vm->die_flag = 0;
 	vm->enable_instruction_limit = max_instructions == 0 ? 0 : 1;
@@ -205,18 +232,18 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_siz
 	vm->print_custom_data = 0;
 
 
-	register_command(vm, SCALAR_TYPE());
-	register_command(vm, BOOL_TYPE());
-	register_command(vm, ARRAY_TYPE());
-	register_command(vm, CODE_TYPE());
-	register_command(vm, STRING_TYPE());
-	register_command(vm, NOTHING_TYPE());
-	register_command(vm, ANY_TYPE());
-	register_command(vm, NAMESPACE_TYPE());
-	register_command(vm, NAN_TYPE());
-	register_command(vm, IF_TYPE());
-	register_command(vm, WHILE_TYPE());
-	register_command(vm, FOR_TYPE());
+	if (find_command(vm, SCALAR_TYPE()->name, 't') == 0) register_command(vm, SCALAR_TYPE());
+	if (find_command(vm, BOOL_TYPE()->name, 't') == 0) register_command(vm, BOOL_TYPE());
+	if (find_command(vm, ARRAY_TYPE()->name, 't') == 0) register_command(vm, ARRAY_TYPE());
+	if (find_command(vm, CODE_TYPE()->name, 't') == 0) register_command(vm, CODE_TYPE());
+	if (find_command(vm, STRING_TYPE()->name, 't') == 0) register_command(vm, STRING_TYPE());
+	if (find_command(vm, NOTHING_TYPE()->name, 't') == 0) register_command(vm, NOTHING_TYPE());
+	if (find_command(vm, ANY_TYPE()->name, 't') == 0) register_command(vm, ANY_TYPE());
+	if (find_command(vm, NAMESPACE_TYPE()->name, 't') == 0) register_command(vm, NAMESPACE_TYPE());
+	if (find_command(vm, NAN_TYPE()->name, 't') == 0) register_command(vm, NAN_TYPE());
+	if (find_command(vm, IF_TYPE()->name, 't') == 0) register_command(vm, IF_TYPE());
+	if (find_command(vm, WHILE_TYPE()->name, 't') == 0) register_command(vm, WHILE_TYPE());
+	if (find_command(vm, FOR_TYPE()->name, 't') == 0) register_command(vm, FOR_TYPE());
 	return vm;
 }
 void destroy_sqfvm(PVM vm)
@@ -224,28 +251,39 @@ void destroy_sqfvm(PVM vm)
 	int i;
 	destroy_stack(vm->stack);
 	destroy_stack(vm->work);
-	for (i = SQF_VM_INTERNAL_TYPE_COUNT; i < vm->cmds_top; i++)
-	{
-		destroy_command(vm->cmds[i]);
-	}
-	free(vm->cmds);
-
 	free(vm);
 }
 
 void register_command(PVM vm, PCMD cmd)
 {
-	if (vm->cmds_top >= vm->cmds_size)
+	sm_list* list = 0;
+	switch (cmd->type)
 	{
-		vm->error(vm, "COMMAND REGISTER OVERFLOW", vm->stack);
+		case 't':
+			list = vm->cmd_container->types;
+			break;
+		case 'n':
+			list = vm->cmd_container->nullar;
+			break;
+		case 'u':
+			list = vm->cmd_container->unary;
+			break;
+		case 'b':
+			list = vm->cmd_container->binary;
+			break;
+		default:
+			vm->error(vm, "UNKNOWN COMMAND TYPE", vm->stack);
+			break;
+	}
+	if (list == 0)
+		return;
+	if (sm_get_value(list, cmd->name) == 0)
+	{
+		cmd = sm_set_value(list, cmd->name, cmd);
 	}
 	else
 	{
-		if (cmd->type == 't' && vm->cmds_top != 0 && vm->cmds[vm->cmds_top - 1]->type != 't')
-		{
-			vm->error(vm, "TYPE COMMAND REGISTERED AFTER NON-TYPE COMMANDS GOT REGISTERED", vm->stack);
-		}
-		vm->cmds[vm->cmds_top++] = cmd;
+		vm->error(vm, "COMMAND ALREADY EXISTING", vm->stack);
 	}
 }
 int sqfvm_print(PVM vm, const char* format, ...)

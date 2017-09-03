@@ -1,3 +1,4 @@
+#include "basetype.h"
 #include "string_map.h"
 #include "SQF.h"
 #include "SQF_types.h"

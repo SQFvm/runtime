@@ -83,6 +83,15 @@ inline void* sm_get_value(sm_list* list, const char* name)
 {
 	return sm_get_value_from_bucket(sm_get_bucket_for(list, name), name);
 }
+/*
+Searches for the provided name in given bucket and sets the value slot for the name to given value.
+If there was already a value at that spot, it will be returned.
+In any other case, NULL is returned.
+
+param 1: valid pointer to a bucket allocated by sm_create_bucket
+param 2: \0 terminated string as identifier
+param 3: pointer to the value to set
+*/
 void* sm_set_value_in_bucket(sm_bucket* bucket, const char* name, void* value);
 /*
 Searches for the provided name in given lists buckets and sets the value slot for the name to given value.
@@ -97,6 +106,23 @@ inline void* sm_set_value(sm_list* list, const char* name, void* value)
 {
 	return sm_set_value_in_bucket(sm_get_bucket_for(list, name), name, value);
 }
+
+/*
+Gets the total item count in provided list.
+
+param 1: valid pointer to a list allocated by sm_create_list
+*/
+unsigned int sm_count(sm_list* list);
+/*
+Receives an item via index from provided list.
+Indexies might change when new items are added!
+Only should be used for enumeration.
+Returns 0 if index was too large;
+
+param 1: valid pointer to a list allocated by sm_create_list
+param 2: Current index of enumeration
+*/
+void* sm_get_value_index(sm_list* list, unsigned int index);
 
 
 #endif // !_STRING_MAP_H_
