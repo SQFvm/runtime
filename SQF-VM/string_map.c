@@ -160,7 +160,7 @@ void* sm_get_value_index(sm_list* list, unsigned int index)
 		{
 			count -= cur->top;
 			index -= count;
-			return list->buckets[index];
+			return cur->values[index];
 		}
 	}
 	return 0;
