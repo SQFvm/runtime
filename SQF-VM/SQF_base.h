@@ -1,7 +1,13 @@
 #ifndef _SQF_BASE_H_
 #define _SQF_BASE_H_
 
-#include "basetype.h"
+#ifndef _BASETYPE_H_
+#error "SQF_base.h" has to be included after "basetype.h"
+#endif // !_BASETYPE_H_
+
+#ifndef _STRING_MAP_H_
+#error "SQF_base.h" has to be included after "string_map.h"
+#endif // !_STRING_MAP_H_
 
 //Structure containing VM instructions
 typedef unsigned char DATA_TYPE;
@@ -131,20 +137,6 @@ void copy_into_stack(PVM vm, PSTACK target, const PSTACK source);
 
 PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned int cmds_size, unsigned char allow_dbg, unsigned long max_instructions);
 void destroy_sqfvm(PVM vm);
-
-inline void register_command(PVM vm, PCMD cmd)
-{
-	if (vm->cmds_top >= vm->cmds_size)
-	{
-		vm->error(vm, "COMMAND REGISTER OVERFLOW", vm->stack);
-	}
-	else
-	{
-		if (cmd->type == 't' && vm->cmds_top != 0 && vm->cmds[vm->cmds_top - 1]->type != 't')
-		{
-			vm->error(vm, "TYPE COMMAND REGISTERED AFTER NON-TYPE COMMANDS GOT REGISTERED", vm->stack);
-		}
-		vm->cmds[vm->cmds_top++] = cmd;
-	}
-}
+int sqfvm_print(PVM vm, const char* format, ...);
+void register_command(PVM vm, PCMD cmd);
 #endif
