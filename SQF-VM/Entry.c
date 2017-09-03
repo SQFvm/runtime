@@ -245,7 +245,7 @@ void register_commmands(PVM vm)
 
 
 
-	create_if_not_exist(vm, "help", 'n', CMD_HELP, 0, "Displays this help text.");
+	create_if_not_exist(vm, "help__", 'n', CMD_HELP, 0, "Displays this help text.");
 }
 
 int vm_output_print(PVM vm, const char* format, ...)
@@ -457,7 +457,7 @@ int main(int argc, char** argv)
 
 	if (!just_execute)
 	{
-		printf("Please enter your SQF code.\nTo get the capabilities, use the `help` instruction.\nTo run the code, Press <ENTER> twice.\n");
+		printf("Please enter your SQF code.\nTo get the capabilities, use the `help__` instruction.\nTo run the code, Press <ENTER> twice.\n");
 		printf("%d:\t", i++);
 		while (get_line(linebuffer, LINEBUFFER_SIZE)[0] != '\n')
 		{
