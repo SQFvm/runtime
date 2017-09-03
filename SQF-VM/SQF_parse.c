@@ -243,7 +243,7 @@ void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsign
 {
 	TEXTRANGE range;
 	PCODE pcode;
-	int stack_size;
+	unsigned int stack_size;
 	range.start = tr_arr_get(arr, arr_start + 1).start;
 	range.length = tr_arr_get(arr, arr_end).start - range.start;
 	if (stack != 0)

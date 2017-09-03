@@ -92,6 +92,10 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	unsigned char flag = 1;
 	PARRAY arrl;
 	PARRAY arrr;
+	PCODE codel;
+	PCODE coder;
+	PINST instl;
+	PINST instr;
 	int i;
 	if (l->type != r->type)
 		return 0;
@@ -114,7 +118,36 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	}
 	else if (l->type == CODE_TYPE())
 	{
+		codel = l->val.ptr;
+		coder = r->val.ptr;
 
+		if (codel->stack->top != coder->stack->size)
+			return 0;
+		for (i = 0; i < codel->stack->top; i++)
+		{
+			instl = codel->stack->data[i];
+			instr = coder->stack->data[i];
+			if (instl->type != instr->type)
+				return 0;
+			switch (instl->type)
+			{
+				case INST_VALUE:
+					if (!is_equal_to(vm, get_value(vm, vm->stack, instl), get_value(vm, vm->stack, instr)))
+						return 0;
+					break;
+				case INST_LOAD_VAR:
+				case INST_STORE_VAR:
+				case INST_STORE_VAR_LOCAL:
+					if (strcmpi(get_var_name(vm, vm->stack, instl), get_var_name(vm, vm->stack, instr)))
+						return 0;
+					break;
+				case INST_COMMAND:
+					if (get_command(vm, vm->stack, instl) != get_command(vm, vm->stack, instr))
+						return 0;
+					break;
+			}
+		}
+		return 1;
 	}
 	else if (l->type == SCALAR_TYPE())
 	{
@@ -122,11 +155,12 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	}
 	else if (l->type == BOOL_TYPE())
 	{
-		return l->val.i > 0 ? 1 : 0 == r->val.i > 0 ? 1 : 0;
+		return (l->val.i > 0 ? 1 : 0) == (r->val.i > 0 ? 1 : 0);
 	}
 	else
 	{
 		vm->error(vm, ERR_ERR ERR_TYPES ERR_OF_TYPE ERR_ARRAY ERR_OR ERR_STRING ERR_OR ERR_CODE ERR_OR ERR_SCALAR ERR_OR ERR_BOOL, vm->stack);
+		return 0;
 	}
 }
 

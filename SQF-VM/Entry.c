@@ -377,7 +377,6 @@ int main(int argc, char** argv)
 	int i, j, k;
 	unsigned char just_execute = 0;
 	unsigned char prog_success = 0;
-	PVM vm;
 	PSTRING pstr;
 	unsigned long max_inst = 10000;
 	pstr = string_create(0);

@@ -248,7 +248,6 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 }
 void destroy_sqfvm(PVM vm)
 {
-	int i;
 	destroy_stack(vm->stack);
 	destroy_stack(vm->work);
 	free(vm);
