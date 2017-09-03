@@ -181,7 +181,6 @@ void destroy_sqfvm(PVM vm)
 	int i;
 	destroy_stack(vm->stack);
 	destroy_stack(vm->work);
-	//6 being the "offset" of the pre-existing types (see sqfvm creation function, this number should correspond to the ammount of register_command calls in there)
 	for (i = SQF_VM_INTERNAL_TYPE_COUNT; i < vm->cmds_top; i++)
 	{
 		destroy_command(vm->cmds[i]);
