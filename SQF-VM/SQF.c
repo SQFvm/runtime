@@ -154,7 +154,6 @@ void push_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val)
 
 PCMD find_command(PVM vm, const char* name, char type)
 {
-	int i;
 	PCMD cmd;
 
 	switch (type)

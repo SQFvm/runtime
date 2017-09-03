@@ -109,8 +109,10 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 		}
 		for (i = 0; i < arrl->top; i++)
 		{
-			flag &= is_equal_to(vm, arrl->data[i], arrr->data[i]);
+			if (!is_equal_to(vm, arrl->data[i], arrr->data[i]))
+				return 0;
 		}
+		return 1;
 	}
 	else if (l->type == STRING_TYPE())
 	{
@@ -138,7 +140,7 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 				case INST_LOAD_VAR:
 				case INST_STORE_VAR:
 				case INST_STORE_VAR_LOCAL:
-					if (strcmpi(get_var_name(vm, vm->stack, instl), get_var_name(vm, vm->stack, instr)))
+					if (str_cmpi(get_var_name(vm, vm->stack, instl), get_var_name(vm, vm->stack, instr)))
 						return 0;
 					break;
 				case INST_COMMAND:
