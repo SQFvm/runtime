@@ -199,7 +199,8 @@ void register_commmands(PVM vm)
 	create_if_not_exist(vm, "%", 'b', CMD_MOD, 0, "<SCALAR> % <SCALAR>");
 	create_if_not_exist(vm, "^", 'b', CMD_POWEROF, 0, "<SCALAR> ^ <SCALAR>");
 	create_if_not_exist(vm, "pushBack", 'b', CMD_PUSHBACK, 0, "<ARRAY> pushBack <ANY>");
-	create_if_not_exist(vm, "set", 'b', CMD_SET , 0, "<ARRAY> set <ANY>");
+	create_if_not_exist(vm, "set", 'b', CMD_SET, 0, "<ARRAY> set <ANY>");
+	create_if_not_exist(vm, "isEqualTo", 'b', CMD_ISEQUALTO , 0, "<ANY> isEqualTo <ANY>");
 
 	create_if_not_exist(vm, "diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>");
 	create_if_not_exist(vm, "private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>");

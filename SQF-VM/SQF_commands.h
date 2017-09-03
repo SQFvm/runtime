@@ -8,6 +8,7 @@ int64_t system_time_ms(void);
 void stringify_value(PVM vm, PSTRING str, PVALUE val);
 unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r);
 
+void CMD_ISEQUALTO(void* input, CPCMD self);
 void CMD_PLUS(void* input, CPCMD self);
 void CMD_MINUS(void* input, CPCMD self);
 void CMD_MINUS_UNARY(void* input, CPCMD self);
