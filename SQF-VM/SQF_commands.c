@@ -89,7 +89,6 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 
 unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 {
-	unsigned char flag = 1;
 	PARRAY arrl;
 	PARRAY arrr;
 	PCODE codel;
@@ -140,7 +139,7 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 				case INST_LOAD_VAR:
 				case INST_STORE_VAR:
 				case INST_STORE_VAR_LOCAL:
-					if (str_cmpi(get_var_name(vm, vm->stack, instl), get_var_name(vm, vm->stack, instr)))
+					if (str_cmpi(get_var_name(vm, vm->stack, instl), -1, get_var_name(vm, vm->stack, instr), -1))
 						return 0;
 					break;
 				case INST_COMMAND:
