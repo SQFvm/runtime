@@ -517,9 +517,18 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		{
 			if (stack != 0)
 			{
-				value_string = string_create(range.length - 2);
-				strncpy(value_string->val, str + 1, range.length - 2);
-				push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
+				if (str[range.length - 1] == '"' || str[range.length - 1] == '\'')
+				{
+					value_string = string_create(range.length - 2);
+					strncpy(value_string->val, str + 1, range.length - 2);
+					push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
+				}
+				else
+				{
+					value_string = string_create(range.length - 1);
+					strncpy(value_string->val, str + 1, range.length - 1);
+					push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
+				}
 			}
 			(*stack_counter)++;
 		}
