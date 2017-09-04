@@ -109,7 +109,7 @@ PCODE code_create(const char* txt, int offset, int len)
 	strncpy(code->val, txt + offset, len);
 	code->val[len] = '\0';
 	code->refcount = 0;
-	code->stack = create_stack(0, 0);
+	code->stack = create_stack(0, 1);
 	return code;
 }
 void code_destroy(PCODE code)

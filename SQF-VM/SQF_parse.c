@@ -250,9 +250,9 @@ void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsign
 	{
 		pcode = code_create(code, range.start, range.length);
 		stack_size = 0;
-		parse_partial(vm, 0, code, arr, arr_start + 1, arr_end - 1, &stack_size);
+		parse_partial(vm, 0, code, arr, arr_start + 1, arr_end, &stack_size);
 		resize_stack(vm, pcode->stack, stack_size + 1);
-		parse_partial(vm, pcode->stack, code, arr, arr_start + 1, arr_end - 1, &stack_size);
+		parse_partial(vm, pcode->stack, code, arr, arr_start + 1, arr_end, &stack_size);
 		push_stack(vm, stack, inst_value(value(CODE_TYPE(), base_voidptr(pcode))));
 	}
 	(*stack_counter)++;
@@ -507,7 +507,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	range = tr_arr_get(arr, j);
 	if (stack != 0)
 	{
-		push_stack(vm, stack, inst_debug_info(range.line, range.col, range.start, range.length));
+		push_stack(vm, stack, inst_debug_info(range.line, range.col, range.start, range.length, code));
 	}
 	(*stack_counter)++;
 	if (smallest_cmd == 0)

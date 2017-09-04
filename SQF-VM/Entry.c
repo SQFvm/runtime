@@ -32,7 +32,6 @@
 
 
 static jmp_buf program_exit;
-static const char* current_code = 0;
 int64_t systime_start = 0;
 
 
@@ -72,7 +71,7 @@ void custom_error(PVM vm, const char* errMsg, PSTACK stack)
 	int len, i, j;
 	const char* str;
 	PDBGINF dbginf;
-	if (current_code != 0 && stack->allow_dbg)
+	if (stack->allow_dbg)
 	{
 		dbginf = 0;
 		for (i = stack->top - 1; i >= 0; i--)
@@ -85,30 +84,31 @@ void custom_error(PVM vm, const char* errMsg, PSTACK stack)
 		}
 		if (dbginf != 0)
 		{
-			i = dbginf->offset - 15;
-			len = 30;
-			if (i < 0)
-			{
-				len += i;
-				i = 0;
-			}
-			for (j = i; j < i + len; j++)
-			{
-				if (current_code[j] == '\0' || current_code[j] == '\n')
-				{
-					if (j < dbginf->offset)
-					{
-						i = j + 1;
-					}
-					else
-					{
-						len = j - i;
-						break;
-					}
-				}
-			}
-			str = current_code + i;
-			vm->print(vm, "%.*s\n%.*s%.*s\n", len, str, dbginf->offset - i, "                              ", dbginf->length > 30 ? 30 : dbginf->length, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+			//i = dbginf->offset - 15;
+			//len = 30;
+			//if (i < 0)
+			//{
+			//	len += i;
+			//	i = 0;
+			//}
+			//for (j = i; j < i + len; j++)
+			//{
+			//	if (current_code[j] == '\0' || current_code[j] == '\n')
+			//	{
+			//		if (j < dbginf->offset)
+			//		{
+			//			i = j + 1;
+			//		}
+			//		else
+			//		{
+			//			len = j - i;
+			//			break;
+			//		}
+			//	}
+			//}
+			//str = current_code + i;
+			//vm->print(vm, "%.*s\n%.*s%.*s\n", len, str, dbginf->offset - i, "                              ", dbginf->length > 30 ? 30 : dbginf->length, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+			vm->print(vm, "%s", dbginf->hint);
 			vm->print(vm, "[ERR][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
 		}
 		else
@@ -283,7 +283,6 @@ DLLEXPORT_PREFIX unsigned char start_program(const char* input, unsigned long ma
 	vm->print = vm_output_print;
 	vm->print_custom_data = string_create(0);
 
-	current_code = input;
 	val = setjmp(program_exit);
 	if (!val)
 	{
@@ -330,7 +329,6 @@ DLLEXPORT_PREFIX unsigned char start_program(const char* input, unsigned long ma
 	}
 	string_destroy(vm->print_custom_data);
 	destroy_sqfvm(vm);
-	current_code = 0;
 	return success;
 }
 

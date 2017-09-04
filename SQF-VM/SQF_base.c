@@ -203,7 +203,7 @@ void copy_into_stack(PVM vm, PSTACK target, const PSTACK source)
 				break;
 			case INST_DEBUG_INFO:
 				dbginf = get_dbginf(vm, vm->stack, inst);
-				push_stack(vm, target, inst_debug_info(dbginf->line, dbginf->col, dbginf->offset, dbginf->length));
+				push_stack(vm, target, inst_debug_info(dbginf->line, dbginf->col, dbginf->offset, dbginf->length, dbginf->hint));
 				break;
 			case INST_MOVE:
 				push_stack(vm, target, inst_move(inst->data.i));

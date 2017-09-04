@@ -119,6 +119,7 @@ typedef struct DBGINF
 	unsigned int col;
 	unsigned long offset;
 	unsigned long length;
+	const char* hint;
 }DBGINF;
 typedef DBGINF* PDBGINF;
 typedef struct MOVE

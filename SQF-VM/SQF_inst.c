@@ -7,6 +7,8 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <string.h>
+#include <stdio.h>
 
 extern inline CPCMD get_command(PVM vm, PSTACK stack, PINST inst);
 extern inline PVALUE get_value(PVM vm, PSTACK stack, PINST inst);
@@ -111,8 +113,13 @@ PINST inst_clear_work(void)
 {
 	return inst(INST_CLEAR_WORK);
 }
-PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, unsigned int length)
+PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, unsigned int length, const char* code)
 {
+	int i;
+	int j;
+	int len;
+	int size;
+	const char* str;
 	PINST p = inst(INST_DEBUG_INFO);
 	PDBGINF dbginf = malloc(sizeof(DBGINF));
 	p->data.ptr = dbginf;
@@ -120,6 +127,35 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, un
 	dbginf->line = line;
 	dbginf->offset = off;
 	dbginf->length = length;
+
+
+	i = dbginf->offset - 15;
+	len = 30;
+	if (i < 0)
+	{
+		len += i;
+		i = 0;
+	}
+	for (j = i; j < i + len; j++)
+	{
+		if (code[j] == '\0' || code[j] == '\n')
+		{
+			if (j < dbginf->offset)
+			{
+				i = j + 1;
+			}
+			else
+			{
+				len = j - i;
+				break;
+			}
+		}
+	}
+	str = code + i;
+	size = snprintf(0, 0, "%.*s\n%.*s%.*s\n", len, str, dbginf->offset - i, "                              ", dbginf->length > 30 ? 30 : dbginf->length, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	dbginf->hint = malloc(sizeof(char) * (size + 1));
+	snprintf(dbginf->hint, size + 1, "%.*s\n%.*s%.*s\n", len, str, dbginf->offset - i, "                              ", dbginf->length > 30 ? 30 : dbginf->length, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+
 	return p;
 }
 PINST inst_move(int off)
@@ -205,6 +241,7 @@ void inst_destroy_value(PVALUE val)
 }
 void inst_destroy_dbginf(PDBGINF dbginf)
 {
+	free(dbginf->hint);
 	free(dbginf);
 }
 void inst_destroy_var(char* name)
