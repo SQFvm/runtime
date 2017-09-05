@@ -205,6 +205,7 @@ void register_commmands(PVM vm)
 	create_if_not_exist(vm, "getVariable", 'b', CMD_GETVARIABLE, 0, "<NAMESPACE> getVariable <STRING> | <NAMESPACE> getVariable <ARRAY> | <OBJECT> getVariable <STRING> | <OBJECT> getVariable <ARRAY>");
 	create_if_not_exist(vm, "setVariable", 'b', CMD_SETVARIABLE, 0, "<NAMESPACE> setVariable <ARRAY> | <OBJECT> setVariable <ARRAY>");
 	create_if_not_exist(vm, "setPos", 'b', CMD_SETPOS, 0, " <OBJECT> setPos <ARRAY>");
+	create_if_not_exist(vm, "setVelocity", 'b', CMD_SETVELOCITY, 0, " <OBJECT> setVelocity <ARRAY>");
 
 	create_if_not_exist(vm, "diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>");
 	create_if_not_exist(vm, "private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>");
@@ -240,6 +241,7 @@ void register_commmands(PVM vm)
 	create_if_not_exist(vm, "typeOf", 'u', CMD_TYPEOF, 0, "typeOf <OBJECT>");
 	create_if_not_exist(vm, "getPos", 'u', CMD_GETPOS, 0, "getPos <OBJECT>");
 	create_if_not_exist(vm, "position", 'u', CMD_GETPOS, 0, "position <OBJECT>");
+	create_if_not_exist(vm, "velocity", 'u', CMD_VELOCITY, 0, "velocity <OBJECT>");
 
 
 	create_if_not_exist(vm, "true", 'n', CMD_TRUE, 0, "true");

@@ -95,5 +95,7 @@ void CMD_CREATEVEHICLE(void* input, CPCMD self);
 void CMD_TYPEOF(void* input, CPCMD self);
 void CMD_GETPOS(void* input, CPCMD self);
 void CMD_SETPOS(void* input, CPCMD self);
+void CMD_VELOCITY(void* input, CPCMD self);
+void CMD_SETVELOCITY(void* input, CPCMD self);
 
 #endif // !_SQF_COMMANDS_H_
