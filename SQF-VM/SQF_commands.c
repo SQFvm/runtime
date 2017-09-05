@@ -2669,11 +2669,11 @@ void CMD_GETPOS(void* input, CPCMD self)
 	}
 	obj = right_val->val.ptr;
 	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->posX))));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->posZ))));
 	push_stack(vm, vm->stack, inst_arr_push());
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->posY))));
 	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->posZ))));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->posX))));
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(3)))));
 	inst_destroy(right);
 }
@@ -2764,11 +2764,11 @@ void CMD_VELOCITY(void* input, CPCMD self)
 	}
 	obj = right_val->val.ptr;
 	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->velX))));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->velZ))));
 	push_stack(vm, vm->stack, inst_arr_push());
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->velY))));
 	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->velZ))));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->velX))));
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(3)))));
 	inst_destroy(right);
 }
