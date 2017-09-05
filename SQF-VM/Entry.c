@@ -178,7 +178,8 @@ void register_commmands(PVM vm)
 	create_if_not_exist(vm, "<", 'b', CMD_LESSTHEN, 7, "<SCALAR> < <SCALAR>");
 	create_if_not_exist(vm, ">=", 'b', CMD_LARGETTHENOREQUAL, 7, "<SCALAR> >= <SCALAR>");
 	create_if_not_exist(vm, "<=", 'b', CMD_LESSTHENOREQUAL, 7, "<SCALAR> <= <SCALAR>");
-	create_if_not_exist(vm, "==", 'b', CMD_EQUAL, 7, "<SCALAR> > <SCALAR>");
+	create_if_not_exist(vm, "==", 'b', CMD_EQUAL, 7, "<SCALAR> == <SCALAR> | <OBJECT> == <OBJECT> | <STRING> == <STRING>");
+	create_if_not_exist(vm, "!=", 'b', CMD_NOTEQUAL, 7, "<SCALAR> != <SCALAR> | <OBJECT> != <OBJECT> | <STRING> != <STRING>");
 	create_if_not_exist(vm, "||", 'b', CMD_OROR, 5, "<BOOL> || <BOOL> | <BOOL> || <CODE>");
 	create_if_not_exist(vm, "&&", 'b', CMD_ANDAND, 6, "<BOOL> && <BOOL> | <BOOL> && <CODE>");
 	create_if_not_exist(vm, "or", 'b', CMD_OROR, 5, "<BOOL> or <BOOL> | <BOOL> && <CODE>");

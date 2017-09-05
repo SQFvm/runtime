@@ -855,23 +855,102 @@ void CMD_EQUAL(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	if (left_val->type != SCALAR_TYPE())
+	if (left_val->type != SCALAR_TYPE() && left_val->type != STRING_TYPE() && left_val->type != OBJECT_TYPE())
 	{
-		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT, vm->stack);
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
-	if (right_val->type != SCALAR_TYPE())
+	if (right_val->type != SCALAR_TYPE() && right_val->type != STRING_TYPE() && right_val->type != OBJECT_TYPE())
 	{
-		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT, vm->stack);
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f == right_val->val.f))));
+	if (left_val->type != right_val->type)
+	{
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+	}
+	else if (left_val->type == SCALAR_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f == right_val->val.f))));
+	}
+	else if (left_val->type == STRING_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(!str_cmpi(((PSTRING)left_val->val.ptr)->val, -1, ((PSTRING)right_val->val.ptr)->val, -1)))));
+	}
+	else if (left_val->type == OBJECT_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.ptr == right_val->val.ptr))));
+	}
+	else
+	{
+		#ifdef _WIN32
+		__asm int 3;
+		#endif
+	}
+	inst_destroy(left);
+	inst_destroy(right);
+}
+void CMD_NOTEQUAL(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != SCALAR_TYPE() && left_val->type != STRING_TYPE() && left_val->type != OBJECT_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != SCALAR_TYPE() && right_val->type != STRING_TYPE() && right_val->type != OBJECT_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != right_val->type)
+	{
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(1))));
+	}
+	else if (left_val->type == SCALAR_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f != right_val->val.f))));
+	}
+	else if (left_val->type == STRING_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(str_cmpi(((PSTRING)left_val->val.ptr)->val, -1, ((PSTRING)right_val->val.ptr)->val, -1)))));
+	}
+	else if (left_val->type == OBJECT_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.ptr != right_val->val.ptr))));
+	}
+	else
+	{
+		#ifdef _WIN32
+		__asm int 3;
+		#endif
+	}
 	inst_destroy(left);
 	inst_destroy(right);
 }

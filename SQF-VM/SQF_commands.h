@@ -31,6 +31,7 @@ void CMD_LESSTHEN(void* input, CPCMD self);
 void CMD_LARGETTHENOREQUAL(void* input, CPCMD self);
 void CMD_LESSTHENOREQUAL(void* input, CPCMD self);
 void CMD_EQUAL(void* input, CPCMD self);
+void CMD_NOTEQUAL(void* input, CPCMD self);
 void CMD_ANDAND(void* input, CPCMD self);
 void CMD_OROR(void* input, CPCMD self);
 
