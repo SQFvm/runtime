@@ -281,17 +281,6 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 			{
 				arrcount++;
 			}
-			if (arrcount == 0)
-			{
-				if (stack != 0)
-				{
-					push_stack(vm, stack, inst_arr_push());
-				}
-				(*stack_counter)++;
-				parse_form_array(vm, stack, code, arr, i, j, stack_counter);
-				k = j;
-				j = -1;
-			}
 			continue;
 		}
 		if (codecount > 0)
