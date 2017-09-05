@@ -92,5 +92,6 @@ void CMD_SETVARIABLE(void* input, CPCMD self);
 
 //Object manipulation
 void CMD_CREATEVEHICLE(void* input, CPCMD self);
+void CMD_TYPEOF (void* input, CPCMD self);
 
 #endif // !_SQF_COMMANDS_H_

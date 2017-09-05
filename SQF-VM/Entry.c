@@ -236,6 +236,7 @@ void register_commmands(PVM vm)
 	create_if_not_exist(vm, "round", 'u', CMD_ROUND, 0, "round <SCALAR>");
 	create_if_not_exist(vm, "!", 'u', CMD_NOT, 0, "! <BOOL>");
 	create_if_not_exist(vm, "comment", 'u', CMD_COMMENT, 0, "comment <BOOL>");
+	create_if_not_exist(vm, "typeOf", 'u', CMD_TYPEOF, 0, "typeOf <OBJECT>");
 
 
 	create_if_not_exist(vm, "true", 'n', CMD_TRUE, 0, "true");

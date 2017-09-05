@@ -2544,3 +2544,27 @@ void CMD_CREATEVEHICLE(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
+void CMD_TYPEOF(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	POBJECT obj;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != OBJECT_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_OBJECT, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	obj = right_val->val.ptr;
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2(obj->classname)))));
+	inst_destroy(right);
+}
