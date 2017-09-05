@@ -36,6 +36,9 @@ int64_t systime_start = 0;
 
 
 
+
+void CMD_PRODUCTVERSION(void* input, CPCMD self);
+
 char* get_line(char* line, size_t lenmax)
 {
 	char* line_start = line;
@@ -253,6 +256,7 @@ void register_commmands(PVM vm)
 	create_if_not_exist(vm, "profileNamespace", 'n', CMD_PROFILENAMESPACE, 0, "profileNamespace");
 	create_if_not_exist(vm, "diag_tickTime", 'n', CMD_DIAG_TICKTIME, 0, "diag_tickTime");
 	create_if_not_exist(vm, "pi", 'n', CMD_PI, 0, "pi");
+	create_if_not_exist(vm, "productVersion", 'n', CMD_PRODUCTVERSION, 0, "productVersion");
 
 
 
@@ -502,4 +506,45 @@ int main(int argc, char** argv)
 	_CrtDumpMemoryLeaks();
 	#endif
 	return prog_success ? RETCDE_OK : RETCDE_RUNTIME_ERROR;
+}
+void CMD_PRODUCTVERSION(void* input, CPCMD self)
+{
+	PVM vm = input;
+
+	//String(Arma 3) - Architecture - x64 for 64bit or x86 for 32bit Since version 1.67
+	push_stack(vm, vm->stack, inst_arr_push());
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("x86")))));
+	//String(Arma 3) - Platform("Windows", "Linux" or "OSX")
+	push_stack(vm, vm->stack, inst_arr_push());
+	#if !_WIN32 & !__linux
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("UNKNOWN")))));
+	#else
+	#ifdef _WIN32
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("WINDOWS")))));
+	#endif // _WIN32
+	#ifdef __linux
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("UNIX")))));
+	#endif
+	#endif
+	//Boolean(Arma 3) - Product is launched using mods true or vanilla false
+	push_stack(vm, vm->stack, inst_arr_push());
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+	//String(Arma 3) - Product Branch
+	push_stack(vm, vm->stack, inst_arr_push());
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("COMMUNITY")))));
+	//Number - Product Build Number
+	push_stack(vm, vm->stack, inst_arr_push());
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(2))));
+	//Number - Product Version Number
+	push_stack(vm, vm->stack, inst_arr_push());
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(01))));
+	//String - Product Name Short
+	push_stack(vm, vm->stack, inst_arr_push());
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("SQF-VM")))));
+	//String - Product Name-
+	push_stack(vm, vm->stack, inst_arr_push());
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("SQF-VM   0.1.2 ALPHA")))));
+
+
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(8)))));
 }
