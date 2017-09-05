@@ -493,7 +493,7 @@ PCMD OBJECT_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("OBJECT", 't', TYPE_COUNT_CALLBACK, 0, 0);
+		cmd = create_command("OBJECT", 't', TYPE_OBJECT_CALLBACK, 0, 0);
 	}
 	return cmd;
 }
