@@ -16,6 +16,7 @@
 #define ERR_WHILE "WHILE"
 #define ERR_FOR "FOR"
 #define ERR_COUNT "COUNT"
+#define ERR_ARRAY_SIZE(X) " WITH AT LEAST " #X " ELEMENTS"
 
 #define ERR_NOT_EMPTY "NOT EMPTY "
 #define ERR_EXISTING "EXISTING "

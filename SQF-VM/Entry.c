@@ -144,12 +144,12 @@ void register_commmands(PVM vm)
 	//register_command(vm, create_command("NaN", 't', 0, 0));
 	//register_command(vm, create_command("IF", 't', 0, 0));
 	//register_command(vm, create_command("WHILE", 't', 0, 0));
-	/register_command(vm, create_command("FOR", 't', 0, 0));
+	//register_command(vm, create_command("FOR", 't', 0, 0));
 	register_command(vm, create_command("SWITCH", 't', 0, 0));
 	register_command(vm, create_command("EXCEPTION", 't', 0, 0));
 	register_command(vm, create_command("WITH", 't', 0, 0));
 	//register_command(vm, create_command("CODE", 't', 0, 0));
-	register_command(vm, create_command("OBJECT", 't', 0, 0));
+	//register_command(vm, create_command("OBJECT", 't', 0, 0));
 	register_command(vm, create_command("VECTOR", 't', 0, 0));
 	register_command(vm, create_command("TRANS", 't', 0, 0));
 	register_command(vm, create_command("ORIENT", 't', 0, 0));
@@ -200,7 +200,8 @@ void register_commmands(PVM vm)
 	create_if_not_exist(vm, "^", 'b', CMD_POWEROF, 0, "<SCALAR> ^ <SCALAR>");
 	create_if_not_exist(vm, "pushBack", 'b', CMD_PUSHBACK, 0, "<ARRAY> pushBack <ANY>");
 	create_if_not_exist(vm, "set", 'b', CMD_SET, 0, "<ARRAY> set <ANY>");
-	create_if_not_exist(vm, "isEqualTo", 'b', CMD_ISEQUALTO , 0, "<ANY> isEqualTo <ANY>");
+	create_if_not_exist(vm, "isEqualTo", 'b', CMD_ISEQUALTO, 0, "<ANY> isEqualTo <ANY>");
+	create_if_not_exist(vm, "createVehicle", 'b', CMD_CREATEVEHICLE, 0, "<STRING> createVehicle <ARRAY>");
 
 	create_if_not_exist(vm, "diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>");
 	create_if_not_exist(vm, "private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>");
