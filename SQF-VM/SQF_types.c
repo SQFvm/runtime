@@ -499,7 +499,7 @@ PCMD OBJECT_TYPE(void)
 }
 POBJECT object_create(const char* classname)
 {
-	POBJECT obj = malloc(sizeof(COUNT));
+	POBJECT obj = malloc(sizeof(POBJECT));
 	int len = 0;
 	obj->refcount = 0;
 	obj->posX = 0;
