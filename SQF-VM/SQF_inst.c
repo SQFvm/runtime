@@ -4,6 +4,7 @@
 #include "SQF.h"
 #include "SQF_inst.h"
 #include "SQF_types.h"
+#include "SQF_object_type.h"
 
 #include <stdlib.h>
 #include <string.h>

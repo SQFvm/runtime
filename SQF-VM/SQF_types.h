@@ -110,24 +110,6 @@ PNAMESPACE sqf_profileNamespace(void);
 PNAMESPACE sqf_parsingNamespace(void);
 
 
-typedef struct OBJECT
-{
-	PNAMESPACE ns;
-	float posX;
-	float posY;
-	float posZ;
-	float velX;
-	float velY;
-	float velZ;
-	char* classname;
-	int refcount;
-}OBJECT;
-typedef OBJECT* POBJECT;
-PCMD OBJECT_TYPE(void);
-POBJECT object_create(const char* classname);
-void object_destroy(POBJECT obj);
-
-
 
 //NON-SQF compliant types
 

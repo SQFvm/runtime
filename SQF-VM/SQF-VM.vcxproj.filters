@@ -48,6 +48,9 @@
     <ClCompile Include="SQF_base.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SQF_object_type.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SQF.h">
@@ -81,6 +84,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SQF_commands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SQF_object_type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

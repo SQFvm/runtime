@@ -20,6 +20,7 @@
 #include "textrange.h"
 #include "SQF.h"
 #include "SQF_types.h"
+#include "SQF_object_type.h"
 #include "SQF_parse.h"
 #include "SQF_commands.h"
 
