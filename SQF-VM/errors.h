@@ -14,6 +14,8 @@
 #define ERR_IF "IF"
 #define ERR_CODE "CODE"
 #define ERR_WHILE "WHILE"
+#define ERR_NAMESPACE "NAMESPACE"
+#define ERR_OBJECT "OBJECT"
 #define ERR_FOR "FOR"
 #define ERR_COUNT "COUNT"
 #define ERR_ARRAY_SIZE(X) " WITH AT LEAST " #X " ELEMENTS"

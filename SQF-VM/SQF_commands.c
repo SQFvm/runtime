@@ -2327,6 +2327,158 @@ void CMD_SET(void* input, CPCMD self)
 	inst_destroy(right);
 }
 
+
+void CMD_GETVARIABLE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PNAMESPACE ns;
+	PARRAY arr;
+	PVALUE val;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type == NAMESPACE_TYPE())
+	{
+		ns = left_val->val.ptr;
+	}
+	else if (left_val->type == OBJECT_TYPE())
+	{
+		ns = ((POBJECT)left_val->val.ptr)->ns;
+	}
+	else
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_NAMESPACE ERR_OR ERR_OBJECT, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (right_val->type == ARRAY_TYPE())
+	{
+		arr = right_val->val.ptr;
+		if (arr->top < 2)
+		{
+			vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_ARRAY_SIZE(2), vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
+		if (arr->data[0]->type != STRING_TYPE())
+		{
+			vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
+		val = namespace_get_var(ns, ((PSTRING)arr->data[0]->val.ptr)->val);
+		if (val == 0)
+		{
+			val = arr->data[1];
+		}
+		push_stack(vm, vm->stack, inst_value(value(val->type, val->val)));
+	}
+	else if (right_val->type == STRING_TYPE())
+	{
+		val = namespace_get_var(ns, ((PSTRING)right_val->val.ptr)->val);
+		if (val == 0)
+		{
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		}
+		else
+		{
+			push_stack(vm, vm->stack, inst_value(value(val->type, val->val)));
+		}
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	inst_destroy(left);
+	inst_destroy(right);
+}
+void CMD_SETVARIABLE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PNAMESPACE ns;
+	PARRAY arr;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type == NAMESPACE_TYPE())
+	{
+		ns = left_val->val.ptr;
+	}
+	else if (left_val->type == OBJECT_TYPE())
+	{
+		ns = ((POBJECT)left_val->val.ptr)->ns;
+	}
+	else
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_NAMESPACE ERR_OR ERR_OBJECT, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (right_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	arr = right_val->val.ptr;
+	if (arr->top < 2)
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_ARRAY_SIZE(2), vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (arr->data[0]->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	namespace_set_var(ns, ((PSTRING)arr->data[0]->val.ptr)->val, value(arr->data[1]->type, arr->data[1]->val));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+	inst_destroy(left);
+	inst_destroy(right);
+}
+
 void CMD_CREATEVEHICLE(void* input, CPCMD self)
 {
 	PVM vm = input;
@@ -2364,7 +2516,7 @@ void CMD_CREATEVEHICLE(void* input, CPCMD self)
 		return;
 	}
 	arr = right_val->val.ptr;
-	if (arr->top != 3)
+	if (arr->top < 3)
 	{
 		vm->error(vm, ERR_RIGHT ERR_ARRAY ERR_ARRAY_SIZE(3), vm->stack);
 		inst_destroy(left);
@@ -2372,7 +2524,7 @@ void CMD_CREATEVEHICLE(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	for (i = 0; i < arr->top; i++)
+	for (i = 0; i < 3; i++)
 	{
 		if (arr->data[i]->type != SCALAR_TYPE())
 		{

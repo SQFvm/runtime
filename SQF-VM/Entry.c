@@ -202,6 +202,8 @@ void register_commmands(PVM vm)
 	create_if_not_exist(vm, "set", 'b', CMD_SET, 0, "<ARRAY> set <ANY>");
 	create_if_not_exist(vm, "isEqualTo", 'b', CMD_ISEQUALTO, 0, "<ANY> isEqualTo <ANY>");
 	create_if_not_exist(vm, "createVehicle", 'b', CMD_CREATEVEHICLE, 0, "<STRING> createVehicle <ARRAY>");
+	create_if_not_exist(vm, "getVariable", 'b', CMD_GETVARIABLE, 0, "<NAMESPACE> getVariable <STRING> | <NAMESPACE> getVariable <ARRAY> | <OBJECT> getVariable <STRING> | <OBJECT> getVariable <ARRAY>");
+	create_if_not_exist(vm, "setVariable", 'b', CMD_SETVARIABLE, 0, "<NAMESPACE> setVariable <ARRAY> | <OBJECT> setVariable <ARRAY>");
 
 	create_if_not_exist(vm, "diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>");
 	create_if_not_exist(vm, "private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>");
@@ -380,7 +382,9 @@ int main(int argc, char** argv)
 	PSTRING pstr;
 	unsigned long max_inst = 10000;
 	pstr = string_create(0);
-	//_CrtSetBreakAlloc(593);
+	#if _WIN32 & _DEBUG
+	//_CrtSetBreakAlloc(832);
+	#endif
 	j = 0;
 
 	for (i = 0; i < argc; i++)
