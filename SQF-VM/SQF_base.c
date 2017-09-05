@@ -237,7 +237,6 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	if (find_command(vm, SCALAR_TYPE()->name, 't') == 0) register_command(vm, SCALAR_TYPE());
 	if (find_command(vm, BOOL_TYPE()->name, 't') == 0) register_command(vm, BOOL_TYPE());
 	if (find_command(vm, ARRAY_TYPE()->name, 't') == 0) register_command(vm, ARRAY_TYPE());
-	if (find_command(vm, CODE_TYPE()->name, 't') == 0) register_command(vm, CODE_TYPE());
 	if (find_command(vm, STRING_TYPE()->name, 't') == 0) register_command(vm, STRING_TYPE());
 	if (find_command(vm, NOTHING_TYPE()->name, 't') == 0) register_command(vm, NOTHING_TYPE());
 	if (find_command(vm, ANY_TYPE()->name, 't') == 0) register_command(vm, ANY_TYPE());
@@ -246,6 +245,11 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	if (find_command(vm, IF_TYPE()->name, 't') == 0) register_command(vm, IF_TYPE());
 	if (find_command(vm, WHILE_TYPE()->name, 't') == 0) register_command(vm, WHILE_TYPE());
 	if (find_command(vm, FOR_TYPE()->name, 't') == 0) register_command(vm, FOR_TYPE());
+
+
+
+	if (find_command(vm, CODE_TYPE()->name, 't') == 0) register_command(vm, CODE_TYPE());
+	if (find_command(vm, OBJECT_TYPE()->name, 't') == 0) register_command(vm, OBJECT_TYPE());
 	return vm;
 }
 void destroy_sqfvm(PVM vm)
