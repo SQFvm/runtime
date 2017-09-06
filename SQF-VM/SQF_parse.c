@@ -500,6 +500,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		push_stack(vm, stack, inst_debug_info(range.line, range.col, range.start, range.length, code));
 	}
 	(*stack_counter)++;
+	i = j;
 	if (smallest_cmd == 0)
 	{
 		str = code + range.start;
@@ -529,7 +530,6 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		}
 		else if (str[0] == '(')
 		{
-			i = j;
 			for (i = j, k = 1; i < arr_end && k > 0;)
 			{
 				i++;
@@ -544,11 +544,9 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 				}
 			}
 			parse_partial(vm, stack, code, arr, j + 1, i, stack_counter);
-			return;
 		}
 		else if (str[0] == '[')
 		{
-			i = j;
 			for (i = j, k = 1; i < arr_end && k > 0;)
 			{
 				i++;
@@ -563,11 +561,9 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 				}
 			}
 			parse_form_array(vm, stack, code, arr, j, i, stack_counter);
-			return;
 		}
 		else if (str[0] == '{')
 		{
-			i = j;
 			for (i = j, k = 1; i < arr_end && k > 0;)
 			{
 				i++;
@@ -582,7 +578,6 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 				}
 			}
 			parse_form_code(vm, stack, code, arr, j, i, stack_counter);
-			return;
 		}
 		else
 		{
@@ -640,7 +635,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		(*stack_counter)++;
 	}
 	parse_partial(vm, stack, code, arr, arr_start, j, stack_counter);
-	parse_partial(vm, stack, code, arr, j + 1, arr_end, stack_counter);
+	parse_partial(vm, stack, code, arr, i + 1, arr_end, stack_counter);
 }
 void parse(PVM vm, const char* code, unsigned char createscope)
 {
