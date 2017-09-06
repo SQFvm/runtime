@@ -20,7 +20,7 @@ typedef struct OBJECT
 	unsigned char allow_damage;
 	char* classname;
 	int refcount;
-	POBJECT in_vehicle;
+	struct OBJECT* in_vehicle;
 
 }OBJECT;
 typedef OBJECT* POBJECT;
