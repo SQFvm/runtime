@@ -175,7 +175,14 @@ void copy_into_stack(PVM vm, PSTACK target, const PSTACK source)
 				break;
 			case INST_VALUE:
 				val = get_value(vm, vm->stack, inst);
-				push_stack(vm, target, inst_value(value(val->type, val->val)));
+				if (val->type == ARRAY_TYPE())
+				{
+					push_stack(vm, target, inst_value(value(val->type, base_voidptr(array_create()))));
+				}
+				else
+				{
+					push_stack(vm, target, inst_value(value(val->type, val->val)));
+				}
 				break;
 			case INST_LOAD_VAR:
 				push_stack(vm, target, inst_load_var(get_var_name(vm, vm->stack, inst)));

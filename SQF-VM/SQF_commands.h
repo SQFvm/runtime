@@ -46,6 +46,7 @@ void CMD_COUNT_UNARY(void* input, CPCMD self);
 void CMD_FORMAT(void* input, CPCMD self);
 void CMD_CALL(void* input, CPCMD self);
 void CMD_CALL_UNARY(void* input, CPCMD self);
+void CMD_FOREACH(void* input, CPCMD self);
 
 void CMD_FOR(void* input, CPCMD self);
 void CMD_FROM(void* input, CPCMD self);

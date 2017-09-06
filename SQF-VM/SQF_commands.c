@@ -1655,6 +1655,95 @@ void CMD_DIAG_TICKTIME(void* input, CPCMD self)
 	int64_t systime_cur = system_time_ms();
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(systime_cur - systime_start))));
 }
+void CMD_FOREACH(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PCOUNT count;
+	PARRAY arr;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type == CODE_TYPE())
+	{
+		if (right_val->type != ARRAY_TYPE())
+		{
+			vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			return;
+		}
+		arr = right_val->val.ptr;
+		if (arr->top == 0)
+		{
+			inst_destroy(left);
+			inst_destroy(right);
+		}
+		else
+		{
+			count = count_create(left_val->val.ptr, right_val->val.ptr);
+			push_stack(vm, vm->stack, inst_command(self));
+			push_stack(vm, vm->stack, inst_value(value(COUNT_TYPE(), base_voidptr(count))));
+			push_stack(vm, vm->stack, right);
+			push_stack(vm, vm->stack, inst_clear_work());
+			push_stack(vm, vm->stack, inst_scope(0));
+			push_stack(vm, vm->stack, inst_code_load(0));
+			push_stack(vm, vm->stack, left);
+			push_stack(vm, vm->stack, inst_store_var_local("_x"));
+			push_stack(vm, vm->stack, inst_value(value(arr->data[count->curtop]->type, arr->data[count->curtop]->val)));
+			push_stack(vm, vm->stack, inst_store_var_local("_forEachIndex"));
+			push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(count->curtop))));
+		}
+	}
+	else if (left_val->type == COUNT_TYPE())
+	{
+		if (right_val->type != ARRAY_TYPE())
+		{
+			vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			return;
+		}
+		count = left_val->val.ptr;
+		arr = right_val->val.ptr;
+		if (++(count->curtop) == arr->top)
+		{
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			inst_destroy(left);
+			inst_destroy(right);
+		}
+		else
+		{
+			push_stack(vm, vm->stack, inst_command(self));
+			push_stack(vm, vm->stack, left);
+			push_stack(vm, vm->stack, right);
+			push_stack(vm, vm->stack, inst_clear_work());
+			push_stack(vm, vm->stack, inst_scope(0));
+			push_stack(vm, vm->stack, inst_code_load(0));
+			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(count->code->val.ptr))));
+			push_stack(vm, vm->stack, inst_store_var_local("_x"));
+			push_stack(vm, vm->stack, inst_value(value(arr->data[count->curtop]->type, arr->data[count->curtop]->val)));
+			push_stack(vm, vm->stack, inst_store_var_local("_forEachIndex"));
+			push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(count->curtop))));
+		}
+	}
+	else
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_CODE ERR_OR ERR_COUNT, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+}
 
 //https://community.bistudio.com/wiki/Math_Commands
 void CMD_ABS(void* input, CPCMD self)
