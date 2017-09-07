@@ -473,6 +473,60 @@ PNAMESPACE sqf_parsingNamespace(void)
 
 
 
+void TYPE_SWITCH_CALLBACK(void* input, CPCMD self)
+{
+	PVALUE val = input;
+	PSWITCH swtch = val->val.ptr;
+	if (val->type == 0)
+	{
+		swtch->refcount--;
+		if (swtch->refcount <= 0)
+		{
+			switch_destroy(swtch);
+		}
+	}
+	else
+	{
+		swtch->refcount++;
+	}
+}
+PCMD SWITCH_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("SWITCH", 't', TYPE_SWITCH_CALLBACK, 0, 0);
+	}
+	return cmd;
+}
+PSWITCH switch_create(VALUE val)
+{
+	PSWITCH swtch = malloc(sizeof(SWITCH));
+	swtch->default_code = 0;
+	swtch->selected_code = 0;
+	swtch->refcount = 0;
+	swtch->was_executed = 0;
+	swtch->switch_value = malloc(sizeof(VALUE));
+	swtch->switch_value->type = val.type;
+	swtch->switch_value->val = val.val;
+	return swtch;
+}
+void switch_destroy(PSWITCH swtch)
+{
+	if (swtch->default_code != 0)
+	{
+		inst_destroy_value(swtch->default_code);
+	}
+	if (swtch->selected_code != 0)
+	{
+		inst_destroy_value(swtch->selected_code);
+	}
+	inst_destroy_value(swtch->switch_value);
+	free(swtch);
+}
+
+
+
 //NON-SQF TYPES
 
 void TYPE_COUNT_CALLBACK(void* input, CPCMD self)

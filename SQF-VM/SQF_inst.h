@@ -14,6 +14,7 @@ inline VALUE value(CPCMD type, BASE val)
 	}
 	return v;
 }
+PVALUE value_copy(PVALUE in);
 
 PINST inst_nop(void);
 PINST inst_command(CPCMD cmd);
@@ -28,6 +29,7 @@ PINST inst_pop_eval(unsigned int ammount, unsigned char popon);
 PINST inst_clear_work(void);
 PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, unsigned int length, const char* code);
 PINST inst_move(int off);
+PINST inst_scope_dropout(const char* scope);
 
 
 
@@ -65,7 +67,7 @@ inline PVALUE get_value(PVM vm, PSTACK stack, PINST inst)
 }
 inline const char* get_var_name(PVM vm, PSTACK stack, PINST inst)
 {
-	if (inst != 0 && (inst->type == INST_LOAD_VAR || inst->type == INST_STORE_VAR || inst->type == INST_STORE_VAR_LOCAL))
+	if (inst != 0 && (inst->type == INST_LOAD_VAR || inst->type == INST_STORE_VAR || inst->type == INST_STORE_VAR_LOCAL || inst->type == INST_SCOPE_DROPOUT))
 	{
 		return (const char*)inst->data.ptr;
 	}

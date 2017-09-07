@@ -217,6 +217,7 @@ void execute(PVM vm)
 	PSCOPE scope;
 	int i, j;
 	unsigned long inst_executed = 0;
+	char* str;
 	while (vm->stack->top > 0)
 	{
 		if (vm->enable_instruction_limit && inst_executed >= vm->max_instructions && !vm->die_flag)
@@ -395,6 +396,21 @@ void execute(PVM vm)
 			inst2 = pop_stack(vm, vm->work);
 			insert_stack(vm, vm->stack, inst2, inst->data.i);
 			inst_destroy(inst);
+			break;
+		case INST_SCOPE_DROPOUT:
+			str = get_var_name(vm, vm->stack, inst);
+			inst_destroy(inst);
+			while (vm->stack > 0)
+			{
+				while ((inst = pop_stack(vm, vm->stack))->type != INST_SCOPE && vm->stack->top > 0)
+				{
+					inst_destroy(inst);
+				}
+				if (str == 0 || !str_cmpi(get_scope(vm, vm->stack, inst)->name, -1, str, -1))
+				{
+					break;
+				}
+			}
 			break;
 		}
 		inst_executed++;

@@ -111,6 +111,21 @@ PNAMESPACE sqf_parsingNamespace(void);
 
 
 
+typedef struct SWITCH
+{
+	int refcount;
+	PVALUE default_code;
+	PVALUE switch_value;
+	PVALUE selected_code;
+	unsigned char was_executed;
+}SWITCH;
+typedef SWITCH* PSWITCH;
+PCMD SWITCH_TYPE(void);
+PSWITCH switch_create(VALUE val);
+void switch_destroy(PSWITCH swtch);
+
+
+
 //NON-SQF compliant types
 
 

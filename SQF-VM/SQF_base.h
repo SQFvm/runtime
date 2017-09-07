@@ -24,6 +24,7 @@ typedef unsigned char DATA_TYPE;
 #define INST_CLEAR_WORK ((DATA_TYPE)10)
 #define INST_DEBUG_INFO ((DATA_TYPE)11)
 #define INST_MOVE ((DATA_TYPE)12)
+#define INST_SCOPE_DROPOUT ((DATA_TYPE)13)
 typedef struct INST
 {
 	DATA_TYPE type;
@@ -119,7 +120,7 @@ typedef struct DBGINF
 	unsigned int col;
 	unsigned long offset;
 	unsigned long length;
-	const char* hint;
+	char* hint;
 }DBGINF;
 typedef DBGINF* PDBGINF;
 typedef struct MOVE

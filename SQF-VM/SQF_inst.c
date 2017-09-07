@@ -19,6 +19,20 @@ extern inline VALUE value(CPCMD type, BASE val);
 extern inline PPOPEVAL get_pop_eval(PVM vm, PSTACK stack, PINST inst);
 extern inline PDBGINF get_dbginf(PVM vm, PSTACK stack, PINST inst);
 
+
+PVALUE value_copy(PVALUE in)
+{
+	PVALUE val = malloc(sizeof(VALUE));
+	val->type = in->type;
+	val->val = in->val;
+
+	if (val->type->callback != 0)
+	{
+		val->type->callback(val, val->type);
+	}
+	return val;
+}
+
 static inline PINST inst(DATA_TYPE dt)
 {
 	PINST inst = malloc(sizeof(INST));
@@ -165,6 +179,21 @@ PINST inst_move(int off)
 	p->data.i = off;
 	return p;
 }
+PINST inst_scope_dropout(const char* scope)
+{
+	PINST p = inst(INST_SCOPE_DROPOUT);
+	if (scope == 0)
+	{
+		p->data.ptr = 0;
+	}
+	else
+	{
+		int len = strlen(scope);
+		p->data.ptr = malloc(sizeof(char) * (len + 1));
+		strcpy(p->data.ptr, scope);
+	}
+	return p;
+}
 
 
 void inst_destroy(PINST inst)
@@ -205,6 +234,9 @@ void inst_destroy(PINST inst)
 			inst_destroy_dbginf(get_dbginf(0, 0, inst));
 			break;
 		case INST_MOVE:
+			break;
+		case INST_SCOPE_DROPOUT:
+			inst_destroy_var((char*)get_var_name(0, 0, inst));
 			break;
 		default:
 			#if _WIN32
@@ -247,6 +279,8 @@ void inst_destroy_dbginf(PDBGINF dbginf)
 }
 void inst_destroy_var(char* name)
 {
+	if (name == 0)
+		return;
 	free(name);
 }
 

@@ -253,7 +253,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	if (find_command(vm, IF_TYPE()->name, 't') == 0) register_command(vm, IF_TYPE());
 	if (find_command(vm, WHILE_TYPE()->name, 't') == 0) register_command(vm, WHILE_TYPE());
 	if (find_command(vm, FOR_TYPE()->name, 't') == 0) register_command(vm, FOR_TYPE());
-
+	if (find_command(vm, SWITCH_TYPE()->name, 't') == 0) register_command(vm, SWITCH_TYPE());
 
 
 	if (find_command(vm, CODE_TYPE()->name, 't') == 0) register_command(vm, CODE_TYPE());

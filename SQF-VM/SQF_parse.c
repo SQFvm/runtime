@@ -115,7 +115,7 @@ void tokenize(TR_ARR* arr, const char* code)
 					continue;
 				}
 			}
-			else if (s == '(' || s == '{' || s == '[' || s == ')' || s == '}' || s == ']' || s == ';' || s == '+' || s == '-' || s == '*' || s == '/' || s == ',' || s == '%' || s == '^')
+			else if (s == '(' || s == '{' || s == '[' || s == ')' || s == '}' || s == ']' || s == ':' || s == ';' || s == '+' || s == '-' || s == '*' || s == '/' || s == ',' || s == '%' || s == '^')
 			{
 				tr_arr_push(arr, (TEXTRANGE)
 				{
@@ -208,6 +208,64 @@ int strncmpi(const char* left, int left_len, const char* right, int right_len)
 	return 0;
 }
 
+void parse_block(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
+{
+	int i, j = -1;
+	int codecount = 0;
+	const char* str;
+	TEXTRANGE range;
+	for (i = arr_end - 1; i >= (int)arr_start; i--)
+	{
+		range = tr_arr_get(arr, i);
+		str = code + range.start;
+		if (codecount > 0)
+		{
+			if (str[0] == '}')
+			{
+				codecount++;
+			}
+			else if (str[0] == '{')
+			{
+				codecount--;
+			}
+			continue;
+		}
+		if (str[0] == '}')
+		{
+			codecount++;
+		}
+		if (str[0] == ';')
+		{
+			if (j == -1)
+			{
+				j = i;
+			}
+			else
+			{
+				parse_partial(vm, stack, code, arr, i, j, stack_counter);
+				if (stack != 0)
+				{
+					push_stack(vm, stack, inst_clear_work());
+				}
+				(*stack_counter)++;
+				j = i;
+			}
+		}
+		else if (arr_end - 1 == i)
+		{
+			j = i + 1;
+		}
+	}
+	if (j != 0)
+	{
+		parse_partial(vm, stack, code, arr, i + 1, j, stack_counter);
+		if (stack != 0)
+		{
+			push_stack(vm, stack, inst_clear_work());
+		}
+		(*stack_counter)++;
+	}
+}
 
 CPCMD fndcmd(PVM vm, const char* name, unsigned int len)
 {
@@ -251,9 +309,11 @@ void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsign
 	{
 		pcode = code_create(code, range.start, range.length);
 		stack_size = 0;
-		parse_partial(vm, 0, code, arr, arr_start + 1, arr_end, &stack_size);
+		parse_block(vm, 0, code, arr, arr_start + 1, arr_end, &stack_size);
+		//parse_partial(vm, 0, code, arr, arr_start + 1, arr_end, &stack_size);
 		resize_stack(vm, pcode->stack, stack_size + 1);
-		parse_partial(vm, pcode->stack, code, arr, arr_start + 1, arr_end, &stack_size);
+		parse_block(vm, pcode->stack, code, arr, arr_start + 1, arr_end, &stack_size);
+		//parse_partial(vm, pcode->stack, code, arr, arr_start + 1, arr_end, &stack_size);
 		push_stack(vm, stack, inst_value(value(CODE_TYPE(), base_voidptr(pcode))));
 	}
 	(*stack_counter)++;
@@ -640,11 +700,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 void parse(PVM vm, const char* code, unsigned char createscope)
 {
 	TR_ARR* arr = tr_arr_create();
-	int i, j = -1;
-	int codecount = 0;
-	const char* str;
 	unsigned int stack_counter = 0;
-	TEXTRANGE range;
 	tokenize(arr, code);
 	if (createscope)
 	{
@@ -656,49 +712,7 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 	}
 	else if(arr->top != 0)
 	{
-		for (i = arr->top - 1; i >= 0; i--)
-		{
-			range = tr_arr_get(arr, i);
-			str = code + range.start;
-			if (codecount > 0)
-			{
-				if (str[0] == '}')
-				{
-					codecount++;
-				}
-				else if(str[0] == '{')
-				{
-					codecount--;
-				}
-				continue;
-			}
-			if (str[0] == '}')
-			{
-				codecount++;
-			}
-			if (str[0] == ';' || i == 0)
-			{
-				if (j == -1)
-				{
-					j = i;
-				}
-				else
-				{
-					parse_partial(vm, vm->stack, code, arr, i, j, &stack_counter);
-					push_stack(vm, vm->stack, inst_clear_work());
-					j = i;
-				}
-			}
-			else if (arr->top - 1 == i)
-			{
-				j = i + 1;
-			}
-		}
-		if (j != 0)
-		{
-			parse_partial(vm, vm->stack, code, arr, i + 1, j, &stack_counter);
-			push_stack(vm, vm->stack, inst_clear_work());
-		}
+		parse_block(vm, vm->stack, code, arr, 0, arr->top, &stack_counter);
 	}
 	tr_arr_destroy(arr);
 }

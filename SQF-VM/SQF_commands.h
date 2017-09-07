@@ -100,4 +100,10 @@ void CMD_SETPOS(void* input, CPCMD self);
 void CMD_VELOCITY(void* input, CPCMD self);
 void CMD_SETVELOCITY(void* input, CPCMD self);
 
+#define SWITCH_SPECIAL_VAR "__switch"
+void CMD_SWITCH(void* input, CPCMD self);
+void CMD_CASE(void* input, CPCMD self);
+void CMD_DEFAULT(void* input, CPCMD self);
+void CMD_CASEOPERATOR(void* input, CPCMD self);
+
 #endif // !_SQF_COMMANDS_H_

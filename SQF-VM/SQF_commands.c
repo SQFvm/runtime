@@ -1154,6 +1154,7 @@ void CMD_DO(void* input, CPCMD self)
 	PVALUE right_val;
 	PCODE code;
 	PFOR pfor;
+	PSWITCH swtch;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
 	left_val = get_value(vm, vm->stack, left);
@@ -1215,6 +1216,38 @@ void CMD_DO(void* input, CPCMD self)
 		{
 			inst_destroy(left);
 			inst_destroy(right);
+		}
+	}
+	else if (left_val->type == SWITCH_TYPE())
+	{
+		swtch = left_val->val.ptr;
+		if (swtch->was_executed)
+		{
+			if (swtch->selected_code != 0)
+			{
+				push_stack(vm, vm->stack, inst_code_load(0));
+				push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), swtch->selected_code->val)));
+			}
+			else if (swtch->default_code != 0)
+			{
+				push_stack(vm, vm->stack, inst_code_load(0));
+				push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), swtch->default_code->val)));
+			}
+			inst_destroy(left);
+			inst_destroy(right);
+		}
+		else
+		{
+			swtch->was_executed = 1;
+			push_stack(vm, vm->stack, inst_command(find_command(vm, "do", 'b')));
+			push_stack(vm, vm->stack, left);
+			push_stack(vm, vm->stack, right);
+			push_stack(vm, vm->stack, inst_scope("switch"));
+			push_stack(vm, vm->stack, inst_code_load(0));
+			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), right_val->val)));
+			push_stack(vm, vm->stack, inst_store_var_local(SWITCH_SPECIAL_VAR));
+			push_stack(vm, vm->stack, inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
+			push_stack(vm, vm->stack, inst_clear_work());
 		}
 	}
 	else
@@ -2923,6 +2956,144 @@ void CMD_SETVELOCITY(void* input, CPCMD self)
 	obj->velY = arr->data[1]->val.f;
 	obj->velZ = arr->data[2]->val.f;
 
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+	inst_destroy(left);
+	inst_destroy(right);
+}
+
+
+
+void CMD_SWITCH(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSWITCH swtch;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+
+	swtch = switch_create(value(right_val->type, right_val->val));
+	push_stack(vm, vm->stack, inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
+	inst_destroy(right);
+}
+void CMD_CASE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSWITCH swtch;
+	PVALUE var;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	var = find_var(vm, SWITCH_SPECIAL_VAR);
+	if (var == 0 || var->type != SWITCH_TYPE())
+	{
+		vm->error(vm, ERR_SPECIAL_SWITCH, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	swtch = switch_create(value(right_val->type, right_val->val));
+	push_stack(vm, vm->stack, inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
+	inst_destroy(right);
+}
+void CMD_DEFAULT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PVALUE var;
+	PSWITCH swtch;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CODE_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	var = find_var(vm, SWITCH_SPECIAL_VAR);
+	if (var == 0 || var->type != SWITCH_TYPE())
+	{
+		vm->error(vm, ERR_SPECIAL_SWITCH, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	swtch = var->val.ptr;
+	swtch->default_code = value_copy(right_val);
+	inst_destroy(right);
+}
+void CMD_CASEOPERATOR(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PVALUE var;
+	PSWITCH swtch;
+	PSWITCH left_swtch;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != SWITCH_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_SWITCH, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (right_val->type != CODE_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	var = find_var(vm, SWITCH_SPECIAL_VAR);
+	if (var == 0 || var->type != SWITCH_TYPE())
+	{
+		vm->error(vm, ERR_SPECIAL_SWITCH, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	swtch = var->val.ptr;
+	left_swtch = left_val->val.ptr;
+
+	if (is_equal_to(vm, swtch->switch_value, left_swtch->switch_value))
+	{
+		swtch->selected_code = value_copy(right_val);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		push_stack(vm, vm->stack, inst_scope_dropout(0));
+	}
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(left);
 	inst_destroy(right);
