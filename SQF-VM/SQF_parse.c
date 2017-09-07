@@ -214,6 +214,8 @@ void parse_block(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned i
 	int codecount = 0;
 	const char* str;
 	TEXTRANGE range;
+	if (arr_start == arr_end)
+		return;
 	for (i = arr_end - 1; i >= (int)arr_start; i--)
 	{
 		range = tr_arr_get(arr, i);
