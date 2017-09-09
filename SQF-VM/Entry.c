@@ -213,6 +213,7 @@ void register_commmands(PVM vm)
 	create_if_not_exist(vm, "setVelocity", 'b', CMD_SETVELOCITY, 0, " <OBJECT> setVelocity <ARRAY>");
 	create_if_not_exist(vm, "forEach", 'b', CMD_FOREACH, 0, "<CODE> forEach <ARRAY> | <COUNT> forEach <ARRAY>");
 	create_if_not_exist(vm, ":", 'b', CMD_CASEOPERATOR, 0, "<SWITCH> : <CODE>");
+	create_if_not_exist(vm, "doMove", 'b', CMD_DOMOVE, 0, "<OBJECT> doMove <ARRAY>");
 
 	create_if_not_exist(vm, "diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>");
 	create_if_not_exist(vm, "private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>");

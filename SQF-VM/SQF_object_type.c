@@ -56,6 +56,7 @@ POBJECT object_create(const char* classname)
 		obj->classname[len] = '\0';
 	}
 	obj->ns = namespace_create();
+	obj->is_unit = 0;
 	return obj;
 }
 void object_destroy(POBJECT obj)

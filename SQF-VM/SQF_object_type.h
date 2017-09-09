@@ -21,7 +21,7 @@ typedef struct OBJECT
 	char* classname;
 	int refcount;
 	struct OBJECT* in_vehicle;
-
+	unsigned char is_unit;
 }OBJECT;
 typedef OBJECT* POBJECT;
 PCMD OBJECT_TYPE(void);
