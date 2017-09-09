@@ -1544,6 +1544,18 @@ void CMD_FOR(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
+	if (((PSTRING)right_val->val.ptr)->length == 0)
+	{
+		vm->error(vm, ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	if (((PSTRING)right_val->val.ptr)->val[0] != '_')
+	{
+		vm->error(vm, ERR_SPECIAL_FOR_1, vm->stack);
+		inst_destroy(right);
+		return;
+	}
 	f = for_create(((PSTRING)right_val->val.ptr)->val);
 	push_stack(vm, vm->stack, inst_value(value(FOR_TYPE(), base_voidptr(f))));
 	inst_destroy(right);
