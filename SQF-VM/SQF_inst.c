@@ -173,6 +173,19 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, un
 
 	return p;
 }
+PINST inst_debug_info2(PDBGINF pdbginf)
+{
+	PINST p = inst(INST_DEBUG_INFO);
+	PDBGINF dbginf = malloc(sizeof(DBGINF));
+	dbginf->col = pdbginf->col;
+	dbginf->line = pdbginf->line;
+	dbginf->offset = pdbginf->offset;
+	dbginf->length = pdbginf->length;
+	dbginf->hint = malloc(sizeof(char) * (strlen(pdbginf->hint) + 1));
+	strcpy(dbginf->hint, pdbginf->hint);
+	p->data.ptr = dbginf;
+	return p;
+}
 PINST inst_move(int off)
 {
 	PINST p = inst(INST_MOVE);

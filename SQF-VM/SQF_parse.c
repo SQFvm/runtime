@@ -85,7 +85,7 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start + 1, .line = line, .col = col
+						.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
 					});
 					start = -1;
 				}
@@ -96,7 +96,7 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start + 1, .line = line, .col = col
+						.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
 					});
 					start = -1;
 				}
@@ -105,7 +105,7 @@ void tokenize(TR_ARR* arr, const char* code)
 			{
 				tr_arr_push(arr, (TEXTRANGE)
 				{
-					.start = start, .length = i - start, .line = line, .col = col
+					.start = start, .length = i - start, .line = line, .col = col - (i - start)
 				});
 				start = -1;
 				if (c == '\n')
@@ -119,10 +119,11 @@ void tokenize(TR_ARR* arr, const char* code)
 			{
 				tr_arr_push(arr, (TEXTRANGE)
 				{
-					.start = start, .length = i - start, .line = line, .col = col
+					.start = start, .length = i - start, .line = line, .col = col - (i - start)
 				});
 				start = -1;
 				i--;
+				col--;
 			}
 			else if (s >= '0' && s <= '9')
 			{
@@ -130,10 +131,11 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start, .line = line, .col = col
+						.start = start, .length = i - start, .line = line, .col = col - (i - start)
 					});
 					start = -1;
 					i--;
+					col--;
 				}
 			}
 			else if ((s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z') || s == '_')
@@ -142,10 +144,11 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start, .line = line, .col = col
+						.start = start, .length = i - start, .line = line, .col = col - (i - start)
 					});
 					start = -1;
 					i--;
+					col--;
 				}
 			}
 			else if (s == '=' || s == '>' || s == '<')
@@ -154,10 +157,11 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start, .line = line, .col = col
+						.start = start, .length = i - start, .line = line, .col = col - (i - start)
 					});
 					start = -1;
 					i--;
+					col--;
 				}
 			}
 			else if (s == '&' || s == '|')
@@ -166,10 +170,11 @@ void tokenize(TR_ARR* arr, const char* code)
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
-						.start = start, .length = i - start + 1, .line = line, .col = col
+						.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
 					});
 					start = -1;
 					i--;
+					col--;
 				}
 			}
 			else 
@@ -181,7 +186,7 @@ void tokenize(TR_ARR* arr, const char* code)
 	{
 		tr_arr_push(arr, (TEXTRANGE)
 		{
-			.start = start, .length = i - start + 1, .line = line, .col = col
+			.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
 		});
 		start = -1;
 	}

@@ -28,6 +28,7 @@ PINST inst_code_load(unsigned char createscope);
 PINST inst_pop_eval(unsigned int ammount, unsigned char popon);
 PINST inst_clear_work(void);
 PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, unsigned int length, const char* code);
+PINST inst_debug_info2(PDBGINF pdbginf);
 PINST inst_move(int off);
 PINST inst_scope_dropout(const char* scope);
 
