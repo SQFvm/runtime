@@ -482,7 +482,7 @@ void CMD_PRIVATE(void* input, CPCMD self)
 	}
 	if (right_val->type == STRING_TYPE())
 	{
-		str = (PSTRING)right_val;
+		str = right_val->val.ptr;
 		if (str->length == 0)
 		{
 			vm->error(vm, ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
