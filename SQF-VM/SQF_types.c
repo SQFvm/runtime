@@ -310,6 +310,26 @@ void array_push(PARRAY arr, VALUE val)
 	arr->data[arr->top]->type = val.type;
 	arr->data[arr->top]->val = val.val;
 	arr->top++;
+};
+PARRAY array_copy(const PARRAY arrIn)
+{
+	PARRAY arrOut = array_create2(arrIn->top);
+	int i;
+	PVALUE val;
+	PARRAY tmp;
+	for (i = 0; i < arrIn->top; i++)
+	{
+		val = arrIn->data[i];
+		if (val->type == ARRAY_TYPE())
+		{
+			tmp = array_copy(val->val.ptr);
+			array_push(arrOut, value(ARRAY_TYPE(), base_voidptr(tmp)));
+		}
+		else
+		{
+			array_push(arrOut, value(val->type, val->val));
+		}
+	}
 }
 
 

@@ -155,73 +155,63 @@ void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset)
 		stack->data[stack->top++] = inst;
 	}
 }
+PINST copy_inst(PVM vm, const PINST instIn)
+{
+	PVALUE val;
+	PPOPEVAL ppopeval;
+	PDBGINF dbginf;
+	switch (instIn->type)
+	{
+	case INST_NOP:
+		return inst_nop();
+	case INST_COMMAND:
+		return inst_command(get_command(vm, vm->stack, instIn));
+	case INST_VALUE:
+		val = get_value(vm, vm->stack, instIn);
+		if (val->type == ARRAY_TYPE())
+		{
+			return inst_value(value(val->type, base_voidptr(array_create())));
+		}
+		else
+		{
+			return inst_value(value(val->type, val->val));
+		}
+	case INST_LOAD_VAR:
+		return inst_load_var(get_var_name(vm, vm->stack, instIn));
+	case INST_STORE_VAR:
+		return inst_store_var(get_var_name(vm, vm->stack, instIn));
+	case INST_SCOPE:
+		return inst_scope(get_scope(vm, vm->stack, instIn)->name);
+	case INST_STORE_VAR_LOCAL:
+		return inst_store_var_local(get_var_name(vm, vm->stack, instIn));
+	case INST_ARR_PUSH:
+		return inst_arr_push();
+	case INST_CODE_LOAD:
+		return inst_code_load(instIn->data.c);
+	case INST_POP_EVAL:
+		ppopeval = get_pop_eval(vm, vm->stack, instIn);
+		return inst_pop_eval(ppopeval->ammount, ppopeval->popon);
+	case INST_CLEAR_WORK:
+		return inst_clear_work();
+	case INST_DEBUG_INFO:
+		return inst_debug_info2(dbginf);
+	case INST_MOVE:
+		return inst_move(instIn->data.i);
+	default:
+#if _WIN32
+		__asm int 3;
+#endif
+		break;
+	}
+}
 void copy_into_stack(PVM vm, PSTACK target, const PSTACK source)
 {
 	int i;
 	PINST inst;
-	PVALUE val;
-	PPOPEVAL ppopeval;
-	PDBGINF dbginf;
 	for (i = 0; i < source->top; i++)
 	{
 		inst = source->data[i];
-		switch (inst->type)
-		{
-			case INST_NOP:
-				push_stack(vm, target, inst_nop());
-				break;
-			case INST_COMMAND:
-				push_stack(vm, target, inst_command(get_command(vm, vm->stack, inst)));
-				break;
-			case INST_VALUE:
-				val = get_value(vm, vm->stack, inst);
-				if (val->type == ARRAY_TYPE())
-				{
-					push_stack(vm, target, inst_value(value(val->type, base_voidptr(array_create()))));
-				}
-				else
-				{
-					push_stack(vm, target, inst_value(value(val->type, val->val)));
-				}
-				break;
-			case INST_LOAD_VAR:
-				push_stack(vm, target, inst_load_var(get_var_name(vm, vm->stack, inst)));
-				break;
-			case INST_STORE_VAR:
-				push_stack(vm, target, inst_store_var(get_var_name(vm, vm->stack, inst)));
-				break;
-			case INST_SCOPE:
-				push_stack(vm, target, inst_scope(get_scope(vm, vm->stack, inst)->name));
-				break;
-			case INST_STORE_VAR_LOCAL:
-				push_stack(vm, target, inst_store_var_local(get_var_name(vm, vm->stack, inst)));
-				break;
-			case INST_ARR_PUSH:
-				push_stack(vm, target, inst_arr_push());
-				break;
-			case INST_CODE_LOAD:
-				push_stack(vm, target, inst_code_load(inst->data.c));
-				break;
-			case INST_POP_EVAL:
-				ppopeval = get_pop_eval(vm, vm->stack, inst);
-				push_stack(vm, target, inst_pop_eval(ppopeval->ammount, ppopeval->popon));
-				break;
-			case INST_CLEAR_WORK:
-				push_stack(vm, target, inst_clear_work());
-				break;
-			case INST_DEBUG_INFO:
-				dbginf = get_dbginf(vm, vm->stack, inst);
-				push_stack(vm, target, inst_debug_info2(dbginf));
-				break;
-			case INST_MOVE:
-				push_stack(vm, target, inst_move(inst->data.i));
-				break;
-			default:
-				#if _WIN32
-				__asm int 3;
-				#endif
-				break;
-		}
+		push_stack(vm, target, copy_inst(vm, inst));
 	}
 }
 

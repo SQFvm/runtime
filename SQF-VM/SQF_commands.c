@@ -260,17 +260,49 @@ void CMD_PLUS(void* input, CPCMD self)
 	}
 	else
 	{
-		if (right_val->type != STRING_TYPE())
-		{
-			vm->error(vm, ERR_ERR, vm->stack);
-			inst_destroy(left);
-			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
-			return;
-		}
+		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_ARRAY, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
 	}
 	inst_destroy(left);
 	inst_destroy(right);
+}
+void CMD_PLUS_UNARY(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == ARRAY_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_copy(right_val->val.ptr)))));
+		inst_destroy(right);
+	}
+	else if (right_val->type == SCALAR_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(right_val->type, right_val->val)));
+		inst_destroy(right);
+	}
+	else if (right_val->type == NAN_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(right_val->type, right_val->val)));
+		inst_destroy(right);
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_OR ERR_SCALAR ERR_OR ERR_NAN, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
 }
 void CMD_MINUS(void* input, CPCMD self)
 {
@@ -1852,6 +1884,11 @@ void CMD_LOG(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 		inst_destroy(right);
 		return;
+	}
+	if (right_val->val.f == -1)
+	{
+		push_stack(vm, vm->stack, inst_value(value(NAN_TYPE(), base_float(0))));
+		inst_destroy(right);
 	}
 	f = log10(right_val->val.f);
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));

@@ -221,6 +221,7 @@ void register_commmands(PVM vm)
 	create_if_not_exist(vm, "while", 'u', CMD_WHILE, 0, "while <CODE>");
 	create_if_not_exist(vm, "typeName", 'u', CMD_TYPENAME, 0, "typeName <ANY>");
 	create_if_not_exist(vm, "for", 'u', CMD_FOR, 0, "for <STRING>");
+	create_if_not_exist(vm, "+", 'u', CMD_PLUS_UNARY, 0, "+ <ARRAY> | + <SCALAR> | + <NaN>");
 	create_if_not_exist(vm, "-", 'u', CMD_MINUS_UNARY, 0, "- <SCALAR>");
 	create_if_not_exist(vm, "count", 'u', CMD_COUNT_UNARY, 0, "count <STRING> | count <ARRAY>");
 	create_if_not_exist(vm, "format", 'u', CMD_FORMAT, 0, "format <ARRAY>");

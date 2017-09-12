@@ -73,6 +73,7 @@ PARRAY array_create2(unsigned int initialsize);
 void array_destroy(PARRAY arr);
 void array_resize(PARRAY arr, unsigned int newsize);
 void array_push(PARRAY arr, VALUE val);
+PARRAY array_copy(const PARRAY arrIn);
 
 
 typedef struct FOR
