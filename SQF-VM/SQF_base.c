@@ -159,7 +159,6 @@ PINST copy_inst(PVM vm, const PINST instIn)
 {
 	PVALUE val;
 	PPOPEVAL ppopeval;
-	PDBGINF dbginf;
 	switch (instIn->type)
 	{
 	case INST_NOP:
@@ -194,7 +193,7 @@ PINST copy_inst(PVM vm, const PINST instIn)
 	case INST_CLEAR_WORK:
 		return inst_clear_work();
 	case INST_DEBUG_INFO:
-		return inst_debug_info2(dbginf);
+		return inst_debug_info2(get_dbginf(vm, vm->stack, instIn));
 	case INST_MOVE:
 		return inst_move(instIn->data.i);
 	default:
