@@ -272,17 +272,20 @@ void register_commmands(PVM vm)
 int vm_output_print(PVM vm, const char* format, ...)
 {
 	va_list args;
+	va_list args_bullshittery;
 	int len;
 	char* buff;
 	va_start(args, format);
+	va_copy(args_bullshittery, args);
 
 	len = vsnprintf(0, 0, format, args);
 	buff = alloca(sizeof(char) * (len + 1));
-	len = vsnprintf(buff, len + 1, format, args);
+	len = vsnprintf(buff, len + 1, format, args_bullshittery);
 
 	string_modify_append(vm->print_custom_data, buff);
 
 	va_end(args);
+	va_end(args_bullshittery);
 	return len;
 }
 
