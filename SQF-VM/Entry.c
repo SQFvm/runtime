@@ -72,8 +72,7 @@ char* get_line(char* line, size_t lenmax)
 
 void custom_error(PVM vm, const char* errMsg, PSTACK stack)
 {
-	int len, i, j;
-	const char* str;
+	int i;
 	PDBGINF dbginf;
 	if (stack->allow_dbg)
 	{

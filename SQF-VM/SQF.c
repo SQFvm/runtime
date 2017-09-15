@@ -218,6 +218,7 @@ void execute(PVM vm)
 	int i, j;
 	unsigned long inst_executed = 0;
 	char* str;
+	const char* cstr;
 	while (vm->stack->top > 0)
 	{
 		if (vm->enable_instruction_limit && inst_executed >= vm->max_instructions && !vm->die_flag)
@@ -398,7 +399,7 @@ void execute(PVM vm)
 			inst_destroy(inst);
 			break;
 		case INST_SCOPE_DROPOUT:
-			str = get_var_name(vm, vm->stack, inst);
+			cstr = get_var_name(vm, vm->stack, inst);
 			inst_destroy(inst);
 			while (vm->stack > 0)
 			{
@@ -406,7 +407,7 @@ void execute(PVM vm)
 				{
 					inst_destroy(inst);
 				}
-				if (str == 0 || !str_cmpi(get_scope(vm, vm->stack, inst)->name, -1, str, -1))
+				if (cstr == 0 || !str_cmpi(get_scope(vm, vm->stack, inst)->name, -1, cstr, -1))
 				{
 					break;
 				}
