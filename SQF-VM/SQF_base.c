@@ -199,6 +199,8 @@ PINST copy_inst(PVM vm, const PINST instIn)
 	default:
 #if _WIN32
 		__asm int 3;
+#else
+		return 0;
 #endif
 		break;
 	}
