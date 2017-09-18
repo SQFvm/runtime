@@ -48,6 +48,7 @@ POBJECT object_create(const char* classname)
 	obj->healthpoints = 1;
 	obj->allow_damage = 1;
 	obj->classname = 0;
+	obj->inventory = array_create();
 	if (classname != 0)
 	{
 		len = strlen(classname);
@@ -58,9 +59,56 @@ POBJECT object_create(const char* classname)
 	obj->ns = namespace_create();
 	return obj;
 }
+
+POBJECT object_unit_create(const char* classname)
+{
+	POBJECT obj = object_create(classname);
+	PUNIT unit;
+	obj->inner = malloc(sizeof(UNIT));
+	unit = obj->inner;
+	unit->displayname = string_create(0);
+	return obj;
+}
+POBJECT object_vehicle_create(const char* classname)
+{
+	POBJECT obj = object_create(classname);
+	PVEHICLE veh;
+	obj->inner = malloc(sizeof(VEHICLE));
+	veh = obj->inner;
+	veh->commander = 0;
+	veh->gunner = 0;
+	veh->driver = 0;
+	veh->crew = array_create();
+	return obj;
+}
+
 void object_destroy(POBJECT obj)
 {
+	if (obj->inner != 0)
+	{
+		object_destroy_inner(obj);
+	}
+	array_destroy(obj->inventory);
 	namespace_destroy(obj->ns);
 	free(obj->classname);
 	free(obj);
+}
+void object_destroy_inner(POBJECT obj)
+{
+	PVEHICLE veh;
+	PUNIT unit;
+	if (obj->is_vehicle)
+	{
+		veh = obj->inner;
+		inst_destroy_value(veh->commander);
+		inst_destroy_value(veh->gunner);
+		inst_destroy_value(veh->driver);
+		array_destroy(veh->crew);
+	}
+	else
+	{
+		unit = obj->inner;
+		string_destroy(unit->displayname);
+	}
+	obj->inner = 0;
 }

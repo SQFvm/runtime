@@ -2786,7 +2786,7 @@ void CMD_CREATEVEHICLE(void* input, CPCMD self)
 			return;
 		}
 	}
-	obj = object_create(((PSTRING)left_val->val.ptr)->val);
+	obj = object_vehicle_create(((PSTRING)left_val->val.ptr)->val);
 	obj->posX = arr->data[0]->val.f;
 	obj->posY = arr->data[1]->val.f;
 	obj->posZ = arr->data[2]->val.f;

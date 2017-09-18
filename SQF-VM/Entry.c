@@ -49,7 +49,7 @@ char* get_line(char* line, size_t lenmax)
 	if (line == NULL)
 		return NULL;
 
-	for (;;)
+	while(1)
 	{
 		c = fgetc(stdin);
 		if (c == EOF)
@@ -87,30 +87,6 @@ void custom_error(PVM vm, const char* errMsg, PSTACK stack)
 		}
 		if (dbginf != 0)
 		{
-			//i = dbginf->offset - 15;
-			//len = 30;
-			//if (i < 0)
-			//{
-			//	len += i;
-			//	i = 0;
-			//}
-			//for (j = i; j < i + len; j++)
-			//{
-			//	if (current_code[j] == '\0' || current_code[j] == '\n')
-			//	{
-			//		if (j < dbginf->offset)
-			//		{
-			//			i = j + 1;
-			//		}
-			//		else
-			//		{
-			//			len = j - i;
-			//			break;
-			//		}
-			//	}
-			//}
-			//str = current_code + i;
-			//vm->print(vm, "%.*s\n%.*s%.*s\n", len, str, dbginf->offset - i, "                              ", dbginf->length > 30 ? 30 : dbginf->length, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 			vm->print(vm, "%s", dbginf->hint);
 			vm->print(vm, "[ERR][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
 		}
@@ -136,43 +112,6 @@ void create_if_not_exist(PVM vm, const char* name, char type, CMD_CB fnc, char p
 }
 void register_commmands(PVM vm)
 {
-	/*
-	//register_command(vm, create_command("SCALAR", 't', 0, 0));
-	//register_command(vm, create_command("BOOL", 't', 0, 0));
-	//register_command(vm, create_command("ARRAY", 't', 0, 0));
-	//register_command(vm, create_command("STRING", 't', 0, 0));
-	//register_command(vm, create_command("NOTHING", 't', 0, 0));
-	//register_command(vm, create_command("ANY", 't', 0, 0));
-	//register_command(vm, create_command("NAMESPACE", 't', 0, 0));
-	//register_command(vm, create_command("NaN", 't', 0, 0));
-	//register_command(vm, create_command("IF", 't', 0, 0));
-	//register_command(vm, create_command("WHILE", 't', 0, 0));
-	//register_command(vm, create_command("FOR", 't', 0, 0));
-	//register_command(vm, create_command("SWITCH", 't', 0, 0));
-	register_command(vm, create_command("EXCEPTION", 't', 0, 0));
-	register_command(vm, create_command("WITH", 't', 0, 0));
-	//register_command(vm, create_command("CODE", 't', 0, 0));
-	//register_command(vm, create_command("OBJECT", 't', 0, 0));
-	register_command(vm, create_command("VECTOR", 't', 0, 0));
-	register_command(vm, create_command("TRANS", 't', 0, 0));
-	register_command(vm, create_command("ORIENT", 't', 0, 0));
-	register_command(vm, create_command("SIDE", 't', 0, 0));
-	register_command(vm, create_command("GROUP", 't', 0, 0));
-	register_command(vm, create_command("TEXT", 't', 0, 0));
-	register_command(vm, create_command("SCRIPT", 't', 0, 0));
-	register_command(vm, create_command("TARGET", 't', 0, 0));
-	register_command(vm, create_command("JCLASS", 't', 0, 0));
-	register_command(vm, create_command("CONFIG", 't', 0, 0));
-	register_command(vm, create_command("DISPLAY", 't', 0, 0));
-	register_command(vm, create_command("CONTROL", 't', 0, 0));
-	register_command(vm, create_command("NetObject", 't', 0, 0));
-	register_command(vm, create_command("SUBGROUP", 't', 0, 0));
-	register_command(vm, create_command("TEAM_MEMBER", 't', 0, 0));
-	register_command(vm, create_command("TASK", 't', 0, 0));
-	register_command(vm, create_command("DIARY_RECORD", 't', 0, 0));
-	register_command(vm, create_command("LOCATION", 't', 0, 0));
-	*/
-
 	create_if_not_exist(vm, "+", 'b', CMD_PLUS, 8, "<SCALAR> + <SCALAR> | <STRING> + <STRING> | <ARRAY> + <ANY>");
 	create_if_not_exist(vm, "-", 'b', CMD_MINUS, 8, "<SCALAR> - <SCALAR> ");
 	create_if_not_exist(vm, "*", 'b', CMD_MULTIPLY, 9, "<SCALAR> * <SCALAR>");
