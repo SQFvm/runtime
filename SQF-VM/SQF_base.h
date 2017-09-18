@@ -67,7 +67,6 @@ typedef struct CMDCNT
 	sm_list* binary;
 } CMDCNT;
 typedef CMDCNT* PCMDCNT;
-
 //Structure containing all VM related informations
 typedef struct VM
 {
@@ -82,7 +81,7 @@ typedef struct VM
 	int(*print)(struct VM* vm, const char* format, ...);
 	void* print_custom_data;
 
-	struct sidemap sidemap;
+	unsigned char** sidemap;
 } VM;
 typedef VM* PVM;
 

@@ -37,11 +37,12 @@
 
 PCMD SIDE_TYPE(void);
 const char* side_displayname(const PVALUE val);
-void side_init_sidemap(struct sidemap *map);
+unsigned char** side_init_sidemap(void);
+void side_destroy_sidemap(unsigned char** map);
 
-inline void side_set_firendly(PVM vm, const PVALUE self, const PVALUE other, unsigned char flag) { vm->sidemap.map[self->val.i][other->val.i] = flag; }
+inline void side_set_firendly(PVM vm, const PVALUE self, const PVALUE other, unsigned char flag) { vm->sidemap[self->val.i][other->val.i] = flag; }
 inline unsigned char side_equals(const PVALUE left, const PVALUE right) { return left->val.i == right->val.i; }
-inline unsigned char side_is_friendly(const PVM vm, const PVALUE self, const PVALUE other) { return vm->sidemap.map[self->val.i][other->val.i]; }
+inline unsigned char side_is_friendly(const PVM vm, const PVALUE self, const PVALUE other) { return vm->sidemap[self->val.i][other->val.i]; }
 inline VALUE side_empty(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_EMPTY)); }
 inline VALUE side_unknown(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_UNKNOWN)); }
 inline VALUE side_civ(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_CIV)); }
@@ -52,12 +53,6 @@ inline VALUE side_logic(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_LOGI
 inline VALUE side_enemy(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_ENEMY)); }
 inline VALUE side_friendly(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_FRIENDLY)); }
 inline VALUE side_ambient(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_AMBIENT)); }
-
-
-struct sidemap
-{
-	unsigned char map[SIDE_VAL_AMBIENT + 1][SIDE_VAL_AMBIENT + 1];
-};
 
 
 #endif // !_SQF_SIDE_TYPE_H_

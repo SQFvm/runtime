@@ -230,7 +230,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	vm->max_instructions = max_instructions;
 	vm->print = sqfvm_print;
 	vm->print_custom_data = 0;
-	side_init_sidemap(&vm->sidemap);
+	vm->sidemap = side_init_sidemap();
 
 
 	if (find_command(vm, COUNT_TYPE()->name, 't') == 0) register_command(vm, COUNT_TYPE());
@@ -273,6 +273,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 }
 void destroy_sqfvm(PVM vm)
 {
+	side_destroy_sidemap(vm->sidemap);
 	destroy_stack(vm->stack);
 	destroy_stack(vm->work);
 	free(vm);
