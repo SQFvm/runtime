@@ -6,6 +6,7 @@
 #include "SQF.h"
 #include "SQF_types.h"
 #include "SQF_object_type.h"
+#include "SQF_side_type.h"
 #include "SQF_parse.h"
 
 #include <stdlib.h>
@@ -229,6 +230,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	vm->max_instructions = max_instructions;
 	vm->print = sqfvm_print;
 	vm->print_custom_data = 0;
+	side_init_sidemap(&vm->sidemap);
 
 
 	if (find_command(vm, COUNT_TYPE()->name, 't') == 0) register_command(vm, COUNT_TYPE());
@@ -245,10 +247,28 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	if (find_command(vm, WHILE_TYPE()->name, 't') == 0) register_command(vm, WHILE_TYPE());
 	if (find_command(vm, FOR_TYPE()->name, 't') == 0) register_command(vm, FOR_TYPE());
 	if (find_command(vm, SWITCH_TYPE()->name, 't') == 0) register_command(vm, SWITCH_TYPE());
-
-
+	//register_command(vm, create_command("EXCEPTION", 't', 0, 0));
+	//register_command(vm, create_command("WITH", 't', 0, 0));
 	if (find_command(vm, CODE_TYPE()->name, 't') == 0) register_command(vm, CODE_TYPE());
 	if (find_command(vm, OBJECT_TYPE()->name, 't') == 0) register_command(vm, OBJECT_TYPE());
+	//register_command(vm, create_command("VECTOR", 't', 0, 0));
+	//register_command(vm, create_command("TRANS", 't', 0, 0));
+	//register_command(vm, create_command("ORIENT", 't', 0, 0));
+	if (find_command(vm, SIDE_TYPE()->name, 't') == 0) register_command(vm, SIDE_TYPE());
+	//register_command(vm, create_command("GROUP", 't', 0, 0));
+	//register_command(vm, create_command("TEXT", 't', 0, 0));
+	//register_command(vm, create_command("SCRIPT", 't', 0, 0));
+	//register_command(vm, create_command("TARGET", 't', 0, 0));
+	//register_command(vm, create_command("JCLASS", 't', 0, 0));
+	//register_command(vm, create_command("CONFIG", 't', 0, 0));
+	//register_command(vm, create_command("DISPLAY", 't', 0, 0));
+	//register_command(vm, create_command("CONTROL", 't', 0, 0));
+	//register_command(vm, create_command("NetObject", 't', 0, 0));
+	//register_command(vm, create_command("SUBGROUP", 't', 0, 0));
+	//register_command(vm, create_command("TEAM_MEMBER", 't', 0, 0));
+	//register_command(vm, create_command("TASK", 't', 0, 0));
+	//register_command(vm, create_command("DIARY_RECORD", 't', 0, 0));
+	//register_command(vm, create_command("LOCATION", 't', 0, 0));
 	return vm;
 }
 void destroy_sqfvm(PVM vm)

@@ -20,6 +20,7 @@ PCMD ANY_TYPE(void);
 PCMD NAN_TYPE(void);
 
 
+
 typedef struct CODE
 {
 	char* val;

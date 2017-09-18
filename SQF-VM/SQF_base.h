@@ -81,6 +81,8 @@ typedef struct VM
 	unsigned char enable_instruction_limit;
 	int(*print)(struct VM* vm, const char* format, ...);
 	void* print_custom_data;
+
+	struct sidemap sidemap;
 } VM;
 typedef VM* PVM;
 
