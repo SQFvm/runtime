@@ -95,8 +95,5 @@
     <ClInclude Include="SQF_side_type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="bool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

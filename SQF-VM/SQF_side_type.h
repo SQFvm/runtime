@@ -8,9 +8,6 @@
 #ifndef _SQF_TYPES_H_
 #error "SQF_side_types.h" has to be included after "SQF_types.h" 
 #endif // !_SQF_TYPES_H_
-#ifndef _BOOL_H_
-#error "SQF_side_types.h" has to be included after "bool.h" 
-#endif // !_BOOL_H_
 
 
 
@@ -42,9 +39,9 @@ PCMD SIDE_TYPE(void);
 const char* side_displayname(const PVALUE val);
 void side_init_sidemap(struct sidemap *map);
 
-inline void side_set_firendly(PVM vm, const PVALUE self, const PVALUE other, bool flag) { vm->sidemap.map[self->val.i][other->val.i] = flag; }
-inline bool side_equals(const PVALUE left, const PVALUE right) { return left->val.i == right->val.i; }
-inline bool side_is_friendly(const PVM vm, const PVALUE self, const PVALUE other) { return vm->sidemap.map[self->val.i][other->val.i]; }
+inline void side_set_firendly(PVM vm, const PVALUE self, const PVALUE other, unsigned char flag) { vm->sidemap.map[self->val.i][other->val.i] = flag; }
+inline unsigned char side_equals(const PVALUE left, const PVALUE right) { return left->val.i == right->val.i; }
+inline unsigned char side_is_friendly(const PVM vm, const PVALUE self, const PVALUE other) { return vm->sidemap.map[self->val.i][other->val.i]; }
 inline VALUE side_empty(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_EMPTY)); }
 inline VALUE side_unknown(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_UNKNOWN)); }
 inline VALUE side_civ(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_CIV)); }
@@ -59,7 +56,7 @@ inline VALUE side_ambient(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_AM
 
 struct sidemap
 {
-	bool map[SIDE_VAL_AMBIENT + 1][SIDE_VAL_AMBIENT + 1];
+	unsigned char map[SIDE_VAL_AMBIENT + 1][SIDE_VAL_AMBIENT + 1];
 };
 
 
