@@ -482,7 +482,7 @@ void CMD_PRODUCTVERSION(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("COMMUNITY")))));
 	//Number - Product Build Number
 	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(2))));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(3))));
 	//Number - Product Version Number
 	push_stack(vm, vm->stack, inst_arr_push());
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(01))));
@@ -491,7 +491,7 @@ void CMD_PRODUCTVERSION(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("SQF-VM")))));
 	//String - Product Name-
 	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("SQF-VM   0.1.3 ALPHA")))));
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2("SQF-VM (0.1.3 ALPHA)")))));
 
 
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(8)))));
