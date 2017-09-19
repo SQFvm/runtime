@@ -805,7 +805,10 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		}
 		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
 	}
-	vm->print(vm, "'%s' could not be located.\n", str->val);
+	if (!had_match)
+	{
+		vm->print(vm, "'%s' could not be located.\n", str->val);
+	}
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
 
