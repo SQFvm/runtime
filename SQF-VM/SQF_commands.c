@@ -45,13 +45,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	PARRAY arr;
 	int i;
 	char* strptr;
-	if (val->type == STRING_TYPE())
-	{
-		string_modify_append(str, "\"");
-		string_modify_append(str, ((PSTRING)val->val.ptr)->val);
-		string_modify_append(str, "\"");
-	}
-	else if (val->type == SCALAR_TYPE())
+	if (val->type == SCALAR_TYPE())
 	{
 		strptr = alloca(sizeof(char) * 64);
 		sprintf(strptr, "%lf", val->val.f);
@@ -60,12 +54,6 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	else if (val->type == BOOL_TYPE())
 	{
 		string_modify_append(str, val->val.i > 0 ? "true" : "false");
-	}
-	else if (val->type == CODE_TYPE() || val->type == WHILE_TYPE())
-	{
-		string_modify_append(str, "{");
-		string_modify_append(str, ((PCODE)val->val.ptr)->val);
-		string_modify_append(str, "}");
 	}
 	else if (val->type == ARRAY_TYPE())
 	{
@@ -80,6 +68,26 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 			stringify_value(vm, str, arr->data[i]);
 		}
 		string_modify_append(str, "]");
+	}
+	else if (val->type == STRING_TYPE())
+	{
+		string_modify_append(str, "\"");
+		string_modify_append(str, ((PSTRING)val->val.ptr)->val);
+		string_modify_append(str, "\"");
+	}
+	else if (val->type == NAN_TYPE())
+	{
+		string_modify_append(str, "NaN");
+	}
+	else if (val->type == CODE_TYPE() || val->type == WHILE_TYPE())
+	{
+		string_modify_append(str, "{");
+		string_modify_append(str, ((PCODE)val->val.ptr)->val);
+		string_modify_append(str, "}");
+	}
+	else if (val->type == SIDE_TYPE())
+	{
+		string_modify_append(str, side_displayname(val));
 	}
 	else
 	{
