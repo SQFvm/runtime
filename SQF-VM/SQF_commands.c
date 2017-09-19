@@ -51,7 +51,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 		sprintf(strptr, "%lf", val->val.f);
 		string_modify_append(str, strptr);
 	}
-	else if (val->type == BOOL_TYPE())
+	else if (val->type == BOOL_TYPE() || val->type == IF_TYPE())
 	{
 		string_modify_append(str, val->val.i > 0 ? "true" : "false");
 	}
@@ -108,7 +108,15 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	int i;
 	if (l->type != r->type)
 		return 0;
-	if (l->type == ARRAY_TYPE())
+	if (l->type == SCALAR_TYPE())
+	{
+		return l->val.f == r->val.f;
+	}
+	else if (l->type == BOOL_TYPE() || l->type == IF_TYPE())
+	{
+		return (l->val.i > 0 ? 1 : 0) == (r->val.i > 0 ? 1 : 0);
+	}
+	else if (l->type == ARRAY_TYPE())
 	{
 		arrl = l->val.ptr;
 		arrr = r->val.ptr;
@@ -127,7 +135,11 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	{
 		return !strcmp(((PSTRING)l->val.ptr)->val, ((PSTRING)r->val.ptr)->val);
 	}
-	else if (l->type == CODE_TYPE())
+	else if (l->type == NAMESPACE_TYPE())
+	{
+		return l->val.ptr == r->val.ptr;
+	}
+	else if (l->type == CODE_TYPE() || l->type == WHILE_TYPE())
 	{
 		codel = l->val.ptr;
 		coder = r->val.ptr;
@@ -160,17 +172,16 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 		}
 		return 1;
 	}
-	else if (l->type == SCALAR_TYPE())
+	else if (l->type == SIDE_TYPE())
 	{
-		return l->val.f == r->val.f;
+		return side_equals(l, r);
 	}
-	else if (l->type == BOOL_TYPE())
+	else if (l->type == OBJECT_TYPE())
 	{
-		return (l->val.i > 0 ? 1 : 0) == (r->val.i > 0 ? 1 : 0);
+		return side_equals(l, r);
 	}
 	else
 	{
-		vm->error(vm, ERR_ERR ERR_TYPES ERR_OF_TYPE ERR_ARRAY ERR_OR ERR_STRING ERR_OR ERR_CODE ERR_OR ERR_SCALAR ERR_OR ERR_BOOL, vm->stack);
 		return 0;
 	}
 }
