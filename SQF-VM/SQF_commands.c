@@ -186,7 +186,14 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	}
 	else if (l->type == OBJECT_TYPE())
 	{
-		return l->val.ptr == r->val.ptr;
+		if (((POBJECT)l->val.ptr)->inner == 0 && ((POBJECT)r->val.ptr)->inner == 0)
+		{
+			return 1;
+		}
+		else
+		{
+			return l->val.ptr == r->val.ptr;
+		}
 	}
 	//else if (l->type == WITH_TYPE())
 	//{
