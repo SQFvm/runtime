@@ -24,10 +24,10 @@ void cb_cmdcnt_destroy(void* data)
 PCMDCNT create_cmdcnt(void)
 {
 	PCMDCNT cmdcnt = malloc(sizeof(CMDCNT));
-	cmdcnt->types = sm_create_list(10, 10, 10);
-	cmdcnt->nullar = sm_create_list(10, 10, 10);
-	cmdcnt->unary = sm_create_list(10, 10, 10);
-	cmdcnt->binary = sm_create_list(10, 10, 10);
+	cmdcnt->types = sm_create_list(5, 10, 10);
+	cmdcnt->nullar = sm_create_list(25, 10, 10);
+	cmdcnt->unary = sm_create_list(25, 10, 10);
+	cmdcnt->binary = sm_create_list(25, 10, 10);
 	return cmdcnt;
 }
 void destroy_cmdcnt(PCMDCNT cmdcnt)
@@ -255,7 +255,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	//register_command(vm, create_command("TRANS", 't', 0, 0));
 	//register_command(vm, create_command("ORIENT", 't', 0, 0));
 	if (find_command(vm, SIDE_TYPE()->name, 't') == 0) register_command(vm, SIDE_TYPE());
-	//register_command(vm, create_command("GROUP", 't', 0, 0));
+	if (find_command(vm, GROUP_TYPE()->name, 't') == 0) register_command(vm, GROUP_TYPE());
 	//register_command(vm, create_command("TEXT", 't', 0, 0));
 	//register_command(vm, create_command("SCRIPT", 't', 0, 0));
 	//register_command(vm, create_command("TARGET", 't', 0, 0));

@@ -15,6 +15,7 @@ inline VALUE value(CPCMD type, BASE val)
 	return v;
 }
 PVALUE value_copy(PVALUE in);
+PVALUE value_create(CPCMD type, BASE val);
 
 PINST inst_nop(void);
 PINST inst_command(CPCMD cmd);

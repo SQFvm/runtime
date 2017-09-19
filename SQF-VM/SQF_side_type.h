@@ -10,7 +10,7 @@
 #endif // !_SQF_TYPES_H_
 
 
-
+typedef int side;
 
 #define SIDE_STR_CIV "CIV"
 #define SIDE_STR_BLU "WEST"
@@ -23,16 +23,16 @@
 #define SIDE_STR_EMPTY "EMPTY"
 #define SIDE_STR_UNKNOWN "UNKNOWN"
 
-#define SIDE_VAL_EMPTY 0
-#define SIDE_VAL_UNKNOWN 1
-#define SIDE_VAL_CIV 2
-#define SIDE_VAL_BLU 3
-#define SIDE_VAL_OPF 4
-#define SIDE_VAL_GUE 5
-#define SIDE_VAL_LOGIC 6
-#define SIDE_VAL_ENEMY 7
-#define SIDE_VAL_FRIENDLY 8
-#define SIDE_VAL_AMBIENT 9
+#define SIDE_VAL_EMPTY ((side)0)
+#define SIDE_VAL_UNKNOWN ((side)1)
+#define SIDE_VAL_CIV ((side)2)
+#define SIDE_VAL_BLU ((side)3)
+#define SIDE_VAL_OPF ((side)4)
+#define SIDE_VAL_GUE ((side)5)
+#define SIDE_VAL_LOGIC ((side)6)
+#define SIDE_VAL_ENEMY ((side)7)
+#define SIDE_VAL_FRIENDLY ((side)8)
+#define SIDE_VAL_AMBIENT ((side)9)
 
 
 PCMD SIDE_TYPE(void);

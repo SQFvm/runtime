@@ -32,6 +32,18 @@ PVALUE value_copy(PVALUE in)
 	}
 	return val;
 }
+PVALUE value_create(CPCMD type, BASE val)
+{
+	PVALUE pval = malloc(sizeof(VALUE));
+	pval->type = type;
+	pval->val = val;
+
+	if (pval->type->callback != 0)
+	{
+		pval->type->callback(pval, pval->type);
+	}
+	return pval;
+}
 
 static inline PINST inst(DATA_TYPE dt)
 {
@@ -277,6 +289,8 @@ void inst_destroy_scope(PSCOPE scope)
 }
 void inst_destroy_value(PVALUE val)
 {
+	if (val == 0)
+		return;
 	CPCMD cmd = val->type;
 	val->type = 0;
 	if (cmd->callback != 0)

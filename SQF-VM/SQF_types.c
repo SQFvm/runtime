@@ -2,6 +2,8 @@
 #include "string_map.h"
 #include "SQF.h"
 #include "SQF_types.h"
+#include "SQF_object_type.h"
+#include "SQF_side_type.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -543,6 +545,48 @@ void switch_destroy(PSWITCH swtch)
 	}
 	inst_destroy_value(swtch->switch_value);
 	free(swtch);
+}
+
+
+void TYPE_GROUP_CALLBACK(void* input, CPCMD self)
+{
+	PVALUE val = input;
+	PGROUP group = val->val.ptr;
+	if (val->type == 0)
+	{
+		group->refcount--;
+		if (group->refcount <= 0)
+		{
+			group_destroy(group);
+		}
+	}
+	else
+	{
+		group->refcount++;
+	}
+}
+PCMD GROUP_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("GROUP", 't', TYPE_GROUP_CALLBACK, 0, NULL);
+	}
+	return cmd;
+}
+PGROUP group_create(int side)
+{
+	PGROUP group = malloc(sizeof(GROUP));
+	group->refcount = 0;
+	group->members = value_create(ARRAY_TYPE(), base_voidptr(array_create()));
+	group->side = value_create(SIDE_TYPE(), base_int(side));
+	return group;
+}
+void group_destroy(PGROUP group)
+{
+	inst_destroy_value(group->members);
+	inst_destroy_value(group->side);
+	free(group);
 }
 
 

@@ -127,6 +127,18 @@ PSWITCH switch_create(VALUE val);
 void switch_destroy(PSWITCH swtch);
 
 
+typedef struct GROUP
+{
+	int refcount;
+	PVALUE side;
+	PVALUE members;
+}GROUP;
+typedef GROUP* PGROUP;
+PCMD GROUP_TYPE(void);
+PGROUP group_create(int side);
+void group_destroy(PGROUP code);
+
+
 
 //NON-SQF compliant types
 
