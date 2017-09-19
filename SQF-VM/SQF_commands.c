@@ -89,6 +89,14 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	{
 		string_modify_append(str, side_displayname(val));
 	}
+	else if (val->type == NOTHING_TYPE())
+	{
+		string_modify_append(str, "nil");
+	}
+	else if (val->type == ANY_TYPE())
+	{
+		string_modify_append(str, "any");
+	}
 	else
 	{
 		string_modify_append(str, "<");
