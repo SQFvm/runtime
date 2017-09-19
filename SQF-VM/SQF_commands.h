@@ -101,6 +101,7 @@ void CMD_SETPOS(void* input, CPCMD self);
 void CMD_VELOCITY(void* input, CPCMD self);
 void CMD_SETVELOCITY(void* input, CPCMD self);
 void CMD_DOMOVE(void* input, CPCMD self);
+void CMD_OBJNULL(void* input, CPCMD self);
 
 #define SWITCH_SPECIAL_VAR "__switch"
 void CMD_SWITCH(void* input, CPCMD self);

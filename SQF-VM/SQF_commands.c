@@ -3048,7 +3048,6 @@ void CMD_SETVELOCITY(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-
 void CMD_DOMOVE(void* input, CPCMD self)
 {
 	//ToDo: Add Simulation and make the movement smooth
@@ -3116,6 +3115,11 @@ void CMD_DOMOVE(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(left);
 	inst_destroy(right);
+}
+void CMD_OBJNULL(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(value(OBJECT_TYPE(), base_voidptr(object_create("")))));
 }
 
 
