@@ -186,7 +186,7 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	}
 	else if (l->type == OBJECT_TYPE())
 	{
-		return side_equals(l, r);
+		return l->val.ptr == r->val.ptr;
 	}
 	else
 	{
