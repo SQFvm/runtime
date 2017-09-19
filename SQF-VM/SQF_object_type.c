@@ -58,6 +58,7 @@ POBJECT object_create(const char* classname)
 	}
 	obj->ns = namespace_create();
 	obj->is_vehicle = 0;
+	obj->inner = 0;
 	return obj;
 }
 

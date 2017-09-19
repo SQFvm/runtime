@@ -45,6 +45,7 @@ typedef struct OBJECT
 
 typedef OBJECT* POBJECT;
 PCMD OBJECT_TYPE(void);
+POBJECT object_create(const char* classname);
 POBJECT object_unit_create(const char* classname);
 POBJECT object_vehicle_create(const char* classname);
 void object_destroy(POBJECT obj);
