@@ -67,7 +67,6 @@ typedef struct CMDCNT
 	sm_list* binary;
 } CMDCNT;
 typedef CMDCNT* PCMDCNT;
-
 //Structure containing all VM related informations
 typedef struct VM
 {
@@ -81,6 +80,8 @@ typedef struct VM
 	unsigned char enable_instruction_limit;
 	int(*print)(struct VM* vm, const char* format, ...);
 	void* print_custom_data;
+
+	unsigned char** sidemap;
 } VM;
 typedef VM* PVM;
 
@@ -144,6 +145,7 @@ void resize_stack(PVM vm, PSTACK stack, unsigned int newsize);
 void push_stack(PVM vm, PSTACK stack, PINST inst);
 PINST pop_stack(PVM vm, PSTACK stack);
 void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset);
+PINST copy_inst(PVM vm, const PINST instIn);
 void copy_into_stack(PVM vm, PSTACK target, const PSTACK source);
 
 PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_dbg, unsigned long max_instructions);

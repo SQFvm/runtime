@@ -19,6 +19,7 @@
 #define ERR_FOR "FOR"
 #define ERR_SWITCH "SWITCH"
 #define ERR_COUNT "COUNT"
+#define ERR_NAN "NaN"
 #define ERR_ARRAY_SIZE(X) " WITH AT LEAST " #X " ELEMENTS"
 
 #define ERR_NOT_EMPTY "NOT EMPTY "

@@ -7,9 +7,26 @@
 #endif // !_SQF_TYPES_H_
 
 
+
+typedef struct UNIT
+{
+	PSTRING displayname;
+}UNIT;
+typedef UNIT* PUNIT;
+
+typedef struct VEHICLE
+{
+	PVALUE gunner;
+	PVALUE commander;
+	PVALUE driver;
+	PARRAY crew;
+}VEHICLE;
+typedef VEHICLE* PVEHICLE;
+
 typedef struct OBJECT
 {
 	PNAMESPACE ns;
+	PARRAY inventory;
 	float posX;
 	float posY;
 	float posZ;
@@ -20,13 +37,18 @@ typedef struct OBJECT
 	unsigned char allow_damage;
 	char* classname;
 	int refcount;
-	struct OBJECT* in_vehicle;
-	unsigned char is_unit;
+	void* inner;
+	unsigned char is_vehicle;
 }OBJECT;
+
+
+
 typedef OBJECT* POBJECT;
 PCMD OBJECT_TYPE(void);
-POBJECT object_create(const char* classname);
+POBJECT object_unit_create(const char* classname);
+POBJECT object_vehicle_create(const char* classname);
 void object_destroy(POBJECT obj);
+void object_destroy_inner(POBJECT obj);
 
 
 

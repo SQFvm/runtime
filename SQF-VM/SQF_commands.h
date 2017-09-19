@@ -10,6 +10,7 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r);
 
 void CMD_ISEQUALTO(void* input, CPCMD self);
 void CMD_PLUS(void* input, CPCMD self);
+void CMD_PLUS_UNARY(void* input, CPCMD self);
 void CMD_MINUS(void* input, CPCMD self);
 void CMD_MINUS_UNARY(void* input, CPCMD self);
 void CMD_MULTIPLY(void* input, CPCMD self);

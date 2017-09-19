@@ -167,9 +167,9 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, un
 		}
 	}
 	str = code + i;
-	size = snprintf(0, 0, "%.*s\n%.*s%.*s\n", len, str, dbginf->offset - i, "                              ", dbginf->length > 30 ? 30 : dbginf->length, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	size = snprintf(0, 0, "%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : (int)dbginf->length), "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 	dbginf->hint = malloc(sizeof(char) * (size + 1));
-	snprintf(dbginf->hint, size + 1, "%.*s\n%.*s%.*s\n", len, str, dbginf->offset - i, "                              ", dbginf->length > 30 ? 30 : dbginf->length, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	snprintf(dbginf->hint, size + 1, "%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : dbginf->length), "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
 	return p;
 }
