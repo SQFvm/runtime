@@ -109,4 +109,18 @@ void CMD_DEFAULT(void* input, CPCMD self);
 void CMD_CASEOPERATOR(void* input, CPCMD self);
 
 
+void CMD_WEST(void* input, CPCMD self);
+void CMD_BLUFOR(void* input, CPCMD self);
+void CMD_EAST(void* input, CPCMD self);
+void CMD_OPFOR(void* input, CPCMD self);
+void CMD_RESISTANCE(void* input, CPCMD self);
+void CMD_INDEPENDENT(void* input, CPCMD self);
+void CMD_SIDEUNKNOWN(void* input, CPCMD self);
+void CMD_SIDELOGIC(void* input, CPCMD self);
+void CMD_SIDEFRIENDLY(void* input, CPCMD self);
+void CMD_SIDEENEMY(void* input, CPCMD self);
+void CMD_CIVILIAN(void* input, CPCMD self);
+void CMD_SIDEEMPTY(void* input, CPCMD self);
+
+
 #endif // !_SQF_COMMANDS_H_

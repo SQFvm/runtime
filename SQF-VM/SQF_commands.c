@@ -18,6 +18,7 @@
 #include "SQF.h"
 #include "SQF_types.h"
 #include "SQF_object_type.h"
+#include "SQF_side_type.h"
 #include "SQF_commands.h"
 #include "errors.h"
 
@@ -3215,4 +3216,65 @@ void CMD_CASEOPERATOR(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(left);
 	inst_destroy(right);
+}
+
+void CMD_WEST(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_blu()));
+}
+void CMD_BLUFOR(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_blu()));
+}
+void CMD_EAST(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_opf()));
+}
+void CMD_OPFOR(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_opf()));
+}
+void CMD_RESISTANCE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_gue()));
+}
+void CMD_INDEPENDENT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_gue()));
+}
+void CMD_SIDEUNKNOWN(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_unknown()));
+}
+void CMD_SIDELOGIC(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_logic()));
+}
+void CMD_SIDEFRIENDLY(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_friendly()));
+}
+void CMD_SIDEENEMY(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_enemy()));
+}
+void CMD_CIVILIAN(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_civ()));
+}
+void CMD_SIDEEMPTY(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(side_empty()));
 }
