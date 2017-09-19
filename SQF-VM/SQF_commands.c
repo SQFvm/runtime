@@ -188,6 +188,10 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	{
 		return l->val.ptr == r->val.ptr;
 	}
+	//else if (l->type == WITH_TYPE())
+	//{
+	//	
+	//}
 	else
 	{
 		return 0;
