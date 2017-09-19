@@ -750,6 +750,7 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 	PINST right;
 	PVALUE right_val;
 	PSTRING str;
+	unsigned char had_match = 0;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -767,23 +768,44 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 	cmd = sm_get_value(vm->cmd_container->types, str->val);
 	if (cmd != 0)
 	{
+		if (!had_match)
+		{
+			had_match = 1;
+			vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
+		}
 		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
 	}
 	cmd = sm_get_value(vm->cmd_container->nullar, str->val);
 	if (cmd != 0)
 	{
+		if (!had_match)
+		{
+			had_match = 1;
+			vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
+		}
 		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
 	}
 	cmd = sm_get_value(vm->cmd_container->unary, str->val);
 	if (cmd != 0)
 	{
+		if (!had_match)
+		{
+			had_match = 1;
+			vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
+		}
 		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
 	}
 	cmd = sm_get_value(vm->cmd_container->binary, str->val);
 	if (cmd != 0)
 	{
+		if (!had_match)
+		{
+			had_match = 1;
+			vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
+		}
 		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
 	}
+	vm->print(vm, "'%s' could not be located.\n", str->val);
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
 
