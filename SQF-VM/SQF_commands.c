@@ -1409,6 +1409,7 @@ void CMD_TYPENAME(void* input, CPCMD self)
 	if (right_val == 0)
 	{
 		inst_destroy(right);
+		return;
 	}
 	str = string_create2(right_val->type->name);
 	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
