@@ -57,13 +57,14 @@ POBJECT object_create(const char* classname)
 		obj->classname[len] = '\0';
 	}
 	obj->ns = namespace_create();
-	obj->is_unit = 0;
+	obj->is_vehicle = 0;
 	return obj;
 }
 
 POBJECT object_unit_create(const char* classname)
 {
 	POBJECT obj = object_create(classname);
+	obj->is_vehicle = 0;
 	PUNIT unit;
 	obj->inner = malloc(sizeof(UNIT));
 	unit = obj->inner;
@@ -73,6 +74,7 @@ POBJECT object_unit_create(const char* classname)
 POBJECT object_vehicle_create(const char* classname)
 {
 	POBJECT obj = object_create(classname);
+	obj->is_vehicle = 1;
 	PVEHICLE veh;
 	obj->inner = malloc(sizeof(VEHICLE));
 	veh = obj->inner;

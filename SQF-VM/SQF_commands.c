@@ -3068,7 +3068,7 @@ void CMD_DOMOVE(void* input, CPCMD self)
 		}
 	}
 	obj = left_val->val.ptr;
-	if (obj->is_unit)
+	if (!obj->is_vehicle)
 	{
 		obj->posX = arr->data[0]->val.f;
 		obj->posY = arr->data[1]->val.f;
