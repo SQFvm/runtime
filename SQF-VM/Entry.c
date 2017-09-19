@@ -157,7 +157,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "setVelocity", 'b', CMD_SETVELOCITY, 0, " <OBJECT> setVelocity <ARRAY>");
 	create_cmd(vm, "forEach", 'b', CMD_FOREACH, 0, "<CODE> forEach <ARRAY> | <COUNT> forEach <ARRAY>");
 	create_cmd(vm, ":", 'b', CMD_CASEOPERATOR, 0, "<SWITCH> : <CODE>");
-	create_cmd(vm, "doMove", 'b', CMD_DOMOVE, 0, "<OBJECT> doMove <ARRAY>");
+	create_cmd(vm, "doMove", 'b', CMD_DOMOVE, 0, "<OBJECT> doMove <ARRAY> | <ARRAY> doMove <ARRAY> | ");
 
 	create_cmd(vm, "diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>");
 	create_cmd(vm, "private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>");

@@ -3058,6 +3058,7 @@ void CMD_DOMOVE(void* input, CPCMD self)
 	PVALUE right_val;
 	POBJECT obj;
 	PARRAY arr;
+	PARRAY arr2;
 	int i;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
@@ -3067,14 +3068,6 @@ void CMD_DOMOVE(void* input, CPCMD self)
 	{
 		inst_destroy(left);
 		inst_destroy(right);
-		return;
-	}
-	if (left_val->type != OBJECT_TYPE())
-	{
-		vm->error(vm, ERR_LEFT_TYPE ERR_OBJECT, vm->stack);
-		inst_destroy(left);
-		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->type != ARRAY_TYPE())
@@ -3105,16 +3098,55 @@ void CMD_DOMOVE(void* input, CPCMD self)
 			return;
 		}
 	}
-	obj = left_val->val.ptr;
-	if (!obj->is_vehicle)
+
+	if (left_val->type == OBJECT_TYPE())
 	{
-		obj->posX = arr->data[0]->val.f;
-		obj->posY = arr->data[1]->val.f;
-		obj->posZ = arr->data[2]->val.f;
+		obj = left_val->val.ptr;
+		if (!obj->is_vehicle)
+		{
+			obj->posX = arr->data[0]->val.f;
+			obj->posY = arr->data[1]->val.f;
+			obj->posZ = arr->data[2]->val.f;
+		}
 	}
-	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
-	inst_destroy(left);
-	inst_destroy(right);
+	else if (left_val->type == ARRAY_TYPE())
+	{
+		arr2 = left_val->val.ptr;
+
+		for (i = 0; i < arr2->top; i++)
+		{
+			if (arr2->data[i]->type != OBJECT_TYPE())
+			{
+				vm->error(vm, ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_OBJECT, vm->stack);
+				inst_destroy(left);
+				inst_destroy(right);
+				push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+				return;
+			}
+		}
+
+		for (i = 0; i < arr2->top; i++)
+		{
+			obj = arr2->data[i]->val.ptr;
+			if (!obj->is_vehicle)
+			{
+				obj->posX = arr->data[0]->val.f;
+				obj->posY = arr->data[1]->val.f;
+				obj->posZ = arr->data[2]->val.f;
+			}
+		}
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	else
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_OBJECT, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
 }
 void CMD_OBJNULL(void* input, CPCMD self)
 {
