@@ -743,6 +743,50 @@ void CMD_HELP(void* input, CPCMD self)
 	}
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
+void CMD_HELP_UNARY(void* input, CPCMD self)
+{
+	PVM vm = input;
+	CPCMD cmd;
+	PINST right;
+	PVALUE right_val;
+	PSTRING str;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	str = right_val->val.ptr;
+	cmd = sm_get_value(vm->cmd_container->types, str->val);
+	if (cmd != 0)
+	{
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+	}
+	cmd = sm_get_value(vm->cmd_container->nullar, str->val);
+	if (cmd != 0)
+	{
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+	}
+	cmd = sm_get_value(vm->cmd_container->unary, str->val);
+	if (cmd != 0)
+	{
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+	}
+	cmd = sm_get_value(vm->cmd_container->binary, str->val);
+	if (cmd != 0)
+	{
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+	}
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+}
+
 
 void CMD_STR(void* input, CPCMD self)
 {

@@ -304,11 +304,7 @@ CPCMD fndcmd2(PVM vm, const char* name, unsigned int len, unsigned char filter)
 	strncpy(name_buff, name, len);
 	name_buff[len] = '\0';
 	CPCMD cmd = 0;
-	if (ENUM_CMD_NULLAR & filter && (cmd = find_command(vm, name_buff, 'n')) != 0)
-	{
-		return cmd;
-	}
-	if (ENUM_CMD_UNARY & filter && (cmd = find_command(vm, name_buff, 'u')) != 0)
+	if (ENUM_CMD_TYPE & filter && (cmd = find_command(vm, name_buff, 't')) != 0)
 	{
 		return cmd;
 	}
@@ -316,7 +312,11 @@ CPCMD fndcmd2(PVM vm, const char* name, unsigned int len, unsigned char filter)
 	{
 		return cmd;
 	}
-	if (ENUM_CMD_TYPE & filter && (cmd = find_command(vm, name_buff, 't')) != 0)
+	if (ENUM_CMD_UNARY & filter && (cmd = find_command(vm, name_buff, 'u')) != 0)
+	{
+		return cmd;
+	}
+	if (ENUM_CMD_NULLAR & filter && (cmd = find_command(vm, name_buff, 'n')) != 0)
 	{
 		return cmd;
 	}

@@ -24,6 +24,7 @@ void CMD_ELSE(void* input, CPCMD self);
 void CMD_TRUE(void* input, CPCMD self);
 void CMD_FALSE(void* input, CPCMD self);
 void CMD_HELP(void* input, CPCMD self);
+void CMD_HELP_UNARY(void* input, CPCMD self);
 
 void CMD_STR(void* input, CPCMD self);
 

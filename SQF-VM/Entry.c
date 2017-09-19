@@ -226,6 +226,7 @@ void register_commmands(PVM vm)
 
 
 	create_cmd(vm, "help__", 'n', CMD_HELP, 0, "Displays this help text.");
+	create_cmd(vm, "help__", 'u', CMD_HELP_UNARY, 0, "Outputs information to given command. Expects a <STRING> on righthand. Usage: help__ \"help__\"");
 }
 
 int vm_output_print(PVM vm, const char* format, ...)
