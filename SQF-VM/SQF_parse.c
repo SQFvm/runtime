@@ -216,6 +216,7 @@ int strncmpi(const char* left, int left_len, const char* right, int right_len)
 void parse_block(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
 {
 	int i, j = -1;
+	int arraycount = 0;
 	int codecount = 0;
 	const char* str;
 	TEXTRANGE range;
@@ -225,6 +226,18 @@ void parse_block(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned i
 	{
 		range = tr_arr_get(arr, i);
 		str = code + range.start;
+		if (arraycount > 0)
+		{
+			if (str[0] == ']')
+			{
+				arraycount++;
+			}
+			else if (str[0] == '[')
+			{
+				arraycount--;
+			}
+			continue;
+		}
 		if (codecount > 0)
 		{
 			if (str[0] == '}')
@@ -241,7 +254,11 @@ void parse_block(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned i
 		{
 			codecount++;
 		}
-		if (str[0] == ';')
+		else if (str[0] == ']')
+		{
+			arraycount++;
+		}
+		if (str[0] == ';' || str[0] == ',')
 		{
 			if (j == -1)
 			{
@@ -451,7 +468,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	{
 		range = tr_arr_get(arr, i);
 		str = code + range.start;
-		if (i == arr_start && range.length == 1 && str[0] == ';')
+		if (i == arr_start && range.length == 1 && (str[0] == ';' || str[0] == ','))
 		{
 			arr_start++;
 			continue;
