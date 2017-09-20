@@ -193,7 +193,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "default", 'u', CMD_DEFAULT, 0, "default <CODE>", "", "See switch");
 	create_cmd(vm, "allVariables", 'u', CMD_ALLVARIABLES, 0, "allVariables <OBJECT> | allVariables <NAMESPACE> | allVariables <GROUP>", "", "Returns a list of all variables from desired namespace.");
 	create_cmd(vm, "with", 'u', CMD_WITH, 0, "allVariables <with>", "", "Creates a With Type that is used inside a do construct in order to execute code inside a given namespace.");
-	create_cmd(vm, "compile", 'u', CMD_COMPILE, 0, "compile <string>", "", "Compile expression into executable code.");
+	create_cmd(vm, "compile", 'u', CMD_COMPILE, 0, "compile <string>", "a = 10; call compile \"a = 20;\"; a //20#" "compile \"diag_log 10;\" //{diag_log 10;}#", "Compile expression into executable code.");
 
 
 	create_cmd(vm, "true", 'n', CMD_TRUE, 0, "true", "", "");
