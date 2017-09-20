@@ -801,6 +801,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 {
 	char* ptr;
 	char* ptr2;
+	char* ptr3;
 	vm->print(vm, "<%s> %s\n", cmd->type == 'b' ? "BINARY" : cmd->type == 'u' ? "UNARY" : cmd->type == 'n' ? "NULLAR" : "TYPE", cmd->name);
 	if (cmd->description != 0 && *cmd->description != '\0')
 	{
@@ -814,11 +815,17 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 	{
 		vm->print(vm, "\tUsage:\n");
 		ptr = cmd->usage;
-		while ((ptr2 = strchr(ptr, '|')) != 0)
+		ptr3 = ptr;
+		while ((ptr2 = strchr(ptr3, '|')) != 0)
 		{
+			if (ptr2[1] == '|')
+			{
+				ptr3 = ptr2 + 2;
+				continue;
+			}
 			while (*ptr == ' ') ptr++;
 			vm->print(vm, "\t\t%.*s\n", ptr2 - ptr, ptr);
-			ptr = ptr2 + 1;
+			ptr = ptr3 = ptr2 + 1;
 		}
 		if (strlen(ptr) > 0)
 		{
