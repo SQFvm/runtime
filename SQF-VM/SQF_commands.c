@@ -794,16 +794,12 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 	}
 	if (cmd->examples)
 	{
-		vm->print(vm, "\tNo Examples.\n");
-	}
-	else
-	{
 		vm->print(vm, "\tExamples:\n");
 		ptr = cmd->examples;
 		while ((ptr2 = strchr(ptr, '#')) != 0)
 		{
 			vm->print(vm, "\t- %.*s\n", ptr2 - ptr, ptr);
-			ptr = ptr2;
+			ptr = ptr2 + 1;
 		}
 	}
 }
@@ -836,6 +832,10 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		{
 			had_match = 1;
 		}
+		else
+		{
+			vm->print(vm, "\n");
+		}
 		cmd_help_unary_helper(vm, cmd);
 	}
 	cmd = sm_get_value(vm->cmd_container->nullar, str->val);
@@ -844,6 +844,10 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		if (!had_match)
 		{
 			had_match = 1;
+		}
+		else
+		{
+			vm->print(vm, "\n");
 		}
 		cmd_help_unary_helper(vm, cmd);
 	}
@@ -854,6 +858,10 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		{
 			had_match = 1;
 		}
+		else
+		{
+			vm->print(vm, "\n");
+		}
 		cmd_help_unary_helper(vm, cmd);
 	}
 	cmd = sm_get_value(vm->cmd_container->binary, str->val);
@@ -862,6 +870,10 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		if (!had_match)
 		{
 			had_match = 1;
+		}
+		else
+		{
+			vm->print(vm, "\n");
 		}
 		cmd_help_unary_helper(vm, cmd);
 	}
