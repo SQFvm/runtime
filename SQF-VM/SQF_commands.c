@@ -786,6 +786,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 {
 	char* ptr;
 	char* ptr2;
+	int len;
 	vm->print(vm, "<%s> %s\n", cmd->type == 'b' ? "BINARY" : cmd->type == 'u' ? "UNARY" : cmd->type == 'n' ? "NULLAR" : "TYPE", cmd->name);
 	if (cmd->description != 0)
 	{
@@ -793,7 +794,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 	}
 	if (cmd->type == 'b')
 	{
-		vm->print(vm, "\tPrecedence: %d", cmd->precedence_level);
+		vm->print(vm, "\tPrecedence: %d\n", cmd->precedence_level);
 	}
 	if (cmd->usage)
 	{
@@ -801,8 +802,17 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 		ptr = cmd->usage;
 		while ((ptr2 = strchr(ptr, '|')) != 0)
 		{
+			while (*ptr == ' ') ptr++;
 			vm->print(vm, "\t\t%.*s\n", ptr2 - ptr, ptr);
 			ptr = ptr2 + 1;
+		}
+		if (strlen(ptr) > 0)
+		{
+			while (*ptr == ' ') ptr++;
+			if (strlen(ptr) > 0)
+			{
+				vm->print(vm, "\t\t%s\n", ptr);
+			}
 		}
 	}
 	if (cmd->examples)
@@ -811,8 +821,17 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 		ptr = cmd->examples;
 		while ((ptr2 = strchr(ptr, '#')) != 0)
 		{
+			while (*ptr == ' ') ptr++;
 			vm->print(vm, "\t\t%.*s\n", ptr2 - ptr, ptr);
 			ptr = ptr2 + 1;
+		}
+		if (strlen(ptr) > 0)
+		{
+			while (*ptr == ' ') ptr++;
+			if (strlen(ptr) > 0)
+			{
+				vm->print(vm, "\t\t%s\n", ptr);
+			}
 		}
 	}
 }
