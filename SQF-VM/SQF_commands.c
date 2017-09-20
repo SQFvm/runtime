@@ -755,32 +755,57 @@ void CMD_HELP(void* input, CPCMD self)
 	int count;
 	CPCMD cmd;
 	vm->print(vm, "ERRORS might result in crash\n\n");
-	vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
+	vm->print(vm, "NAME:TYPE:PRECEDENCE:USAGE\n");
 	count = sm_count(vm->cmd_container->types);
 	for (i = 0; i < count; i++)
 	{
 		cmd = sm_get_value_index(vm->cmd_container->types, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->usage);
 	}
 	count = sm_count(vm->cmd_container->nullar);
 	for (i = 0; i < count; i++)
 	{
 		cmd = sm_get_value_index(vm->cmd_container->nullar, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->usage);
 	}
 	count = sm_count(vm->cmd_container->unary);
 	for (i = 0; i < count; i++)
 	{
 		cmd = sm_get_value_index(vm->cmd_container->unary, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->usage);
 	}
 	count = sm_count(vm->cmd_container->binary);
 	for (i = 0; i < count; i++)
 	{
 		cmd = sm_get_value_index(vm->cmd_container->binary, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->usage);
 	}
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+}
+void cmd_help_unary_helper(PVM vm, CPCMD cmd)
+{
+	char* ptr;
+	char* ptr2;
+	vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
+	vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->usage);
+	if (cmd->description != 0)
+	{
+		vm->print(vm, "\t%s\n", cmd->description);
+	}
+	if (cmd->examples)
+	{
+		vm->print(vm, "\tNo Examples.\n");
+	}
+	else
+	{
+		vm->print(vm, "\tExamples:\n");
+		ptr = cmd->examples;
+		while ((ptr2 = strchr(ptr, '#')) != 0)
+		{
+			vm->print("\t- %.*s\n", ptr2 - ptr, ptr);
+			ptr = ptr2;
+		}
+	}
 }
 void CMD_HELP_UNARY(void* input, CPCMD self)
 {
@@ -810,9 +835,8 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		if (!had_match)
 		{
 			had_match = 1;
-			vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
 		}
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+		cmd_help_unary_helper(vm, cmd);
 	}
 	cmd = sm_get_value(vm->cmd_container->nullar, str->val);
 	if (cmd != 0)
@@ -820,9 +844,8 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		if (!had_match)
 		{
 			had_match = 1;
-			vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
 		}
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+		cmd_help_unary_helper(vm, cmd);
 	}
 	cmd = sm_get_value(vm->cmd_container->unary, str->val);
 	if (cmd != 0)
@@ -830,9 +853,8 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		if (!had_match)
 		{
 			had_match = 1;
-			vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
 		}
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+		cmd_help_unary_helper(vm, cmd);
 	}
 	cmd = sm_get_value(vm->cmd_container->binary, str->val);
 	if (cmd != 0)
@@ -840,9 +862,8 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		if (!had_match)
 		{
 			had_match = 1;
-			vm->print(vm, "NAME:TYPE:PRECEDENCE:DESCRIPTION\n");
 		}
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->description);
+		cmd_help_unary_helper(vm, cmd);
 	}
 	if (!had_match)
 	{
