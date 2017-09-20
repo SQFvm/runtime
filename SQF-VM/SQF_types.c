@@ -14,7 +14,7 @@ PCMD SCALAR_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("SCALAR", 't', 0, 0, NULL);
+		cmd = create_command("SCALAR", 't', 0, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -23,7 +23,7 @@ PCMD BOOL_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("BOOL", 't', 0, 0, NULL);
+		cmd = create_command("BOOL", 't', 0, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -32,7 +32,7 @@ PCMD IF_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("IF", 't', 0, 0, NULL);
+		cmd = create_command("IF", 't', 0, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -41,7 +41,7 @@ PCMD WHILE_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("WHILE", 't', TYPE_CODE_CALLBACK, 0, NULL);
+		cmd = create_command("WHILE", 't', TYPE_CODE_CALLBACK, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -50,7 +50,7 @@ PCMD NOTHING_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("NOTHING", 't', 0, 0, NULL);
+		cmd = create_command("NOTHING", 't', 0, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -59,7 +59,7 @@ PCMD ANY_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("ANY", 't', 0, 0, NULL);
+		cmd = create_command("ANY", 't', 0, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -68,7 +68,7 @@ PCMD NAN_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("NaN", 't', 0, 0, NULL);
+		cmd = create_command("NaN", 't', 0, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -99,7 +99,7 @@ PCMD CODE_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("CODE", 't', TYPE_CODE_CALLBACK, 0, NULL);
+		cmd = create_command("CODE", 't', TYPE_CODE_CALLBACK, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -144,7 +144,7 @@ PCMD STRING_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("STRING", 't', TYPE_STRING_CALLBACK, 0, NULL);
+		cmd = create_command("STRING", 't', TYPE_STRING_CALLBACK, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -266,7 +266,7 @@ PCMD ARRAY_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("ARRAY", 't', TYPE_ARRAY_CALLBACK, 0, NULL);
+		cmd = create_command("ARRAY", 't', TYPE_ARRAY_CALLBACK, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -362,7 +362,7 @@ PCMD FOR_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("FOR", 't', TYPE_FOR_CALLBACK, 0, NULL);
+		cmd = create_command("FOR", 't', TYPE_FOR_CALLBACK, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -414,7 +414,7 @@ PCMD NAMESPACE_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("NAMESPACE", 't', TYPE_NAMESPACE_CALLBACK, 0, NULL);
+		cmd = create_command("NAMESPACE", 't', TYPE_NAMESPACE_CALLBACK, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -517,7 +517,7 @@ PCMD SWITCH_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("SWITCH", 't', TYPE_SWITCH_CALLBACK, 0, 0);
+		cmd = create_command("SWITCH", 't', TYPE_SWITCH_CALLBACK, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -570,7 +570,7 @@ PCMD GROUP_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("GROUP", 't', TYPE_GROUP_CALLBACK, 0, NULL);
+		cmd = create_command("GROUP", 't', TYPE_GROUP_CALLBACK, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }
@@ -615,7 +615,7 @@ PCMD COUNT_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("COUNT__", 't', TYPE_COUNT_CALLBACK, 0, "non-sqf compliant helper type");
+		cmd = create_command("COUNT__", 't', TYPE_COUNT_CALLBACK, 0, "non-sqf compliant helper type", NULL, NULL);
 	}
 	return cmd;
 }

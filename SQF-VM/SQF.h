@@ -26,8 +26,13 @@ void store_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val);
 void push_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val);
 
 void execute(PVM vm);
-
-PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, const char* desc);
+///param1: Name of command
+///param2: Type of command, can be 't', 'n', 'u' or 'b'
+///param3: Precedence of this command, important for binary commands.
+///param4: Can be NULL. The way this command can be used in abstract way (LEFTARGTYPE CMD RIGHTARGTYPE)
+///param5: Can be NULL. List of examples separated via `#`
+///param6: Can be NULL. Description of this command.
+PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, const char* usage, const char* examples_cs, const char* desc);
 void destroy_command(PCMD command);
 
 PCMD find_command(PVM vm, const char* name, char type);

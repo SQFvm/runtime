@@ -18,10 +18,11 @@
 
 
 
-PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, const char* desc)
+PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, const char* usage, const char* examples, const char* desc)
 {
 	PCMD command = malloc(sizeof(CMD));
-	int len = strlen(name);
+	int len;
+	len = strlen(name);
 	command->name = malloc(sizeof(char) * (len + 1));
 	command->name_len = len;
 	strcpy(command->name, name);
@@ -40,6 +41,30 @@ PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, co
 	{
 		command->description = 0;
 		command->description_len = 0;
+	}
+	if (usage != 0)
+	{
+		len = strlen(usage);
+		command->usage = malloc(sizeof(char) * (len + 1));
+		command->usage_len = len;
+		strcpy(command->description, usage);
+	}
+	else
+	{
+		command->usage = 0;
+		command->usage_len = 0;
+	}
+	if (examples != 0)
+	{
+		len = strlen(examples);
+		command->examples = malloc(sizeof(char) * (len + 1));
+		command->examples_len = len;
+		strcpy(command->examples, examples);
+	}
+	else
+	{
+		command->examples = 0;
+		command->examples_len = 0;
 	}
 	return command;
 }

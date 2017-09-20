@@ -12,7 +12,7 @@ PCMD SIDE_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("SIDE", 't', 0, 0, 0);
+		cmd = create_command("SIDE", 't', 0, 0, 0, 0, 0);
 	}
 	return cmd;
 }

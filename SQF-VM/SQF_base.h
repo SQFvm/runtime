@@ -45,6 +45,10 @@ typedef struct CMD
 	unsigned int name_len;
 	char* description;
 	unsigned int description_len;
+	char* usage;
+	unsigned int usage_len;
+	char* examples;
+	unsigned int examples_len;
 } CMD;
 typedef CMD* PCMD;
 typedef const CMD* CPCMD;
