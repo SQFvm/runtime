@@ -153,7 +153,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "doMove", 'b', CMD_DOMOVE, 0, "<OBJECT> doMove <ARRAY> | <ARRAY> doMove <ARRAY>", "", "Order the given unit(s) to move to the given position (without radio messages).");
 
 	create_cmd(vm, "diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>", "", "Dumps the argument's value. Each call creates a new line.");
-	create_cmd(vm, "private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>", "_a = 10; [] call { private \"_a\"; _a = 20; }; _a //10#", "_a = 10; _b = 20; [] call { private [\"_a\", \"_b\"]; _a = 50; _b = 50; }; [_a, _b] //[10, 20]#", "Sets a variable to the innermost scope");
+	create_cmd(vm, "private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>", "_a = 10; [] call { private \"_a\"; _a = 20; }; _a //10#" "_a = 10; _b = 20; [] call { private [\"_a\", \"_b\"]; _a = 50; _b = 50; }; [_a, _b] //[10, 20]#", "Sets a variable to the innermost scope");
 	create_cmd(vm, "if", 'u', CMD_IF, 0, "if <BOOL>", "", "See then");
 	create_cmd(vm, "str", 'u', CMD_STR, 0, "str <ANY>", "", "Converts any value into a string by placing \" and \" around the argument.");
 	create_cmd(vm, "while", 'u', CMD_WHILE, 0, "while <CODE>", "while {b > a} //{b > a}#", "Repeats Code while condition is true. A part of while do construct.");
@@ -202,7 +202,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "diag_tickTime", 'n', CMD_DIAG_TICKTIME, 0, "diag_tickTime", "", "");
 	create_cmd(vm, "pi", 'n', CMD_PI, 0, "pi", "", "");
 	create_cmd(vm, "productVersion", 'n', CMD_PRODUCTVERSION, 0, "productVersion", "", "");
-	create_cmd(vm, "west", 'n', CMD_WEST, 0, "west", "", "", "", "");
+	create_cmd(vm, "west", 'n', CMD_WEST, 0, "west", "", "");
 	create_cmd(vm, "blufor", 'n', CMD_BLUFOR, 0, "blufor", "", "");
 	create_cmd(vm, "east", 'n', CMD_EAST, 0, "east", "", "");
 	create_cmd(vm, "opfor", 'n', CMD_OPFOR, 0, "opfor", "", "");
