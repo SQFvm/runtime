@@ -9,7 +9,7 @@
 #define ERR_STRING "STRING"
 #define ERR_SCALAR "SCALAR"
 #define ERR_ARRAY "ARRAY"
-#define ERR_ARRAY_(X) "ARRAY[" #X "]"
+#define ERR_ARRAY_(X) "ARRAY[" #X "] "
 #define ERR_BOOL "BOOL"
 #define ERR_IF "IF"
 #define ERR_CODE "CODE"
@@ -24,6 +24,7 @@
 #define ERR_EQUAL_TYPE " OF EQUAL TYPE"
 
 #define ERR_NOT_EMPTY "NOT EMPTY "
+#define ERR_NON_EMPTY_STRING "NON EMPTY STRING"
 #define ERR_EXISTING "EXISTING "
 
 #define ERR_OR " OR "

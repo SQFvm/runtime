@@ -2878,7 +2878,7 @@ void CMD_GETVARIABLE(void* input, CPCMD self)
 		}
 		if (((PSTRING)arr->data[0]->val.ptr)->length == 0)
 		{
-			vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_NOT_EMPTY ERR_STRING, vm->stack);
+			vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING, vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
 			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
@@ -2895,7 +2895,7 @@ void CMD_GETVARIABLE(void* input, CPCMD self)
 	{
 		if (((PSTRING)right_val->val.ptr)->length == 0)
 		{
-			vm->error(vm, ERR_RIGHT ERR_WAS_EXPECTED ERR_NOT_EMPTY ERR_STRING, vm->stack);
+			vm->error(vm, ERR_RIGHT ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING, vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
 			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
@@ -2984,7 +2984,7 @@ void CMD_SETVARIABLE(void* input, CPCMD self)
 	}
 	if (((PSTRING)arr->data[0]->val.ptr)->length == 0)
 	{
-		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_NOT_EMPTY ERR_STRING, vm->stack);
+		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
