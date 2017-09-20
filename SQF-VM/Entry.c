@@ -221,8 +221,8 @@ void register_commmands(PVM vm)
 
 
 
-	create_cmd(vm, "help__", 'n', CMD_HELP, 0, "help__", "_help //nil#", "Displays this help text.");
-	create_cmd(vm, "help__", 'u', CMD_HELP_UNARY, 0, "help__ <STRING>", "_help \"typeOf\"//nil#", "Outputs information to given command. Expects a <STRING> on righthand. Usage: help__ \"command\"");
+	create_cmd(vm, "help__", 'n', CMD_HELP, 0, "help__", "help__ //nil#", "Displays all commands available with usage, precedence and type.");
+	create_cmd(vm, "help__", 'u', CMD_HELP_UNARY, 0, "help__ <STRING>", "help__ \"typeOf\"//nil#", "Outputs information to given command. Expects a <STRING> on righthand. Usage: help__ \"command\"");
 }
 
 int vm_output_print(PVM vm, const char* format, ...)
