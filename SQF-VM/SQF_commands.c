@@ -787,7 +787,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 	char* ptr;
 	char* ptr2;
 	vm->print(vm, "<%s> %s\n", cmd->type == 'b' ? "BINARY" : cmd->type == 'u' ? "UNARY" : cmd->type == 'n' ? "NULLAR" : "TYPE", cmd->name);
-	if (cmd->description != 0)
+	if (cmd->description != 0 && *cmd->description != '\0')
 	{
 		vm->print(vm, "\tDescription:\n\t\t%s\n", cmd->description);
 	}
@@ -795,7 +795,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 	{
 		vm->print(vm, "\tPrecedence: %d\n", cmd->precedence_level);
 	}
-	if (cmd->usage)
+	if (cmd->usage && *cmd->usage != '\0')
 	{
 		vm->print(vm, "\tUsage:\n");
 		ptr = cmd->usage;
@@ -814,7 +814,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 			}
 		}
 	}
-	if (cmd->examples)
+	if (cmd->examples && *cmd->examples != '\0')
 	{
 		vm->print(vm, "\tExamples:\n");
 		ptr = cmd->examples;
