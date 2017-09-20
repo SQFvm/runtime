@@ -3526,7 +3526,8 @@ void CMD_ALLVARIABLES(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	int i;
+	PVALUE val;
+	int i, k;
 	sm_list* list;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
@@ -3550,8 +3551,12 @@ void CMD_ALLVARIABLES(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	for (i = sm_count(list) - 1; i >= 0; i--)
+	k = sm_count(list);
+	for (i = k - 1; i >= 0; i--)
 	{
-
+		push_stack(vm, vm->stack, inst_arr_push());
+		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2(sm_get_name_index(list, (unsigned int)i))))));
 	}
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create(k)))));
+	inst_destroy(right);
 }

@@ -147,6 +147,16 @@ param 1: valid pointer to a list allocated by sm_create_list
 param 2: Current index of enumeration
 */
 void* sm_get_value_index(sm_list* list, unsigned int index);
+/*
+Receives an items name via index from provided list.
+Indexies might change when new items are added!
+Only should be used for enumeration.
+Returns 0 if index was too large;
+
+param 1: valid pointer to a list allocated by sm_create_list
+param 2: Current index of enumeration
+*/
+char* sm_get_name_index(sm_list* list, unsigned int index);
 
 
 #endif // !_STRING_MAP_H_

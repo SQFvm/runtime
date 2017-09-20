@@ -194,3 +194,21 @@ void* sm_get_value_index(sm_list* list, unsigned int index)
 	}
 	return 0;
 }
+char* sm_get_name_index(sm_list* list, unsigned int index)
+{
+	unsigned int count = 0;
+	int i;
+	sm_bucket* cur;
+	for (i = 0; i < list->buckets_size; i++)
+	{
+		cur = list->buckets[i];
+		count += cur->top;
+		if (count > index)
+		{
+			count -= cur->top;
+			index -= count;
+			return cur->names[index];
+		}
+	}
+	return 0;
+}
