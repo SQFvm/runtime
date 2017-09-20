@@ -542,6 +542,10 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		if (arr_start == i || (cmd != 0 && cmd->type_code & (2 | 4)))
 		{
 			cmd = fndcmd2(vm, str, range.length, 4 | 8);
+			if (cmd == 0)
+			{
+				cmd = fndcmd2(vm, str, range.length, 2);
+			}
 		}
 		else
 		{
