@@ -132,7 +132,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "from", 'b', CMD_FROM, 0, "<FOR> from <SCALAR>", "", "Continue sequence of for var construct. It sets the start value of the index variable.");
 	create_cmd(vm, "to", 'b', CMD_TO, 0, "<FOR> to <SCALAR>", "", "Continue sequence of for var construct. It sets the end value of the index variable");
 	create_cmd(vm, "step", 'b', CMD_STEP, 0, "<FOR> step <SCALAR>", "", "Optionally can set step. If you want to count down, step must be specified, and set negative. Default value is 1.");
-	create_cmd(vm, "count", 'b', CMD_COUNT, 0, "<CODE> count <ARRAY> | <COUNT> count <STRING>", "{_x > 2} count [1, 2, 3, 4, 5] //2#", "Can be used to count the number of elements in array with a condition.");
+	create_cmd(vm, "count", 'b', CMD_COUNT, 0, "<CODE> count <ARRAY> | <COUNT> count <STRING>", "{_x > 2} count [1, 2, 3, 4, 5] //3#", "Can be used to count the number of elements in array with a condition.");
 	create_cmd(vm, "call", 'b', CMD_CALL, 0, "<ANY> call <CODE>", "[1] call {_this} //[1]#", "Executes given set of compiled instructions with an argument passed to the executed code in magic variable _this.");
 	create_cmd(vm, "atan2", 'b', CMD_ATAN2, 0, "<SCALAR> atan2 <SCALAR>", "5 atan2 3 //59.0362#", "ArcTangent of x/y. Used to determine the angle of a vector [x,y]. Result in Degrees between -180 and 180. Note that this command can handle y being 0, unlike when using atan, and will return 90");
 	create_cmd(vm, "min", 'b', CMD_MIN, 0, "<SCALAR> min <SCALAR>", "1 min 2 //1#" "10 min 5 //5#", "The smaller of a, b");
