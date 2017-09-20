@@ -1134,6 +1134,14 @@ void CMD_EQUAL(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
+	if (((PSTRING)right_val->val.ptr)->length == 0)
+	{
+		vm->error(vm, ERR_RIGHT ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
 	else if (left_val->type == SCALAR_TYPE())
 	{
 		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->val.f == right_val->val.f))));
