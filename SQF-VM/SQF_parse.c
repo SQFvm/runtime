@@ -718,6 +718,14 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	{
 		if (stack != 0)
 		{
+			if (smallest_cmd->type == 'u' && arr_end == i + 1)
+			{
+				cmd = fndcmd2(vm, smallest_cmd->name, smallest_cmd->name_len, 8);
+				if (cmd != 0)
+				{
+					smallest_cmd = cmd;
+				}
+			}
 			push_stack(vm, stack, inst_command(smallest_cmd));
 		}
 		(*stack_counter)++;
