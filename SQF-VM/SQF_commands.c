@@ -786,7 +786,6 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 {
 	char* ptr;
 	char* ptr2;
-	int len;
 	vm->print(vm, "<%s> %s\n", cmd->type == 'b' ? "BINARY" : cmd->type == 'u' ? "UNARY" : cmd->type == 'n' ? "NULLAR" : "TYPE", cmd->name);
 	if (cmd->description != 0)
 	{
