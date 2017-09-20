@@ -332,6 +332,7 @@ PARRAY array_copy(const PARRAY arrIn)
 			array_push(arrOut, value(val->type, val->val));
 		}
 	}
+	return arrOut;
 }
 
 

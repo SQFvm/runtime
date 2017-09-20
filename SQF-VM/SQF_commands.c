@@ -802,7 +802,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 		ptr = cmd->examples;
 		while ((ptr2 = strchr(ptr, '#')) != 0)
 		{
-			vm->print("\t- %.*s\n", ptr2 - ptr, ptr);
+			vm->print(vm, "\t- %.*s\n", ptr2 - ptr, ptr);
 			ptr = ptr2;
 		}
 	}
