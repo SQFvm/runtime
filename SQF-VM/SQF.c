@@ -75,6 +75,14 @@ void destroy_command(PCMD command)
 	{
 		free(command->description);
 	}
+	if (command->usage != 0)
+	{
+		free(command->usage);
+	}
+	if (command->examples != 0)
+	{
+		free(command->examples);
+	}
 	free(command);
 }
 

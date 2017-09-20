@@ -148,12 +148,14 @@ void* sm_drop_value_from_bucket(sm_bucket* bucket, const char* name)
 		if (value_found)
 		{
 			bucket->values[i - 1] = bucket->values[i];
+			bucket->names[i - 1] = bucket->names[i];
 		}
 		else
 		{
 			if (!str_cmpi(bucket->names[i], -1, name, -1))
 			{
 				val = bucket->values[i];
+				free(bucket->names[i]);
 			}
 		}
 	}
