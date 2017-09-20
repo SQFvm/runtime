@@ -2,6 +2,7 @@
 #include "string_op.h"
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 extern inline void* sm_get_value(sm_list* list, const char* name);
 extern inline void* sm_set_value(sm_list* list, const char* name, void* value);
@@ -94,7 +95,7 @@ sm_bucket* sm_get_bucket_for(sm_list* list, const char* name)
 	int i;
 	for (i = 0; name[i] != '\0'; i++)
 	{
-		hash += name[i] * 2.0 * (double)hash;
+		hash += tolower(name[i]) * 2.0 * (double)hash;
 		hash >>= 1;
 	}
 	hash %= list->buckets_size;
