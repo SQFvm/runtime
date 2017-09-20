@@ -5,7 +5,6 @@
 #include "SQF_types.h"
 #include "SQF_side_type.h"
 #include <stdlib.h>
-#include <malloc.h>
 
 
 
