@@ -615,7 +615,7 @@ PCMD COUNT_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("COUNT__", 't', TYPE_COUNT_CALLBACK, 0, "non-sqf compliant helper type", NULL, NULL);
+		cmd = create_command("COUNT__", 't', TYPE_COUNT_CALLBACK, 0, NULL, NULL, "non - sqf compliant helper type");
 	}
 	return cmd;
 }

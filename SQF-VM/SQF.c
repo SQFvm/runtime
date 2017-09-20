@@ -47,7 +47,7 @@ PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, co
 		len = strlen(usage);
 		command->usage = malloc(sizeof(char) * (len + 1));
 		command->usage_len = len;
-		strcpy(command->description, usage);
+		strcpy(command->usage, usage);
 	}
 	else
 	{
