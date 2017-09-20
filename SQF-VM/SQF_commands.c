@@ -20,6 +20,7 @@
 #include "SQF_object_type.h"
 #include "SQF_side_type.h"
 #include "SQF_commands.h"
+#include "SQF_parse.h"
 #include "errors.h"
 
 #ifndef M_PI
@@ -3650,6 +3651,31 @@ void CMD_WITH(void* input, CPCMD self)
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_NAMESPACE, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+}
+void CMD_COMPILE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == STRING_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(parse_into_code(vm, ((PSTRING)right_val->val.ptr)->val)))));
+		inst_destroy(right);
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
 		inst_destroy(right);
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;

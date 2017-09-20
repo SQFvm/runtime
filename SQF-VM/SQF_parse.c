@@ -744,3 +744,24 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 	}
 	tr_arr_destroy(arr);
 }
+
+PCODE parse_into_code(PVM vm, const char* code)
+{
+	TR_ARR* arr = tr_arr_create();
+	unsigned int stack_counter = 0;
+	unsigned int stack_size = 0;
+	PCODE pcode;
+	if (code == 0)
+	{
+		return code_create("", 0, 0);
+	}
+	pcode = code_create(code, 0, strlen(code));
+	tokenize(arr, code);
+
+	parse_block(vm, 0, code, arr, 0, arr->top, &stack_size);
+	resize_stack(vm, pcode->stack, stack_size + 1);
+	parse_block(vm, pcode->stack, code, arr, 0, arr->top, &stack_size);
+
+	tr_arr_destroy(arr);
+	return pcode;
+}

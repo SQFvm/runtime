@@ -20,6 +20,7 @@ void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsign
 void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter);
 void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter);
 void parse(PVM vm, const char* code, unsigned char createscope);
+PCODE parse_into_code(PVM vm, const char* code);
 
 
 #endif // !_SQF_PARSE_H_
