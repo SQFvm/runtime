@@ -574,7 +574,61 @@ void CMD_DIAG_LOG(void* input, CPCMD self)
 		return;
 	}
 	stringify_value(vm, str, right_val);
-	vm->print(vm, "%s\n", str->val);
+	vm->print(vm, "[DIAG_LOG]: %s\n", str->val);
+	string_destroy(str);
+	inst_destroy(right);
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+}
+void CMD_HINT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSTRING str = string_create(0);
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		string_destroy(str);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	stringify_value(vm, str, right_val);
+	vm->print(vm, "[HINT]: %s\n", ((PSTRING)right_val->val.ptr)->val);
+	string_destroy(str);
+	inst_destroy(right);
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+}
+void CMD_SYSTEMCHAT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSTRING str = string_create(0);
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		string_destroy(str);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	stringify_value(vm, str, right_val);
+	vm->print(vm, "[SYSTEMCHAT]: %s\n", ((PSTRING)right_val->val.ptr)->val);
 	string_destroy(str);
 	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));

@@ -17,6 +17,8 @@ void CMD_MINUS_UNARY(void* input, CPCMD self);
 void CMD_MULTIPLY(void* input, CPCMD self);
 void CMD_DIVIDE(void* input, CPCMD self);
 void CMD_DIAG_LOG(void* input, CPCMD self);
+void CMD_HINT(void* input, CPCMD self);
+void CMD_SYSTEMCHAT(void* input, CPCMD self);
 void CMD_PRIVATE(void* input, CPCMD self);
 
 void CMD_IF(void* input, CPCMD self);

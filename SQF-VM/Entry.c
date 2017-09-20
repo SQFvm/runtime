@@ -154,6 +154,8 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "isEqualType", 'b', CMD_ISEQUALTYPE, 0, "<ANY> isEqualType <ANY>", "[1, 2] isEqualType 1 //false#" "[1, 2] isEqualType [] //true#" "false isEqualType 1 //false#" "false isEqualType true //true#", "Compares 2 values by their type. A much faster alternative to typeName a == typeName b.");
 
 	create_cmd(vm, "diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>", "", "Dumps the argument's value. Each call creates a new line.");
+	create_cmd(vm, "systemChat", 'u', CMD_SYSTEMCHAT, 0, "systemChat <STRING>", "", "Writes the argument's value plaintext. Each call creates a new line.");
+	create_cmd(vm, "hint", 'u', CMD_HINT, 0, "hint <STRING>", "", "Writes the argument's value plaintext. Each call creates a new line.");
 	create_cmd(vm, "private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>", "_a = 10; [] call { private \"_a\"; _a = 20; }; _a //10#" "_a = 10; _b = 20; [] call { private [\"_a\", \"_b\"]; _a = 50; _b = 50; }; [_a, _b] //[10, 20]#", "Sets a variable to the innermost scope");
 	create_cmd(vm, "if", 'u', CMD_IF, 0, "if <BOOL>", "", "See then");
 	create_cmd(vm, "str", 'u', CMD_STR, 0, "str <ANY>", "", "Converts any value into a string by placing \" and \" around the argument.");
