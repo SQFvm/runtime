@@ -191,6 +191,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "switch", 'u', CMD_SWITCH, 0, "switch <ANY>", "switch (1) do { case 1: { 10 }; case 2: { 22 }; default { false }; //10#" "switch (0) do { case 1: { 10 }; case 2: { 22 }; default { false }; //false#", "Creates a switch type that can be used inside a switch do -block");
 	create_cmd(vm, "case", 'u', CMD_CASE, 0, "case <ANY>", "", "See switch");
 	create_cmd(vm, "default", 'u', CMD_DEFAULT, 0, "default <CODE>", "", "See switch");
+	create_cmd(vm, "allVariables", 'u', CMD_ALLVARIABLES, 0, "allVariables <OBJECT> | allVariables <NAMESPACE> | allVariables <GROUP>", "", "Returns a list of all variables from desired namespace.");
 
 
 	create_cmd(vm, "true", 'n', CMD_TRUE, 0, "true", "", "");

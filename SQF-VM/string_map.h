@@ -70,6 +70,17 @@ param 1: valid pointer to a bucket allocated by sm_create_bucket
 param 2: \0 terminated string as identifier
 */
 void* sm_get_value_from_bucket(sm_bucket* bucket, const char* name);
+
+/*
+Searches for the provided name in given bucket and drops it.
+All indexes above it will be shifted by one down.
+returns the value.
+If nothing is found, a NULL pointer will be returned.
+
+param 1: valid pointer to a list allocated by sm_create_list
+param 2: \0 terminated string as identifier
+*/
+void* sm_drop_value_from_bucket(sm_bucket* bucket, const char* name);
 /*
 Searches for the provided name in given bucket and sets the value slot for the name to given value.
 If there was already a value at that spot, it will be returned.
@@ -82,6 +93,19 @@ param 3: pointer to the value to set
 inline void* sm_get_value(sm_list* list, const char* name)
 {
 	return sm_get_value_from_bucket(sm_get_bucket_for(list, name), name);
+}
+/*
+Searches for the provided name in given bucket and drops it.
+All indexes above it will be shifted by one down.
+returns the value.
+If nothing is found, a NULL pointer will be returned.
+
+param 1: valid pointer to a list allocated by sm_create_list
+param 2: \0 terminated string as identifier
+*/
+inline void* sm_drop_value(sm_list* list, const char* name)
+{
+	return sm_drop_value_from_bucket(sm_get_bucket_for(list, name), name);
 }
 /*
 Searches for the provided name in given bucket and sets the value slot for the name to given value.

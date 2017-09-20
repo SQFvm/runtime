@@ -429,6 +429,8 @@ PNAMESPACE namespace_create(void)
 void NAMESPACE_SM_LIST_DESTROY(void* ptr)
 {
 	PVALUE val = ptr;
+	if (ptr == 0)
+		return;
 	inst_destroy_value(val);
 }
 void namespace_destroy(PNAMESPACE namespace)
@@ -438,13 +440,13 @@ void namespace_destroy(PNAMESPACE namespace)
 }
 void namespace_set_var(PNAMESPACE namespace, const char* var, VALUE val)
 {
-	PVALUE value = malloc(sizeof(VALUE));
-	value->type = val.type;
-	value->val = val.val;
-	value = sm_set_value(namespace->data, var, value);
-	if (value != 0)
+	if (val.type == NOTHING_TYPE())
 	{
-		NAMESPACE_SM_LIST_DESTROY(value);
+		NAMESPACE_SM_LIST_DESTROY(sm_drop_value(namespace->data, var));
+	}
+	else
+	{
+		NAMESPACE_SM_LIST_DESTROY(sm_set_value(namespace->data, var, value_create(val.type, val.val)));
 	}
 }
 PVALUE namespace_get_var(PNAMESPACE namespace, const char* var)

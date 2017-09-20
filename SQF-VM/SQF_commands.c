@@ -2926,6 +2926,7 @@ void CMD_SETVARIABLE(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
+	
 	namespace_set_var(ns, ((PSTRING)arr->data[0]->val.ptr)->val, value(arr->data[1]->type, arr->data[1]->val));
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(left);
@@ -3519,4 +3520,38 @@ void CMD_NIL(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+}
+void CMD_ALLVARIABLES(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	int i;
+	sm_list* list;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == NAMESPACE_TYPE())
+	{
+		list = ((PNAMESPACE)right_val->val.ptr)->data;
+	}
+	else if (right_val->type == OBJECT_TYPE())
+	{
+		list = ((POBJECT)right_val->val.ptr)->ns;
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NAMESPACE ERR_OR ERR_OBJECT, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	for (i = sm_count(list) - 1; i >= 0; i--)
+	{
+
+	}
 }

@@ -5,6 +5,9 @@
 
 extern inline void* sm_get_value(sm_list* list, const char* name);
 extern inline void* sm_set_value(sm_list* list, const char* name, void* value);
+extern inline void* sm_drop_value(sm_list* list, const char* name);
+
+
 
 sm_bucket* sm_create_bucket(unsigned int initial_size, unsigned int growth)
 {
@@ -133,6 +136,32 @@ void* sm_set_value_in_bucket(sm_bucket* bucket, const char* name, void* value)
 	bucket->names[bucket->top][i] = '\0';
 	bucket->top++;
 	return 0;
+}
+
+void* sm_drop_value_from_bucket(sm_bucket* bucket, const char* name)
+{
+	int i;
+	unsigned char value_found = 0;
+	void* val = 0;
+	for (i = 0; i < bucket->top; i++)
+	{
+		if (value_found)
+		{
+			bucket->values[i - 1] = bucket->values[i];
+		}
+		else
+		{
+			if (!str_cmpi(bucket->names[i], -1, name, -1))
+			{
+				val = bucket->values[i];
+			}
+		}
+	}
+	if (val != 0)
+	{
+		bucket->top--;
+	}
+	return val;
 }
 
 unsigned int sm_count(sm_list* list)
