@@ -866,6 +866,13 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
+	if (((PSTRING)right_val->val.ptr)->length == 0)
+	{
+		vm->error(vm, ERR_RIGHT ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
 	str = right_val->val.ptr;
 	cmd = sm_get_value(vm->cmd_container->types, str->val);
 	if (cmd != 0)
@@ -1132,14 +1139,6 @@ void CMD_EQUAL(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
-		return;
-	}
-	if (((PSTRING)right_val->val.ptr)->length == 0)
-	{
-		vm->error(vm, ERR_RIGHT ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING, vm->stack);
-		inst_destroy(left);
-		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	else if (left_val->type == SCALAR_TYPE())
