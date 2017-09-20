@@ -390,7 +390,7 @@ void CMD_MINUS(void* input, CPCMD self)
 		k = 0;
 		larr = left_val->val.ptr;
 		rarr = right_val->val.ptr;
-		for (i = 0; i < larr->top; i++)
+		for (i = larr->top - 1; i >= 0; i--)
 		{
 			for (j = 0; j < rarr->top; j++)
 			{
