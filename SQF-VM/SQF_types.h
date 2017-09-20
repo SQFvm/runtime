@@ -11,6 +11,8 @@
 
 //SQF.c --> sqfvm | Add TYPE command and if required deletion callback
 
+#define STRING_MAX_LENGTH 9999999
+
 PCMD SCALAR_TYPE(void);
 PCMD BOOL_TYPE(void);
 PCMD IF_TYPE(void);

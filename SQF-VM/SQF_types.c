@@ -157,7 +157,14 @@ PSTRING string_create(unsigned int len)
 	if (len > 0)
 	{
 		string->val = malloc(sizeof(char) * (len + 1));
-		memset(string->val, 0, sizeof(char) * (len + 1));
+		if (string->val == 0)
+		{
+			string->length = 0;
+		}
+		else
+		{
+			memset(string->val, 0, sizeof(char) * (len + 1));
+		}
 	}
 	return string;
 }
@@ -165,7 +172,7 @@ PSTRING string_create2(const char* str)
 {
 	int len = strlen(str);
 	PSTRING string = string_create(len);
-	if (len > 0)
+	if (string->length > 0)
 	{
 		strcpy(string->val, str);
 	}
@@ -182,6 +189,8 @@ void string_destroy(PSTRING string)
 PSTRING string_concat(const PSTRING l, const PSTRING r)
 {
 	PSTRING string = string_create(l->length + r->length);
+	if (string->length == 0)
+		return string;
 	if (l->length != 0)
 	{
 		strcpy(string->val, l->val);
@@ -199,6 +208,8 @@ PSTRING string_substring(const PSTRING string, unsigned int start, int length)
 		length = string->length - start;
 	}
 	PSTRING str = string_create(length);
+	if (str->length == 0)
+		return str;
 	strncpy(str->val, string->val + start, length);
 	return str;
 }
@@ -455,7 +466,7 @@ void namespace_set_var(PNAMESPACE namespace, const char* var, VALUE val)
 	}
 	else
 	{
-		NAMESPACE_SM_LIST_DESTROY(sm_set_value(namespace->data, var, value_create(val.type, val.val)));
+		NAMESPACE_SM_LIST_DESTROY(sm_set_value(namespace->data, var, value_create_noref(val.type, val.val)));
 	}
 }
 PVALUE namespace_get_var(PNAMESPACE namespace, const char* var)

@@ -32,12 +32,16 @@ PVALUE value_copy(PVALUE in)
 	}
 	return val;
 }
-PVALUE value_create(CPCMD type, BASE val)
+PVALUE value_create_noref(CPCMD type, BASE val)
 {
 	PVALUE pval = malloc(sizeof(VALUE));
 	pval->type = type;
 	pval->val = val;
-
+	return pval;
+}
+PVALUE value_create(CPCMD type, BASE val)
+{
+	PVALUE pval = value_create_noref(type, val);
 	if (pval->type->callback != 0)
 	{
 		pval->type->callback(pval, pval->type);
