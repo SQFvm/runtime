@@ -157,7 +157,7 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, un
 
 
 	i = dbginf->offset - 15;
-	len = 30;
+	len = 30 + length;
 	if (i < 0)
 	{
 		len += i;
