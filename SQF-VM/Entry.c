@@ -215,6 +215,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "civilian", 'n', CMD_CIVILIAN, 0, "civilian", "", "");
 	create_cmd(vm, "sideEmpty", 'n', CMD_SIDEEMPTY, 0, "sideEmpty", "", "");
 	create_cmd(vm, "objNull", 'n', CMD_OBJNULL, 0, "objNull", "", "");
+	create_cmd(vm, "nil", 'n', CMD_NIL, 0, "nil", "", "Nil value. This value can be used to undefine existing variables.");
 
 
 

@@ -125,4 +125,7 @@ void CMD_CIVILIAN(void* input, CPCMD self);
 void CMD_SIDEEMPTY(void* input, CPCMD self);
 
 
+void CMD_NIL(void* input, CPCMD self);
+
+
 #endif // !_SQF_COMMANDS_H_

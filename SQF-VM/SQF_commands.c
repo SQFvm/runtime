@@ -3515,3 +3515,8 @@ void CMD_SIDEEMPTY(void* input, CPCMD self)
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_empty()));
 }
+void CMD_NIL(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+}
