@@ -151,6 +151,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "forEach", 'b', CMD_FOREACH, 0, "<CODE> forEach <ARRAY> | <COUNT> forEach <ARRAY>", "", "Executes the given command(s) on every item of an array. The array items are represented by the magic variable _x.The array indices are represented by _forEachIndex.");
 	create_cmd(vm, ":", 'b', CMD_CASEOPERATOR, 0, "<SWITCH> : <CODE>", "", "See switch");
 	create_cmd(vm, "doMove", 'b', CMD_DOMOVE, 0, "<OBJECT> doMove <ARRAY> | <ARRAY> doMove <ARRAY>", "", "Order the given unit(s) to move to the given position (without radio messages).");
+	create_cmd(vm, "isEqualType", 'b', CMD_ISEQUALTYPE, 0, "<ANY> isEqualType <ANY>", "[1, 2] isEqualType 1 //false#" "[1, 2] isEqualType [] //true#" "false isEqualType 1 //false#" "false isEqualType true //true#", "Compares 2 values by their type. A much faster alternative to typeName a == typeName b.");
 
 	create_cmd(vm, "diag_log", 'u', CMD_DIAG_LOG, 0, "diag_log <ANY>", "", "Dumps the argument's value. Each call creates a new line.");
 	create_cmd(vm, "private", 'u', CMD_PRIVATE, 0, "private <STRING> | private <ARRAY>", "_a = 10; [] call { private \"_a\"; _a = 20; }; _a //10#" "_a = 10; _b = 20; [] call { private [\"_a\", \"_b\"]; _a = 50; _b = 50; }; [_a, _b] //[10, 20]#", "Sets a variable to the innermost scope");

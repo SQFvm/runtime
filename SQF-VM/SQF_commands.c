@@ -242,6 +242,27 @@ void CMD_ISEQUALTO(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
+void CMD_ISEQUALTYPE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(left_val->type == right_val->type))));
+	inst_destroy(left);
+	inst_destroy(right);
+}
 void CMD_PLUS(void* input, CPCMD self)
 {
 	PVM vm = input;
