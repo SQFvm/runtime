@@ -3537,7 +3537,6 @@ void CMD_ALLVARIABLES(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PVALUE val;
 	int i, k;
 	sm_list* list;
 	right = pop_stack(vm, vm->work);
@@ -3553,7 +3552,7 @@ void CMD_ALLVARIABLES(void* input, CPCMD self)
 	}
 	else if (right_val->type == OBJECT_TYPE())
 	{
-		list = ((POBJECT)right_val->val.ptr)->ns;
+		list = ((POBJECT)right_val->val.ptr)->ns->data;
 	}
 	else
 	{
@@ -3568,7 +3567,7 @@ void CMD_ALLVARIABLES(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_arr_push());
 		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2(sm_get_name_index(list, (unsigned int)i))))));
 	}
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create(k)))));
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(k)))));
 	inst_destroy(right);
 }
 void CMD_WITH(void* input, CPCMD self)
@@ -3576,9 +3575,6 @@ void CMD_WITH(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PVALUE val;
-	int i, k;
-	sm_list* list;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
