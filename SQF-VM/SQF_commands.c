@@ -45,6 +45,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	PARRAY arr;
 	int i;
 	char* strptr;
+	char* strptr2;
 	if (val->type == SCALAR_TYPE())
 	{
 		strptr = alloca(sizeof(char) * 64);
@@ -72,7 +73,17 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	else if (val->type == STRING_TYPE())
 	{
 		string_modify_append(str, "\"");
-		string_modify_append(str, ((PSTRING)val->val.ptr)->val);
+		strptr = ((PSTRING)val->val.ptr)->val;
+		while ((strptr2 = strchr(strptr, '"')) != 0)
+		{
+			string_modify_nappend(str, strptr, strptr2 - strptr);
+			string_modify_append(str, "\"\"");
+			strptr = strptr2 + 1;
+		}
+		if (strlen(strptr) > 0)
+		{
+			string_modify_append(str, strptr);
+		}
 		string_modify_append(str, "\"");
 	}
 	else if (val->type == NAN_TYPE())
@@ -2865,6 +2876,14 @@ void CMD_GETVARIABLE(void* input, CPCMD self)
 			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
+		if (((PSTRING)arr->data[0]->val.ptr)->length == 0)
+		{
+			vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_NOT_EMPTY ERR_STRING, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
 		val = namespace_get_var(ns, ((PSTRING)arr->data[0]->val.ptr)->val);
 		if (val == 0)
 		{
@@ -2874,6 +2893,14 @@ void CMD_GETVARIABLE(void* input, CPCMD self)
 	}
 	else if (right_val->type == STRING_TYPE())
 	{
+		if (((PSTRING)right_val->val.ptr)->length == 0)
+		{
+			vm->error(vm, ERR_RIGHT ERR_WAS_EXPECTED ERR_NOT_EMPTY ERR_STRING, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
 		val = namespace_get_var(ns, ((PSTRING)right_val->val.ptr)->val);
 		if (val == 0)
 		{
@@ -2950,6 +2977,14 @@ void CMD_SETVARIABLE(void* input, CPCMD self)
 	if (arr->data[0]->type != STRING_TYPE())
 	{
 		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (((PSTRING)arr->data[0]->val.ptr)->length == 0)
+	{
+		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_NOT_EMPTY ERR_STRING, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
