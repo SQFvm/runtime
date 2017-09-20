@@ -1373,32 +1373,46 @@ void CMD_SELECT(void* input, CPCMD self)
 		if (right_val->type == SCALAR_TYPE())
 		{
 			index = roundf(right_val->val.f);
-			if (index < 0 || index > arr->top)
-			{
-				vm->error(vm, ERR_SPECIAL_SELECT_1, vm->stack);
-				push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
-			}
-			else if (index == arr->top)
-			{
-				push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
-			}
-			else
-			{
-				tmp = arr->data[index];
-				push_stack(vm, vm->stack, inst_value(value(tmp->type, tmp->val)));
-			}
+		}
+		else if (right_val->type == BOOL_TYPE())
+		{
+			index = right_val->val.i > 0 ? 1 : 0;
 		}
 		else
 		{
-			vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+			vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR ERR_OR ERR_BOOL, vm->stack);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			inst_destroy(left);
+			inst_destroy(right);
+			return;
 		}
 	}
 	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
 	}
 
-
+	if (index < 0 || index > arr->top)
+	{
+		vm->error(vm, ERR_SPECIAL_SELECT_1, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	else if (index == arr->top)
+	{
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+	}
+	else
+	{
+		tmp = arr->data[index];
+		push_stack(vm, vm->stack, inst_value(value(tmp->type, tmp->val)));
+	}
 	inst_destroy(left);
 	inst_destroy(right);
 }
