@@ -248,7 +248,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	if (find_command(vm, FOR_TYPE()->name, 't') == 0) register_command(vm, FOR_TYPE());
 	if (find_command(vm, SWITCH_TYPE()->name, 't') == 0) register_command(vm, SWITCH_TYPE());
 	//register_command(vm, create_command("EXCEPTION", 't', 0, 0));
-	//register_command(vm, create_command("WITH", 't', 0, 0));
+	if (find_command(vm, WITH_TYPE()->name, 't') == 0) register_command(vm, WITH_TYPE());
 	if (find_command(vm, CODE_TYPE()->name, 't') == 0) register_command(vm, CODE_TYPE());
 	if (find_command(vm, OBJECT_TYPE()->name, 't') == 0) register_command(vm, OBJECT_TYPE());
 	//register_command(vm, create_command("VECTOR", 't', 0, 0));

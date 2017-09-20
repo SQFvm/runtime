@@ -100,6 +100,7 @@ typedef struct NAMESPACE
 	int refcount;
 }NAMESPACE;
 PCMD NAMESPACE_TYPE(void);
+PCMD WITH_TYPE(void);
 typedef NAMESPACE* PNAMESPACE;
 PNAMESPACE namespace_create(void);
 void namespace_destroy(PNAMESPACE namespace);

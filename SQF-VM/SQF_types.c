@@ -419,6 +419,15 @@ PCMD NAMESPACE_TYPE(void)
 	}
 	return cmd;
 }
+PCMD WITH_TYPE(void)
+{
+	static PCMD cmd = 0;
+	if (cmd == 0)
+	{
+		cmd = create_command("WITH", 't', TYPE_NAMESPACE_CALLBACK, 0, NULL, NULL, NULL);
+	}
+	return cmd;
+}
 PNAMESPACE namespace_create(void)
 {
 	PNAMESPACE namespace = malloc(sizeof(NAMESPACE));

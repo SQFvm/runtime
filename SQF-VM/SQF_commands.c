@@ -1383,11 +1383,13 @@ void CMD_DO(void* input, CPCMD self)
 	PVM vm = input;
 	PINST left;
 	PINST right;
+	PINST tmpinst;
 	PVALUE left_val;
 	PVALUE right_val;
 	PCODE code;
 	PFOR pfor;
 	PSWITCH swtch;
+	PSCOPE scope;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
 	left_val = get_value(vm, vm->stack, left);
@@ -1482,6 +1484,15 @@ void CMD_DO(void* input, CPCMD self)
 			push_stack(vm, vm->stack, inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
 			push_stack(vm, vm->stack, inst_clear_work());
 		}
+	}
+	else if (left_val->type == WITH_TYPE())
+	{
+		tmpinst = inst_scope(0);
+		scope = get_scope(vm, vm->stack, tmpinst);
+		scope->ns = left_val->val.ptr;
+		push_stack(vm, vm->stack, tmpinst);
+		push_stack(vm, vm->stack, inst_code_load(0));
+		push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), right_val->val)));
 	}
 	else
 	{
@@ -3559,4 +3570,32 @@ void CMD_ALLVARIABLES(void* input, CPCMD self)
 	}
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create(k)))));
 	inst_destroy(right);
+}
+void CMD_WITH(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PVALUE val;
+	int i, k;
+	sm_list* list;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == NAMESPACE_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(WITH_TYPE(), right_val->val)));
+		inst_destroy(right);
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NAMESPACE, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
 }

@@ -127,6 +127,7 @@ void CMD_SIDEEMPTY(void* input, CPCMD self);
 
 void CMD_NIL(void* input, CPCMD self);
 void CMD_ALLVARIABLES(void* input, CPCMD self);
+void CMD_WITH(void* input, CPCMD self);
 
 
 #endif // !_SQF_COMMANDS_H_

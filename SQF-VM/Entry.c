@@ -128,7 +128,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "select", 'b', CMD_SELECT, 10, "<ARRAY> select <SCALAR>", "[0] select 0 //0#" "[] select 0 //nil#", "Selects an element from an array, config entry from Config or substring from a string or a range from an array.");
 	create_cmd(vm, "then", 'b', CMD_THEN, 5, "<IF> then <ARRAY>", "if true then [0, 1] //0#" "if true then [0, 1] //0# if false then [0, 1] //1#", "First or second element of array is executed depending on result of if condition. Result of the expression executed is returned as a result (result may be Nothing).");
 	create_cmd(vm, "else", 'b', CMD_ELSE, 6, "<CODE> else <CODE>", "{} else {} //[{}, {}]#", "Executes else code when if condition returns false");
-	create_cmd(vm, "do", 'b', CMD_DO, 0, "<WHILE> do <CODE> | <FOR> do <CODE>", "b = 10; a = 0; while {b > a} do {a = a + 1}; a //10#", "Executes code. Used as part of construct, such as while, with, for and switch. The code is always executed in missionNamespace unless do is used with with as an argument.");
+	create_cmd(vm, "do", 'b', CMD_DO, 0, "<WHILE> do <CODE> | <FOR> do <CODE> | <WITH> do <CODE>", "b = 10; a = 0; while {b > a} do {a = a + 1}; a //10#", "Executes code. Used as part of construct, such as while, with, for and switch. The code is always executed in missionNamespace unless do is used with with as an argument.");
 	create_cmd(vm, "from", 'b', CMD_FROM, 0, "<FOR> from <SCALAR>", "", "Continue sequence of for var construct. It sets the start value of the index variable.");
 	create_cmd(vm, "to", 'b', CMD_TO, 0, "<FOR> to <SCALAR>", "", "Continue sequence of for var construct. It sets the end value of the index variable");
 	create_cmd(vm, "step", 'b', CMD_STEP, 0, "<FOR> step <SCALAR>", "", "Optionally can set step. If you want to count down, step must be specified, and set negative. Default value is 1.");
@@ -192,6 +192,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "case", 'u', CMD_CASE, 0, "case <ANY>", "", "See switch");
 	create_cmd(vm, "default", 'u', CMD_DEFAULT, 0, "default <CODE>", "", "See switch");
 	create_cmd(vm, "allVariables", 'u', CMD_ALLVARIABLES, 0, "allVariables <OBJECT> | allVariables <NAMESPACE> | allVariables <GROUP>", "", "Returns a list of all variables from desired namespace.");
+	create_cmd(vm, "with", 'u', CMD_WITH, 0, "allVariables <with>", "", "Creates a With Type that is used inside a do construct in order to execute code inside a given namespace..");
 
 
 	create_cmd(vm, "true", 'n', CMD_TRUE, 0, "true", "", "");
