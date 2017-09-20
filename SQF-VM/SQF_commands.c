@@ -75,15 +75,18 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	{
 		string_modify_append(str, "\"");
 		strptr = ((PSTRING)val->val.ptr)->val;
-		while ((strptr2 = strchr(strptr, '"')) != 0)
+		if (strptr != 0)
 		{
-			string_modify_nappend(str, strptr, strptr2 - strptr);
-			string_modify_append(str, "\"\"");
-			strptr = strptr2 + 1;
-		}
-		if (strlen(strptr) > 0)
-		{
-			string_modify_append(str, strptr);
+			while ((strptr2 = strchr(strptr, '"')) != 0)
+			{
+				string_modify_nappend(str, strptr, strptr2 - strptr);
+				string_modify_append(str, "\"\"");
+				strptr = strptr2 + 1;
+			}
+			if (strlen(strptr) > 0)
+			{
+				string_modify_append(str, strptr);
+			}
 		}
 		string_modify_append(str, "\"");
 	}
