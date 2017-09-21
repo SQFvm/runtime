@@ -50,7 +50,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	if (val->type == SCALAR_TYPE())
 	{
 		strptr = alloca(sizeof(char) * 64);
-		sprintf(strptr, "%lf", val->val.f);
+		sprintf(strptr, "%g", val->val.f);
 		string_modify_append(str, strptr);
 	}
 	else if (val->type == BOOL_TYPE() || val->type == IF_TYPE())
