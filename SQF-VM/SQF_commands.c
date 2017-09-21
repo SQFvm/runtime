@@ -3866,7 +3866,7 @@ void CMD_TOSTRING(void* input, CPCMD self)
 	}
 	else
 	{
-		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
 		inst_destroy(right);
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
