@@ -81,6 +81,7 @@ typedef struct VM
 	void(*error)(struct VM* vm, const char*, PSTACK);
 	unsigned char die_flag;
 	unsigned long max_instructions;
+	unsigned long instcount;
 	unsigned char enable_instruction_limit;
 	int(*print)(struct VM* vm, const char* format, ...);
 	void* print_custom_data;

@@ -290,6 +290,7 @@ DLLEXPORT_PREFIX unsigned char start_program(const char* input, unsigned long ma
 			}
 		}
 	}
+	vm->print(vm, "In %d instructions\n", vm->instcount);
 	if (((PSTRING)vm->print_custom_data)->val != 0)
 	{
 		if (buffer == 0 || buffer_size == 0)

@@ -231,6 +231,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	vm->print = sqfvm_print;
 	vm->print_custom_data = 0;
 	vm->sidemap = side_init_sidemap();
+	vm->instcount = 0;
 
 
 	if (find_command(vm, COUNT_TYPE()->name, 't') == 0) register_command(vm, COUNT_TYPE());

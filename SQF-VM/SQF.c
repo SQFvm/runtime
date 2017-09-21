@@ -249,11 +249,10 @@ void execute(PVM vm)
 	PVALUE val2;
 	PSCOPE scope;
 	int i, j;
-	unsigned long inst_executed = 0;
 	const char* str_const;
 	while (vm->stack->top > 0)
 	{
-		if (vm->enable_instruction_limit && inst_executed >= vm->max_instructions && !vm->die_flag)
+		if (vm->enable_instruction_limit && vm->instcount >= vm->max_instructions && !vm->die_flag)
 		{
 			vm->error(vm, "MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
 			vm->die_flag = 1;
@@ -446,6 +445,6 @@ void execute(PVM vm)
 			}
 			break;
 		}
-		inst_executed++;
+		vm->instcount++;
 	}
 }
