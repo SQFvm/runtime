@@ -27,12 +27,25 @@ class MyClient(discord.Client):
         self.admins = [105784568346324992]
 
     async def on_message(self, message):
-        if message.content.startswith('<@{}>'.format(self.user.id)):
+        if message.author.id != self.user.id and message.channel.name.startswith('sqf') and message.content.startswith('```sqf'):
+            if not self.allowsqf:
+                await message.channel.send("Currently not possible.")
+                return
+            res = c_char(0)
+            sqf = unidecode.unidecode(message.content[6:-3])
+            print("Executing {} from user {}#{}".format(sqf.encode('utf-8').strip(), message.author.name, message.author.id))
+            libsqfvm.start_program(sqf.encode('utf-8').strip(), 10000, self.stringbuffer, 1990)
+            try:
+                tmp = await message.channel.send("```{}```".format(self.stringbuffer.value.decode()))
+            except Exception as e:
+                await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
+        elif message.content.startswith('<@{}>'.format(self.user.id)):
             if not self.allowsqf:
                 await message.channel.send("Currently not possible.")
                 return
             res = c_char(0)
             sqf = unidecode.unidecode(message.content.replace('<@{}>'.format(self.user.id), ""))
+            print("Executing {} from user {}#{}".format(sqf.encode('utf-8').strip(), message.author.name, message.author.id))
             libsqfvm.start_program(sqf.encode('utf-8').strip(), 10000, self.stringbuffer, 1990)
             try:
                 tmp = await message.channel.send("```sqf\n{}```".format(self.stringbuffer.value.decode()))
