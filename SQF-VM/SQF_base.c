@@ -95,7 +95,7 @@ void resize_stack(PVM vm, PSTACK stack, unsigned int newsize)
 	ptr = realloc(stack->data, sizeof(PINST) * newsize);
 	if (ptr == 0)
 	{
-		vm->error(vm, "RESIZE OF STACK FAILED", stack);
+		vm->error(vm, "RESIZE OF STACK FAILED", vm->stack);
 	}
 	else
 	{
@@ -107,7 +107,7 @@ void push_stack(PVM vm, PSTACK stack, PINST inst)
 {
 	if (stack->top >= stack->size)
 	{
-		vm->error(vm, "STACK OVERFLOW", stack);
+		vm->error(vm, "STACK OVERFLOW", vm->stack);
 	}
 	else if (inst != 0 && inst->type == INST_DEBUG_INFO && !stack->allow_dbg)
 	{
@@ -122,7 +122,7 @@ PINST pop_stack(PVM vm, PSTACK stack)
 {
 	if (stack->top == 0)
 	{
-		vm->error(vm, "STACK UNDERFLOW", stack);
+		vm->error(vm, "STACK UNDERFLOW", vm->stack);
 		return 0;
 	}
 	else
@@ -135,11 +135,11 @@ void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset)
 	PINST tmp;
 	if (stack->top >= stack->size)
 	{
-		vm->error(vm, "STACK OVERFLOW", stack);
+		vm->error(vm, "STACK OVERFLOW", vm->stack);
 	}
 	else if (offset > 0)
 	{
-		vm->error(vm, "CANNOT PUSH USING INSERT_STACK", stack);
+		vm->error(vm, "CANNOT PUSH USING INSERT_STACK", vm->stack);
 	}
 	else if (inst != 0 && inst->type == INST_DEBUG_INFO && !stack->allow_dbg)
 	{
