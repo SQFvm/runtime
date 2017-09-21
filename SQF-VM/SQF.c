@@ -321,6 +321,8 @@ void execute(PVM vm)
 			}
 		case INST_STORE_VAR:
 			inst2 = pop_stack(vm, vm->work);
+			if (inst2 == 0)
+				break;
 			if (get_var_name(vm, vm->stack, inst)[0] == '_')
 			{
 				val = find_var(vm, get_var_name(vm, vm->stack, inst));
