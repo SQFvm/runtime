@@ -102,6 +102,36 @@ void custom_error(PVM vm, const char* errMsg, PSTACK stack)
 	vm->die_flag = 1;
 	//longjmp(program_exit, 1);
 }
+void custom_warn(PVM vm, const char* errMsg, PSTACK stack)
+{
+	int i;
+	PDBGINF dbginf;
+	if (stack->allow_dbg)
+	{
+		dbginf = 0;
+		for (i = stack->top - 1; i >= 0; i--)
+		{
+			if (stack->data[i]->type == INST_DEBUG_INFO)
+			{
+				dbginf = get_dbginf(0, 0, stack->data[i]);
+				break;
+			}
+		}
+		if (dbginf != 0)
+		{
+			vm->print(vm, "%s", dbginf->hint);
+			vm->print(vm, "[WRN][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
+		}
+		else
+		{
+			vm->print(vm, "[WRN] %s\n", errMsg);
+		}
+	}
+	else
+	{
+		vm->print(vm, "[WRN] %s\n", errMsg);
+	}
+}
 
 void create_cmd(PVM vm, const char* name, char type, CMD_CB fnc, char precedence, const char* usage, const char* examples_cs, const char* desc)
 {
@@ -152,6 +182,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, ":", 'b', CMD_CASEOPERATOR, 4, "<SWITCH> : <CODE>", "", "See switch");
 	create_cmd(vm, "doMove", 'b', CMD_DOMOVE, 4, "<OBJECT> doMove <ARRAY> | <ARRAY> doMove <ARRAY>", "", "Order the given unit(s) to move to the given position (without radio messages).");
 	create_cmd(vm, "isEqualType", 'b', CMD_ISEQUALTYPE, 4, "<ANY> isEqualType <ANY>", "[1, 2] isEqualType 1 //false#" "[1, 2] isEqualType [] //true#" "false isEqualType 1 //false#" "false isEqualType true //true#", "Compares 2 values by their type. A much faster alternative to typeName a == typeName b.");
+	create_cmd(vm, "params", 'b', CMD_PARAMS, 4, "<ANY> params <ARRAY>", "position (\"B_Soldier_F\" createVehicle [10, 20, 30]) params [\"\", \"\", \"_z\"]; _z" "[1, nil, 2] params [\"_var1\", [\"_var2\", 23], \"_var3\"]; _var2 //23#" "private _paramsres = [1, 2] params [\"_var1\", \"_var2\", [\"_var3\", true, [true]]]; [_var3, _paramsres] //[true, false]#" "private _paramsres = [1, 2, 3] params [\"_var1\", \"_var2\", [\"_var3\", true, [true]]]; [_var3, _paramsres] //[true, false]#" "private _paramsres = [1, \"ok\", [1, 2, 3]] params [[\"_var1\", 0, [0]], [\"_var2\", "", [""]], [\"_var3\", [0,0,0], [[], objNull, 0], [2,3]]]; _paramsres //true#" , "Parses input argument into array of private variables. When used without argument, as shown in main syntax, internal variable _this, which is usually available inside functions and event handlers, is used as argument.In addition to simple parsing directly into variables, input can be tested in case it is undefined, of the wrong type or of the wrong size(if array) and substituted if necessary with default values.");
 
 	create_cmd(vm, "diag_log", 'u', CMD_DIAG_LOG, 4, "diag_log <ANY>", "", "Dumps the argument's value. Each call creates a new line.");
 	create_cmd(vm, "systemChat", 'u', CMD_SYSTEMCHAT, 4, "systemChat <STRING>", "", "Writes the argument's value plaintext. Each call creates a new line.");
@@ -199,6 +230,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "compile", 'u', CMD_COMPILE, 4, "compile <STRING>", "a = 10; call compile \"a = 20;\"; a //20#" "compile \"diag_log 10;\" //{diag_log 10;}#", "Compile expression into executable code.");
 	create_cmd(vm, "toArray", 'u', CMD_TOARRAY, 4, "toArray <STRING>", "toArray \"test\" //[116, 101, 115, 116]#", "Converts the supplied String into an Array of Numbers.");
 	create_cmd(vm, "toString", 'u', CMD_TOSTRING, 4, "toString <ARRAY>", "toString [116, 101, 115, 116] //\"test\"#", "Converts the supplied Array of Numbers into a String.");
+	create_cmd(vm, "params", 'u', CMD_PARAMS_UNARY, 4, "params <ARRAY>", "[1, 2, 3] call { params [\"_one\", \"_two\", \"_three\"]; _two} //2#" "123 call { params [\"_myvar\"]; _myvar } //123#" "[1, 2] call { private _paramsres = params [\"_var1\", \"_var2\", [\"_var3\", true, [true]]]; [_var3, _paramsres] }; //[true, false]#" "[1, 2, 3] call { private _paramsres = params [\"_var1\", \"_var2\", [\"_var3\", true, [true]]]; [_var3, _paramsres] }; //[true, false]#" "[1, \"ok\", [1, 2, 3]] call { private _paramsres = params [[\"_var1\", 0, [0]], [\"_var2\", "", [""]], [\"_var3\", [0,0,0], [[], objNull, 0], [2,3]]]; _paramsres}; //true#" , "Parses input argument into array of private variables. When used without argument, as shown in main syntax, internal variable _this, which is usually available inside functions and event handlers, is used as argument.In addition to simple parsing directly into variables, input can be tested in case it is undefined, of the wrong type or of the wrong size(if array) and substituted if necessary with default values.");
 
 
 	create_cmd(vm, "true", 'n', CMD_TRUE, 4, "true", "", "");
@@ -265,6 +297,7 @@ DLLEXPORT_PREFIX unsigned char start_program(const char* input, unsigned long ma
 	unsigned char success;
 	PVM vm = sqfvm(1000, 50, 1, max_instructions);
 	vm->error = custom_error;
+	vm->warn = custom_warn;
 	if (systime_start == 0)
 	{
 		systime_start = system_time_ms();

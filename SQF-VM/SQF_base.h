@@ -79,6 +79,7 @@ typedef struct VM
 
 	PCMDCNT cmd_container;
 	void(*error)(struct VM* vm, const char*, PSTACK);
+	void(*warn)(struct VM* vm, const char*, PSTACK);
 	unsigned char die_flag;
 	unsigned long max_instructions;
 	unsigned long instcount;
@@ -144,6 +145,7 @@ void destroy_cmdcnt(PCMDCNT cmdcnt);
 PCMDCNT GET_PCMDCNT(void);
 
 void orig_error(PVM vm, const char* errMsg, PSTACK stack);
+void orig_warn(PVM vm, const char* errMsg, PSTACK stack);
 PSTACK create_stack(unsigned int size, unsigned char allow_dbg);
 void destroy_stack(PSTACK stack);
 void resize_stack(PVM vm, PSTACK stack, unsigned int newsize);

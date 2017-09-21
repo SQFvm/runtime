@@ -55,6 +55,10 @@ void orig_error(PVM vm, const char* errMsg, PSTACK stack)
 	getchar();
 	exit(-1);
 }
+void orig_warn(PVM vm, const char* errMsg, PSTACK stack)
+{
+	printf("WARNING: %s\n", errMsg);
+}
 PSTACK create_stack(unsigned int size, unsigned char allow_dbg)
 {
 	PSTACK stack = malloc(sizeof(STACK));
@@ -225,6 +229,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 
 	vm->cmd_container = GET_PCMDCNT();
 	vm->error = orig_error;
+	vm->warn = orig_warn;
 	vm->die_flag = 0;
 	vm->enable_instruction_limit = max_instructions == 0 ? 0 : 1;
 	vm->max_instructions = max_instructions;

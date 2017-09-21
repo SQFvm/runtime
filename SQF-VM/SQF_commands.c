@@ -3883,3 +3883,242 @@ void CMD_TOSTRING(void* input, CPCMD self)
 		return;
 	}
 }
+
+void params_helper(PVM vm, PVALUE input, PARRAY format)
+{
+	PVALUE tmp;
+	PSTRING varname;
+	PVALUE defaultval;
+	PARRAY expecteddatatypes;
+	PVALUE expectedarrcount;
+	PSCOPE topscope = top_scope(vm);
+	PARRAY content = 0;
+	int i, j;
+	unsigned char success_flag = 1;
+
+	if (input->type == ARRAY_TYPE())
+	{
+		content = input->val.ptr;
+	}
+	for (i = 0; i < format->top; i++)
+	{
+		tmp = format->data[i];
+		varname = 0;
+		defaultval = 0;
+		expectedarrcount = 0;
+		expecteddatatypes = 0;
+		if (tmp->type == STRING_TYPE())
+		{
+			varname = tmp->val.ptr;
+			if (varname->length == 0)
+				continue;
+		}
+		else if (tmp->type == ARRAY_TYPE())
+		{
+			//Varname validation
+			if (((PARRAY)tmp->val.ptr)->top == 0)
+			{
+				vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
+				push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+				return;
+			}
+			varname = ((PARRAY)tmp->val.ptr)->data[0]->val.ptr;
+			if (varname->length == 0 || varname->val == 0 || varname->val[0] != '_')
+			{
+				vm->error(vm, ERR_SPECIAL_PARAMS_VARNAME, vm->stack);
+				push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+				return;
+			}
+
+			//Receive default-value
+			if (((PARRAY)tmp->val.ptr)->top > 1)
+			{
+				defaultval = ((PARRAY)tmp->val.ptr)->data[1];
+			}
+
+			//Receive allowed datatypes
+			if (((PARRAY)tmp->val.ptr)->top > 2)
+			{
+				if (((PARRAY)tmp->val.ptr)->data[2]->type == ARRAY_TYPE())
+				{
+					expecteddatatypes = ((PARRAY)tmp->val.ptr)->data[2]->val.ptr;
+				}
+				else if (((PARRAY)tmp->val.ptr)->data[3]->type != NOTHING_TYPE())
+				{
+					vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
+					push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+					return;
+				}
+			}
+
+			//Receive expected array count
+			if (((PARRAY)tmp->val.ptr)->top > 3)
+			{
+				if (((PARRAY)tmp->val.ptr)->data[3]->type == ARRAY_TYPE())
+				{
+					expectedarrcount = ((PARRAY)tmp->val.ptr)->data[3];
+					//ensure all content of expected array count array is of type scalar
+					for (j = 0; j < ((PARRAY)expectedarrcount->val.ptr)->top; j++)
+					{
+						if (((PARRAY)expectedarrcount->val.ptr)->data[j]->type != SCALAR_TYPE())
+						{
+							vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
+							push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+							return;
+						}
+					}
+				}
+				else if (((PARRAY)tmp->val.ptr)->data[3]->type == SCALAR_TYPE())
+				{
+					expectedarrcount = ((PARRAY)tmp->val.ptr)->data[3];
+				}
+				else if (((PARRAY)tmp->val.ptr)->data[3]->type != NOTHING_TYPE())
+				{
+					vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
+					push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+					return;
+				}
+			}
+		}
+		else
+		{
+			vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
+
+		//if not exists, use default
+		if (content == 0)
+		{
+			tmp = input;
+		}
+		else if (content->top <= i)
+		{
+			tmp = defaultval;
+			success_flag = 0;
+		}
+		else
+		{
+			tmp = content->data[i];
+			if (tmp->type == NOTHING_TYPE())
+			{
+				tmp = defaultval;
+				success_flag = 0;
+			}
+		}
+		//Check datatypes matches
+		if (tmp != 0 && expecteddatatypes != 0 && expecteddatatypes->top != 0)
+		{
+			for (j = 0; j < expecteddatatypes->top; j++)
+			{
+				if (expecteddatatypes->data[j]->type == tmp->type)
+				{
+					break;
+				}
+			}
+			if (j == expecteddatatypes->top)
+			{
+				tmp = defaultval;
+				success_flag = 0;
+				vm->warn(vm, ERR_SPECIAL_PARAMS_FORMAT_MISSMATCH, vm->stack);
+			}
+		}
+
+		//check array count matches (if val is array)
+		if (tmp != 0 && tmp->type == ARRAY_TYPE() && expectedarrcount != 0)
+		{
+			if (expectedarrcount->type == ARRAY_TYPE())
+			{
+				for (j = 0; j < ((PARRAY)expectedarrcount->val.ptr)->top; j++)
+				{
+					if (((PARRAY)expectedarrcount->val.ptr)->data[j]->val.f == ((PARRAY)tmp->val.ptr)->top)
+					{
+						break;
+					}
+				}
+				if (j == ((PARRAY)expectedarrcount->val.ptr)->top)
+				{
+					tmp = defaultval;
+					success_flag = 0;
+					vm->warn(vm, ERR_SPECIAL_PARAMS_FORMAT_MISSMATCH, vm->stack);
+				}
+			}
+			else if (expectedarrcount->type == SCALAR_TYPE())
+			{
+				if (((PARRAY)tmp->val.ptr)->top != (int)expectedarrcount->val.f)
+				{
+					tmp = defaultval;
+					success_flag = 0;
+					vm->warn(vm, ERR_SPECIAL_PARAMS_FORMAT_MISSMATCH, vm->stack);
+				}
+			}
+		}
+		if (tmp == 0)
+		{
+			store_in_scope(vm, topscope, varname->val, value(NOTHING_TYPE(), base_int(0)));
+		}
+		else
+		{
+			store_in_scope(vm, topscope, varname->val, value(tmp->type, tmp->val));
+		}
+		if (content == 0)
+			break;
+	}
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(success_flag))));
+}
+void CMD_PARAMS(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PARRAY arrformat;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	arrformat = right_val->val.ptr;
+	params_helper(vm, left_val, arrformat);
+	inst_destroy(right);
+}
+void CMD_PARAMS_UNARY(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PARRAY arrformat;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	left_val = find_var(vm, "_this");
+	if (right_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	arrformat = right_val->val.ptr;
+	params_helper(vm, left_val, arrformat);
+	inst_destroy(right);
+}
