@@ -3786,3 +3786,89 @@ void CMD_COMPILE(void* input, CPCMD self)
 		return;
 	}
 }
+
+
+
+void CMD_TOARRAY(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PARRAY arr;
+	PSTRING str;
+	int i;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == STRING_TYPE())
+	{
+		str = right_val->val.ptr;
+		arr = array_create2(str->length);
+		for (i = 0; i < str->length; i++)
+		{
+			array_push(arr, value(SCALAR_TYPE(), base_float((float)(int)str->val[i])));
+		}
+		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
+		inst_destroy(right);
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+}
+void CMD_TOSTRING(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PARRAY arr;
+	PSTRING str;
+	int i;
+	unsigned char err_flag = 0;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == ARRAY_TYPE())
+	{
+		arr = right_val->val.ptr;
+		for (i = 0; i < arr->top; i++)
+		{
+			if (arr->data[i]->type != SCALAR_TYPE())
+			{
+				vm->error(vm, ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR, vm->stack);
+				err_flag = 1;
+			}
+		}
+		if (err_flag)
+		{
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
+		str = string_create(arr->top + 1);
+		for (i = 0; i < arr->top; i++)
+		{
+			str->val[i] = (char)(int)arr->data[i]->val.f;
+		}
+		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
+		inst_destroy(right);
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+}
