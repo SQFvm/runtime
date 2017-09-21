@@ -3717,7 +3717,6 @@ void CMD_ALLVARIABLES(void* input, CPCMD self)
 	PARRAY arr;
 	int i;
 	sm_list* list;
-	PARRAY arr;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
