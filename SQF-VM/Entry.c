@@ -195,8 +195,8 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "case", 'u', CMD_CASE, 4, "case <ANY>", "", "See switch");
 	create_cmd(vm, "default", 'u', CMD_DEFAULT, 4, "default <CODE>", "", "See switch");
 	create_cmd(vm, "allVariables", 'u', CMD_ALLVARIABLES, 4, "allVariables <OBJECT> | allVariables <NAMESPACE> | allVariables <GROUP>", "", "Returns a list of all variables from desired namespace.");
-	create_cmd(vm, "with", 'u', CMD_WITH, 4, "allVariables <with>", "", "Creates a With Type that is used inside a do construct in order to execute code inside a given namespace.");
-	create_cmd(vm, "compile", 'u', CMD_COMPILE, 4, "compile <string>", "a = 10; call compile \"a = 20;\"; a //20#" "compile \"diag_log 10;\" //{diag_log 10;}#", "Compile expression into executable code.");
+	create_cmd(vm, "with", 'u', CMD_WITH, 4, "with <NAMESPACE>", "", "Creates a With Type that is used inside a do construct in order to execute code inside a given namespace.");
+	create_cmd(vm, "compile", 'u', CMD_COMPILE, 4, "compile <STRING>", "a = 10; call compile \"a = 20;\"; a //20#" "compile \"diag_log 10;\" //{diag_log 10;}#", "Compile expression into executable code.");
 
 
 	create_cmd(vm, "true", 'n', CMD_TRUE, 4, "true", "", "");
