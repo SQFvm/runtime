@@ -313,14 +313,14 @@ void CMD_PLUS(void* input, CPCMD self)
 	{
 		arr = ((PARRAY)left_val->val.ptr);
 		outarr = array_create2(arr->top + (right_val->type == ARRAY_TYPE() ? ((PARRAY)right_val->val.ptr)->top : 1));
-		for (i = arr->top - 1; i >= 0; i--)
+		for (i = 0; i < arr->top; i++)
 		{
 			array_push(outarr, value(arr->data[i]->type, arr->data[i]->val));
 		}
 		if (right_val->type == ARRAY_TYPE())
 		{
 			arr = ((PARRAY)right_val->val.ptr);
-			for (i = arr->top - 1; i >= 0; i--)
+			for (i = 0; i < arr->top; i++)
 			{
 				array_push(outarr, value(arr->data[i]->type, arr->data[i]->val));
 			}
@@ -425,7 +425,7 @@ void CMD_MINUS(void* input, CPCMD self)
 		k = 0;
 		larr = left_val->val.ptr;
 		rarr = right_val->val.ptr;
-		for (i = larr->top - 1; i >= 0; i--)
+		for (i = 0; i < larr->top; i++)
 		{
 			for (j = 0; j < rarr->top; j++)
 			{
@@ -441,7 +441,7 @@ void CMD_MINUS(void* input, CPCMD self)
 		}
 
 		outarr = array_create2(k);
-		for (i = larr->top - 1; i >= 0; i--)
+		for (i = 0; i < larr->top; i++)
 		{
 			for (j = 0; j < rarr->top; j++)
 			{
@@ -3235,9 +3235,9 @@ void CMD_GETPOS(void* input, CPCMD self)
 	}
 	obj = right_val->val.ptr;
 	arr = array_create2(3);
-	array_push(arr, value(SCALAR_TYPE(), base_float(obj->posZ)));
-	array_push(arr, value(SCALAR_TYPE(), base_float(obj->posY)));
 	array_push(arr, value(SCALAR_TYPE(), base_float(obj->posX)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->posY)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->posZ)));
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
@@ -3329,9 +3329,9 @@ void CMD_VELOCITY(void* input, CPCMD self)
 	}
 	obj = right_val->val.ptr;
 	arr = array_create2(3);
-	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velZ)));
-	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velY)));
 	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velX)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velY)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velZ)));
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
