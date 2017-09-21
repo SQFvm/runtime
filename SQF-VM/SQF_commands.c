@@ -271,8 +271,9 @@ void CMD_PLUS(void* input, CPCMD self)
 	PVALUE left_val;
 	PVALUE right_val;
 	PARRAY arr;
+	PARRAY outarr;
 	PSTRING str;
-	int i, j;
+	int i;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
 	left_val = get_value(vm, vm->stack, left);
@@ -310,28 +311,25 @@ void CMD_PLUS(void* input, CPCMD self)
 	}
 	else if (left_val->type == ARRAY_TYPE())
 	{
-		j = 0;
+		arr = ((PARRAY)left_val->val.ptr);
+		outarr = array_create2(arr->top + (right_val->type == ARRAY_TYPE() ? ((PARRAY)right_val->val.ptr)->top : 1));
+		for (i = arr->top - 1; i >= 0; i--)
+		{
+			array_push(outarr, value(arr->data[i]->type, arr->data[i]->val));
+		}
 		if (right_val->type == ARRAY_TYPE())
 		{
 			arr = ((PARRAY)right_val->val.ptr);
-			for (i = arr->top - 1; i >= 0; i--, j++)
+			for (i = arr->top - 1; i >= 0; i--)
 			{
-				push_stack(vm, vm->stack, inst_arr_push());
-				push_stack(vm, vm->stack, inst_value(value(arr->data[i]->type, arr->data[i]->val)));
+				array_push(outarr, value(arr->data[i]->type, arr->data[i]->val));
 			}
 		}
 		else
 		{
-			push_stack(vm, vm->stack, inst_arr_push());
-			push_stack(vm, vm->stack, inst_value(value(right_val->type, right_val->val)));
+			array_push(outarr, value(right_val->type, right_val->val));
 		}
-		arr = ((PARRAY)left_val->val.ptr);
-		for (i = arr->top - 1; i >= 0; i--)
-		{
-			push_stack(vm, vm->stack, inst_arr_push());
-			push_stack(vm, vm->stack, inst_value(value(arr->data[i]->type, arr->data[i]->val)));
-		}
-		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(j)))));
+		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(outarr))));
 	}
 	else
 	{
@@ -388,6 +386,7 @@ void CMD_MINUS(void* input, CPCMD self)
 	PVALUE right_val;
 	PARRAY larr;
 	PARRAY rarr;
+	PARRAY outarr;
 	int i;
 	int j;
 	int k;
@@ -437,12 +436,26 @@ void CMD_MINUS(void* input, CPCMD self)
 			}
 			if (j == rarr->top)
 			{
-				push_stack(vm, vm->stack, inst_arr_push());
-				push_stack(vm, vm->stack, inst_value(value(larr->data[i]->type, larr->data[i]->val)));
 				k++;
 			}
 		}
-		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(k)))));
+
+		outarr = array_create2(k);
+		for (i = larr->top - 1; i >= 0; i--)
+		{
+			for (j = 0; j < rarr->top; j++)
+			{
+				if (is_equal_to(vm, larr->data[i], rarr->data[j]))
+				{
+					break;
+				}
+			}
+			if (j == rarr->top)
+			{
+				array_push(outarr, value(larr->data[i]->type, larr->data[i]->val));
+			}
+		}
+		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(outarr))));
 	}
 	else
 	{
@@ -814,6 +827,7 @@ void CMD_ELSE(void* input, CPCMD self)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
+	PARRAY arr;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
 	left_val = get_value(vm, vm->stack, left);
@@ -825,11 +839,10 @@ void CMD_ELSE(void* input, CPCMD self)
 		return;
 	}
 
-	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), right_val->val)));
-	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), left_val->val)));
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(2)))));
+	arr = array_create2(2);
+	array_push(arr, value(CODE_TYPE(), left_val->val));
+	array_push(arr, value(CODE_TYPE(), right_val->val));
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 
 	inst_destroy(left);
 	inst_destroy(right);
@@ -3205,6 +3218,7 @@ void CMD_GETPOS(void* input, CPCMD self)
 	PINST right;
 	PVALUE right_val;
 	POBJECT obj;
+	PARRAY arr;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -3220,13 +3234,11 @@ void CMD_GETPOS(void* input, CPCMD self)
 		return;
 	}
 	obj = right_val->val.ptr;
-	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->posZ))));
-	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->posY))));
-	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->posX))));
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(3)))));
+	arr = array_create2(3);
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->posZ)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->posY)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->posX)));
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
 void CMD_SETPOS(void* input, CPCMD self)
@@ -3300,6 +3312,7 @@ void CMD_VELOCITY(void* input, CPCMD self)
 	PINST right;
 	PVALUE right_val;
 	POBJECT obj;
+	PARRAY arr;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -3315,13 +3328,11 @@ void CMD_VELOCITY(void* input, CPCMD self)
 		return;
 	}
 	obj = right_val->val.ptr;
-	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->velZ))));
-	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->velY))));
-	push_stack(vm, vm->stack, inst_arr_push());
-	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(obj->velX))));
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(3)))));
+	arr = array_create2(3);
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velZ)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velY)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velX)));
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
 void CMD_SETVELOCITY(void* input, CPCMD self)
@@ -3703,8 +3714,10 @@ void CMD_ALLVARIABLES(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	int i, k;
+	PARRAY arr;
+	int i;
 	sm_list* list;
+	PARRAY arr;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -3727,13 +3740,12 @@ void CMD_ALLVARIABLES(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	k = sm_count(list);
-	for (i = k - 1; i >= 0; i--)
+	arr = array_create2(sm_count(list));
+	for (i = 0; i < arr->size; i++)
 	{
-		push_stack(vm, vm->stack, inst_arr_push());
-		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2(sm_get_name_index(list, (unsigned int)i))))));
+		array_push(arr, value(STRING_TYPE(), base_voidptr(string_create2(sm_get_name_index(list, (unsigned int)i)))));
 	}
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(k)))));
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
 void CMD_WITH(void* input, CPCMD self)
