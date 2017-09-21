@@ -239,13 +239,20 @@ int vm_output_print(PVM vm, const char* format, ...)
 	char* buff;
 	va_start(args, format);
 	va_copy(args_bullshittery, args);
-
 	len = vsnprintf(0, 0, format, args);
-	buff = alloca(sizeof(char) * (len + 1));
-	len = vsnprintf(buff, len + 1, format, args_bullshittery);
-
-	string_modify_append(vm->print_custom_data, buff);
-
+	if (len < 500)
+	{
+		buff = alloca(sizeof(char) * (len + 1));
+		vsnprintf(buff, len + 1, format, args_bullshittery);
+		string_modify_append(vm->print_custom_data, buff);
+	}
+	else
+	{
+		buff = malloc(sizeof(char) * (len + 1));
+		vsnprintf(buff, len + 1, format, args_bullshittery);
+		string_modify_append(vm->print_custom_data, buff);
+		free(buff);
+	}
 	va_end(args);
 	va_end(args_bullshittery);
 	return len;
