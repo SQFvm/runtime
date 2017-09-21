@@ -306,6 +306,8 @@ void execute(PVM vm)
 		case INST_STORE_VAR_LOCAL:
 			scope = top_scope(vm);
 			inst2 = pop_stack(vm, vm->work);
+			if (inst2 == 0)
+				break;
 			val = get_value(vm, vm->stack, inst2);
 			if (get_var_name(vm, vm->stack, inst)[0] != '_')
 			{
@@ -362,6 +364,8 @@ void execute(PVM vm)
 			inst_destroy(inst);
 			inst2 = pop_stack(vm, vm->work);
 			inst = pop_stack(vm, vm->work);
+			if (inst == 0 || inst2 == 0)
+				break;
 			val = get_value(vm, vm->stack, inst2);
 			val2 = get_value(vm, vm->stack, inst);
 			if (val == 0 || val2 == 0 || val2->type != ARRAY_TYPE())
