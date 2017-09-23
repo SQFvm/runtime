@@ -4194,3 +4194,67 @@ void CMD_DELETEVEHICLE(void* input, CPCMD self)
 		return;
 	}
 }
+void CMD_CREATEGROUP(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PGROUP group;
+	PVALUE tmp;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == SIDE_TYPE())
+	{
+		do
+		{
+			group = group_create(right_val->val.i);
+			tmp = sm_set_value(vm->groupmap, group->ident, value_create(GROUP_TYPE(), base_voidptr(group)));
+			if (tmp != 0)
+			{
+				inst_destroy_value(sm_set_value(vm->groupmap, group->ident, tmp));
+			}
+		} while (tmp != 0);
+		push_stack(vm, vm->stack, inst_value(value(GROUP_TYPE(), base_voidptr(group))));
+		inst_destroy(right);
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_SIDE, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+}
+void CMD_DELETEGROUP(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PGROUP group;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == GROUP_TYPE())
+	{
+		group = right_val->val.ptr;
+		if (((PARRAY)group->members->val.ptr)->top == 0)
+		{
+			inst_destroy_value(sm_drop_value(vm->groupmap, group->ident));
+		}
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_SIDE, vm->stack);
+	}
+	inst_destroy(right);
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+}

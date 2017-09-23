@@ -238,6 +238,8 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	vm->sidemap = side_init_sidemap();
 	vm->instcount = 0;
 
+	vm->groupmap = sm_create_list(20, 5, 5);
+
 
 	if (find_command(vm, COUNT_TYPE()->name, 't') == 0) register_command(vm, COUNT_TYPE());
 
@@ -277,9 +279,14 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	//register_command(vm, create_command("LOCATION", 't', 0, 0));
 	return vm;
 }
+void destroy_sqfvm_groupmap_callback(void* ptr)
+{
+	inst_destroy_value(ptr);
+}
 void destroy_sqfvm(PVM vm)
 {
 	side_destroy_sidemap(vm->sidemap);
+	sm_destroy_list(vm->groupmap, destroy_sqfvm_groupmap_callback);
 	destroy_stack(vm->stack);
 	destroy_stack(vm->work);
 	free(vm);

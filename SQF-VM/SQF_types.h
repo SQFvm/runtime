@@ -135,11 +135,12 @@ typedef struct GROUP
 	int refcount;
 	PVALUE side;
 	PVALUE members;
+	char* ident;
 }GROUP;
 typedef GROUP* PGROUP;
 PCMD GROUP_TYPE(void);
 PGROUP group_create(int side);
-void group_destroy(PGROUP code);
+void group_destroy(PGROUP group);
 
 
 

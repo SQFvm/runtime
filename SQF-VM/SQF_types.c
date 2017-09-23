@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 void TYPE_CODE_CALLBACK(void* input, CPCMD self);
 PCMD SCALAR_TYPE(void)
@@ -599,16 +600,23 @@ PCMD GROUP_TYPE(void)
 }
 PGROUP group_create(int side)
 {
+	static count = 0;
 	PGROUP group = malloc(sizeof(GROUP));
+	int len;
 	group->refcount = 0;
 	group->members = value_create(ARRAY_TYPE(), base_voidptr(array_create()));
 	group->side = value_create(SIDE_TYPE(), base_int(side));
+	len = snprintf(0, 0, "group-%d", count);
+	group->ident = malloc(sizeof(char) * (len + 1));
+	snprintf(group->ident, len + 1, "group-%d", count);
+	count++;
 	return group;
 }
 void group_destroy(PGROUP group)
 {
 	inst_destroy_value(group->members);
 	inst_destroy_value(group->side);
+	free(group->ident);
 	free(group);
 }
 

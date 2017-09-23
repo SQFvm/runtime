@@ -139,7 +139,9 @@ void CMD_PARAMS(void* input, CPCMD self);
 void CMD_PARAMS_UNARY(void* input, CPCMD self);
 
 void CMD_ISNIL(void* input, CPCMD self);
-void CMD_DELETEVEHICLE(void* input, CPCMD self);
+
+void CMD_CREATEGROUP(void* input, CPCMD self);
+void CMD_DELETEGROUP(void* input, CPCMD self);
 
 
 #endif // !_SQF_COMMANDS_H_
