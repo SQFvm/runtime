@@ -4258,7 +4258,7 @@ void CMD_DELETEGROUP(void* input, CPCMD self)
 	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
-void CMD_DELETEGROUP(void* input, CPCMD self)
+void CMD_GROUPID(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
