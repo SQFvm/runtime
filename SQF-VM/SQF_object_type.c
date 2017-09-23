@@ -114,5 +114,6 @@ void object_destroy_inner(POBJECT obj)
 		unit = obj->inner;
 		string_destroy(unit->displayname);
 	}
+	free(obj->inner);
 	obj->inner = 0;
 }
