@@ -4165,3 +4165,32 @@ void CMD_ISNIL(void* input, CPCMD self)
 		return;
 	}
 }
+void CMD_DELETEVEHICLE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PVALUE val;
+	POBJECT obj;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == OBJECT_TYPE())
+	{
+		obj = right_val->val.ptr;
+		object_destroy_inner(obj);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_OBJECT, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+}
