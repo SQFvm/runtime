@@ -138,5 +138,7 @@ void CMD_TOSTRING(void* input, CPCMD self);
 void CMD_PARAMS(void* input, CPCMD self);
 void CMD_PARAMS_UNARY(void* input, CPCMD self);
 
+void CMD_ISNIL(void* input, CPCMD self);
+
 
 #endif // !_SQF_COMMANDS_H_

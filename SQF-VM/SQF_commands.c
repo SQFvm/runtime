@@ -4122,3 +4122,46 @@ void CMD_PARAMS_UNARY(void* input, CPCMD self)
 	params_helper(vm, left_val, arrformat);
 	inst_destroy(right);
 }
+void CMD_ISNIL(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PVALUE val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == STRING_TYPE())
+	{
+		if (((PSTRING)right_val->val.ptr)->length == 0 || ((PSTRING)right_val->val.ptr)->val[0] != '_')
+		{
+			vm->error(vm, ERR_SPECIAL_ISNIL_1, vm->stack);
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
+		val = find_var(vm, ((PSTRING)right_val->val.ptr)->val);
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(val == 0 || val->type == NOTHING_TYPE() ? 1 : 0))));
+		inst_destroy(right);
+	}
+	else if (right_val->type == CODE_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(1))));
+		push_stack(vm, vm->stack, inst_pop(1));
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
+		push_stack(vm, vm->stack, inst_pop_eval(2, 1));
+		push_stack(vm, vm->stack, inst_code_load(1));
+		push_stack(vm, vm->stack, right);
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING ERR_OR ERR_CODE, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+}

@@ -6,6 +6,7 @@ typedef union BASE
 {
 	float f;
 	int i;
+	unsigned int ui;
 	char c;
 	void* ptr;
 	const void* cptr;

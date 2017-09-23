@@ -131,6 +131,12 @@ PINST inst_code_load(unsigned char createscope)
 	p->data.c = createscope;
 	return p;
 }
+PINST inst_pop(unsigned int ammount)
+{
+	PINST p = inst(INST_POP);
+	p->data.ui = ammount;
+	return p;
+}
 PINST inst_pop_eval(unsigned int ammount, unsigned char popon)
 {
 	PINST p = inst(INST_POP_EVAL);
@@ -253,6 +259,8 @@ void inst_destroy(PINST inst)
 		case INST_ARR_PUSH:
 			break;
 		case INST_CODE_LOAD:
+			break;
+		case INST_POP:
 			break;
 		case INST_POP_EVAL:
 			inst_destroy_pop_eval(get_pop_eval(0, 0, inst));

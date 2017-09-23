@@ -27,6 +27,7 @@ PINST inst_store_var_local(const char* name);
 PINST inst_scope(const char* name);
 PINST inst_arr_push(void);
 PINST inst_code_load(unsigned char createscope);
+PINST inst_pop(unsigned int ammount);
 PINST inst_pop_eval(unsigned int ammount, unsigned char popon);
 PINST inst_clear_work(void);
 PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, unsigned int length, const char* code);

@@ -90,6 +90,8 @@ PVALUE find_var(PVM vm, const char* name)
 {
 	int i, j;
 	PSCOPE scope;
+	if (name == 0)
+		return 0;
 	for (i = vm->stack->top; i >= 0; i--)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
@@ -249,6 +251,7 @@ void execute(PVM vm)
 	PVALUE val2;
 	PSCOPE scope;
 	int i, j;
+	unsigned int ui;
 	const char* str_const;
 	while (vm->stack->top > 0)
 	{
@@ -398,24 +401,35 @@ void execute(PVM vm)
 			copy_into_stack(vm, vm->stack, ((PCODE)val->val.ptr)->stack);
 			inst_destroy(inst);
 			break;
+		case INST_POP:
+			ui = inst->data.ui;
+			for (; ui != 0; ui--)
+			{
+				inst_destroy(pop_stack(vm, vm->stack));
+			}
+			inst_destroy(inst);
+			break;
 		case INST_POP_EVAL:
 			i = get_pop_eval(vm, vm->stack, inst)->popon ? 1 : 0;
-			j = get_pop_eval(vm, vm->stack, inst)->ammount;
+			ui = get_pop_eval(vm, vm->stack, inst)->ammount;
 			inst_destroy(inst);
 			inst = pop_stack(vm, vm->work);
 			if (inst == 0)
 			{
-				for (; j >= 0; j--)
+				for (; ui != 0; ui--)
 				{
 					inst_destroy(pop_stack(vm, vm->stack));
 				}
 			}
-			val = get_value(vm, vm->stack, inst);
-			if (val == 0 || (val->val.i > 0 && i) || (val->val.i == 0 && !i))
+			else
 			{
-				for (; j >= 0; j--)
+				val = get_value(vm, vm->stack, inst);
+				if (val == 0 || val->type == NOTHING_TYPE() || (val->type == BOOL_TYPE() && ((val->val.i > 0 && i) || (val->val.i == 0 && !i))))
 				{
-					inst_destroy(pop_stack(vm, vm->stack));
+					for (; ui != 0; ui--)
+					{
+						inst_destroy(pop_stack(vm, vm->stack));
+					}
 				}
 			}
 			inst_destroy(inst);
