@@ -4253,7 +4253,32 @@ void CMD_DELETEGROUP(void* input, CPCMD self)
 	}
 	else
 	{
-		vm->error(vm, ERR_RIGHT_TYPE ERR_SIDE, vm->stack);
+		vm->error(vm, ERR_RIGHT_TYPE ERR_GROUP, vm->stack);
+	}
+	inst_destroy(right);
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+}
+void CMD_DELETEGROUP(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PGROUP group;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == GROUP_TYPE())
+	{
+		group = right_val->val.ptr;
+		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2(group->ident)))));;
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_GROUP, vm->stack);
 	}
 	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
