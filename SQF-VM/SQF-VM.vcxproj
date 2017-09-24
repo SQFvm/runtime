@@ -44,6 +44,7 @@
   <ItemGroup>
     <ClInclude Include="basetype.h" />
     <ClInclude Include="errors.h" />
+    <ClInclude Include="random.h" />
     <ClInclude Include="SQF.h" />
     <ClInclude Include="SQF_base.h" />
     <ClInclude Include="SQF_commands.h" />
@@ -55,6 +56,7 @@
     <ClInclude Include="string_map.h" />
     <ClInclude Include="string_op.h" />
     <ClInclude Include="textrange.h" />
+    <ClInclude Include="vector.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{262E778C-9733-435F-B97D-F8B78C333CC3}</ProjectGuid>

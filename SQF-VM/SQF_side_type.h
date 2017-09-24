@@ -36,7 +36,8 @@ typedef int side;
 
 
 PCMD SIDE_TYPE(void);
-const char* side_displayname(const PVALUE val);
+const char* side_displayname(int i);
+const char* side_displayname2(const PVALUE val);
 unsigned char** side_init_sidemap(void);
 void side_destroy_sidemap(unsigned char** map);
 

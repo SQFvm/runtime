@@ -1,4 +1,5 @@
 #include "basetype.h"
+#include "vector.h"
 #include "string_map.h"
 #include "SQF.h"
 #include "SQF_types.h"
@@ -7,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern inline unsigned char object_is_null(POBJECT obj);
 
 void TYPE_OBJECT_CALLBACK(void* input, CPCMD self)
 {
@@ -39,12 +41,12 @@ POBJECT object_create(const char* classname)
 	POBJECT obj = malloc(sizeof(OBJECT));
 	int len = 0;
 	obj->refcount = 0;
-	obj->posX = 0;
-	obj->posY = 0;
-	obj->posZ = 0;
-	obj->velX = 0;
-	obj->velY = 0;
-	obj->velZ = 0;
+	obj->position.x = 0;
+	obj->position.y = 0;
+	obj->position.z = 0;
+	obj->velocity.x = 0;
+	obj->velocity.y = 0;
+	obj->velocity.z = 0;
 	obj->healthpoints = 1;
 	obj->allow_damage = 1;
 	obj->classname = 0;
@@ -62,7 +64,7 @@ POBJECT object_create(const char* classname)
 	return obj;
 }
 
-POBJECT object_unit_create(const char* classname)
+POBJECT object_unit_create(const char* classname, PGROUP group)
 {
 	POBJECT obj = object_create(classname);
 	obj->is_vehicle = 0;
@@ -70,6 +72,8 @@ POBJECT object_unit_create(const char* classname)
 	obj->inner = malloc(sizeof(UNIT));
 	unit = obj->inner;
 	unit->displayname = string_create(0);
+	unit->groupident = string_create2(group->ident);
+	array_push(group->members->val.ptr, value(OBJECT_TYPE(), base_voidptr(obj)));
 	return obj;
 }
 POBJECT object_vehicle_create(const char* classname)
@@ -113,6 +117,7 @@ void object_destroy_inner(POBJECT obj)
 	{
 		unit = obj->inner;
 		string_destroy(unit->displayname);
+		string_destroy(unit->groupident);
 	}
 	free(obj->inner);
 	obj->inner = 0;

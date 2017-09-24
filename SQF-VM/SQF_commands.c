@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include "basetype.h"
+#include "vector.h"
 #include "string_op.h"
 #include "string_map.h"
 #include "textrange.h"
@@ -22,6 +23,7 @@
 #include "SQF_commands.h"
 #include "SQF_parse.h"
 #include "errors.h"
+#include "random.h"
 
 #ifndef M_PI
 	#define M_PI 3.1415926535
@@ -44,7 +46,10 @@ int64_t system_time_ms(void)
 void stringify_value(PVM vm, PSTRING str, PVALUE val)
 {
 	PARRAY arr;
+	POBJECT obj;
+	PGROUP grp;
 	int i;
+	int j;
 	char* strptr;
 	char* strptr2;
 	if (val->type == SCALAR_TYPE())
@@ -102,11 +107,51 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	}
 	else if (val->type == SIDE_TYPE())
 	{
-		string_modify_append(str, side_displayname(val));
+		string_modify_append(str, side_displayname2(val));
 	}
 	else if (val->type == NOTHING_TYPE())
 	{
 		string_modify_append(str, "nil");
+	}
+	else if (val->type == GROUP_TYPE())
+	{
+		string_modify_append(str, ((PGROUP)val->val.ptr)->ident);
+	}
+	else if (val->type == OBJECT_TYPE())
+	{
+		obj = val->val.ptr;
+		if (obj->is_vehicle)
+		{
+			//1cd60264080# 1813620: heli_light_01_f.p3d
+			i = snprintf(0, 0, "%p# %d: %s", obj, 0, "NOTIMPLEMENTED");
+			strptr = alloca(sizeof(char) * (i + 1));
+			snprintf(strptr, i + 1, "%p# %d: %s", obj, 0, "NOTIMPLEMENTED");
+			string_modify_append(str, strptr);
+		}
+		else
+		{
+			grp = group_from_ident(vm, ((PUNIT)obj->inner)->groupident);
+			if (grp == 0)
+			{
+				i = snprintf(0, 0, "%s:%d", "NA", 0);
+				strptr = alloca(sizeof(char) * (i + 1));
+				snprintf(strptr, i + 1, "%s:%d", "any", 0);
+				string_modify_append(str, strptr);
+			}
+			else
+			{
+				for (i = 0; i < ((PARRAY)grp->members->val.ptr)->top; i++)
+				{
+					if (((PARRAY)grp->members->val.ptr)->data[0]->val.ptr == obj)
+						break;
+				}
+				j = i;
+				i = snprintf(0, 0, "%s:%d", grp->ident, j);
+				strptr = alloca(sizeof(char) * (i + 1));
+				snprintf(strptr, i + 1, "%s:%d", grp->ident, j);
+				string_modify_append(str, strptr);
+			}
+		}
 	}
 	else if (val->type == ANY_TYPE())
 	{
@@ -2506,7 +2551,7 @@ void CMD_RANDOM(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	f = ((double)rand() / (double)(RAND_MAX / right_val->val.f));
+	f = randlf(right_val->val.f);
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
@@ -3180,9 +3225,7 @@ void CMD_CREATEVEHICLE(void* input, CPCMD self)
 		}
 	}
 	obj = object_vehicle_create(((PSTRING)left_val->val.ptr)->val);
-	obj->posX = arr->data[0]->val.f;
-	obj->posY = arr->data[1]->val.f;
-	obj->posZ = arr->data[2]->val.f;
+	obj->position = (vec3) { .x = arr->data[0]->val.f ,.y = arr->data[0]->val.f ,.z = arr->data[0]->val.f };
 
 	push_stack(vm, vm->stack, inst_value(value(OBJECT_TYPE(), base_voidptr(obj))));
 	inst_destroy(left);
@@ -3235,9 +3278,9 @@ void CMD_GETPOS(void* input, CPCMD self)
 	}
 	obj = right_val->val.ptr;
 	arr = array_create2(3);
-	array_push(arr, value(SCALAR_TYPE(), base_float(obj->posX)));
-	array_push(arr, value(SCALAR_TYPE(), base_float(obj->posY)));
-	array_push(arr, value(SCALAR_TYPE(), base_float(obj->posZ)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->position.x)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->position.y)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->position.z)));
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
@@ -3298,9 +3341,7 @@ void CMD_SETPOS(void* input, CPCMD self)
 		}
 	}
 	obj = left_val->val.ptr;
-	obj->posX = arr->data[0]->val.f;
-	obj->posY = arr->data[1]->val.f;
-	obj->posZ = arr->data[2]->val.f;
+	obj->position = (vec3) { .x = arr->data[0]->val.f, .y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
 
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(left);
@@ -3329,9 +3370,9 @@ void CMD_VELOCITY(void* input, CPCMD self)
 	}
 	obj = right_val->val.ptr;
 	arr = array_create2(3);
-	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velX)));
-	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velY)));
-	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velZ)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velocity.x)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velocity.y)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velocity.z)));
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
@@ -3392,9 +3433,7 @@ void CMD_SETVELOCITY(void* input, CPCMD self)
 		}
 	}
 	obj = left_val->val.ptr;
-	obj->velX = arr->data[0]->val.f;
-	obj->velY = arr->data[1]->val.f;
-	obj->velZ = arr->data[2]->val.f;
+	obj->velocity = (vec3) { .x = arr->data[0]->val.f, .y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
 
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(left);
@@ -3456,9 +3495,7 @@ void CMD_DOMOVE(void* input, CPCMD self)
 		obj = left_val->val.ptr;
 		if (!obj->is_vehicle)
 		{
-			obj->posX = arr->data[0]->val.f;
-			obj->posY = arr->data[1]->val.f;
-			obj->posZ = arr->data[2]->val.f;
+			obj->position = (vec3) { .x = arr->data[0]->val.f, .y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
 		}
 	}
 	else if (left_val->type == ARRAY_TYPE())
@@ -3482,9 +3519,7 @@ void CMD_DOMOVE(void* input, CPCMD self)
 			obj = arr2->data[i]->val.ptr;
 			if (!obj->is_vehicle)
 			{
-				obj->posX = arr->data[0]->val.f;
-				obj->posY = arr->data[1]->val.f;
-				obj->posZ = arr->data[2]->val.f;
+				obj->position = (vec3) { .x = arr->data[0]->val.f, .y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
 			}
 		}
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
@@ -4274,12 +4309,221 @@ void CMD_GROUPID(void* input, CPCMD self)
 	if (right_val->type == GROUP_TYPE())
 	{
 		group = right_val->val.ptr;
+		inst_destroy(right);
 		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2(group->ident)))));;
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_GROUP, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	}
+}
+void CMD_CREATEUNIT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PVALUE tmp;
+	PGROUP group;
+	POBJECT obj;
+	PARRAY arr;
+	vec3 pos;
+	int i;
+	float f;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != GROUP_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_GROUP, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (right_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_GROUP, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	arr = right_val->val.ptr;
+	if (arr->top < 5)
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_ARRAY_SIZE(5), vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (arr->data[0]->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (arr->data[1]->type == ARRAY_TYPE())
+	{
+		if (((PARRAY)arr->data[1]->val.ptr)->top < 2)
+		{
+			vm->error(vm, ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_ARRAY ERR_ARRAY_SIZE(2), vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
+		for (i = 0; i < ((PARRAY)arr->data[1]->val.ptr)->top && i < 3; i++)
+		{
+			if (((PARRAY)arr->data[1]->val.ptr)->data[i]->type != SCALAR_TYPE())
+			{
+				vm->error(vm, ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_ARRAY ERR_ARRAY_SIZE(2), vm->stack);
+				inst_destroy(left);
+				inst_destroy(right);
+				push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+				return;
+			}
+		}
+		pos.x = ((PARRAY)arr->data[1]->val.ptr)->data[0]->val.f;
+		pos.y = ((PARRAY)arr->data[1]->val.ptr)->data[1]->val.f;
+		if (((PARRAY)arr->data[1]->val.ptr)->top >= 3)
+		{
+			pos.z = ((PARRAY)arr->data[1]->val.ptr)->data[2]->val.f;
+		}
+	}
+	else if(arr->data[1]->type == OBJECT_TYPE())
+	{
+		pos = ((POBJECT)arr->data[1]->val.ptr)->position;
+	}
+	else if (arr->data[1]->type == GROUP_TYPE())
+	{
+		tmp = group_get_leader(((PGROUP)arr->data[1]->val.ptr));
+		if (tmp == 0 || object_is_null(tmp->val.ptr))
+		{
+			vm->error(vm, ERR_SPECIAL_CREATEUNIT_1, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
+		pos = ((POBJECT)tmp->val.ptr)->position;
+	}
+	else
+	{
+		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (arr->data[2]->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_ERR ERR_ARRAY_(2) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_ARRAY, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (arr->data[3]->type == SCALAR_TYPE())
+	{
+		f = arr->data[3]->val.f;
+		if (f > 0)
+		{
+			pos.x += randlf(f) - (f / 2);
+			pos.y += randlf(f) - (f / 2);
+		}
+	}
+	else
+	{
+		vm->error(vm, ERR_ERR ERR_ARRAY_(3) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (arr->data[4]->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_ERR ERR_ARRAY_(4) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	//ToDo: (2) check for markers
+	//ToDo: (4) Take care of special
+	group = left_val->val.ptr;
+	obj = object_unit_create(((PSTRING)arr->data[0]->val.ptr)->val, group);
+	obj->position = pos;
+
+	inst_destroy(left);
 	inst_destroy(right);
-	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+	push_stack(vm, vm->stack, inst_value(value(OBJECT_TYPE(), base_voidptr(obj))));
+}
+
+
+void CMD_UNITS(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PGROUP group;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type == GROUP_TYPE())
+	{
+		group = right_val->val.ptr;
+	}
+	else if (right_val->type == OBJECT_TYPE())
+	{
+		if (((POBJECT)right_val->val.ptr)->inner == 0)
+		{
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(0)))));
+			return;
+		}
+		else if (((POBJECT)right_val->val.ptr)->is_vehicle)
+		{
+			//ToDo: get group from leader
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(0)))));
+			return;
+		}
+		else
+		{
+			group = group_from_ident(vm, ((PUNIT)((POBJECT)right_val->val.ptr)->inner)->groupident);
+		}
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_GROUP, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (group == 0)
+	{
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(0)))));
+		return;
+	}
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_copy(group->members->val.ptr)))));
+	inst_destroy(right);
 }

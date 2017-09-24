@@ -1,4 +1,6 @@
 #include "basetype.h"
+#include "vector.h"
+#include "string_op.h"
 #include "string_map.h"
 #include "SQF.h"
 #include "SQF_types.h"
@@ -600,15 +602,14 @@ PCMD GROUP_TYPE(void)
 }
 PGROUP group_create(int side)
 {
-	static count = 0;
+	static count = 1;
 	PGROUP group = malloc(sizeof(GROUP));
-	int len;
 	group->refcount = 0;
 	group->members = value_create(ARRAY_TYPE(), base_voidptr(array_create()));
 	group->side = value_create(SIDE_TYPE(), base_int(side));
-	len = snprintf(0, 0, "group-%d", count);
-	group->ident = malloc(sizeof(char) * (len + 1));
-	snprintf(group->ident, len + 1, "group-%d", count);
+	group->ident_len = snprintf(0, 0, "%c ALPHA %d", side_displayname(side)[0], count);
+	group->ident = malloc(sizeof(char) * (group->ident_len + 1));
+	snprintf(group->ident, group->ident_len + 1, "%c ALPHA %d", side_displayname(side)[0], count);
 	count++;
 	return group;
 }
@@ -620,6 +621,28 @@ void group_destroy(PGROUP group)
 	free(group);
 }
 
+PVALUE group_get_leader(PGROUP group)
+{
+	if (((PARRAY)group->members->val.ptr)->top == 0)
+		return 0;
+	else
+		return ((PARRAY)group->members->val.ptr)->data[0];
+}
+PGROUP group_from_ident(PVM vm, const char* ident)
+{
+	PGROUP grp;
+	int i;
+	int j = sm_count(vm->groupmap);
+	for (i = 0; i < j; i++)
+	{
+		grp = ((PVALUE)sm_get_value_index(vm->groupmap, i))->val.ptr;
+		if (str_cmpi(grp->ident, -1, ident, -1))
+		{
+			return grp;
+		}
+	}
+	return 0;
+}
 
 
 //NON-SQF TYPES

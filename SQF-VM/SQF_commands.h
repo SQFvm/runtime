@@ -144,6 +144,8 @@ void CMD_DELETEVEHICLE(void* input, CPCMD self);
 void CMD_CREATEGROUP(void* input, CPCMD self);
 void CMD_DELETEGROUP(void* input, CPCMD self);
 void CMD_GROUPID(void* input, CPCMD self);
+void CMD_CREATEUNIT(void* input, CPCMD self);
+void CMD_UNITS(void* input, CPCMD self);
 
 
 #endif // !_SQF_COMMANDS_H_

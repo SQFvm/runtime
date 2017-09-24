@@ -1,4 +1,5 @@
 #include "basetype.h"
+#include "vector.h"
 #include "string_map.h"
 #include "string_op.h"
 #include "textrange.h"

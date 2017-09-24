@@ -136,11 +136,15 @@ typedef struct GROUP
 	PVALUE side;
 	PVALUE members;
 	char* ident;
+	unsigned int ident_len;
 }GROUP;
 typedef GROUP* PGROUP;
 PCMD GROUP_TYPE(void);
 PGROUP group_create(int side);
 void group_destroy(PGROUP group);
+PVALUE group_get_leader(PGROUP group);
+PGROUP group_from_ident(PVM vm, const char* ident);
+
 
 
 

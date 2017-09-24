@@ -17,9 +17,9 @@ PCMD SIDE_TYPE(void)
 	}
 	return cmd;
 }
-const char* side_displayname(const PVALUE val)
+const char* side_displayname(int i)
 {
-	switch (val->val.i)
+	switch (i)
 	{
 	case SIDE_VAL_EMPTY: return SIDE_STR_EMPTY;
 	case SIDE_VAL_UNKNOWN: return SIDE_STR_UNKNOWN;
@@ -34,6 +34,10 @@ const char* side_displayname(const PVALUE val)
 	default:
 		return 0;
 	}
+}
+const char* side_displayname2(const PVALUE val)
+{
+	return side_displayname(val->val.i);
 }
 unsigned char ** side_init_sidemap()
 {
