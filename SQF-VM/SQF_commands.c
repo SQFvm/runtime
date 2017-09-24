@@ -4527,3 +4527,18 @@ void CMD_UNITS(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_copy(group->members->val.ptr)))));
 	inst_destroy(right);
 }
+void CMD_ALLGROUPS(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PARRAY arr;
+	unsigned int i;
+	unsigned int j;
+	j = sm_count(vm->groupmap);
+	arr = array_create2(j);
+	for (i = 0; i < j; i++)
+	{
+		array_push(arr, value(GROUP_TYPE(), base_voidptr(((PVALUE)sm_get_value_index(vm->groupmap, i))->val.ptr)));
+	}
+
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
+}
