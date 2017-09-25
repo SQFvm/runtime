@@ -2000,7 +2000,35 @@ void CMD_SPAWN(void* input, CPCMD self)
 		push_stack(vm, script->stack, right);
 		push_stack(vm, script->stack, inst_store_var_local("_this"));
 		push_stack(vm, script->stack, inst_value(value(left_val->type, left_val->val)));
+		push_stack(vm, script->stack, inst_store_var_local("_thisScript"));
+		push_stack(vm, script->stack, inst_value(value(SCRIPT_TYPE(), base_voidptr(script))));
+		push_stack(vm, vm->stack, inst_value(value(SCRIPT_TYPE(), base_voidptr(script))));
 		inst_destroy(left);
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(right);
+	}
+}
+void CMD_SCRIPTDONE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+
+	if (right_val->type == SCRIPT_TYPE())
+	{
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(((PSCRIPT)right_val->val.ptr)->stack->top == 0 ? 1 : 0))));
+		inst_destroy(right);
 	}
 	else
 	{
