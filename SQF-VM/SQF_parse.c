@@ -26,6 +26,7 @@ void tokenize(TR_ARR* arr, const char* code)
 	int start = -1;
 	int line = 1;
 	int col = 0;
+	unsigned char in_string = 0;
 	unsigned char in_line_comment_mode = 0;
 	unsigned char in_block_comment_mode = 0;
 	for (i = 0; code[i] != '\0'; i++, col++)
@@ -47,13 +48,13 @@ void tokenize(TR_ARR* arr, const char* code)
 			}
 			continue;
 		}
-		if (c == '/' && code[i + 1] == '/')
+		if (!in_string && c == '/' && code[i + 1] == '/')
 		{
 			in_line_comment_mode = 1;
 			start = -1;
 			continue;
 		}
-		else if (c == '/' &&  code[i + 1] == '*')
+		else if (!in_string && c == '/' &&  code[i + 1] == '*')
 		{
 			in_block_comment_mode = 1;
 			start = -1;
@@ -78,6 +79,7 @@ void tokenize(TR_ARR* arr, const char* code)
 			s = code[start];
 			if (s == '"')
 			{
+				in_string = 1;
 				if (c == '"' && code[i + 1] == '"')
 				{
 					i++;
@@ -89,10 +91,12 @@ void tokenize(TR_ARR* arr, const char* code)
 						.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
 					});
 					start = -1;
+					in_string = 0;
 				}
 			}
 			else if (s == '\'')
 			{
+				in_string = 1;
 				if (c == '\'')
 				{
 					tr_arr_push(arr, (TEXTRANGE)
@@ -100,6 +104,7 @@ void tokenize(TR_ARR* arr, const char* code)
 						.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
 					});
 					start = -1;
+					in_string = 0;
 				}
 			}
 			else if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
