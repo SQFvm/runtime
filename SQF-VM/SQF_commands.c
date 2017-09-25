@@ -20,10 +20,12 @@
 #include "SQF_types.h"
 #include "SQF_object_type.h"
 #include "SQF_side_type.h"
+#include "SQF_script_type.h"
 #include "SQF_commands.h"
 #include "SQF_parse.h"
 #include "errors.h"
 #include "random.h"
+
 
 #ifndef M_PI
 	#define M_PI 3.1415926535
@@ -1966,6 +1968,43 @@ void CMD_CALL_UNARY(void* input, CPCMD self)
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(right);
+	}
+}
+void CMD_SPAWN(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PSCRIPT script;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	if (right_val->type == CODE_TYPE())
+	{
+		script = script_create(vm);
+		sqfvm_pushscript(vm, script);
+		push_stack(vm, script->stack, inst_scope(0));
+		push_stack(vm, script->stack, inst_code_load(0));
+		push_stack(vm, script->stack, right);
+		push_stack(vm, script->stack, inst_store_var_local("_this"));
+		push_stack(vm, script->stack, inst_value(value(left_val->type, left_val->val)));
+		inst_destroy(left);
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_SCRIPT, vm->stack);
 		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(right);
 	}

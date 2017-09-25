@@ -73,10 +73,17 @@ typedef struct CMDCNT
 } CMDCNT;
 typedef CMDCNT* PCMDCNT;
 //Structure containing all VM related informations
+#define SQFVM_SCRIPTS_GROWTH 10
+struct SCRIPT;
+typedef struct SCRIPT* PSCRIPT;
 typedef struct VM
 {
 	PSTACK stack;
 	PSTACK work;
+
+	PSCRIPT* scripts;
+	unsigned int scripts_top;
+	unsigned int scripts_size;
 
 	PCMDCNT cmd_container;
 	void(*error)(struct VM* vm, const char*, PSTACK);
@@ -146,6 +153,12 @@ void destroy_cmdcnt(PCMDCNT cmdcnt);
 
 PCMDCNT GET_PCMDCNT(void);
 
+PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_dbg, unsigned long max_instructions);
+void sqfvm_pushscript(PVM vm, PSCRIPT script);
+void sqfvm_dropscript(PVM vm, PSCRIPT script);
+void destroy_sqfvm(PVM vm);
+int sqfvm_print(PVM vm, const char* format, ...);
+
 void orig_error(PVM vm, const char* errMsg, PSTACK stack);
 void orig_warn(PVM vm, const char* errMsg, PSTACK stack);
 PSTACK create_stack(unsigned int size, unsigned char allow_dbg);
@@ -157,8 +170,5 @@ void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset);
 PINST copy_inst(PVM vm, const PINST instIn);
 void copy_into_stack(PVM vm, PSTACK target, const PSTACK source);
 
-PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_dbg, unsigned long max_instructions);
-void destroy_sqfvm(PVM vm);
-int sqfvm_print(PVM vm, const char* format, ...);
 void register_command(PVM vm, PCMD cmd);
 #endif

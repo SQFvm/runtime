@@ -185,6 +185,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "isEqualType", 'b', CMD_ISEQUALTYPE, 4, "<ANY> isEqualType <ANY>", "[1, 2] isEqualType 1 //false#" "[1, 2] isEqualType [] //true#" "false isEqualType 1 //false#" "false isEqualType true //true#", "Compares 2 values by their type. A much faster alternative to typeName a == typeName b.");
 	create_cmd(vm, "params", 'b', CMD_PARAMS, 4, "<ANY> params <ARRAY>", "position (\"B_Soldier_F\" createVehicle [10, 20, 30]) params [\"\", \"\", \"_z\"]; _z" "[1, nil, 2] params [\"_var1\", [\"_var2\", 23], \"_var3\"]; _var2 //23#" "private _paramsres = [1, 2] params [\"_var1\", \"_var2\", [\"_var3\", true, [true]]]; [_var3, _paramsres] //[true, false]#" "private _paramsres = [1, 2, 3] params [\"_var1\", \"_var2\", [\"_var3\", true, [true]]]; [_var3, _paramsres] //[true, false]#" "private _paramsres = [1, \"ok\", [1, 2, 3]] params [[\"_var1\", 0, [0]], [\"_var2\", "", [""]], [\"_var3\", [0,0,0], [[], objNull, 0], [2,3]]]; _paramsres //true#", "Parses input argument into array of private variables. When used without argument, as shown in main syntax, internal variable _this, which is usually available inside functions and event handlers, is used as argument.In addition to simple parsing directly into variables, input can be tested in case it is undefined, of the wrong type or of the wrong size(if array) and substituted if necessary with default values.");
 	create_cmd(vm, "createUnit", 'b', CMD_CREATEUNIT, 4, "<GROUP> createUnit <ARRAY", "", "Create unit of a class that's defined in CfgVehicles. The Group parameter MUST be an existing group or the unit won't be created.");
+	create_cmd(vm, "spawn", 'b', CMD_SPAWN, 4, "<ANY> spawn <CODE>", "", "");
 
 	create_cmd(vm, "diag_log", 'u', CMD_DIAG_LOG, 4, "diag_log <ANY>", "", "Dumps the argument's value. Each call creates a new line.");
 	create_cmd(vm, "systemChat", 'u', CMD_SYSTEMCHAT, 4, "systemChat <STRING>", "", "Writes the argument's value plaintext. Each call creates a new line.");
@@ -322,7 +323,7 @@ DLLEXPORT_PREFIX unsigned char start_program(const char* input, unsigned long ma
 	{
 		push_stack(vm, vm->stack, inst_scope("all"));
 		parse(vm, input, 1);
-		execute(vm);
+		runvm(vm);
 		success = vm->die_flag;
 	}
 	if (vm->work->top != 0)

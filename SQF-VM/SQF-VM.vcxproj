@@ -35,6 +35,7 @@
     <ClCompile Include="SQF_inst.c" />
     <ClCompile Include="SQF_object_type.c" />
     <ClCompile Include="SQF_parse.c" />
+    <ClCompile Include="SQF_script_type.c" />
     <ClCompile Include="SQF_side_type.c" />
     <ClCompile Include="SQF_types.c" />
     <ClCompile Include="string_map.c" />
@@ -51,6 +52,7 @@
     <ClInclude Include="SQF_inst.h" />
     <ClInclude Include="SQF_object_type.h" />
     <ClInclude Include="SQF_parse.h" />
+    <ClInclude Include="SQF_script_type.h" />
     <ClInclude Include="SQF_side_type.h" />
     <ClInclude Include="SQF_types.h" />
     <ClInclude Include="string_map.h" />

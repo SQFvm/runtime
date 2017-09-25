@@ -50,6 +50,7 @@ void CMD_COUNT(void* input, CPCMD self);
 void CMD_COUNT_UNARY(void* input, CPCMD self);
 void CMD_FORMAT(void* input, CPCMD self);
 void CMD_CALL(void* input, CPCMD self);
+void CMD_SPAWN(void* input, CPCMD self);
 void CMD_CALL_UNARY(void* input, CPCMD self);
 void CMD_FOREACH(void* input, CPCMD self);
 
@@ -147,6 +148,7 @@ void CMD_GROUPID(void* input, CPCMD self);
 void CMD_CREATEUNIT(void* input, CPCMD self);
 void CMD_UNITS(void* input, CPCMD self);
 void CMD_ALLGROUPS(void* input, CPCMD self);
+
 
 
 #endif // !_SQF_COMMANDS_H_

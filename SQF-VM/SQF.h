@@ -25,7 +25,8 @@ PSCOPE top_scope(PVM vm);
 void store_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val);
 void push_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val);
 
-void execute(PVM vm);
+void runvm(PVM vm);
+void execute(PVM vm, int exitAfter);
 ///param1: Name of command
 ///param2: Type of command, can be 't', 'n', 'u' or 'b'
 ///param3: Precedence of this command, important for binary commands.

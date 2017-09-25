@@ -8,6 +8,7 @@
 #include "SQF_types.h"
 #include "SQF_object_type.h"
 #include "SQF_side_type.h"
+#include "SQF_script_type.h"
 #include "SQF_parse.h"
 
 #include <stdlib.h>
@@ -16,6 +17,112 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+
+PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_dbg, unsigned long max_instructions)
+{
+	PVM vm = malloc(sizeof(VM));
+	vm->stack = create_stack(stack_size, allow_dbg);
+	vm->work = create_stack(work_size, 0);
+
+	vm->cmd_container = GET_PCMDCNT();
+	vm->error = orig_error;
+	vm->warn = orig_warn;
+	vm->die_flag = 0;
+	vm->enable_instruction_limit = max_instructions == 0 ? 0 : 1;
+	vm->max_instructions = max_instructions;
+	vm->print = sqfvm_print;
+	vm->print_custom_data = 0;
+	vm->sidemap = side_init_sidemap();
+	vm->instcount = 0;
+
+	vm->groupmap = sm_create_list(20, 5, 5);
+	vm->scripts = malloc(sizeof(PSCRIPT) * 10);
+	vm->scripts_size = 10;
+	vm->scripts_top = 0;
+
+
+	if (find_command(vm, COUNT_TYPE()->name, 't') == 0) register_command(vm, COUNT_TYPE());
+
+	if (find_command(vm, SCALAR_TYPE()->name, 't') == 0) register_command(vm, SCALAR_TYPE());
+	if (find_command(vm, BOOL_TYPE()->name, 't') == 0) register_command(vm, BOOL_TYPE());
+	if (find_command(vm, ARRAY_TYPE()->name, 't') == 0) register_command(vm, ARRAY_TYPE());
+	if (find_command(vm, STRING_TYPE()->name, 't') == 0) register_command(vm, STRING_TYPE());
+	if (find_command(vm, NOTHING_TYPE()->name, 't') == 0) register_command(vm, NOTHING_TYPE());
+	if (find_command(vm, ANY_TYPE()->name, 't') == 0) register_command(vm, ANY_TYPE());
+	if (find_command(vm, NAMESPACE_TYPE()->name, 't') == 0) register_command(vm, NAMESPACE_TYPE());
+	if (find_command(vm, NAN_TYPE()->name, 't') == 0) register_command(vm, NAN_TYPE());
+	if (find_command(vm, IF_TYPE()->name, 't') == 0) register_command(vm, IF_TYPE());
+	if (find_command(vm, WHILE_TYPE()->name, 't') == 0) register_command(vm, WHILE_TYPE());
+	if (find_command(vm, FOR_TYPE()->name, 't') == 0) register_command(vm, FOR_TYPE());
+	if (find_command(vm, SWITCH_TYPE()->name, 't') == 0) register_command(vm, SWITCH_TYPE());
+	//register_command(vm, create_command("EXCEPTION", 't', 0, 0));
+	if (find_command(vm, WITH_TYPE()->name, 't') == 0) register_command(vm, WITH_TYPE());
+	if (find_command(vm, CODE_TYPE()->name, 't') == 0) register_command(vm, CODE_TYPE());
+	if (find_command(vm, OBJECT_TYPE()->name, 't') == 0) register_command(vm, OBJECT_TYPE());
+	//register_command(vm, create_command("VECTOR", 't', 0, 0));
+	//register_command(vm, create_command("TRANS", 't', 0, 0));
+	//register_command(vm, create_command("ORIENT", 't', 0, 0));
+	if (find_command(vm, SIDE_TYPE()->name, 't') == 0) register_command(vm, SIDE_TYPE());
+	if (find_command(vm, GROUP_TYPE()->name, 't') == 0) register_command(vm, GROUP_TYPE());
+	//register_command(vm, create_command("TEXT", 't', 0, 0));
+	if (find_command(vm, SCRIPT_TYPE()->name, 't') == 0) register_command(vm, SCRIPT_TYPE());
+	//register_command(vm, create_command("TARGET", 't', 0, 0));
+	//register_command(vm, create_command("JCLASS", 't', 0, 0));
+	//register_command(vm, create_command("CONFIG", 't', 0, 0));
+	//register_command(vm, create_command("DISPLAY", 't', 0, 0));
+	//register_command(vm, create_command("CONTROL", 't', 0, 0));
+	//register_command(vm, create_command("NetObject", 't', 0, 0));
+	//register_command(vm, create_command("SUBGROUP", 't', 0, 0));
+	//register_command(vm, create_command("TEAM_MEMBER", 't', 0, 0));
+	//register_command(vm, create_command("TASK", 't', 0, 0));
+	//register_command(vm, create_command("DIARY_RECORD", 't', 0, 0));
+	//register_command(vm, create_command("LOCATION", 't', 0, 0));
+	return vm;
+}
+void destroy_sqfvm_groupmap_callback(void* ptr)
+{
+	inst_destroy_value(ptr);
+}
+void destroy_sqfvm(PVM vm)
+{
+	side_destroy_sidemap(vm->sidemap);
+	sm_destroy_list(vm->groupmap, destroy_sqfvm_groupmap_callback);
+	destroy_stack(vm->stack);
+	destroy_stack(vm->work);
+	free(vm);
+}
+
+void sqfvm_pushscript(PVM vm, PSCRIPT script)
+{
+	if (vm->scripts_top == vm->scripts_size)
+	{
+		vm->scripts_size += SQFVM_SCRIPTS_GROWTH;
+		vm->scripts = realloc(sizeof(PSCRIPT) * vm->scripts_size, vm->scripts);
+	}
+	vm->scripts[vm->scripts_top++] = script;
+	value(SCRIPT_TYPE(), base_voidptr(script));
+}
+void sqfvm_dropscript(PVM vm, PSCRIPT script)
+{
+	int i;
+	unsigned char was_found = 0;
+	for (i = 0; i < vm->scripts_top; i++)
+	{
+		if (was_found)
+		{
+			vm->scripts[i - 1] = vm->scripts[i];
+		}
+		else if(vm->scripts[i] == script)
+		{
+			inst_destroy_value(value_create_noref(SCRIPT_TYPE(), base_voidptr(script)));
+			was_found = 1;
+			script = 0;
+			vm->scripts[i] = 0;
+		}
+	}
+	vm->scripts_top--;
+}
+
 
 void cb_cmdcnt_destroy(void* data)
 {
@@ -222,76 +329,6 @@ void copy_into_stack(PVM vm, PSTACK target, const PSTACK source)
 	}
 }
 
-PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_dbg, unsigned long max_instructions)
-{
-	PVM vm = malloc(sizeof(VM));
-	vm->stack = create_stack(stack_size, allow_dbg);
-	vm->work = create_stack(work_size, 0);
-
-	vm->cmd_container = GET_PCMDCNT();
-	vm->error = orig_error;
-	vm->warn = orig_warn;
-	vm->die_flag = 0;
-	vm->enable_instruction_limit = max_instructions == 0 ? 0 : 1;
-	vm->max_instructions = max_instructions;
-	vm->print = sqfvm_print;
-	vm->print_custom_data = 0;
-	vm->sidemap = side_init_sidemap();
-	vm->instcount = 0;
-
-	vm->groupmap = sm_create_list(20, 5, 5);
-
-
-	if (find_command(vm, COUNT_TYPE()->name, 't') == 0) register_command(vm, COUNT_TYPE());
-
-	if (find_command(vm, SCALAR_TYPE()->name, 't') == 0) register_command(vm, SCALAR_TYPE());
-	if (find_command(vm, BOOL_TYPE()->name, 't') == 0) register_command(vm, BOOL_TYPE());
-	if (find_command(vm, ARRAY_TYPE()->name, 't') == 0) register_command(vm, ARRAY_TYPE());
-	if (find_command(vm, STRING_TYPE()->name, 't') == 0) register_command(vm, STRING_TYPE());
-	if (find_command(vm, NOTHING_TYPE()->name, 't') == 0) register_command(vm, NOTHING_TYPE());
-	if (find_command(vm, ANY_TYPE()->name, 't') == 0) register_command(vm, ANY_TYPE());
-	if (find_command(vm, NAMESPACE_TYPE()->name, 't') == 0) register_command(vm, NAMESPACE_TYPE());
-	if (find_command(vm, NAN_TYPE()->name, 't') == 0) register_command(vm, NAN_TYPE());
-	if (find_command(vm, IF_TYPE()->name, 't') == 0) register_command(vm, IF_TYPE());
-	if (find_command(vm, WHILE_TYPE()->name, 't') == 0) register_command(vm, WHILE_TYPE());
-	if (find_command(vm, FOR_TYPE()->name, 't') == 0) register_command(vm, FOR_TYPE());
-	if (find_command(vm, SWITCH_TYPE()->name, 't') == 0) register_command(vm, SWITCH_TYPE());
-	//register_command(vm, create_command("EXCEPTION", 't', 0, 0));
-	if (find_command(vm, WITH_TYPE()->name, 't') == 0) register_command(vm, WITH_TYPE());
-	if (find_command(vm, CODE_TYPE()->name, 't') == 0) register_command(vm, CODE_TYPE());
-	if (find_command(vm, OBJECT_TYPE()->name, 't') == 0) register_command(vm, OBJECT_TYPE());
-	//register_command(vm, create_command("VECTOR", 't', 0, 0));
-	//register_command(vm, create_command("TRANS", 't', 0, 0));
-	//register_command(vm, create_command("ORIENT", 't', 0, 0));
-	if (find_command(vm, SIDE_TYPE()->name, 't') == 0) register_command(vm, SIDE_TYPE());
-	if (find_command(vm, GROUP_TYPE()->name, 't') == 0) register_command(vm, GROUP_TYPE());
-	//register_command(vm, create_command("TEXT", 't', 0, 0));
-	//register_command(vm, create_command("SCRIPT", 't', 0, 0));
-	//register_command(vm, create_command("TARGET", 't', 0, 0));
-	//register_command(vm, create_command("JCLASS", 't', 0, 0));
-	//register_command(vm, create_command("CONFIG", 't', 0, 0));
-	//register_command(vm, create_command("DISPLAY", 't', 0, 0));
-	//register_command(vm, create_command("CONTROL", 't', 0, 0));
-	//register_command(vm, create_command("NetObject", 't', 0, 0));
-	//register_command(vm, create_command("SUBGROUP", 't', 0, 0));
-	//register_command(vm, create_command("TEAM_MEMBER", 't', 0, 0));
-	//register_command(vm, create_command("TASK", 't', 0, 0));
-	//register_command(vm, create_command("DIARY_RECORD", 't', 0, 0));
-	//register_command(vm, create_command("LOCATION", 't', 0, 0));
-	return vm;
-}
-void destroy_sqfvm_groupmap_callback(void* ptr)
-{
-	inst_destroy_value(ptr);
-}
-void destroy_sqfvm(PVM vm)
-{
-	side_destroy_sidemap(vm->sidemap);
-	sm_destroy_list(vm->groupmap, destroy_sqfvm_groupmap_callback);
-	destroy_stack(vm->stack);
-	destroy_stack(vm->work);
-	free(vm);
-}
 
 void register_command(PVM vm, PCMD cmd)
 {

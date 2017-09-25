@@ -6,6 +6,7 @@
 #include "SQF.h"
 #include "SQF_types.h"
 #include "SQF_object_type.h"
+#include "SQF_script_type.h"
 #include "SQF_parse.h"
 #include "errors.h"
 
@@ -244,7 +245,42 @@ PCMD find_type(PVM vm, const char* name)
 }
 
 
-void execute(PVM vm)
+void runvm(PVM vm)
+{
+	PSTACK tmpstack = vm->stack;
+	PSTACK tmpwork = vm->work;
+	PSCRIPT script;
+	int i;
+	execute(vm, -1);
+	while (vm->scripts_top > 0 && !vm->die_flag)
+	{
+		for (i = 0; i < vm->scripts_top && !vm->die_flag; i++)
+		{
+			script = vm->scripts[i];
+			vm->stack = script->stack;
+			vm->work = script->work;
+			execute(vm, 100);
+		}
+		vm->stack = tmpstack;
+		vm->work = tmpwork;
+		for (i = 0; i < vm->scripts_top; i++)
+		{
+			script = vm->scripts[i];
+			if (script->stack->top == 0)
+			{
+				sqfvm_dropscript(vm, script);
+				i--;
+			}
+		}
+	}
+	while(vm->scripts_top > 0)
+	{
+		script = vm->scripts[0];
+		sqfvm_dropscript(vm, script);
+	}
+}
+
+void execute(PVM vm, int exitAfter)
 {
 	PINST inst;
 	PINST inst2;
@@ -256,6 +292,10 @@ void execute(PVM vm)
 	const char* str_const;
 	while (vm->stack->top > 0)
 	{
+		if (exitAfter != -1 && exitAfter-- == 0)
+		{
+			return;
+		}
 		if (vm->enable_instruction_limit && vm->instcount >= vm->max_instructions && !vm->die_flag)
 		{
 			vm->error(vm, "MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
