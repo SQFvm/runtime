@@ -3050,7 +3050,11 @@ void CMD_SET(void* input, CPCMD self)
 	{
 		array_push(arrl, value(NOTHING_TYPE(), base_int(0)));
 	}
-	array_push(arrl, value(val->type, val->val));
+	if (arrl->data[index] != 0)
+	{
+		inst_destroy_value(arrl->data[index]);
+	}
+	arrl->data[index] = value_copy(val);
 	
 
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
