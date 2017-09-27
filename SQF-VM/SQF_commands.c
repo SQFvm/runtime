@@ -3042,9 +3042,13 @@ void CMD_SET(void* input, CPCMD self)
 	}
 	index = floor(arrr->data[0]->val.f);
 	val = arrr->data[1];
-	if (index > arrl->size)
+	if (index >= arrl->size)
 	{
 		array_resize(arrl, index + 1);
+		for (i = arrl->top; i <= index; i++)
+		{
+			arrl->data[i] = 0;
+		}
 	}
 	for (i = arrl->top; i < index; i++)
 	{
@@ -3053,6 +3057,10 @@ void CMD_SET(void* input, CPCMD self)
 	if (arrl->data[index] != 0)
 	{
 		inst_destroy_value(arrl->data[index]);
+	}
+	if (arrl->top == index)
+	{
+		arrl->top++;
 	}
 	arrl->data[index] = value_copy(val);
 	
