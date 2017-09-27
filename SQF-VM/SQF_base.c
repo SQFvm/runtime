@@ -85,6 +85,15 @@ void destroy_sqfvm_groupmap_callback(void* ptr)
 }
 void destroy_sqfvm(PVM vm)
 {
+	int i;
+	for (i = 0; i < vm->scripts_top; i++)
+	{
+		if (vm->scripts[i] != 0)
+		{
+			script_destroy(vm->scripts[i]);
+		}
+	}
+	free(vm->scripts);
 	side_destroy_sidemap(vm->sidemap);
 	sm_destroy_list(vm->groupmap, destroy_sqfvm_groupmap_callback);
 	destroy_stack(vm->stack);
