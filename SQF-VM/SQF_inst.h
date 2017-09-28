@@ -119,7 +119,7 @@ inline PDBGINF get_dbginf(PVM vm, PSTACK stack, PINST inst)
 }
 
 #define VALUE_SCALAR(F) value(SCALAR_TYPE(); base_float(F));
-#define VALUE_BOOLEAN(I) value(BOOL_TYPE(); base_int(I > 0 ? 1 : 0));
+#define VALUE_BOOLEAN(I) value(BOOL_TYPE(); base_int((I) > 0 ? 1 : 0));
 #define VALUE_IF(I) value(IF_TYPE(); base_int(I));
 #define VALUE_NOTHING() value(NOTHING_TYPE(); base_int(0));
 #define VALUE_ANY() value(ANY_TYPE(); base_int(0));
