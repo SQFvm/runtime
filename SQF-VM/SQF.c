@@ -251,6 +251,7 @@ void runvm(PVM vm)
 	PSTACK tmpwork = vm->work;
 	PSCRIPT script;
 	int i;
+	vm->is_suspending_environment = 0;
 	execute(vm, -1);
 	while (vm->scripts_top > 0 && !vm->die_flag)
 	{
@@ -259,6 +260,7 @@ void runvm(PVM vm)
 			script = vm->scripts[i];
 			vm->stack = script->stack;
 			vm->work = script->work;
+			vm->is_suspending_environment = 1;
 			execute(vm, 100);
 		}
 		vm->stack = tmpstack;
