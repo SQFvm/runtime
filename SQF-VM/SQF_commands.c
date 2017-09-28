@@ -28,22 +28,22 @@
 
 
 #ifndef M_PI
-	#define M_PI 3.1415926535
+#define M_PI 3.1415926535
 #endif // !M_PI 3.1415926535
 
 extern int64_t systime_start;
 
 int64_t system_time_ms(void)
 {
-	#ifdef _WIN32
+#ifdef _WIN32
 	struct _timeb timebuffer;
 	_ftime(&timebuffer);
 	return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
-	#else
+#else
 	struct timeb timebuffer;
 	ftime(&timebuffer);
 	return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
-	#endif
+#endif
 }
 void stringify_value(PVM vm, PSTRING str, PVALUE val)
 {
@@ -224,20 +224,20 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 				return 0;
 			switch (instl->type)
 			{
-				case INST_VALUE:
-					if (!is_equal_to(vm, get_value(vm, vm->stack, instl), get_value(vm, vm->stack, instr)))
-						return 0;
-					break;
-				case INST_LOAD_VAR:
-				case INST_STORE_VAR:
-				case INST_STORE_VAR_LOCAL:
-					if (str_cmpi(get_var_name(vm, vm->stack, instl), -1, get_var_name(vm, vm->stack, instr), -1))
-						return 0;
-					break;
-				case INST_COMMAND:
-					if (get_command(vm, vm->stack, instl) != get_command(vm, vm->stack, instr))
-						return 0;
-					break;
+			case INST_VALUE:
+				if (!is_equal_to(vm, get_value(vm, vm->stack, instl), get_value(vm, vm->stack, instr)))
+					return 0;
+				break;
+			case INST_LOAD_VAR:
+			case INST_STORE_VAR:
+			case INST_STORE_VAR_LOCAL:
+				if (str_cmpi(get_var_name(vm, vm->stack, instl), -1, get_var_name(vm, vm->stack, instr), -1))
+					return 0;
+				break;
+			case INST_COMMAND:
+				if (get_command(vm, vm->stack, instl) != get_command(vm, vm->stack, instr))
+					return 0;
+				break;
 			}
 		}
 		return 1;
@@ -268,7 +268,7 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 }
 
 
-void CMD_ISEQUALTO(void* input, CPCMD self)
+void cmd_isequalto(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -289,7 +289,7 @@ void CMD_ISEQUALTO(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_ISEQUALTYPE(void* input, CPCMD self)
+void cmd_isequaltype(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -310,7 +310,7 @@ void CMD_ISEQUALTYPE(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_PLUS(void* input, CPCMD self)
+void cmd_plus(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -389,7 +389,7 @@ void CMD_PLUS(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_PLUS_UNARY(void* input, CPCMD self)
+void cmd_plus_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -424,7 +424,7 @@ void CMD_PLUS_UNARY(void* input, CPCMD self)
 		return;
 	}
 }
-void CMD_MINUS(void* input, CPCMD self)
+void cmd_minus(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -515,7 +515,7 @@ void CMD_MINUS(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_MINUS_UNARY(void* input, CPCMD self)
+void cmd_minus_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -537,7 +537,7 @@ void CMD_MINUS_UNARY(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(right_val->type, base_float(-right_val->val.f))));
 	inst_destroy(right);
 }
-void CMD_MULTIPLY(void* input, CPCMD self)
+void cmd_multiply(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -574,7 +574,7 @@ void CMD_MULTIPLY(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_DIVIDE(void* input, CPCMD self)
+void cmd_divide(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -619,7 +619,7 @@ void CMD_DIVIDE(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_DIAG_LOG(void* input, CPCMD self)
+void cmd_diag_LOG(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -639,7 +639,7 @@ void CMD_DIAG_LOG(void* input, CPCMD self)
 	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
 }
-void CMD_HINT(void* input, CPCMD self)
+void cmd_hint(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -669,7 +669,7 @@ void CMD_HINT(void* input, CPCMD self)
 	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
 }
-void CMD_SYSTEMCHAT(void* input, CPCMD self)
+void cmd_systemchat(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -699,7 +699,7 @@ void CMD_SYSTEMCHAT(void* input, CPCMD self)
 	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
 }
-void CMD_PRIVATE(void* input, CPCMD self)
+void cmd_private(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -766,7 +766,7 @@ void CMD_PRIVATE(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
 }
 
-void CMD_IF(void* input, CPCMD self)
+void cmd_if(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -795,7 +795,7 @@ void CMD_IF(void* input, CPCMD self)
 
 	inst_destroy(right);
 }
-void CMD_THEN(void* input, CPCMD self)
+void cmd_then(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -867,7 +867,7 @@ void CMD_THEN(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_ELSE(void* input, CPCMD self)
+void cmd_else(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -894,17 +894,17 @@ void CMD_ELSE(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_TRUE(void* input, CPCMD self)
+void cmd_true(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(1)));
 }
-void CMD_FALSE(void* input, CPCMD self)
+void cmd_false(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(0)));
 }
-void CMD_HELP(void* input, CPCMD self)
+void cmd_help(void* input, CPCMD self)
 {
 	PVM vm = input;
 	int i;
@@ -997,7 +997,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 		}
 	}
 }
-void CMD_HELP_UNARY(void* input, CPCMD self)
+void cmd_help_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	CPCMD cmd;
@@ -1086,7 +1086,7 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 }
 
 
-void CMD_STR(void* input, CPCMD self)
+void cmd_str(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1104,7 +1104,7 @@ void CMD_STR(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
 }
 
-void CMD_LARGETTHEN(void* input, CPCMD self)
+void cmd_largetthen(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1141,7 +1141,7 @@ void CMD_LARGETTHEN(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_LESSTHEN(void* input, CPCMD self)
+void cmd_lessthen(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1178,7 +1178,7 @@ void CMD_LESSTHEN(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_LARGETTHENOREQUAL(void* input, CPCMD self)
+void cmd_largetthenorequal(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1215,7 +1215,7 @@ void CMD_LARGETTHENOREQUAL(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_LESSTHENOREQUAL(void* input, CPCMD self)
+void cmd_lessthenorequal(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1252,7 +1252,7 @@ void CMD_LESSTHENOREQUAL(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_EQUAL(void* input, CPCMD self)
+void cmd_equal(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1307,14 +1307,14 @@ void CMD_EQUAL(void* input, CPCMD self)
 	}
 	else
 	{
-		#ifdef _WIN32
+#ifdef _WIN32
 		__asm int 3;
-		#endif
+#endif
 	}
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_NOTEQUAL(void* input, CPCMD self)
+void cmd_notequal(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1369,14 +1369,14 @@ void CMD_NOTEQUAL(void* input, CPCMD self)
 	}
 	else
 	{
-		#ifdef _WIN32
+#ifdef _WIN32
 		__asm int 3;
-		#endif
+#endif
 	}
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_ANDAND(void* input, CPCMD self)
+void cmd_andand(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1430,7 +1430,7 @@ void CMD_ANDAND(void* input, CPCMD self)
 		return;
 	}
 }
-void CMD_OROR(void* input, CPCMD self)
+void cmd_oror(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1485,7 +1485,7 @@ void CMD_OROR(void* input, CPCMD self)
 	}
 }
 
-void CMD_SELECT(void* input, CPCMD self)
+void cmd_select(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1559,7 +1559,7 @@ void CMD_SELECT(void* input, CPCMD self)
 }
 
 
-void CMD_WHILE(void* input, CPCMD self)
+void cmd_while(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1580,7 +1580,7 @@ void CMD_WHILE(void* input, CPCMD self)
 	right_val->type = WHILE_TYPE();
 	push_stack(vm, vm->stack, right);
 }
-void CMD_DO(void* input, CPCMD self)
+void cmd_do(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1704,7 +1704,7 @@ void CMD_DO(void* input, CPCMD self)
 		return;
 	}
 }
-void CMD_TYPENAME(void* input, CPCMD self)
+void cmd_typename(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1721,7 +1721,7 @@ void CMD_TYPENAME(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
 	inst_destroy(right);
 }
-void CMD_COUNT(void* input, CPCMD self)
+void cmd_count(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1808,7 +1808,7 @@ void CMD_COUNT(void* input, CPCMD self)
 		inst_destroy(right);
 	}
 }
-void CMD_COUNT_UNARY(void* input, CPCMD self)
+void cmd_count_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1836,7 +1836,7 @@ void CMD_COUNT_UNARY(void* input, CPCMD self)
 	}
 	inst_destroy(right);
 }
-void CMD_FORMAT(void* input, CPCMD self)
+void cmd_format(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1910,7 +1910,7 @@ void CMD_FORMAT(void* input, CPCMD self)
 	}
 	inst_destroy(right);
 }
-void CMD_CALL(void* input, CPCMD self)
+void cmd_call(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1944,7 +1944,7 @@ void CMD_CALL(void* input, CPCMD self)
 		inst_destroy(right);
 	}
 }
-void CMD_CALL_UNARY(void* input, CPCMD self)
+void cmd_call_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1972,7 +1972,7 @@ void CMD_CALL_UNARY(void* input, CPCMD self)
 		inst_destroy(right);
 	}
 }
-void CMD_SPAWN(void* input, CPCMD self)
+void cmd_spawn(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2012,7 +2012,7 @@ void CMD_SPAWN(void* input, CPCMD self)
 		inst_destroy(right);
 	}
 }
-void CMD_SCRIPTDONE(void* input, CPCMD self)
+void cmd_scriptdone(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2038,7 +2038,7 @@ void CMD_SCRIPTDONE(void* input, CPCMD self)
 	}
 }
 
-void CMD_FOR(void* input, CPCMD self)
+void cmd_for(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2072,7 +2072,7 @@ void CMD_FOR(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(FOR_TYPE(), base_voidptr(f))));
 	inst_destroy(right);
 }
-void CMD_FROM(void* input, CPCMD self)
+void cmd_from(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2110,7 +2110,7 @@ void CMD_FROM(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_TO(void* input, CPCMD self)
+void cmd_to(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2148,7 +2148,7 @@ void CMD_TO(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_STEP(void* input, CPCMD self)
+void cmd_step(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2186,33 +2186,33 @@ void CMD_STEP(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_PARSINGNAMESPACE(void* input, CPCMD self)
+void cmd_parsingnamespace(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_parsingNamespace()))));
 }
-void CMD_MISSIONNAMESPACE(void* input, CPCMD self)
+void cmd_missionnamespace(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_missionNamespace()))));
 }
-void CMD_UINAMESPACE(void* input, CPCMD self)
+void cmd_uinamespace(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_uiNamespace()))));
 }
-void CMD_PROFILENAMESPACE(void* input, CPCMD self)
+void cmd_profilenamespace(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_profileNamespace()))));
 }
-void CMD_DIAG_TICKTIME(void* input, CPCMD self)
+void cmd_diag_TICKTIME(void* input, CPCMD self)
 {
 	PVM vm = input;
 	int64_t systime_cur = system_time_ms();
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(systime_cur - systime_start)));
 }
-void CMD_FOREACH(void* input, CPCMD self)
+void cmd_foreach(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2303,7 +2303,7 @@ void CMD_FOREACH(void* input, CPCMD self)
 }
 
 //https://community.bistudio.com/wiki/Math_Commands
-void CMD_ABS(void* input, CPCMD self)
+void cmd_abs(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2325,7 +2325,7 @@ void CMD_ABS(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_DEG(void* input, CPCMD self)
+void cmd_deg(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2347,7 +2347,7 @@ void CMD_DEG(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_LOG(void* input, CPCMD self)
+void cmd_log(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2374,12 +2374,12 @@ void CMD_LOG(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_PI(void* input, CPCMD self)
+void cmd_pi(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(M_PI)));
 }
-void CMD_SIN(void* input, CPCMD self)
+void cmd_sin(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2401,7 +2401,7 @@ void CMD_SIN(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_COS(void* input, CPCMD self)
+void cmd_cos(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2423,7 +2423,7 @@ void CMD_COS(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_TAN(void* input, CPCMD self)
+void cmd_tan(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2445,7 +2445,7 @@ void CMD_TAN(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_EXP(void* input, CPCMD self)
+void cmd_exp(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2467,7 +2467,7 @@ void CMD_EXP(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_ASIN(void* input, CPCMD self)
+void cmd_asin(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2489,7 +2489,7 @@ void CMD_ASIN(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_ACOS(void* input, CPCMD self)
+void cmd_acos(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2511,7 +2511,7 @@ void CMD_ACOS(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_ATAN(void* input, CPCMD self)
+void cmd_atan(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2533,7 +2533,7 @@ void CMD_ATAN(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_RAD(void* input, CPCMD self)
+void cmd_rad(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2555,7 +2555,7 @@ void CMD_RAD(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_SQRT(void* input, CPCMD self)
+void cmd_sqrt(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2577,7 +2577,7 @@ void CMD_SQRT(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_CEIL(void* input, CPCMD self)
+void cmd_ceil(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2599,7 +2599,7 @@ void CMD_CEIL(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_RANDOM(void* input, CPCMD self)
+void cmd_random(void* input, CPCMD self)
 {
 	//ToDo: https://community.bistudio.com/wiki/random implement Alternative Syntax 1 & 2 & 3
 	PVM vm = input;
@@ -2622,7 +2622,7 @@ void CMD_RANDOM(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_FLOOR(void* input, CPCMD self)
+void cmd_floor(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2644,7 +2644,7 @@ void CMD_FLOOR(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_LN(void* input, CPCMD self)
+void cmd_ln(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2666,7 +2666,7 @@ void CMD_LN(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
 	inst_destroy(right);
 }
-void CMD_ROUND(void* input, CPCMD self)
+void cmd_round(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2689,7 +2689,7 @@ void CMD_ROUND(void* input, CPCMD self)
 	inst_destroy(right);
 }
 
-void CMD_ATAN2(void* input, CPCMD self)
+void cmd_atan2(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2732,7 +2732,7 @@ void CMD_ATAN2(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_MIN(void* input, CPCMD self)
+void cmd_min(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2775,7 +2775,7 @@ void CMD_MIN(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_MAX(void* input, CPCMD self)
+void cmd_max(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2818,7 +2818,7 @@ void CMD_MAX(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_MOD(void* input, CPCMD self)
+void cmd_mod(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2862,7 +2862,7 @@ void CMD_MOD(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_NOT(void* input, CPCMD self)
+void cmd_not(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2886,7 +2886,7 @@ void CMD_NOT(void* input, CPCMD self)
 		return;
 	}
 }
-void CMD_POWEROF(void* input, CPCMD self)
+void cmd_powerof(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2930,7 +2930,7 @@ void CMD_POWEROF(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_COMMENT(void* input, CPCMD self)
+void cmd_comment(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2954,7 +2954,7 @@ void CMD_COMMENT(void* input, CPCMD self)
 }
 
 
-void CMD_PUSHBACK(void* input, CPCMD self)
+void cmd_pushback(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2986,7 +2986,7 @@ void CMD_PUSHBACK(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_SET(void* input, CPCMD self)
+void cmd_set(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3063,7 +3063,7 @@ void CMD_SET(void* input, CPCMD self)
 		arrl->top++;
 	}
 	arrl->data[index] = value_copy(val);
-	
+
 
 	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
 	inst_destroy(left);
@@ -3071,7 +3071,7 @@ void CMD_SET(void* input, CPCMD self)
 }
 
 
-void CMD_GETVARIABLE(void* input, CPCMD self)
+void cmd_getvariable(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3172,7 +3172,7 @@ void CMD_GETVARIABLE(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_SETVARIABLE(void* input, CPCMD self)
+void cmd_setvariable(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3240,14 +3240,14 @@ void CMD_SETVARIABLE(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
 		return;
 	}
-	
+
 	namespace_set_var(ns, ((PSTRING)arr->data[0]->val.ptr)->val, value(arr->data[1]->type, arr->data[1]->val));
 	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
 	inst_destroy(left);
 	inst_destroy(right);
 }
 
-void CMD_CREATEVEHICLE(void* input, CPCMD self)
+void cmd_createvehicle(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3304,13 +3304,13 @@ void CMD_CREATEVEHICLE(void* input, CPCMD self)
 		}
 	}
 	obj = object_vehicle_create(((PSTRING)left_val->val.ptr)->val);
-	obj->position = (vec3) { .x = arr->data[0]->val.f ,.y = arr->data[0]->val.f ,.z = arr->data[0]->val.f };
+	obj->position = (vec3) { .x = arr->data[0]->val.f, .y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
 
 	push_stack(vm, vm->stack, inst_value(value(OBJECT_TYPE(), base_voidptr(obj))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_TYPEOF(void* input, CPCMD self)
+void cmd_typeof(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3334,7 +3334,7 @@ void CMD_TYPEOF(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2(obj->classname)))));
 	inst_destroy(right);
 }
-void CMD_GETPOS(void* input, CPCMD self)
+void cmd_getpos(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3363,7 +3363,7 @@ void CMD_GETPOS(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
-void CMD_SETPOS(void* input, CPCMD self)
+void cmd_setpos(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3426,7 +3426,7 @@ void CMD_SETPOS(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_VELOCITY(void* input, CPCMD self)
+void cmd_velocity(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3455,7 +3455,7 @@ void CMD_VELOCITY(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
-void CMD_SETVELOCITY(void* input, CPCMD self)
+void cmd_setvelocity(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3518,7 +3518,7 @@ void CMD_SETVELOCITY(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void CMD_DOMOVE(void* input, CPCMD self)
+void cmd_domove(void* input, CPCMD self)
 {
 	//ToDo: Add Simulation and make the movement smooth
 	PVM vm = input;
@@ -3614,7 +3614,7 @@ void CMD_DOMOVE(void* input, CPCMD self)
 		return;
 	}
 }
-void CMD_OBJNULL(void* input, CPCMD self)
+void cmd_objnull(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(value(OBJECT_TYPE(), base_voidptr(object_create("")))));
@@ -3622,7 +3622,7 @@ void CMD_OBJNULL(void* input, CPCMD self)
 
 
 
-void CMD_SWITCH(void* input, CPCMD self)
+void cmd_switch(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3640,7 +3640,7 @@ void CMD_SWITCH(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
 	inst_destroy(right);
 }
-void CMD_CASE(void* input, CPCMD self)
+void cmd_case(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3666,7 +3666,7 @@ void CMD_CASE(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
 	inst_destroy(right);
 }
-void CMD_DEFAULT(void* input, CPCMD self)
+void cmd_default(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3699,7 +3699,7 @@ void CMD_DEFAULT(void* input, CPCMD self)
 	swtch->default_code = value_copy(right_val);
 	inst_destroy(right);
 }
-void CMD_CASEOPERATOR(void* input, CPCMD self)
+void cmd_caseoperator(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3758,72 +3758,72 @@ void CMD_CASEOPERATOR(void* input, CPCMD self)
 	inst_destroy(right);
 }
 
-void CMD_WEST(void* input, CPCMD self)
+void cmd_west(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_blu()));
 }
-void CMD_BLUFOR(void* input, CPCMD self)
+void cmd_blufor(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_blu()));
 }
-void CMD_EAST(void* input, CPCMD self)
+void cmd_east(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_opf()));
 }
-void CMD_OPFOR(void* input, CPCMD self)
+void cmd_opfor(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_opf()));
 }
-void CMD_RESISTANCE(void* input, CPCMD self)
+void cmd_resistance(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_gue()));
 }
-void CMD_INDEPENDENT(void* input, CPCMD self)
+void cmd_independent(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_gue()));
 }
-void CMD_SIDEUNKNOWN(void* input, CPCMD self)
+void cmd_sideunknown(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_unknown()));
 }
-void CMD_SIDELOGIC(void* input, CPCMD self)
+void cmd_sidelogic(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_logic()));
 }
-void CMD_SIDEFRIENDLY(void* input, CPCMD self)
+void cmd_sidefriendly(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_friendly()));
 }
-void CMD_SIDEENEMY(void* input, CPCMD self)
+void cmd_sideenemy(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_enemy()));
 }
-void CMD_CIVILIAN(void* input, CPCMD self)
+void cmd_civilian(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_civ()));
 }
-void CMD_SIDEEMPTY(void* input, CPCMD self)
+void cmd_sideempty(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_empty()));
 }
-void CMD_NIL(void* input, CPCMD self)
+void cmd_nil(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
 }
-void CMD_ALLVARIABLES(void* input, CPCMD self)
+void cmd_allvariables(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3861,7 +3861,7 @@ void CMD_ALLVARIABLES(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
-void CMD_WITH(void* input, CPCMD self)
+void cmd_with(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3886,7 +3886,7 @@ void CMD_WITH(void* input, CPCMD self)
 		return;
 	}
 }
-void CMD_COMPILE(void* input, CPCMD self)
+void cmd_compile(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3914,7 +3914,7 @@ void CMD_COMPILE(void* input, CPCMD self)
 
 
 
-void CMD_TOARRAY(void* input, CPCMD self)
+void cmd_toarray(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3948,7 +3948,7 @@ void CMD_TOARRAY(void* input, CPCMD self)
 		return;
 	}
 }
-void CMD_TOSTRING(void* input, CPCMD self)
+void cmd_tostring(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4180,7 +4180,7 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 	}
 	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(success_flag)));
 }
-void CMD_PARAMS(void* input, CPCMD self)
+void cmd_params(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -4210,7 +4210,7 @@ void CMD_PARAMS(void* input, CPCMD self)
 	params_helper(vm, left_val, arrformat);
 	inst_destroy(right);
 }
-void CMD_PARAMS_UNARY(void* input, CPCMD self)
+void cmd_params_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4236,7 +4236,7 @@ void CMD_PARAMS_UNARY(void* input, CPCMD self)
 	params_helper(vm, left_val, arrformat);
 	inst_destroy(right);
 }
-void CMD_ISNIL(void* input, CPCMD self)
+void cmd_isnil(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4279,7 +4279,7 @@ void CMD_ISNIL(void* input, CPCMD self)
 		return;
 	}
 }
-void CMD_DELETEVEHICLE(void* input, CPCMD self)
+void cmd_deletevehicle(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4308,7 +4308,7 @@ void CMD_DELETEVEHICLE(void* input, CPCMD self)
 		return;
 	}
 }
-void CMD_CREATEGROUP(void* input, CPCMD self)
+void cmd_creategroup(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4344,7 +4344,7 @@ void CMD_CREATEGROUP(void* input, CPCMD self)
 		return;
 	}
 }
-void CMD_DELETEGROUP(void* input, CPCMD self)
+void cmd_deletegroup(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4372,7 +4372,7 @@ void CMD_DELETEGROUP(void* input, CPCMD self)
 	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
 }
-void CMD_GROUPID(void* input, CPCMD self)
+void cmd_groupid(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4398,7 +4398,7 @@ void CMD_GROUPID(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
 	}
 }
-void CMD_CREATEUNIT(void* input, CPCMD self)
+void cmd_createunit(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -4483,7 +4483,7 @@ void CMD_CREATEUNIT(void* input, CPCMD self)
 			pos.z = ((PARRAY)arr->data[1]->val.ptr)->data[2]->val.f;
 		}
 	}
-	else if(arr->data[1]->type == OBJECT_TYPE())
+	else if (arr->data[1]->type == OBJECT_TYPE())
 	{
 		pos = ((POBJECT)arr->data[1]->val.ptr)->position;
 	}
@@ -4553,7 +4553,7 @@ void CMD_CREATEUNIT(void* input, CPCMD self)
 }
 
 
-void CMD_UNITS(void* input, CPCMD self)
+void cmd_units(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4606,7 +4606,7 @@ void CMD_UNITS(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_copy(group->members->val.ptr)))));
 	inst_destroy(right);
 }
-void CMD_ALLGROUPS(void* input, CPCMD self)
+void cmd_allgroups(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PARRAY arr;
