@@ -118,23 +118,23 @@ inline PDBGINF get_dbginf(PVM vm, PSTACK stack, PINST inst)
 	}
 }
 
-#define VALUE_SCALAR(F) value(SCALAR_TYPE(), base_float(F)),
-#define VALUE_BOOLEAN(I) value(BOOL_TYPE(), base_int((I) > 0 ? 1 : 0)),
-#define VALUE_IF(I) value(IF_TYPE(), base_int(I)),
-#define VALUE_NOTHING() value(NOTHING_TYPE(), base_int(0)),
-#define VALUE_ANY() value(ANY_TYPE(), base_int(0)),
-#define VALUE_NAN() value(NAN_TYPE(), base_int(0)),
+#define VALUE_SCALAR(F) value(SCALAR_TYPE(), base_float(F))
+#define VALUE_BOOLEAN(I) value(BOOL_TYPE(), base_int((I) > 0 ? 1 : 0))
+#define VALUE_IF(I) value(IF_TYPE(), base_int(I))
+#define VALUE_NOTHING() value(NOTHING_TYPE(), base_int(0))
+#define VALUE_ANY() value(ANY_TYPE(), base_int(0))
+#define VALUE_NAN() value(NAN_TYPE(), base_int(0))
 
-#define VALUE_CODE_PTR(PTR) value(CODE_TYPE(), base_ptr(PTR)),
-#define VALUE_WHILE_PTR(PTR) value(WHILE_TYPE(), base_ptr(PTR)),
-#define VALUE_STRING_PTR(PTR) value(STRING_TYPE(), base_ptr(PTR)),
-#define VALUE_ARRAY_PTR(PTR) value(ARRAY_TYPE(), base_ptr(PTR)),
-#define VALUE_FOR_PTR(PTR) value(FOR_TYPE(), base_ptr(PTR)),
-#define VALUE_NAMESPACE_PTR(PTR) value(NAMESPACE_TYPE(), base_ptr(PTR)),
-#define VALUE_WITH_PTR(PTR) value(WITH_TYPE(), base_ptr(PTR)),
-#define VALUE_SWITCH_PTR(PTR) value(SWITCH_TYPE(), base_ptr(PTR)),
-#define VALUE_GROUP_PTR(PTR) value(GROUP_TYPE(), base_ptr(PTR)),
+#define VALUE_CODE_PTR(PTR) value(CODE_TYPE(), base_ptr(PTR))
+#define VALUE_WHILE_PTR(PTR) value(WHILE_TYPE(), base_ptr(PTR))
+#define VALUE_STRING_PTR(PTR) value(STRING_TYPE(), base_ptr(PTR))
+#define VALUE_ARRAY_PTR(PTR) value(ARRAY_TYPE(), base_ptr(PTR))
+#define VALUE_FOR_PTR(PTR) value(FOR_TYPE(), base_ptr(PTR))
+#define VALUE_NAMESPACE_PTR(PTR) value(NAMESPACE_TYPE(), base_ptr(PTR))
+#define VALUE_WITH_PTR(PTR) value(WITH_TYPE(), base_ptr(PTR))
+#define VALUE_SWITCH_PTR(PTR) value(SWITCH_TYPE(), base_ptr(PTR))
+#define VALUE_GROUP_PTR(PTR) value(GROUP_TYPE(), base_ptr(PTR))
 
-#define VALUE_COUNT_PTR_(PTR) value(COUNT_TYPE(), base_ptr(PTR)),
+#define VALUE_COUNT_PTR_(PTR) value(COUNT_TYPE(), base_ptr(PTR))
 
 #endif
