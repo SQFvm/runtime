@@ -327,6 +327,66 @@ void array_push(PARRAY arr, VALUE val)
 	arr->data[arr->top]->val = val.val;
 	arr->top++;
 };
+
+PVALUE array_pop(PARRAY array) {
+	array->top--;
+	PVALUE val = array->data[array->top];
+	array->data[array->top] = NULL;
+
+	return val;
+}
+
+PVALUE array_popAt(PARRAY array, int index) {
+	if(index < 0 || index >= array->top) {
+		return value_create(NOTHING_TYPE(), base_int(0));
+	}
+
+	PVALUE val = array->data[index];
+
+	for(int i=index; i<array->top - 1; i++) {
+		array->data[i] = array->data[i+1];
+	}
+
+	array->top--;
+	array->data[array->top] = NULL;
+
+	return val;
+}
+
+void array_resizeSQF(PARRAY array, int newSize) {
+	if(array->top > newSize) {
+		// delete array elements until respective size is reached
+		for(int i=array->top - 1; i>=newSize; i--) {
+			inst_destroy_value(array->data[i]);
+			array->data[i] = NULL;
+		}
+	} else {
+		// create respective elements with nil value
+		for(int i=array->top; i < newSize; i++) {
+			array_push(array, value(NOTHING_TYPE(), base_int(0)));
+		}
+	}
+
+	array->top = newSize;
+}
+
+/*
+ * Appends array2 to array1
+ */
+void array_append(PARRAY array1, PARRAY array2) {
+	for(int i=0; i<array2->top; i++) {
+		array_push(array1, *(value_copy(array2->data[i])));
+	}
+}
+
+void array_reverse(PARRAY array) {
+	PARRAY copy = array_copy(array);
+
+	for(int i=0; i<array->top; i++) {
+		array->data[i] = copy->data[copy->top - i - 1];
+	}
+}
+
 PARRAY array_copy(const PARRAY arrIn)
 {
 	PARRAY arrOut = array_create2(arrIn->top);
@@ -348,10 +408,6 @@ PARRAY array_copy(const PARRAY arrIn)
 	}
 	return arrOut;
 }
-
-
-
-
 
 
 

@@ -7,6 +7,7 @@
 int64_t system_time_ms(void);
 void stringify_value(PVM vm, PSTRING str, PVALUE val);
 unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r);
+int find(PVM vm, PARRAY array, PVALUE value);
 
 void CMD_ISEQUALTO(void* input, CPCMD self);
 void CMD_ISEQUALTYPE(void* input, CPCMD self);
@@ -31,7 +32,7 @@ void CMD_HELP_UNARY(void* input, CPCMD self);
 
 void CMD_STR(void* input, CPCMD self);
 
-void CMD_LARGETTHEN(void* input, CPCMD self);
+void CMD_GREATERTHAN(void* input, CPCMD self);
 void CMD_LESSTHEN(void* input, CPCMD self);
 void CMD_LARGETTHENOREQUAL(void* input, CPCMD self);
 void CMD_LESSTHENOREQUAL(void* input, CPCMD self);
@@ -95,6 +96,13 @@ void CMD_COMMENT(void* input, CPCMD self);
 
 void CMD_PUSHBACK(void* input, CPCMD self);
 void CMD_SET(void* input, CPCMD self);
+void CMD_SELECTRANDOM(void* input, CPCMD self);
+void CMD_RESIZE(void* input, CPCMD self);
+void CMD_DELETEAT(void* input, CPCMD self);
+void CMD_APPEND(void* input, CPCMD self);
+void CMD_REVERSE(void* input, CPCMD self);
+void CMD_FIND(void* input, CPCMD self);
+void CMD_ARRAYINTERSECT(void* input, CPCMD self);
 
 void CMD_GETVARIABLE(void* input, CPCMD self);
 void CMD_SETVARIABLE(void* input, CPCMD self);

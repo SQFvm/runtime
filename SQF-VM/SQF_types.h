@@ -76,6 +76,11 @@ PARRAY array_create2(unsigned int initialsize);
 void array_destroy(PARRAY arr);
 void array_resize(PARRAY arr, unsigned int newsize);
 void array_push(PARRAY arr, VALUE val);
+PVALUE array_pop(PARRAY array);
+PVALUE array_popAt(PARRAY array, int index);
+void array_resizeSQF(PARRAY array, int newSize);
+void array_reverse(PARRAY array);
+void array_append(PARRAY array1, PARRAY array2);
 PARRAY array_copy(const PARRAY arrIn);
 
 
