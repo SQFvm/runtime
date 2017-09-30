@@ -186,11 +186,11 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "params", 'b', CMD_PARAMS, 4, "<ANY> params <ARRAY>", "position (\"B_Soldier_F\" createVehicle [10, 20, 30]) params [\"\", \"\", \"_z\"]; _z" "[1, nil, 2] params [\"_var1\", [\"_var2\", 23], \"_var3\"]; _var2 //23#" "private _paramsres = [1, 2] params [\"_var1\", \"_var2\", [\"_var3\", true, [true]]]; [_var3, _paramsres] //[true, false]#" "private _paramsres = [1, 2, 3] params [\"_var1\", \"_var2\", [\"_var3\", true, [true]]]; [_var3, _paramsres] //[true, false]#" "private _paramsres = [1, \"ok\", [1, 2, 3]] params [[\"_var1\", 0, [0]], [\"_var2\", "", [""]], [\"_var3\", [0,0,0], [[], objNull, 0], [2,3]]]; _paramsres //true#", "Parses input argument into array of private variables. When used without argument, as shown in main syntax, internal variable _this, which is usually available inside functions and event handlers, is used as argument.In addition to simple parsing directly into variables, input can be tested in case it is undefined, of the wrong type or of the wrong size(if array) and substituted if necessary with default values.");
 	create_cmd(vm, "createUnit", 'b', CMD_CREATEUNIT, 4, "<GROUP> createUnit <ARRAY", "", "Create unit of a class that's defined in CfgVehicles. The Group parameter MUST be an existing group or the unit won't be created.");
 	create_cmd(vm, "spawn", 'b', CMD_SPAWN, 4, "<ANY> spawn <CODE>", "", "Adds given code to the scheduler. Exactly when the code will be executed is unknown, it depends on how busy is the engine and how filled up is the scheduler. Therefore spawn does not wait for the supplied code to finish, instead, spawn returns a Script handle to the scheduler task. scriptDone command can be used to check the code completion. Additional arguments are passed to the code in local variable _this. Since Arma 3 v1.55 the script handle also exists inside the code in _thisScript variable.");
-	create_cmd(vm, "resize", 'b', CMD_RESIZE, 4, "", "", "");
-	create_cmd(vm, "deleteAt", 'b', CMD_DELETEAT, 4, "", "", "");
-	create_cmd(vm, "append", 'b', CMD_APPEND, 4, "", "", "");
-	create_cmd(vm, "find", 'b', CMD_FIND, 4, "", "", "");
-	create_cmd(vm, "arrayIntersect", 'b', CMD_ARRAYINTERSECT, 4, "", "", "");
+	create_cmd(vm, "resize", 'b', CMD_RESIZE, 4, "<ARRAY> resize <SCALAR>", "_arrayNum = [0,1,2,3,4]; _arrayNum resize 2; // _arrayNum is now [0,1]", "Changes the size of the given array. The command does not return new array, it resizes the source array to the desired number of elements. If the new size is bigger than the current size, the new places are filled with nils.");
+	create_cmd(vm, "deleteAt", 'b', CMD_DELETEAT, 4, "<ARRAY> deleteAt <SCALAR>", "", "");
+	create_cmd(vm, "append", 'b', CMD_APPEND, 4, "<ARRAY> append <ARRAY>", "_arr = [1,2,3]; _arr append [4,5,6]; hint str _arr; //[1,2,3,4,5,6]", "Appends array2 to the back of array1 modifying array1. NOTE: append does not return array, it modifies existing array. If you need to return a copy, use \"+\"");
+	create_cmd(vm, "find", 'b', CMD_FIND, 4, "<ARRAY> find <ANY>#" "<STRING> find <STRING>", "[\"Apples\",\"Oranges\",\"Pears\"] find \"Oranges\"; //result is 1#" "[1,[2],[[3]]] find [[3]]; //result is 2#" "if (magazines player find \"Strela\" >= 0) then {hint \"You've got Strela!\"};#" "hint str (\"japa is the man!\" find \"the man!\"); //8", "Searches for an array element within array or a string within a string. Returns the 0 based index on success or -1 if not found. Test is cASe-seNsItiVE ");
+	create_cmd(vm, "arrayIntersect", 'b', CMD_ARRAYINTERSECT, 4, "<ARRAY> arrayIntersect <ARRAY>", "_arr1 = [1,2,3,4,5,2,3,4]; _arr2 = [4,5,6,1,2,3,5,6]; hint str (_arr1 arrayIntersect _arr2); // [4,5,1,2,3]", "Intersects array1 with array2 returning array of unique common elements. Additionally, using the same array for array1 and array2 will simply return array of unique elements. Intersects only 1st dimension of an array.");
 
 
 	create_cmd(vm, "diag_log", 'u', CMD_DIAG_LOG, 4, "diag_log <ANY>", "", "Dumps the argument's value. Each call creates a new line.");
@@ -247,8 +247,8 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "groupId", 'u', CMD_GROUPID, 4, "groupId <GROUP>", "", "Returns group name.");
 	create_cmd(vm, "units", 'u', CMD_UNITS, 4, "units <GROUP>", "", "Returns an array with all the units in the group or group of the unit.");
 	create_cmd(vm, "scriptDone", 'u', CMD_SCRIPTDONE, 4, "scriptDone <SCRIPT>", "", "Check if a script is finished running using the Script_(Handle) returned by execVM or spawn.");
-	create_cmd(vm, "selectRandom", 'u', CMD_SELECTRANDOM, 4, "", "", "");
-	create_cmd(vm, "reverse", 'u', CMD_REVERSE, 4, "", "", "");
+	create_cmd(vm, "selectRandom", 'u', CMD_SELECTRANDOM, 4, "selectRandom <ARRAY>", "_randomElement = selectRandom [1,2,3,4,5];", "Returns a random element from the given array. Engine solution to BIS_fnc_selectRandom");
+	create_cmd(vm, "reverse", 'u', CMD_REVERSE, 4, "reverse <ARRAY>", "_arr = [1,2,3]; reverse _arr; hint str _arr; //[3,2,1]", "Reverses given array by reference (modifies the original array, just like resize). ");
 
 
 	create_cmd(vm, "true", 'n', CMD_TRUE, 4, "true", "", "");

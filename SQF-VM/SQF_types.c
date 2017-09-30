@@ -44,7 +44,8 @@ PCMD WHILE_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("WHILE", 't', TYPE_CODE_CALLBACK, 0, NULL, NULL, NULL);
+		cmd = create_command("WHILE", 't', TYPE_CODE_CALLBACK, 0, NULL, NULL,
+		NULL);
 	}
 	return cmd;
 }
@@ -76,10 +77,6 @@ PCMD NAN_TYPE(void)
 	return cmd;
 }
 
-
-
-
-
 void TYPE_CODE_CALLBACK(void* input, CPCMD self)
 {
 	PVALUE val = input;
@@ -91,8 +88,7 @@ void TYPE_CODE_CALLBACK(void* input, CPCMD self)
 		{
 			code_destroy(code);
 		}
-	}
-	else
+	} else
 	{
 		code->refcount++;
 	}
@@ -102,7 +98,8 @@ PCMD CODE_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("CODE", 't', TYPE_CODE_CALLBACK, 0, NULL, NULL, NULL);
+		cmd = create_command("CODE", 't', TYPE_CODE_CALLBACK, 0, NULL, NULL,
+		NULL);
 	}
 	return cmd;
 }
@@ -124,7 +121,6 @@ void code_destroy(PCODE code)
 	free(code);
 }
 
-
 void TYPE_STRING_CALLBACK(void* input, CPCMD self)
 {
 	PVALUE val = input;
@@ -136,8 +132,7 @@ void TYPE_STRING_CALLBACK(void* input, CPCMD self)
 		{
 			string_destroy(string);
 		}
-	}
-	else
+	} else
 	{
 		string->refcount++;
 	}
@@ -147,7 +142,8 @@ PCMD STRING_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("STRING", 't', TYPE_STRING_CALLBACK, 0, NULL, NULL, NULL);
+		cmd = create_command("STRING", 't', TYPE_STRING_CALLBACK, 0, NULL, NULL,
+		NULL);
 	}
 	return cmd;
 }
@@ -163,8 +159,7 @@ PSTRING string_create(unsigned int len)
 		if (string->val == 0)
 		{
 			string->length = 0;
-		}
-		else
+		} else
 		{
 			memset(string->val, 0, sizeof(char) * (len + 1));
 		}
@@ -257,7 +252,6 @@ void string_modify_append2(PSTRING string, int len)
 	string->val[string->length] = '\0';
 }
 
-
 void TYPE_ARRAY_CALLBACK(void* input, CPCMD self)
 {
 	PVALUE val = input;
@@ -269,8 +263,7 @@ void TYPE_ARRAY_CALLBACK(void* input, CPCMD self)
 		{
 			array_destroy(arr);
 		}
-	}
-	else
+	} else
 	{
 		arr->refcount++;
 	}
@@ -280,7 +273,8 @@ PCMD ARRAY_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("ARRAY", 't', TYPE_ARRAY_CALLBACK, 0, NULL, NULL, NULL);
+		cmd = create_command("ARRAY", 't', TYPE_ARRAY_CALLBACK, 0, NULL, NULL,
+		NULL);
 	}
 	return cmd;
 }
@@ -326,9 +320,11 @@ void array_push(PARRAY arr, VALUE val)
 	arr->data[arr->top]->type = val.type;
 	arr->data[arr->top]->val = val.val;
 	arr->top++;
-};
+}
+;
 
-PVALUE array_pop(PARRAY array) {
+PVALUE array_pop(PARRAY array)
+{
 	array->top--;
 	PVALUE val = array->data[array->top];
 	array->data[array->top] = NULL;
@@ -336,15 +332,18 @@ PVALUE array_pop(PARRAY array) {
 	return val;
 }
 
-PVALUE array_popAt(PARRAY array, int index) {
-	if(index < 0 || index >= array->top) {
+PVALUE array_popAt(PARRAY array, int index)
+{
+	if (index < 0 || index >= array->top)
+	{
 		return value_create(NOTHING_TYPE(), base_int(0));
 	}
 
 	PVALUE val = array->data[index];
 
-	for(int i=index; i<array->top - 1; i++) {
-		array->data[i] = array->data[i+1];
+	for (int i = index; i < array->top - 1; i++)
+	{
+		array->data[i] = array->data[i + 1];
 	}
 
 	array->top--;
@@ -353,16 +352,21 @@ PVALUE array_popAt(PARRAY array, int index) {
 	return val;
 }
 
-void array_resizeSQF(PARRAY array, int newSize) {
-	if(array->top > newSize) {
+void array_resizeSQF(PARRAY array, int newSize)
+{
+	if (array->top > newSize)
+	{
 		// delete array elements until respective size is reached
-		for(int i=array->top - 1; i>=newSize; i--) {
+		for (int i = array->top - 1; i >= newSize; i--)
+		{
 			inst_destroy_value(array->data[i]);
 			array->data[i] = NULL;
 		}
-	} else {
+	} else
+	{
 		// create respective elements with nil value
-		for(int i=array->top; i < newSize; i++) {
+		for (int i = array->top; i < newSize; i++)
+		{
 			array_push(array, value(NOTHING_TYPE(), base_int(0)));
 		}
 	}
@@ -373,17 +377,28 @@ void array_resizeSQF(PARRAY array, int newSize) {
 /*
  * Appends array2 to array1
  */
-void array_append(PARRAY array1, PARRAY array2) {
-	for(int i=0; i<array2->top; i++) {
+void array_append(PARRAY array1, PARRAY array2)
+{
+	if (array1->size < array1->top + array2->top)
+	{
+		array_resize(array1, array1->top + array2->top);
+	}
+
+	for (int i = 0; i < array2->top; i++)
+	{
 		array_push(array1, *(value_copy(array2->data[i])));
 	}
 }
 
-void array_reverse(PARRAY array) {
-	PARRAY copy = array_copy(array);
-
-	for(int i=0; i<array->top; i++) {
-		array->data[i] = copy->data[copy->top - i - 1];
+void array_reverse(PARRAY array)
+{
+	int i, j;
+	PVALUE tmp;
+	for (i = 0, j = array->top - 1; i < j; i++, j--)
+	{
+		tmp = array->data[i];
+		array->data[i] = array->data[j];
+		array->data[j] = tmp;
 	}
 }
 
@@ -400,16 +415,13 @@ PARRAY array_copy(const PARRAY arrIn)
 		{
 			tmp = array_copy(val->val.ptr);
 			array_push(arrOut, value(ARRAY_TYPE(), base_voidptr(tmp)));
-		}
-		else
+		} else
 		{
 			array_push(arrOut, value(val->type, val->val));
 		}
 	}
 	return arrOut;
 }
-
-
 
 void TYPE_FOR_CALLBACK(void* input, CPCMD self)
 {
@@ -422,8 +434,7 @@ void TYPE_FOR_CALLBACK(void* input, CPCMD self)
 		{
 			for_destroy(f);
 		}
-	}
-	else
+	} else
 	{
 		f->refcount++;
 	}
@@ -433,7 +444,8 @@ PCMD FOR_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("FOR", 't', TYPE_FOR_CALLBACK, 0, NULL, NULL, NULL);
+		cmd = create_command("FOR", 't', TYPE_FOR_CALLBACK, 0, NULL, NULL,
+		NULL);
 	}
 	return cmd;
 }
@@ -462,7 +474,6 @@ void for_destroy(PFOR f)
 	free(f);
 }
 
-
 void TYPE_NAMESPACE_CALLBACK(void* input, CPCMD self)
 {
 	PVALUE val = input;
@@ -474,8 +485,7 @@ void TYPE_NAMESPACE_CALLBACK(void* input, CPCMD self)
 		{
 			namespace_destroy(namespace);
 		}
-	}
-	else
+	} else
 	{
 		namespace->refcount++;
 	}
@@ -485,7 +495,8 @@ PCMD NAMESPACE_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("NAMESPACE", 't', TYPE_NAMESPACE_CALLBACK, 0, NULL, NULL, NULL);
+		cmd = create_command("NAMESPACE", 't', TYPE_NAMESPACE_CALLBACK, 0, NULL,
+		NULL, NULL);
 	}
 	return cmd;
 }
@@ -494,7 +505,8 @@ PCMD WITH_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("WITH", 't', TYPE_NAMESPACE_CALLBACK, 0, NULL, NULL, NULL);
+		cmd = create_command("WITH", 't', TYPE_NAMESPACE_CALLBACK, 0, NULL,
+		NULL, NULL);
 	}
 	return cmd;
 }
@@ -522,17 +534,17 @@ void namespace_set_var(PNAMESPACE namespace, const char* var, VALUE val)
 	if (val.type == NOTHING_TYPE())
 	{
 		NAMESPACE_SM_LIST_DESTROY(sm_drop_value(namespace->data, var));
-	}
-	else
+	} else
 	{
-		NAMESPACE_SM_LIST_DESTROY(sm_set_value(namespace->data, var, value_create_noref(val.type, val.val)));
+		NAMESPACE_SM_LIST_DESTROY(
+				sm_set_value(namespace->data, var,
+						value_create_noref(val.type, val.val)));
 	}
 }
 PVALUE namespace_get_var(PNAMESPACE namespace, const char* var)
 {
 	return sm_get_value(namespace->data, var);
 }
-
 
 PNAMESPACE sqf_missionNamespace(void)
 {
@@ -575,8 +587,6 @@ PNAMESPACE sqf_parsingNamespace(void)
 	return ns;
 }
 
-
-
 void TYPE_SWITCH_CALLBACK(void* input, CPCMD self)
 {
 	PVALUE val = input;
@@ -588,8 +598,7 @@ void TYPE_SWITCH_CALLBACK(void* input, CPCMD self)
 		{
 			switch_destroy(swtch);
 		}
-	}
-	else
+	} else
 	{
 		swtch->refcount++;
 	}
@@ -599,7 +608,8 @@ PCMD SWITCH_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("SWITCH", 't', TYPE_SWITCH_CALLBACK, 0, NULL, NULL, NULL);
+		cmd = create_command("SWITCH", 't', TYPE_SWITCH_CALLBACK, 0, NULL, NULL,
+		NULL);
 	}
 	return cmd;
 }
@@ -629,7 +639,6 @@ void switch_destroy(PSWITCH swtch)
 	free(swtch);
 }
 
-
 void TYPE_GROUP_CALLBACK(void* input, CPCMD self)
 {
 	PVALUE val = input;
@@ -641,8 +650,7 @@ void TYPE_GROUP_CALLBACK(void* input, CPCMD self)
 		{
 			group_destroy(group);
 		}
-	}
-	else
+	} else
 	{
 		group->refcount++;
 	}
@@ -652,7 +660,8 @@ PCMD GROUP_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("GROUP", 't', TYPE_GROUP_CALLBACK, 0, NULL, NULL, NULL);
+		cmd = create_command("GROUP", 't', TYPE_GROUP_CALLBACK, 0, NULL, NULL,
+		NULL);
 	}
 	return cmd;
 }
@@ -663,9 +672,11 @@ PGROUP group_create(int side)
 	group->refcount = 0;
 	group->members = value_create(ARRAY_TYPE(), base_voidptr(array_create()));
 	group->side = value_create(SIDE_TYPE(), base_int(side));
-	group->ident_len = snprintf(0, 0, "%c ALPHA %d", side_displayname(side)[0], count);
+	group->ident_len = snprintf(0, 0, "%c ALPHA %d", side_displayname(side)[0],
+			count);
 	group->ident = malloc(sizeof(char) * (group->ident_len + 1));
-	snprintf(group->ident, group->ident_len + 1, "%c ALPHA %d", side_displayname(side)[0], count);
+	snprintf(group->ident, group->ident_len + 1, "%c ALPHA %d",
+			side_displayname(side)[0], count);
 	count++;
 	return group;
 }
@@ -679,10 +690,10 @@ void group_destroy(PGROUP group)
 
 PVALUE group_get_leader(PGROUP group)
 {
-	if (((PARRAY)group->members->val.ptr)->top == 0)
+	if (((PARRAY) group->members->val.ptr)->top == 0)
 		return 0;
 	else
-		return ((PARRAY)group->members->val.ptr)->data[0];
+		return ((PARRAY) group->members->val.ptr)->data[0];
 }
 PGROUP group_from_ident(PVM vm, const char* ident)
 {
@@ -691,7 +702,7 @@ PGROUP group_from_ident(PVM vm, const char* ident)
 	int j = sm_count(vm->groupmap);
 	for (i = 0; i < j; i++)
 	{
-		grp = ((PVALUE)sm_get_value_index(vm->groupmap, i))->val.ptr;
+		grp = ((PVALUE) sm_get_value_index(vm->groupmap, i))->val.ptr;
 		if (str_cmpi(grp->ident, -1, ident, -1))
 		{
 			return grp;
@@ -699,7 +710,6 @@ PGROUP group_from_ident(PVM vm, const char* ident)
 	}
 	return 0;
 }
-
 
 //NON-SQF TYPES
 
@@ -714,8 +724,7 @@ void TYPE_COUNT_CALLBACK(void* input, CPCMD self)
 		{
 			count_destroy(count);
 		}
-	}
-	else
+	} else
 	{
 		count->refcount++;
 	}
@@ -725,7 +734,8 @@ PCMD COUNT_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("COUNT__", 't', TYPE_COUNT_CALLBACK, 0, NULL, NULL, "non - sqf compliant helper type");
+		cmd = create_command("COUNT__", 't', TYPE_COUNT_CALLBACK, 0, NULL, NULL,
+				"non - sqf compliant helper type");
 	}
 	return cmd;
 }

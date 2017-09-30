@@ -1,7 +1,6 @@
 #ifndef _SQF_TYPES_H_
 #define _SQF_TYPES_H_
 
-
 #ifndef _SQF_H_
 #error "SQF_types.h" has to be included after "SQF.h" 
 #endif // !_SQF_H_
@@ -21,15 +20,13 @@ PCMD NOTHING_TYPE(void);
 PCMD ANY_TYPE(void);
 PCMD NAN_TYPE(void);
 
-
-
 typedef struct CODE
 {
 	char* val;
 	unsigned int length;
 	int refcount;
 	PSTACK stack;
-}CODE;
+} CODE;
 typedef CODE* PCODE;
 PCMD CODE_TYPE(void);
 PCODE code_create(const char* txt, int offset, int len);
@@ -40,7 +37,7 @@ typedef struct STRING
 	char* val;
 	unsigned int length;
 	int refcount;
-}STRING;
+} STRING;
 PCMD STRING_TYPE(void);
 typedef STRING* PSTRING;
 
@@ -58,7 +55,8 @@ PSTRING string_substring(const PSTRING string, unsigned int start, int length);
 void string_modify_append(PSTRING string, const char* append);
 void string_modify_append2(PSTRING string, int len);
 ///Appends n characters of provided cstring onto STRING object
-void string_modify_nappend(PSTRING string, const char* append, unsigned int len);
+void string_modify_nappend(PSTRING string, const char* append,
+		unsigned int len);
 
 #define ARRAY_DEFAULT_INC 10
 typedef struct ARRAY
@@ -67,7 +65,7 @@ typedef struct ARRAY
 	unsigned int size;
 	unsigned int top;
 	int refcount;
-}ARRAY;
+} ARRAY;
 PCMD ARRAY_TYPE(void);
 typedef ARRAY* PARRAY;
 
@@ -83,7 +81,6 @@ void array_reverse(PARRAY array);
 void array_append(PARRAY array1, PARRAY array2);
 PARRAY array_copy(const PARRAY arrIn);
 
-
 typedef struct FOR
 {
 	char* variable;
@@ -94,18 +91,17 @@ typedef struct FOR
 	float current;
 	int refcount;
 	unsigned char started;
-}FOR;
+} FOR;
 PCMD FOR_TYPE(void);
 typedef FOR* PFOR;
 PFOR for_create(const char* varname);
 void for_destroy(PFOR f);
 
-
 typedef struct NAMESPACE
 {
 	sm_list* data;
 	int refcount;
-}NAMESPACE;
+} NAMESPACE;
 PCMD NAMESPACE_TYPE(void);
 PCMD WITH_TYPE(void);
 typedef NAMESPACE* PNAMESPACE;
@@ -119,8 +115,6 @@ PNAMESPACE sqf_uiNamespace(void);
 PNAMESPACE sqf_profileNamespace(void);
 PNAMESPACE sqf_parsingNamespace(void);
 
-
-
 typedef struct SWITCH
 {
 	int refcount;
@@ -128,12 +122,11 @@ typedef struct SWITCH
 	PVALUE switch_value;
 	PVALUE selected_code;
 	unsigned char was_executed;
-}SWITCH;
+} SWITCH;
 typedef SWITCH* PSWITCH;
 PCMD SWITCH_TYPE(void);
 PSWITCH switch_create(VALUE val);
 void switch_destroy(PSWITCH swtch);
-
 
 typedef struct GROUP
 {
@@ -142,7 +135,7 @@ typedef struct GROUP
 	PVALUE members;
 	char* ident;
 	unsigned int ident_len;
-}GROUP;
+} GROUP;
 typedef GROUP* PGROUP;
 PCMD GROUP_TYPE(void);
 PGROUP group_create(int side);
@@ -150,11 +143,7 @@ void group_destroy(PGROUP group);
 PVALUE group_get_leader(PGROUP group);
 PGROUP group_from_ident(PVM vm, const char* ident);
 
-
-
-
 //NON-SQF compliant types
-
 
 typedef struct COUNT
 {
@@ -163,13 +152,10 @@ typedef struct COUNT
 	unsigned int curtop;
 	unsigned int count;
 	int refcount;
-}COUNT;
+} COUNT;
 typedef COUNT* PCOUNT;
 PCMD COUNT_TYPE(void);
 PCOUNT count_create(PCODE code, PARRAY arr);
 void count_destroy(PCOUNT count);
-
-
-
 
 #endif // !_SQF_TYPES_H_

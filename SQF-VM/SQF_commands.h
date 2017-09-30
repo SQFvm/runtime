@@ -7,7 +7,7 @@
 int64_t system_time_ms(void);
 void stringify_value(PVM vm, PSTRING str, PVALUE val);
 unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r);
-int find(PVM vm, PARRAY array, PVALUE value);
+int array_indexOf(PVM vm, PARRAY array, PVALUE value);
 
 void CMD_ISEQUALTO(void* input, CPCMD self);
 void CMD_ISEQUALTYPE(void* input, CPCMD self);
@@ -42,7 +42,6 @@ void CMD_ANDAND(void* input, CPCMD self);
 void CMD_OROR(void* input, CPCMD self);
 
 void CMD_SELECT(void* input, CPCMD self);
-
 
 void CMD_WHILE(void* input, CPCMD self);
 void CMD_DO(void* input, CPCMD self);
@@ -123,7 +122,6 @@ void CMD_CASE(void* input, CPCMD self);
 void CMD_DEFAULT(void* input, CPCMD self);
 void CMD_CASEOPERATOR(void* input, CPCMD self);
 
-
 void CMD_WEST(void* input, CPCMD self);
 void CMD_BLUFOR(void* input, CPCMD self);
 void CMD_EAST(void* input, CPCMD self);
@@ -136,7 +134,6 @@ void CMD_SIDEFRIENDLY(void* input, CPCMD self);
 void CMD_SIDEENEMY(void* input, CPCMD self);
 void CMD_CIVILIAN(void* input, CPCMD self);
 void CMD_SIDEEMPTY(void* input, CPCMD self);
-
 
 void CMD_NIL(void* input, CPCMD self);
 void CMD_ALLVARIABLES(void* input, CPCMD self);
@@ -157,7 +154,5 @@ void CMD_GROUPID(void* input, CPCMD self);
 void CMD_CREATEUNIT(void* input, CPCMD self);
 void CMD_UNITS(void* input, CPCMD self);
 void CMD_ALLGROUPS(void* input, CPCMD self);
-
-
 
 #endif // !_SQF_COMMANDS_H_
