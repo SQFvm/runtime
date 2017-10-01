@@ -297,3 +297,7 @@ prog
 DISCORD.TOKEN
 sqfvm
 libsqfvm.*
+
+# hidden files
+.*
+
