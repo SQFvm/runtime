@@ -352,6 +352,11 @@ PVALUE array_popAt(PARRAY array, int index)
 	return val;
 }
 
+/*
+ * Trims the content of array to the given size.
+ * If the size is greater than the current content,
+ * then the missing items will be filled with nil-values
+ */
 void array_resizeSQF(PARRAY array, int newSize)
 {
 	if (array->top > newSize)
