@@ -301,3 +301,7 @@ libsqfvm.*
 # hidden files
 .*
 
+# make sure the git files themselves are included
+!.git*
+!.travis
+

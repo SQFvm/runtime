@@ -88,7 +88,8 @@ void TYPE_CODE_CALLBACK(void* input, CPCMD self)
 		{
 			code_destroy(code);
 		}
-	} else
+	}
+	else
 	{
 		code->refcount++;
 	}
@@ -132,7 +133,8 @@ void TYPE_STRING_CALLBACK(void* input, CPCMD self)
 		{
 			string_destroy(string);
 		}
-	} else
+	}
+	else
 	{
 		string->refcount++;
 	}
@@ -159,7 +161,8 @@ PSTRING string_create(unsigned int len)
 		if (string->val == 0)
 		{
 			string->length = 0;
-		} else
+		}
+		else
 		{
 			memset(string->val, 0, sizeof(char) * (len + 1));
 		}
@@ -263,7 +266,8 @@ void TYPE_ARRAY_CALLBACK(void* input, CPCMD self)
 		{
 			array_destroy(arr);
 		}
-	} else
+	}
+	else
 	{
 		arr->refcount++;
 	}
@@ -367,7 +371,8 @@ void array_resizeSQF(PARRAY array, int newSize)
 			inst_destroy_value(array->data[i]);
 			array->data[i] = NULL;
 		}
-	} else
+	}
+	else
 	{
 		// create respective elements with nil value
 		for (int i = array->top; i < newSize; i++)
@@ -420,7 +425,8 @@ PARRAY array_copy(const PARRAY arrIn)
 		{
 			tmp = array_copy(val->val.ptr);
 			array_push(arrOut, value(ARRAY_TYPE(), base_voidptr(tmp)));
-		} else
+		}
+		else
 		{
 			array_push(arrOut, value(val->type, val->val));
 		}
@@ -439,7 +445,8 @@ void TYPE_FOR_CALLBACK(void* input, CPCMD self)
 		{
 			for_destroy(f);
 		}
-	} else
+	}
+	else
 	{
 		f->refcount++;
 	}
@@ -490,7 +497,8 @@ void TYPE_NAMESPACE_CALLBACK(void* input, CPCMD self)
 		{
 			namespace_destroy(namespace);
 		}
-	} else
+	}
+	else
 	{
 		namespace->refcount++;
 	}
@@ -539,7 +547,8 @@ void namespace_set_var(PNAMESPACE namespace, const char* var, VALUE val)
 	if (val.type == NOTHING_TYPE())
 	{
 		NAMESPACE_SM_LIST_DESTROY(sm_drop_value(namespace->data, var));
-	} else
+	}
+	else
 	{
 		NAMESPACE_SM_LIST_DESTROY(
 				sm_set_value(namespace->data, var,
@@ -603,7 +612,8 @@ void TYPE_SWITCH_CALLBACK(void* input, CPCMD self)
 		{
 			switch_destroy(swtch);
 		}
-	} else
+	}
+	else
 	{
 		swtch->refcount++;
 	}
@@ -655,7 +665,8 @@ void TYPE_GROUP_CALLBACK(void* input, CPCMD self)
 		{
 			group_destroy(group);
 		}
-	} else
+	}
+	else
 	{
 		group->refcount++;
 	}
@@ -729,7 +740,8 @@ void TYPE_COUNT_CALLBACK(void* input, CPCMD self)
 		{
 			count_destroy(count);
 		}
-	} else
+	}
+	else
 	{
 		count->refcount++;
 	}

@@ -59,10 +59,12 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 		strptr = alloca(sizeof(char) * 64);
 		sprintf(strptr, "%g", val->val.f);
 		string_modify_append(str, strptr);
-	} else if (val->type == BOOL_TYPE() || val->type == IF_TYPE())
+	}
+	else if (val->type == BOOL_TYPE() || val->type == IF_TYPE())
 	{
 		string_modify_append(str, val->val.i > 0 ? "true" : "false");
-	} else if (val->type == ARRAY_TYPE())
+	}
+	else if (val->type == ARRAY_TYPE())
 	{
 		arr = ((PARRAY) val->val.ptr);
 		string_modify_append(str, "[");
@@ -75,7 +77,8 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 			stringify_value(vm, str, arr->data[i]);
 		}
 		string_modify_append(str, "]");
-	} else if (val->type == STRING_TYPE())
+	}
+	else if (val->type == STRING_TYPE())
 	{
 		string_modify_append(str, "\"");
 		strptr = ((PSTRING) val->val.ptr)->val;
@@ -93,24 +96,30 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 			}
 		}
 		string_modify_append(str, "\"");
-	} else if (val->type == NAN_TYPE())
+	}
+	else if (val->type == NAN_TYPE())
 	{
 		string_modify_append(str, "NaN");
-	} else if (val->type == CODE_TYPE() || val->type == WHILE_TYPE())
+	}
+	else if (val->type == CODE_TYPE() || val->type == WHILE_TYPE())
 	{
 		string_modify_append(str, "{");
 		string_modify_append(str, ((PCODE) val->val.ptr)->val);
 		string_modify_append(str, "}");
-	} else if (val->type == SIDE_TYPE())
+	}
+	else if (val->type == SIDE_TYPE())
 	{
 		string_modify_append(str, side_displayname2(val));
-	} else if (val->type == NOTHING_TYPE())
+	}
+	else if (val->type == NOTHING_TYPE())
 	{
 		string_modify_append(str, "nil");
-	} else if (val->type == GROUP_TYPE())
+	}
+	else if (val->type == GROUP_TYPE())
 	{
 		string_modify_append(str, ((PGROUP) val->val.ptr)->ident);
-	} else if (val->type == OBJECT_TYPE())
+	}
+	else if (val->type == OBJECT_TYPE())
 	{
 		obj = val->val.ptr;
 		if (obj->is_vehicle)
@@ -120,7 +129,8 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 			strptr = alloca(sizeof(char) * (i + 1));
 			snprintf(strptr, i + 1, "%p# %d: %s", obj, 0, "NOTIMPLEMENTED");
 			string_modify_append(str, strptr);
-		} else
+		}
+		else
 		{
 			grp = group_from_ident(vm, ((PUNIT) obj->inner)->groupident);
 			if (grp == 0)
@@ -129,7 +139,8 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 				strptr = alloca(sizeof(char) * (i + 1));
 				snprintf(strptr, i + 1, "%s:%d", "any", 0);
 				string_modify_append(str, strptr);
-			} else
+			}
+			else
 			{
 				for (i = 0; i < ((PARRAY) grp->members->val.ptr)->top; i++)
 				{
@@ -144,10 +155,12 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 				string_modify_append(str, strptr);
 			}
 		}
-	} else if (val->type == ANY_TYPE())
+	}
+	else if (val->type == ANY_TYPE())
 	{
 		string_modify_append(str, "any");
-	} else
+	}
+	else
 	{
 		string_modify_append(str, "<");
 		string_modify_append(str, val->type->name);
@@ -169,10 +182,12 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	if (l->type == SCALAR_TYPE())
 	{
 		return l->val.f == r->val.f;
-	} else if (l->type == BOOL_TYPE() || l->type == IF_TYPE())
+	}
+	else if (l->type == BOOL_TYPE() || l->type == IF_TYPE())
 	{
 		return (l->val.i > 0 ? 1 : 0) == (r->val.i > 0 ? 1 : 0);
-	} else if (l->type == ARRAY_TYPE())
+	}
+	else if (l->type == ARRAY_TYPE())
 	{
 		arrl = l->val.ptr;
 		arrr = r->val.ptr;
@@ -186,13 +201,16 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 				return 0;
 		}
 		return 1;
-	} else if (l->type == STRING_TYPE())
+	}
+	else if (l->type == STRING_TYPE())
 	{
 		return !strcmp(((PSTRING) l->val.ptr)->val, ((PSTRING) r->val.ptr)->val);
-	} else if (l->type == NAMESPACE_TYPE())
+	}
+	else if (l->type == NAMESPACE_TYPE())
 	{
 		return l->val.ptr == r->val.ptr;
-	} else if (l->type == CODE_TYPE() || l->type == WHILE_TYPE())
+	}
+	else if (l->type == CODE_TYPE() || l->type == WHILE_TYPE())
 	{
 		codel = l->val.ptr;
 		coder = r->val.ptr;
@@ -227,16 +245,19 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 			}
 		}
 		return 1;
-	} else if (l->type == SIDE_TYPE())
+	}
+	else if (l->type == SIDE_TYPE())
 	{
 		return side_equals(l, r);
-	} else if (l->type == OBJECT_TYPE())
+	}
+	else if (l->type == OBJECT_TYPE())
 	{
 		if (((POBJECT) l->val.ptr)->inner == 0
 				&& ((POBJECT) r->val.ptr)->inner == 0)
 		{
 			return 1;
-		} else
+		}
+		else
 		{
 			return l->val.ptr == r->val.ptr;
 		}
@@ -352,7 +373,8 @@ void CMD_PLUS(void* input, CPCMD self)
 						value(left_val->type,
 								base_float(
 										left_val->val.f + right_val->val.f))));
-	} else if (left_val->type == STRING_TYPE())
+	}
+	else if (left_val->type == STRING_TYPE())
 	{
 		if (right_val->type != STRING_TYPE())
 		{
@@ -367,7 +389,8 @@ void CMD_PLUS(void* input, CPCMD self)
 				((PSTRING) right_val->val.ptr));
 		push_stack(vm, vm->stack,
 				inst_value(value(STRING_TYPE(), base_voidptr(str))));
-	} else if (left_val->type == ARRAY_TYPE())
+	}
+	else if (left_val->type == ARRAY_TYPE())
 	{
 		arr = ((PARRAY) left_val->val.ptr);
 		outarr = array_create2(
@@ -386,13 +409,15 @@ void CMD_PLUS(void* input, CPCMD self)
 				array_push(outarr,
 						value(arr->data[i]->type, arr->data[i]->val));
 			}
-		} else
+		}
+		else
 		{
 			array_push(outarr, value(right_val->type, right_val->val));
 		}
 		push_stack(vm, vm->stack,
 				inst_value(value(ARRAY_TYPE(), base_voidptr(outarr))));
-	} else
+	}
+	else
 	{
 		vm->error(vm,
 		ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_ARRAY, vm->stack);
@@ -424,17 +449,20 @@ void CMD_PLUS_UNARY(void* input, CPCMD self)
 						value(ARRAY_TYPE(),
 								base_voidptr(array_copy(right_val->val.ptr)))));
 		inst_destroy(right);
-	} else if (right_val->type == SCALAR_TYPE())
+	}
+	else if (right_val->type == SCALAR_TYPE())
 	{
 		push_stack(vm, vm->stack,
 				inst_value(value(right_val->type, right_val->val)));
 		inst_destroy(right);
-	} else if (right_val->type == NAN_TYPE())
+	}
+	else if (right_val->type == NAN_TYPE())
 	{
 		push_stack(vm, vm->stack,
 				inst_value(value(right_val->type, right_val->val)));
 		inst_destroy(right);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_OR ERR_SCALAR ERR_OR ERR_NAN,
 				vm->stack);
@@ -483,7 +511,8 @@ void CMD_MINUS(void* input, CPCMD self)
 						value(left_val->type,
 								base_float(
 										left_val->val.f - right_val->val.f))));
-	} else if (left_val->type == ARRAY_TYPE())
+	}
+	else if (left_val->type == ARRAY_TYPE())
 	{
 		if (right_val->type != ARRAY_TYPE())
 		{
@@ -530,7 +559,8 @@ void CMD_MINUS(void* input, CPCMD self)
 		}
 		push_stack(vm, vm->stack,
 				inst_value(value(ARRAY_TYPE(), base_voidptr(outarr))));
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_ARRAY, vm->stack);
 		inst_destroy(left);
@@ -701,7 +731,8 @@ void CMD_HINT(void* input, CPCMD self)
 	if (((PSTRING) right_val->val.ptr)->val == 0)
 	{
 		vm->print(vm, "[HINT]: \n");
-	} else
+	}
+	else
 	{
 		vm->print(vm, "[HINT]: %s\n", ((PSTRING) right_val->val.ptr)->val);
 	}
@@ -731,7 +762,8 @@ void CMD_SYSTEMCHAT(void* input, CPCMD self)
 	if (((PSTRING) right_val->val.ptr)->val == 0)
 	{
 		vm->print(vm, "[SYSTEMCHAT]: \n");
-	} else
+	}
+	else
 	{
 		vm->print(vm, "[SYSTEMCHAT]: %s\n",
 				((PSTRING) right_val->val.ptr)->val);
@@ -760,15 +792,18 @@ void CMD_PRIVATE(void* input, CPCMD self)
 		if (str->length == 0)
 		{
 			vm->error(vm, ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
-		} else if (str->val[0] != '_')
+		}
+		else if (str->val[0] != '_')
 		{
 			vm->error(vm, ERR_SPECIAL_PRIVATE_1, vm->stack);
-		} else
+		}
+		else
 		{
 			store_in_scope(vm, top_scope(vm), str->val,
 					value(ANY_TYPE(), base_voidptr(0)));
 		}
-	} else if (right_val->type == ARRAY_TYPE())
+	}
+	else if (right_val->type == ARRAY_TYPE())
 	{
 		arr = right_val->val.ptr;
 		for (i = 0; i < arr->top; i++)
@@ -776,23 +811,27 @@ void CMD_PRIVATE(void* input, CPCMD self)
 			if (arr->data[i]->type != STRING_TYPE())
 			{
 				vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
-			} else
+			}
+			else
 			{
 				str = arr->data[i]->val.ptr;
 				if (str->length == 0)
 				{
 					vm->error(vm, ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
-				} else if (str->val[0] != '_')
+				}
+				else if (str->val[0] != '_')
 				{
 					vm->error(vm, ERR_SPECIAL_PRIVATE_1, vm->stack);
-				} else
+				}
+				else
 				{
 					store_in_scope(vm, top_scope(vm), str->val,
 							value(ANY_TYPE(), base_voidptr(0)));
 				}
 			}
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING ERR_OR ERR_ARRAY, vm->stack);
 	}
@@ -817,10 +856,12 @@ void CMD_IF(void* input, CPCMD self)
 	if (right_val->type == BOOL_TYPE())
 	{
 		flag = right_val->val.i > 0;
-	} else if (right_val->type == SCALAR_TYPE())
+	}
+	else if (right_val->type == SCALAR_TYPE())
 	{
 		flag = right_val->val.f > 0;
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_BOOL ERR_OR ERR_SCALAR, vm->stack);
 	}
@@ -858,22 +899,26 @@ void CMD_THEN(void* input, CPCMD self)
 		if (arr->top == 0)
 		{
 			vm->error(vm, ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
-		} else if (arr->data[0]->type != CODE_TYPE())
+		}
+		else if (arr->data[0]->type != CODE_TYPE())
 		{
 			vm->error(vm,
 			ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_CODE,
 					vm->stack);
-		} else if (arr->top > 1 && arr->data[1]->type != CODE_TYPE())
+		}
+		else if (arr->top > 1 && arr->data[1]->type != CODE_TYPE())
 		{
 			vm->error(vm,
 			ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_CODE,
 					vm->stack);
-		} else
+		}
+		else
 		{
 			if (left_val->val.i)
 			{
 				code = arr->data[0]->val.ptr;
-			} else if (arr->top > 1)
+			}
+			else if (arr->top > 1)
 			{
 				code = arr->data[1]->val.ptr;
 			}
@@ -884,7 +929,8 @@ void CMD_THEN(void* input, CPCMD self)
 						inst_value(value(CODE_TYPE(), base_voidptr(code))));
 			}
 		}
-	} else if (right_val->type == CODE_TYPE())
+	}
+	else if (right_val->type == CODE_TYPE())
 	{
 		if (left_val->val.i)
 		{
@@ -894,7 +940,8 @@ void CMD_THEN(void* input, CPCMD self)
 							value(CODE_TYPE(),
 									base_voidptr(right_val->val.ptr))));
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE ERR_OR ERR_ARRAY, vm->stack);
 	}
@@ -1080,7 +1127,8 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		if (!had_match)
 		{
 			had_match = 1;
-		} else
+		}
+		else
 		{
 			vm->print(vm, "\n");
 		}
@@ -1092,7 +1140,8 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		if (!had_match)
 		{
 			had_match = 1;
-		} else
+		}
+		else
 		{
 			vm->print(vm, "\n");
 		}
@@ -1104,7 +1153,8 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		if (!had_match)
 		{
 			had_match = 1;
-		} else
+		}
+		else
 		{
 			vm->print(vm, "\n");
 		}
@@ -1116,7 +1166,8 @@ void CMD_HELP_UNARY(void* input, CPCMD self)
 		if (!had_match)
 		{
 			had_match = 1;
-		} else
+		}
+		else
 		{
 			vm->print(vm, "\n");
 		}
@@ -1365,14 +1416,16 @@ void CMD_EQUAL(void* input, CPCMD self)
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
-	} else if (left_val->type == SCALAR_TYPE())
+	}
+	else if (left_val->type == SCALAR_TYPE())
 	{
 		push_stack(vm, vm->stack,
 				inst_value(
 						value(BOOL_TYPE(),
 								base_int(
 										left_val->val.f == right_val->val.f))));
-	} else if (left_val->type == STRING_TYPE())
+	}
+	else if (left_val->type == STRING_TYPE())
 	{
 		push_stack(vm, vm->stack,
 				inst_value(
@@ -1383,7 +1436,8 @@ void CMD_EQUAL(void* input, CPCMD self)
 												-1,
 												((PSTRING) right_val->val.ptr)->val,
 												-1)))));
-	} else if (left_val->type == OBJECT_TYPE())
+	}
+	else if (left_val->type == OBJECT_TYPE())
 	{
 		push_stack(vm, vm->stack,
 				inst_value(
@@ -1391,7 +1445,8 @@ void CMD_EQUAL(void* input, CPCMD self)
 								base_int(
 										left_val->val.ptr
 												== right_val->val.ptr))));
-	} else
+	}
+	else
 	{
 #ifdef _WIN32
 		__asm int 3;
@@ -1449,14 +1504,16 @@ void CMD_NOTEQUAL(void* input, CPCMD self)
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
-	} else if (left_val->type == SCALAR_TYPE())
+	}
+	else if (left_val->type == SCALAR_TYPE())
 	{
 		push_stack(vm, vm->stack,
 				inst_value(
 						value(BOOL_TYPE(),
 								base_int(
 										left_val->val.f != right_val->val.f))));
-	} else if (left_val->type == STRING_TYPE())
+	}
+	else if (left_val->type == STRING_TYPE())
 	{
 		push_stack(vm, vm->stack,
 				inst_value(
@@ -1467,7 +1524,8 @@ void CMD_NOTEQUAL(void* input, CPCMD self)
 												-1,
 												((PSTRING) right_val->val.ptr)->val,
 												-1)))));
-	} else if (left_val->type == OBJECT_TYPE())
+	}
+	else if (left_val->type == OBJECT_TYPE())
 	{
 		push_stack(vm, vm->stack,
 				inst_value(
@@ -1475,7 +1533,8 @@ void CMD_NOTEQUAL(void* input, CPCMD self)
 								base_int(
 										left_val->val.ptr
 												!= right_val->val.ptr))));
-	} else
+	}
+	else
 	{
 #ifdef _WIN32
 		__asm int 3;
@@ -1519,20 +1578,23 @@ void CMD_ANDAND(void* input, CPCMD self)
 										left_val->val.i && right_val->val.i))));
 		inst_destroy(left);
 		inst_destroy(right);
-	} else if (right_val->type == CODE_TYPE())
+	}
+	else if (right_val->type == CODE_TYPE())
 	{
 		if (!left_val->val.i)
 		{
 			push_stack(vm, vm->stack,
 					inst_value(value(left_val->type, base_int(0))));
-		} else
+		}
+		else
 		{
 			push_stack(vm, vm->stack, inst_command(self));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, inst_code_load(1));
 			push_stack(vm, vm->stack, right);
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
 		push_stack(vm, vm->stack,
@@ -1577,20 +1639,23 @@ void CMD_OROR(void* input, CPCMD self)
 										left_val->val.i || right_val->val.i))));
 		inst_destroy(left);
 		inst_destroy(right);
-	} else if (right_val->type == CODE_TYPE())
+	}
+	else if (right_val->type == CODE_TYPE())
 	{
 		if (left_val->val.i)
 		{
 			push_stack(vm, vm->stack,
 					inst_value(value(left_val->type, base_int(1))));
-		} else
+		}
+		else
 		{
 			push_stack(vm, vm->stack, inst_command(self));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, inst_code_load(1));
 			push_stack(vm, vm->stack, right);
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
 		push_stack(vm, vm->stack,
@@ -1629,10 +1694,12 @@ void CMD_SELECT(void* input, CPCMD self)
 		if (right_val->type == SCALAR_TYPE())
 		{
 			index = roundf(right_val->val.f);
-		} else if (right_val->type == BOOL_TYPE())
+		}
+		else if (right_val->type == BOOL_TYPE())
 		{
 			index = right_val->val.i > 0 ? 1 : 0;
-		} else
+		}
+		else
 		{
 			vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR ERR_OR ERR_BOOL, vm->stack);
 			push_stack(vm, vm->stack,
@@ -1641,7 +1708,8 @@ void CMD_SELECT(void* input, CPCMD self)
 			inst_destroy(right);
 			return;
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
 		push_stack(vm, vm->stack,
@@ -1659,11 +1727,13 @@ void CMD_SELECT(void* input, CPCMD self)
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
-	} else if (index == arr->top)
+	}
+	else if (index == arr->top)
 	{
 		push_stack(vm, vm->stack,
 				inst_value(value(NOTHING_TYPE(), base_int(0))));
-	} else
+	}
+	else
 	{
 		tmp = arr->data[index];
 		push_stack(vm, vm->stack, inst_value(value(tmp->type, tmp->val)));
@@ -1771,7 +1841,8 @@ void CMD_DO(void* input, CPCMD self)
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
-	} else
+	}
+	else
 	{
 		code = right_val->val.ptr;
 	}
@@ -1788,13 +1859,15 @@ void CMD_DO(void* input, CPCMD self)
 		push_stack(vm, vm->stack,
 				inst_value(value(CODE_TYPE(), left_val->val)));
 		push_stack(vm, vm->stack, inst_clear_work());
-	} else if (left_val->type == FOR_TYPE())
+	}
+	else if (left_val->type == FOR_TYPE())
 	{
 		pfor = left_val->val.ptr;
 		if (pfor->started)
 		{
 			pfor->current += pfor->step;
-		} else
+		}
+		else
 		{
 			pfor->current = pfor->start;
 			pfor->started = 1;
@@ -1815,12 +1888,14 @@ void CMD_DO(void* input, CPCMD self)
 					inst_value(
 							value(SCALAR_TYPE(), base_float(pfor->current))));
 			push_stack(vm, vm->stack, inst_clear_work());
-		} else
+		}
+		else
 		{
 			inst_destroy(left);
 			inst_destroy(right);
 		}
-	} else if (left_val->type == SWITCH_TYPE())
+	}
+	else if (left_val->type == SWITCH_TYPE())
 	{
 		swtch = left_val->val.ptr;
 		if (swtch->was_executed)
@@ -1831,7 +1906,8 @@ void CMD_DO(void* input, CPCMD self)
 				push_stack(vm, vm->stack,
 						inst_value(
 								value(CODE_TYPE(), swtch->selected_code->val)));
-			} else if (swtch->default_code != 0)
+			}
+			else if (swtch->default_code != 0)
 			{
 				push_stack(vm, vm->stack, inst_code_load(0));
 				push_stack(vm, vm->stack,
@@ -1840,7 +1916,8 @@ void CMD_DO(void* input, CPCMD self)
 			}
 			inst_destroy(left);
 			inst_destroy(right);
-		} else
+		}
+		else
 		{
 			swtch->was_executed = 1;
 			push_stack(vm, vm->stack,
@@ -1856,7 +1933,8 @@ void CMD_DO(void* input, CPCMD self)
 					inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
 			push_stack(vm, vm->stack, inst_clear_work());
 		}
-	} else if (left_val->type == WITH_TYPE())
+	}
+	else if (left_val->type == WITH_TYPE())
 	{
 		tmpinst = inst_scope(0);
 		scope = get_scope(vm, vm->stack, tmpinst);
@@ -1865,7 +1943,8 @@ void CMD_DO(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_code_load(0));
 		push_stack(vm, vm->stack,
 				inst_value(value(CODE_TYPE(), right_val->val)));
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_WHILE ERR_OR ERR_FOR, vm->stack);
 		inst_destroy(left);
@@ -1924,7 +2003,8 @@ void CMD_COUNT(void* input, CPCMD self)
 		{
 			inst_destroy(left);
 			inst_destroy(right);
-		} else
+		}
+		else
 		{
 			count = count_create(left_val->val.ptr, right_val->val.ptr);
 			push_stack(vm, vm->stack, inst_command(self));
@@ -1940,7 +2020,8 @@ void CMD_COUNT(void* input, CPCMD self)
 									arr->data[count->curtop]->val)));
 			inst_destroy(right);
 		}
-	} else if (left_val->type == COUNT_TYPE())
+	}
+	else if (left_val->type == COUNT_TYPE())
 	{
 		if (right_val->type != BOOL_TYPE())
 		{
@@ -1961,7 +2042,8 @@ void CMD_COUNT(void* input, CPCMD self)
 					inst_value(value(SCALAR_TYPE(), base_float(count->count))));
 			inst_destroy(left);
 			inst_destroy(right);
-		} else
+		}
+		else
 		{
 			push_stack(vm, vm->stack, inst_command(self));
 			push_stack(vm, vm->stack, left);
@@ -1978,7 +2060,8 @@ void CMD_COUNT(void* input, CPCMD self)
 									arr->data[count->curtop]->val)));
 			inst_destroy(right);
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_CODE ERR_OR ERR_COUNT, vm->stack);
 		inst_destroy(left);
@@ -2005,14 +2088,16 @@ void CMD_COUNT_UNARY(void* input, CPCMD self)
 						value(SCALAR_TYPE(),
 								base_float(
 										((PSTRING) right_val->val.ptr)->length))));
-	} else if (right_val->type == ARRAY_TYPE())
+	}
+	else if (right_val->type == ARRAY_TYPE())
 	{
 		push_stack(vm, vm->stack,
 				inst_value(
 						value(SCALAR_TYPE(),
 								base_float(
 										((PARRAY) right_val->val.ptr)->top))));
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING ERR_OR ERR_ARRAY, vm->stack);
 		push_stack(vm, vm->stack,
@@ -2048,14 +2133,16 @@ void CMD_FORMAT(void* input, CPCMD self)
 			vm->error(vm, ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
 			push_stack(vm, vm->stack,
 					inst_value(value(NOTHING_TYPE(), base_int(0))));
-		} else if (arr->data[0]->type != STRING_TYPE())
+		}
+		else if (arr->data[0]->type != STRING_TYPE())
 		{
 			vm->error(vm,
 			ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING,
 					vm->stack);
 			push_stack(vm, vm->stack,
 					inst_value(value(NOTHING_TYPE(), base_int(0))));
-		} else
+		}
+		else
 		{
 			str = arr->data[0]->val.ptr;
 			str_out = string_create(0);
@@ -2067,15 +2154,18 @@ void CMD_FORMAT(void* input, CPCMD self)
 				if (endptr == ptr)
 				{
 					vm->error(vm, ERR_ERR ERR_SPECIAL_FORMAT_1, vm->stack);
-				} else if (index >= arr->top)
+				}
+				else if (index >= arr->top)
 				{
 					vm->error(vm, ERR_ERR ERR_SPECIAL_FORMAT_2, vm->stack);
-				} else
+				}
+				else
 				{
 					if (arr->data[index]->type != STRING_TYPE())
 					{
 						stringify_value(vm, str_out, arr->data[index]);
-					} else
+					}
+					else
 					{
 						string_modify_append(str_out,
 								((PSTRING) arr->data[index]->val.ptr)->val);
@@ -2087,7 +2177,8 @@ void CMD_FORMAT(void* input, CPCMD self)
 			push_stack(vm, vm->stack,
 					inst_value(value(STRING_TYPE(), base_voidptr(str_out))));
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
 		push_stack(vm, vm->stack,
@@ -2122,7 +2213,8 @@ void CMD_CALL(void* input, CPCMD self)
 		push_stack(vm, vm->stack,
 				inst_value(value(left_val->type, left_val->val)));
 		inst_destroy(left);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
 		push_stack(vm, vm->stack,
@@ -2151,7 +2243,8 @@ void CMD_CALL_UNARY(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_store_var_local("_this"));
 		push_stack(vm, vm->stack,
 				inst_value(value(NOTHING_TYPE(), base_int(0))));
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
 		push_stack(vm, vm->stack,
@@ -2194,7 +2287,8 @@ void CMD_SPAWN(void* input, CPCMD self)
 		push_stack(vm, vm->stack,
 				inst_value(value(SCRIPT_TYPE(), base_voidptr(script))));
 		inst_destroy(left);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
 		push_stack(vm, vm->stack,
@@ -2224,7 +2318,8 @@ void CMD_SCRIPTDONE(void* input, CPCMD self)
 										((PSCRIPT) right_val->val.ptr)->stack->top
 												== 0 ? 1 : 0))));
 		inst_destroy(right);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCRIPT, vm->stack);
 		push_stack(vm, vm->stack,
@@ -2454,7 +2549,8 @@ void CMD_FOREACH(void* input, CPCMD self)
 		{
 			inst_destroy(left);
 			inst_destroy(right);
-		} else
+		}
+		else
 		{
 			count = count_create(left_val->val.ptr, right_val->val.ptr);
 			push_stack(vm, vm->stack, inst_command(self));
@@ -2475,7 +2571,8 @@ void CMD_FOREACH(void* input, CPCMD self)
 					inst_value(
 							value(SCALAR_TYPE(), base_float(count->curtop))));
 		}
-	} else if (left_val->type == COUNT_TYPE())
+	}
+	else if (left_val->type == COUNT_TYPE())
 	{
 		if (right_val->type != ARRAY_TYPE())
 		{
@@ -2492,7 +2589,8 @@ void CMD_FOREACH(void* input, CPCMD self)
 					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			inst_destroy(left);
 			inst_destroy(right);
-		} else
+		}
+		else
 		{
 			push_stack(vm, vm->stack, inst_command(self));
 			push_stack(vm, vm->stack, left);
@@ -2514,7 +2612,8 @@ void CMD_FOREACH(void* input, CPCMD self)
 					inst_value(
 							value(SCALAR_TYPE(), base_float(count->curtop))));
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_CODE ERR_OR ERR_COUNT, vm->stack);
 		inst_destroy(left);
@@ -3107,7 +3206,8 @@ void CMD_NOT(void* input, CPCMD self)
 	{
 		push_stack(vm, vm->stack,
 				inst_value(value(BOOL_TYPE(), base_int(right_val->val.i))));
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
 		push_stack(vm, vm->stack,
@@ -3360,7 +3460,8 @@ void CMD_RESIZE(void* input, CPCMD self)
 	if (newSize >= 0)
 	{
 		array_resizeSQF(array, newSize);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT ERR_POSITIVE, vm->stack);
 	}
@@ -3426,7 +3527,8 @@ void CMD_DELETEAT(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT ERR_POSITIVE, vm->stack);
 		push_stack(vm, vm->stack,
 				inst_value(value(NOTHING_TYPE(), base_int(0))));
-	} else
+	}
+	else
 	{
 		val = array_popAt(array, index);
 		push_stack(vm, vm->stack, inst_value(value(val->type, val->val)));
@@ -3522,7 +3624,8 @@ void CMD_FIND(void* input, CPCMD self)
 		array = left_val->val.ptr;
 
 		index = array_indexOf(vm, array, right_val);
-	} else
+	}
+	else
 	{
 		if (right_val->type != STRING_TYPE())
 		{
@@ -3540,7 +3643,8 @@ void CMD_FIND(void* input, CPCMD self)
 		if (ptr != NULL)
 		{
 			index = ptr - string->val;
-		} else
+		}
+		else
 		{
 			index = -1;
 		}
@@ -3708,10 +3812,12 @@ void CMD_GETVARIABLE(void* input, CPCMD self)
 	if (left_val->type == NAMESPACE_TYPE())
 	{
 		ns = left_val->val.ptr;
-	} else if (left_val->type == OBJECT_TYPE())
+	}
+	else if (left_val->type == OBJECT_TYPE())
 	{
 		ns = ((POBJECT) left_val->val.ptr)->ns;
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_NAMESPACE ERR_OR ERR_OBJECT, vm->stack);
 		inst_destroy(left);
@@ -3761,7 +3867,8 @@ void CMD_GETVARIABLE(void* input, CPCMD self)
 			val = arr->data[1];
 		}
 		push_stack(vm, vm->stack, inst_value(value(val->type, val->val)));
-	} else if (right_val->type == STRING_TYPE())
+	}
+	else if (right_val->type == STRING_TYPE())
 	{
 		if (((PSTRING) right_val->val.ptr)->length == 0)
 		{
@@ -3778,11 +3885,13 @@ void CMD_GETVARIABLE(void* input, CPCMD self)
 		{
 			push_stack(vm, vm->stack,
 					inst_value(value(NOTHING_TYPE(), base_int(0))));
-		} else
+		}
+		else
 		{
 			push_stack(vm, vm->stack, inst_value(value(val->type, val->val)));
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
 		inst_destroy(left);
@@ -3816,10 +3925,12 @@ void CMD_SETVARIABLE(void* input, CPCMD self)
 	if (left_val->type == NAMESPACE_TYPE())
 	{
 		ns = left_val->val.ptr;
-	} else if (left_val->type == OBJECT_TYPE())
+	}
+	else if (left_val->type == OBJECT_TYPE())
 	{
 		ns = ((POBJECT) left_val->val.ptr)->ns;
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_NAMESPACE ERR_OR ERR_OBJECT, vm->stack);
 		inst_destroy(left);
@@ -4241,7 +4352,8 @@ void CMD_DOMOVE(void* input, CPCMD self)
 			obj->position = (vec3 ) { .x = arr->data[0]->val.f, .y =
 							arr->data[0]->val.f, .z = arr->data[0]->val.f };
 		}
-	} else if (left_val->type == ARRAY_TYPE())
+	}
+	else if (left_val->type == ARRAY_TYPE())
 	{
 		arr2 = left_val->val.ptr;
 
@@ -4273,7 +4385,8 @@ void CMD_DOMOVE(void* input, CPCMD self)
 				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_OBJECT, vm->stack);
 		inst_destroy(left);
@@ -4518,10 +4631,12 @@ void CMD_ALLVARIABLES(void* input, CPCMD self)
 	if (right_val->type == NAMESPACE_TYPE())
 	{
 		list = ((PNAMESPACE) right_val->val.ptr)->data;
-	} else if (right_val->type == OBJECT_TYPE())
+	}
+	else if (right_val->type == OBJECT_TYPE())
 	{
 		list = ((POBJECT) right_val->val.ptr)->ns->data;
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_NAMESPACE ERR_OR ERR_OBJECT,
 				vm->stack);
@@ -4561,7 +4676,8 @@ void CMD_WITH(void* input, CPCMD self)
 		push_stack(vm, vm->stack,
 				inst_value(value(WITH_TYPE(), right_val->val)));
 		inst_destroy(right);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_NAMESPACE, vm->stack);
 		inst_destroy(right);
@@ -4591,7 +4707,8 @@ void CMD_COMPILE(void* input, CPCMD self)
 										parse_into_code(vm,
 												((PSTRING) right_val->val.ptr)->val)))));
 		inst_destroy(right);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
 		inst_destroy(right);
@@ -4629,7 +4746,8 @@ void CMD_TOARRAY(void* input, CPCMD self)
 		push_stack(vm, vm->stack,
 				inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 		inst_destroy(right);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
 		inst_destroy(right);
@@ -4682,7 +4800,8 @@ void CMD_TOSTRING(void* input, CPCMD self)
 		push_stack(vm, vm->stack,
 				inst_value(value(STRING_TYPE(), base_voidptr(str))));
 		inst_destroy(right);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
 		inst_destroy(right);
@@ -4720,7 +4839,8 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 			varname = tmp->val.ptr;
 			if (varname->length == 0)
 				continue;
-		} else if (tmp->type == ARRAY_TYPE())
+		}
+		else if (tmp->type == ARRAY_TYPE())
 		{
 			//Varname validation
 			if (((PARRAY) tmp->val.ptr)->top == 0)
@@ -4753,7 +4873,8 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 				{
 					expecteddatatypes =
 							((PARRAY) tmp->val.ptr)->data[2]->val.ptr;
-				} else if (((PARRAY) tmp->val.ptr)->data[3]->type
+				}
+				else if (((PARRAY) tmp->val.ptr)->data[3]->type
 						!= NOTHING_TYPE())
 				{
 					vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
@@ -4785,11 +4906,13 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 							return;
 						}
 					}
-				} else if (((PARRAY) tmp->val.ptr)->data[3]->type
+				}
+				else if (((PARRAY) tmp->val.ptr)->data[3]->type
 						== SCALAR_TYPE())
 				{
 					expectedarrcount = ((PARRAY) tmp->val.ptr)->data[3];
-				} else if (((PARRAY) tmp->val.ptr)->data[3]->type
+				}
+				else if (((PARRAY) tmp->val.ptr)->data[3]->type
 						!= NOTHING_TYPE())
 				{
 					vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
@@ -4798,7 +4921,8 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 					return;
 				}
 			}
-		} else
+		}
+		else
 		{
 			vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
 			push_stack(vm, vm->stack,
@@ -4810,11 +4934,13 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 		if (content == 0)
 		{
 			tmp = input;
-		} else if (content->top <= i)
+		}
+		else if (content->top <= i)
 		{
 			tmp = defaultval;
 			success_flag = 0;
-		} else
+		}
+		else
 		{
 			tmp = content->data[i];
 			if (tmp->type == NOTHING_TYPE())
@@ -4861,7 +4987,8 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 					vm->warn(vm, ERR_SPECIAL_PARAMS_FORMAT_MISSMATCH,
 							vm->stack);
 				}
-			} else if (expectedarrcount->type == SCALAR_TYPE())
+			}
+			else if (expectedarrcount->type == SCALAR_TYPE())
 			{
 				if (((PARRAY) tmp->val.ptr)->top
 						!= (int) expectedarrcount->val.f)
@@ -4877,7 +5004,8 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 		{
 			store_in_scope(vm, topscope, varname->val,
 					value(NOTHING_TYPE(), base_int(0)));
-		} else
+		}
+		else
 		{
 			store_in_scope(vm, topscope, varname->val,
 					value(tmp->type, tmp->val));
@@ -4979,7 +5107,8 @@ void CMD_ISNIL(void* input, CPCMD self)
 												|| val->type == NOTHING_TYPE() ?
 												1 : 0))));
 		inst_destroy(right);
-	} else if (right_val->type == CODE_TYPE())
+	}
+	else if (right_val->type == CODE_TYPE())
 	{
 		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(1))));
 		push_stack(vm, vm->stack, inst_pop(1));
@@ -4987,7 +5116,8 @@ void CMD_ISNIL(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_pop_eval(2, 1));
 		push_stack(vm, vm->stack, inst_code_load(1));
 		push_stack(vm, vm->stack, right);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING ERR_OR ERR_CODE, vm->stack);
 		inst_destroy(right);
@@ -5017,7 +5147,8 @@ void CMD_DELETEVEHICLE(void* input, CPCMD self)
 		inst_destroy(right);
 		push_stack(vm, vm->stack,
 				inst_value(value(NOTHING_TYPE(), base_int(0))));
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_OBJECT, vm->stack);
 		inst_destroy(right);
@@ -5052,11 +5183,13 @@ void CMD_CREATEGROUP(void* input, CPCMD self)
 				inst_destroy_value(
 						sm_set_value(vm->groupmap, group->ident, tmp));
 			}
-		} while (tmp != 0);
+		}
+		while (tmp != 0);
 		push_stack(vm, vm->stack,
 				inst_value(value(GROUP_TYPE(), base_voidptr(group))));
 		inst_destroy(right);
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SIDE, vm->stack);
 		inst_destroy(right);
@@ -5085,7 +5218,8 @@ void CMD_DELETEGROUP(void* input, CPCMD self)
 		{
 			inst_destroy_value(sm_drop_value(vm->groupmap, group->ident));
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_GROUP, vm->stack);
 	}
@@ -5114,7 +5248,8 @@ void CMD_GROUPID(void* input, CPCMD self)
 						value(STRING_TYPE(),
 								base_voidptr(string_create2(group->ident)))));
 		;
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_GROUP, vm->stack);
 		inst_destroy(right);
@@ -5219,10 +5354,12 @@ void CMD_CREATEUNIT(void* input, CPCMD self)
 		{
 			pos.z = ((PARRAY) arr->data[1]->val.ptr)->data[2]->val.f;
 		}
-	} else if (arr->data[1]->type == OBJECT_TYPE())
+	}
+	else if (arr->data[1]->type == OBJECT_TYPE())
 	{
 		pos = ((POBJECT) arr->data[1]->val.ptr)->position;
-	} else if (arr->data[1]->type == GROUP_TYPE())
+	}
+	else if (arr->data[1]->type == GROUP_TYPE())
 	{
 		tmp = group_get_leader(((PGROUP) arr->data[1]->val.ptr));
 		if (tmp == 0 || object_is_null(tmp->val.ptr))
@@ -5235,7 +5372,8 @@ void CMD_CREATEUNIT(void* input, CPCMD self)
 			return;
 		}
 		pos = ((POBJECT) tmp->val.ptr)->position;
-	} else
+	}
+	else
 	{
 		vm->error(vm,
 		ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING,
@@ -5267,7 +5405,8 @@ void CMD_CREATEUNIT(void* input, CPCMD self)
 			pos.y += randlf(f)
 			-(f / 2);
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm,
 		ERR_ERR ERR_ARRAY_(3) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR,
@@ -5317,7 +5456,8 @@ void CMD_UNITS(void* input, CPCMD self)
 	if (right_val->type == GROUP_TYPE())
 	{
 		group = right_val->val.ptr;
-	} else if (right_val->type == OBJECT_TYPE())
+	}
+	else if (right_val->type == OBJECT_TYPE())
 	{
 		if (((POBJECT) right_val->val.ptr)->inner == 0)
 		{
@@ -5327,7 +5467,8 @@ void CMD_UNITS(void* input, CPCMD self)
 							value(ARRAY_TYPE(),
 									base_voidptr(array_create2(0)))));
 			return;
-		} else if (((POBJECT) right_val->val.ptr)->is_vehicle)
+		}
+		else if (((POBJECT) right_val->val.ptr)->is_vehicle)
 		{
 			//ToDo: get group from leader
 			inst_destroy(right);
@@ -5336,13 +5477,15 @@ void CMD_UNITS(void* input, CPCMD self)
 							value(ARRAY_TYPE(),
 									base_voidptr(array_create2(0)))));
 			return;
-		} else
+		}
+		else
 		{
 			group =
 					group_from_ident(vm,
 							((PUNIT) ((POBJECT) right_val->val.ptr)->inner)->groupident);
 		}
-	} else
+	}
+	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_GROUP, vm->stack);
 		inst_destroy(right);
