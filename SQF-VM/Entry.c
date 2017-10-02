@@ -69,7 +69,7 @@ char* get_line(char* line, size_t lenmax)
 	return line_start;
 }
 
-#define LINEBUFFER_SIZE 256
+#define LINEBUFFER_SIZE 2048
 
 void custom_error(PVM vm, const char* errMsg, PSTACK stack)
 {
