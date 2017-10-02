@@ -1059,6 +1059,7 @@ void cmd_help_UNARY(void* input, CPCMD self)
 		vm->print(vm, "'%s' could not be located.\n", str->val);
 	}
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+	inst_destroy(right);
 }
 
 void cmd_str(void* input, CPCMD self)
