@@ -1632,6 +1632,9 @@ void cmd_selectrandom(void* input, CPCMD self)
 	PARRAY arr;
 	PVALUE tmp;
 	int index;
+#if _WIN32
+	float rndres;
+#endif
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -1659,7 +1662,16 @@ void cmd_selectrandom(void* input, CPCMD self)
 		return;
 	}
 
+#if _WIN32
+	rndres = randlf(arr->top);
+	index = (int)floor(rndres);
+	if (index >= arr->top)
+	{
+		index = arr->top - 1;
+	}
+#else
 	index = (int)floor(randlf(arr->top));
+#endif
 
 	tmp = arr->data[index];
 
