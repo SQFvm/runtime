@@ -3653,8 +3653,7 @@ void cmd_arrayintersect(void* input, CPCMD self)
 	{
 		if (array_index_of(searchArray, baseArray->data[i]) != -1)
 		{
-			PVALUE val = value_copy(baseArray->data[i]);
-			array_push(result, value(val->type, val->val));
+			array_push(result, value2(baseArray->data[i]));
 		}
 	}
 
