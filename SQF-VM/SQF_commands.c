@@ -3644,7 +3644,7 @@ void cmd_arrayintersect(void* input, CPCMD self)
 
 	for (i = 0; i < baseArray->top; i++)
 	{
-		if (array_index_of(searchArray, baseArray->data[i]) != -1)
+		if (array_index_of(searchArray, baseArray->data[i]) != -1 && array_index_of(result, baseArray->data[i]) == -1)
 		{
 			array_push(result, value2(baseArray->data[i]));
 		}
