@@ -92,6 +92,7 @@ typedef struct VM
 	unsigned long max_instructions;
 	unsigned long instcount;
 	unsigned char enable_instruction_limit;
+	unsigned char is_suspending_environment;
 	int(*print)(struct VM* vm, const char* format, ...);
 	void* print_custom_data;
 
