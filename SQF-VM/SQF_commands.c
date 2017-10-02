@@ -1626,8 +1626,6 @@ void cmd_select(void* input, CPCMD self)
 
 void cmd_selectrandom(void* input, CPCMD self)
 {
-	static char initializedRandom = 0;
-
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
@@ -1661,16 +1659,11 @@ void cmd_selectrandom(void* input, CPCMD self)
 		return;
 	}
 
-	if (!initializedRandom)
-	{
-		initializedRandom = 1;
-		srand(time(NULL));
-	}
-	index = rand() % arr->top;
+	index = (int)floor(rand() % arr->top);
 
 	tmp = arr->data[index];
 
-	push_stack(vm, vm->stack, inst_value(value(tmp->type, tmp->val)));
+	push_stack(vm, vm->stack, inst_value(value2(tmp)));
 
 	inst_destroy(right);
 }
