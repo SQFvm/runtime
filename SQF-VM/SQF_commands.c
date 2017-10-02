@@ -3387,7 +3387,7 @@ void cmd_deleteat(void* input, CPCMD self)
 	}
 
 	array = left_val->val.ptr;
-	index = right_val->val.f;
+	index = (int)round(right_val->val.f);
 
 	if (index < 0)
 	{
