@@ -313,7 +313,7 @@ DLLEXPORT_PREFIX unsigned char start_program(const char* input, unsigned long ma
 	int val;
 	int i;
 	unsigned char success;
-	PVM vm = sqfvm(1000, 50, 1, max_instructions);
+	PVM vm = sqfvm(10000, 50, 1, max_instructions);
 	vm->error = custom_error;
 	vm->warn = custom_warn;
 	if (systime_start == 0)
