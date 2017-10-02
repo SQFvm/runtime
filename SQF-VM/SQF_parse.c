@@ -400,12 +400,18 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 		}
 		if (str[0] == ']')
 		{
-			j = i;
+			if (j == -1)
+			{
+				j = i;
+			}
 			arrcount++;
 		}
 		else if (str[0] == '}')
 		{
-			j = i;
+			if (j == -1)
+			{
+				j = i;
+			}
 			codecount++;
 		}
 		else if (j == -1)
