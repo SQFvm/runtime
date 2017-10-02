@@ -289,7 +289,7 @@ void execute(PVM vm, int exitAfter)
 	PVALUE val;
 	PVALUE val2;
 	PSCOPE scope;
-	int i, j;
+	int i;
 	unsigned int ui;
 	const char* str_const;
 	while (vm->stack->top > 0)

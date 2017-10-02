@@ -132,7 +132,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 		}
 		else
 		{
-			grp = group_from_ident(vm, ((PUNIT)obj->inner)->groupident);
+			grp = group_from_ident(vm, ((PUNIT)obj->inner)->groupident->val);
 			if (grp == 0)
 			{
 				i = snprintf(0, 0, "%s:%d", "NA", 0);
@@ -3204,7 +3204,7 @@ void cmd_set(void* input, CPCMD self)
 	PVALUE left_val;
 	PVALUE right_val;
 	PARRAY arrl, arrr;
-	int index, i;
+	int index;
 	PVALUE val;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
@@ -5277,10 +5277,8 @@ void cmd_createunit(void* input, CPCMD self)
 		f = arr->data[3]->val.f;
 		if (f > 0)
 		{
-			pos.x += randlf(f)
-				- (f / 2);
-			pos.y += randlf(f)
-				- (f / 2);
+			pos.x += randlf(f) - (f / 2);
+			pos.y += randlf(f) - (f / 2);
 		}
 	}
 	else
@@ -5357,9 +5355,8 @@ void cmd_units(void* input, CPCMD self)
 		}
 		else
 		{
-			group =
-				group_from_ident(vm,
-				((PUNIT)((POBJECT)right_val->val.ptr)->inner)->groupident);
+			group = group_from_ident(vm,
+				((PUNIT)((POBJECT)right_val->val.ptr)->inner)->groupident->val);
 		}
 	}
 	else

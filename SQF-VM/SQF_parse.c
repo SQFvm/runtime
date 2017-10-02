@@ -762,7 +762,6 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 PCODE parse_into_code(PVM vm, const char* code)
 {
 	TR_ARR* arr = tr_arr_create();
-	unsigned int stack_counter = 0;
 	unsigned int stack_size = 0;
 	PCODE pcode;
 	if (code == 0)

@@ -799,7 +799,7 @@ PCMD GROUP_TYPE(void)
 }
 PGROUP group_create(int side)
 {
-	static count = 1;
+	static int count = 1;
 	PGROUP group = malloc(sizeof(GROUP));
 	group->refcount = 0;
 	group->members = value_create(ARRAY_TYPE(), base_voidptr(array_create()));
