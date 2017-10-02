@@ -1659,7 +1659,7 @@ void cmd_selectrandom(void* input, CPCMD self)
 		return;
 	}
 
-	index = (int)floor(rand() % arr->top);
+	index = (int)floor(randlf(arr->top));
 
 	tmp = arr->data[index];
 
@@ -2814,8 +2814,7 @@ void cmd_random(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	f = randlf(right_val->val.f)
-		;
+	f = randlf(right_val->val.f);
 	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
