@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "basetype.h"
 #include "vector.h"
@@ -26,7 +27,6 @@
 #include "errors.h"
 #include "random.h"
 
-
 #ifndef M_PI
 #define M_PI 3.1415926535
 #endif // !M_PI 3.1415926535
@@ -42,7 +42,7 @@ int64_t system_time_ms(void)
 #else
 	struct timeb timebuffer;
 	ftime(&timebuffer);
-	return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
+	return (int64_t) (((timebuffer.time * 1000) + timebuffer.millitm));
 #endif
 }
 void stringify_value(PVM vm, PSTRING str, PVALUE val)
@@ -66,7 +66,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	}
 	else if (val->type == ARRAY_TYPE())
 	{
-		arr = ((PARRAY)val->val.ptr);
+		arr = ((PARRAY) val->val.ptr);
 		string_modify_append(str, "[");
 		for (i = 0; i < arr->top; i++)
 		{
@@ -81,7 +81,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	else if (val->type == STRING_TYPE())
 	{
 		string_modify_append(str, "\"");
-		strptr = ((PSTRING)val->val.ptr)->val;
+		strptr = ((PSTRING) val->val.ptr)->val;
 		if (strptr != 0)
 		{
 			while ((strptr2 = strchr(strptr, '"')) != 0)
@@ -104,7 +104,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	else if (val->type == CODE_TYPE() || val->type == WHILE_TYPE())
 	{
 		string_modify_append(str, "{");
-		string_modify_append(str, ((PCODE)val->val.ptr)->val);
+		string_modify_append(str, ((PCODE) val->val.ptr)->val);
 		string_modify_append(str, "}");
 	}
 	else if (val->type == SIDE_TYPE())
@@ -117,7 +117,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	}
 	else if (val->type == GROUP_TYPE())
 	{
-		string_modify_append(str, ((PGROUP)val->val.ptr)->ident);
+		string_modify_append(str, ((PGROUP) val->val.ptr)->ident);
 	}
 	else if (val->type == OBJECT_TYPE())
 	{
@@ -132,7 +132,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 		}
 		else
 		{
-			grp = group_from_ident(vm, ((PUNIT)obj->inner)->groupident);
+			grp = group_from_ident(vm, ((PUNIT) obj->inner)->groupident);
 			if (grp == 0)
 			{
 				i = snprintf(0, 0, "%s:%d", "NA", 0);
@@ -142,9 +142,10 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 			}
 			else
 			{
-				for (i = 0; i < ((PARRAY)grp->members->val.ptr)->top; i++)
+				for (i = 0; i < ((PARRAY) grp->members->val.ptr)->top; i++)
 				{
-					if (((PARRAY)grp->members->val.ptr)->data[0]->val.ptr == obj)
+					if (((PARRAY) grp->members->val.ptr)->data[0]->val.ptr
+							== obj)
 						break;
 				}
 				j = i;
@@ -203,7 +204,7 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	}
 	else if (l->type == STRING_TYPE())
 	{
-		return !strcmp(((PSTRING)l->val.ptr)->val, ((PSTRING)r->val.ptr)->val);
+		return !strcmp(((PSTRING) l->val.ptr)->val, ((PSTRING) r->val.ptr)->val);
 	}
 	else if (l->type == NAMESPACE_TYPE())
 	{
@@ -225,17 +226,20 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 			switch (instl->type)
 			{
 			case INST_VALUE:
-				if (!is_equal_to(vm, get_value(vm, vm->stack, instl), get_value(vm, vm->stack, instr)))
+				if (!is_equal_to(vm, get_value(vm, vm->stack, instl),
+						get_value(vm, vm->stack, instr)))
 					return 0;
 				break;
 			case INST_LOAD_VAR:
 			case INST_STORE_VAR:
 			case INST_STORE_VAR_LOCAL:
-				if (str_cmpi(get_var_name(vm, vm->stack, instl), -1, get_var_name(vm, vm->stack, instr), -1))
+				if (str_cmpi(get_var_name(vm, vm->stack, instl), -1,
+						get_var_name(vm, vm->stack, instr), -1))
 					return 0;
 				break;
 			case INST_COMMAND:
-				if (get_command(vm, vm->stack, instl) != get_command(vm, vm->stack, instr))
+				if (get_command(vm, vm->stack, instl)
+						!= get_command(vm, vm->stack, instr))
 					return 0;
 				break;
 			}
@@ -248,7 +252,8 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	}
 	else if (l->type == OBJECT_TYPE())
 	{
-		if (((POBJECT)l->val.ptr)->inner == 0 && ((POBJECT)r->val.ptr)->inner == 0)
+		if (((POBJECT) l->val.ptr)->inner == 0
+				&& ((POBJECT) r->val.ptr)->inner == 0)
 		{
 			return 1;
 		}
@@ -267,8 +272,23 @@ unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
 	}
 }
 
+int array_indexOf(PVM vm, const PARRAY array, const PVALUE value)
+{
+	int index = -1;
 
-void cmd_isequalto(void* input, CPCMD self)
+	for (int i = 0; i < array->top; i++)
+	{
+		if (is_equal_to(vm, array->data[i], value))
+		{
+			index = i;
+			break;
+		}
+	}
+
+	return index;
+}
+
+void CMD_ISEQUALTO(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -285,11 +305,14 @@ void cmd_isequalto(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(is_equal_to(vm, left_val, right_val))));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(BOOL_TYPE(),
+							base_int(is_equal_to(vm, left_val, right_val)))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_isequaltype(void* input, CPCMD self)
+void CMD_ISEQUALTYPE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -306,11 +329,14 @@ void cmd_isequaltype(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(left_val->type == right_val->type)));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(BOOL_TYPE(),
+							base_int(left_val->type == right_val->type))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_plus(void* input, CPCMD self)
+void CMD_PLUS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -338,10 +364,15 @@ void cmd_plus(void* input, CPCMD self)
 			vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
-		push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f + right_val->val.f))));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(left_val->type,
+								base_float(
+										left_val->val.f + right_val->val.f))));
 	}
 	else if (left_val->type == STRING_TYPE())
 	{
@@ -350,46 +381,56 @@ void cmd_plus(void* input, CPCMD self)
 			vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
-		str = string_concat(((PSTRING)left_val->val.ptr), ((PSTRING)right_val->val.ptr));
-		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
+		str = string_concat(((PSTRING) left_val->val.ptr),
+				((PSTRING) right_val->val.ptr));
+		push_stack(vm, vm->stack,
+				inst_value(value(STRING_TYPE(), base_voidptr(str))));
 	}
 	else if (left_val->type == ARRAY_TYPE())
 	{
-		arr = ((PARRAY)left_val->val.ptr);
-		outarr = array_create2(arr->top + (right_val->type == ARRAY_TYPE() ? ((PARRAY)right_val->val.ptr)->top : 1));
+		arr = ((PARRAY) left_val->val.ptr);
+		outarr = array_create2(
+				arr->top
+						+ (right_val->type == ARRAY_TYPE() ?
+								((PARRAY) right_val->val.ptr)->top : 1));
 		for (i = 0; i < arr->top; i++)
 		{
 			array_push(outarr, value(arr->data[i]->type, arr->data[i]->val));
 		}
 		if (right_val->type == ARRAY_TYPE())
 		{
-			arr = ((PARRAY)right_val->val.ptr);
+			arr = ((PARRAY) right_val->val.ptr);
 			for (i = 0; i < arr->top; i++)
 			{
-				array_push(outarr, value(arr->data[i]->type, arr->data[i]->val));
+				array_push(outarr,
+						value(arr->data[i]->type, arr->data[i]->val));
 			}
 		}
 		else
 		{
 			array_push(outarr, value(right_val->type, right_val->val));
 		}
-		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(outarr))));
+		push_stack(vm, vm->stack,
+				inst_value(value(ARRAY_TYPE(), base_voidptr(outarr))));
 	}
 	else
 	{
-		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_ARRAY, vm->stack);
+		vm->error(vm,
+		ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_ARRAY, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_plus_UNARY(void* input, CPCMD self)
+void CMD_PLUS_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -403,28 +444,35 @@ void cmd_plus_UNARY(void* input, CPCMD self)
 	}
 	if (right_val->type == ARRAY_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_copy(right_val->val.ptr)))));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(ARRAY_TYPE(),
+								base_voidptr(array_copy(right_val->val.ptr)))));
 		inst_destroy(right);
 	}
 	else if (right_val->type == SCALAR_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(value(right_val->type, right_val->val)));
+		push_stack(vm, vm->stack,
+				inst_value(value(right_val->type, right_val->val)));
 		inst_destroy(right);
 	}
 	else if (right_val->type == NAN_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(value(right_val->type, right_val->val)));
+		push_stack(vm, vm->stack,
+				inst_value(value(right_val->type, right_val->val)));
 		inst_destroy(right);
 	}
 	else
 	{
-		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_OR ERR_SCALAR ERR_OR ERR_NAN, vm->stack);
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_OR ERR_SCALAR ERR_OR ERR_NAN,
+				vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 }
-void cmd_minus(void* input, CPCMD self)
+void CMD_MINUS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -454,10 +502,15 @@ void cmd_minus(void* input, CPCMD self)
 			vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
-		push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f - right_val->val.f))));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(left_val->type,
+								base_float(
+										left_val->val.f - right_val->val.f))));
 	}
 	else if (left_val->type == ARRAY_TYPE())
 	{
@@ -466,7 +519,8 @@ void cmd_minus(void* input, CPCMD self)
 			vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
 		k = 0;
@@ -499,23 +553,26 @@ void cmd_minus(void* input, CPCMD self)
 			}
 			if (j == rarr->top)
 			{
-				array_push(outarr, value(larr->data[i]->type, larr->data[i]->val));
+				array_push(outarr,
+						value(larr->data[i]->type, larr->data[i]->val));
 			}
 		}
-		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(outarr))));
+		push_stack(vm, vm->stack,
+				inst_value(value(ARRAY_TYPE(), base_voidptr(outarr))));
 	}
 	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_ARRAY, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_minus_UNARY(void* input, CPCMD self)
+void CMD_MINUS_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -531,13 +588,15 @@ void cmd_minus_UNARY(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(right_val->type, base_float(-right_val->val.f))));
+	push_stack(vm, vm->stack,
+			inst_value(value(right_val->type, base_float(-right_val->val.f))));
 	inst_destroy(right);
 }
-void cmd_multiply(void* input, CPCMD self)
+void CMD_MULTIPLY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -559,7 +618,8 @@ void cmd_multiply(void* input, CPCMD self)
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
@@ -567,14 +627,18 @@ void cmd_multiply(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f * right_val->val.f))));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(left_val->type,
+							base_float(left_val->val.f * right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_divide(void* input, CPCMD self)
+void CMD_DIVIDE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -596,7 +660,8 @@ void cmd_divide(void* input, CPCMD self)
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->type != SCALAR_TYPE())
@@ -604,7 +669,8 @@ void cmd_divide(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->val.f == 0)
@@ -615,11 +681,14 @@ void cmd_divide(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_value(value(NAN_TYPE(), base_int(0))));
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(left_val->type, base_float(left_val->val.f / right_val->val.f))));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(left_val->type,
+							base_float(left_val->val.f / right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_diag_LOG(void* input, CPCMD self)
+void CMD_DIAG_LOG(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -637,9 +706,9 @@ void cmd_diag_LOG(void* input, CPCMD self)
 	vm->print(vm, "[DIAG_LOG]: %s\n", str->val);
 	string_destroy(str);
 	inst_destroy(right);
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
-void cmd_hint(void* input, CPCMD self)
+void CMD_HINT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -655,21 +724,22 @@ void cmd_hint(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	if (((PSTRING)right_val->val.ptr)->val == 0)
+	if (((PSTRING) right_val->val.ptr)->val == 0)
 	{
 		vm->print(vm, "[HINT]: \n");
 	}
 	else
 	{
-		vm->print(vm, "[HINT]: %s\n", ((PSTRING)right_val->val.ptr)->val);
+		vm->print(vm, "[HINT]: %s\n", ((PSTRING) right_val->val.ptr)->val);
 	}
 	inst_destroy(right);
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
-void cmd_systemchat(void* input, CPCMD self)
+void CMD_SYSTEMCHAT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -685,21 +755,23 @@ void cmd_systemchat(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	if (((PSTRING)right_val->val.ptr)->val == 0)
+	if (((PSTRING) right_val->val.ptr)->val == 0)
 	{
 		vm->print(vm, "[SYSTEMCHAT]: \n");
 	}
 	else
 	{
-		vm->print(vm, "[SYSTEMCHAT]: %s\n", ((PSTRING)right_val->val.ptr)->val);
+		vm->print(vm, "[SYSTEMCHAT]: %s\n",
+				((PSTRING) right_val->val.ptr)->val);
 	}
 	inst_destroy(right);
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
-void cmd_private(void* input, CPCMD self)
+void CMD_PRIVATE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -727,7 +799,8 @@ void cmd_private(void* input, CPCMD self)
 		}
 		else
 		{
-			store_in_scope(vm, top_scope(vm), str->val, value(ANY_TYPE(), base_voidptr(0)));
+			store_in_scope(vm, top_scope(vm), str->val,
+					value(ANY_TYPE(), base_voidptr(0)));
 		}
 	}
 	else if (right_val->type == ARRAY_TYPE())
@@ -752,7 +825,8 @@ void cmd_private(void* input, CPCMD self)
 				}
 				else
 				{
-					store_in_scope(vm, top_scope(vm), str->val, value(ANY_TYPE(), base_voidptr(0)));
+					store_in_scope(vm, top_scope(vm), str->val,
+							value(ANY_TYPE(), base_voidptr(0)));
 				}
 			}
 		}
@@ -763,10 +837,10 @@ void cmd_private(void* input, CPCMD self)
 	}
 
 	inst_destroy(right);
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
 
-void cmd_if(void* input, CPCMD self)
+void CMD_IF(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -791,11 +865,11 @@ void cmd_if(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_BOOL ERR_OR ERR_SCALAR, vm->stack);
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_IF(flag)));
+	push_stack(vm, vm->stack, inst_value(value(IF_TYPE(), base_int(flag))));
 
 	inst_destroy(right);
 }
-void cmd_then(void* input, CPCMD self)
+void CMD_THEN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -828,11 +902,15 @@ void cmd_then(void* input, CPCMD self)
 		}
 		else if (arr->data[0]->type != CODE_TYPE())
 		{
-			vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_CODE, vm->stack);
+			vm->error(vm,
+			ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_CODE,
+					vm->stack);
 		}
 		else if (arr->top > 1 && arr->data[1]->type != CODE_TYPE())
 		{
-			vm->error(vm, ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_CODE, vm->stack);
+			vm->error(vm,
+			ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_CODE,
+					vm->stack);
 		}
 		else
 		{
@@ -847,7 +925,8 @@ void cmd_then(void* input, CPCMD self)
 			if (code != 0)
 			{
 				push_stack(vm, vm->stack, inst_code_load(1));
-				push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(code))));
+				push_stack(vm, vm->stack,
+						inst_value(value(CODE_TYPE(), base_voidptr(code))));
 			}
 		}
 	}
@@ -856,7 +935,10 @@ void cmd_then(void* input, CPCMD self)
 		if (left_val->val.i)
 		{
 			push_stack(vm, vm->stack, inst_code_load(1));
-			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(right_val->val.ptr))));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(CODE_TYPE(),
+									base_voidptr(right_val->val.ptr))));
 		}
 	}
 	else
@@ -867,7 +949,7 @@ void cmd_then(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_else(void* input, CPCMD self)
+void CMD_ELSE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -889,22 +971,23 @@ void cmd_else(void* input, CPCMD self)
 	arr = array_create2(2);
 	array_push(arr, value(CODE_TYPE(), left_val->val));
 	array_push(arr, value(CODE_TYPE(), right_val->val));
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
+	push_stack(vm, vm->stack,
+			inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_true(void* input, CPCMD self)
+void CMD_TRUE(void* input, CPCMD self)
 {
 	PVM vm = input;
-	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(1)));
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(1))));
 }
-void cmd_false(void* input, CPCMD self)
+void CMD_FALSE(void* input, CPCMD self)
 {
 	PVM vm = input;
-	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(0)));
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
 }
-void cmd_help(void* input, CPCMD self)
+void CMD_HELP(void* input, CPCMD self)
 {
 	PVM vm = input;
 	int i;
@@ -916,34 +999,40 @@ void cmd_help(void* input, CPCMD self)
 	for (i = 0; i < count; i++)
 	{
 		cmd = sm_get_value_index(vm->cmd_container->types, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->usage);
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type,
+				cmd->precedence_level, cmd->usage);
 	}
 	count = sm_count(vm->cmd_container->nullar);
 	for (i = 0; i < count; i++)
 	{
 		cmd = sm_get_value_index(vm->cmd_container->nullar, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->usage);
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type,
+				cmd->precedence_level, cmd->usage);
 	}
 	count = sm_count(vm->cmd_container->unary);
 	for (i = 0; i < count; i++)
 	{
 		cmd = sm_get_value_index(vm->cmd_container->unary, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->usage);
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type,
+				cmd->precedence_level, cmd->usage);
 	}
 	count = sm_count(vm->cmd_container->binary);
 	for (i = 0; i < count; i++)
 	{
 		cmd = sm_get_value_index(vm->cmd_container->binary, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type, cmd->precedence_level, cmd->usage);
+		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type,
+				cmd->precedence_level, cmd->usage);
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
 void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 {
 	char* ptr;
 	char* ptr2;
 	char* ptr3;
-	vm->print(vm, "<%s> %s\n", cmd->type == 'b' ? "BINARY" : cmd->type == 'u' ? "UNARY" : cmd->type == 'n' ? "NULLAR" : "TYPE", cmd->name);
+	vm->print(vm, "<%s> %s\n",
+			cmd->type == 'b' ? "BINARY" : cmd->type == 'u' ? "UNARY" :
+			cmd->type == 'n' ? "NULLAR" : "TYPE", cmd->name);
 	if (cmd->description != 0 && *cmd->description != '\0')
 	{
 		vm->print(vm, "\tDescription:\n\t\t%s\n", cmd->description);
@@ -964,13 +1053,15 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 				ptr3 = ptr2 + 2;
 				continue;
 			}
-			while (*ptr == ' ') ptr++;
+			while (*ptr == ' ')
+				ptr++;
 			vm->print(vm, "\t\t%.*s\n", ptr2 - ptr, ptr);
 			ptr = ptr3 = ptr2 + 1;
 		}
 		if (strlen(ptr) > 0)
 		{
-			while (*ptr == ' ') ptr++;
+			while (*ptr == ' ')
+				ptr++;
 			if (strlen(ptr) > 0)
 			{
 				vm->print(vm, "\t\t%s\n", ptr);
@@ -983,13 +1074,15 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 		ptr = cmd->examples;
 		while ((ptr2 = strchr(ptr, '#')) != 0)
 		{
-			while (*ptr == ' ') ptr++;
+			while (*ptr == ' ')
+				ptr++;
 			vm->print(vm, "\t\t%.*s\n", ptr2 - ptr, ptr);
 			ptr = ptr2 + 1;
 		}
 		if (strlen(ptr) > 0)
 		{
-			while (*ptr == ' ') ptr++;
+			while (*ptr == ' ')
+				ptr++;
 			if (strlen(ptr) > 0)
 			{
 				vm->print(vm, "\t\t%s\n", ptr);
@@ -997,7 +1090,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 		}
 	}
 }
-void cmd_help_UNARY(void* input, CPCMD self)
+void CMD_HELP_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	CPCMD cmd;
@@ -1018,11 +1111,13 @@ void cmd_help_UNARY(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	if (((PSTRING)right_val->val.ptr)->length == 0)
+	if (((PSTRING) right_val->val.ptr)->length == 0)
 	{
-		vm->error(vm, ERR_RIGHT ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING, vm->stack);
+		vm->error(vm, ERR_RIGHT ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING,
+				vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	str = right_val->val.ptr;
@@ -1082,11 +1177,10 @@ void cmd_help_UNARY(void* input, CPCMD self)
 	{
 		vm->print(vm, "'%s' could not be located.\n", str->val);
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
 
-
-void cmd_str(void* input, CPCMD self)
+void CMD_STR(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1101,10 +1195,11 @@ void cmd_str(void* input, CPCMD self)
 	}
 	stringify_value(vm, str, right_val);
 	inst_destroy(right);
-	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
+	push_stack(vm, vm->stack,
+			inst_value(value(STRING_TYPE(), base_voidptr(str))));
 }
 
-void cmd_largetthen(void* input, CPCMD self)
+void CMD_GREATERTHAN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1124,7 +1219,8 @@ void cmd_largetthen(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -1132,16 +1228,20 @@ void cmd_largetthen(void* input, CPCMD self)
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(left_val->val.f > right_val->val.f)));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(BOOL_TYPE(),
+							base_int(left_val->val.f > right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_lessthen(void* input, CPCMD self)
+void CMD_LESSTHEN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1161,7 +1261,8 @@ void cmd_lessthen(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -1169,16 +1270,20 @@ void cmd_lessthen(void* input, CPCMD self)
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(left_val->val.f < right_val->val.f)));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(BOOL_TYPE(),
+							base_int(left_val->val.f < right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_largetthenorequal(void* input, CPCMD self)
+void CMD_LARGETTHENOREQUAL(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1198,7 +1303,8 @@ void cmd_largetthenorequal(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -1206,16 +1312,20 @@ void cmd_largetthenorequal(void* input, CPCMD self)
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(left_val->val.f >= right_val->val.f)));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(BOOL_TYPE(),
+							base_int(left_val->val.f >= right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_lessthenorequal(void* input, CPCMD self)
+void CMD_LESSTHENOREQUAL(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1235,7 +1345,8 @@ void cmd_lessthenorequal(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -1243,16 +1354,20 @@ void cmd_lessthenorequal(void* input, CPCMD self)
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(left_val->val.f <= right_val->val.f)));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(BOOL_TYPE(),
+							base_int(left_val->val.f <= right_val->val.f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_equal(void* input, CPCMD self)
+void CMD_EQUAL(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1269,18 +1384,26 @@ void cmd_equal(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	if (left_val->type != SCALAR_TYPE() && left_val->type != STRING_TYPE() && left_val->type != OBJECT_TYPE())
+	if (left_val->type != SCALAR_TYPE() && left_val->type != STRING_TYPE()
+			&& left_val->type != OBJECT_TYPE())
 	{
-		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		vm->error(vm,
+		ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT,
+				vm->stack);
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
-	if (right_val->type != SCALAR_TYPE() && right_val->type != STRING_TYPE() && right_val->type != OBJECT_TYPE())
+	if (right_val->type != SCALAR_TYPE() && right_val->type != STRING_TYPE()
+			&& right_val->type != OBJECT_TYPE())
 	{
-		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		vm->error(vm,
+		ERR_RIGHT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT,
+				vm->stack);
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -1288,22 +1411,40 @@ void cmd_equal(void* input, CPCMD self)
 	if (left_val->type != right_val->type)
 	{
 		vm->error(vm, ERR_ERR ERR_TYPES ERR_EQUAL_TYPE, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
 	else if (left_val->type == SCALAR_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(left_val->val.f == right_val->val.f)));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(BOOL_TYPE(),
+								base_int(
+										left_val->val.f == right_val->val.f))));
 	}
 	else if (left_val->type == STRING_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(!str_cmpi(((PSTRING)left_val->val.ptr)->val, -1, ((PSTRING)right_val->val.ptr)->val, -1))));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(BOOL_TYPE(),
+								base_int(
+										!str_cmpi(
+												((PSTRING) left_val->val.ptr)->val,
+												-1,
+												((PSTRING) right_val->val.ptr)->val,
+												-1)))));
 	}
 	else if (left_val->type == OBJECT_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(left_val->val.ptr == right_val->val.ptr)));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(BOOL_TYPE(),
+								base_int(
+										left_val->val.ptr
+												== right_val->val.ptr))));
 	}
 	else
 	{
@@ -1314,7 +1455,7 @@ void cmd_equal(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_notequal(void* input, CPCMD self)
+void CMD_NOTEQUAL(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1331,18 +1472,26 @@ void cmd_notequal(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	if (left_val->type != SCALAR_TYPE() && left_val->type != STRING_TYPE() && left_val->type != OBJECT_TYPE())
+	if (left_val->type != SCALAR_TYPE() && left_val->type != STRING_TYPE()
+			&& left_val->type != OBJECT_TYPE())
 	{
-		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		vm->error(vm,
+		ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT,
+				vm->stack);
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
-	if (right_val->type != SCALAR_TYPE() && right_val->type != STRING_TYPE() && right_val->type != OBJECT_TYPE())
+	if (right_val->type != SCALAR_TYPE() && right_val->type != STRING_TYPE()
+			&& right_val->type != OBJECT_TYPE())
 	{
-		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		vm->error(vm,
+		ERR_RIGHT_TYPE ERR_SCALAR ERR_OR ERR_STRING ERR_OR ERR_OBJECT,
+				vm->stack);
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -1350,22 +1499,40 @@ void cmd_notequal(void* input, CPCMD self)
 	if (left_val->type != right_val->type)
 	{
 		vm->error(vm, ERR_ERR ERR_TYPES ERR_EQUAL_TYPE, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
 	else if (left_val->type == SCALAR_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(left_val->val.f != right_val->val.f)));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(BOOL_TYPE(),
+								base_int(
+										left_val->val.f != right_val->val.f))));
 	}
 	else if (left_val->type == STRING_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(str_cmpi(((PSTRING)left_val->val.ptr)->val, -1, ((PSTRING)right_val->val.ptr)->val, -1))));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(BOOL_TYPE(),
+								base_int(
+										str_cmpi(
+												((PSTRING) left_val->val.ptr)->val,
+												-1,
+												((PSTRING) right_val->val.ptr)->val,
+												-1)))));
 	}
 	else if (left_val->type == OBJECT_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(left_val->val.ptr != right_val->val.ptr)));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(BOOL_TYPE(),
+								base_int(
+										left_val->val.ptr
+												!= right_val->val.ptr))));
 	}
 	else
 	{
@@ -1376,7 +1543,7 @@ void cmd_notequal(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_andand(void* input, CPCMD self)
+void CMD_ANDAND(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1396,14 +1563,19 @@ void cmd_andand(void* input, CPCMD self)
 	if (left_val->type != BOOL_TYPE())
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_BOOL, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
 	if (right_val->type == BOOL_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(left_val->val.i && right_val->val.i))));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(left_val->type,
+								base_int(
+										left_val->val.i && right_val->val.i))));
 		inst_destroy(left);
 		inst_destroy(right);
 	}
@@ -1411,7 +1583,8 @@ void cmd_andand(void* input, CPCMD self)
 	{
 		if (!left_val->val.i)
 		{
-			push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(0))));
+			push_stack(vm, vm->stack,
+					inst_value(value(left_val->type, base_int(0))));
 		}
 		else
 		{
@@ -1424,13 +1597,14 @@ void cmd_andand(void* input, CPCMD self)
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
 }
-void cmd_oror(void* input, CPCMD self)
+void CMD_OROR(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1450,14 +1624,19 @@ void cmd_oror(void* input, CPCMD self)
 	if (left_val->type != BOOL_TYPE())
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_BOOL, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
 	if (right_val->type == BOOL_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(left_val->val.i || right_val->val.i))));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(left_val->type,
+								base_int(
+										left_val->val.i || right_val->val.i))));
 		inst_destroy(left);
 		inst_destroy(right);
 	}
@@ -1465,7 +1644,8 @@ void cmd_oror(void* input, CPCMD self)
 	{
 		if (left_val->val.i)
 		{
-			push_stack(vm, vm->stack, inst_value(value(left_val->type, base_int(1))));
+			push_stack(vm, vm->stack,
+					inst_value(value(left_val->type, base_int(1))));
 		}
 		else
 		{
@@ -1478,14 +1658,15 @@ void cmd_oror(void* input, CPCMD self)
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
 }
 
-void cmd_select(void* input, CPCMD self)
+void CMD_SELECT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1507,7 +1688,6 @@ void cmd_select(void* input, CPCMD self)
 	}
 	//ToDo: implement more select variants https://community.bistudio.com/wiki/select
 
-
 	if (left_val->type == ARRAY_TYPE())
 	{
 		arr = left_val->val.ptr;
@@ -1522,7 +1702,8 @@ void cmd_select(void* input, CPCMD self)
 		else
 		{
 			vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR ERR_OR ERR_BOOL, vm->stack);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			inst_destroy(left);
 			inst_destroy(right);
 			return;
@@ -1531,7 +1712,8 @@ void cmd_select(void* input, CPCMD self)
 	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -1540,14 +1722,16 @@ void cmd_select(void* input, CPCMD self)
 	if (index < 0 || index > arr->top)
 	{
 		vm->error(vm, ERR_SPECIAL_SELECT_1, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
 	}
 	else if (index == arr->top)
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 	}
 	else
 	{
@@ -1558,8 +1742,57 @@ void cmd_select(void* input, CPCMD self)
 	inst_destroy(right);
 }
 
+void CMD_SELECTRANDOM(void* input, CPCMD self)
+{
+	static char initializedRandom = 0;
 
-void cmd_while(void* input, CPCMD self)
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PARRAY arr;
+	PVALUE tmp;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+
+	if (!(right_val->type == ARRAY_TYPE()))
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(right);
+		return;
+	}
+
+	arr = right_val->val.ptr;
+
+	if (arr->top == 0)
+	{
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(right);
+		return;
+	}
+
+	if (!initializedRandom)
+	{
+		initializedRandom = 1;
+		srand(time(NULL));
+	}
+	int index = rand() % arr->top;
+
+	tmp = arr->data[index];
+
+	push_stack(vm, vm->stack, inst_value(value(tmp->type, tmp->val)));
+
+	inst_destroy(right);
+}
+
+void CMD_WHILE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1580,7 +1813,7 @@ void cmd_while(void* input, CPCMD self)
 	right_val->type = WHILE_TYPE();
 	push_stack(vm, vm->stack, right);
 }
-void cmd_do(void* input, CPCMD self)
+void CMD_DO(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1619,10 +1852,12 @@ void cmd_do(void* input, CPCMD self)
 		push_stack(vm, vm->stack, left);
 		push_stack(vm, vm->stack, right);
 		push_stack(vm, vm->stack, inst_code_load(0));
-		push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(code))));
+		push_stack(vm, vm->stack,
+				inst_value(value(CODE_TYPE(), base_voidptr(code))));
 		push_stack(vm, vm->stack, inst_pop_eval(5, 0));
 		push_stack(vm, vm->stack, inst_code_load(0));
-		push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), left_val->val)));
+		push_stack(vm, vm->stack,
+				inst_value(value(CODE_TYPE(), left_val->val)));
 		push_stack(vm, vm->stack, inst_clear_work());
 	}
 	else if (left_val->type == FOR_TYPE())
@@ -1637,16 +1872,21 @@ void cmd_do(void* input, CPCMD self)
 			pfor->current = pfor->start;
 			pfor->started = 1;
 		}
-		if (pfor->step > 0 ? pfor->current < pfor->end : pfor->current > pfor->end)
+		if (pfor->step > 0 ?
+				pfor->current < pfor->end : pfor->current > pfor->end)
 		{
-			push_stack(vm, vm->stack, inst_command(find_command(vm, "do", 'b')));
+			push_stack(vm, vm->stack,
+					inst_command(find_command(vm, "do", 'b')));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, right);
 			push_stack(vm, vm->stack, inst_scope("loop"));
 			push_stack(vm, vm->stack, inst_code_load(0));
-			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), right_val->val)));
+			push_stack(vm, vm->stack,
+					inst_value(value(CODE_TYPE(), right_val->val)));
 			push_stack(vm, vm->stack, inst_store_var_local(pfor->variable));
-			push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(pfor->current)));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(SCALAR_TYPE(), base_float(pfor->current))));
 			push_stack(vm, vm->stack, inst_clear_work());
 		}
 		else
@@ -1663,12 +1903,16 @@ void cmd_do(void* input, CPCMD self)
 			if (swtch->selected_code != 0)
 			{
 				push_stack(vm, vm->stack, inst_code_load(0));
-				push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), swtch->selected_code->val)));
+				push_stack(vm, vm->stack,
+						inst_value(
+								value(CODE_TYPE(), swtch->selected_code->val)));
 			}
 			else if (swtch->default_code != 0)
 			{
 				push_stack(vm, vm->stack, inst_code_load(0));
-				push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), swtch->default_code->val)));
+				push_stack(vm, vm->stack,
+						inst_value(
+								value(CODE_TYPE(), swtch->default_code->val)));
 			}
 			inst_destroy(left);
 			inst_destroy(right);
@@ -1676,14 +1920,17 @@ void cmd_do(void* input, CPCMD self)
 		else
 		{
 			swtch->was_executed = 1;
-			push_stack(vm, vm->stack, inst_command(find_command(vm, "do", 'b')));
+			push_stack(vm, vm->stack,
+					inst_command(find_command(vm, "do", 'b')));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, right);
 			push_stack(vm, vm->stack, inst_scope("switch"));
 			push_stack(vm, vm->stack, inst_code_load(0));
-			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), right_val->val)));
+			push_stack(vm, vm->stack,
+					inst_value(value(CODE_TYPE(), right_val->val)));
 			push_stack(vm, vm->stack, inst_store_var_local(SWITCH_SPECIAL_VAR));
-			push_stack(vm, vm->stack, inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
+			push_stack(vm, vm->stack,
+					inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
 			push_stack(vm, vm->stack, inst_clear_work());
 		}
 	}
@@ -1694,7 +1941,8 @@ void cmd_do(void* input, CPCMD self)
 		scope->ns = left_val->val.ptr;
 		push_stack(vm, vm->stack, tmpinst);
 		push_stack(vm, vm->stack, inst_code_load(0));
-		push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), right_val->val)));
+		push_stack(vm, vm->stack,
+				inst_value(value(CODE_TYPE(), right_val->val)));
 	}
 	else
 	{
@@ -1704,7 +1952,7 @@ void cmd_do(void* input, CPCMD self)
 		return;
 	}
 }
-void cmd_typename(void* input, CPCMD self)
+void CMD_TYPENAME(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1718,10 +1966,11 @@ void cmd_typename(void* input, CPCMD self)
 		return;
 	}
 	str = string_create2(right_val->type->name);
-	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
+	push_stack(vm, vm->stack,
+			inst_value(value(STRING_TYPE(), base_voidptr(str))));
 	inst_destroy(right);
 }
-void cmd_count(void* input, CPCMD self)
+void CMD_COUNT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1759,12 +2008,16 @@ void cmd_count(void* input, CPCMD self)
 		{
 			count = count_create(left_val->val.ptr, right_val->val.ptr);
 			push_stack(vm, vm->stack, inst_command(self));
-			push_stack(vm, vm->stack, inst_value(value(COUNT_TYPE(), base_voidptr(count))));
+			push_stack(vm, vm->stack,
+					inst_value(value(COUNT_TYPE(), base_voidptr(count))));
 			push_stack(vm, vm->stack, inst_scope(0));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, inst_store_var_local("_x"));
-			push_stack(vm, vm->stack, inst_value(value(arr->data[count->curtop]->type, arr->data[count->curtop]->val)));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(arr->data[count->curtop]->type,
+									arr->data[count->curtop]->val)));
 			inst_destroy(right);
 		}
 	}
@@ -1785,7 +2038,8 @@ void cmd_count(void* input, CPCMD self)
 		}
 		if (++(count->curtop) == arr->top)
 		{
-			push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(count->count)));
+			push_stack(vm, vm->stack,
+					inst_value(value(SCALAR_TYPE(), base_float(count->count))));
 			inst_destroy(left);
 			inst_destroy(right);
 		}
@@ -1795,9 +2049,15 @@ void cmd_count(void* input, CPCMD self)
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, inst_scope(0));
 			push_stack(vm, vm->stack, inst_code_load(0));
-			push_stack(vm, vm->stack, inst_value(VALUE_CODE_PTR(count->code->val.ptr)));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(CODE_TYPE(),
+									base_voidptr(count->code->val.ptr))));
 			push_stack(vm, vm->stack, inst_store_var_local("_x"));
-			push_stack(vm, vm->stack, inst_value(value(arr->data[count->curtop]->type, arr->data[count->curtop]->val)));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(arr->data[count->curtop]->type,
+									arr->data[count->curtop]->val)));
 			inst_destroy(right);
 		}
 	}
@@ -1808,7 +2068,7 @@ void cmd_count(void* input, CPCMD self)
 		inst_destroy(right);
 	}
 }
-void cmd_count_UNARY(void* input, CPCMD self)
+void CMD_COUNT_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1823,20 +2083,29 @@ void cmd_count_UNARY(void* input, CPCMD self)
 
 	if (right_val->type == STRING_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(((PSTRING)right_val->val.ptr)->length)));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(SCALAR_TYPE(),
+								base_float(
+										((PSTRING) right_val->val.ptr)->length))));
 	}
 	else if (right_val->type == ARRAY_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(((PARRAY)right_val->val.ptr)->top)));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(SCALAR_TYPE(),
+								base_float(
+										((PARRAY) right_val->val.ptr)->top))));
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING ERR_OR ERR_ARRAY, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 	}
 	inst_destroy(right);
 }
-void cmd_format(void* input, CPCMD self)
+void CMD_FORMAT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1862,12 +2131,16 @@ void cmd_format(void* input, CPCMD self)
 		if (arr->top == 0)
 		{
 			vm->error(vm, ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 		}
 		else if (arr->data[0]->type != STRING_TYPE())
 		{
-			vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			vm->error(vm,
+			ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING,
+					vm->stack);
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 		}
 		else
 		{
@@ -1894,23 +2167,26 @@ void cmd_format(void* input, CPCMD self)
 					}
 					else
 					{
-						string_modify_append(str_out, ((PSTRING)arr->data[index]->val.ptr)->val);
+						string_modify_append(str_out,
+								((PSTRING) arr->data[index]->val.ptr)->val);
 					}
 				}
 				ptr_last = endptr;
 			}
 			string_modify_append(str_out, ptr_last);
-			push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str_out))));
+			push_stack(vm, vm->stack,
+					inst_value(value(STRING_TYPE(), base_voidptr(str_out))));
 		}
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 	}
 	inst_destroy(right);
 }
-void cmd_call(void* input, CPCMD self)
+void CMD_CALL(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1934,17 +2210,19 @@ void cmd_call(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_code_load(0));
 		push_stack(vm, vm->stack, right);
 		push_stack(vm, vm->stack, inst_store_var_local("_this"));
-		push_stack(vm, vm->stack, inst_value(value(left_val->type, left_val->val)));
+		push_stack(vm, vm->stack,
+				inst_value(value(left_val->type, left_val->val)));
 		inst_destroy(left);
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(right);
 	}
 }
-void cmd_call_UNARY(void* input, CPCMD self)
+void CMD_CALL_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -1963,16 +2241,18 @@ void cmd_call_UNARY(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_code_load(0));
 		push_stack(vm, vm->stack, right);
 		push_stack(vm, vm->stack, inst_store_var_local("_this"));
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(right);
 	}
 }
-void cmd_spawn(void* input, CPCMD self)
+void CMD_SPAWN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -1999,20 +2279,24 @@ void cmd_spawn(void* input, CPCMD self)
 		push_stack(vm, script->stack, inst_code_load(0));
 		push_stack(vm, script->stack, right);
 		push_stack(vm, script->stack, inst_store_var_local("_this"));
-		push_stack(vm, script->stack, inst_value(value(left_val->type, left_val->val)));
+		push_stack(vm, script->stack,
+				inst_value(value(left_val->type, left_val->val)));
 		push_stack(vm, script->stack, inst_store_var_local("_thisScript"));
-		push_stack(vm, script->stack, inst_value(value(SCRIPT_TYPE(), base_voidptr(script))));
-		push_stack(vm, vm->stack, inst_value(value(SCRIPT_TYPE(), base_voidptr(script))));
+		push_stack(vm, script->stack,
+				inst_value(value(SCRIPT_TYPE(), base_voidptr(script))));
+		push_stack(vm, vm->stack,
+				inst_value(value(SCRIPT_TYPE(), base_voidptr(script))));
 		inst_destroy(left);
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(right);
 	}
 }
-void cmd_scriptdone(void* input, CPCMD self)
+void CMD_SCRIPTDONE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2027,18 +2311,24 @@ void cmd_scriptdone(void* input, CPCMD self)
 
 	if (right_val->type == SCRIPT_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(((PSCRIPT)right_val->val.ptr)->stack->top == 0 ? 1 : 0)));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(BOOL_TYPE(),
+								base_int(
+										((PSCRIPT) right_val->val.ptr)->stack->top
+												== 0 ? 1 : 0))));
 		inst_destroy(right);
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCRIPT, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(right);
 	}
 }
 
-void cmd_for(void* input, CPCMD self)
+void CMD_FOR(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2056,23 +2346,23 @@ void cmd_for(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	if (((PSTRING)right_val->val.ptr)->length == 0)
+	if (((PSTRING) right_val->val.ptr)->length == 0)
 	{
 		vm->error(vm, ERR_RIGHT ERR_NOT_EMPTY, vm->stack);
 		inst_destroy(right);
 		return;
 	}
-	if (((PSTRING)right_val->val.ptr)->val[0] != '_')
+	if (((PSTRING) right_val->val.ptr)->val[0] != '_')
 	{
 		vm->error(vm, ERR_SPECIAL_FOR_1, vm->stack);
 		inst_destroy(right);
 		return;
 	}
-	f = for_create(((PSTRING)right_val->val.ptr)->val);
+	f = for_create(((PSTRING) right_val->val.ptr)->val);
 	push_stack(vm, vm->stack, inst_value(value(FOR_TYPE(), base_voidptr(f))));
 	inst_destroy(right);
 }
-void cmd_from(void* input, CPCMD self)
+void CMD_FROM(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2105,12 +2395,12 @@ void cmd_from(void* input, CPCMD self)
 		return;
 	}
 	f = left_val->val.ptr;
-	f->start = (int)roundf(right_val->val.f);
+	f->start = (int) roundf(right_val->val.f);
 	push_stack(vm, vm->stack, inst_value(value(FOR_TYPE(), base_voidptr(f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_to(void* input, CPCMD self)
+void CMD_TO(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2143,12 +2433,12 @@ void cmd_to(void* input, CPCMD self)
 		return;
 	}
 	f = left_val->val.ptr;
-	f->end = (int)roundf(right_val->val.f);
+	f->end = (int) roundf(right_val->val.f);
 	push_stack(vm, vm->stack, inst_value(value(FOR_TYPE(), base_voidptr(f))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_step(void* input, CPCMD self)
+void CMD_STEP(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2186,33 +2476,47 @@ void cmd_step(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_parsingnamespace(void* input, CPCMD self)
+void CMD_PARSINGNAMESPACE(void* input, CPCMD self)
 {
 	PVM vm = input;
-	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_parsingNamespace()))));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(NAMESPACE_TYPE(),
+							base_voidptr(sqf_parsingNamespace()))));
 }
-void cmd_missionnamespace(void* input, CPCMD self)
+void CMD_MISSIONNAMESPACE(void* input, CPCMD self)
 {
 	PVM vm = input;
-	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_missionNamespace()))));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(NAMESPACE_TYPE(),
+							base_voidptr(sqf_missionNamespace()))));
 }
-void cmd_uinamespace(void* input, CPCMD self)
+void CMD_UINAMESPACE(void* input, CPCMD self)
 {
 	PVM vm = input;
-	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_uiNamespace()))));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(NAMESPACE_TYPE(), base_voidptr(sqf_uiNamespace()))));
 }
-void cmd_profilenamespace(void* input, CPCMD self)
+void CMD_PROFILENAMESPACE(void* input, CPCMD self)
 {
 	PVM vm = input;
-	push_stack(vm, vm->stack, inst_value(value(NAMESPACE_TYPE(), base_voidptr(sqf_profileNamespace()))));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(NAMESPACE_TYPE(),
+							base_voidptr(sqf_profileNamespace()))));
 }
-void cmd_diag_TICKTIME(void* input, CPCMD self)
+void CMD_DIAG_TICKTIME(void* input, CPCMD self)
 {
 	PVM vm = input;
 	int64_t systime_cur = system_time_ms();
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(systime_cur - systime_start)));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(SCALAR_TYPE(),
+							base_float(systime_cur - systime_start))));
 }
-void cmd_foreach(void* input, CPCMD self)
+void CMD_FOREACH(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2250,16 +2554,22 @@ void cmd_foreach(void* input, CPCMD self)
 		{
 			count = count_create(left_val->val.ptr, right_val->val.ptr);
 			push_stack(vm, vm->stack, inst_command(self));
-			push_stack(vm, vm->stack, inst_value(value(COUNT_TYPE(), base_voidptr(count))));
+			push_stack(vm, vm->stack,
+					inst_value(value(COUNT_TYPE(), base_voidptr(count))));
 			push_stack(vm, vm->stack, right);
 			push_stack(vm, vm->stack, inst_clear_work());
 			push_stack(vm, vm->stack, inst_scope(0));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, inst_store_var_local("_x"));
-			push_stack(vm, vm->stack, inst_value(value(arr->data[count->curtop]->type, arr->data[count->curtop]->val)));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(arr->data[count->curtop]->type,
+									arr->data[count->curtop]->val)));
 			push_stack(vm, vm->stack, inst_store_var_local("_forEachIndex"));
-			push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(count->curtop)));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(SCALAR_TYPE(), base_float(count->curtop))));
 		}
 	}
 	else if (left_val->type == COUNT_TYPE())
@@ -2275,7 +2585,8 @@ void cmd_foreach(void* input, CPCMD self)
 		arr = right_val->val.ptr;
 		if (++(count->curtop) == arr->top)
 		{
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			inst_destroy(left);
 			inst_destroy(right);
 		}
@@ -2287,11 +2598,19 @@ void cmd_foreach(void* input, CPCMD self)
 			push_stack(vm, vm->stack, inst_clear_work());
 			push_stack(vm, vm->stack, inst_scope(0));
 			push_stack(vm, vm->stack, inst_code_load(0));
-			push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(count->code->val.ptr))));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(CODE_TYPE(),
+									base_voidptr(count->code->val.ptr))));
 			push_stack(vm, vm->stack, inst_store_var_local("_x"));
-			push_stack(vm, vm->stack, inst_value(value(arr->data[count->curtop]->type, arr->data[count->curtop]->val)));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(arr->data[count->curtop]->type,
+									arr->data[count->curtop]->val)));
 			push_stack(vm, vm->stack, inst_store_var_local("_forEachIndex"));
-			push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(count->curtop)));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(SCALAR_TYPE(), base_float(count->curtop))));
 		}
 	}
 	else
@@ -2303,7 +2622,7 @@ void cmd_foreach(void* input, CPCMD self)
 }
 
 //https://community.bistudio.com/wiki/Math_Commands
-void cmd_abs(void* input, CPCMD self)
+void CMD_ABS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2321,11 +2640,11 @@ void cmd_abs(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	f = abs((int)right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	f = abs((int) right_val->val.f);
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_deg(void* input, CPCMD self)
+void CMD_DEG(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2344,10 +2663,10 @@ void cmd_deg(void* input, CPCMD self)
 		return;
 	}
 	f = right_val->val.f * (180 / M_PI);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_log(void* input, CPCMD self)
+void CMD_LOG(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2371,15 +2690,16 @@ void cmd_log(void* input, CPCMD self)
 		inst_destroy(right);
 	}
 	f = log10(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_pi(void* input, CPCMD self)
+void CMD_PI(void* input, CPCMD self)
 {
 	PVM vm = input;
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(M_PI)));
+	push_stack(vm, vm->stack,
+			inst_value(value(SCALAR_TYPE(), base_float(M_PI))));
 }
-void cmd_sin(void* input, CPCMD self)
+void CMD_SIN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2398,10 +2718,10 @@ void cmd_sin(void* input, CPCMD self)
 		return;
 	}
 	f = sin(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_cos(void* input, CPCMD self)
+void CMD_COS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2420,10 +2740,10 @@ void cmd_cos(void* input, CPCMD self)
 		return;
 	}
 	f = cos(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_tan(void* input, CPCMD self)
+void CMD_TAN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2442,10 +2762,10 @@ void cmd_tan(void* input, CPCMD self)
 		return;
 	}
 	f = tan(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_exp(void* input, CPCMD self)
+void CMD_EXP(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2464,10 +2784,10 @@ void cmd_exp(void* input, CPCMD self)
 		return;
 	}
 	f = exp(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_asin(void* input, CPCMD self)
+void CMD_ASIN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2486,10 +2806,10 @@ void cmd_asin(void* input, CPCMD self)
 		return;
 	}
 	f = asin(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_acos(void* input, CPCMD self)
+void CMD_ACOS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2508,10 +2828,10 @@ void cmd_acos(void* input, CPCMD self)
 		return;
 	}
 	f = acos(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_atan(void* input, CPCMD self)
+void CMD_ATAN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2530,10 +2850,10 @@ void cmd_atan(void* input, CPCMD self)
 		return;
 	}
 	f = atan(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_rad(void* input, CPCMD self)
+void CMD_RAD(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2552,10 +2872,10 @@ void cmd_rad(void* input, CPCMD self)
 		return;
 	}
 	f = right_val->val.f / 360 * M_PI * 2;
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_sqrt(void* input, CPCMD self)
+void CMD_SQRT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2574,10 +2894,10 @@ void cmd_sqrt(void* input, CPCMD self)
 		return;
 	}
 	f = sqrt(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_ceil(void* input, CPCMD self)
+void CMD_CEIL(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2596,10 +2916,10 @@ void cmd_ceil(void* input, CPCMD self)
 		return;
 	}
 	f = ceil(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_random(void* input, CPCMD self)
+void CMD_RANDOM(void* input, CPCMD self)
 {
 	//ToDo: https://community.bistudio.com/wiki/random implement Alternative Syntax 1 & 2 & 3
 	PVM vm = input;
@@ -2618,11 +2938,12 @@ void cmd_random(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	f = randlf(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	f = randlf(right_val->val.f)
+	;
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_floor(void* input, CPCMD self)
+void CMD_FLOOR(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2641,10 +2962,10 @@ void cmd_floor(void* input, CPCMD self)
 		return;
 	}
 	f = floor(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_ln(void* input, CPCMD self)
+void CMD_LN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2663,10 +2984,10 @@ void cmd_ln(void* input, CPCMD self)
 		return;
 	}
 	f = log(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
-void cmd_round(void* input, CPCMD self)
+void CMD_ROUND(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2685,11 +3006,11 @@ void cmd_round(void* input, CPCMD self)
 		return;
 	}
 	f = round(right_val->val.f);
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(f)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(f))));
 	inst_destroy(right);
 }
 
-void cmd_atan2(void* input, CPCMD self)
+void CMD_ATAN2(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2710,7 +3031,8 @@ void cmd_atan2(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -2718,7 +3040,8 @@ void cmd_atan2(void* input, CPCMD self)
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -2728,11 +3051,11 @@ void cmd_atan2(void* input, CPCMD self)
 
 	l = atan2(l, r);
 
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(l)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(l))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_min(void* input, CPCMD self)
+void CMD_MIN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2753,7 +3076,8 @@ void cmd_min(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -2761,7 +3085,8 @@ void cmd_min(void* input, CPCMD self)
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -2771,11 +3096,11 @@ void cmd_min(void* input, CPCMD self)
 
 	l = l < r ? l : r;
 
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(l)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(l))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_max(void* input, CPCMD self)
+void CMD_MAX(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2796,7 +3121,8 @@ void cmd_max(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -2804,7 +3130,8 @@ void cmd_max(void* input, CPCMD self)
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -2814,11 +3141,11 @@ void cmd_max(void* input, CPCMD self)
 
 	l = l > r ? l : r;
 
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(l)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(l))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_mod(void* input, CPCMD self)
+void CMD_MOD(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2839,7 +3166,8 @@ void cmd_mod(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -2847,7 +3175,8 @@ void cmd_mod(void* input, CPCMD self)
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -2855,14 +3184,13 @@ void cmd_mod(void* input, CPCMD self)
 	l = left_val->val.f;
 	r = right_val->val.f;
 
-
 	l = fmod(l, r);
 
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(l)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(l))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_not(void* input, CPCMD self)
+void CMD_NOT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2876,17 +3204,19 @@ void cmd_not(void* input, CPCMD self)
 	}
 	if (right_val->type == BOOL_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(right_val->val.i)));
+		push_stack(vm, vm->stack,
+				inst_value(value(BOOL_TYPE(), base_int(right_val->val.i))));
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_BOOL, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(right);
 		return;
 	}
 }
-void cmd_powerof(void* input, CPCMD self)
+void CMD_POWEROF(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2907,7 +3237,8 @@ void cmd_powerof(void* input, CPCMD self)
 	if (left_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -2915,7 +3246,8 @@ void cmd_powerof(void* input, CPCMD self)
 	if (right_val->type != SCALAR_TYPE())
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
@@ -2923,14 +3255,13 @@ void cmd_powerof(void* input, CPCMD self)
 	l = left_val->val.f;
 	r = right_val->val.f;
 
-
 	l = pow(l, r);
 
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(l)));
+	push_stack(vm, vm->stack, inst_value(value(SCALAR_TYPE(), base_float(l))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_comment(void* input, CPCMD self)
+void CMD_COMMENT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -2945,16 +3276,16 @@ void cmd_comment(void* input, CPCMD self)
 	if (right_val->type != STRING_TYPE())
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(right);
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(right);
 }
 
-
-void cmd_pushback(void* input, CPCMD self)
+void CMD_PUSHBACK(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -2977,16 +3308,19 @@ void cmd_pushback(void* input, CPCMD self)
 		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	arr = left_val->val.ptr;
 	array_push(arr, value(right_val->type, right_val->val));
-	push_stack(vm, vm->stack, inst_value(VALUE_SCALAR(arr->top - 1)));
+	push_stack(vm, vm->stack,
+			inst_value(value(SCALAR_TYPE(), base_float(arr->top - 1))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_set(void* input, CPCMD self)
+
+void CMD_SET(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3011,7 +3345,8 @@ void cmd_set(void* input, CPCMD self)
 		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->type != ARRAY_TYPE())
@@ -3019,25 +3354,30 @@ void cmd_set(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	arrl = left_val->val.ptr;
 	arrr = right_val->val.ptr;
 	if (arrr->top < 1 || arrr->data[0]->type != SCALAR_TYPE())
 	{
-		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_SCALAR, vm->stack);
+		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_SCALAR,
+				vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (arrr->top < 2)
 	{
-		vm->error(vm, ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_EXISTING, vm->stack);
+		vm->error(vm, ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_EXISTING,
+				vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	index = floor(arrr->data[0]->val.f);
@@ -3052,7 +3392,7 @@ void cmd_set(void* input, CPCMD self)
 	}
 	for (i = arrl->top; i < index; i++)
 	{
-		array_push(arrl, VALUE_NOTHING());
+		array_push(arrl, value(NOTHING_TYPE(), base_int(0)));
 	}
 	if (arrl->data[index] != 0)
 	{
@@ -3064,14 +3404,392 @@ void cmd_set(void* input, CPCMD self)
 	}
 	arrl->data[index] = value_copy(val);
 
-
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
 
+void CMD_RESIZE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PARRAY array;
 
-void cmd_getvariable(void* input, CPCMD self)
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	if (left_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+
+		inst_destroy(left);
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		inst_destroy(left);
+		inst_destroy(right);
+
+		return;
+	}
+
+	array = left_val->val.ptr;
+	int newSize = right_val->val.f;
+
+	if (newSize >= 0)
+	{
+		array_resizeSQF(array, newSize);
+	}
+	else
+	{
+		vm->error(vm, ERR_RIGHT ERR_POSITIVE, vm->stack);
+	}
+
+	inst_destroy(left);
+	inst_destroy(right);
+
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+}
+
+void CMD_DELETEAT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PARRAY array;
+	PVALUE val;
+
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	if (left_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+
+		inst_destroy(left);
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+
+	if (right_val->type != SCALAR_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		inst_destroy(left);
+		inst_destroy(right);
+
+		return;
+	}
+
+	array = left_val->val.ptr;
+	int index = right_val->val.f;
+
+	if (index < 0)
+	{
+		vm->error(vm, ERR_RIGHT ERR_POSITIVE, vm->stack);
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+	}
+	else
+	{
+		val = array_popAt(array, index);
+		push_stack(vm, vm->stack, inst_value(value(val->type, val->val)));
+		inst_destroy_value(val);
+	}
+
+	inst_destroy(left);
+	inst_destroy(right);
+}
+
+void CMD_REVERSE(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PARRAY array;
+
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+
+	if (right_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		inst_destroy(right);
+		return;
+	}
+
+	array = right_val->val.ptr;
+
+	array_reverse(array);
+
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+	inst_destroy(right);
+}
+
+void CMD_FIND(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PARRAY array;
+	PSTRING string;
+	int index;
+
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	if (left_val->type == NOTHING_TYPE() || right_val->type == NOTHING_TYPE())
+	{
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	if (left_val->type != ARRAY_TYPE() && left_val->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+
+		inst_destroy(left);
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+
+	if (left_val->type == ARRAY_TYPE())
+	{
+		array = left_val->val.ptr;
+
+		index = array_indexOf(vm, array, right_val);
+	}
+	else
+	{
+		if (right_val->type != STRING_TYPE())
+		{
+			vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+
+			inst_destroy(left);
+			inst_destroy(right);
+
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
+		string = left_val->val.ptr;
+		char* ptr = strstr(string->val, ((PSTRING) right_val->val.ptr)->val);
+		if (ptr != NULL)
+		{
+			index = ptr - string->val;
+		}
+		else
+		{
+			index = -1;
+		}
+
+	}
+
+	push_stack(vm, vm->stack,
+			inst_value(value(SCALAR_TYPE(), base_float(index))));
+
+	inst_destroy(left);
+	inst_destroy(right);
+}
+
+void CMD_APPEND(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PARRAY array1;
+	PARRAY array2;
+
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	if (left_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+
+		inst_destroy(left);
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+
+	if (right_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		inst_destroy(left);
+		inst_destroy(right);
+
+		return;
+	}
+
+	array1 = left_val->val.ptr;
+	array2 = right_val->val.ptr;
+
+	array_append(array1, array2);
+
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+	inst_destroy(left);
+	inst_destroy(right);
+}
+
+void CMD_ARRAYINTERSECT(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+
+	PARRAY result;
+	PARRAY array1;
+	PARRAY array2;
+	PARRAY baseArray;
+	PARRAY searchArray;
+
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	if (left_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+
+		inst_destroy(left);
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+
+	if (right_val->type != ARRAY_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		inst_destroy(left);
+		inst_destroy(right);
+
+		return;
+	}
+
+	array1 = left_val->val.ptr;
+	array2 = right_val->val.ptr;
+
+	baseArray = (array1->top > array2->top) ? &*array1 : &*array2;
+	searchArray = (array1->top <= array2->top) ? &*array1 : &*array2;
+
+	result = array_create();
+
+	for (int i = 0; i < baseArray->top; i++)
+	{
+		if (array_indexOf(vm, searchArray, baseArray->data[i]) != -1)
+		{
+			PVALUE val = value_copy(baseArray->data[i]);
+			array_push(result, value(val->type, val->val));
+		}
+	}
+
+	push_stack(vm, vm->stack,
+			inst_value(value(ARRAY_TYPE(), base_voidptr(result))));
+
+	inst_destroy(left);
+	inst_destroy(right);
+}
+
+void CMD_GETVARIABLE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3097,14 +3815,15 @@ void cmd_getvariable(void* input, CPCMD self)
 	}
 	else if (left_val->type == OBJECT_TYPE())
 	{
-		ns = ((POBJECT)left_val->val.ptr)->ns;
+		ns = ((POBJECT) left_val->val.ptr)->ns;
 	}
 	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_NAMESPACE ERR_OR ERR_OBJECT, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->type == ARRAY_TYPE())
@@ -3112,29 +3831,37 @@ void cmd_getvariable(void* input, CPCMD self)
 		arr = right_val->val.ptr;
 		if (arr->top < 2)
 		{
-			vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_ARRAY_SIZE(2), vm->stack);
+			vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_ARRAY_SIZE(2),
+					vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
 		if (arr->data[0]->type != STRING_TYPE())
 		{
-			vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+			vm->error(vm,
+			ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING,
+					vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
-		if (((PSTRING)arr->data[0]->val.ptr)->length == 0)
+		if (((PSTRING) arr->data[0]->val.ptr)->length == 0)
 		{
-			vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING, vm->stack);
+			vm->error(vm,
+			ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING,
+					vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
-		val = namespace_get_var(ns, ((PSTRING)arr->data[0]->val.ptr)->val);
+		val = namespace_get_var(ns, ((PSTRING) arr->data[0]->val.ptr)->val);
 		if (val == 0)
 		{
 			val = arr->data[1];
@@ -3143,18 +3870,21 @@ void cmd_getvariable(void* input, CPCMD self)
 	}
 	else if (right_val->type == STRING_TYPE())
 	{
-		if (((PSTRING)right_val->val.ptr)->length == 0)
+		if (((PSTRING) right_val->val.ptr)->length == 0)
 		{
-			vm->error(vm, ERR_RIGHT ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING, vm->stack);
+			vm->error(vm, ERR_RIGHT ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING,
+					vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
-		val = namespace_get_var(ns, ((PSTRING)right_val->val.ptr)->val);
+		val = namespace_get_var(ns, ((PSTRING) right_val->val.ptr)->val);
 		if (val == 0)
 		{
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 		}
 		else
 		{
@@ -3166,13 +3896,14 @@ void cmd_getvariable(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_setvariable(void* input, CPCMD self)
+void CMD_SETVARIABLE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3197,14 +3928,15 @@ void cmd_setvariable(void* input, CPCMD self)
 	}
 	else if (left_val->type == OBJECT_TYPE())
 	{
-		ns = ((POBJECT)left_val->val.ptr)->ns;
+		ns = ((POBJECT) left_val->val.ptr)->ns;
 	}
 	else
 	{
 		vm->error(vm, ERR_LEFT_TYPE ERR_NAMESPACE ERR_OR ERR_OBJECT, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->type != ARRAY_TYPE())
@@ -3212,7 +3944,8 @@ void cmd_setvariable(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	arr = right_val->val.ptr;
@@ -3221,33 +3954,40 @@ void cmd_setvariable(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_ARRAY_SIZE(2), vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (arr->data[0]->type != STRING_TYPE())
 	{
-		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+		vm->error(vm,
+		ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING,
+				vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	if (((PSTRING)arr->data[0]->val.ptr)->length == 0)
+	if (((PSTRING) arr->data[0]->val.ptr)->length == 0)
 	{
-		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING, vm->stack);
+		vm->error(vm,
+		ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_NON_EMPTY_STRING, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 
-	namespace_set_var(ns, ((PSTRING)arr->data[0]->val.ptr)->val, value(arr->data[1]->type, arr->data[1]->val));
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	namespace_set_var(ns, ((PSTRING) arr->data[0]->val.ptr)->val,
+			value(arr->data[1]->type, arr->data[1]->val));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
 
-void cmd_createvehicle(void* input, CPCMD self)
+void CMD_CREATEVEHICLE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3272,7 +4012,8 @@ void cmd_createvehicle(void* input, CPCMD self)
 		vm->error(vm, ERR_LEFT_TYPE ERR_STRING, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->type != ARRAY_TYPE())
@@ -3280,7 +4021,8 @@ void cmd_createvehicle(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_ARRAY_SIZE(3), vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	arr = right_val->val.ptr;
@@ -3289,28 +4031,34 @@ void cmd_createvehicle(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT ERR_ARRAY ERR_ARRAY_SIZE(3), vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	for (i = 0; i < 3; i++)
 	{
 		if (arr->data[i]->type != SCALAR_TYPE())
 		{
-			vm->error(vm, ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR, vm->stack);
+			vm->error(vm,
+			ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR,
+					vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
 	}
-	obj = object_vehicle_create(((PSTRING)left_val->val.ptr)->val);
-	obj->position = (vec3) { .x = arr->data[0]->val.f, .y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
+	obj = object_vehicle_create(((PSTRING) left_val->val.ptr)->val);
+	obj->position = (vec3 ) { .x = arr->data[0]->val.f,
+					.y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
 
-	push_stack(vm, vm->stack, inst_value(value(OBJECT_TYPE(), base_voidptr(obj))));
+	push_stack(vm, vm->stack,
+			inst_value(value(OBJECT_TYPE(), base_voidptr(obj))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_typeof(void* input, CPCMD self)
+void CMD_TYPEOF(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3327,14 +4075,18 @@ void cmd_typeof(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_OBJECT, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	obj = right_val->val.ptr;
-	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2(obj->classname)))));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(STRING_TYPE(),
+							base_voidptr(string_create2(obj->classname)))));
 	inst_destroy(right);
 }
-void cmd_getpos(void* input, CPCMD self)
+void CMD_GETPOS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3352,18 +4104,20 @@ void cmd_getpos(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_OBJECT, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	obj = right_val->val.ptr;
 	arr = array_create2(3);
-	array_push(arr, VALUE_SCALAR(obj->position.x));
-	array_push(arr, VALUE_SCALAR(obj->position.y));
-	array_push(arr, VALUE_SCALAR(obj->position.z));
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->position.x)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->position.y)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->position.z)));
+	push_stack(vm, vm->stack,
+			inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
-void cmd_setpos(void* input, CPCMD self)
+void CMD_SETPOS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3388,7 +4142,8 @@ void cmd_setpos(void* input, CPCMD self)
 		vm->error(vm, ERR_LEFT_TYPE ERR_OBJECT, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->type != ARRAY_TYPE())
@@ -3396,7 +4151,8 @@ void cmd_setpos(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_ARRAY_SIZE(3), vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	arr = right_val->val.ptr;
@@ -3405,28 +4161,33 @@ void cmd_setpos(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT ERR_ARRAY ERR_ARRAY_SIZE(3), vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	for (i = 0; i < 3; i++)
 	{
 		if (arr->data[i]->type != SCALAR_TYPE())
 		{
-			vm->error(vm, ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR, vm->stack);
+			vm->error(vm,
+			ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR,
+					vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
 	}
 	obj = left_val->val.ptr;
-	obj->position = (vec3) { .x = arr->data[0]->val.f, .y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
+	obj->position = (vec3 ) { .x = arr->data[0]->val.f,
+					.y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
 
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_velocity(void* input, CPCMD self)
+void CMD_VELOCITY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3444,18 +4205,20 @@ void cmd_velocity(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_OBJECT, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	obj = right_val->val.ptr;
 	arr = array_create2(3);
-	array_push(arr, VALUE_SCALAR(obj->velocity.x));
-	array_push(arr, VALUE_SCALAR(obj->velocity.y));
-	array_push(arr, VALUE_SCALAR(obj->velocity.z));
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velocity.x)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velocity.y)));
+	array_push(arr, value(SCALAR_TYPE(), base_float(obj->velocity.z)));
+	push_stack(vm, vm->stack,
+			inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
-void cmd_setvelocity(void* input, CPCMD self)
+void CMD_SETVELOCITY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3480,7 +4243,8 @@ void cmd_setvelocity(void* input, CPCMD self)
 		vm->error(vm, ERR_LEFT_TYPE ERR_OBJECT, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->type != ARRAY_TYPE())
@@ -3488,7 +4252,8 @@ void cmd_setvelocity(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_ARRAY_SIZE(3), vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	arr = right_val->val.ptr;
@@ -3497,30 +4262,35 @@ void cmd_setvelocity(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT ERR_ARRAY ERR_ARRAY_SIZE(3), vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	for (i = 0; i < 3; i++)
 	{
 		if (arr->data[i]->type != SCALAR_TYPE())
 		{
-			vm->error(vm, ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR, vm->stack);
+			vm->error(vm,
+			ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR,
+					vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
 	}
 	obj = left_val->val.ptr;
-	obj->velocity = (vec3) { .x = arr->data[0]->val.f, .y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
+	obj->velocity = (vec3 ) { .x = arr->data[0]->val.f,
+					.y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
 
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
-void cmd_domove(void* input, CPCMD self)
+void CMD_DOMOVE(void* input, CPCMD self)
 {
-	//ToDo: Add Simulation and make the movement smooth
+//ToDo: Add Simulation and make the movement smooth
 	PVM vm = input;
 	PINST left;
 	PINST right;
@@ -3545,7 +4315,8 @@ void cmd_domove(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_ARRAY_SIZE(3), vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	arr = right_val->val.ptr;
@@ -3554,17 +4325,21 @@ void cmd_domove(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT ERR_ARRAY ERR_ARRAY_SIZE(3), vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	for (i = 0; i < 3; i++)
 	{
 		if (arr->data[i]->type != SCALAR_TYPE())
 		{
-			vm->error(vm, ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR, vm->stack);
+			vm->error(vm,
+			ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR,
+					vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
 	}
@@ -3574,7 +4349,8 @@ void cmd_domove(void* input, CPCMD self)
 		obj = left_val->val.ptr;
 		if (!obj->is_vehicle)
 		{
-			obj->position = (vec3) { .x = arr->data[0]->val.f, .y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
+			obj->position = (vec3 ) { .x = arr->data[0]->val.f, .y =
+							arr->data[0]->val.f, .z = arr->data[0]->val.f };
 		}
 	}
 	else if (left_val->type == ARRAY_TYPE())
@@ -3585,10 +4361,13 @@ void cmd_domove(void* input, CPCMD self)
 		{
 			if (arr2->data[i]->type != OBJECT_TYPE())
 			{
-				vm->error(vm, ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_OBJECT, vm->stack);
+				vm->error(vm,
+				ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_OBJECT,
+						vm->stack);
 				inst_destroy(left);
 				inst_destroy(right);
-				push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+				push_stack(vm, vm->stack,
+						inst_value(value(NOTHING_TYPE(), base_int(0))));
 				return;
 			}
 		}
@@ -3598,10 +4377,12 @@ void cmd_domove(void* input, CPCMD self)
 			obj = arr2->data[i]->val.ptr;
 			if (!obj->is_vehicle)
 			{
-				obj->position = (vec3) { .x = arr->data[0]->val.f, .y = arr->data[0]->val.f, .z = arr->data[0]->val.f };
+				obj->position = (vec3 ) { .x = arr->data[0]->val.f, .y =
+								arr->data[0]->val.f, .z = arr->data[0]->val.f };
 			}
 		}
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 	}
@@ -3610,19 +4391,19 @@ void cmd_domove(void* input, CPCMD self)
 		vm->error(vm, ERR_LEFT_TYPE ERR_OBJECT, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 }
-void cmd_objnull(void* input, CPCMD self)
+void CMD_OBJNULL(void* input, CPCMD self)
 {
 	PVM vm = input;
-	push_stack(vm, vm->stack, inst_value(value(OBJECT_TYPE(), base_voidptr(object_create("")))));
+	push_stack(vm, vm->stack,
+			inst_value(value(OBJECT_TYPE(), base_voidptr(object_create("")))));
 }
 
-
-
-void cmd_switch(void* input, CPCMD self)
+void CMD_SWITCH(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3637,10 +4418,11 @@ void cmd_switch(void* input, CPCMD self)
 	}
 
 	swtch = switch_create(value(right_val->type, right_val->val));
-	push_stack(vm, vm->stack, inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
+	push_stack(vm, vm->stack,
+			inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
 	inst_destroy(right);
 }
-void cmd_case(void* input, CPCMD self)
+void CMD_CASE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3659,14 +4441,16 @@ void cmd_case(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_SPECIAL_SWITCH, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	swtch = switch_create(value(right_val->type, right_val->val));
-	push_stack(vm, vm->stack, inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
+	push_stack(vm, vm->stack,
+			inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
 	inst_destroy(right);
 }
-void cmd_default(void* input, CPCMD self)
+void CMD_DEFAULT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3684,7 +4468,8 @@ void cmd_default(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	var = find_var(vm, SWITCH_SPECIAL_VAR);
@@ -3692,14 +4477,15 @@ void cmd_default(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_SPECIAL_SWITCH, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	swtch = var->val.ptr;
 	swtch->default_code = value_copy(right_val);
 	inst_destroy(right);
 }
-void cmd_caseoperator(void* input, CPCMD self)
+void CMD_CASEOPERATOR(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -3724,7 +4510,8 @@ void cmd_caseoperator(void* input, CPCMD self)
 		vm->error(vm, ERR_LEFT_TYPE ERR_SWITCH, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->type != CODE_TYPE())
@@ -3732,7 +4519,8 @@ void cmd_caseoperator(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	var = find_var(vm, SWITCH_SPECIAL_VAR);
@@ -3741,7 +4529,8 @@ void cmd_caseoperator(void* input, CPCMD self)
 		vm->error(vm, ERR_SPECIAL_SWITCH, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	swtch = var->val.ptr;
@@ -3750,80 +4539,81 @@ void cmd_caseoperator(void* input, CPCMD self)
 	if (is_equal_to(vm, swtch->switch_value, left_swtch->switch_value))
 	{
 		swtch->selected_code = value_copy(right_val);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		push_stack(vm, vm->stack, inst_scope_dropout(0));
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
 
-void cmd_west(void* input, CPCMD self)
+void CMD_WEST(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_blu()));
 }
-void cmd_blufor(void* input, CPCMD self)
+void CMD_BLUFOR(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_blu()));
 }
-void cmd_east(void* input, CPCMD self)
+void CMD_EAST(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_opf()));
 }
-void cmd_opfor(void* input, CPCMD self)
+void CMD_OPFOR(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_opf()));
 }
-void cmd_resistance(void* input, CPCMD self)
+void CMD_RESISTANCE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_gue()));
 }
-void cmd_independent(void* input, CPCMD self)
+void CMD_INDEPENDENT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_gue()));
 }
-void cmd_sideunknown(void* input, CPCMD self)
+void CMD_SIDEUNKNOWN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_unknown()));
 }
-void cmd_sidelogic(void* input, CPCMD self)
+void CMD_SIDELOGIC(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_logic()));
 }
-void cmd_sidefriendly(void* input, CPCMD self)
+void CMD_SIDEFRIENDLY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_friendly()));
 }
-void cmd_sideenemy(void* input, CPCMD self)
+void CMD_SIDEENEMY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_enemy()));
 }
-void cmd_civilian(void* input, CPCMD self)
+void CMD_CIVILIAN(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_civ()));
 }
-void cmd_sideempty(void* input, CPCMD self)
+void CMD_SIDEEMPTY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack, inst_value(side_empty()));
 }
-void cmd_nil(void* input, CPCMD self)
+void CMD_NIL(void* input, CPCMD self)
 {
 	PVM vm = input;
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
-void cmd_allvariables(void* input, CPCMD self)
+void CMD_ALLVARIABLES(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3840,28 +4630,36 @@ void cmd_allvariables(void* input, CPCMD self)
 	}
 	if (right_val->type == NAMESPACE_TYPE())
 	{
-		list = ((PNAMESPACE)right_val->val.ptr)->data;
+		list = ((PNAMESPACE) right_val->val.ptr)->data;
 	}
 	else if (right_val->type == OBJECT_TYPE())
 	{
-		list = ((POBJECT)right_val->val.ptr)->ns->data;
+		list = ((POBJECT) right_val->val.ptr)->ns->data;
 	}
 	else
 	{
-		vm->error(vm, ERR_RIGHT_TYPE ERR_NAMESPACE ERR_OR ERR_OBJECT, vm->stack);
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NAMESPACE ERR_OR ERR_OBJECT,
+				vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	arr = array_create2(sm_count(list));
 	for (i = 0; i < arr->size; i++)
 	{
-		array_push(arr, value(STRING_TYPE(), base_voidptr(string_create2(sm_get_name_index(list, (unsigned int)i)))));
+		array_push(arr,
+				value(STRING_TYPE(),
+						base_voidptr(
+								string_create2(
+										sm_get_name_index(list,
+												(unsigned int) i)))));
 	}
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
+	push_stack(vm, vm->stack,
+			inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 	inst_destroy(right);
 }
-void cmd_with(void* input, CPCMD self)
+void CMD_WITH(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3875,18 +4673,20 @@ void cmd_with(void* input, CPCMD self)
 	}
 	if (right_val->type == NAMESPACE_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(value(WITH_TYPE(), right_val->val)));
+		push_stack(vm, vm->stack,
+				inst_value(value(WITH_TYPE(), right_val->val)));
 		inst_destroy(right);
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_NAMESPACE, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 }
-void cmd_compile(void* input, CPCMD self)
+void CMD_COMPILE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3900,21 +4700,25 @@ void cmd_compile(void* input, CPCMD self)
 	}
 	if (right_val->type == STRING_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(value(CODE_TYPE(), base_voidptr(parse_into_code(vm, ((PSTRING)right_val->val.ptr)->val)))));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(CODE_TYPE(),
+								base_voidptr(
+										parse_into_code(vm,
+												((PSTRING) right_val->val.ptr)->val)))));
 		inst_destroy(right);
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 }
 
-
-
-void cmd_toarray(void* input, CPCMD self)
+void CMD_TOARRAY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3935,20 +4739,24 @@ void cmd_toarray(void* input, CPCMD self)
 		arr = array_create2(str->length);
 		for (i = 0; i < str->length; i++)
 		{
-			array_push(arr, VALUE_SCALAR((float)(int)str->val[i]));
+			array_push(arr,
+					value(SCALAR_TYPE(),
+							base_float((float) (int) str->val[i])));
 		}
-		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
+		push_stack(vm, vm->stack,
+				inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 		inst_destroy(right);
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 }
-void cmd_tostring(void* input, CPCMD self)
+void CMD_TOSTRING(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -3971,29 +4779,34 @@ void cmd_tostring(void* input, CPCMD self)
 		{
 			if (arr->data[i]->type != SCALAR_TYPE())
 			{
-				vm->error(vm, ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR, vm->stack);
+				vm->error(vm,
+				ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR,
+						vm->stack);
 				err_flag = 1;
 			}
 		}
 		if (err_flag)
 		{
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
 		str = string_create(arr->top + 1);
 		for (i = 0; i < arr->top; i++)
 		{
-			str->val[i] = (char)(int)arr->data[i]->val.f;
+			str->val[i] = (char) (int) arr->data[i]->val.f;
 		}
-		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(str))));
+		push_stack(vm, vm->stack,
+				inst_value(value(STRING_TYPE(), base_voidptr(str))));
 		inst_destroy(right);
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 }
@@ -4030,66 +4843,81 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 		else if (tmp->type == ARRAY_TYPE())
 		{
 			//Varname validation
-			if (((PARRAY)tmp->val.ptr)->top == 0)
+			if (((PARRAY) tmp->val.ptr)->top == 0)
 			{
 				vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
-				push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+				push_stack(vm, vm->stack,
+						inst_value(value(NOTHING_TYPE(), base_int(0))));
 				return;
 			}
-			varname = ((PARRAY)tmp->val.ptr)->data[0]->val.ptr;
-			if (varname->length == 0 || varname->val == 0 || varname->val[0] != '_')
+			varname = ((PARRAY) tmp->val.ptr)->data[0]->val.ptr;
+			if (varname->length == 0 || varname->val == 0
+					|| varname->val[0] != '_')
 			{
 				vm->error(vm, ERR_SPECIAL_PARAMS_VARNAME, vm->stack);
-				push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+				push_stack(vm, vm->stack,
+						inst_value(value(NOTHING_TYPE(), base_int(0))));
 				return;
 			}
 
 			//Receive default-value
-			if (((PARRAY)tmp->val.ptr)->top > 1)
+			if (((PARRAY) tmp->val.ptr)->top > 1)
 			{
-				defaultval = ((PARRAY)tmp->val.ptr)->data[1];
+				defaultval = ((PARRAY) tmp->val.ptr)->data[1];
 			}
 
 			//Receive allowed datatypes
-			if (((PARRAY)tmp->val.ptr)->top > 2)
+			if (((PARRAY) tmp->val.ptr)->top > 2)
 			{
-				if (((PARRAY)tmp->val.ptr)->data[2]->type == ARRAY_TYPE())
+				if (((PARRAY) tmp->val.ptr)->data[2]->type == ARRAY_TYPE())
 				{
-					expecteddatatypes = ((PARRAY)tmp->val.ptr)->data[2]->val.ptr;
+					expecteddatatypes =
+							((PARRAY) tmp->val.ptr)->data[2]->val.ptr;
 				}
-				else if (((PARRAY)tmp->val.ptr)->data[3]->type != NOTHING_TYPE())
+				else if (((PARRAY) tmp->val.ptr)->data[3]->type
+						!= NOTHING_TYPE())
 				{
 					vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
-					push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+					push_stack(vm, vm->stack,
+							inst_value(value(NOTHING_TYPE(), base_int(0))));
 					return;
 				}
 			}
 
 			//Receive expected array count
-			if (((PARRAY)tmp->val.ptr)->top > 3)
+			if (((PARRAY) tmp->val.ptr)->top > 3)
 			{
-				if (((PARRAY)tmp->val.ptr)->data[3]->type == ARRAY_TYPE())
+				if (((PARRAY) tmp->val.ptr)->data[3]->type == ARRAY_TYPE())
 				{
-					expectedarrcount = ((PARRAY)tmp->val.ptr)->data[3];
+					expectedarrcount = ((PARRAY) tmp->val.ptr)->data[3];
 					//ensure all content of expected array count array is of type scalar
-					for (j = 0; j < ((PARRAY)expectedarrcount->val.ptr)->top; j++)
+					for (j = 0; j < ((PARRAY) expectedarrcount->val.ptr)->top;
+							j++)
 					{
-						if (((PARRAY)expectedarrcount->val.ptr)->data[j]->type != SCALAR_TYPE())
+						if (((PARRAY) expectedarrcount->val.ptr)->data[j]->type
+								!= SCALAR_TYPE())
 						{
-							vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
-							push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+							vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR,
+									vm->stack);
+							push_stack(vm, vm->stack,
+									inst_value(
+											value(NOTHING_TYPE(),
+													base_int(0))));
 							return;
 						}
 					}
 				}
-				else if (((PARRAY)tmp->val.ptr)->data[3]->type == SCALAR_TYPE())
+				else if (((PARRAY) tmp->val.ptr)->data[3]->type
+						== SCALAR_TYPE())
 				{
-					expectedarrcount = ((PARRAY)tmp->val.ptr)->data[3];
+					expectedarrcount = ((PARRAY) tmp->val.ptr)->data[3];
 				}
-				else if (((PARRAY)tmp->val.ptr)->data[3]->type != NOTHING_TYPE())
+				else if (((PARRAY) tmp->val.ptr)->data[3]->type
+						!= NOTHING_TYPE())
 				{
 					vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
-					push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+					push_stack(vm, vm->stack,
+							inst_value(value(NOTHING_TYPE(), base_int(0))));
 					return;
 				}
 			}
@@ -4097,7 +4925,8 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 		else
 		{
 			vm->error(vm, ERR_SPECIAL_PARAMS_FORMAT_ERROR, vm->stack);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
 
@@ -4143,44 +4972,51 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 		{
 			if (expectedarrcount->type == ARRAY_TYPE())
 			{
-				for (j = 0; j < ((PARRAY)expectedarrcount->val.ptr)->top; j++)
+				for (j = 0; j < ((PARRAY) expectedarrcount->val.ptr)->top; j++)
 				{
-					if (((PARRAY)expectedarrcount->val.ptr)->data[j]->val.f == ((PARRAY)tmp->val.ptr)->top)
+					if (((PARRAY) expectedarrcount->val.ptr)->data[j]->val.f
+							== ((PARRAY) tmp->val.ptr)->top)
 					{
 						break;
 					}
 				}
-				if (j == ((PARRAY)expectedarrcount->val.ptr)->top)
+				if (j == ((PARRAY) expectedarrcount->val.ptr)->top)
 				{
 					tmp = defaultval;
 					success_flag = 0;
-					vm->warn(vm, ERR_SPECIAL_PARAMS_FORMAT_MISSMATCH, vm->stack);
+					vm->warn(vm, ERR_SPECIAL_PARAMS_FORMAT_MISSMATCH,
+							vm->stack);
 				}
 			}
 			else if (expectedarrcount->type == SCALAR_TYPE())
 			{
-				if (((PARRAY)tmp->val.ptr)->top != (int)expectedarrcount->val.f)
+				if (((PARRAY) tmp->val.ptr)->top
+						!= (int) expectedarrcount->val.f)
 				{
 					tmp = defaultval;
 					success_flag = 0;
-					vm->warn(vm, ERR_SPECIAL_PARAMS_FORMAT_MISSMATCH, vm->stack);
+					vm->warn(vm, ERR_SPECIAL_PARAMS_FORMAT_MISSMATCH,
+							vm->stack);
 				}
 			}
 		}
 		if (tmp == 0)
 		{
-			store_in_scope(vm, topscope, varname->val, VALUE_NOTHING());
+			store_in_scope(vm, topscope, varname->val,
+					value(NOTHING_TYPE(), base_int(0)));
 		}
 		else
 		{
-			store_in_scope(vm, topscope, varname->val, value(tmp->type, tmp->val));
+			store_in_scope(vm, topscope, varname->val,
+					value(tmp->type, tmp->val));
 		}
 		if (content == 0)
 			break;
 	}
-	push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(success_flag)));
+	push_stack(vm, vm->stack,
+			inst_value(value(BOOL_TYPE(), base_int(success_flag))));
 }
-void cmd_params(void* input, CPCMD self)
+void CMD_PARAMS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -4203,14 +5039,15 @@ void cmd_params(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	arrformat = right_val->val.ptr;
 	params_helper(vm, left_val, arrformat);
 	inst_destroy(right);
 }
-void cmd_params_UNARY(void* input, CPCMD self)
+void CMD_PARAMS_UNARY(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4229,14 +5066,15 @@ void cmd_params_UNARY(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	arrformat = right_val->val.ptr;
 	params_helper(vm, left_val, arrformat);
 	inst_destroy(right);
 }
-void cmd_isnil(void* input, CPCMD self)
+void CMD_ISNIL(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4251,22 +5089,30 @@ void cmd_isnil(void* input, CPCMD self)
 	}
 	if (right_val->type == STRING_TYPE())
 	{
-		if (((PSTRING)right_val->val.ptr)->length == 0 || ((PSTRING)right_val->val.ptr)->val[0] != '_')
+		if (((PSTRING) right_val->val.ptr)->length == 0
+				|| ((PSTRING) right_val->val.ptr)->val[0] != '_')
 		{
 			vm->error(vm, ERR_SPECIAL_ISNIL_1, vm->stack);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
-		val = find_var(vm, ((PSTRING)right_val->val.ptr)->val);
-		push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(val == 0 || val->type == NOTHING_TYPE() ? 1 : 0)));
+		val = find_var(vm, ((PSTRING) right_val->val.ptr)->val);
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(BOOL_TYPE(),
+								base_int(
+										val == 0
+												|| val->type == NOTHING_TYPE() ?
+												1 : 0))));
 		inst_destroy(right);
 	}
 	else if (right_val->type == CODE_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(1)));
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(1))));
 		push_stack(vm, vm->stack, inst_pop(1));
-		push_stack(vm, vm->stack, inst_value(VALUE_BOOLEAN(0)));
+		push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), base_int(0))));
 		push_stack(vm, vm->stack, inst_pop_eval(2, 1));
 		push_stack(vm, vm->stack, inst_code_load(1));
 		push_stack(vm, vm->stack, right);
@@ -4275,11 +5121,12 @@ void cmd_isnil(void* input, CPCMD self)
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING ERR_OR ERR_CODE, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 }
-void cmd_deletevehicle(void* input, CPCMD self)
+void CMD_DELETEVEHICLE(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4298,17 +5145,19 @@ void cmd_deletevehicle(void* input, CPCMD self)
 		obj = right_val->val.ptr;
 		object_destroy_inner(obj);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_OBJECT, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 }
-void cmd_creategroup(void* input, CPCMD self)
+void CMD_CREATEGROUP(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4327,24 +5176,29 @@ void cmd_creategroup(void* input, CPCMD self)
 		do
 		{
 			group = group_create(right_val->val.i);
-			tmp = sm_set_value(vm->groupmap, group->ident, value_create(GROUP_TYPE(), base_voidptr(group)));
+			tmp = sm_set_value(vm->groupmap, group->ident,
+					value_create(GROUP_TYPE(), base_voidptr(group)));
 			if (tmp != 0)
 			{
-				inst_destroy_value(sm_set_value(vm->groupmap, group->ident, tmp));
+				inst_destroy_value(
+						sm_set_value(vm->groupmap, group->ident, tmp));
 			}
-		} while (tmp != 0);
-		push_stack(vm, vm->stack, inst_value(value(GROUP_TYPE(), base_voidptr(group))));
+		}
+		while (tmp != 0);
+		push_stack(vm, vm->stack,
+				inst_value(value(GROUP_TYPE(), base_voidptr(group))));
 		inst_destroy(right);
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_SIDE, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 }
-void cmd_deletegroup(void* input, CPCMD self)
+void CMD_DELETEGROUP(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4360,7 +5214,7 @@ void cmd_deletegroup(void* input, CPCMD self)
 	if (right_val->type == GROUP_TYPE())
 	{
 		group = right_val->val.ptr;
-		if (((PARRAY)group->members->val.ptr)->top == 0)
+		if (((PARRAY) group->members->val.ptr)->top == 0)
 		{
 			inst_destroy_value(sm_drop_value(vm->groupmap, group->ident));
 		}
@@ -4370,9 +5224,9 @@ void cmd_deletegroup(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_GROUP, vm->stack);
 	}
 	inst_destroy(right);
-	push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
-void cmd_groupid(void* input, CPCMD self)
+void CMD_GROUPID(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4389,16 +5243,21 @@ void cmd_groupid(void* input, CPCMD self)
 	{
 		group = right_val->val.ptr;
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2(group->ident)))));;
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(STRING_TYPE(),
+								base_voidptr(string_create2(group->ident)))));
+		;
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_GROUP, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 	}
 }
-void cmd_createunit(void* input, CPCMD self)
+void CMD_CREATEUNIT(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST left;
@@ -4427,7 +5286,8 @@ void cmd_createunit(void* input, CPCMD self)
 		vm->error(vm, ERR_LEFT_TYPE ERR_GROUP, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (right_val->type != ARRAY_TYPE())
@@ -4435,7 +5295,8 @@ void cmd_createunit(void* input, CPCMD self)
 		vm->error(vm, ERR_LEFT_TYPE ERR_GROUP, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	arr = right_val->val.ptr;
@@ -4444,76 +5305,94 @@ void cmd_createunit(void* input, CPCMD self)
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY ERR_ARRAY_SIZE(5), vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (arr->data[0]->type != STRING_TYPE())
 	{
-		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+		vm->error(vm,
+		ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING,
+				vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (arr->data[1]->type == ARRAY_TYPE())
 	{
-		if (((PARRAY)arr->data[1]->val.ptr)->top < 2)
+		if (((PARRAY) arr->data[1]->val.ptr)->top < 2)
 		{
-			vm->error(vm, ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_ARRAY ERR_ARRAY_SIZE(2), vm->stack);
+			vm->error(vm,
+					ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_ARRAY ERR_ARRAY_SIZE(2),
+					vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
-		for (i = 0; i < ((PARRAY)arr->data[1]->val.ptr)->top && i < 3; i++)
+		for (i = 0; i < ((PARRAY) arr->data[1]->val.ptr)->top && i < 3; i++)
 		{
-			if (((PARRAY)arr->data[1]->val.ptr)->data[i]->type != SCALAR_TYPE())
+			if (((PARRAY) arr->data[1]->val.ptr)->data[i]->type
+					!= SCALAR_TYPE())
 			{
-				vm->error(vm, ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_ARRAY ERR_ARRAY_SIZE(2), vm->stack);
+				vm->error(vm,
+						ERR_ERR ERR_ARRAY_(1) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_ARRAY ERR_ARRAY_SIZE(2),
+						vm->stack);
 				inst_destroy(left);
 				inst_destroy(right);
-				push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+				push_stack(vm, vm->stack,
+						inst_value(value(NOTHING_TYPE(), base_int(0))));
 				return;
 			}
 		}
-		pos.x = ((PARRAY)arr->data[1]->val.ptr)->data[0]->val.f;
-		pos.y = ((PARRAY)arr->data[1]->val.ptr)->data[1]->val.f;
-		if (((PARRAY)arr->data[1]->val.ptr)->top >= 3)
+		pos.x = ((PARRAY) arr->data[1]->val.ptr)->data[0]->val.f;
+		pos.y = ((PARRAY) arr->data[1]->val.ptr)->data[1]->val.f;
+		if (((PARRAY) arr->data[1]->val.ptr)->top >= 3)
 		{
-			pos.z = ((PARRAY)arr->data[1]->val.ptr)->data[2]->val.f;
+			pos.z = ((PARRAY) arr->data[1]->val.ptr)->data[2]->val.f;
 		}
 	}
 	else if (arr->data[1]->type == OBJECT_TYPE())
 	{
-		pos = ((POBJECT)arr->data[1]->val.ptr)->position;
+		pos = ((POBJECT) arr->data[1]->val.ptr)->position;
 	}
 	else if (arr->data[1]->type == GROUP_TYPE())
 	{
-		tmp = group_get_leader(((PGROUP)arr->data[1]->val.ptr));
+		tmp = group_get_leader(((PGROUP) arr->data[1]->val.ptr));
 		if (tmp == 0 || object_is_null(tmp->val.ptr))
 		{
 			vm->error(vm, ERR_SPECIAL_CREATEUNIT_1, vm->stack);
 			inst_destroy(left);
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+			push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
 			return;
 		}
-		pos = ((POBJECT)tmp->val.ptr)->position;
+		pos = ((POBJECT) tmp->val.ptr)->position;
 	}
 	else
 	{
-		vm->error(vm, ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+		vm->error(vm,
+		ERR_ERR ERR_ARRAY_(0) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING,
+				vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (arr->data[2]->type != ARRAY_TYPE())
 	{
-		vm->error(vm, ERR_ERR ERR_ARRAY_(2) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_ARRAY, vm->stack);
+		vm->error(vm,
+		ERR_ERR ERR_ARRAY_(2) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_ARRAY,
+				vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (arr->data[3]->type == SCALAR_TYPE())
@@ -4521,39 +5400,47 @@ void cmd_createunit(void* input, CPCMD self)
 		f = arr->data[3]->val.f;
 		if (f > 0)
 		{
-			pos.x += randlf(f) - (f / 2);
-			pos.y += randlf(f) - (f / 2);
+			pos.x += randlf(f)
+			-(f / 2);
+			pos.y += randlf(f)
+			-(f / 2);
 		}
 	}
 	else
 	{
-		vm->error(vm, ERR_ERR ERR_ARRAY_(3) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR, vm->stack);
+		vm->error(vm,
+		ERR_ERR ERR_ARRAY_(3) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR,
+				vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (arr->data[4]->type != STRING_TYPE())
 	{
-		vm->error(vm, ERR_ERR ERR_ARRAY_(4) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING, vm->stack);
+		vm->error(vm,
+		ERR_ERR ERR_ARRAY_(4) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_STRING,
+				vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	//ToDo: (2) check for markers
-	//ToDo: (4) Take care of special
+//ToDo: (2) check for markers
+//ToDo: (4) Take care of special
 	group = left_val->val.ptr;
-	obj = object_unit_create(((PSTRING)arr->data[0]->val.ptr)->val, group);
+	obj = object_unit_create(((PSTRING) arr->data[0]->val.ptr)->val, group);
 	obj->position = pos;
 
 	inst_destroy(left);
 	inst_destroy(right);
-	push_stack(vm, vm->stack, inst_value(value(OBJECT_TYPE(), base_voidptr(obj))));
+	push_stack(vm, vm->stack,
+			inst_value(value(OBJECT_TYPE(), base_voidptr(obj))));
 }
 
-
-void cmd_units(void* input, CPCMD self)
+void CMD_UNITS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PINST right;
@@ -4572,41 +5459,56 @@ void cmd_units(void* input, CPCMD self)
 	}
 	else if (right_val->type == OBJECT_TYPE())
 	{
-		if (((POBJECT)right_val->val.ptr)->inner == 0)
+		if (((POBJECT) right_val->val.ptr)->inner == 0)
 		{
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(0)))));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(ARRAY_TYPE(),
+									base_voidptr(array_create2(0)))));
 			return;
 		}
-		else if (((POBJECT)right_val->val.ptr)->is_vehicle)
+		else if (((POBJECT) right_val->val.ptr)->is_vehicle)
 		{
 			//ToDo: get group from leader
 			inst_destroy(right);
-			push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(0)))));
+			push_stack(vm, vm->stack,
+					inst_value(
+							value(ARRAY_TYPE(),
+									base_voidptr(array_create2(0)))));
 			return;
 		}
 		else
 		{
-			group = group_from_ident(vm, ((PUNIT)((POBJECT)right_val->val.ptr)->inner)->groupident);
+			group =
+					group_from_ident(vm,
+							((PUNIT) ((POBJECT) right_val->val.ptr)->inner)->groupident);
 		}
 	}
 	else
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_GROUP, vm->stack);
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(VALUE_NOTHING()));
+		push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
 	if (group == 0)
 	{
 		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(0)))));
+		push_stack(vm, vm->stack,
+				inst_value(
+						value(ARRAY_TYPE(), base_voidptr(array_create2(0)))));
 		return;
 	}
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_copy(group->members->val.ptr)))));
+	push_stack(vm, vm->stack,
+			inst_value(
+					value(ARRAY_TYPE(),
+							base_voidptr(
+									array_copy(group->members->val.ptr)))));
 	inst_destroy(right);
 }
-void cmd_allgroups(void* input, CPCMD self)
+void CMD_ALLGROUPS(void* input, CPCMD self)
 {
 	PVM vm = input;
 	PARRAY arr;
@@ -4616,8 +5518,12 @@ void cmd_allgroups(void* input, CPCMD self)
 	arr = array_create2(j);
 	for (i = 0; i < j; i++)
 	{
-		array_push(arr, value(GROUP_TYPE(), base_voidptr(((PVALUE)sm_get_value_index(vm->groupmap, i))->val.ptr)));
+		array_push(arr,
+				value(GROUP_TYPE(),
+						base_voidptr(
+								((PVALUE) sm_get_value_index(vm->groupmap, i))->val.ptr)));
 	}
 
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
+	push_stack(vm, vm->stack,
+			inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 }
