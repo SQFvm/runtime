@@ -5009,7 +5009,6 @@ void cmd_deletevehicle(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PVALUE val;
 	POBJECT obj;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
