@@ -168,125 +168,6 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	}
 }
 
-unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r)
-{
-	PARRAY arrl;
-	PARRAY arrr;
-	PCODE codel;
-	PCODE coder;
-	PINST instl;
-	PINST instr;
-	int i;
-	if (l->type != r->type)
-		return 0;
-	if (l->type == SCALAR_TYPE())
-	{
-		return l->val.f == r->val.f;
-	}
-	else if (l->type == BOOL_TYPE() || l->type == IF_TYPE())
-	{
-		return (l->val.i > 0 ? 1 : 0) == (r->val.i > 0 ? 1 : 0);
-	}
-	else if (l->type == ARRAY_TYPE())
-	{
-		arrl = l->val.ptr;
-		arrr = r->val.ptr;
-		if (arrl->top != arrr->top)
-		{
-			return 0;
-		}
-		for (i = 0; i < arrl->top; i++)
-		{
-			if (!is_equal_to(vm, arrl->data[i], arrr->data[i]))
-				return 0;
-		}
-		return 1;
-	}
-	else if (l->type == STRING_TYPE())
-	{
-		return !strcmp(((PSTRING)l->val.ptr)->val, ((PSTRING)r->val.ptr)->val);
-	}
-	else if (l->type == NAMESPACE_TYPE())
-	{
-		return l->val.ptr == r->val.ptr;
-	}
-	else if (l->type == CODE_TYPE() || l->type == WHILE_TYPE())
-	{
-		codel = l->val.ptr;
-		coder = r->val.ptr;
-
-		if (codel->stack->top != coder->stack->top)
-			return 0;
-		for (i = 0; i < codel->stack->top; i++)
-		{
-			instl = codel->stack->data[i];
-			instr = coder->stack->data[i];
-			if (instl->type != instr->type)
-				return 0;
-			switch (instl->type)
-			{
-			case INST_VALUE:
-				if (!is_equal_to(vm, get_value(vm, vm->stack, instl),
-					get_value(vm, vm->stack, instr)))
-					return 0;
-				break;
-			case INST_LOAD_VAR:
-			case INST_STORE_VAR:
-			case INST_STORE_VAR_LOCAL:
-				if (str_cmpi(get_var_name(vm, vm->stack, instl), -1,
-					get_var_name(vm, vm->stack, instr), -1))
-					return 0;
-				break;
-			case INST_COMMAND:
-				if (get_command(vm, vm->stack, instl)
-					!= get_command(vm, vm->stack, instr))
-					return 0;
-				break;
-			}
-		}
-		return 1;
-	}
-	else if (l->type == SIDE_TYPE())
-	{
-		return side_equals(l, r);
-	}
-	else if (l->type == OBJECT_TYPE())
-	{
-		if (((POBJECT)l->val.ptr)->inner == 0
-			&& ((POBJECT)r->val.ptr)->inner == 0)
-		{
-			return 1;
-		}
-		else
-		{
-			return l->val.ptr == r->val.ptr;
-		}
-	}
-	//else if (l->type == WITH_TYPE())
-	//{
-	//	
-	//}
-	else
-	{
-		return 0;
-	}
-}
-
-int array_indexOf(PVM vm, const PARRAY array, const PVALUE value)
-{
-	int index = -1;
-
-	for (int i = 0; i < array->top; i++)
-	{
-		if (is_equal_to(vm, array->data[i], value))
-		{
-			index = i;
-			break;
-		}
-	}
-
-	return index;
-}
 
 void cmd_isequalto(void* input, CPCMD self)
 {
@@ -308,7 +189,7 @@ void cmd_isequalto(void* input, CPCMD self)
 	push_stack(vm, vm->stack,
 		inst_value(
 			value(BOOL_TYPE(),
-				base_int(is_equal_to(vm, left_val, right_val)))));
+				base_int(is_equal_to(left_val, right_val)))));
 	inst_destroy(left);
 	inst_destroy(right);
 }
@@ -530,7 +411,7 @@ void cmd_minus(void* input, CPCMD self)
 		{
 			for (j = 0; j < rarr->top; j++)
 			{
-				if (is_equal_to(vm, larr->data[i], rarr->data[j]))
+				if (is_equal_to(larr->data[i], rarr->data[j]))
 				{
 					break;
 				}
@@ -546,7 +427,7 @@ void cmd_minus(void* input, CPCMD self)
 		{
 			for (j = 0; j < rarr->top; j++)
 			{
-				if (is_equal_to(vm, larr->data[i], rarr->data[j]))
+				if (is_equal_to(larr->data[i], rarr->data[j]))
 				{
 					break;
 				}
@@ -3383,18 +3264,7 @@ void cmd_set(void* input, CPCMD self)
 	}
 	index = floor(arrr->data[0]->val.f);
 	val = arrr->data[1];
-	if (index >= arrl->size)
-	{
-		array_resize(arrl, index + 1);
-		for (i = arrl->top; i <= index; i++)
-		{
-			arrl->data[i] = 0;
-		}
-	}
-	for (i = arrl->top; i < index; i++)
-	{
-		array_push(arrl, value(NOTHING_TYPE(), base_int(0)));
-	}
+	array_resize_top(arrl, index + 1);
 	if (arrl->data[index] != 0)
 	{
 		inst_destroy_value(arrl->data[index]);
@@ -3461,7 +3331,7 @@ void cmd_resize(void* input, CPCMD self)
 
 	if (newsize >= 0)
 	{
-		array_resizeSQF(array, newsize);
+		array_resize_top(array, newsize);
 	}
 	else
 	{
@@ -3533,7 +3403,7 @@ void cmd_deleteat(void* input, CPCMD self)
 	}
 	else
 	{
-		val = array_popAt(array, index);
+		val = array_pop_at(array, index);
 		push_stack(vm, vm->stack, inst_value(value(val->type, val->val)));
 		inst_destroy_value(val);
 	}
@@ -3627,7 +3497,7 @@ void cmd_find(void* input, CPCMD self)
 	{
 		array = left_val->val.ptr;
 
-		index = array_indexOf(vm, array, right_val);
+		index = array_index_of(array, right_val);
 	}
 	else
 	{
@@ -3780,7 +3650,7 @@ void cmd_arrayintersect(void* input, CPCMD self)
 
 	for (i = 0; i < baseArray->top; i++)
 	{
-		if (array_indexOf(vm, searchArray, baseArray->data[i]) != -1)
+		if (array_index_of(searchArray, baseArray->data[i]) != -1)
 		{
 			PVALUE val = value_copy(baseArray->data[i]);
 			array_push(result, value(val->type, val->val));
@@ -4551,7 +4421,7 @@ void cmd_caseoperator(void* input, CPCMD self)
 	swtch = var->val.ptr;
 	left_swtch = left_val->val.ptr;
 
-	if (is_equal_to(vm, swtch->switch_value, left_swtch->switch_value))
+	if (is_equal_to(swtch->switch_value, left_swtch->switch_value))
 	{
 		swtch->selected_code = value_copy(right_val);
 		push_stack(vm, vm->stack,

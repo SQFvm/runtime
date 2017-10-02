@@ -6,8 +6,6 @@
 
 int64_t system_time_ms(void);
 void stringify_value(PVM vm, PSTRING str, PVALUE val);
-unsigned char is_equal_to(PVM vm, PVALUE l, PVALUE r);
-int array_indexOf(PVM vm, PARRAY array, PVALUE value);
 
 void cmd_isequalto(void* input, CPCMD self);
 void cmd_isequaltype(void* input, CPCMD self);

@@ -12,6 +12,9 @@
 
 #define STRING_MAX_LENGTH 9999999
 
+
+unsigned char is_equal_to(PVALUE l, PVALUE r);
+
 PCMD SCALAR_TYPE(void);
 PCMD BOOL_TYPE(void);
 PCMD IF_TYPE(void);
@@ -41,20 +44,20 @@ typedef struct STRING
 PCMD STRING_TYPE(void);
 typedef STRING* PSTRING;
 
-///Creates a new STRING object with given length. STRING will not be initialized!
+//Creates a new STRING object with given length. STRING will not be initialized!
 PSTRING string_create(unsigned int len);
-///Creates a new STRING object and initializes it with given c string
+//Creates a new STRING object and initializes it with given c string
 PSTRING string_create2(const char* str);
-///Destroys an existing STRING object
+//Destroys an existing STRING object
 void string_destroy(PSTRING string);
-///Concatenates the two STRING objects and returns a new STRING object.
+//Concatenates the two STRING objects and returns a new STRING object.
 PSTRING string_concat(const PSTRING l, const PSTRING r);
-///Will take given range from provided STRING object and create a new STRING object
+//Will take given range from provided STRING object and create a new STRING object
 PSTRING string_substring(const PSTRING string, unsigned int start, int length);
-///Appends provided cstring onto STRING object
+//Appends provided cstring onto STRING object
 void string_modify_append(PSTRING string, const char* append);
 void string_modify_append2(PSTRING string, int len);
-///Appends n characters of provided cstring onto STRING object
+//Appends n characters of provided cstring onto STRING object
 void string_modify_nappend(PSTRING string, const char* append,
 		unsigned int len);
 
@@ -73,12 +76,18 @@ PARRAY array_create(void);
 PARRAY array_create2(unsigned int initialsize);
 void array_destroy(PARRAY arr);
 void array_resize(PARRAY arr, unsigned int newsize);
+//Adjusts theoretical size of array (ARRAY.top) to desired size.
+//Will take care that provided array will have required practical size
+//to contain theoretical size.
+//Empty slots will be filled with NOTHING values.
+void array_resize_top(PARRAY arr, unsigned int newsize);
 void array_push(PARRAY arr, VALUE val);
+int array_index_of(const PARRAY array, const PVALUE value);
 PVALUE array_pop(PARRAY array);
-PVALUE array_popAt(PARRAY array, int index);
-void array_resizeSQF(PARRAY array, int newSize);
+PVALUE array_pop_at(PARRAY array, int index);
 void array_reverse(PARRAY array);
-void array_append(PARRAY array1, PARRAY array2);
+//Appends content of arr2 into arr1
+void array_append(PARRAY arr1, PARRAY arr2);
 PARRAY array_copy(const PARRAY arrIn);
 
 typedef struct FOR

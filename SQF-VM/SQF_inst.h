@@ -14,6 +14,17 @@ inline VALUE value(CPCMD type, BASE val)
 	}
 	return v;
 }
+inline VALUE value2(const PVALUE val)
+{
+	VALUE v;
+	v.type = val->type;
+	v.val = val->val;
+	if (val->type->callback != 0)
+	{
+		val->type->callback(&v, val->type);
+	}
+	return v;
+}
 PVALUE value_copy(PVALUE in);
 PVALUE value_create(CPCMD type, BASE val);
 PVALUE value_create_noref(CPCMD type, BASE val);
