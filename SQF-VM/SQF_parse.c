@@ -400,12 +400,18 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 		}
 		if (str[0] == ']')
 		{
-			j = i;
+			if (j == -1)
+			{
+				j = i;
+			}
 			arrcount++;
 		}
 		else if (str[0] == '}')
 		{
-			j = i;
+			if (j == -1)
+			{
+				j = i;
+			}
 			codecount++;
 		}
 		else if (j == -1)
@@ -762,7 +768,6 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 PCODE parse_into_code(PVM vm, const char* code)
 {
 	TR_ARR* arr = tr_arr_create();
-	unsigned int stack_counter = 0;
 	unsigned int stack_size = 0;
 	PCODE pcode;
 	if (code == 0)

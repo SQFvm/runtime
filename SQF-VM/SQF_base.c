@@ -106,7 +106,7 @@ void sqfvm_pushscript(PVM vm, PSCRIPT script)
 	if (vm->scripts_top == vm->scripts_size)
 	{
 		vm->scripts_size += SQFVM_SCRIPTS_GROWTH;
-		vm->scripts = realloc(sizeof(PSCRIPT) * vm->scripts_size, vm->scripts);
+		vm->scripts = realloc(vm->scripts, sizeof(PSCRIPT) * vm->scripts_size);
 	}
 	vm->scripts[vm->scripts_top++] = script;
 	value(SCRIPT_TYPE(), base_voidptr(script));

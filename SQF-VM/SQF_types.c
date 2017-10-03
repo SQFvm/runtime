@@ -11,6 +11,112 @@
 #include <string.h>
 #include <stdio.h>
 
+
+unsigned char is_equal_to(PVALUE l, PVALUE r)
+{
+	PARRAY arrl;
+	PARRAY arrr;
+	PCODE codel;
+	PCODE coder;
+	PINST instl;
+	PINST instr;
+	int i;
+	if (l->type != r->type)
+		return 0;
+	if (l->type == SCALAR_TYPE())
+	{
+		return l->val.f == r->val.f;
+	}
+	else if (l->type == BOOL_TYPE() || l->type == IF_TYPE())
+	{
+		return (l->val.i > 0 ? 1 : 0) == (r->val.i > 0 ? 1 : 0);
+	}
+	else if (l->type == ARRAY_TYPE())
+	{
+		arrl = l->val.ptr;
+		arrr = r->val.ptr;
+		if (arrl->top != arrr->top)
+		{
+			return 0;
+		}
+		for (i = 0; i < arrl->top; i++)
+		{
+			if (!is_equal_to(arrl->data[i], arrr->data[i]))
+				return 0;
+		}
+		return 1;
+	}
+	else if (l->type == STRING_TYPE())
+	{
+		return !strcmp(((PSTRING)l->val.ptr)->val, ((PSTRING)r->val.ptr)->val);
+	}
+	else if (l->type == NAMESPACE_TYPE())
+	{
+		return l->val.ptr == r->val.ptr;
+	}
+	else if (l->type == CODE_TYPE() || l->type == WHILE_TYPE())
+	{
+		codel = l->val.ptr;
+		coder = r->val.ptr;
+
+		if (codel->stack->top != coder->stack->top)
+			return 0;
+		for (i = 0; i < codel->stack->top; i++)
+		{
+			instl = codel->stack->data[i];
+			instr = coder->stack->data[i];
+			if (instl->type != instr->type)
+				return 0;
+			switch (instl->type)
+			{
+			case INST_VALUE:
+				if (!is_equal_to(get_value(0, 0, instl),
+					get_value(0, 0, instr)))
+					return 0;
+				break;
+			case INST_LOAD_VAR:
+			case INST_STORE_VAR:
+			case INST_STORE_VAR_LOCAL:
+				if (str_cmpi(get_var_name(0, 0, instl), -1,
+					get_var_name(0, 0, instr), -1))
+					return 0;
+				break;
+			case INST_COMMAND:
+				if (get_command(0, 0, instl)
+					!= get_command(0, 0, instr))
+					return 0;
+				break;
+			}
+		}
+		return 1;
+	}
+	else if (l->type == SIDE_TYPE())
+	{
+		return side_equals(l, r);
+	}
+	else if (l->type == OBJECT_TYPE())
+	{
+		if (((POBJECT)l->val.ptr)->inner == 0
+			&& ((POBJECT)r->val.ptr)->inner == 0)
+		{
+			return 1;
+		}
+		else
+		{
+			return l->val.ptr == r->val.ptr;
+		}
+	}
+	//else if (l->type == WITH_TYPE())
+	//{
+	//	
+	//}
+	else
+	{
+		return 0;
+	}
+}
+
+
 void TYPE_CODE_CALLBACK(void* input, CPCMD self);
 PCMD SCALAR_TYPE(void)
 {
@@ -314,6 +420,38 @@ void array_resize(PARRAY arr, unsigned int newsize)
 		arr->size = newsize;
 	}
 }
+void array_resize_top(PARRAY arr, unsigned int newsize)
+{
+	int i;
+	if (arr->top == newsize)
+	{
+		return;
+	}
+	else if (arr->top > newsize)
+	{
+		// delete array elements until respective size is reached
+		for (i = arr->top - 1; i >= newsize; i--)
+		{
+			inst_destroy_value(arr->data[i]);
+			arr->data[i] = NULL;
+		}
+	}
+	else
+	{
+		if (newsize < arr->size)
+		{
+			array_resize(arr, newsize);
+		}
+		// create respective elements with nil value
+		for (i = arr->top; i < newsize; i++)
+		{
+			array_push(arr, value(NOTHING_TYPE(), base_int(0)));
+		}
+	}
+
+	arr->top = newsize;
+}
+
 void array_push(PARRAY arr, VALUE val)
 {
 	if (arr->top >= arr->size)
@@ -325,78 +463,56 @@ void array_push(PARRAY arr, VALUE val)
 	arr->data[arr->top]->val = val.val;
 	arr->top++;
 }
-;
+int array_index_of(const PARRAY array, const PVALUE value)
+{
+	int i;
+	for (i = 0; i < array->top; i++)
+	{
+		if (is_equal_to(array->data[i], value))
+		{
+			return i;
+		}
+	}
+	return -1;
+}
 
 PVALUE array_pop(PARRAY array)
 {
-	array->top--;
-	PVALUE val = array->data[array->top];
+	PVALUE val = array->data[--array->top];
 	array->data[array->top] = NULL;
-
 	return val;
 }
 
-PVALUE array_popAt(PARRAY array, int index)
+PVALUE array_pop_at(PARRAY array, int index)
 {
+	PVALUE val;
+	int i;
 	if (index < 0 || index >= array->top)
 	{
 		return value_create(NOTHING_TYPE(), base_int(0));
 	}
 
-	PVALUE val = array->data[index];
+	val = array->data[index];
 
-	for (int i = index; i < array->top - 1; i++)
+	for (i = index; i < array->top - 1; i++)
 	{
 		array->data[i] = array->data[i + 1];
 	}
-
-	array->top--;
-	array->data[array->top] = NULL;
+	array->data[--array->top] = NULL;
 
 	return val;
 }
 
-/*
- * Trims the content of array to the given size.
- * If the size is greater than the current content,
- * then the missing items will be filled with nil-values
- */
-void array_resizeSQF(PARRAY array, int newSize)
+void array_append(PARRAY arr1, PARRAY arr2)
 {
-	if (array->top > newSize)
+	int i;
+	if (arr1->size < arr1->top + arr2->top)
 	{
-		// delete array elements until respective size is reached
-		for (int i = array->top - 1; i >= newSize; i--)
-		{
-			inst_destroy_value(array->data[i]);
-			array->data[i] = NULL;
-		}
+		array_resize(arr1, arr1->top + arr2->top);
 	}
-	else
+	for (i = 0; i < arr2->top; i++)
 	{
-		// create respective elements with nil value
-		for (int i = array->top; i < newSize; i++)
-		{
-			array_push(array, value(NOTHING_TYPE(), base_int(0)));
-		}
-	}
-
-	array->top = newSize;
-}
-
-/*
- * Appends array2 to array1
- */
-void array_append(PARRAY array1, PARRAY array2)
-{
-	if (array1->size < array1->top + array2->top)
-	{
-		array_resize(array1, array1->top + array2->top);
-	}
-
-	for (int i = 0; i < array2->top; i++)
-	{
-		array_push(array1, *(value_copy(array2->data[i])));
+		array_push(arr1, value2(arr2->data[i]));
 	}
 }
 
@@ -428,7 +544,7 @@ PARRAY array_copy(const PARRAY arrIn)
 		}
 		else
 		{
-			array_push(arrOut, value(val->type, val->val));
+			array_push(arrOut, value2(val));
 		}
 	}
 	return arrOut;
@@ -683,7 +799,7 @@ PCMD GROUP_TYPE(void)
 }
 PGROUP group_create(int side)
 {
-	static count = 1;
+	static int count = 1;
 	PGROUP group = malloc(sizeof(GROUP));
 	group->refcount = 0;
 	group->members = value_create(ARRAY_TYPE(), base_voidptr(array_create()));
