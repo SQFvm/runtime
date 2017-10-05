@@ -297,11 +297,9 @@ prog
 DISCORD.TOKEN
 sqfvm
 libsqfvm.*
+.directory
 
-# hidden files
-.*
-
-# make sure the git files themselves are included
-!.git*
-!.travis
+# ECLIPSE
+.settings/
+.*project
 

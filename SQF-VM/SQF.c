@@ -17,10 +17,8 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-
-
-
-PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence, const char* usage, const char* examples, const char* desc)
+PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence,
+	const char* usage, const char* examples, const char* desc)
 {
 	PCMD command = malloc(sizeof(CMD));
 	int len;
@@ -196,46 +194,46 @@ PCMD find_command(PVM vm, const char* name, char type)
 
 	switch (type)
 	{
-		case 't':
-			return sm_get_value(vm->cmd_container->types, name);
-		case 'n':
-			return sm_get_value(vm->cmd_container->nullar, name);
-		case 'u':
-			return sm_get_value(vm->cmd_container->unary, name);
-		case 'b':
-			return sm_get_value(vm->cmd_container->binary, name);
-		case '*':
-			cmd = sm_get_value(vm->cmd_container->types, name);
-			if (cmd != 0)
-				return cmd;
-			cmd = sm_get_value(vm->cmd_container->nullar, name);
-			if (cmd != 0)
-				return cmd;
-			cmd = sm_get_value(vm->cmd_container->unary, name);
-			if (cmd != 0)
-				return cmd;
-			cmd = sm_get_value(vm->cmd_container->binary, name);
+	case 't':
+		return sm_get_value(vm->cmd_container->types, name);
+	case 'n':
+		return sm_get_value(vm->cmd_container->nullar, name);
+	case 'u':
+		return sm_get_value(vm->cmd_container->unary, name);
+	case 'b':
+		return sm_get_value(vm->cmd_container->binary, name);
+	case '*':
+		cmd = sm_get_value(vm->cmd_container->types, name);
+		if (cmd != 0)
 			return cmd;
-		case 'c':
-			cmd = sm_get_value(vm->cmd_container->nullar, name);
-			if (cmd != 0)
-				return cmd;
-			cmd = sm_get_value(vm->cmd_container->unary, name);
-			if (cmd != 0)
-				return cmd;
-			cmd = sm_get_value(vm->cmd_container->binary, name);
+		cmd = sm_get_value(vm->cmd_container->nullar, name);
+		if (cmd != 0)
 			return cmd;
-		case 'C':
-			cmd = sm_get_value(vm->cmd_container->binary, name);
-			if (cmd != 0)
-				return cmd;
-			cmd = sm_get_value(vm->cmd_container->unary, name);
-			if (cmd != 0)
-				return cmd;
-			cmd = sm_get_value(vm->cmd_container->nullar, name);
+		cmd = sm_get_value(vm->cmd_container->unary, name);
+		if (cmd != 0)
 			return cmd;
-		default:
-			vm->error(vm, "UNKOWN FILTER TYPE", vm->stack);
+		cmd = sm_get_value(vm->cmd_container->binary, name);
+		return cmd;
+	case 'c':
+		cmd = sm_get_value(vm->cmd_container->nullar, name);
+		if (cmd != 0)
+			return cmd;
+		cmd = sm_get_value(vm->cmd_container->unary, name);
+		if (cmd != 0)
+			return cmd;
+		cmd = sm_get_value(vm->cmd_container->binary, name);
+		return cmd;
+	case 'C':
+		cmd = sm_get_value(vm->cmd_container->binary, name);
+		if (cmd != 0)
+			return cmd;
+		cmd = sm_get_value(vm->cmd_container->unary, name);
+		if (cmd != 0)
+			return cmd;
+		cmd = sm_get_value(vm->cmd_container->nullar, name);
+		return cmd;
+	default:
+		vm->error(vm, "UNKOWN FILTER TYPE", vm->stack);
 	}
 	return 0;
 }
@@ -243,7 +241,6 @@ PCMD find_type(PVM vm, const char* name)
 {
 	return find_command(vm, name, 't');
 }
-
 
 void runvm(PVM vm)
 {
@@ -275,7 +272,7 @@ void runvm(PVM vm)
 			}
 		}
 	}
-	while(vm->scripts_top > 0)
+	while (vm->scripts_top > 0)
 	{
 		script = vm->scripts[0];
 		sqfvm_dropscript(vm, script);
@@ -298,7 +295,8 @@ void execute(PVM vm, int exitAfter)
 		{
 			return;
 		}
-		if (vm->enable_instruction_limit && vm->instcount >= vm->max_instructions && !vm->die_flag)
+		if (vm->enable_instruction_limit && vm->instcount >= vm->max_instructions
+			&& !vm->die_flag)
 		{
 			vm->error(vm, "MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
 			vm->die_flag = 1;
@@ -315,7 +313,8 @@ void execute(PVM vm, int exitAfter)
 			inst_destroy(inst);
 			break;
 		case INST_COMMAND:
-			get_command(vm, vm->stack, inst)->callback(vm, get_command(vm, vm->stack, inst));
+			get_command(vm, vm->stack, inst)->callback(vm,
+				get_command(vm, vm->stack, inst));
 			inst_destroy(inst);
 			break;
 		case INST_SCOPE:
@@ -327,7 +326,8 @@ void execute(PVM vm, int exitAfter)
 				val = find_var(vm, get_var_name(vm, vm->stack, inst));
 				if (val == 0)
 				{
-					push_stack(vm, vm->work, inst_value(value(NOTHING_TYPE(), base_int(0))));
+					push_stack(vm, vm->work,
+						inst_value(value(NOTHING_TYPE(), base_int(0))));
 				}
 				else
 				{
@@ -340,7 +340,8 @@ void execute(PVM vm, int exitAfter)
 				val = namespace_get_var(scope->ns, get_var_name(vm, vm->stack, inst));
 				if (val == 0)
 				{
-					push_stack(vm, vm->work, inst_value(value(NOTHING_TYPE(), base_int(0))));
+					push_stack(vm, vm->work,
+						inst_value(value(NOTHING_TYPE(), base_int(0))));
 				}
 				else
 				{
@@ -362,7 +363,8 @@ void execute(PVM vm, int exitAfter)
 			}
 			else
 			{
-				store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+				store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst),
+					value(val->type, val->val));
 				inst_destroy(inst2);
 				inst_destroy(inst);
 				break;
@@ -384,20 +386,23 @@ void execute(PVM vm, int exitAfter)
 					}
 					else
 					{
-						store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+						store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst),
+							value(val->type, val->val));
 					}
 				}
 				else
 				{
 					val2 = get_value(vm, vm->stack, inst2);
-					set_var(vm, get_var_name(vm, vm->stack, inst), value(val2->type, val2->val));
+					set_var(vm, get_var_name(vm, vm->stack, inst),
+						value(val2->type, val2->val));
 				}
 			}
 			else
 			{
 				scope = top_scope(vm);
 				val = get_value(vm, vm->stack, inst2);
-				namespace_set_var(scope->ns, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+				namespace_set_var(scope->ns, get_var_name(vm, vm->stack, inst),
+					value(val->type, val->val));
 			}
 
 			inst_destroy(inst2);
@@ -467,7 +472,9 @@ void execute(PVM vm, int exitAfter)
 			else
 			{
 				val = get_value(vm, vm->stack, inst);
-				if (val == 0 || val->type == NOTHING_TYPE() || (val->type == BOOL_TYPE() && ((val->val.i > 0 && i) || (val->val.i == 0 && !i))))
+				if (val == 0 || val->type == NOTHING_TYPE()
+					|| (val->type == BOOL_TYPE()
+						&& ((val->val.i > 0 && i) || (val->val.i == 0 && !i))))
 				{
 					for (; ui != 0; ui--)
 					{
@@ -497,11 +504,13 @@ void execute(PVM vm, int exitAfter)
 			inst_destroy(inst);
 			while (vm->stack > 0)
 			{
-				while ((inst = pop_stack(vm, vm->stack))->type != INST_SCOPE && vm->stack->top > 0)
+				while ((inst = pop_stack(vm, vm->stack))->type != INST_SCOPE
+					&& vm->stack->top > 0)
 				{
 					inst_destroy(inst);
 				}
-				if (str_const == 0 || !str_cmpi(get_scope(vm, vm->stack, inst)->name, -1, str_const, -1))
+				if (str_const == 0
+					|| !str_cmpi(get_scope(vm, vm->stack, inst)->name, -1, str_const, -1))
 				{
 					break;
 				}
@@ -511,3 +520,34 @@ void execute(PVM vm, int exitAfter)
 		vm->instcount++;
 	}
 }
+
+/**
+ * Adds the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE addScalar(const PVALUE left, const PVALUE right)
+{
+	return value(SCALAR_TYPE(), base_float(left->val.f + right->val.f));
+}
+
+/**
+ * Subtracts the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE substractScalar(const PVALUE left, const PVALUE right)
+{
+	return value(SCALAR_TYPE(), base_float(left->val.f - right->val.f));
+}
+
+/**
+ * Multiplies the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE multiplyScalar(const PVALUE left, const PVALUE right)
+{
+	return value(SCALAR_TYPE(), base_float(left->val.f * right->val.f));
+}
+

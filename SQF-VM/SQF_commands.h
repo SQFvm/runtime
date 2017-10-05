@@ -101,6 +101,10 @@ void cmd_reverse(void* input, CPCMD self);
 void cmd_find(void* input, CPCMD self);
 void cmd_arrayintersect(void* input, CPCMD self);
 
+void cmd_vectoradd(void* input, CPCMD self);
+void cmd_vectordiff(void* input, CPCMD self);
+void cmd_vectorcrossproduct(void* input, CPCMD self);
+
 void cmd_getvariable(void* input, CPCMD self);
 void cmd_setvariable(void* input, CPCMD self);
 
