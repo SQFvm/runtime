@@ -104,6 +104,7 @@ void cmd_arrayintersect(void* input, CPCMD self);
 void cmd_vectoradd(void* input, CPCMD self);
 void cmd_vectordiff(void* input, CPCMD self);
 void cmd_vectorcrossproduct(void* input, CPCMD self);
+void cmd_vectordotproduct(void* input, CPCMD self);
 
 void cmd_getvariable(void* input, CPCMD self);
 void cmd_setvariable(void* input, CPCMD self);

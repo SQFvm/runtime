@@ -3751,11 +3751,11 @@ void cmd_vectoradd(void* input, CPCMD self)
 	result = array_create2(4);
 
 	array_push(result,
-		addScalar(leftArray->data[0], rightArray->data[0]));
+		addScalarPointer(leftArray->data[0], rightArray->data[0]));
 	array_push(result,
-		addScalar(leftArray->data[1], rightArray->data[1]));
+		addScalarPointer(leftArray->data[1], rightArray->data[1]));
 	array_push(result,
-		addScalar(leftArray->data[2], rightArray->data[2]));
+		addScalarPointer(leftArray->data[2], rightArray->data[2]));
 
 	inst_destroy(left);
 	inst_destroy(right);
@@ -3828,9 +3828,9 @@ void cmd_vectordiff(void* input, CPCMD self)
 	// calculate the result
 	result = array_create2(4);
 
-	array_push(result, substractScalar(leftArray->data[0], rightArray->data[0]));
-	array_push(result, substractScalar(leftArray->data[1], rightArray->data[1]));
-	array_push(result, substractScalar(leftArray->data[2], rightArray->data[2]));
+	array_push(result, substractScalarPointer(leftArray->data[0], rightArray->data[0]));
+	array_push(result, substractScalarPointer(leftArray->data[1], rightArray->data[1]));
+	array_push(result, substractScalarPointer(leftArray->data[2], rightArray->data[2]));
 
 	inst_destroy(left);
 	inst_destroy(right);
@@ -3922,6 +3922,85 @@ void cmd_vectorcrossproduct(void* input, CPCMD self)
 
 	push_stack(vm, vm->stack,
 		inst_value(value(ARRAY_TYPE(), base_voidptr(result))));
+}
+
+void cmd_vectordotproduct(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE leftVal;
+	PVALUE rightVal;
+	PARRAY leftArray;
+	PARRAY rightArray;
+	PINST result;
+
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	leftVal = get_value(vm, vm->stack, left);
+	rightVal = get_value(vm, vm->stack, right);
+
+	// null check
+	if (leftVal == 0 || rightVal == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	// type check
+	if (leftVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	if (rightVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	rightArray = rightVal->val.ptr;
+	leftArray = leftVal->val.ptr;
+
+	if (!checkVector3(vm, rightArray) || !checkVector3(vm, leftArray))
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		return;
+	}
+
+	VALUE test = addScalar(
+		addScalar(
+			multiplyScalarPointer(leftArray->data[0], rightArray->data[0]),
+			multiplyScalarPointer(leftArray->data[1], rightArray->data[1])),
+		multiplyScalarPointer(leftArray->data[2], rightArray->data[2]));
+
+	// calculate the result
+	result = inst_value( //TODO: the data does not get copied properly
+		test);
+
+
+	inst_destroy(left);
+	inst_destroy(right);
+
+	push_stack(vm, vm->stack,
+		inst_value(value(SCALAR_TYPE(), base_voidptr(result))));
 }
 
 void cmd_getvariable(void* input, CPCMD self)

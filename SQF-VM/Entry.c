@@ -194,6 +194,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, "vectorAdd", 'b', cmd_vectoradd, 4, "<VECTOR3D> vectorAdd <VECTOR3D>", "[5,10,5] vectorAdd [5,5,10]; //returns [10,15,15]", "Adds two 3D vectors.");
 	create_cmd(vm, "vectorDiff", 'b', cmd_vectordiff, 4, "<VECTOR3D> vectorDiff <VECTOR3D>", "[5,10,5] vectorDiff [5,5,10]; //returns [0,5,-5]", "Subtracts one 3D vector from another. (vector1 - vector2)");
 	create_cmd(vm, "vectorCrossProduct", 'b', cmd_vectorcrossproduct, 4, "<VECTOR3D> vectorCrossProduct <VECTOR3D>", "[0,1,0] vectorCrossProduct [-1,0,0]; //[0,-0,1]", " Cross product of two 3D vectors. In layman's terms, if you have a polygon (surface) defined by 3 points, you can find a normal to it (just like terrain surfaceNormal). To invert direction of the normal, swap arguments around. ");
+	create_cmd(vm, "vectorDotProduct", 'b', cmd_vectordotproduct, 4, "<VECTOR3D> vectorDotProduct <VECTOR3D>", "[1,0,1] vectorDotProduct [0,0,2]; //returns 2", "Dot product of two 3D vectors.");
 
 	create_cmd(vm, "diag_log", 'u', cmd_diag_LOG, 4, "diag_log <ANY>", "", "Dumps the argument's value. Each call creates a new line.");
 	create_cmd(vm, "systemChat", 'u', cmd_systemchat, 4, "systemChat <STRING>", "", "Writes the argument's value plaintext. Each call creates a new line.");

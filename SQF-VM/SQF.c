@@ -526,9 +526,29 @@ void execute(PVM vm, int exitAfter)
  * There is no checking performed whether the given values are
  * actually scalars so make sure of that before calling this function!
  */
-VALUE addScalar(const PVALUE left, const PVALUE right)
+VALUE addScalarPointer(const PVALUE left, const PVALUE right)
 {
 	return value(SCALAR_TYPE(), base_float(left->val.f + right->val.f));
+}
+
+/**
+ * Adds the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE addScalar(const VALUE left, const VALUE right)
+{
+	return addScalarPointer((PVALUE)&left, (PVALUE)&right);
+}
+
+/**
+ * Subtracts the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE substractScalarPointer(const PVALUE left, const PVALUE right)
+{
+	return value(SCALAR_TYPE(), base_float(left->val.f - right->val.f));
 }
 
 /**
@@ -538,7 +558,7 @@ VALUE addScalar(const PVALUE left, const PVALUE right)
  */
 VALUE substractScalar(const PVALUE left, const PVALUE right)
 {
-	return value(SCALAR_TYPE(), base_float(left->val.f - right->val.f));
+	return substractScalarPointer(left->val.ptr, right->val.ptr);
 }
 
 /**
@@ -546,7 +566,7 @@ VALUE substractScalar(const PVALUE left, const PVALUE right)
  * There is no checking performed whether the given values are
  * actually scalars so make sure of that before calling this function!
  */
-VALUE multiplyScalar(const PVALUE left, const PVALUE right)
+VALUE multiplyScalarPointer(const PVALUE left, const PVALUE right)
 {
 	return value(SCALAR_TYPE(), base_float(left->val.f * right->val.f));
 }

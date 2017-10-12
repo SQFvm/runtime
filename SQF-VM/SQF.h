@@ -39,8 +39,9 @@ void destroy_command(PCMD command);
 PCMD find_command(PVM vm, const char* name, char type);
 PCMD find_type(PVM vm, const char* name);
 
-VALUE addScalar(const PVALUE left, const PVALUE right);
-VALUE multiplyScalar(const PVALUE left, const PVALUE right);
-VALUE substractScalar(const PVALUE left, const PVALUE right);
+VALUE addScalarPointer(const PVALUE left, const PVALUE right);
+VALUE addScalar(const VALUE left, const VALUE right);
+VALUE multiplyScalarPointer(const PVALUE left, const PVALUE right);
+VALUE substractScalarPointer(const PVALUE left, const PVALUE right);
 
 #endif
