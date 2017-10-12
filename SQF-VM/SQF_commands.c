@@ -3933,7 +3933,6 @@ void cmd_vectordotproduct(void* input, CPCMD self)
 	PVALUE rightVal;
 	PARRAY leftArray;
 	PARRAY rightArray;
-	PINST result;
 
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
@@ -3985,22 +3984,472 @@ void cmd_vectordotproduct(void* input, CPCMD self)
 		return;
 	}
 
-	VALUE test = addScalar(
-		addScalar(
-			multiplyScalarPointer(leftArray->data[0], rightArray->data[0]),
-			multiplyScalarPointer(leftArray->data[1], rightArray->data[1])),
-		multiplyScalarPointer(leftArray->data[2], rightArray->data[2]));
-
 	// calculate the result
-	result = inst_value( //TODO: the data does not get copied properly
-		test);
-
+	push_stack(vm, vm->stack, inst_value(dotProductPointer_Value(leftArray, rightArray)));
 
 	inst_destroy(left);
 	inst_destroy(right);
+}
+
+void cmd_vectorcos(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE leftVal;
+	PVALUE rightVal;
+	PARRAY leftArray;
+	PARRAY rightArray;
+
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	leftVal = get_value(vm, vm->stack, left);
+	rightVal = get_value(vm, vm->stack, right);
+
+	// null check
+	if (leftVal == 0 || rightVal == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	// type check
+	if (leftVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	if (rightVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	rightArray = rightVal->val.ptr;
+	leftArray = leftVal->val.ptr;
+
+	if (!checkVector3(vm, rightArray) || !checkVector3(vm, leftArray))
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		return;
+	}
+
+	// calculate the result
+	push_stack(vm, vm->stack,
+		inst_value(
+			value(SCALAR_TYPE(),
+				base_float(
+					dotProductPointer(leftArray, rightArray)
+						/ (vectorMagnitudePointer(leftArray)
+							* vectorMagnitudePointer(rightArray))))));
+
+	inst_destroy(left);
+	inst_destroy(right);
+}
+
+void cmd_vectormagnitude(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE rightVal;
+	PARRAY rightArray;
+
+	right = pop_stack(vm, vm->work);
+	rightVal = get_value(vm, vm->stack, right);
+
+	// null check
+	if (rightVal == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+
+	// type check
+	if (rightVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	rightArray = rightVal->val.ptr;
+
+	if (!checkVector3(vm, rightArray))
+	{
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		return;
+	}
+
+	// calculate the result
+	push_stack(vm, vm->stack,
+		inst_value(
+			value(SCALAR_TYPE(),
+				base_float(vectorMagnitudePointer(rightArray)))));
+
+	inst_destroy(right);
+}
+
+void cmd_vectormagnitudesqr(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE rightVal;
+	PARRAY rightArray;
+
+	right = pop_stack(vm, vm->work);
+	rightVal = get_value(vm, vm->stack, right);
+
+	// null check
+	if (rightVal == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+
+	// type check
+	if (rightVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	rightArray = rightVal->val.ptr;
+
+	if (!checkVector3(vm, rightArray))
+	{
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		return;
+	}
+
+	// calculate the result
+	push_stack(vm, vm->stack,
+		inst_value(
+			value(SCALAR_TYPE(),
+				base_float(powf(vectorMagnitudePointer(rightArray), 2)))));
+
+	inst_destroy(right);
+}
+
+void cmd_vectormultiply(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE leftVal;
+	PVALUE rightVal;
+	PARRAY array;
+	PARRAY result;
+
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	leftVal = get_value(vm, vm->stack, left);
+	rightVal = get_value(vm, vm->stack, right);
+
+	// null check
+	if (leftVal == 0 || rightVal == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	// type check
+	if (leftVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	if (rightVal->type != SCALAR_TYPE())
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+
+		return;
+	}
+
+	array = leftVal->val.ptr;
+
+	if (!checkVector3(vm, array))
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		return;
+	}
+
+	// calculate the result
+	result = array_create2(4);
+
+	array_push(result,
+		value(SCALAR_TYPE(), base_float(array->data[0]->val.f * rightVal->val.f)));
+	array_push(result,
+		value(SCALAR_TYPE(), base_float(array->data[1]->val.f * rightVal->val.f)));
+	array_push(result,
+		value(SCALAR_TYPE(), base_float(array->data[2]->val.f * rightVal->val.f)));
+
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(result))));
+
+	inst_destroy(left);
+	inst_destroy(right);
+}
+
+void cmd_vectordistance(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE leftVal;
+	PVALUE rightVal;
+	PARRAY leftArray;
+	PARRAY rightArray;
+	float result;
+
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	leftVal = get_value(vm, vm->stack, left);
+	rightVal = get_value(vm, vm->stack, right);
+
+	// null check
+	if (leftVal == 0 || rightVal == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	// type check
+	if (leftVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	if (rightVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	rightArray = rightVal->val.ptr;
+	leftArray = leftVal->val.ptr;
+
+	if (!checkVector3(vm, rightArray) || !checkVector3(vm, leftArray))
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		return;
+	}
+
+	// calculate the diffArray
+	result = powf(rightArray->data[0]->val.f - leftArray->data[0]->val.f, 2);
+	result += powf(rightArray->data[1]->val.f - leftArray->data[1]->val.f, 2);
+	result += powf(rightArray->data[2]->val.f - leftArray->data[2]->val.f, 2);
 
 	push_stack(vm, vm->stack,
-		inst_value(value(SCALAR_TYPE(), base_voidptr(result))));
+		inst_value(value(SCALAR_TYPE(), base_float(powf(result, 1.0 / 2.0)))));
+
+	inst_destroy(left);
+	inst_destroy(right);
+}
+
+void cmd_vectordistancesqr(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE leftVal;
+	PVALUE rightVal;
+	PARRAY leftArray;
+	PARRAY rightArray;
+	float result;
+
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	leftVal = get_value(vm, vm->stack, left);
+	rightVal = get_value(vm, vm->stack, right);
+
+	// null check
+	if (leftVal == 0 || rightVal == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+
+	// type check
+	if (leftVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	if (rightVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	rightArray = rightVal->val.ptr;
+	leftArray = leftVal->val.ptr;
+
+	if (!checkVector3(vm, rightArray) || !checkVector3(vm, leftArray))
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		return;
+	}
+
+	// calculate the diffArray
+	result = powf(rightArray->data[0]->val.f - leftArray->data[0]->val.f, 2);
+	result += powf(rightArray->data[1]->val.f - leftArray->data[1]->val.f, 2);
+	result += powf(rightArray->data[2]->val.f - leftArray->data[2]->val.f, 2);
+
+	push_stack(vm, vm->stack,
+		inst_value(value(SCALAR_TYPE(), base_float(result))));
+
+	inst_destroy(left);
+	inst_destroy(right);
+}
+
+void cmd_vectornormalized(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE rightVal;
+	PARRAY array;
+	float magnitude;
+	PARRAY result;
+
+	right = pop_stack(vm, vm->work);
+	rightVal = get_value(vm, vm->stack, right);
+
+	// null check
+	if (rightVal == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+
+	// type check
+	if (rightVal->type != ARRAY_TYPE())
+	{
+		inst_destroy(right);
+		push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
+
+		return;
+	}
+
+	array = rightVal->val.ptr;
+
+	if (!checkVector3(vm, array))
+	{
+		inst_destroy(right);
+
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+
+		return;
+	}
+
+	// calculate the result
+	result = array_create2(4);
+
+	magnitude = vectorMagnitudePointer(array);
+
+	if (magnitude > 0)
+	{
+		array_push(result,
+			value(SCALAR_TYPE(), base_float(array->data[0]->val.f / magnitude)));
+		array_push(result,
+			value(SCALAR_TYPE(), base_float(array->data[1]->val.f / magnitude)));
+		array_push(result,
+			value(SCALAR_TYPE(), base_float(array->data[2]->val.f / magnitude)));
+	}
+	else
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			array_push(result, value(SCALAR_TYPE(), base_float(0)));
+		}
+	}
+
+	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(result))));
+
+	inst_destroy(right);
 }
 
 void cmd_getvariable(void* input, CPCMD self)
@@ -4117,6 +4566,7 @@ void cmd_getvariable(void* input, CPCMD self)
 	inst_destroy(left);
 	inst_destroy(right);
 }
+
 void cmd_setvariable(void* input, CPCMD self)
 {
 	PVM vm = input;
