@@ -75,7 +75,7 @@ void custom_error(PVM vm, const char* errMsg, PSTACK stack)
 {
 	int i;
 	PDBGINF dbginf;
-	if (stack->allow_dbg)
+	if (stack != 0 && stack->allow_dbg)
 	{
 		dbginf = 0;
 		for (i = stack->top - 1; i >= 0; i--)
