@@ -3,6 +3,7 @@
 
 #include "SQF_base.h"
 #include "SQF_inst.h"
+#include "SQF_types.h"
 
 #ifndef _SQF_BASE_H_
 #error "SQF.h" has to be included after "SQF_base.h"
@@ -38,5 +39,21 @@ void destroy_command(PCMD command);
 
 PCMD find_command(PVM vm, const char* name, char type);
 PCMD find_type(PVM vm, const char* name);
+
+VALUE addScalarPointer(const PVALUE left, const PVALUE right);
+VALUE addScalar(const VALUE left, const VALUE right);
+VALUE multiplyScalarPointer(const PVALUE left, const PVALUE right);
+VALUE multiplyScalar(const VALUE left, const VALUE right);
+VALUE substractScalarPointer(const PVALUE left, const PVALUE right);
+VALUE substractScalar(const VALUE left, const VALUE right);
+VALUE divideScalarPointer(const PVALUE left, const PVALUE right);
+VALUE divideScalar(const VALUE left, const VALUE right);
+
+float dotProductPointer(const PARRAY leftArray, const PARRAY rightArray);
+float dotProduct(const ARRAY leftArray, const ARRAY rightArray);
+VALUE dotProductPointer_Value(const PARRAY leftArray, const PARRAY rightArray);
+VALUE dotProduct_Value(const ARRAY leftArray, const ARRAY rightArray);
+float vectorMagnitudePointer(const PARRAY array);
+float vectorMagnitude(const ARRAY array);
 
 #endif

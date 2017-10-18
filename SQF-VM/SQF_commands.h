@@ -101,6 +101,18 @@ void cmd_reverse(void* input, CPCMD self);
 void cmd_find(void* input, CPCMD self);
 void cmd_arrayintersect(void* input, CPCMD self);
 
+void cmd_vectoradd(void* input, CPCMD self);
+void cmd_vectordiff(void* input, CPCMD self);
+void cmd_vectorcrossproduct(void* input, CPCMD self);
+void cmd_vectordotproduct(void* input, CPCMD self);
+void cmd_vectorcos(void* input, CPCMD self);
+void cmd_vectormagnitude(void* input, CPCMD self);
+void cmd_vectormagnitudesqr(void* input, CPCMD self);
+void cmd_vectormultiply(void* input, CPCMD self);
+void cmd_vectordistance(void* input, CPCMD self);
+void cmd_vectordistancesqr(void* input, CPCMD self);
+void cmd_vectornormalized(void* input, CPCMD self);
+
 void cmd_getvariable(void* input, CPCMD self);
 void cmd_setvariable(void* input, CPCMD self);
 
