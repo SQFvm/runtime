@@ -472,6 +472,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	int codecount = 0;
 	int bracecount = 0;
 	char c;
+	int wasvariable = 0;
 	if (arr_end - arr_start == 0)
 	{
 		return;
@@ -565,6 +566,11 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		}
 		if (cmd == 0)
 		{
+			if (wasvariable)
+			{
+				vm->error(vm, "Syntax Error: Double non-command usage", stack);
+			}
+			wasvariable = 1;
 			if (str[0] == '_' && smallest_cmd != 0 && str_cmpi(smallest_cmd->name, -1, "private", -1) == 0)
 			{
 				smallest_cmd = 0;
@@ -577,6 +583,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		}
 		else
 		{
+			wasvariable = 0;
 			if (smallest_cmd == 0)
 			{
 				smallest_cmd = cmd;
