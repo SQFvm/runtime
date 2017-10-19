@@ -407,7 +407,7 @@ int load_file(PSTRING buffer, const char* fpath)
 	int lcount = 1;
 	if (fptr == 0)
 	{
-		printf("[ERR] Could not open file '%S'", fpath);
+		printf("[ERR] Could not open file '%s'", fpath);
 		return -1;
 	}
 	fseek(fptr, 0, SEEK_END);
