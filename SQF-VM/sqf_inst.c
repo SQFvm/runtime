@@ -186,9 +186,9 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, un
 		}
 	}
 	str = code + i;
-	size = swprintf(0, 0, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : (int)dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	size = snwprintf(0, 0, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : (int)dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 	dbginf->hint = malloc(sizeof(wchar_t) * (size + 1));
-	swprintf(dbginf->hint, size + 1, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	snwprintf(dbginf->hint, size + 1, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
 	return p;
 }
