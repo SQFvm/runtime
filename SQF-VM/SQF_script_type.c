@@ -1,11 +1,8 @@
-#include "basetype.h"
-#include "string_op.h"
-#include "string_map.h"
-#include "SQF_base.h"
-#include "SQF_script_type.h"
-#include "SQF.h"
-
 #include <stdlib.h>
+#include <wchar.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "sqffull.h"
 
 
 
@@ -31,7 +28,7 @@ PCMD SCRIPT_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("SCRIPT", 't', TYPE_SCRIPT_CALLBACK, 0, NULL, NULL, NULL);
+		cmd = create_command(L"SCRIPT", 't', TYPE_SCRIPT_CALLBACK, 0, NULL, NULL, NULL);
 	}
 	return cmd;
 }

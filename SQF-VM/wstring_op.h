@@ -1,5 +1,5 @@
-#ifndef _STRING_OP_H_
-#define _STRING_OP_H_
+#ifndef _WSTRING_OP_H_
+#define _WSTRING_OP_H_
 
 /*
 Checks if provided string starts with other string.
@@ -10,7 +10,7 @@ All parameters need to be a \0 terminated string!
 param 1: String to check
 param 2: String to find
 */
-unsigned int str_sw(const char*, const char*);
+unsigned int wstr_sw(const wchar_t*, const wchar_t*);
 /*
 Checks if provided string ends with other string.
 Returns 1 if lString ends with rString.
@@ -21,7 +21,7 @@ All parameters need to be a \0 terminated string!
 param 1: String to check
 param 2: String to find
 */
-unsigned int str_ew(const char*, const char*);
+unsigned int wstr_ew(const wchar_t*, const wchar_t*);
 /*
 Checks if provided string starts with other string.
 Returns 0 if true or the index + 1 where the difference was found.
@@ -32,7 +32,7 @@ All parameters need to be a \0 terminated string!
 param 1: String to check
 param 2: String to find
 */
-unsigned int str_swi(const char*, const char*);
+unsigned int wstr_swi(const wchar_t*, const wchar_t*);
 /*
 Checks if provided string ends with other string.
 Returns 1 if lString ends with rString.
@@ -44,7 +44,7 @@ All parameters need to be a \0 terminated string!
 param 1: String to check
 param 2: String to find
 */
-unsigned int str_ewi(const char*, const char*);
+unsigned int wstr_ewi(const wchar_t*, const wchar_t*);
 
 /*
 Checks if provided word is inside of source string.
@@ -57,11 +57,9 @@ param 1: String to check
 param 2: String to find
 param 3: Characters terminating or NULL for default: " ,-_\t"
 */
-const char* str_strwrd(const char*, const char*, const char*);
+const wchar_t* wstr_strwrd(const wchar_t*, const wchar_t*, const wchar_t*);
 
 /*
-Checks if provided word is inside of source string.
-Third parameter allows for providing word separators
 Returns NULL ptr if string was not found, ptr to the string if it was
 Comparison is case insensitive.
 
@@ -71,7 +69,7 @@ param 1: String to check
 param 2: String to find
 param 3: Characters terminating or NULL for default: " ,-_\t.?!+:;<>#"
 */
-const char* str_strwrdi(const char*, const char*, const char*);
+const wchar_t* wstr_strwrdi(const wchar_t*, const wchar_t*, const wchar_t*);
 
 /*
 Returns 1 if provided character is in character array, 0 in any other case.
@@ -79,7 +77,7 @@ Returns 1 if provided character is in character array, 0 in any other case.
 param 1: Character to check
 param 2: Characters which are valid, \0 Terminated
 */
-int chr_is(const char, const char*);
+int wchr_is(const wchar_t, const wchar_t*);
 
 
 /*
@@ -91,7 +89,7 @@ param 2: Character to search
 param 3: Character to replace
 param 4: -1 or length of the string
 */
-unsigned int str_repchr(char*, char, char, int);
+unsigned int wstr_repchr(wchar_t*, wchar_t, wchar_t, int);
 
 /*
 Checks whether provided strings are equal.
@@ -102,7 +100,7 @@ param 2: -1 or length of string 1
 param 3: String 2 to compare against
 param 4: -1 or length of string 2
 */
-unsigned int str_cmp(const char*, int, const char*, int);
+unsigned int wstr_cmp(const wchar_t*, int, const wchar_t*, int);
 /*
 Checks whether provided strings are equal.
 Comparison is case insensitive.
@@ -113,7 +111,7 @@ param 2: -1 or length of string 1
 param 3: String 2 to compare against
 param 4: -1 or length of string 2
 */
-unsigned int str_cmpi(const char*, int, const char*, int);
+unsigned int wstr_cmpi(const wchar_t*, int, const wchar_t*, int);
 
 
-#endif // !_STRING_OP_H_
+#endif // !_WSTRING_OP_H_

@@ -30,6 +30,7 @@
     <ClCompile Include="basetype.c" />
     <ClCompile Include="Entry.c" />
     <ClCompile Include="SQF.c" />
+    <ClCompile Include="sqf_array_type.c" />
     <ClCompile Include="SQF_base.c" />
     <ClCompile Include="SQF_commands.c" />
     <ClCompile Include="SQF_inst.c" />
@@ -37,16 +38,22 @@
     <ClCompile Include="SQF_parse.c" />
     <ClCompile Include="SQF_script_type.c" />
     <ClCompile Include="SQF_side_type.c" />
+    <ClCompile Include="sqf_string_type.c" />
     <ClCompile Include="SQF_types.c" />
     <ClCompile Include="string_map.c" />
     <ClCompile Include="string_op.c" />
     <ClCompile Include="textrange.c" />
+    <ClCompile Include="wstring_map.c" />
+    <ClCompile Include="wstring_op.c" />
+    <ClCompile Include="wstring_op.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basetype.h" />
     <ClInclude Include="errors.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="SQF.h" />
+    <ClInclude Include="sqffull.h" />
+    <ClInclude Include="sqf_array_type.h" />
     <ClInclude Include="SQF_base.h" />
     <ClInclude Include="SQF_commands.h" />
     <ClInclude Include="SQF_inst.h" />
@@ -54,11 +61,13 @@
     <ClInclude Include="SQF_parse.h" />
     <ClInclude Include="SQF_script_type.h" />
     <ClInclude Include="SQF_side_type.h" />
+    <ClInclude Include="sqf_string_type.h" />
     <ClInclude Include="SQF_types.h" />
     <ClInclude Include="string_map.h" />
     <ClInclude Include="string_op.h" />
     <ClInclude Include="textrange.h" />
     <ClInclude Include="vector.h" />
+    <ClInclude Include="wstring_map.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{262E778C-9733-435F-B97D-F8B78C333CC3}</ProjectGuid>

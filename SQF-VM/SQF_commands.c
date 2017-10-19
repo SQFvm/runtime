@@ -8,22 +8,13 @@
 #include <sys/timeb.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
+#include <wchar.h>
 #include <stdio.h>
 #include <time.h>
+#include <stdbool.h>
+#include <ctype.h>
 
-#include "basetype.h"
-#include "vector.h"
-#include "string_op.h"
-#include "string_map.h"
-#include "textrange.h"
-#include "SQF.h"
-#include "SQF_types.h"
-#include "SQF_object_type.h"
-#include "SQF_side_type.h"
-#include "SQF_script_type.h"
-#include "SQF_commands.h"
-#include "SQF_parse.h"
+#include "sqffull.h"
 #include "errors.h"
 #include "random.h"
 
@@ -52,60 +43,60 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	PGROUP grp;
 	int i;
 	int j;
-	char* strptr;
-	char* strptr2;
+	wchar_t* strptr;
+	wchar_t* strptr2;
 	if (val->type == SCALAR_TYPE())
 	{
-		strptr = alloca(sizeof(char) * 64);
-		sprintf(strptr, "%g", val->val.f);
+		strptr = alloca(sizeof(wchar_t) * 64);
+		swprintf(strptr, 64, L"%g", val->val.f);
 		string_modify_append(str, strptr);
 	}
 	else if (val->type == BOOL_TYPE() || val->type == IF_TYPE())
 	{
-		string_modify_append(str, val->val.i > 0 ? "true" : "false");
+		string_modify_append(str, val->val.i > 0 ? L"true" : L"false");
 	}
 	else if (val->type == ARRAY_TYPE())
 	{
 		arr = ((PARRAY)val->val.ptr);
-		string_modify_append(str, "[");
+		string_modify_append(str, L"[");
 		for (i = 0; i < arr->top; i++)
 		{
 			if (i > 0)
 			{
-				string_modify_append(str, ", ");
+				string_modify_append(str, L", ");
 			}
 			stringify_value(vm, str, arr->data[i]);
 		}
-		string_modify_append(str, "]");
+		string_modify_append(str, L"]");
 	}
 	else if (val->type == STRING_TYPE())
 	{
-		string_modify_append(str, "\"");
+		string_modify_append(str, L"\"");
 		strptr = ((PSTRING)val->val.ptr)->val;
 		if (strptr != 0)
 		{
-			while ((strptr2 = strchr(strptr, '"')) != 0)
+			while ((strptr2 = wcschr(strptr, '"')) != 0)
 			{
 				string_modify_nappend(str, strptr, strptr2 - strptr);
-				string_modify_append(str, "\"\"");
+				string_modify_append(str, L"\"\"");
 				strptr = strptr2 + 1;
 			}
-			if (strlen(strptr) > 0)
+			if (wcslen(strptr) > 0)
 			{
 				string_modify_append(str, strptr);
 			}
 		}
-		string_modify_append(str, "\"");
+		string_modify_append(str, L"\"");
 	}
 	else if (val->type == NAN_TYPE())
 	{
-		string_modify_append(str, "NaN");
+		string_modify_append(str, L"NaN");
 	}
 	else if (val->type == CODE_TYPE() || val->type == WHILE_TYPE())
 	{
-		string_modify_append(str, "{");
+		string_modify_append(str, L"{");
 		string_modify_append(str, ((PCODE)val->val.ptr)->val);
-		string_modify_append(str, "}");
+		string_modify_append(str, L"}");
 	}
 	else if (val->type == SIDE_TYPE())
 	{
@@ -113,7 +104,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	}
 	else if (val->type == NOTHING_TYPE())
 	{
-		string_modify_append(str, "nil");
+		string_modify_append(str, L"nil");
 	}
 	else if (val->type == GROUP_TYPE())
 	{
@@ -125,9 +116,9 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 		if (obj->is_vehicle)
 		{
 			//1cd60264080# 1813620: heli_light_01_f.p3d
-			i = snprintf(0, 0, "%p# %d: %s", obj, 0, "NOTIMPLEMENTED");
-			strptr = alloca(sizeof(char) * (i + 1));
-			snprintf(strptr, i + 1, "%p# %d: %s", obj, 0, "NOTIMPLEMENTED");
+			i = swprintf(0, 0, L"%p# %d: %s", obj, 0, L"NOTIMPLEMENTED");
+			strptr = alloca(sizeof(wchar_t) * (i + 1));
+			swprintf(strptr, i + 1, L"%p# %d: %s", obj, 0, L"NOTIMPLEMENTED");
 			string_modify_append(str, strptr);
 		}
 		else
@@ -135,9 +126,9 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 			grp = group_from_ident(vm, ((PUNIT)obj->inner)->groupident->val);
 			if (grp == 0)
 			{
-				i = snprintf(0, 0, "%s:%d", "NA", 0);
-				strptr = alloca(sizeof(char) * (i + 1));
-				snprintf(strptr, i + 1, "%s:%d", "any", 0);
+				i = swprintf(0, 0, L"%s:%d", L"NA", 0);
+				strptr = alloca(sizeof(wchar_t) * (i + 1));
+				swprintf(strptr, i + 1, L"%s:%d", L"NA", 0);
 				string_modify_append(str, strptr);
 			}
 			else
@@ -149,22 +140,22 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 						break;
 				}
 				j = i;
-				i = snprintf(0, 0, "%s:%d", grp->ident, j);
-				strptr = alloca(sizeof(char) * (i + 1));
-				snprintf(strptr, i + 1, "%s:%d", grp->ident, j);
+				i = swprintf(0, 0, L"%s:%d", grp->ident, j);
+				strptr = alloca(sizeof(wchar_t) * (i + 1));
+				swprintf(strptr, i + 1, L"%s:%d", grp->ident, j);
 				string_modify_append(str, strptr);
 			}
 		}
 	}
 	else if (val->type == ANY_TYPE())
 	{
-		string_modify_append(str, "any");
+		string_modify_append(str, L"any");
 	}
 	else
 	{
-		string_modify_append(str, "<");
+		string_modify_append(str, L"<");
 		string_modify_append(str, val->type->name);
-		string_modify_append(str, ">");
+		string_modify_append(str, L">");
 	}
 }
 
@@ -584,7 +575,7 @@ void cmd_diag_LOG(void* input, CPCMD self)
 		return;
 	}
 	stringify_value(vm, str, right_val);
-	vm->print(vm, "[DIAG_LOG]: %s\n", str->val);
+	vm->print(vm, L"[DIAG_LOG]: %s\n", str->val);
 	string_destroy(str);
 	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
@@ -611,11 +602,11 @@ void cmd_hint(void* input, CPCMD self)
 	}
 	if (((PSTRING)right_val->val.ptr)->val == 0)
 	{
-		vm->print(vm, "[HINT]: \n");
+		vm->print(vm, L"[HINT]: \n");
 	}
 	else
 	{
-		vm->print(vm, "[HINT]: %s\n", ((PSTRING)right_val->val.ptr)->val);
+		vm->print(vm, L"[HINT]: %s\n", ((PSTRING)right_val->val.ptr)->val);
 	}
 	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
@@ -642,11 +633,11 @@ void cmd_systemchat(void* input, CPCMD self)
 	}
 	if (((PSTRING)right_val->val.ptr)->val == 0)
 	{
-		vm->print(vm, "[SYSTEMCHAT]: \n");
+		vm->print(vm, L"[SYSTEMCHAT]: \n");
 	}
 	else
 	{
-		vm->print(vm, "[SYSTEMCHAT]: %s\n",
+		vm->print(vm, L"[SYSTEMCHAT]: %s\n",
 			((PSTRING)right_val->val.ptr)->val);
 	}
 	inst_destroy(right);
@@ -874,60 +865,60 @@ void cmd_help(void* input, CPCMD self)
 	int i;
 	int count;
 	CPCMD cmd;
-	vm->print(vm, "ERRORS might result in crash\n\n");
-	vm->print(vm, "NAME:TYPE:PRECEDENCE:USAGE\n");
-	count = sm_count(vm->cmd_container->types);
+	vm->print(vm, L"ERRORS might result in crash\n\n");
+	vm->print(vm, L"NAME:TYPE:PRECEDENCE:USAGE\n");
+	count = wsm_count(vm->cmd_container->types);
 	for (i = 0; i < count; i++)
 	{
-		cmd = sm_get_value_index(vm->cmd_container->types, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type,
+		cmd = wsm_get_value_index(vm->cmd_container->types, i);
+		vm->print(vm, L"%s:%c:%d:%s\n", cmd->name, cmd->type,
 			cmd->precedence_level, cmd->usage);
 	}
-	count = sm_count(vm->cmd_container->nullar);
+	count = wsm_count(vm->cmd_container->nullar);
 	for (i = 0; i < count; i++)
 	{
-		cmd = sm_get_value_index(vm->cmd_container->nullar, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type,
+		cmd = wsm_get_value_index(vm->cmd_container->nullar, i);
+		vm->print(vm, L"%s:%c:%d:%s\n", cmd->name, cmd->type,
 			cmd->precedence_level, cmd->usage);
 	}
-	count = sm_count(vm->cmd_container->unary);
+	count = wsm_count(vm->cmd_container->unary);
 	for (i = 0; i < count; i++)
 	{
-		cmd = sm_get_value_index(vm->cmd_container->unary, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type,
+		cmd = wsm_get_value_index(vm->cmd_container->unary, i);
+		vm->print(vm, L"%s:%c:%d:%s\n", cmd->name, cmd->type,
 			cmd->precedence_level, cmd->usage);
 	}
-	count = sm_count(vm->cmd_container->binary);
+	count = wsm_count(vm->cmd_container->binary);
 	for (i = 0; i < count; i++)
 	{
-		cmd = sm_get_value_index(vm->cmd_container->binary, i);
-		vm->print(vm, "%s:%c:%d:%s\n", cmd->name, cmd->type,
+		cmd = wsm_get_value_index(vm->cmd_container->binary, i);
+		vm->print(vm, L"%s:%c:%d:%s\n", cmd->name, cmd->type,
 			cmd->precedence_level, cmd->usage);
 	}
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 }
 void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 {
-	char* ptr;
-	char* ptr2;
-	char* ptr3;
-	vm->print(vm, "<%s> %s\n",
-		cmd->type == 'b' ? "BINARY" : cmd->type == 'u' ? "UNARY" :
-		cmd->type == 'n' ? "NULLAR" : "TYPE", cmd->name);
+	wchar_t* ptr;
+	wchar_t* ptr2;
+	wchar_t* ptr3;
+	vm->print(vm, L"<%s> %s\n",
+		cmd->type == 'b' ? L"BINARY" : cmd->type == 'u' ? L"UNARY" :
+		cmd->type == 'n' ? L"NULLAR" : L"TYPE", cmd->name);
 	if (cmd->description != 0 && *cmd->description != '\0')
 	{
-		vm->print(vm, "\tDescription:\n\t\t%s\n", cmd->description);
+		vm->print(vm, L"\tDescription:\n\t\t%s\n", cmd->description);
 	}
 	if (cmd->type == 'b')
 	{
-		vm->print(vm, "\tPrecedence: %d\n", cmd->precedence_level);
+		vm->print(vm, L"\tPrecedence: %d\n", cmd->precedence_level);
 	}
 	if (cmd->usage && *cmd->usage != '\0')
 	{
-		vm->print(vm, "\tUsage:\n");
+		vm->print(vm, L"\tUsage:\n");
 		ptr = cmd->usage;
 		ptr3 = ptr;
-		while ((ptr2 = strchr(ptr3, '|')) != 0)
+		while ((ptr2 = wcschr(ptr3, '|')) != 0)
 		{
 			if (ptr2[1] == '|')
 			{
@@ -936,37 +927,37 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 			}
 			while (*ptr == ' ')
 				ptr++;
-			vm->print(vm, "\t\t%.*s\n", ptr2 - ptr, ptr);
+			vm->print(vm, L"\t\t%.*s\n", ptr2 - ptr, ptr);
 			ptr = ptr3 = ptr2 + 1;
 		}
-		if (strlen(ptr) > 0)
+		if (wcslen(ptr) > 0)
 		{
 			while (*ptr == ' ')
 				ptr++;
-			if (strlen(ptr) > 0)
+			if (wcslen(ptr) > 0)
 			{
-				vm->print(vm, "\t\t%s\n", ptr);
+				vm->print(vm, L"\t\t%s\n", ptr);
 			}
 		}
 	}
 	if (cmd->examples && *cmd->examples != '\0')
 	{
-		vm->print(vm, "\tExamples:\n");
+		vm->print(vm, L"\tExamples:\n");
 		ptr = cmd->examples;
-		while ((ptr2 = strchr(ptr, '#')) != 0)
+		while ((ptr2 = wcschr(ptr, '#')) != 0)
 		{
 			while (*ptr == ' ')
 				ptr++;
-			vm->print(vm, "\t\t%.*s\n", ptr2 - ptr, ptr);
+			vm->print(vm, L"\t\t%.*s\n", ptr2 - ptr, ptr);
 			ptr = ptr2 + 1;
 		}
-		if (strlen(ptr) > 0)
+		if (wcslen(ptr) > 0)
 		{
 			while (*ptr == ' ')
 				ptr++;
-			if (strlen(ptr) > 0)
+			if (wcslen(ptr) > 0)
 			{
-				vm->print(vm, "\t\t%s\n", ptr);
+				vm->print(vm, L"\t\t%s\n", ptr);
 			}
 		}
 	}
@@ -978,7 +969,7 @@ void cmd_help_UNARY(void* input, CPCMD self)
 	PINST right;
 	PVALUE right_val;
 	PSTRING str;
-	unsigned char had_match = 0;
+	bool had_match = false;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -1002,61 +993,61 @@ void cmd_help_UNARY(void* input, CPCMD self)
 		return;
 	}
 	str = right_val->val.ptr;
-	cmd = sm_get_value(vm->cmd_container->types, str->val);
+	cmd = wsm_get_value(vm->cmd_container->types, str->val);
 	if (cmd != 0)
 	{
 		if (!had_match)
 		{
-			had_match = 1;
+			had_match = true;
 		}
 		else
 		{
-			vm->print(vm, "\n");
+			vm->print(vm, L"\n");
 		}
 		cmd_help_unary_helper(vm, cmd);
 	}
-	cmd = sm_get_value(vm->cmd_container->nullar, str->val);
+	cmd = wsm_get_value(vm->cmd_container->nullar, str->val);
 	if (cmd != 0)
 	{
 		if (!had_match)
 		{
-			had_match = 1;
+			had_match = true;
 		}
 		else
 		{
-			vm->print(vm, "\n");
+			vm->print(vm, L"\n");
 		}
 		cmd_help_unary_helper(vm, cmd);
 	}
-	cmd = sm_get_value(vm->cmd_container->unary, str->val);
+	cmd = wsm_get_value(vm->cmd_container->unary, str->val);
 	if (cmd != 0)
 	{
 		if (!had_match)
 		{
-			had_match = 1;
+			had_match = true;
 		}
 		else
 		{
-			vm->print(vm, "\n");
+			vm->print(vm, L"\n");
 		}
 		cmd_help_unary_helper(vm, cmd);
 	}
-	cmd = sm_get_value(vm->cmd_container->binary, str->val);
+	cmd = wsm_get_value(vm->cmd_container->binary, str->val);
 	if (cmd != 0)
 	{
 		if (!had_match)
 		{
-			had_match = 1;
+			had_match = true;
 		}
 		else
 		{
-			vm->print(vm, "\n");
+			vm->print(vm, L"\n");
 		}
 		cmd_help_unary_helper(vm, cmd);
 	}
 	if (!had_match)
 	{
-		vm->print(vm, "'%s' could not be located.\n", str->val);
+		vm->print(vm, L"'%s' could not be located.\n", str->val);
 	}
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(right);
@@ -1313,7 +1304,7 @@ void cmd_equal(void* input, CPCMD self)
 			inst_value(
 				value(BOOL_TYPE(),
 					base_int(
-						!str_cmpi(
+						!wstr_cmpi(
 						((PSTRING)left_val->val.ptr)->val,
 							-1,
 							((PSTRING)right_val->val.ptr)->val,
@@ -1330,9 +1321,7 @@ void cmd_equal(void* input, CPCMD self)
 	}
 	else
 	{
-#ifdef _WIN32
-		__asm int 3;
-#endif
+		vm->error(vm, L"MISSING TYPE CHECK, PLEASE RAISE ISSUE IN GITHUB", vm->stack);
 	}
 	inst_destroy(left);
 	inst_destroy(right);
@@ -1401,7 +1390,7 @@ void cmd_notequal(void* input, CPCMD self)
 			inst_value(
 				value(BOOL_TYPE(),
 					base_int(
-						str_cmpi(
+						wstr_cmpi(
 						((PSTRING)left_val->val.ptr)->val,
 							-1,
 							((PSTRING)right_val->val.ptr)->val,
@@ -1418,9 +1407,7 @@ void cmd_notequal(void* input, CPCMD self)
 	}
 	else
 	{
-#ifdef _WIN32
-		__asm int 3;
-#endif
+		vm->error(vm, L"MISSING TYPE CHECK, PLEASE RAISE ISSUE IN GITHUB", vm->stack);
 	}
 	inst_destroy(left);
 	inst_destroy(right);
@@ -1633,7 +1620,7 @@ void cmd_selectrandom(void* input, CPCMD self)
 	PVALUE tmp;
 	int index;
 #if _WIN32
-	float rndres;
+	double rndres;
 #endif
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
@@ -1736,7 +1723,7 @@ void cmd_do(void* input, CPCMD self)
 	}
 	if (left_val->type == WHILE_TYPE())
 	{
-		push_stack(vm, vm->stack, inst_command(find_command(vm, "do", 'b')));
+		push_stack(vm, vm->stack, inst_command(find_command(vm, L"do", 'b')));
 		push_stack(vm, vm->stack, left);
 		push_stack(vm, vm->stack, right);
 		push_stack(vm, vm->stack, inst_code_load(0));
@@ -1764,10 +1751,10 @@ void cmd_do(void* input, CPCMD self)
 			pfor->current < pfor->end : pfor->current > pfor->end)
 		{
 			push_stack(vm, vm->stack,
-				inst_command(find_command(vm, "do", 'b')));
+				inst_command(find_command(vm, L"do", 'b')));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, right);
-			push_stack(vm, vm->stack, inst_scope("loop"));
+			push_stack(vm, vm->stack, inst_scope(L"loop"));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack,
 				inst_value(value(CODE_TYPE(), right_val->val)));
@@ -1809,10 +1796,10 @@ void cmd_do(void* input, CPCMD self)
 		{
 			swtch->was_executed = 1;
 			push_stack(vm, vm->stack,
-				inst_command(find_command(vm, "do", 'b')));
+				inst_command(find_command(vm, L"do", 'b')));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, right);
-			push_stack(vm, vm->stack, inst_scope("switch"));
+			push_stack(vm, vm->stack, inst_scope(L"switch"));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack,
 				inst_value(value(CODE_TYPE(), right_val->val)));
@@ -1901,7 +1888,7 @@ void cmd_count(void* input, CPCMD self)
 			push_stack(vm, vm->stack, inst_scope(0));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack, left);
-			push_stack(vm, vm->stack, inst_store_var_local("_x"));
+			push_stack(vm, vm->stack, inst_store_var_local(L"_x"));
 			push_stack(vm, vm->stack,
 				inst_value(
 					value(arr->data[count->curtop]->type,
@@ -1941,7 +1928,7 @@ void cmd_count(void* input, CPCMD self)
 				inst_value(
 					value(CODE_TYPE(),
 						base_voidptr(count->code->val.ptr))));
-			push_stack(vm, vm->stack, inst_store_var_local("_x"));
+			push_stack(vm, vm->stack, inst_store_var_local(L"_x"));
 			push_stack(vm, vm->stack,
 				inst_value(
 					value(arr->data[count->curtop]->type,
@@ -2001,9 +1988,9 @@ void cmd_format(void* input, CPCMD self)
 	PSTRING str;
 	PSTRING str_out;
 	PARRAY arr;
-	char* ptr;
-	char* ptr_last;
-	char* endptr;
+	wchar_t* ptr;
+	wchar_t* ptr_last;
+	wchar_t* endptr;
 	int index;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
@@ -2035,10 +2022,10 @@ void cmd_format(void* input, CPCMD self)
 			str = arr->data[0]->val.ptr;
 			str_out = string_create(0);
 			ptr_last = str->val;
-			while ((ptr = strchr(ptr_last, '%')) != 0)
+			while ((ptr = wcschr(ptr_last, '%')) != 0)
 			{
 				string_modify_nappend(str_out, ptr_last, ptr - ptr_last);
-				index = strtof(ptr + 1, &endptr);
+				index = wcstof(ptr + 1, &endptr);
 				if (endptr == ptr)
 				{
 					vm->error(vm, ERR_ERR ERR_SPECIAL_FORMAT_1, vm->stack);
@@ -2097,7 +2084,7 @@ void cmd_call(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_scope(0));
 		push_stack(vm, vm->stack, inst_code_load(0));
 		push_stack(vm, vm->stack, right);
-		push_stack(vm, vm->stack, inst_store_var_local("_this"));
+		push_stack(vm, vm->stack, inst_store_var_local(L"_this"));
 		push_stack(vm, vm->stack,
 			inst_value(value(left_val->type, left_val->val)));
 		inst_destroy(left);
@@ -2128,7 +2115,7 @@ void cmd_call_UNARY(void* input, CPCMD self)
 		push_stack(vm, vm->stack, inst_scope(0));
 		push_stack(vm, vm->stack, inst_code_load(0));
 		push_stack(vm, vm->stack, right);
-		push_stack(vm, vm->stack, inst_store_var_local("_this"));
+		push_stack(vm, vm->stack, inst_store_var_local(L"_this"));
 		push_stack(vm, vm->stack,
 			inst_value(value(NOTHING_TYPE(), base_int(0))));
 	}
@@ -2166,10 +2153,10 @@ void cmd_spawn(void* input, CPCMD self)
 		push_stack(vm, script->stack, inst_scope(0));
 		push_stack(vm, script->stack, inst_code_load(0));
 		push_stack(vm, script->stack, right);
-		push_stack(vm, script->stack, inst_store_var_local("_this"));
+		push_stack(vm, script->stack, inst_store_var_local(L"_this"));
 		push_stack(vm, script->stack,
 			inst_value(value(left_val->type, left_val->val)));
-		push_stack(vm, script->stack, inst_store_var_local("_thisScript"));
+		push_stack(vm, script->stack, inst_store_var_local(L"_thisScript"));
 		push_stack(vm, script->stack,
 			inst_value(value(SCRIPT_TYPE(), base_voidptr(script))));
 		push_stack(vm, vm->stack,
@@ -2449,12 +2436,12 @@ void cmd_foreach(void* input, CPCMD self)
 			push_stack(vm, vm->stack, inst_scope(0));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack, left);
-			push_stack(vm, vm->stack, inst_store_var_local("_x"));
+			push_stack(vm, vm->stack, inst_store_var_local(L"_x"));
 			push_stack(vm, vm->stack,
 				inst_value(
 					value(arr->data[count->curtop]->type,
 						arr->data[count->curtop]->val)));
-			push_stack(vm, vm->stack, inst_store_var_local("_forEachIndex"));
+			push_stack(vm, vm->stack, inst_store_var_local(L"_forEachIndex"));
 			push_stack(vm, vm->stack,
 				inst_value(
 					value(SCALAR_TYPE(), base_float(count->curtop))));
@@ -2490,12 +2477,12 @@ void cmd_foreach(void* input, CPCMD self)
 				inst_value(
 					value(CODE_TYPE(),
 						base_voidptr(count->code->val.ptr))));
-			push_stack(vm, vm->stack, inst_store_var_local("_x"));
+			push_stack(vm, vm->stack, inst_store_var_local(L"_x"));
 			push_stack(vm, vm->stack,
 				inst_value(
 					value(arr->data[count->curtop]->type,
 						arr->data[count->curtop]->val)));
-			push_stack(vm, vm->stack, inst_store_var_local("_forEachIndex"));
+			push_stack(vm, vm->stack, inst_store_var_local(L"_forEachIndex"));
 			push_stack(vm, vm->stack,
 				inst_value(
 					value(SCALAR_TYPE(), base_float(count->curtop))));
@@ -3462,7 +3449,7 @@ void cmd_find(void* input, CPCMD self)
 	PARRAY array;
 	PSTRING string;
 	int index;
-	char* ptr;
+	wchar_t* ptr;
 
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
@@ -3518,7 +3505,7 @@ void cmd_find(void* input, CPCMD self)
 			return;
 		}
 		string = left_val->val.ptr;
-		ptr = strstr(string->val, ((PSTRING)right_val->val.ptr)->val);
+		ptr = wcsstr(string->val, ((PSTRING)right_val->val.ptr)->val);
 		if (ptr != NULL)
 		{
 			index = ptr - string->val;
@@ -4289,7 +4276,7 @@ void cmd_objnull(void* input, CPCMD self)
 {
 	PVM vm = input;
 	push_stack(vm, vm->stack,
-		inst_value(value(OBJECT_TYPE(), base_voidptr(object_create("")))));
+		inst_value(value(OBJECT_TYPE(), base_voidptr(object_create(L"")))));
 }
 
 void cmd_switch(void* input, CPCMD self)
@@ -4509,7 +4496,7 @@ void cmd_allvariables(void* input, CPCMD self)
 	PVALUE right_val;
 	PARRAY arr;
 	int i;
-	sm_list* list;
+	wsm_list* list;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -4534,14 +4521,14 @@ void cmd_allvariables(void* input, CPCMD self)
 			inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	arr = array_create2(sm_count(list));
+	arr = array_create2(wsm_count(list));
 	for (i = 0; i < arr->size; i++)
 	{
 		array_push(arr,
 			value(STRING_TYPE(),
 				base_voidptr(
 					string_create2(
-						sm_get_name_index(list,
+						wsm_get_name_index(list,
 						(unsigned int)i)))));
 	}
 	push_stack(vm, vm->stack,
@@ -4653,7 +4640,7 @@ void cmd_tostring(void* input, CPCMD self)
 	PARRAY arr;
 	PSTRING str;
 	int i;
-	unsigned char err_flag = 0;
+	bool err_flag = 0;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -4671,7 +4658,7 @@ void cmd_tostring(void* input, CPCMD self)
 				vm->error(vm,
 					ERR_ERR ERR_ARRAY_(i) ERR_WAS_EXPECTED ERR_OF_TYPE ERR_SCALAR,
 					vm->stack);
-				err_flag = 1;
+				err_flag = true;
 			}
 		}
 		if (err_flag)
@@ -4684,7 +4671,7 @@ void cmd_tostring(void* input, CPCMD self)
 		str = string_create(arr->top + 1);
 		for (i = 0; i < arr->top; i++)
 		{
-			str->val[i] = (char)(int)arr->data[i]->val.f;
+			str->val[i] = (wchar_t)(wint_t)arr->data[i]->val.f;
 		}
 		push_stack(vm, vm->stack,
 			inst_value(value(STRING_TYPE(), base_voidptr(str))));
@@ -4710,7 +4697,7 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 	PSCOPE topscope = top_scope(vm);
 	PARRAY content = 0;
 	int i, j;
-	unsigned char success_flag = 1;
+	bool success_flag = true;
 
 	if (input->type == ARRAY_TYPE())
 	{
@@ -4827,7 +4814,7 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 		else if (content->top <= i)
 		{
 			tmp = defaultval;
-			success_flag = 0;
+			success_flag = false;
 		}
 		else
 		{
@@ -4835,7 +4822,7 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 			if (tmp->type == NOTHING_TYPE())
 			{
 				tmp = defaultval;
-				success_flag = 0;
+				success_flag = false;
 			}
 		}
 		//Check datatypes matches
@@ -4851,7 +4838,7 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 			if (j == expecteddatatypes->top)
 			{
 				tmp = defaultval;
-				success_flag = 0;
+				success_flag = false;
 				vm->warn(vm, ERR_SPECIAL_PARAMS_FORMAT_MISSMATCH, vm->stack);
 			}
 		}
@@ -4872,7 +4859,7 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 				if (j == ((PARRAY)expectedarrcount->val.ptr)->top)
 				{
 					tmp = defaultval;
-					success_flag = 0;
+					success_flag = false;
 					vm->warn(vm, ERR_SPECIAL_PARAMS_FORMAT_MISSMATCH,
 						vm->stack);
 				}
@@ -4883,7 +4870,7 @@ void params_helper(PVM vm, PVALUE input, PARRAY format)
 					!= (int)expectedarrcount->val.f)
 				{
 					tmp = defaultval;
-					success_flag = 0;
+					success_flag = false;
 					vm->warn(vm, ERR_SPECIAL_PARAMS_FORMAT_MISSMATCH,
 						vm->stack);
 				}
@@ -4950,7 +4937,7 @@ void cmd_params_UNARY(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	left_val = find_var(vm, "_this");
+	left_val = find_var(vm, L"_this");
 	if (right_val->type != ARRAY_TYPE())
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_ARRAY, vm->stack);
@@ -5064,12 +5051,12 @@ void cmd_creategroup(void* input, CPCMD self)
 		do
 		{
 			group = group_create(right_val->val.i);
-			tmp = sm_set_value(vm->groupmap, group->ident,
+			tmp = wsm_set_value(vm->groupmap, group->ident,
 				value_create(GROUP_TYPE(), base_voidptr(group)));
 			if (tmp != 0)
 			{
 				inst_destroy_value(
-					sm_set_value(vm->groupmap, group->ident, tmp));
+					wsm_set_value(vm->groupmap, group->ident, tmp));
 			}
 		} while (tmp != 0);
 		push_stack(vm, vm->stack,
@@ -5103,7 +5090,7 @@ void cmd_deletegroup(void* input, CPCMD self)
 		group = right_val->val.ptr;
 		if (((PARRAY)group->members->val.ptr)->top == 0)
 		{
-			inst_destroy_value(sm_drop_value(vm->groupmap, group->ident));
+			inst_destroy_value(wsm_drop_value(vm->groupmap, group->ident));
 		}
 	}
 	else
@@ -5398,14 +5385,14 @@ void cmd_allgroups(void* input, CPCMD self)
 	PARRAY arr;
 	unsigned int i;
 	unsigned int j;
-	j = sm_count(vm->groupmap);
+	j = wsm_count(vm->groupmap);
 	arr = array_create2(j);
 	for (i = 0; i < j; i++)
 	{
 		array_push(arr,
 			value(GROUP_TYPE(),
 				base_voidptr(
-				((PVALUE)sm_get_value_index(vm->groupmap, i))->val.ptr)));
+				((PVALUE)wsm_get_value_index(vm->groupmap, i))->val.ptr)));
 	}
 
 	push_stack(vm, vm->stack,

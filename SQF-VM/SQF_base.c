@@ -1,24 +1,16 @@
-#include "basetype.h"
-#include "vector.h"
-#include "string_map.h"
-#include "string_op.h"
-#include "textrange.h"
-#include "SQF_base.h"
-#include "SQF.h"
-#include "SQF_types.h"
-#include "SQF_object_type.h"
-#include "SQF_side_type.h"
-#include "SQF_script_type.h"
-#include "SQF_parse.h"
-
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <wchar.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <stdint.h>
 
-PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_dbg, unsigned long max_instructions)
+#include "sqffull.h"
+
+PVM sqfvm(unsigned int stack_size, unsigned int work_size, bool allow_dbg, unsigned long max_instructions)
 {
 	PVM vm = malloc(sizeof(VM));
 	vm->stack = create_stack(stack_size, allow_dbg);
@@ -35,7 +27,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_d
 	vm->sidemap = side_init_sidemap();
 	vm->instcount = 0;
 
-	vm->groupmap = sm_create_list(20, 5, 5);
+	vm->groupmap = wsm_create_list(20, 5, 5);
 	vm->scripts = malloc(sizeof(PSCRIPT) * 10);
 	vm->scripts_size = 10;
 	vm->scripts_top = 0;
@@ -86,7 +78,7 @@ void destroy_sqfvm_groupmap_callback(void* ptr)
 void destroy_sqfvm(PVM vm)
 {
 	int i;
-	for (i = 0; i < vm->scripts_top; i++)
+	for (i = 0; i < (int)vm->scripts_top; i++)
 	{
 		if (vm->scripts[i] != 0)
 		{
@@ -95,7 +87,7 @@ void destroy_sqfvm(PVM vm)
 	}
 	free(vm->scripts);
 	side_destroy_sidemap(vm->sidemap);
-	sm_destroy_list(vm->groupmap, destroy_sqfvm_groupmap_callback);
+	wsm_destroy_list(vm->groupmap, destroy_sqfvm_groupmap_callback);
 	destroy_stack(vm->stack);
 	destroy_stack(vm->work);
 	free(vm);
@@ -114,8 +106,8 @@ void sqfvm_pushscript(PVM vm, PSCRIPT script)
 void sqfvm_dropscript(PVM vm, PSCRIPT script)
 {
 	int i;
-	unsigned char was_found = 0;
-	for (i = 0; i < vm->scripts_top; i++)
+	bool was_found = false;
+	for (i = 0; i < (int)vm->scripts_top; i++)
 	{
 		if (was_found)
 		{
@@ -124,7 +116,7 @@ void sqfvm_dropscript(PVM vm, PSCRIPT script)
 		else if(vm->scripts[i] == script)
 		{
 			inst_destroy_value(value_create_noref(SCRIPT_TYPE(), base_voidptr(script)));
-			was_found = 1;
+			was_found = true;
 			script = 0;
 			vm->scripts[i] = 0;
 		}
@@ -141,18 +133,18 @@ void cb_cmdcnt_destroy(void* data)
 PCMDCNT create_cmdcnt(void)
 {
 	PCMDCNT cmdcnt = malloc(sizeof(CMDCNT));
-	cmdcnt->types = sm_create_list(5, 10, 10);
-	cmdcnt->nullar = sm_create_list(25, 10, 10);
-	cmdcnt->unary = sm_create_list(25, 10, 10);
-	cmdcnt->binary = sm_create_list(25, 10, 10);
+	cmdcnt->types = wsm_create_list(5, 10, 10);
+	cmdcnt->nullar = wsm_create_list(25, 10, 10);
+	cmdcnt->unary = wsm_create_list(25, 10, 10);
+	cmdcnt->binary = wsm_create_list(25, 10, 10);
 	return cmdcnt;
 }
 void destroy_cmdcnt(PCMDCNT cmdcnt)
 {
-	sm_destroy_list(cmdcnt->types, cb_cmdcnt_destroy);
-	sm_destroy_list(cmdcnt->nullar, cb_cmdcnt_destroy);
-	sm_destroy_list(cmdcnt->unary, cb_cmdcnt_destroy);
-	sm_destroy_list(cmdcnt->binary, cb_cmdcnt_destroy);
+	wsm_destroy_list(cmdcnt->types, cb_cmdcnt_destroy);
+	wsm_destroy_list(cmdcnt->nullar, cb_cmdcnt_destroy);
+	wsm_destroy_list(cmdcnt->unary, cb_cmdcnt_destroy);
+	wsm_destroy_list(cmdcnt->binary, cb_cmdcnt_destroy);
 	free(cmdcnt);
 }
 
@@ -166,17 +158,29 @@ PCMDCNT GET_PCMDCNT(void)
 	return pcmdcnt;
 }
 
-void orig_error(PVM vm, const char* errMsg, PSTACK stack)
+void orig_error(PVM vm, const wchar_t* errMsg, PSTACK stack)
 {
-	printf("ERROR: %s\n", errMsg);
+	wprintf(L"ERROR: %s\n", errMsg);
 	getchar();
 	exit(-1);
 }
-void orig_warn(PVM vm, const char* errMsg, PSTACK stack)
+void orig_warn(PVM vm, const wchar_t* errMsg, PSTACK stack)
 {
-	printf("WARNING: %s\n", errMsg);
+	wprintf(L"WARNING: %s\n", errMsg);
 }
-PSTACK create_stack(unsigned int size, unsigned char allow_dbg)
+int sqfvm_print(PVM vm, const wchar_t* format, ...)
+{
+	va_list args;
+	int res;
+	va_start(args, format);
+
+	res = vwprintf(format, args);
+
+	va_end(args);
+	return res;
+}
+
+PSTACK create_stack(unsigned int size, bool allow_dbg)
 {
 	PSTACK stack = malloc(sizeof(STACK));
 	if (size == 0)
@@ -196,7 +200,7 @@ PSTACK create_stack(unsigned int size, unsigned char allow_dbg)
 void destroy_stack(PSTACK stack)
 {
 	int i;
-	for (i = 0; i < stack->top; i++)
+	for (i = 0; i < (int)stack->top; i++)
 	{
 		inst_destroy(stack->data[i]);
 	}
@@ -209,14 +213,14 @@ void resize_stack(PVM vm, PSTACK stack, unsigned int newsize)
 		return;
 	int i;
 	PINST* ptr;
-	for (i = newsize; i < stack->top; i++)
+	for (i = newsize; i < (int)stack->top; i++)
 	{
 		inst_destroy(stack->data[i]);
 	}
 	ptr = realloc(stack->data, sizeof(PINST) * newsize);
 	if (ptr == 0)
 	{
-		vm->error(vm, "RESIZE OF STACK FAILED", vm->stack);
+		vm->error(vm, L"RESIZE OF STACK FAILED", vm->stack);
 	}
 	else
 	{
@@ -228,7 +232,7 @@ void push_stack(PVM vm, PSTACK stack, PINST inst)
 {
 	if (stack->top >= stack->size)
 	{
-		vm->error(vm, "STACK OVERFLOW", vm->stack);
+		vm->error(vm, L"STACK OVERFLOW", vm->stack);
 	}
 	else if (inst != 0 && inst->type == INST_DEBUG_INFO && !stack->allow_dbg)
 	{
@@ -243,7 +247,7 @@ PINST pop_stack(PVM vm, PSTACK stack)
 {
 	if (stack->top == 0)
 	{
-		vm->error(vm, "STACK UNDERFLOW", vm->stack);
+		vm->error(vm, L"STACK UNDERFLOW", vm->stack);
 		return 0;
 	}
 	else
@@ -256,11 +260,11 @@ void insert_stack(PVM vm, PSTACK stack, PINST inst, int offset)
 	PINST tmp;
 	if (stack->top >= stack->size)
 	{
-		vm->error(vm, "STACK OVERFLOW", vm->stack);
+		vm->error(vm, L"STACK OVERFLOW", vm->stack);
 	}
 	else if (offset > 0)
 	{
-		vm->error(vm, "CANNOT PUSH USING INSERT_STACK", vm->stack);
+		vm->error(vm, L"CANNOT PUSH USING INSERT_STACK", vm->stack);
 	}
 	else if (inst != 0 && inst->type == INST_DEBUG_INFO && !stack->allow_dbg)
 	{
@@ -319,7 +323,7 @@ PINST copy_inst(PVM vm, const PINST instIn)
 	case INST_MOVE:
 		return inst_move(instIn->data.i);
 	default:
-#if _WIN32
+#if defined(_WIN32) & !defined(__GNUC__)
 		__asm int 3;
 #else
 		return 0;
@@ -331,7 +335,7 @@ void copy_into_stack(PVM vm, PSTACK target, const PSTACK source)
 {
 	int i;
 	PINST inst;
-	for (i = 0; i < source->top; i++)
+	for (i = 0; i < (int)source->top; i++)
 	{
 		inst = source->data[i];
 		push_stack(vm, target, copy_inst(vm, inst));
@@ -341,7 +345,7 @@ void copy_into_stack(PVM vm, PSTACK target, const PSTACK source)
 
 void register_command(PVM vm, PCMD cmd)
 {
-	sm_list* list = 0;
+	wsm_list* list = 0;
 	switch (cmd->type)
 	{
 		case 't':
@@ -357,28 +361,17 @@ void register_command(PVM vm, PCMD cmd)
 			list = vm->cmd_container->binary;
 			break;
 		default:
-			vm->error(vm, "UNKNOWN COMMAND TYPE", vm->stack);
+			vm->error(vm, L"UNKNOWN COMMAND TYPE", vm->stack);
 			break;
 	}
 	if (list == 0)
 		return;
-	if (sm_get_value(list, cmd->name) == 0)
+	if (wsm_get_value(list, cmd->name) == 0)
 	{
-		cmd = sm_set_value(list, cmd->name, cmd);
+		cmd = wsm_set_value(list, cmd->name, cmd);
 	}
 	else
 	{
-		vm->error(vm, "COMMAND ALREADY EXISTING", vm->stack);
+		vm->error(vm, L"COMMAND ALREADY EXISTING", vm->stack);
 	}
-}
-int sqfvm_print(PVM vm, const char* format, ...)
-{
-	va_list args;
-	int res;
-	va_start(args, format);
-
-	res = vprintf(format, args);
-
-	va_end(args);
-	return res;
 }

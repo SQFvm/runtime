@@ -1,14 +1,6 @@
-#include "basetype.h"
-#include "vector.h"
-#include "string_map.h"
-#include "string_op.h"
-#include "textrange.h"
-#include "SQF.h"
-#include "SQF_types.h"
-#include "SQF_object_type.h"
-#include "SQF_parse.h"
 #include <stdlib.h>
-#include <string.h>
+#include <wchar.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <ctype.h>
 #ifdef __linux
@@ -17,18 +9,22 @@
 #ifdef _WIN32
 #include <malloc.h>
 #endif // _WIN32
+#include <stdint.h>
 
+#include "wstring_op.h"
+#include "wstring_map.h"
+#include "sqffull.h"
 
-void tokenize(TR_ARR* arr, const char* code)
+void tokenize(TR_ARR* arr, const wchar_t* code)
 {
 	int i;
-	char c, s;
+	wchar_t c, s;
 	int start = -1;
 	int line = 1;
 	int col = 0;
-	unsigned char in_string = 0;
-	unsigned char in_line_comment_mode = 0;
-	unsigned char in_block_comment_mode = 0;
+	bool in_string = false;
+	bool in_line_comment_mode = false;
+	bool in_block_comment_mode = false;
 	for (i = 0; code[i] != '\0'; i++, col++)
 	{
 		c = code[i];
@@ -36,7 +32,7 @@ void tokenize(TR_ARR* arr, const char* code)
 		{
 			if (c == '\n')
 			{
-				in_line_comment_mode = 0;
+				in_line_comment_mode = false;
 			}
 			continue;
 		}
@@ -44,19 +40,19 @@ void tokenize(TR_ARR* arr, const char* code)
 		{
 			if (c == '/' && code[i - 1] == '*')
 			{
-				in_block_comment_mode = 0;
+				in_block_comment_mode = false;
 			}
 			continue;
 		}
 		if (!in_string && c == '/' && code[i + 1] == '/')
 		{
-			in_line_comment_mode = 1;
+			in_line_comment_mode = true;
 			start = -1;
 			continue;
 		}
 		else if (!in_string && c == '/' &&  code[i + 1] == '*')
 		{
-			in_block_comment_mode = 1;
+			in_block_comment_mode = true;
 			start = -1;
 			continue;
 		}
@@ -79,7 +75,7 @@ void tokenize(TR_ARR* arr, const char* code)
 			s = code[start];
 			if (s == '"')
 			{
-				in_string = 1;
+				in_string = true;
 				if (c == '"' && code[i + 1] == '"')
 				{
 					i++;
@@ -91,12 +87,12 @@ void tokenize(TR_ARR* arr, const char* code)
 						.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
 					});
 					start = -1;
-					in_string = 0;
+					in_string = false;
 				}
 			}
 			else if (s == '\'')
 			{
-				in_string = 1;
+				in_string = true;
 				if (c == '\'')
 				{
 					tr_arr_push(arr, (TEXTRANGE)
@@ -104,7 +100,7 @@ void tokenize(TR_ARR* arr, const char* code)
 						.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
 					});
 					start = -1;
-					in_string = 0;
+					in_string = false;
 				}
 			}
 			else if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
@@ -198,16 +194,16 @@ void tokenize(TR_ARR* arr, const char* code)
 	}
 }
 
-int strncmpi(const char* left, int left_len, const char* right, int right_len)
+int wcsncmpi(const wchar_t* left, int left_len, const wchar_t* right, int right_len)
 {
 	int i;
 	if (left_len == -1)
 	{
-		left_len = strlen(left);
+		left_len = wcslen(left);
 	}
 	if (right_len == -1)
 	{
-		right_len = strlen(right);
+		right_len = wcslen(right);
 	}
 	if (left_len != right_len)
 		return -1;
@@ -219,12 +215,12 @@ int strncmpi(const char* left, int left_len, const char* right, int right_len)
 	return 0;
 }
 
-void parse_block(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
+void parse_block(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
 {
 	int i, j = -1;
 	int arraycount = 0;
 	int codecount = 0;
-	const char* str;
+	const wchar_t* str;
 	TEXTRANGE range;
 	if (arr_start == arr_end)
 		return;
@@ -297,17 +293,17 @@ void parse_block(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned i
 	}
 }
 
-CPCMD fndcmd(PVM vm, const char* name, unsigned int len)
+CPCMD fndcmd(PVM vm, const wchar_t* name, unsigned int len)
 {
-	char* name_buff = alloca(sizeof(char) * (len + 1));
-	strncpy(name_buff, name, len);
+	wchar_t* name_buff = alloca(sizeof(wchar_t) * (len + 1));
+	wcsncpy(name_buff, name, len);
 	name_buff[len] = '\0';
 	return find_command(vm, name_buff, 'C');
 }
-CPCMD fndcmd2(PVM vm, const char* name, unsigned int len, unsigned char filter)
+CPCMD fndcmd2(PVM vm, const wchar_t* name, unsigned int len, unsigned char filter)
 {
-	char* name_buff = alloca(sizeof(char) * (len + 1));
-	strncpy(name_buff, name, len);
+	wchar_t* name_buff = alloca(sizeof(wchar_t) * (len + 1));
+	wcsncpy(name_buff, name, len);
 	name_buff[len] = '\0';
 	CPCMD cmd = 0;
 	if (ENUM_CMD_TYPE & filter && (cmd = find_command(vm, name_buff, 't')) != 0)
@@ -328,7 +324,7 @@ CPCMD fndcmd2(PVM vm, const char* name, unsigned int len, unsigned char filter)
 	}
 	return cmd;
 }
-void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
+void parse_form_code(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
 {
 	TEXTRANGE range;
 	PCODE pcode;
@@ -348,15 +344,15 @@ void parse_form_code(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsign
 	}
 	(*stack_counter)++;
 }
-void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
+void parse_form_array(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
 {
 	int i, j = -1, k = -1;
-	const char* str;
+	const wchar_t* str;
 	TEXTRANGE range;
 	int arrcount = 0;
 	int codecount = 0;
 	int bracecount = 0;
-	char c;
+	wchar_t c;
 	for (i = arr_end - 1; i >= (int)arr_start; i--)
 	{
 		range = tr_arr_get(arr, i);
@@ -459,10 +455,10 @@ void parse_form_array(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsig
 	}
 	(*stack_counter)++;
 }
-void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
+void parse_partial(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter)
 {
-	const char* str;
-	char* endptr;
+	const wchar_t* str;
+	wchar_t* endptr;
 	int i, j = -1, k;
 	float f;
 	TEXTRANGE range;
@@ -471,13 +467,13 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	int arrcount = 0;
 	int codecount = 0;
 	int bracecount = 0;
-	char c;
+	wchar_t c;
 	int wasvariable = 0;
 	if (arr_end - arr_start == 0)
 	{
 		return;
 	}
-	for (i = arr_start; i < arr_end; i++)
+	for (i = arr_start; i < (int)arr_end; i++)
 	{
 		range = tr_arr_get(arr, i);
 		str = code + range.start;
@@ -568,10 +564,10 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		{
 			if (wasvariable)
 			{
-				vm->error(vm, "Syntax Error: Double non-command usage", stack);
+				vm->error(vm, L"Syntax Error: Double non-command usage", stack);
 			}
 			wasvariable = 1;
-			if (str[0] == '_' && smallest_cmd != 0 && str_cmpi(smallest_cmd->name, -1, "private", -1) == 0)
+			if (str[0] == '_' && smallest_cmd != 0 && wstr_cmpi(smallest_cmd->name, -1, L"private", -1) == 0)
 			{
 				smallest_cmd = 0;
 				j = -1;
@@ -623,13 +619,13 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 				else if (str[range.length - 1] == '"' || str[range.length - 1] == '\'')
 				{
 					value_string = string_create(range.length - 2);
-					strncpy(value_string->val, str + 1, range.length - 2);
+					wcsncpy(value_string->val, str + 1, range.length - 2);
 					push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
 				}
 				else
 				{
 					value_string = string_create(range.length - 1);
-					strncpy(value_string->val, str + 1, range.length - 1);
+					wcsncpy(value_string->val, str + 1, range.length - 1);
 					push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
 				}
 			}
@@ -637,7 +633,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		}
 		else if (str[0] == '(')
 		{
-			for (i = j, k = 1; i < arr_end && k > 0;)
+			for (i = j, k = 1; i < (int)arr_end && k > 0;)
 			{
 				i++;
 				c = (code + tr_arr_get(arr, i).start)[0];
@@ -654,7 +650,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		}
 		else if (str[0] == '[')
 		{
-			for (i = j, k = 1; i < arr_end && k > 0;)
+			for (i = j, k = 1; i < (int)arr_end && k > 0;)
 			{
 				i++;
 				c = (code + tr_arr_get(arr, i).start)[0];
@@ -671,7 +667,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		}
 		else if (str[0] == '{')
 		{
-			for (i = j, k = 1; i < arr_end && k > 0;)
+			for (i = j, k = 1; i < (int)arr_end && k > 0;)
 			{
 				i++;
 				c = (code + tr_arr_get(arr, i).start)[0];
@@ -688,7 +684,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 		}
 		else
 		{
-			f = strtof(str, &endptr);
+			f = wcstof(str, &endptr);
 			if (endptr != str)
 			{
 				if (stack != 0)
@@ -699,12 +695,12 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 			}
 			else
 			{
-				endptr = alloca(sizeof(char) * (range.length + 1));
+				endptr = alloca(sizeof(wchar_t) * (range.length + 1));
 				endptr[range.length] = '\0';
-				strncpy(endptr, str, range.length);
-				if (strncmpi(code + tr_arr_get(arr, j + 1).start, tr_arr_get(arr, j + 1).length, "=", -1) == 0)
+				wcsncpy(endptr, str, range.length);
+				if (wcsncmpi(code + tr_arr_get(arr, j + 1).start, tr_arr_get(arr, j + 1).length, L"=", -1) == 0)
 				{
-					if (j > 0 && strncmpi(code + tr_arr_get(arr, j - 1).start, tr_arr_get(arr, j - 1).length, "private", -1) == 0)
+					if (j > 0 && wcsncmpi(code + tr_arr_get(arr, j - 1).start, tr_arr_get(arr, j - 1).length, L"private", -1) == 0)
 					{
 						if (stack != 0)
 						{
@@ -752,7 +748,7 @@ void parse_partial(PVM vm, PSTACK stack, const char* code, TR_ARR* arr, unsigned
 	parse_partial(vm, stack, code, arr, arr_start, j, stack_counter);
 	parse_partial(vm, stack, code, arr, i + 1, arr_end, stack_counter);
 }
-void parse(PVM vm, const char* code, unsigned char createscope)
+void parse(PVM vm, const wchar_t* code, bool createscope)
 {
 	TR_ARR* arr = tr_arr_create();
 	unsigned int stack_counter = 0;
@@ -772,16 +768,16 @@ void parse(PVM vm, const char* code, unsigned char createscope)
 	tr_arr_destroy(arr);
 }
 
-PCODE parse_into_code(PVM vm, const char* code)
+PCODE parse_into_code(PVM vm, const wchar_t* code)
 {
 	TR_ARR* arr = tr_arr_create();
 	unsigned int stack_size = 0;
 	PCODE pcode;
 	if (code == 0)
 	{
-		return code_create("", 0, 0);
+		return code_create(L"", 0, 0);
 	}
-	pcode = code_create(code, 0, strlen(code));
+	pcode = code_create(code, 0, wcslen(code));
 	tokenize(arr, code);
 
 	parse_block(vm, 0, code, arr, 0, arr->top, &stack_size);

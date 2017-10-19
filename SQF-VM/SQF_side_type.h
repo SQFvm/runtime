@@ -12,16 +12,16 @@
 
 typedef int side;
 
-#define SIDE_STR_CIV "CIV"
-#define SIDE_STR_BLU "WEST"
-#define SIDE_STR_OPF "EAST"
-#define SIDE_STR_GUE "GUER"
-#define SIDE_STR_LOGIC "LOGIC"
-#define SIDE_STR_ENEMY "ENEMY"
-#define SIDE_STR_FRIENDLY "FRIENDLY"
-#define SIDE_STR_AMBIENT "AMBIENT LIFE"
-#define SIDE_STR_EMPTY "EMPTY"
-#define SIDE_STR_UNKNOWN "UNKNOWN"
+#define SIDE_WSTR_CIV L"CIV"
+#define SIDE_WSTR_BLU L"WEST"
+#define SIDE_WSTR_OPF L"EAST"
+#define SIDE_WSTR_GUE L"GUER"
+#define SIDE_WSTR_LOGIC L"LOGIC"
+#define SIDE_WSTR_ENEMY L"ENEMY"
+#define SIDE_WSTR_FRIENDLY L"FRIENDLY"
+#define SIDE_WSTR_AMBIENT L"AMBIENT LIFE"
+#define SIDE_WSTR_EMPTY L"EMPTY"
+#define SIDE_WSTR_UNKNOWN L"UNKNOWN"
 
 #define SIDE_VAL_EMPTY ((side)0)
 #define SIDE_VAL_UNKNOWN ((side)1)
@@ -36,14 +36,14 @@ typedef int side;
 
 
 PCMD SIDE_TYPE(void);
-const char* side_displayname(int i);
-const char* side_displayname2(const PVALUE val);
+const wchar_t* side_displayname(int i);
+const wchar_t* side_displayname2(const PVALUE val);
 unsigned char** side_init_sidemap(void);
 void side_destroy_sidemap(unsigned char** map);
 
-inline void side_set_firendly(PVM vm, const PVALUE self, const PVALUE other, unsigned char flag) { vm->sidemap[self->val.i][other->val.i] = flag; }
-inline unsigned char side_equals(const PVALUE left, const PVALUE right) { return left->val.i == right->val.i; }
-inline unsigned char side_is_friendly(const PVM vm, const PVALUE self, const PVALUE other) { return vm->sidemap[self->val.i][other->val.i]; }
+inline void side_set_firendly(PVM vm, const PVALUE self, const PVALUE other, bool flag) { vm->sidemap[self->val.i][other->val.i] = flag; }
+inline bool side_equals(const PVALUE left, const PVALUE right) { return left->val.i == right->val.i; }
+inline bool side_is_friendly(const PVM vm, const PVALUE self, const PVALUE other) { return vm->sidemap[self->val.i][other->val.i]; }
 inline VALUE side_empty(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_EMPTY)); }
 inline VALUE side_unknown(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_UNKNOWN)); }
 inline VALUE side_civ(void) { return value(SIDE_TYPE(), base_int(SIDE_VAL_CIV)); }

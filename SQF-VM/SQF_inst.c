@@ -1,20 +1,14 @@
-#include "basetype.h"
-#include "vector.h"
-#include "string_map.h"
-#include "SQF_base.h"
-#include "SQF.h"
-#include "SQF_inst.h"
-#include "SQF_types.h"
-#include "SQF_object_type.h"
-
 #include <stdlib.h>
-#include <string.h>
-#include <string.h>
+#include <stdbool.h>
+#include <wchar.h>
 #include <stdio.h>
+#include <stdint.h>
+
+#include "sqffull.h"
 
 extern inline CPCMD get_command(PVM vm, PSTACK stack, PINST inst);
 extern inline PVALUE get_value(PVM vm, PSTACK stack, PINST inst);
-extern inline const char* get_var_name(PVM vm, PSTACK stack, PINST inst);
+extern inline const wchar_t* get_var_name(PVM vm, PSTACK stack, PINST inst);
 extern inline PSCOPE get_scope(PVM vm, PSTACK stack, PINST inst);
 extern inline VALUE value(CPCMD type, BASE val);
 extern inline VALUE value2(const PVALUE val);
@@ -76,40 +70,40 @@ PINST inst_value(VALUE val)
 	((PVALUE)p->data.ptr)->val = val.val;
 	return p;
 }
-PINST inst_load_var(const char* name)
+PINST inst_load_var(const wchar_t* name)
 {
 	PINST p = inst(INST_LOAD_VAR);
-	int len = strlen(name);
-	p->data.ptr = malloc(sizeof(char) * (len + 1));
-	strcpy(p->data.ptr, name);
+	int len = wcslen(name);
+	p->data.ptr = malloc(sizeof(wchar_t) * (len + 1));
+	wcscpy(p->data.ptr, name);
 	return p;
 }
-PINST inst_store_var(const char* name)
+PINST inst_store_var(const wchar_t* name)
 {
 	PINST p = inst(INST_STORE_VAR);
-	int len = strlen(name);
-	p->data.ptr = malloc(sizeof(char) * (len + 1));
-	strcpy(p->data.ptr, name);
+	int len = wcslen(name);
+	p->data.ptr = malloc(sizeof(wchar_t) * (len + 1));
+	wcscpy(p->data.ptr, name);
 	return p;
 }
-PINST inst_store_var_local(const char* name)
+PINST inst_store_var_local(const wchar_t* name)
 {
 	PINST p = inst(INST_STORE_VAR_LOCAL);
-	int len = strlen(name);
-	p->data.ptr = malloc(sizeof(char) * (len + 1));
-	strcpy(p->data.ptr, name);
+	int len = wcslen(name);
+	p->data.ptr = malloc(sizeof(wchar_t) * (len + 1));
+	wcscpy(p->data.ptr, name);
 	return p;
 }
-PINST inst_scope(const char* name)
+PINST inst_scope(const wchar_t* name)
 {
 	PINST p = inst(INST_SCOPE);
 	PSCOPE s = malloc(sizeof(SCOPE));
 	p->data.ptr = s;
 	if (name != 0)
 	{
-		s->name_len = strlen(name);
-		s->name = malloc(sizeof(char) * (s->name_len + 1));
-		strcpy(s->name, name);
+		s->name_len = wcslen(name);
+		s->name = malloc(sizeof(wchar_t) * (s->name_len + 1));
+		wcscpy(s->name, name);
 	}
 	else
 	{
@@ -118,7 +112,7 @@ PINST inst_scope(const char* name)
 	}
 	s->varstack_size = 32;
 	s->varstack_top = 0;
-	s->varstack_name = malloc(sizeof(char*) * s->varstack_size);
+	s->varstack_name = malloc(sizeof(wchar_t*) * s->varstack_size);
 	s->varstack_value = malloc(sizeof(VALUE*) * s->varstack_size);
 	s->ns = sqf_missionNamespace();
 	return p;
@@ -127,7 +121,7 @@ PINST inst_arr_push(void)
 {
 	return inst(INST_ARR_PUSH);
 }
-PINST inst_code_load(unsigned char createscope)
+PINST inst_code_load(bool createscope)
 {
 	PINST p = inst(INST_CODE_LOAD);
 	p->data.c = createscope;
@@ -139,7 +133,7 @@ PINST inst_pop(unsigned int ammount)
 	p->data.ui = ammount;
 	return p;
 }
-PINST inst_pop_eval(unsigned int ammount, unsigned char popon)
+PINST inst_pop_eval(unsigned int ammount, bool popon)
 {
 	PINST p = inst(INST_POP_EVAL);
 	PPOPEVAL popeval = malloc(sizeof(POPEVAL));
@@ -152,13 +146,13 @@ PINST inst_clear_work(void)
 {
 	return inst(INST_CLEAR_WORK);
 }
-PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, unsigned int length, const char* code)
+PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, unsigned int length, const wchar_t* code)
 {
 	int i;
 	int j;
 	int len;
 	int size;
-	const char* str;
+	const wchar_t* str;
 	PINST p = inst(INST_DEBUG_INFO);
 	PDBGINF dbginf = malloc(sizeof(DBGINF));
 	p->data.ptr = dbginf;
@@ -179,7 +173,7 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, un
 	{
 		if (code[j] == '\0' || code[j] == '\n')
 		{
-			if (j < dbginf->offset)
+			if (j < (int)dbginf->offset)
 			{
 				i = j + 1;
 			}
@@ -191,9 +185,9 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, un
 		}
 	}
 	str = code + i;
-	size = snprintf(0, 0, "%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : (int)dbginf->length), "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-	dbginf->hint = malloc(sizeof(char) * (size + 1));
-	snprintf(dbginf->hint, size + 1, "%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : dbginf->length), "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	size = swprintf(0, 0, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : (int)dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	dbginf->hint = malloc(sizeof(wchar_t) * (size + 1));
+	swprintf(dbginf->hint, size + 1, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
 	return p;
 }
@@ -205,8 +199,8 @@ PINST inst_debug_info2(PDBGINF pdbginf)
 	dbginf->line = pdbginf->line;
 	dbginf->offset = pdbginf->offset;
 	dbginf->length = pdbginf->length;
-	dbginf->hint = malloc(sizeof(char) * (strlen(pdbginf->hint) + 1));
-	strcpy(dbginf->hint, pdbginf->hint);
+	dbginf->hint = malloc(sizeof(wchar_t) * (wcslen(pdbginf->hint) + 1));
+	wcscpy(dbginf->hint, pdbginf->hint);
 	p->data.ptr = dbginf;
 	return p;
 }
@@ -216,7 +210,7 @@ PINST inst_move(int off)
 	p->data.i = off;
 	return p;
 }
-PINST inst_scope_dropout(const char* scope)
+PINST inst_scope_dropout(const wchar_t* scope)
 {
 	PINST p = inst(INST_SCOPE_DROPOUT);
 	if (scope == 0)
@@ -225,9 +219,9 @@ PINST inst_scope_dropout(const char* scope)
 	}
 	else
 	{
-		int len = strlen(scope);
-		p->data.ptr = malloc(sizeof(char) * (len + 1));
-		strcpy(p->data.ptr, scope);
+		int len = wcslen(scope);
+		p->data.ptr = malloc(sizeof(wchar_t) * (len + 1));
+		wcscpy(p->data.ptr, scope);
 	}
 	return p;
 }
@@ -247,16 +241,16 @@ void inst_destroy(PINST inst)
 			inst_destroy_value(get_value(0, 0, inst));
 			break;
 		case INST_LOAD_VAR:
-			inst_destroy_var((char*)get_var_name(0, 0, inst));
+			inst_destroy_var((wchar_t*)get_var_name(0, 0, inst));
 			break;
 		case INST_STORE_VAR:
-			inst_destroy_var((char*)get_var_name(0, 0, inst));
+			inst_destroy_var((wchar_t*)get_var_name(0, 0, inst));
 			break;
 		case INST_SCOPE:
 			inst_destroy_scope(get_scope(0, 0, inst));
 			break;
 		case INST_STORE_VAR_LOCAL:
-			inst_destroy_var((char*)get_var_name(0, 0, inst));
+			inst_destroy_var((wchar_t*)get_var_name(0, 0, inst));
 			break;
 		case INST_ARR_PUSH:
 			break;
@@ -275,10 +269,10 @@ void inst_destroy(PINST inst)
 		case INST_MOVE:
 			break;
 		case INST_SCOPE_DROPOUT:
-			inst_destroy_var((char*)get_var_name(0, 0, inst));
+			inst_destroy_var((wchar_t*)get_var_name(0, 0, inst));
 			break;
 		default:
-			#if _WIN32
+			#if defined(_WIN32) & !defined(__GNUC__)
 			__asm int 3;
 			#endif
 			break;
@@ -292,7 +286,7 @@ void inst_destroy_scope(PSCOPE scope)
 	{
 		free(scope->name);
 	}
-	for (i = 0; i < scope->varstack_top; i++)
+	for (i = 0; i < (int)scope->varstack_top; i++)
 	{
 		inst_destroy_value(scope->varstack_value[i]);
 		free(scope->varstack_name[i]);
@@ -318,7 +312,7 @@ void inst_destroy_dbginf(PDBGINF dbginf)
 	free(dbginf->hint);
 	free(dbginf);
 }
-void inst_destroy_var(char* name)
+void inst_destroy_var(wchar_t* name)
 {
 	if (name == 0)
 		return;

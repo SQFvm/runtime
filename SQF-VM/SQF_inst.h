@@ -1,7 +1,13 @@
 #ifndef _SQF_INST_H_
 #define _SQF_INST_H_
 
-#include "SQF_base.h"
+#ifndef __bool_true_false_are_defined
+#error "SQF_inst.h" requires stdbool header "stdbool.h"
+#endif // !__bool_true_false_are_defined
+
+#ifndef _SQF_BASE_H_
+#error "SQF.h" has to be included after "SQF_base.h"
+#endif // !_SQF_BASE_H_
 
 inline VALUE value(CPCMD type, BASE val)
 {
@@ -32,19 +38,19 @@ PVALUE value_create_noref(CPCMD type, BASE val);
 PINST inst_nop(void);
 PINST inst_command(CPCMD cmd);
 PINST inst_value(VALUE val);
-PINST inst_load_var(const char* name);
-PINST inst_store_var(const char* name);
-PINST inst_store_var_local(const char* name);
-PINST inst_scope(const char* name);
+PINST inst_load_var(const wchar_t* name);
+PINST inst_store_var(const wchar_t* name);
+PINST inst_store_var_local(const wchar_t* name);
+PINST inst_scope(const wchar_t* name);
 PINST inst_arr_push(void);
-PINST inst_code_load(unsigned char createscope);
+PINST inst_code_load(bool createscope);
 PINST inst_pop(unsigned int ammount);
-PINST inst_pop_eval(unsigned int ammount, unsigned char popon);
+PINST inst_pop_eval(unsigned int ammount, bool popon);
 PINST inst_clear_work(void);
-PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, unsigned int length, const char* code);
+PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, unsigned int length, const wchar_t* code);
 PINST inst_debug_info2(PDBGINF pdbginf);
 PINST inst_move(int off);
-PINST inst_scope_dropout(const char* scope);
+PINST inst_scope_dropout(const wchar_t* scope);
 
 
 
@@ -52,7 +58,7 @@ void inst_destroy(PINST inst);
 void inst_destroy_dbginf(PDBGINF dbginf);
 void inst_destroy_scope(PSCOPE scope);
 void inst_destroy_value(PVALUE val);
-void inst_destroy_var(char* name);
+void inst_destroy_var(wchar_t* name);
 void inst_destroy_pop_eval(PPOPEVAL popeval);
 
 //inline void get_nop(PINST) {}
@@ -64,7 +70,7 @@ inline CPCMD get_command(PVM vm, PSTACK stack, PINST inst)
 	}
 	else
 	{
-		vm->error(vm, "TYPE MISSMATCH", stack);
+		vm->error(vm, L"TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
@@ -76,19 +82,19 @@ inline PVALUE get_value(PVM vm, PSTACK stack, PINST inst)
 	}
 	else
 	{
-		vm->error(vm, "TYPE MISSMATCH", stack);
+		vm->error(vm, L"TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
-inline const char* get_var_name(PVM vm, PSTACK stack, PINST inst)
+inline const wchar_t* get_var_name(PVM vm, PSTACK stack, PINST inst)
 {
 	if (inst != 0 && (inst->type == INST_LOAD_VAR || inst->type == INST_STORE_VAR || inst->type == INST_STORE_VAR_LOCAL || inst->type == INST_SCOPE_DROPOUT))
 	{
-		return (const char*)inst->data.ptr;
+		return (const wchar_t*)inst->data.ptr;
 	}
 	else
 	{
-		vm->error(vm, "TYPE MISSMATCH", stack);
+		vm->error(vm, L"TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
@@ -100,7 +106,7 @@ inline PSCOPE get_scope(PVM vm, PSTACK stack, PINST inst)
 	}
 	else
 	{
-		vm->error(vm, "TYPE MISSMATCH", stack);
+		vm->error(vm, L"TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
@@ -112,7 +118,7 @@ inline PPOPEVAL get_pop_eval(PVM vm, PSTACK stack, PINST inst)
 	}
 	else
 	{
-		vm->error(vm, "TYPE MISSMATCH", stack);
+		vm->error(vm, L"TYPE MISSMATCH", stack);
 		return 0;
 	}
 }
@@ -124,7 +130,7 @@ inline PDBGINF get_dbginf(PVM vm, PSTACK stack, PINST inst)
 	}
 	else
 	{
-		vm->error(vm, "TYPE MISSMATCH", stack);
+		vm->error(vm, L"TYPE MISSMATCH", stack);
 		return 0;
 	}
 }

@@ -1,19 +1,25 @@
 #ifndef _SQF_TYPES_H_
 #define _SQF_TYPES_H_
 
+#ifndef __bool_true_false_are_defined
+#error "SQF_types.h" requires stdbool header "stdbool.h"
+#endif // !__bool_true_false_are_defined
 #ifndef _SQF_H_
 #error "SQF_types.h" has to be included after "SQF.h" 
 #endif // !_SQF_H_
-#ifndef _STRING_MAP_H_
-#error "SQF_types.h" has to be included after "string_map.h" 
-#endif // !_STRING_MAP_H_
+#ifndef _WSTRING_MAP_H_
+#error "SQF_types.h" has to be included after "wstring_map.h" 
+#endif // !_WSTRING_MAP_H_
 
 //SQF.c --> sqfvm | Add TYPE command and if required deletion callback
 
 #define STRING_MAX_LENGTH 9999999
 
+struct ARRAY;
+typedef struct ARRAY* PARRAY;
 
-unsigned char is_equal_to(PVALUE l, PVALUE r);
+
+bool is_equal_to(PVALUE l, PVALUE r);
 
 PCMD SCALAR_TYPE(void);
 PCMD BOOL_TYPE(void);
@@ -25,90 +31,35 @@ PCMD NAN_TYPE(void);
 
 typedef struct CODE
 {
-	char* val;
+	wchar_t* val;
 	unsigned int length;
 	int refcount;
 	PSTACK stack;
 } CODE;
 typedef CODE* PCODE;
 PCMD CODE_TYPE(void);
-PCODE code_create(const char* txt, int offset, int len);
+PCODE code_create(const wchar_t* txt, int offset, int len);
 void code_destroy(PCODE code);
-
-typedef struct STRING
-{
-	char* val;
-	unsigned int length;
-	int refcount;
-} STRING;
-PCMD STRING_TYPE(void);
-typedef STRING* PSTRING;
-
-//Creates a new STRING object with given length. STRING will not be initialized!
-PSTRING string_create(unsigned int len);
-//Creates a new STRING object and initializes it with given c string
-PSTRING string_create2(const char* str);
-//Destroys an existing STRING object
-void string_destroy(PSTRING string);
-//Concatenates the two STRING objects and returns a new STRING object.
-PSTRING string_concat(const PSTRING l, const PSTRING r);
-//Will take given range from provided STRING object and create a new STRING object
-PSTRING string_substring(const PSTRING string, unsigned int start, int length);
-//Appends provided cstring onto STRING object
-void string_modify_append(PSTRING string, const char* append);
-void string_modify_append2(PSTRING string, int len);
-//Appends n characters of provided cstring onto STRING object
-void string_modify_nappend(PSTRING string, const char* append,
-		unsigned int len);
-
-#define ARRAY_DEFAULT_INC 10
-typedef struct ARRAY
-{
-	PVALUE* data;
-	unsigned int size;
-	unsigned int top;
-	int refcount;
-} ARRAY;
-PCMD ARRAY_TYPE(void);
-typedef ARRAY* PARRAY;
-
-PARRAY array_create(void);
-PARRAY array_create2(unsigned int initialsize);
-void array_destroy(PARRAY arr);
-void array_resize(PARRAY arr, unsigned int newsize);
-//Adjusts theoretical size of array (ARRAY.top) to desired size.
-//Will take care that provided array will have required practical size
-//to contain theoretical size.
-//Empty slots will be filled with NOTHING values.
-void array_resize_top(PARRAY arr, unsigned int newsize);
-void array_push(PARRAY arr, VALUE val);
-int array_index_of(const PARRAY array, const PVALUE value);
-PVALUE array_pop(PARRAY array);
-PVALUE array_pop_at(PARRAY array, int index);
-void array_reverse(PARRAY array);
-//Appends content of arr2 into arr1
-void array_append(PARRAY arr1, PARRAY arr2);
-PARRAY array_copy(const PARRAY arrIn);
 
 typedef struct FOR
 {
-	char* variable;
+	wchar_t* variable;
 	unsigned int variable_length;
 	int start;
 	int end;
 	float step;
 	float current;
 	int refcount;
-	unsigned char started;
+	bool started;
 } FOR;
 PCMD FOR_TYPE(void);
 typedef FOR* PFOR;
-PFOR for_create(const char* varname);
+PFOR for_create(const wchar_t* varname);
 void for_destroy(PFOR f);
 
 typedef struct NAMESPACE
 {
-	sm_list* data;
+	wsm_list* data;
 	int refcount;
 } NAMESPACE;
 PCMD NAMESPACE_TYPE(void);
@@ -116,8 +67,8 @@ PCMD WITH_TYPE(void);
 typedef NAMESPACE* PNAMESPACE;
 PNAMESPACE namespace_create(void);
 void namespace_destroy(PNAMESPACE namespace);
-void namespace_set_var(PNAMESPACE namespace, const char* var, VALUE val);
-PVALUE namespace_get_var(PNAMESPACE namespace, const char* var);
+void namespace_set_var(PNAMESPACE namespace, const wchar_t* var, VALUE val);
+PVALUE namespace_get_var(PNAMESPACE namespace, const wchar_t* var);
 
 PNAMESPACE sqf_missionNamespace(void);
 PNAMESPACE sqf_uiNamespace(void);
@@ -130,7 +81,7 @@ typedef struct SWITCH
 	PVALUE default_code;
 	PVALUE switch_value;
 	PVALUE selected_code;
-	unsigned char was_executed;
+	bool was_executed;
 } SWITCH;
 typedef SWITCH* PSWITCH;
 PCMD SWITCH_TYPE(void);
@@ -142,7 +93,7 @@ typedef struct GROUP
 	int refcount;
 	PVALUE side;
 	PVALUE members;
-	char* ident;
+	wchar_t* ident;
 	unsigned int ident_len;
 } GROUP;
 typedef GROUP* PGROUP;
@@ -150,7 +101,7 @@ PCMD GROUP_TYPE(void);
 PGROUP group_create(int side);
 void group_destroy(PGROUP group);
 PVALUE group_get_leader(PGROUP group);
-PGROUP group_from_ident(PVM vm, const char* ident);
+PGROUP group_from_ident(PVM vm, const wchar_t* ident);
 
 //NON-SQF compliant types
 

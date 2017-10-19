@@ -1,10 +1,9 @@
-#include "basetype.h"
-#include "string_map.h"
-#include "SQF.h"
-#include "SQF_base.h"
-#include "SQF_types.h"
-#include "SQF_side_type.h"
 #include <stdlib.h>
+#include <wchar.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "sqffull.h"
 
 
 
@@ -13,29 +12,29 @@ PCMD SIDE_TYPE(void)
 	static PCMD cmd = 0;
 	if (cmd == 0)
 	{
-		cmd = create_command("SIDE", 't', 0, 0, 0, 0, 0);
+		cmd = create_command(L"SIDE", 't', 0, 0, 0, 0, 0);
 	}
 	return cmd;
 }
-const char* side_displayname(int i)
+const wchar_t* side_displayname(int i)
 {
 	switch (i)
 	{
-	case SIDE_VAL_EMPTY: return SIDE_STR_EMPTY;
-	case SIDE_VAL_UNKNOWN: return SIDE_STR_UNKNOWN;
-	case SIDE_VAL_CIV: return SIDE_STR_CIV;
-	case SIDE_VAL_BLU: return SIDE_STR_BLU;
-	case SIDE_VAL_OPF: return SIDE_STR_OPF;
-	case SIDE_VAL_GUE: return SIDE_STR_GUE;
-	case SIDE_VAL_LOGIC: return SIDE_STR_LOGIC;
-	case SIDE_VAL_ENEMY: return SIDE_STR_ENEMY;
-	case SIDE_VAL_FRIENDLY: return SIDE_STR_FRIENDLY;
-	case SIDE_VAL_AMBIENT: return SIDE_STR_AMBIENT;
+	case SIDE_VAL_EMPTY: return SIDE_WSTR_EMPTY;
+	case SIDE_VAL_UNKNOWN: return SIDE_WSTR_UNKNOWN;
+	case SIDE_VAL_CIV: return SIDE_WSTR_CIV;
+	case SIDE_VAL_BLU: return SIDE_WSTR_BLU;
+	case SIDE_VAL_OPF: return SIDE_WSTR_OPF;
+	case SIDE_VAL_GUE: return SIDE_WSTR_GUE;
+	case SIDE_VAL_LOGIC: return SIDE_WSTR_LOGIC;
+	case SIDE_VAL_ENEMY: return SIDE_WSTR_ENEMY;
+	case SIDE_VAL_FRIENDLY: return SIDE_WSTR_FRIENDLY;
+	case SIDE_VAL_AMBIENT: return SIDE_WSTR_AMBIENT;
 	default:
 		return 0;
 	}
 }
-const char* side_displayname2(const PVALUE val)
+const wchar_t* side_displayname2(const PVALUE val)
 {
 	return side_displayname(val->val.i);
 }
@@ -158,9 +157,9 @@ void side_destroy_sidemap(unsigned char** map)
 	}
 	free(map);
 }
-extern inline void side_set_firendly(PVM vm, const PVALUE self, const PVALUE other, unsigned char flag);
-extern inline unsigned char side_equals(const PVALUE left, const PVALUE right);
-extern inline unsigned char side_is_friendly(const PVM vm, PVALUE self, const PVALUE other);
+extern inline void side_set_firendly(PVM vm, const PVALUE self, const PVALUE other, bool flag);
+extern inline bool side_equals(const PVALUE left, const PVALUE right);
+extern inline bool side_is_friendly(const PVM vm, PVALUE self, const PVALUE other);
 extern inline VALUE side_empty(void);
 extern inline VALUE side_unknown(void);
 extern inline VALUE side_civ(void);

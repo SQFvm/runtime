@@ -1,13 +1,13 @@
-#include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include "string_op.h"
+#include <wchar.h>
+#include "wstring_op.h"
 
 
-unsigned int str_sw(const char* lString, const char* rString)
+unsigned int wstr_sw(const wchar_t* lString, const wchar_t* rString)
 {
 	unsigned int i;
-	char lc, rc;
+	wchar_t lc, rc;
 	for (i = 0; lString[i] != '\0'; i++)
 	{
 		lc = lString[i];
@@ -19,14 +19,14 @@ unsigned int str_sw(const char* lString, const char* rString)
 	}
 	return i;
 }
-unsigned int str_swi(const char* lString, const char* rString)
+unsigned int wstr_swi(const wchar_t* lString, const wchar_t* rString)
 {
 	unsigned int i;
-	char lc, rc;
+	wchar_t lc, rc;
 	for (i = 0; lString[i] != '\0'; i++)
 	{
-		lc = tolower(lString[i]);
-		rc = tolower(rString[i]);
+		lc = towlower(lString[i]);
+		rc = towlower(rString[i]);
 		if (rc == '\0')
 			return 0;
 		if (lc != rc)
@@ -35,11 +35,11 @@ unsigned int str_swi(const char* lString, const char* rString)
 	return i;
 }
 
-unsigned int str_ew(const char* lString, const char* rString)
+unsigned int wstr_ew(const wchar_t* lString, const wchar_t* rString)
 {
 	unsigned int i;
-	unsigned int rlen = strlen(rString);
-	char lc, rc;
+	unsigned int rlen = wcslen(rString);
+	wchar_t lc, rc;
 	for (i = 0; lString[i] != '\0'; i++);
 	if (i < rlen)
 		return 0;
@@ -55,19 +55,19 @@ unsigned int str_ew(const char* lString, const char* rString)
 	}
 	return 0;
 }
-unsigned int str_ewi(const char* lString, const char* rString)
+unsigned int wstr_ewi(const wchar_t* lString, const wchar_t* rString)
 {
 	unsigned int i;
-	unsigned int rlen = strlen(rString);
-	char lc, rc;
+	unsigned int rlen = wcslen(rString);
+	wchar_t lc, rc;
 	for (i = 0; lString[i] != '\0'; i++);
 	if (i < rlen)
 		return 0;
 	i -= rlen;
 	for (; lString[i] != '\0'; i++)
 	{
-		lc = tolower(lString[i]);
-		rc = tolower(rString[i]);
+		lc = towlower(lString[i]);
+		rc = towlower(rString[i]);
 		if (rc == '\0')
 			return 1;
 		if (lc != rc)
@@ -76,15 +76,15 @@ unsigned int str_ewi(const char* lString, const char* rString)
 	return 0;
 }
 
-const char* str_strwrd(const char* lString, const char* rString, const char* letters)
+const wchar_t* wstr_strwrd(const wchar_t* lString, const wchar_t* rString, const wchar_t* letters)
 {
 	int i, j;
-	char lc, rc;
+	wchar_t lc, rc;
 	bool flag = false;
 	bool isSeparated = true;
 
 	if (letters == NULL)
-		letters = " ,-_\t.?!+:;<>#";
+		letters = L" ,-_\t.?!+:;<>#";
 	for (i = 0, j = 0;; i++, j++)
 	{
 		lc = lString[i];
@@ -93,7 +93,7 @@ const char* str_strwrd(const char* lString, const char* rString, const char* let
 		{
 			if (rc == '\0')
 			{
-				if (chr_is(lc, letters) || lc == '\0')
+				if (wchr_is(lc, letters) || lc == '\0')
 					return lString + i - j;
 				flag = false;
 				isSeparated = false;
@@ -101,12 +101,12 @@ const char* str_strwrd(const char* lString, const char* rString, const char* let
 			if (lc != rc)
 			{
 				flag = false;
-				isSeparated = chr_is(lc, letters);
+				isSeparated = wchr_is(lc, letters);
 			}
 		}
 		else if (!isSeparated)
 		{
-			if (chr_is(lc, letters))
+			if (wchr_is(lc, letters))
 				isSeparated = true;
 			j = -1;
 		}
@@ -116,7 +116,7 @@ const char* str_strwrd(const char* lString, const char* rString, const char* let
 		}
 		else
 		{
-			isSeparated = chr_is(lc, letters);
+			isSeparated = wchr_is(lc, letters);
 			j = -1;
 		}
 		if (lc == '\0')
@@ -124,24 +124,24 @@ const char* str_strwrd(const char* lString, const char* rString, const char* let
 	}
 }
 
-const char* str_strwrdi(const char* lString, const char* rString, const char* letters)
+const wchar_t* wstr_strwrdi(const wchar_t* lString, const wchar_t* rString, const wchar_t* letters)
 {
 	int i, j;
-	char lc, rc;
+	wchar_t lc, rc;
 	bool flag = false;
 	bool isSeparated = true;
 
 	if (letters == NULL)
-		letters = " ,-_\t";
+		letters = L" ,-_\t";
 	for (i = 0, j = 0;; i++, j++)
 	{
-		lc = tolower(lString[i]);
-		rc = tolower(rString[j]);
+		lc = towlower(lString[i]);
+		rc = towlower(rString[j]);
 		if (flag)
 		{
 			if (rc == '\0')
 			{
-				if (chr_is(lc, letters) || lc == '\0')
+				if (wchr_is(lc, letters) || lc == '\0')
 					return lString + i - j;
 				flag = false;
 				isSeparated = false;
@@ -149,12 +149,12 @@ const char* str_strwrdi(const char* lString, const char* rString, const char* le
 			if (lc != rc)
 			{
 				flag = false;
-				isSeparated = chr_is(lc, letters);
+				isSeparated = wchr_is(lc, letters);
 			}
 		}
 		else if (!isSeparated)
 		{
-			if (chr_is(lc, letters))
+			if (wchr_is(lc, letters))
 				isSeparated = true;
 			j = -1;
 		}
@@ -164,7 +164,7 @@ const char* str_strwrdi(const char* lString, const char* rString, const char* le
 		}
 		else
 		{
-			isSeparated = chr_is(lc, letters);
+			isSeparated = wchr_is(lc, letters);
 			j = -1;
 		}
 		if (lc == '\0')
@@ -172,7 +172,7 @@ const char* str_strwrdi(const char* lString, const char* rString, const char* le
 	}
 }
 
-int chr_is(const char c, const char* isArr)
+int wchr_is(const wchar_t c, const wchar_t* isArr)
 {
 	unsigned int i;
 	for (i = 0; isArr[i] != '\0'; i++)
@@ -184,12 +184,12 @@ int chr_is(const char c, const char* isArr)
 }
 
 
-unsigned int str_repchr(char* str, char toFind, char toReplace, int length)
+unsigned int wstr_repchr(wchar_t* str, wchar_t toFind, wchar_t toReplace, int length)
 {
-	unsigned int i, j = 0;
+	int i, j = 0;
 	if (length == -1)
 	{
-		length = strlen(str);
+		length = wcslen(str);
 	}
 	for (i = 0; i < length; i++)
 	{
@@ -203,7 +203,7 @@ unsigned int str_repchr(char* str, char toFind, char toReplace, int length)
 }
 
 
-unsigned int str_cmp(const char* lString, int lLen, const char* rString, int rLen)
+unsigned int wstr_cmp(const wchar_t* lString, int lLen, const wchar_t* rString, int rLen)
 {
 	int i;
 	if (lLen != -1 && rLen != -1 && lLen != rLen)
@@ -219,7 +219,7 @@ unsigned int str_cmp(const char* lString, int lLen, const char* rString, int rLe
 
 	return 0;
 }
-unsigned int str_cmpi(const char* lString, int lLen, const char* rString, int rLen)
+unsigned int wstr_cmpi(const wchar_t* lString, int lLen, const wchar_t* rString, int rLen)
 {
 	int i;
 	if (lLen != -1 && rLen != -1 && lLen != rLen)
@@ -227,7 +227,7 @@ unsigned int str_cmpi(const char* lString, int lLen, const char* rString, int rL
 	i = 0;
 	while ((lLen != -1 && rLen != -1 && i < lLen) || lString[i] != '\0' || rString[i] != '\0')
 	{
-		if (tolower(lString[i]) != tolower(rString[i]))
+		if (towlower(lString[i]) != towlower(rString[i]))
 		{
 			return -1;
 		}
