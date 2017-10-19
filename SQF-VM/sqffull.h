@@ -22,7 +22,7 @@
 #include "sqf_commands.h"
 
 
-#ifndef __GNUC__
-#define snwprintf swprintf
-#define vsnwprintf vswprintf
+#ifdef __GNUC__
+#define swprintf snwprintf
+#define vswprintf vsnwprintf
 #endif // __GNUC__

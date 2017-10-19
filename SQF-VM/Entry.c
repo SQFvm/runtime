@@ -300,17 +300,17 @@ int vm_output_print(PVM vm, const wchar_t* format, ...)
 	wchar_t* buff;
 	va_start(args, format);
 	va_copy(args_bullshittery, args);
-	len = vsnwprintf(0, 0, format, args);
+	len = vswprintf(0, 0, format, args);
 	if (len < 500)
 	{
 		buff = alloca(sizeof(wchar_t) * (len + 1));
-		vsnwprintf(buff, len + 1, format, args_bullshittery);
+		vswprintf(buff, len + 1, format, args_bullshittery);
 		string_modify_append(vm->print_custom_data, buff);
 	}
 	else
 	{
 		buff = malloc(sizeof(wchar_t) * (len + 1));
-		vsnwprintf(buff, len + 1, format, args_bullshittery);
+		vswprintf(buff, len + 1, format, args_bullshittery);
 		string_modify_append(vm->print_custom_data, buff);
 		free(buff);
 	}

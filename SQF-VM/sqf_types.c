@@ -470,10 +470,10 @@ PGROUP group_create(int side)
 	group->refcount = 0;
 	group->members = value_create(ARRAY_TYPE(), base_voidptr(array_create()));
 	group->side = value_create(SIDE_TYPE(), base_int(side));
-	group->ident_len = snwprintf(0, 0, L"%c ALPHA %d", side_displayname(side)[0],
+	group->ident_len = swprintf(0, 0, L"%c ALPHA %d", side_displayname(side)[0],
 			count);
 	group->ident = malloc(sizeof(wchar_t) * (group->ident_len + 1));
-	snwprintf(group->ident, group->ident_len + 1, L"%c ALPHA %d",
+	swprintf(group->ident, group->ident_len + 1, L"%c ALPHA %d",
 			side_displayname(side)[0], count);
 	count++;
 	return group;
