@@ -21,7 +21,6 @@ typedef struct ARRAY* PARRAY;
 
 bool is_equal_to(PVALUE l, PVALUE r);
 
-PCMD SCALAR_TYPE(void);
 PCMD BOOL_TYPE(void);
 PCMD IF_TYPE(void);
 PCMD WHILE_TYPE(void);

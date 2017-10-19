@@ -112,15 +112,6 @@ bool is_equal_to(PVALUE l, PVALUE r)
 
 
 void TYPE_CODE_CALLBACK(void* input, CPCMD self);
-PCMD SCALAR_TYPE(void)
-{
-	static PCMD cmd = 0;
-	if (cmd == 0)
-	{
-		cmd = create_command(L"SCALAR", 't', 0, 0, NULL, NULL, NULL);
-	}
-	return cmd;
-}
 PCMD BOOL_TYPE(void)
 {
 	static PCMD cmd = 0;

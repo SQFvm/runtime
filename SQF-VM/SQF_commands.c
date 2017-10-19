@@ -56,7 +56,7 @@ char checkVector3(const PVM vm, const PARRAY array)
 	{
 		if (array->data[i]->type != SCALAR_TYPE())
 		{
-			vm->error(vm, ERR_CAN_ONLY_PROCESS ERR_SCALAR " " ERR_ARRAYS, vm->stack);
+			vm->error(vm, ERR_CAN_ONLY_PROCESS ERR_SCALAR L" " ERR_ARRAYS, vm->stack);
 
 			return 0;
 		}

@@ -193,3 +193,11 @@ PARRAY array_copy(const PARRAY arrIn)
 	}
 	return arrOut;
 }
+
+
+extern inline float dotProductPointer(const PARRAY leftArray, const PARRAY rightArray);
+extern inline float dotProduct(const ARRAY leftArray, const ARRAY rightArray);
+extern inline VALUE dotProductPointer_Value(const PARRAY leftArray, const PARRAY rightArray);
+extern inline VALUE dotProduct_Value(const ARRAY leftArray, const ARRAY rightArray);
+extern inline float vectorMagnitudePointer(const PARRAY array);
+extern inline float vectorMagnitude(const ARRAY array);

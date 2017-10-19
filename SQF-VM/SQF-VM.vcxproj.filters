@@ -81,6 +81,9 @@
     <ClCompile Include="sqf_array_type.c">
       <Filter>Source Files\sqf types</Filter>
     </ClCompile>
+    <ClCompile Include="sqf_scalar_type.c">
+      <Filter>Source Files\sqf types</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SQF.h">
@@ -145,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="wstring_op.h">
       <Filter>Header Files\generic headers</Filter>
+    </ClInclude>
+    <ClInclude Include="sqf_scalar_type.h">
+      <Filter>Header Files\sqf types</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

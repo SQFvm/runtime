@@ -40,4 +40,58 @@ void array_reverse(PARRAY array);
 void array_append(PARRAY arr1, PARRAY arr2);
 PARRAY array_copy(const PARRAY arrIn);
 
+
+/**
+* Calculates the dot product of the given arrays that are interpreted as 3D vectors.
+* There is no checking performed whether the given values are
+* actually arrays or that they have the proper size so make sure of that before
+* calling this function!
+*/
+inline float dotProductPointer(const PARRAY leftArray, const PARRAY rightArray)
+{
+	return leftArray->data[0]->val.f * rightArray->data[0]->val.f
+		+ leftArray->data[1]->val.f * rightArray->data[1]->val.f
+		+ leftArray->data[2]->val.f * rightArray->data[2]->val.f;
+}
+
+/**
+* Calculates the dot product of the given arrays that are interpreted as 3D vectors.
+* There is no checking performed whether the given values are
+* actually arrays or that they have the proper size so make sure of that before
+* calling this function!
+*/
+inline float dotProduct(const ARRAY leftArray, const ARRAY rightArray) { return dotProductPointer((PARRAY)&leftArray, (PARRAY)&rightArray); }
+
+/**
+* Calculates the dot product of the given arrays that are interpreted as 3D vectors.
+* There is no checking performed whether the given values are
+* actually arrays or that they have the proper size so make sure of that before
+* calling this function!
+*/
+inline VALUE dotProductPointer_Value(const PARRAY leftArray, const PARRAY rightArray) { return value(SCALAR_TYPE(), base_float(dotProductPointer(leftArray, rightArray))); }
+
+/**
+* Calculates the dot product of the given arrays that are interpreted as 3D vectors.
+* There is no checking performed whether the given values are
+* actually arrays or that they have the proper size so make sure of that before
+* calling this function!
+*/
+inline VALUE dotProduct_Value(const ARRAY leftArray, const ARRAY rightArray) { return value(SCALAR_TYPE(), base_float(dotProduct(leftArray, rightArray))); }
+
+/**
+* Calculates the magnitude of a 3D vector
+* There is no checking performed whether the given values are
+* actually arrays or that they have the proper size so make sure of that before
+* calling this function!
+*/
+inline float vectorMagnitudePointer(const PARRAY array) { return powf(powf(array->data[0]->val.f, 2) + powf(array->data[1]->val.f, 2) + powf(array->data[2]->val.f, 2), (1.0 / 2.0)); }
+
+/**
+* Calculates the magnitude of a 3D vector
+* There is no checking performed whether the given values are
+* actually arrays or that they have the proper size so make sure of that before
+* calling this function!
+*/
+inline float vectorMagnitude(const ARRAY array) { return vectorMagnitudePointer((PARRAY)&array); }
+
 #endif // !_SQF_ARRAY_TYPE_H_

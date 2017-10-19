@@ -9,6 +9,7 @@
 #include "SQF_inst.h"
 #include "SQF.h"
 #include "SQF_types.h"
+#include "SQF_scalar_type.h"
 #include "sqf_array_type.h"
 #include "sqf_string_type.h"
 #include "SQF_object_type.h"
