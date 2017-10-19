@@ -500,7 +500,7 @@ PGROUP group_from_ident(PVM vm, const wchar_t* ident)
 	for (i = 0; i < j; i++)
 	{
 		grp = ((PVALUE) wsm_get_value_index(vm->groupmap, i))->val.ptr;
-		if (wstr_cmpi(grp->ident, -1, ident, -1))
+		if (!wstr_cmpi(grp->ident, -1, ident, -1))
 		{
 			return grp;
 		}
