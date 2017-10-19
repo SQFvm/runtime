@@ -22,7 +22,7 @@
 #include "sqf_commands.h"
 
 
-#ifdef defined(__GNUC__) && defined(_WIN32)
+#if defined(__GNUC__) && defined(_WIN32)
 #define swprintf snwprintf
 #define vswprintf vsnwprintf
 #endif // __GNUC__
