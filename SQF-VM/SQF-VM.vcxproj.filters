@@ -30,19 +30,19 @@
     <ClCompile Include="Entry.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SQF.c">
+    <ClCompile Include="sqf.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SQF_inst.c">
+    <ClCompile Include="sqf_inst.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SQF_parse.c">
+    <ClCompile Include="sqf_parse.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SQF_commands.c">
+    <ClCompile Include="sqf_commands.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SQF_base.c">
+    <ClCompile Include="sqf_base.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="basetype.c">
@@ -63,16 +63,16 @@
     <ClCompile Include="string_op.c">
       <Filter>Source Files\generic sources</Filter>
     </ClCompile>
-    <ClCompile Include="SQF_object_type.c">
+    <ClCompile Include="sqf_object_type.c">
       <Filter>Source Files\sqf types</Filter>
     </ClCompile>
-    <ClCompile Include="SQF_script_type.c">
+    <ClCompile Include="sqf_script_type.c">
       <Filter>Source Files\sqf types</Filter>
     </ClCompile>
-    <ClCompile Include="SQF_side_type.c">
+    <ClCompile Include="sqf_side_type.c">
       <Filter>Source Files\sqf types</Filter>
     </ClCompile>
-    <ClCompile Include="SQF_types.c">
+    <ClCompile Include="sqf_types.c">
       <Filter>Source Files\sqf types</Filter>
     </ClCompile>
     <ClCompile Include="sqf_string_type.c">
@@ -86,37 +86,37 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SQF.h">
+    <ClInclude Include="sqf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SQF_inst.h">
+    <ClInclude Include="sqf_inst.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SQF_base.h">
+    <ClInclude Include="sqf_base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SQF_parse.h">
+    <ClInclude Include="sqf_parse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="errors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SQF_commands.h">
+    <ClInclude Include="sqf_commands.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sqffull.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SQF_side_type.h">
+    <ClInclude Include="sqf_side_type.h">
       <Filter>Header Files\sqf types</Filter>
     </ClInclude>
-    <ClInclude Include="SQF_script_type.h">
+    <ClInclude Include="sqf_script_type.h">
       <Filter>Header Files\sqf types</Filter>
     </ClInclude>
-    <ClInclude Include="SQF_object_type.h">
+    <ClInclude Include="sqf_object_type.h">
       <Filter>Header Files\sqf types</Filter>
     </ClInclude>
-    <ClInclude Include="SQF_types.h">
+    <ClInclude Include="sqf_types.h">
       <Filter>Header Files\sqf types</Filter>
     </ClInclude>
     <ClInclude Include="wstring_map.h">
