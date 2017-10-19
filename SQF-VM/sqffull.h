@@ -1,3 +1,6 @@
+
+#include <math.h>
+
 #include "basetype.h"
 #include "vector.h"
 #include "wstring_op.h"
