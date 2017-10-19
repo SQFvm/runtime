@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <wchar.h>
+#include <wctype.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdbool.h>

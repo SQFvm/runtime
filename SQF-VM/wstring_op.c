@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <wchar.h>
+#include <wctype.h>
 #include "wstring_op.h"
 
 

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
+#include <wctype.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>

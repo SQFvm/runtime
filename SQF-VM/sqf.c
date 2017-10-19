@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <wchar.h>
+#include <wctype.h>
 #include <stdbool.h>
 #include <stdint.h>
 

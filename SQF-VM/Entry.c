@@ -3,6 +3,7 @@
 #include <limits.h>
 #include <stdarg.h>
 #include <wchar.h>
+#include <wctype.h>
 #include <stdbool.h>
 #include <setjmp.h>
 #include <stdint.h>

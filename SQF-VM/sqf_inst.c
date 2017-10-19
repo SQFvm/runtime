@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <wchar.h>
+#include <wctype.h>
 #include <stdio.h>
 #include <stdint.h>
 
