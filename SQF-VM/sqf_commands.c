@@ -146,9 +146,9 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 		if (obj->is_vehicle)
 		{
 			//1cd60264080# 1813620: heli_light_01_f.p3d
-			i = swprintf(0, 0, L"%p# %d: %s", obj, 0, L"NOTIMPLEMENTED");
+			i = swprintf(0, 0, L"%p# %d: %S", obj, 0, L"NOTIMPLEMENTED");
 			strptr = alloca(sizeof(wchar_t) * (i + 1));
-			swprintf(strptr, i + 1, L"%p# %d: %s", obj, 0, L"NOTIMPLEMENTED");
+			swprintf(strptr, i + 1, L"%p# %d: %S", obj, 0, L"NOTIMPLEMENTED");
 			string_modify_append(str, strptr);
 		}
 		else
@@ -156,9 +156,9 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 			grp = group_from_ident(vm, ((PUNIT)obj->inner)->groupident->val);
 			if (grp == 0)
 			{
-				i = swprintf(0, 0, L"%s:%d", L"NA", 0);
+				i = swprintf(0, 0, L"%S:%d", L"NA", 0);
 				strptr = alloca(sizeof(wchar_t) * (i + 1));
-				swprintf(strptr, i + 1, L"%s:%d", L"NA", 0);
+				swprintf(strptr, i + 1, L"%S:%d", L"NA", 0);
 				string_modify_append(str, strptr);
 			}
 			else
@@ -170,9 +170,9 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 						break;
 				}
 				j = i;
-				i = swprintf(0, 0, L"%s:%d", grp->ident, j);
+				i = swprintf(0, 0, L"%S:%d", grp->ident, j);
 				strptr = alloca(sizeof(wchar_t) * (i + 1));
-				swprintf(strptr, i + 1, L"%s:%d", grp->ident, j);
+				swprintf(strptr, i + 1, L"%S:%d", grp->ident, j);
 				string_modify_append(str, strptr);
 			}
 		}
@@ -604,7 +604,7 @@ void cmd_diag_LOG(void* input, CPCMD self)
 		return;
 	}
 	stringify_value(vm, str, right_val);
-	vm->print(vm, L"[DIAG_LOG]: %s\n", str->val);
+	vm->print(vm, L"[DIAG_LOG]: %S\n", str->val);
 	string_destroy(str);
 	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
@@ -635,7 +635,7 @@ void cmd_hint(void* input, CPCMD self)
 	}
 	else
 	{
-		vm->print(vm, L"[HINT]: %s\n", ((PSTRING)right_val->val.ptr)->val);
+		vm->print(vm, L"[HINT]: %S\n", ((PSTRING)right_val->val.ptr)->val);
 	}
 	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
@@ -666,7 +666,7 @@ void cmd_systemchat(void* input, CPCMD self)
 	}
 	else
 	{
-		vm->print(vm, L"[SYSTEMCHAT]: %s\n",
+		vm->print(vm, L"[SYSTEMCHAT]: %S\n",
 			((PSTRING)right_val->val.ptr)->val);
 	}
 	inst_destroy(right);
@@ -900,28 +900,28 @@ void cmd_help(void* input, CPCMD self)
 	for (i = 0; i < count; i++)
 	{
 		cmd = wsm_get_value_index(vm->cmd_container->types, i);
-		vm->print(vm, L"%s:%c:%d:%s\n", cmd->name, cmd->type,
+		vm->print(vm, L"%S:%c:%d:%S\n", cmd->name, cmd->type,
 			cmd->precedence_level, cmd->usage);
 	}
 	count = wsm_count(vm->cmd_container->nullar);
 	for (i = 0; i < count; i++)
 	{
 		cmd = wsm_get_value_index(vm->cmd_container->nullar, i);
-		vm->print(vm, L"%s:%c:%d:%s\n", cmd->name, cmd->type,
+		vm->print(vm, L"%S:%c:%d:%S\n", cmd->name, cmd->type,
 			cmd->precedence_level, cmd->usage);
 	}
 	count = wsm_count(vm->cmd_container->unary);
 	for (i = 0; i < count; i++)
 	{
 		cmd = wsm_get_value_index(vm->cmd_container->unary, i);
-		vm->print(vm, L"%s:%c:%d:%s\n", cmd->name, cmd->type,
+		vm->print(vm, L"%S:%c:%d:%S\n", cmd->name, cmd->type,
 			cmd->precedence_level, cmd->usage);
 	}
 	count = wsm_count(vm->cmd_container->binary);
 	for (i = 0; i < count; i++)
 	{
 		cmd = wsm_get_value_index(vm->cmd_container->binary, i);
-		vm->print(vm, L"%s:%c:%d:%s\n", cmd->name, cmd->type,
+		vm->print(vm, L"%S:%c:%d:%S\n", cmd->name, cmd->type,
 			cmd->precedence_level, cmd->usage);
 	}
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
@@ -931,12 +931,12 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 	wchar_t* ptr;
 	wchar_t* ptr2;
 	wchar_t* ptr3;
-	vm->print(vm, L"<%s> %s\n",
+	vm->print(vm, L"<%S> %S\n",
 		cmd->type == 'b' ? L"BINARY" : cmd->type == 'u' ? L"UNARY" :
 		cmd->type == 'n' ? L"NULLAR" : L"TYPE", cmd->name);
 	if (cmd->description != 0 && *cmd->description != '\0')
 	{
-		vm->print(vm, L"\tDescription:\n\t\t%s\n", cmd->description);
+		vm->print(vm, L"\tDescription:\n\t\t%S\n", cmd->description);
 	}
 	if (cmd->type == 'b')
 	{
@@ -965,7 +965,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 				ptr++;
 			if (wcslen(ptr) > 0)
 			{
-				vm->print(vm, L"\t\t%s\n", ptr);
+				vm->print(vm, L"\t\t%S\n", ptr);
 			}
 		}
 	}
@@ -986,7 +986,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 				ptr++;
 			if (wcslen(ptr) > 0)
 			{
-				vm->print(vm, L"\t\t%s\n", ptr);
+				vm->print(vm, L"\t\t%S\n", ptr);
 			}
 		}
 	}
@@ -1076,7 +1076,7 @@ void cmd_help_UNARY(void* input, CPCMD self)
 	}
 	if (!had_match)
 	{
-		vm->print(vm, L"'%s' could not be located.\n", str->val);
+		vm->print(vm, L"'%S' could not be located.\n", str->val);
 	}
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(right);

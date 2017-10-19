@@ -161,13 +161,13 @@ PCMDCNT GET_PCMDCNT(void)
 
 void orig_error(PVM vm, const wchar_t* errMsg, PSTACK stack)
 {
-	wprintf(L"ERROR: %s\n", errMsg);
+	wprintf(L"ERROR: %S\n", errMsg);
 	getchar();
 	exit(-1);
 }
 void orig_warn(PVM vm, const wchar_t* errMsg, PSTACK stack)
 {
-	wprintf(L"WARNING: %s\n", errMsg);
+	wprintf(L"WARNING: %S\n", errMsg);
 }
 int sqfvm_print(PVM vm, const wchar_t* format, ...)
 {

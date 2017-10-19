@@ -88,17 +88,17 @@ void custom_error(PVM vm, const wchar_t* errMsg, PSTACK stack)
 		}
 		if (dbginf != 0)
 		{
-			vm->print(vm, L"%s", dbginf->hint);
-			vm->print(vm, L"[ERR][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
+			vm->print(vm, L"%S", dbginf->hint);
+			vm->print(vm, L"[ERR][L%d|C%d] %S\n", dbginf->line, dbginf->col, errMsg);
 		}
 		else
 		{
-			vm->print(vm, L"[ERR] %s\n", errMsg);
+			vm->print(vm, L"[ERR] %S\n", errMsg);
 		}
 	}
 	else
 	{
-		vm->print(vm, L"[ERR] %s\n", errMsg);
+		vm->print(vm, L"[ERR] %S\n", errMsg);
 	}
 	vm->die_flag = 1;
 	//longjmp(program_exit, 1);
@@ -120,17 +120,17 @@ void custom_warn(PVM vm, const wchar_t* errMsg, PSTACK stack)
 		}
 		if (dbginf != 0)
 		{
-			vm->print(vm, L"%s", dbginf->hint);
-			vm->print(vm, L"[WRN][L%d|C%d] %s\n", dbginf->line, dbginf->col, errMsg);
+			vm->print(vm, L"%S", dbginf->hint);
+			vm->print(vm, L"[WRN][L%d|C%d] %S\n", dbginf->line, dbginf->col, errMsg);
 		}
 		else
 		{
-			vm->print(vm, L"[WRN] %s\n", errMsg);
+			vm->print(vm, L"[WRN] %S\n", errMsg);
 		}
 	}
 	else
 	{
-		vm->print(vm, L"[WRN] %s\n", errMsg);
+		vm->print(vm, L"[WRN] %S\n", errMsg);
 	}
 }
 
@@ -407,7 +407,7 @@ int load_file(PSTRING buffer, const char* fpath)
 	int lcount = 1;
 	if (fptr == 0)
 	{
-		printf("[ERR] Could not open file '%s'", fpath);
+		printf("[ERR] Could not open file '%S'", fpath);
 		return -1;
 	}
 	fseek(fptr, 0, SEEK_END);
