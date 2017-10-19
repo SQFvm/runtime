@@ -300,6 +300,13 @@ int vm_output_print(PVM vm, const wchar_t* format, ...)
 	wchar_t* buff;
 	va_start(args, format);
 	va_copy(args_bullshittery, args);
+#if defined(__GNUC__)
+	len = 2024;
+	buff = alloca(sizeof(wchar_t) * (len + 1));
+	vswprintf(buff, len + 1, format, args_bullshittery);
+	buff[len] = 0;
+	string_modify_append(vm->print_custom_data, buff);
+#else
 	len = vswprintf(0, 0, format, args);
 	if (len < 500)
 	{
@@ -314,6 +321,7 @@ int vm_output_print(PVM vm, const wchar_t* format, ...)
 		string_modify_append(vm->print_custom_data, buff);
 		free(buff);
 	}
+#endif
 	va_end(args);
 	va_end(args_bullshittery);
 	return len;
