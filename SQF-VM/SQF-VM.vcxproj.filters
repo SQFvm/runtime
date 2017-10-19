@@ -63,9 +63,6 @@
     <ClCompile Include="string_op.c">
       <Filter>Source Files\generic sources</Filter>
     </ClCompile>
-    <ClCompile Include="wstring_op.h">
-      <Filter>Header Files\generic headers</Filter>
-    </ClCompile>
     <ClCompile Include="SQF_object_type.c">
       <Filter>Source Files\sqf types</Filter>
     </ClCompile>
@@ -96,12 +93,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SQF_parse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="string_op.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="string_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="errors.h">
@@ -145,6 +136,15 @@
     </ClInclude>
     <ClInclude Include="sqf_array_type.h">
       <Filter>Header Files\sqf types</Filter>
+    </ClInclude>
+    <ClInclude Include="string_map.h">
+      <Filter>Header Files\generic headers</Filter>
+    </ClInclude>
+    <ClInclude Include="string_op.h">
+      <Filter>Header Files\generic headers</Filter>
+    </ClInclude>
+    <ClInclude Include="wstring_op.h">
+      <Filter>Header Files\generic headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
