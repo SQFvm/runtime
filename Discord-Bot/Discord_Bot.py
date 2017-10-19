@@ -15,8 +15,10 @@ def init_libsqfvm():
     libsqfvm.start_program.argtypes = [c_wchar_p, c_ulong, c_wchar_p, c_size_t]
 
 def execsqf(txt, buffer, bufferlen, note):
-    print("Executing {} {}".format(txt, note))
+    print("Executing '{}' {}".format(txt, note))
+    libsqfvm.start_program(txt, 1000000, None, 0)
     libsqfvm.start_program(txt, 1000000, buffer, bufferlen)
+    #print("Result: {}", buffer.value.encode("utf-8"))
 
 class MyClient(discord.Client):
     async def on_ready(self):
@@ -25,7 +27,7 @@ class MyClient(discord.Client):
         print(self.user.id)
         print('------------')
         self.allowsqf = True
-        self.stringbuffer = create_string_buffer(1990)
+        self.outputbuffer = create_unicode_buffer(1990)
         self.admins = [105784568346324992]
 
     async def on_message(self, message):
@@ -62,34 +64,34 @@ class MyClient(discord.Client):
                 return
             elif type(message.channel) is discord.DMChannel:
                 if message.content.startswith('```sqf'):
-                    execsqf(message.content[6:-3], self.stringbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
+                    execsqf(message.content[6:-3], self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
                     try:
-                        tmp = await message.channel.send("```{}```".format(self.stringbuffer.value))
+                        tmp = await message.channel.send("```{}```".format(self.outputbuffer.value.decode("utf-8")))
                     except Exception as e:
                         await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
                 elif message.content.startswith('<@{}>'.format(self.user.id)):
-                    execsqf(message.content.replace('<@{}>'.format(self.user.id), ""), self.stringbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
+                    execsqf(message.content.replace('<@{}>'.format(self.user.id), ""), self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
                     try:
-                        tmp = await message.channel.send("```sqf\n{}```".format(self.stringbuffer.value))
+                        tmp = await message.channel.send("```sqf\n{}```".format(self.outputbuffer.value.decode("utf-8")))
                     except Exception as e:
                         await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
                 else:
-                    execsqf(message.content, self.stringbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
+                    execsqf(message.content, self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
                     try:
-                        tmp = await message.channel.send("```sqf\n{}```".format(self.stringbuffer.value))
+                        tmp = await message.channel.send("```sqf\n{}```".format(self.outputbuffer.value.decode("utf-8")))
                     except Exception as e:
                         await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
             else:
                 if message.channel.name.startswith('sqf') and message.content.startswith('```sqf'):
-                    execsqf(message.content[6:-3], self.stringbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
+                    execsqf(message.content[6:-3], self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
                     try:
-                        tmp = await message.channel.send("```{}```".format(self.stringbuffer.value))
+                        tmp = await message.channel.send("```{}```".format(self.outputbuffer.value.decode("utf-8")))
                     except Exception as e:
                         await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
                 elif message.content.startswith('<@{}>'.format(self.user.id)):
-                    execsqf(message.content.replace('<@{}>'.format(self.user.id), ""), self.stringbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
+                    execsqf(message.content.replace('<@{}>'.format(self.user.id), ""), self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
                     try:
-                        tmp = await message.channel.send("```sqf\n{}```".format(self.stringbuffer.value))
+                        tmp = await message.channel.send("```sqf\n{}```".format(self.outputbuffer.value.decode("utf-8")))
                     except Exception as e:
                         await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
 client = MyClient()
