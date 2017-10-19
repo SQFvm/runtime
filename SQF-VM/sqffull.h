@@ -5,18 +5,18 @@
 #include "textrange.h"
 
 
-#include "SQF_base.h"
-#include "SQF_inst.h"
-#include "SQF.h"
-#include "SQF_types.h"
-#include "SQF_scalar_type.h"
+#include "sqf_base.h"
+#include "sqf_inst.h"
+#include "sqf.h"
+#include "sqf_types.h"
+#include "sqf_scalar_type.h"
 #include "sqf_array_type.h"
 #include "sqf_string_type.h"
-#include "SQF_object_type.h"
-#include "SQF_script_type.h"
-#include "SQF_side_type.h"
-#include "SQF_parse.h"
-#include "SQF_commands.h"
+#include "sqf_object_type.h"
+#include "sqf_script_type.h"
+#include "sqf_side_type.h"
+#include "sqf_parse.h"
+#include "sqf_commands.h"
 
 
 #ifdef __GNUC__
