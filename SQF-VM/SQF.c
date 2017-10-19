@@ -237,7 +237,6 @@ PCMD find_type(PVM vm, const wchar_t* name)
 	return find_command(vm, name, 't');
 }
 
-
 void runvm(PVM vm)
 {
 	PSTACK tmpstack = vm->stack;
@@ -268,7 +267,7 @@ void runvm(PVM vm)
 			}
 		}
 	}
-	while(vm->scripts_top > 0)
+	while (vm->scripts_top > 0)
 	{
 		script = vm->scripts[0];
 		sqfvm_dropscript(vm, script);
@@ -291,7 +290,8 @@ void execute(PVM vm, int exitAfter)
 		{
 			return;
 		}
-		if (vm->enable_instruction_limit && vm->instcount >= vm->max_instructions && !vm->die_flag)
+		if (vm->enable_instruction_limit && vm->instcount >= vm->max_instructions
+			&& !vm->die_flag)
 		{
 			vm->error(vm, L"MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
 			vm->die_flag = 1;
@@ -308,7 +308,8 @@ void execute(PVM vm, int exitAfter)
 			inst_destroy(inst);
 			break;
 		case INST_COMMAND:
-			get_command(vm, vm->stack, inst)->callback(vm, get_command(vm, vm->stack, inst));
+			get_command(vm, vm->stack, inst)->callback(vm,
+				get_command(vm, vm->stack, inst));
 			inst_destroy(inst);
 			break;
 		case INST_SCOPE:
@@ -320,7 +321,8 @@ void execute(PVM vm, int exitAfter)
 				val = find_var(vm, get_var_name(vm, vm->stack, inst));
 				if (val == 0)
 				{
-					push_stack(vm, vm->work, inst_value(value(NOTHING_TYPE(), base_int(0))));
+					push_stack(vm, vm->work,
+						inst_value(value(NOTHING_TYPE(), base_int(0))));
 				}
 				else
 				{
@@ -333,7 +335,8 @@ void execute(PVM vm, int exitAfter)
 				val = namespace_get_var(scope->ns, get_var_name(vm, vm->stack, inst));
 				if (val == 0)
 				{
-					push_stack(vm, vm->work, inst_value(value(NOTHING_TYPE(), base_int(0))));
+					push_stack(vm, vm->work,
+						inst_value(value(NOTHING_TYPE(), base_int(0))));
 				}
 				else
 				{
@@ -355,7 +358,8 @@ void execute(PVM vm, int exitAfter)
 			}
 			else
 			{
-				store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+				store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst),
+					value(val->type, val->val));
 				inst_destroy(inst2);
 				inst_destroy(inst);
 				break;
@@ -377,20 +381,23 @@ void execute(PVM vm, int exitAfter)
 					}
 					else
 					{
-						store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+						store_in_scope(vm, scope, get_var_name(vm, vm->stack, inst),
+							value(val->type, val->val));
 					}
 				}
 				else
 				{
 					val2 = get_value(vm, vm->stack, inst2);
-					set_var(vm, get_var_name(vm, vm->stack, inst), value(val2->type, val2->val));
+					set_var(vm, get_var_name(vm, vm->stack, inst),
+						value(val2->type, val2->val));
 				}
 			}
 			else
 			{
 				scope = top_scope(vm);
 				val = get_value(vm, vm->stack, inst2);
-				namespace_set_var(scope->ns, get_var_name(vm, vm->stack, inst), value(val->type, val->val));
+				namespace_set_var(scope->ns, get_var_name(vm, vm->stack, inst),
+					value(val->type, val->val));
 			}
 
 			inst_destroy(inst2);
@@ -460,7 +467,9 @@ void execute(PVM vm, int exitAfter)
 			else
 			{
 				val = get_value(vm, vm->stack, inst);
-				if (val == 0 || val->type == NOTHING_TYPE() || (val->type == BOOL_TYPE() && ((val->val.i > 0 && i) || (val->val.i == 0 && !i))))
+				if (val == 0 || val->type == NOTHING_TYPE()
+					|| (val->type == BOOL_TYPE()
+						&& ((val->val.i > 0 && i) || (val->val.i == 0 && !i))))
 				{
 					for (; ui != 0; ui--)
 					{
@@ -490,7 +499,8 @@ void execute(PVM vm, int exitAfter)
 			inst_destroy(inst);
 			while (vm->stack > 0)
 			{
-				while ((inst = pop_stack(vm, vm->stack))->type != INST_SCOPE && vm->stack->top > 0)
+				while ((inst = pop_stack(vm, vm->stack))->type != INST_SCOPE
+					&& vm->stack->top > 0)
 				{
 					inst_destroy(inst);
 				}
@@ -504,3 +514,153 @@ void execute(PVM vm, int exitAfter)
 		vm->instcount++;
 	}
 }
+
+/**
+ * Adds the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE addScalarPointer(const PVALUE left, const PVALUE right)
+{
+	return value(SCALAR_TYPE(), base_float(left->val.f + right->val.f));
+}
+
+/**
+ * Adds the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE addScalar(const VALUE left, const VALUE right)
+{
+	return addScalarPointer((PVALUE)&left, (PVALUE)&right);
+}
+
+/**
+ * Subtracts the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE substractScalarPointer(const PVALUE left, const PVALUE right)
+{
+	return value(SCALAR_TYPE(), base_float(left->val.f - right->val.f));
+}
+
+/**
+ * Subtracts the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE substractScalar(const VALUE left, const VALUE right)
+{
+	return substractScalarPointer(left.val.ptr, right.val.ptr);
+}
+
+/**
+ * Multiplies the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE multiplyScalarPointer(const PVALUE left, const PVALUE right)
+{
+	return value(SCALAR_TYPE(), base_float(left->val.f * right->val.f));
+}
+
+/**
+ * Multiplies the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE multiplyScalar(const VALUE left, const VALUE right)
+{
+	return value(SCALAR_TYPE(), base_float(left.val.f * right.val.f));
+}
+
+/**
+ * Divides the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE divideScalarPointer(const PVALUE left, const PVALUE right)
+{
+	return value(SCALAR_TYPE(), base_float(left->val.f / right->val.f));
+}
+
+/**
+ * Divides the given scalars and returns a new value.
+ * There is no checking performed whether the given values are
+ * actually scalars so make sure of that before calling this function!
+ */
+VALUE divideScalar(const VALUE left, const VALUE right)
+{
+	return value(SCALAR_TYPE(), base_float(left.val.f / right.val.f));
+}
+
+/**
+ * Calculates the dot product of the given arrays that are interpreted as 3D vectors.
+ * There is no checking performed whether the given values are
+ * actually arrays or that they have the proper size so make sure of that before
+ * calling this function!
+ */
+float dotProductPointer(const PARRAY leftArray, const PARRAY rightArray)
+{
+	return leftArray->data[0]->val.f * rightArray->data[0]->val.f
+		+ leftArray->data[1]->val.f * rightArray->data[1]->val.f
+		+ leftArray->data[2]->val.f * rightArray->data[2]->val.f;
+}
+
+/**
+ * Calculates the dot product of the given arrays that are interpreted as 3D vectors.
+ * There is no checking performed whether the given values are
+ * actually arrays or that they have the proper size so make sure of that before
+ * calling this function!
+ */
+float dotProduct(const ARRAY leftArray, const ARRAY rightArray)
+{
+	return dotProductPointer((PARRAY)&leftArray, (PARRAY)&rightArray);
+}
+
+/**
+ * Calculates the dot product of the given arrays that are interpreted as 3D vectors.
+ * There is no checking performed whether the given values are
+ * actually arrays or that they have the proper size so make sure of that before
+ * calling this function!
+ */
+VALUE dotProductPointer_Value(const PARRAY leftArray, const PARRAY rightArray)
+{
+	return value(SCALAR_TYPE(), base_float(dotProductPointer(leftArray, rightArray)));
+}
+
+/**
+ * Calculates the dot product of the given arrays that are interpreted as 3D vectors.
+ * There is no checking performed whether the given values are
+ * actually arrays or that they have the proper size so make sure of that before
+ * calling this function!
+ */
+VALUE dotProduct_Value(const ARRAY leftArray, const ARRAY rightArray)
+{
+	return value(SCALAR_TYPE(), base_float(dotProduct(leftArray, rightArray)));
+}
+
+/**
+ * Calculates the magnitude of a 3D vector
+ * There is no checking performed whether the given values are
+ * actually arrays or that they have the proper size so make sure of that before
+ * calling this function!
+ */
+float vectorMagnitudePointer(const PARRAY array)
+{
+	return powf(powf(array->data[0]->val.f, 2) + powf(array->data[1]->val.f, 2)
+		+ powf(array->data[2]->val.f, 2), (1.0 / 2.0));
+}
+
+/**
+ * Calculates the magnitude of a 3D vector
+ * There is no checking performed whether the given values are
+ * actually arrays or that they have the proper size so make sure of that before
+ * calling this function!
+ */
+float vectorMagnitude(const ARRAY array)
+{
+	return vectorMagnitudePointer((PARRAY)&array);
+}
+

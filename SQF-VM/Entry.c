@@ -19,13 +19,11 @@
 
 #include "sqffull.h"
 
-
 #ifdef _WIN32
 #define DLLEXPORT_PREFIX __declspec(dllexport)
 #else
 #define DLLEXPORT_PREFIX __attribute__((visibility("default")))
 #endif
-
 
 static jmp_buf program_exit;
 int64_t systime_start = 0;
@@ -137,7 +135,8 @@ void custom_warn(PVM vm, const wchar_t* errMsg, PSTACK stack)
 
 void create_cmd(PVM vm, const wchar_t* name, char type, CMD_CB fnc, char precedence, const wchar_t* usage, const wchar_t* examples_cs, const wchar_t* desc)
 {
-	register_command(vm, create_command(name, type, fnc, precedence, usage, examples_cs, desc));
+	register_command(vm,
+		create_command(name, type, fnc, precedence, usage, examples_cs, desc));
 }
 void register_commmands(PVM vm)
 {
@@ -192,6 +191,14 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"append", 'b', cmd_append, 4, L"<ARRAY> append <ARRAY>", L"_arr = [1,2,3]; _arr append [4,5,6]; hint str _arr; //[1,2,3,4,5,6]", L"Appends array2 to the back of array1 modifying array1. NOTE: append does not return array, it modifies existing array. If you need to return a copy, use \"+\"");
 	create_cmd(vm, L"find", 'b', cmd_find, 4, L"<ARRAY> find <ANY>#" L"<STRING> find <STRING>", L"[\"Apples\",\"Oranges\",\"Pears\"] find \"Oranges\"; //result is 1#" L"[1,[2],[[3]]] find [[3]]; //result is 2#" L"if (magazines player find \"Strela\" >= 0) then {hint \"You've got Strela!\"};#" L"hint str (\"japa is the man!\" find \"the man!\"); //8", L"Searches for an array element within array or a string within a string. Returns the 0 based index on success or -1 if not found. Test is cASe-seNsItiVE ");
 	create_cmd(vm, L"arrayIntersect", 'b', cmd_arrayintersect, 4, L"<ARRAY> arrayIntersect <ARRAY>", L"_arr1 = [1,2,3,4,5,2,3,4]; _arr2 = [4,5,6,1,2,3,5,6]; hint str (_arr1 arrayIntersect _arr2); // [4,5,1,2,3]", L"Intersects array1 with array2 returning array of unique common elements. Additionally, using the same array for array1 and array2 will simply return array of unique elements. Intersects only 1st dimension of an array.");
+	create_cmd(vm, L"vectorAdd", 'b', cmd_vectoradd, 4, L"<VECTOR3D> vectorAdd <VECTOR3D>", L"[5,10,5] vectorAdd [5,5,10]; //returns [10,15,15]", L"Adds two 3D vectors.");
+	create_cmd(vm, L"vectorDiff", 'b', cmd_vectordiff, 4, L"<VECTOR3D> vectorDiff <VECTOR3D>", L"[5,10,5] vectorDiff [5,5,10]; //returns [0,5,-5]", L"Subtracts one 3D vector from another. (vector1 - vector2)");
+	create_cmd(vm, L"vectorCrossProduct", 'b', cmd_vectorcrossproduct, 4, L"<VECTOR3D> vectorCrossProduct <VECTOR3D>", L"[0,1,0] vectorCrossProduct [-1,0,0]; //[0,-0,1]", L"Cross product of two 3D vectors. In layman's terms, if you have a polygon (surface) defined by 3 points, you can find a normal to it (just like terrain surfaceNormal). To invert direction of the normal, swap arguments around. ");
+	create_cmd(vm, L"vectorDotProduct", 'b', cmd_vectordotproduct, 4, L"<VECTOR3D> vectorDotProduct <VECTOR3D>", L"[1,0,1] vectorDotProduct [0,0,2]; //returns 2", L"Dot product of two 3D vectors.");
+	create_cmd(vm, L"vectorCos", 'b', cmd_vectorcos, 4, L"<VECTOR3D> vectorCos <VECTOR3D>", L"[1,0,0] vectorCos [0,0,2]; //returns 0", L"Cosine of angle between two 3D vectors.");
+	create_cmd(vm, L"vectorMultiply", 'b', cmd_vectormultiply, 4, L"<VECTOR3D> ectorMultiply <SCALAR>", L"[1,2,3] vectorMultiply 3; //[3,6,9]", L"Multiplies 3D vector by a scalar.");
+	create_cmd(vm, L"vectorDistance", 'b', cmd_vectordistance, 4, L"<VECTOR3D> vectorDistance <VECTOR3D>", L"_euclideanDist = getPosASL player vectorDistance [0,0,0];", L"Distance between two 3D vectors.");
+	create_cmd(vm, L"vectorDistanceSqr", 'b', cmd_vectordistancesqr, 4, L"<VECTOR3D> vectorDistanceSqr <VECTOR3D>", L"_distSqr = getPos player vectorDistanceSqr [0,0,2];", L"Squared distance between two 3D vectors.");
 
 	create_cmd(vm, L"diag_log", 'u', cmd_diag_LOG, 4, L"diag_log <ANY>", L"", L"Dumps the argument's value. Each call creates a new line.");
 	create_cmd(vm, L"systemChat", 'u', cmd_systemchat, 4, L"systemChat <STRING>", L"", L"Writes the argument's value plaintext. Each call creates a new line.");
@@ -249,7 +256,9 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"scriptDone", 'u', cmd_scriptdone, 4, L"scriptDone <SCRIPT>", L"", L"Check if a script is finished running using the Script_(Handle) returned by execVM or spawn.");
 	create_cmd(vm, L"selectRandom", 'u', cmd_selectrandom, 4, L"selectRandom <ARRAY>", L"_randomElement = selectRandom [1,2,3,4,5];", L"Returns a random element from the given array. Engine solution to BIS_fnc_selectRandom");
 	create_cmd(vm, L"reverse", 'u', cmd_reverse, 4, L"reverse <ARRAY>", L"_arr = [1,2,3]; reverse _arr; hint str _arr; //[3,2,1]", L"Reverses given array by reference (modifies the original array, just like resize). ");
-
+	create_cmd(vm, L"vectorMagnitude", 'u', cmd_vectormagnitude, 4, L"vectorMagnitude <VECTOR3D>", L"_size = vectorMagnitude [0,3,4]; //5", L"Magnitude of a 3D vector.");
+	create_cmd(vm, L"vectorMagnitudeSqr", 'u', cmd_vectormagnitudesqr, 4, L"vectorMagnitudeSqr <VECTOR3D>", L"_size = vectorMagnitude [0,3,4]; //25", L"Squared magnitude of a 3D vector.");
+	create_cmd(vm, L"vectorNormalized", 'u', cmd_vectornormalized, 4, L"vectorNormalized <VECTOR3D>", L"vectorNormalized [12345,7890,38383]; //[0.300481,0.192045,0.934254]", L"Returns normalized vector (unit vector, vectorMagnitude = 1) of given vector. If given vector is 0 result is a 0 vector as well.");
 
 	create_cmd(vm, L"true", 'n', cmd_true, 4, L"true", L"", L"");
 	create_cmd(vm, L"false", 'n', cmd_false, 4, L"false", L"", L"");
@@ -322,7 +331,6 @@ DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long
 		systime_start = system_time_ms();
 	}
 
-
 	register_commmands(vm);
 	vm->print = vm_output_print;
 	vm->print_custom_data = string_create(0);
@@ -377,7 +385,6 @@ DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long
 	return success;
 }
 
-
 #define RETCDE_OK 0
 #define RETCDE_ERROR 1
 #define RETCDE_RUNTIME_ERROR 2
@@ -395,7 +402,8 @@ int load_file(PSTRING buffer, const char* fpath)
 		return -1;
 	}
 	fseek(fptr, 0, SEEK_END);
-	size = ftell(fptr);;
+	size = ftell(fptr);
+	;
 	rewind(fptr);
 	string_modify_append2(buffer, size);
 	memset(buffer->val + curlen, 0, sizeof(char) * size);
@@ -582,5 +590,6 @@ void cmd_productversion(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(string_create2(L"SQF-VM (0.1.4 ALPHA)")))));
 
 
-	push_stack(vm, vm->stack, inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(8)))));
+	push_stack(vm, vm->stack,
+		inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(8)))));
 }
