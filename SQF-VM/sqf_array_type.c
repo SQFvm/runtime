@@ -3,6 +3,7 @@
 #include <wctype.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 
 #include "sqffull.h"
 
