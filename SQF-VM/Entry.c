@@ -399,6 +399,8 @@ DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long
 #define RETCDE_ERROR 1
 #define RETCDE_RUNTIME_ERROR 2
 
+//#define MAIN_BUFFER_SIZE 1990
+
 int load_file(PSTRING buffer, const char* fpath)
 {
 	FILE* fptr = fopen(fpath, "r");
@@ -442,6 +444,10 @@ int main(int argc, char** argv)
 	PSTRING pstr;
 	unsigned long max_inst = 10000;
 	wchar_t* tmpconverted;
+#ifdef MAIN_BUFFER_SIZE
+	wchar_t outbuffer[MAIN_BUFFER_SIZE];
+#endif // MAIN_BUFFER_SIZE
+
 	pstr = string_create(0);
 #if _WIN32 & _DEBUG
 	//_CrtSetBreakAlloc(832);
@@ -534,6 +540,28 @@ int main(int argc, char** argv)
 		}
 		//string_modify_append(pstr, L"diag_log str [1, 2, \"test\", [1, 2, 3]]");
 	}
+#ifdef MAIN_BUFFER_SIZE
+	if (just_execute)
+	{
+		if (pstr->length > 0)
+		{
+			prog_success = start_program(pstr->val, max_inst, outbuffer, MAIN_BUFFER_SIZE);
+			wprintf(L"%ls\n", outbuffer);
+		}
+	}
+	else
+	{
+		wprintf(L"-------------------------------------\n");
+		if (pstr->length > 0)
+		{
+			prog_success = start_program(pstr->val, max_inst, outbuffer, MAIN_BUFFER_SIZE);
+			wprintf(L"%ls\n", outbuffer);
+		}
+		wprintf(L"-------------------------------------\n");
+		wprintf(L"Press <ENTER> to finish.");
+		get_line(linebuffer, LINEBUFFER_SIZE);
+	}
+#else
 	if (just_execute)
 	{
 		if (pstr->length > 0)
@@ -548,6 +576,7 @@ int main(int argc, char** argv)
 		wprintf(L"Press <ENTER> to finish.");
 		get_line(linebuffer, LINEBUFFER_SIZE);
 	}
+#endif // MAIN_BUFFER_SIZE
 	string_destroy(pstr);
 	namespace_destroy(sqf_missionNamespace());
 	namespace_destroy(sqf_parsingNamespace());
