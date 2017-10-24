@@ -376,6 +376,7 @@ DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long
 		else
 		{
 			wcsncpy(buffer, ((PSTRING)vm->print_custom_data)->val, buffer_size);
+			buffer[((PSTRING)vm->print_custom_data)->length >= buffer_size ? buffer_size - 1 : ((PSTRING)vm->print_custom_data)->length] = 0;
 		}
 	}
 	else
