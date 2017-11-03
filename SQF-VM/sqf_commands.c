@@ -75,6 +75,11 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	int j;
 	wchar_t* strptr;
 	wchar_t* strptr2;
+#ifdef __linux
+#define LINUX_BUFFER_SIZE 8192
+	static wchar_t linux_buffer[LINUX_BUFFER_SIZE];
+#endif // __linux
+
 	if (val->type == SCALAR_TYPE())
 	{
 		strptr = alloca(sizeof(wchar_t) * 64);
@@ -146,20 +151,30 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 		if (obj->is_vehicle)
 		{
 			//1cd60264080# 1813620: heli_light_01_f.p3d
+#ifdef __linux
+			swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%p# %d: %S", obj, 0, L"NOTIMPLEMENTED");
+			string_modify_append(str, linux_buffer);
+#else
 			i = swprintf(0, 0, L"%p# %d: %S", obj, 0, L"NOTIMPLEMENTED");
 			strptr = alloca(sizeof(wchar_t) * (i + 1));
 			swprintf(strptr, i + 1, L"%p# %d: %S", obj, 0, L"NOTIMPLEMENTED");
 			string_modify_append(str, strptr);
+#endif
 		}
 		else
 		{
 			grp = group_from_ident(vm, ((PUNIT)obj->inner)->groupident->val);
 			if (grp == 0)
 			{
+#ifdef __linux
+				swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%S:%d", L"NA", 0);
+				string_modify_append(str, linux_buffer);
+#else
 				i = swprintf(0, 0, L"%S:%d", L"NA", 0);
 				strptr = alloca(sizeof(wchar_t) * (i + 1));
 				swprintf(strptr, i + 1, L"%S:%d", L"NA", 0);
 				string_modify_append(str, strptr);
+#endif
 			}
 			else
 			{
@@ -170,10 +185,15 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 						break;
 				}
 				j = i;
+#ifdef __linux
+				swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%S:%d", grp->ident, j);
+				string_modify_append(str, linux_buffer);
+#else
 				i = swprintf(0, 0, L"%S:%d", grp->ident, j);
 				strptr = alloca(sizeof(wchar_t) * (i + 1));
 				swprintf(strptr, i + 1, L"%S:%d", grp->ident, j);
 				string_modify_append(str, strptr);
+#endif
 			}
 		}
 	}

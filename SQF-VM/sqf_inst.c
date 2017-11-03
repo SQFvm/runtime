@@ -156,6 +156,10 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, un
 	const wchar_t* str;
 	PINST p = inst(INST_DEBUG_INFO);
 	PDBGINF dbginf = malloc(sizeof(DBGINF));
+#ifdef __linux
+#define LINUX_BUFFER_SIZE 8192
+	static wchar_t linux_buffer[LINUX_BUFFER_SIZE];
+#endif // __linux
 	p->data.ptr = dbginf;
 	dbginf->col = col;
 	dbginf->line = line;
@@ -186,7 +190,13 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, un
 		}
 	}
 	str = code + i;
+#ifdef __linux
+	size = swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	if (size == -1)
+		size = LINUX_BUFFER_SIZE;
+#else
 	size = swprintf(0, 0, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : (int)dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+#endif
 	dbginf->hint = malloc(sizeof(wchar_t) * (size + 1));
 	swprintf(dbginf->hint, size + 1, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
