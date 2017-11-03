@@ -976,7 +976,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 			}
 			while (*ptr == ' ')
 				ptr++;
-			vm->print(vm, L"\t\t%.*s\n", ptr2 - ptr, ptr);
+			vm->print(vm, L"\t\t%.*ls\n", ptr2 - ptr, ptr);
 			ptr = ptr3 = ptr2 + 1;
 		}
 		if (wcslen(ptr) > 0)
@@ -997,7 +997,7 @@ void cmd_help_unary_helper(PVM vm, CPCMD cmd)
 		{
 			while (*ptr == ' ')
 				ptr++;
-			vm->print(vm, L"\t\t%.*s\n", ptr2 - ptr, ptr);
+			vm->print(vm, L"\t\t%.*ls\n", ptr2 - ptr, ptr);
 			ptr = ptr2 + 1;
 		}
 		if (wcslen(ptr) > 0)
