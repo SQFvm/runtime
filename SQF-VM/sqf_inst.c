@@ -191,14 +191,14 @@ PINST inst_debug_info(unsigned int line, unsigned int col, unsigned long off, un
 	}
 	str = code + i;
 #ifdef __linux
-	size = swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	size = swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%.*ls\n%.*ls%.*ls\n", len, str, (int)(dbginf->offset - i), L"                              ", (int)(dbginf->length > 30 ? 30 : dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 	if (size == -1)
 		size = LINUX_BUFFER_SIZE;
 #else
-	size = swprintf(0, 0, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : (int)dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	size = swprintf(0, 0, L"%.*ls\n%.*ls%.*ls\n", len, str, (int)(dbginf->offset - i), L"                              ", (int)(dbginf->length > 30 ? 30 : (int)dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 #endif
 	dbginf->hint = malloc(sizeof(wchar_t) * (size + 1));
-	swprintf(dbginf->hint, size + 1, L"%.*s\n%.*s%.*s\n", len, str, (int)(dbginf->offset - i), "                              ", (int)(dbginf->length > 30 ? 30 : dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+	swprintf(dbginf->hint, size + 1, L"%.*ls\n%.*ls%.*ls\n", len, str, (int)(dbginf->offset - i), L"                              ", (int)(dbginf->length > 30 ? 30 : dbginf->length), L"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
 	return p;
 }
