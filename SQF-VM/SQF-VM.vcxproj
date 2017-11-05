@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basetype.h" />
+    <ClInclude Include="cfg_base.h" />
     <ClInclude Include="errors.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="sqf.h" />

@@ -25,6 +25,12 @@
     <Filter Include="Header Files\generic headers">
       <UniqueIdentifier>{00a927a9-1da9-4ffd-a832-49dc685582d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\config">
+      <UniqueIdentifier>{c25165dc-bedf-40ef-96fe-921dda002244}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\config">
+      <UniqueIdentifier>{9f27bc1c-8912-4959-a4cc-d60f4dad88f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entry.c">
@@ -151,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="sqf_scalar_type.h">
       <Filter>Header Files\sqf types</Filter>
+    </ClInclude>
+    <ClInclude Include="cfg_base.h">
+      <Filter>Header Files\config</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
