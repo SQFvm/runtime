@@ -1,28 +1,29 @@
 #include <stdlib.h>
-#include <string.h>
+#include <wchar.h>
+#include <wctype.h>
 #include <ctype.h>
 #include <stdbool.h>
 
-#include "string_map.h"
-#include "string_op.h"
+#include "wstring_op.h"
+#include "wstring_map.h"
 
-extern inline void* sm_get_value(sm_list* list, const char* name);
-extern inline void* sm_set_value(sm_list* list, const char* name, void* value);
-extern inline void* sm_drop_value(sm_list* list, const char* name);
+extern inline void* wsm_get_value(wsm_list* list, const wchar_t* name);
+extern inline void* wsm_set_value(wsm_list* list, const wchar_t* name, void* value);
+extern inline void* wsm_drop_value(wsm_list* list, const wchar_t* name);
 
 
 
-sm_bucket* sm_create_bucket(unsigned int initial_size, unsigned int growth)
+wsm_bucket* wsm_create_bucket(unsigned int initial_size, unsigned int growth)
 {
-	sm_bucket* bucket = malloc(sizeof(sm_bucket));
+	wsm_bucket* bucket = malloc(sizeof(wsm_bucket));
 	bucket->growth = growth;
-	bucket->names = malloc(sizeof(char*) * initial_size);
+	bucket->names = malloc(sizeof(wchar_t*) * initial_size);
 	bucket->values = malloc(sizeof(void*) * initial_size);
 	bucket->size = initial_size;
 	bucket->top = 0;
 	return bucket;
 }
-void sm_destroy_bucket(sm_bucket* bucket, void(*destroy_ptr)(void*))
+void wsm_destroy_bucket(wsm_bucket* bucket, void(*destroy_ptr)(void*))
 {
 	int i;
 	if (destroy_ptr == 0)
@@ -44,9 +45,9 @@ void sm_destroy_bucket(sm_bucket* bucket, void(*destroy_ptr)(void*))
 	free(bucket->values);
 	free(bucket);
 }
-int sm_grow_bucket(sm_bucket* bucket)
+int wsm_grow_bucket(wsm_bucket* bucket)
 {
-	char** names = realloc(bucket->names, sizeof(char*) * (bucket->size + bucket->growth));
+	wchar_t** names = realloc(bucket->names, sizeof(wchar_t*) * (bucket->size + bucket->growth));
 	void** values = realloc(bucket->values, sizeof(void*) * (bucket->size + bucket->growth));
 
 	if (names != 0)
@@ -68,60 +69,60 @@ int sm_grow_bucket(sm_bucket* bucket)
 	}
 }
 
-sm_list* sm_create_list(unsigned int bucketcount, unsigned int initial_bucket_size, unsigned int bucket_growth)
+wsm_list* wsm_create_list(unsigned int bucketcount, unsigned int initial_bucket_size, unsigned int bucket_growth)
 {
-	sm_list* list = malloc(sizeof(sm_list));
+	wsm_list* list = malloc(sizeof(wsm_list));
 	int i;
-	list->buckets = malloc(sizeof(sm_bucket*) * bucketcount);
+	list->buckets = malloc(sizeof(wsm_bucket*) * bucketcount);
 	list->buckets_size = bucketcount;
 	for (i = 0; i < (int)bucketcount; i++)
 	{
-		list->buckets[i] = sm_create_bucket(initial_bucket_size, bucket_growth);
+		list->buckets[i] = wsm_create_bucket(initial_bucket_size, bucket_growth);
 	}
 	return list;
 }
-void sm_destroy_list(sm_list* list, void(*destroy_ptr)(void*))
+void wsm_destroy_list(wsm_list* list, void(*destroy_ptr)(void*))
 {
 	int i;
 	for (i = 0; i < (int)list->buckets_size; i++)
 	{
-		sm_destroy_bucket(list->buckets[i], destroy_ptr);
+		wsm_destroy_bucket(list->buckets[i], destroy_ptr);
 	}
 	free(list->buckets);
 	free(list);
 }
 
-sm_bucket* sm_get_bucket_for(sm_list* list, const char* name)
+wsm_bucket* wsm_get_bucket_for(wsm_list* list, const wchar_t* name)
 {
 	unsigned int hash = 1;
 	int i;
 	for (i = 0; name[i] != '\0'; i++)
 	{
-		hash += tolower(name[i]) * 2.0 * (double)hash;
+		hash += (int)(tolower(name[i]) * 2.0 * (double)hash);
 		hash >>= 1;
 	}
 	hash %= list->buckets_size;
 	return list->buckets[hash];
 }
-void* sm_get_value_from_bucket(sm_bucket* bucket, const char* name)
+void* wsm_get_value_from_bucket(wsm_bucket* bucket, const wchar_t* name)
 {
 	int i;
 	for (i = 0; i < (int)bucket->top; i++)
 	{
-		if (!str_cmpi(bucket->names[i], -1, name, -1))
+		if (!wstr_cmpi(bucket->names[i], -1, name, -1))
 		{
 			return bucket->values[i];
 		}
 	}
 	return 0;
 }
-void* sm_set_value_in_bucket(sm_bucket* bucket, const char* name, void* value)
+void* wsm_set_value_in_bucket(wsm_bucket* bucket, const wchar_t* name, void* value)
 {
 	int i;
 	void* val;
 	for (i = 0; i < (int)bucket->top; i++)
 	{
-		if (!str_cmpi(bucket->names[i], -1, name, -1))
+		if (!wstr_cmpi(bucket->names[i], -1, name, -1))
 		{
 			val = bucket->values[i];
 			bucket->values[i] = value;
@@ -130,18 +131,18 @@ void* sm_set_value_in_bucket(sm_bucket* bucket, const char* name, void* value)
 	}
 	if (bucket->top == bucket->size)
 	{
-		sm_grow_bucket(bucket);
+		wsm_grow_bucket(bucket);
 	}
 	bucket->values[bucket->top] = value;
-	i = strlen(name);
-	bucket->names[bucket->top] = malloc(sizeof(char) * (i + 1));
-	strcpy(bucket->names[bucket->top], name);
+	i = wcslen(name);
+	bucket->names[bucket->top] = malloc(sizeof(wchar_t) * (i + 1));
+	wcscpy(bucket->names[bucket->top], name);
 	bucket->names[bucket->top][i] = '\0';
 	bucket->top++;
 	return 0;
 }
 
-void* sm_drop_value_from_bucket(sm_bucket* bucket, const char* name)
+void* wsm_drop_value_from_bucket(wsm_bucket* bucket, const wchar_t* name)
 {
 	int i;
 	bool value_found = false;
@@ -155,7 +156,7 @@ void* sm_drop_value_from_bucket(sm_bucket* bucket, const char* name)
 		}
 		else
 		{
-			if (!str_cmpi(bucket->names[i], -1, name, -1))
+			if (!wstr_cmpi(bucket->names[i], -1, name, -1))
 			{
 				val = bucket->values[i];
 				free(bucket->names[i]);
@@ -170,11 +171,11 @@ void* sm_drop_value_from_bucket(sm_bucket* bucket, const char* name)
 	return val;
 }
 
-unsigned int sm_count(sm_list* list)
+unsigned int wsm_count(wsm_list* list)
 {
 	unsigned int count = 0;
 	int i;
-	sm_bucket* cur;
+	wsm_bucket* cur;
 	for (i = 0; i < (int)list->buckets_size; i++)
 	{
 		cur = list->buckets[i];
@@ -182,11 +183,11 @@ unsigned int sm_count(sm_list* list)
 	}
 	return count;
 }
-void* sm_get_value_index(sm_list* list, unsigned int index)
+void* wsm_get_value_index(wsm_list* list, unsigned int index)
 {
 	unsigned int count = 0;
 	int i;
-	sm_bucket* cur;
+	wsm_bucket* cur;
 	for (i = 0; i < (int)list->buckets_size; i++)
 	{
 		cur = list->buckets[i];
@@ -200,11 +201,11 @@ void* sm_get_value_index(sm_list* list, unsigned int index)
 	}
 	return 0;
 }
-char* sm_get_name_index(sm_list* list, unsigned int index)
+wchar_t* wsm_get_name_index(wsm_list* list, unsigned int index)
 {
 	unsigned int count = 0;
 	int i;
-	sm_bucket* cur;
+	wsm_bucket* cur;
 	for (i = 0; i < (int)list->buckets_size; i++)
 	{
 		cur = list->buckets[i];

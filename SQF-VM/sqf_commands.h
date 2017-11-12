@@ -1,5 +1,11 @@
 #ifndef _SQF_COMMANDS_H_
 #define _SQF_COMMANDS_H_
+
+#ifndef INT64_C
+#error "SQF_commands.h" requires stdint header "stdint.h"
+#endif // !INT64_C
+
+
 #ifndef _SQF_BASE_H_
 #error "SQF_commands.h" has to be included after "SQF.h" 
 #endif
@@ -126,7 +132,7 @@ void cmd_setvelocity(void* input, CPCMD self);
 void cmd_domove(void* input, CPCMD self);
 void cmd_objnull(void* input, CPCMD self);
 
-#define SWITCH_SPECIAL_VAR "__switch"
+#define SWITCH_SPECIAL_VAR L"__switch"
 void cmd_switch(void* input, CPCMD self);
 void cmd_case(void* input, CPCMD self);
 void cmd_default(void* input, CPCMD self);

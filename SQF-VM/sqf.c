@@ -1,43 +1,37 @@
-#include "basetype.h"
-#include "vector.h"
-#include "string_map.h"
-#include "string_op.h"
-#include "textrange.h"
-#include "SQF.h"
-#include "SQF_types.h"
-#include "SQF_object_type.h"
-#include "SQF_script_type.h"
-#include "SQF_parse.h"
-#include "errors.h"
-
-#include <math.h>
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <wchar.h>
+#include <wctype.h>
+#include <stdbool.h>
+#include <stdint.h>
 
-PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence,
-	const char* usage, const char* examples, const char* desc)
+#include "wstring_op.h"
+#include "wstring_map.h"
+#include "sqffull.h"
+
+
+
+PCMD create_command(const wchar_t* name, char type, CMD_CB fnc, char precedence, const wchar_t* usage, const wchar_t* examples, const wchar_t* desc)
 {
 	PCMD command = malloc(sizeof(CMD));
 	int len;
-	len = strlen(name);
-	command->name = malloc(sizeof(char) * (len + 1));
+	len = wcslen(name);
+	command->name = malloc(sizeof(wchar_t) * (len + 1));
 	command->name_len = len;
-	strcpy(command->name, name);
+	wcscpy(command->name, name);
 	command->precedence_level = precedence;
 	command->type = type;
 	command->type_code = type == 't' ? 1 : type == 'b' ? 2 : type == 'u' ? 4 : 8;
 	command->callback = fnc;
 	if (desc != 0)
 	{
-		len = strlen(desc);
-		command->description = malloc(sizeof(char) * (len + 1));
+		len = wcslen(desc);
+		command->description = malloc(sizeof(wchar_t) * (len + 1));
 		command->description_len = len;
-		strcpy(command->description, desc);
+		wcscpy(command->description, desc);
 	}
 	else
 	{
@@ -46,10 +40,10 @@ PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence,
 	}
 	if (usage != 0)
 	{
-		len = strlen(usage);
-		command->usage = malloc(sizeof(char) * (len + 1));
+		len = wcslen(usage);
+		command->usage = malloc(sizeof(wchar_t) * (len + 1));
 		command->usage_len = len;
-		strcpy(command->usage, usage);
+		wcscpy(command->usage, usage);
 	}
 	else
 	{
@@ -58,10 +52,10 @@ PCMD create_command(const char* name, char type, CMD_CB fnc, char precedence,
 	}
 	if (examples != 0)
 	{
-		len = strlen(examples);
-		command->examples = malloc(sizeof(char) * (len + 1));
+		len = wcslen(examples);
+		command->examples = malloc(sizeof(wchar_t) * (len + 1));
 		command->examples_len = len;
-		strcpy(command->examples, examples);
+		wcscpy(command->examples, examples);
 	}
 	else
 	{
@@ -88,7 +82,7 @@ void destroy_command(PCMD command)
 	free(command);
 }
 
-PVALUE find_var(PVM vm, const char* name)
+PVALUE find_var(PVM vm, const wchar_t* name)
 {
 	int i, j;
 	PSCOPE scope;
@@ -101,7 +95,7 @@ PVALUE find_var(PVM vm, const char* name)
 			scope = get_scope(vm, vm->stack, vm->stack->data[i]);
 			for (j = 0; j < scope->varstack_top; j++)
 			{
-				if (str_cmpi(scope->varstack_name[j], -1, name, -1) == 0)
+				if (wstr_cmpi(scope->varstack_name[j], -1, name, -1) == 0)
 				{
 					return scope->varstack_value[j];
 				}
@@ -110,7 +104,7 @@ PVALUE find_var(PVM vm, const char* name)
 	}
 	return 0;
 }
-void set_var(PVM vm, const char* name, VALUE val)
+void set_var(PVM vm, const wchar_t* name, VALUE val)
 {
 	int i, j;
 	PSCOPE first = 0;
@@ -127,7 +121,7 @@ void set_var(PVM vm, const char* name, VALUE val)
 			}
 			for (j = 0; j < scope->varstack_top; j++)
 			{
-				if (str_cmpi(scope->varstack_name[j], -1, name, -1) == 0)
+				if (wstr_cmpi(scope->varstack_name[j], -1, name, -1) == 0)
 				{
 					tmp = scope->varstack_value[j];
 					scope->varstack_value[j] = malloc(sizeof(VALUE));
@@ -153,12 +147,12 @@ PSCOPE top_scope(PVM vm)
 	}
 	return 0;
 }
-void store_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val)
+void store_in_scope(PVM vm, PSCOPE scope, const wchar_t* name, VALUE val)
 {
 	int i;
 	for (i = 0; i < scope->varstack_top; i++)
 	{
-		if (str_cmpi(scope->varstack_name[i], -1, name, -1) == 0)
+		if (wstr_cmpi(scope->varstack_name[i], -1, name, -1) == 0)
 		{
 			inst_destroy_value(scope->varstack_value[i]);
 			scope->varstack_value[i] = malloc(sizeof(VALUE));
@@ -169,18 +163,18 @@ void store_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val)
 	}
 	push_in_scope(vm, scope, name, val);
 }
-void push_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val)
+void push_in_scope(PVM vm, PSCOPE scope, const wchar_t* name, VALUE val)
 {
 	int len;
 	if (scope->varstack_top >= scope->varstack_size)
 	{
-		vm->error(vm, "VARSTACK OVERFLOW", vm->stack);
+		vm->error(vm, L"VARSTACK OVERFLOW", vm->stack);
 	}
 	else
 	{
-		len = strlen(name);
-		scope->varstack_name[scope->varstack_top] = malloc(sizeof(char) * (len + 1));
-		strcpy(scope->varstack_name[scope->varstack_top], name);
+		len = wcslen(name);
+		scope->varstack_name[scope->varstack_top] = malloc(sizeof(wchar_t) * (len + 1));
+		wcscpy(scope->varstack_name[scope->varstack_top], name);
 
 		scope->varstack_value[scope->varstack_top] = malloc(sizeof(VALUE));
 		scope->varstack_value[scope->varstack_top]->type = val.type;
@@ -190,56 +184,56 @@ void push_in_scope(PVM vm, PSCOPE scope, const char* name, VALUE val)
 	}
 }
 
-PCMD find_command(PVM vm, const char* name, char type)
+PCMD find_command(PVM vm, const wchar_t* name, char type)
 {
 	PCMD cmd;
 
 	switch (type)
 	{
-	case 't':
-		return sm_get_value(vm->cmd_container->types, name);
-	case 'n':
-		return sm_get_value(vm->cmd_container->nullar, name);
-	case 'u':
-		return sm_get_value(vm->cmd_container->unary, name);
-	case 'b':
-		return sm_get_value(vm->cmd_container->binary, name);
-	case '*':
-		cmd = sm_get_value(vm->cmd_container->types, name);
-		if (cmd != 0)
+		case 't':
+			return wsm_get_value(vm->cmd_container->types, name);
+		case 'n':
+			return wsm_get_value(vm->cmd_container->nullar, name);
+		case 'u':
+			return wsm_get_value(vm->cmd_container->unary, name);
+		case 'b':
+			return wsm_get_value(vm->cmd_container->binary, name);
+		case '*':
+			cmd = wsm_get_value(vm->cmd_container->types, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = wsm_get_value(vm->cmd_container->nullar, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = wsm_get_value(vm->cmd_container->unary, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = wsm_get_value(vm->cmd_container->binary, name);
 			return cmd;
-		cmd = sm_get_value(vm->cmd_container->nullar, name);
-		if (cmd != 0)
+		case 'c':
+			cmd = wsm_get_value(vm->cmd_container->nullar, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = wsm_get_value(vm->cmd_container->unary, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = wsm_get_value(vm->cmd_container->binary, name);
 			return cmd;
-		cmd = sm_get_value(vm->cmd_container->unary, name);
-		if (cmd != 0)
+		case 'C':
+			cmd = wsm_get_value(vm->cmd_container->binary, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = wsm_get_value(vm->cmd_container->unary, name);
+			if (cmd != 0)
+				return cmd;
+			cmd = wsm_get_value(vm->cmd_container->nullar, name);
 			return cmd;
-		cmd = sm_get_value(vm->cmd_container->binary, name);
-		return cmd;
-	case 'c':
-		cmd = sm_get_value(vm->cmd_container->nullar, name);
-		if (cmd != 0)
-			return cmd;
-		cmd = sm_get_value(vm->cmd_container->unary, name);
-		if (cmd != 0)
-			return cmd;
-		cmd = sm_get_value(vm->cmd_container->binary, name);
-		return cmd;
-	case 'C':
-		cmd = sm_get_value(vm->cmd_container->binary, name);
-		if (cmd != 0)
-			return cmd;
-		cmd = sm_get_value(vm->cmd_container->unary, name);
-		if (cmd != 0)
-			return cmd;
-		cmd = sm_get_value(vm->cmd_container->nullar, name);
-		return cmd;
-	default:
-		vm->error(vm, "UNKOWN FILTER TYPE", vm->stack);
+		default:
+			vm->error(vm, L"UNKOWN FILTER TYPE", vm->stack);
 	}
 	return 0;
 }
-PCMD find_type(PVM vm, const char* name)
+PCMD find_type(PVM vm, const wchar_t* name)
 {
 	return find_command(vm, name, 't');
 }
@@ -290,7 +284,7 @@ void execute(PVM vm, int exitAfter)
 	PSCOPE scope;
 	int i;
 	unsigned int ui;
-	const char* str_const;
+	const wchar_t* str_const;
 	while (vm->stack->top > 0)
 	{
 		if (exitAfter != -1 && exitAfter-- == 0)
@@ -300,7 +294,7 @@ void execute(PVM vm, int exitAfter)
 		if (vm->enable_instruction_limit && vm->instcount >= vm->max_instructions
 			&& !vm->die_flag)
 		{
-			vm->error(vm, "MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
+			vm->error(vm, L"MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
 			vm->die_flag = 1;
 		}
 		inst = pop_stack(vm, vm->stack);
@@ -360,7 +354,7 @@ void execute(PVM vm, int exitAfter)
 			val = get_value(vm, vm->stack, inst2);
 			if (get_var_name(vm, vm->stack, inst)[0] != '_')
 			{
-				vm->error(vm, "CANNOT PRIVATE GLOBAL VARIABLES", vm->stack);
+				vm->error(vm, L"CANNOT PRIVATE GLOBAL VARIABLES", vm->stack);
 				push_stack(vm, vm->work, inst2);
 			}
 			else
@@ -384,7 +378,7 @@ void execute(PVM vm, int exitAfter)
 					val = get_value(vm, vm->stack, inst2);
 					if (val == 0)
 					{
-						vm->error(vm, "NO VALUE GIVEN", vm->stack);
+						vm->error(vm, L"NO VALUE GIVEN", vm->stack);
 					}
 					else
 					{
@@ -423,7 +417,7 @@ void execute(PVM vm, int exitAfter)
 			val2 = get_value(vm, vm->stack, inst);
 			if (val == 0 || val2 == 0 || val2->type != ARRAY_TYPE())
 			{
-				vm->error(vm, "INST_ARRAY_PUSH FAILED TO FIND ARRAY", vm->stack);
+				vm->error(vm, L"INST_ARRAY_PUSH FAILED TO FIND ARRAY", vm->stack);
 				vm->die_flag = 1;
 			}
 			else
@@ -511,8 +505,7 @@ void execute(PVM vm, int exitAfter)
 				{
 					inst_destroy(inst);
 				}
-				if (str_const == 0
-					|| !str_cmpi(get_scope(vm, vm->stack, inst)->name, -1, str_const, -1))
+				if (str_const == 0 || !wstr_cmpi(get_scope(vm, vm->stack, inst)->name, -1, str_const, -1))
 				{
 					break;
 				}
@@ -523,152 +516,4 @@ void execute(PVM vm, int exitAfter)
 	}
 }
 
-/**
- * Adds the given scalars and returns a new value.
- * There is no checking performed whether the given values are
- * actually scalars so make sure of that before calling this function!
- */
-VALUE addScalarPointer(const PVALUE left, const PVALUE right)
-{
-	return value(SCALAR_TYPE(), base_float(left->val.f + right->val.f));
-}
-
-/**
- * Adds the given scalars and returns a new value.
- * There is no checking performed whether the given values are
- * actually scalars so make sure of that before calling this function!
- */
-VALUE addScalar(const VALUE left, const VALUE right)
-{
-	return addScalarPointer((PVALUE)&left, (PVALUE)&right);
-}
-
-/**
- * Subtracts the given scalars and returns a new value.
- * There is no checking performed whether the given values are
- * actually scalars so make sure of that before calling this function!
- */
-VALUE substractScalarPointer(const PVALUE left, const PVALUE right)
-{
-	return value(SCALAR_TYPE(), base_float(left->val.f - right->val.f));
-}
-
-/**
- * Subtracts the given scalars and returns a new value.
- * There is no checking performed whether the given values are
- * actually scalars so make sure of that before calling this function!
- */
-VALUE substractScalar(const VALUE left, const VALUE right)
-{
-	return substractScalarPointer(left.val.ptr, right.val.ptr);
-}
-
-/**
- * Multiplies the given scalars and returns a new value.
- * There is no checking performed whether the given values are
- * actually scalars so make sure of that before calling this function!
- */
-VALUE multiplyScalarPointer(const PVALUE left, const PVALUE right)
-{
-	return value(SCALAR_TYPE(), base_float(left->val.f * right->val.f));
-}
-
-/**
- * Multiplies the given scalars and returns a new value.
- * There is no checking performed whether the given values are
- * actually scalars so make sure of that before calling this function!
- */
-VALUE multiplyScalar(const VALUE left, const VALUE right)
-{
-	return value(SCALAR_TYPE(), base_float(left.val.f * right.val.f));
-}
-
-/**
- * Divides the given scalars and returns a new value.
- * There is no checking performed whether the given values are
- * actually scalars so make sure of that before calling this function!
- */
-VALUE divideScalarPointer(const PVALUE left, const PVALUE right)
-{
-	return value(SCALAR_TYPE(), base_float(left->val.f / right->val.f));
-}
-
-/**
- * Divides the given scalars and returns a new value.
- * There is no checking performed whether the given values are
- * actually scalars so make sure of that before calling this function!
- */
-VALUE divideScalar(const VALUE left, const VALUE right)
-{
-	return value(SCALAR_TYPE(), base_float(left.val.f / right.val.f));
-}
-
-/**
- * Calculates the dot product of the given arrays that are interpreted as 3D vectors.
- * There is no checking performed whether the given values are
- * actually arrays or that they have the proper size so make sure of that before
- * calling this function!
- */
-float dotProductPointer(const PARRAY leftArray, const PARRAY rightArray)
-{
-	return leftArray->data[0]->val.f * rightArray->data[0]->val.f
-		+ leftArray->data[1]->val.f * rightArray->data[1]->val.f
-		+ leftArray->data[2]->val.f * rightArray->data[2]->val.f;
-}
-
-/**
- * Calculates the dot product of the given arrays that are interpreted as 3D vectors.
- * There is no checking performed whether the given values are
- * actually arrays or that they have the proper size so make sure of that before
- * calling this function!
- */
-float dotProduct(const ARRAY leftArray, const ARRAY rightArray)
-{
-	return dotProductPointer((PARRAY)&leftArray, (PARRAY)&rightArray);
-}
-
-/**
- * Calculates the dot product of the given arrays that are interpreted as 3D vectors.
- * There is no checking performed whether the given values are
- * actually arrays or that they have the proper size so make sure of that before
- * calling this function!
- */
-VALUE dotProductPointer_Value(const PARRAY leftArray, const PARRAY rightArray)
-{
-	return value(SCALAR_TYPE(), base_float(dotProductPointer(leftArray, rightArray)));
-}
-
-/**
- * Calculates the dot product of the given arrays that are interpreted as 3D vectors.
- * There is no checking performed whether the given values are
- * actually arrays or that they have the proper size so make sure of that before
- * calling this function!
- */
-VALUE dotProduct_Value(const ARRAY leftArray, const ARRAY rightArray)
-{
-	return value(SCALAR_TYPE(), base_float(dotProduct(leftArray, rightArray)));
-}
-
-/**
- * Calculates the magnitude of a 3D vector
- * There is no checking performed whether the given values are
- * actually arrays or that they have the proper size so make sure of that before
- * calling this function!
- */
-float vectorMagnitudePointer(const PARRAY array)
-{
-	return powf(powf(array->data[0]->val.f, 2) + powf(array->data[1]->val.f, 2)
-		+ powf(array->data[2]->val.f, 2), (1.0 / 2.0));
-}
-
-/**
- * Calculates the magnitude of a 3D vector
- * There is no checking performed whether the given values are
- * actually arrays or that they have the proper size so make sure of that before
- * calling this function!
- */
-float vectorMagnitude(const ARRAY array)
-{
-	return vectorMagnitudePointer((PARRAY)&array);
-}
 

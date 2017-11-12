@@ -1,13 +1,17 @@
 #ifndef _SQF_BASE_H_
 #define _SQF_BASE_H_
 
+#ifndef __bool_true_false_are_defined
+#error "SQF_base.h" requires stdbool header "stdbool.h"
+#endif // !__bool_true_false_are_defined
+
 #ifndef _BASETYPE_H_
 #error "SQF_base.h" has to be included after "basetype.h"
 #endif // !_BASETYPE_H_
 
-#ifndef _STRING_MAP_H_
-#error "SQF_base.h" has to be included after "string_map.h"
-#endif // !_STRING_MAP_H_
+#ifndef _WSTRING_MAP_H_
+#error "SQF_base.h" has to be included after "wstring_map.h"
+#endif // !_WSTRING_MAP_H_
 
 //Structure containing VM instructions
 typedef unsigned char DATA_TYPE;
@@ -42,13 +46,13 @@ typedef struct CMD
 	unsigned char type_code;
 	CMD_CB callback;
 	char precedence_level;
-	char* name;
+	wchar_t* name;
 	unsigned int name_len;
-	char* description;
+	wchar_t* description;
 	unsigned int description_len;
-	char* usage;
+	wchar_t* usage;
 	unsigned int usage_len;
-	char* examples;
+	wchar_t* examples;
 	unsigned int examples_len;
 } CMD;
 typedef CMD* PCMD;
@@ -60,16 +64,16 @@ typedef struct STACK
 	PINST* data;
 	unsigned int size;
 	unsigned int top;
-	unsigned char allow_dbg;
+	bool allow_dbg;
 } STACK;
 typedef STACK* PSTACK;
 
 typedef struct CMDCNT
 {
-	sm_list* types;
-	sm_list* nullar;
-	sm_list* unary;
-	sm_list* binary;
+	wsm_list* types;
+	wsm_list* nullar;
+	wsm_list* unary;
+	wsm_list* binary;
 } CMDCNT;
 typedef CMDCNT* PCMDCNT;
 //Structure containing all VM related informations
@@ -86,18 +90,18 @@ typedef struct VM
 	unsigned int scripts_size;
 
 	PCMDCNT cmd_container;
-	void(*error)(struct VM* vm, const char*, PSTACK);
-	void(*warn)(struct VM* vm, const char*, PSTACK);
+	void(*error)(struct VM* vm, const wchar_t*, PSTACK);
+	void(*warn)(struct VM* vm, const wchar_t*, PSTACK);
 	unsigned char die_flag;
 	unsigned long max_instructions;
 	unsigned long instcount;
 	unsigned char enable_instruction_limit;
 	unsigned char is_suspending_environment;
-	int(*print)(struct VM* vm, const char* format, ...);
+	int(*print)(struct VM* vm, const wchar_t* format, ...);
 	void* print_custom_data;
 
 	unsigned char** sidemap;
-	sm_list* groupmap;
+	wsm_list* groupmap;
 } VM;
 typedef VM* PVM;
 
@@ -113,10 +117,10 @@ typedef VALUE* PVALUE;
 struct NAMESPACE;
 typedef struct SCOPE
 {
-	char* name;
+	wchar_t* name;
 	unsigned int name_len;
 
-	char** varstack_name;
+	wchar_t** varstack_name;
 	VALUE** varstack_value;
 	unsigned int varstack_size;
 	unsigned int varstack_top;
@@ -137,7 +141,7 @@ typedef struct DBGINF
 	unsigned int col;
 	unsigned long offset;
 	unsigned long length;
-	char* hint;
+	wchar_t* hint;
 }DBGINF;
 typedef DBGINF* PDBGINF;
 typedef struct MOVE
@@ -154,15 +158,15 @@ void destroy_cmdcnt(PCMDCNT cmdcnt);
 
 PCMDCNT GET_PCMDCNT(void);
 
-PVM sqfvm(unsigned int stack_size, unsigned int work_size, unsigned char allow_dbg, unsigned long max_instructions);
+PVM sqfvm(unsigned int stack_size, unsigned int work_size, bool allow_dbg, unsigned long max_instructions);
 void sqfvm_pushscript(PVM vm, PSCRIPT script);
 void sqfvm_dropscript(PVM vm, PSCRIPT script);
 void destroy_sqfvm(PVM vm);
-int sqfvm_print(PVM vm, const char* format, ...);
+int sqfvm_print(PVM vm, const wchar_t* format, ...);
 
-void orig_error(PVM vm, const char* errMsg, PSTACK stack);
-void orig_warn(PVM vm, const char* errMsg, PSTACK stack);
-PSTACK create_stack(unsigned int size, unsigned char allow_dbg);
+void orig_error(PVM vm, const wchar_t* errMsg, PSTACK stack);
+void orig_warn(PVM vm, const wchar_t* errMsg, PSTACK stack);
+PSTACK create_stack(unsigned int size, bool allow_dbg);
 void destroy_stack(PSTACK stack);
 void resize_stack(PVM vm, PSTACK stack, unsigned int newsize);
 void push_stack(PVM vm, PSTACK stack, PINST inst);
