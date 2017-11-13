@@ -21,6 +21,8 @@
 #include "sqf_parse.h"
 #include "sqf_commands.h"
 
+#include "cfg_base.h"
+
 
 #if defined(__GNUC__) && defined(_WIN32)
 #define swprintf snwprintf

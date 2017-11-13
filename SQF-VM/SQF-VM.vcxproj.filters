@@ -90,6 +90,9 @@
     <ClCompile Include="sqf_scalar_type.c">
       <Filter>Source Files\sqf types</Filter>
     </ClCompile>
+    <ClCompile Include="cfg_base.c">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sqf.h">

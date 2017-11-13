@@ -28,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basetype.c" />
+    <ClCompile Include="cfg_base.c" />
     <ClCompile Include="Entry.c" />
     <ClCompile Include="sqf.c" />
     <ClCompile Include="sqf_array_type.c" />
