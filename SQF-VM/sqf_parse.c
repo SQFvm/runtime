@@ -460,7 +460,8 @@ void parse_partial(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsig
 {
 	const wchar_t* str;
 	wchar_t* endptr;
-	int i, j = -1, k;
+	wchar_t* wcharptr;
+	int i, j = -1, k, l;
 	float f;
 	TEXTRANGE range;
 	PSTRING value_string;
@@ -617,16 +618,32 @@ void parse_partial(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsig
 					value_string = string_create(0);
 					push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
 				}
-				else if (str[range.length - 1] == '"' || str[range.length - 1] == '\'')
-				{
-					value_string = string_create(range.length - 2);
-					wcsncpy(value_string->val, str + 1, range.length - 2);
-					push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
-				}
 				else
 				{
-					value_string = string_create(range.length - 1);
-					wcsncpy(value_string->val, str + 1, range.length - 1);
+					k = (str[range.length - 1] == '"' || str[range.length - 1] == '\'') ? 2 : 1;
+					value_string = string_create(range.length - k);
+					wcsncpy(value_string->val, str + 1, range.length - k);
+
+					wcharptr = value_string->val;
+					l = 0;
+					while ((wcharptr = wcschr(wcharptr, '"')) != 0)
+					{
+						if (wcharptr[1] == '"')
+						{
+							l++;
+							for (k = wcharptr - value_string->val + 1; k + 1 < value_string->length; k++)
+							{
+								value_string->val[k] = value_string->val[k + 1];
+							}
+						}
+						wcharptr++;
+					}
+					if (l > 0)
+					{
+						string_resize(value_string, -l);
+					}
+					
+
 					push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
 				}
 			}
