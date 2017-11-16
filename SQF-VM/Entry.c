@@ -88,17 +88,17 @@ void custom_error(PVM vm, const wchar_t* errMsg, PSTACK stack)
 		}
 		if (dbginf != 0)
 		{
-			vm->print(vm, L"%S", dbginf->hint);
-			vm->print(vm, L"[ERR][L%d|C%d] %S\n", dbginf->line, dbginf->col, errMsg);
+			vm->print(vm, L"%ls", dbginf->hint);
+			vm->print(vm, L"[ERR][L%d|C%d] %ls\n", dbginf->line, dbginf->col, errMsg);
 		}
 		else
 		{
-			vm->print(vm, L"[ERR] %S\n", errMsg);
+			vm->print(vm, L"[ERR] %ls\n", errMsg);
 		}
 	}
 	else
 	{
-		vm->print(vm, L"[ERR] %S\n", errMsg);
+		vm->print(vm, L"[ERR] %ls\n", errMsg);
 	}
 	vm->die_flag = 1;
 	//longjmp(program_exit, 1);
@@ -120,17 +120,17 @@ void custom_warn(PVM vm, const wchar_t* errMsg, PSTACK stack)
 		}
 		if (dbginf != 0)
 		{
-			vm->print(vm, L"%S", dbginf->hint);
-			vm->print(vm, L"[WRN][L%d|C%d] %S\n", dbginf->line, dbginf->col, errMsg);
+			vm->print(vm, L"%ls", dbginf->hint);
+			vm->print(vm, L"[WRN][L%d|C%d] %ls\n", dbginf->line, dbginf->col, errMsg);
 		}
 		else
 		{
-			vm->print(vm, L"[WRN] %S\n", errMsg);
+			vm->print(vm, L"[WRN] %ls\n", errMsg);
 		}
 	}
 	else
 	{
-		vm->print(vm, L"[WRN] %S\n", errMsg);
+		vm->print(vm, L"[WRN] %ls\n", errMsg);
 	}
 }
 
