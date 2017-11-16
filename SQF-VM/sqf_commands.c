@@ -2472,6 +2472,8 @@ void cmd_foreach(void* input, CPCMD self)
 		arr = right_val->val.ptr;
 		if (arr->top == 0)
 		{
+			push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 			inst_destroy(left);
 			inst_destroy(right);
 		}
@@ -2482,7 +2484,7 @@ void cmd_foreach(void* input, CPCMD self)
 			push_stack(vm, vm->stack,
 				inst_value(value(COUNT_TYPE(), base_voidptr(count))));
 			push_stack(vm, vm->stack, right);
-			push_stack(vm, vm->stack, inst_clear_work());
+			//push_stack(vm, vm->stack, inst_clear_work());
 			push_stack(vm, vm->stack, inst_scope(0));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack, left);
@@ -2510,8 +2512,15 @@ void cmd_foreach(void* input, CPCMD self)
 		arr = right_val->val.ptr;
 		if (++(count->curtop) == arr->top)
 		{
-			push_stack(vm, vm->stack,
-				inst_value(value(NOTHING_TYPE(), base_int(0))));
+			if (vm->work->top != 0)
+			{
+				push_stack(vm, vm->stack, pop_stack(vm, vm->work));
+			}
+			else
+			{
+				push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
+			}
 			inst_destroy(left);
 			inst_destroy(right);
 		}
@@ -2520,7 +2529,7 @@ void cmd_foreach(void* input, CPCMD self)
 			push_stack(vm, vm->stack, inst_command(self));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, right);
-			push_stack(vm, vm->stack, inst_clear_work());
+			//push_stack(vm, vm->stack, inst_clear_work());
 			push_stack(vm, vm->stack, inst_scope(0));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack,
@@ -2536,6 +2545,10 @@ void cmd_foreach(void* input, CPCMD self)
 			push_stack(vm, vm->stack,
 				inst_value(
 					value(SCALAR_TYPE(), base_float(count->curtop))));
+			if (vm->work->top != 0)
+			{
+				push_stack(vm, vm->stack, inst_clear_work());
+			}
 		}
 	}
 	else
