@@ -28,6 +28,7 @@ void string_destroy(PSTRING string);
 PSTRING string_concat(const PSTRING l, const PSTRING r);
 //Will take given range from provided STRING object and create a new STRING object
 PSTRING string_substring(const PSTRING string, unsigned int start, int length);
+void string_resize(PSTRING string, int change);
 //Appends provided cstring onto STRING object
 void string_modify_append(PSTRING string, const wchar_t* append);
 void string_modify_append2(PSTRING string, int len);
