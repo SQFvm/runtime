@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SQF-VM", "SQF-VM\SQF-VM.vcx
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Discord-Bot", "Discord-Bot\Discord-Bot.pyproj", "{E27EC491-5F6D-4A6C-BF9C-8392F266A9DA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sqfvm-cpp", "sqfvm-cpp\sqfvm-cpp.vcxproj", "{30E1BC90-027B-4044-9695-1C1A4671D14B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,22 @@ Global
 		{E27EC491-5F6D-4A6C-BF9C-8392F266A9DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E27EC491-5F6D-4A6C-BF9C-8392F266A9DA}.Release|x64.ActiveCfg = Release|Any CPU
 		{E27EC491-5F6D-4A6C-BF9C-8392F266A9DA}.Release|x86.ActiveCfg = Release|Any CPU
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.Debug|x64.ActiveCfg = Debug|x64
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.Debug|x64.Build.0 = Debug|x64
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.Debug|x86.ActiveCfg = Debug|Win32
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.Debug|x86.Build.0 = Debug|Win32
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.DLL|Any CPU.ActiveCfg = Release|x64
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.DLL|Any CPU.Build.0 = Release|x64
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.DLL|x64.ActiveCfg = Debug|x64
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.DLL|x64.Build.0 = Debug|x64
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.DLL|x86.ActiveCfg = Debug|Win32
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.DLL|x86.Build.0 = Debug|Win32
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.Release|Any CPU.ActiveCfg = Release|Win32
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.Release|x64.ActiveCfg = Release|x64
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.Release|x64.Build.0 = Release|x64
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.Release|x86.ActiveCfg = Release|Win32
+		{30E1BC90-027B-4044-9695-1C1A4671D14B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
