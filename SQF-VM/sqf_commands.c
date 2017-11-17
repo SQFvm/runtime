@@ -6231,3 +6231,64 @@ void cmd_allgroups(void* input, CPCMD self)
 		inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 }
 
+
+void cmd_toupper(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSTRING outstring;
+	unsigned int i;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	outstring = string_create2(((PSTRING)right_val->val.ptr)->val);
+	for (i = 0; i < outstring->length; i++)
+	{
+		outstring->val[i] = towupper(outstring->val[i]);
+	}
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(outstring))));
+	inst_destroy(right);
+}
+void cmd_tolower(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSTRING outstring;
+	unsigned int i;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	outstring = string_create2(((PSTRING)right_val->val.ptr)->val);
+	for (i = 0; i < outstring->length; i++)
+	{
+		outstring->val[i] = towlower(outstring->val[i]);
+	}
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(outstring))));
+	inst_destroy(right);
+}

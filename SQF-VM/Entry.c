@@ -260,6 +260,9 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"vectorMagnitude", 'u', cmd_vectormagnitude, 4, L"vectorMagnitude <VECTOR3D>", L"_size = vectorMagnitude [0,3,4]; //5", L"Magnitude of a 3D vector.");
 	create_cmd(vm, L"vectorMagnitudeSqr", 'u', cmd_vectormagnitudesqr, 4, L"vectorMagnitudeSqr <VECTOR3D>", L"_size = vectorMagnitude [0,3,4]; //25", L"Squared magnitude of a 3D vector.");
 	create_cmd(vm, L"vectorNormalized", 'u', cmd_vectornormalized, 4, L"vectorNormalized <VECTOR3D>", L"vectorNormalized [12345,7890,38383]; //[0.300481,0.192045,0.934254]", L"Returns normalized vector (unit vector, vectorMagnitude = 1) of given vector. If given vector is 0 result is a 0 vector as well.");
+	create_cmd(vm, L"tolower", 'u', cmd_tolower, 4, L"tolower <STRING>", L"tolower \"ABC\"; //\"abc\"", L"Returns a string with every character lowered.");
+	create_cmd(vm, L"toupper", 'u', cmd_toupper, 4, L"toupper <STRING>", L"toupper \"abc\"; //\"ABC\"", L"Returns a string with every character upped.");
+
 
 	create_cmd(vm, L"true", 'n', cmd_true, 4, L"true", L"", L"");
 	create_cmd(vm, L"false", 'n', cmd_false, 4, L"false", L"", L"");

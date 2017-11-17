@@ -171,4 +171,8 @@ void cmd_createunit(void* input, CPCMD self);
 void cmd_units(void* input, CPCMD self);
 void cmd_allgroups(void* input, CPCMD self);
 
+
+void cmd_toupper(void* input, CPCMD self);
+void cmd_tolower(void* input, CPCMD self);
+
 #endif // !_SQF_COMMANDS_H_
