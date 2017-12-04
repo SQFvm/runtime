@@ -294,7 +294,7 @@ void execute(PVM vm, int exitAfter)
 		if (vm->enable_instruction_limit && vm->instcount >= vm->max_instructions
 			&& !vm->die_flag)
 		{
-			vm->error(vm, L"MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
+			vm->error(vm, L"MAX ALLOWED INSTRUCTION COUNT REACHED", vm->stack);
 			vm->die_flag = 1;
 		}
 		inst = pop_stack(vm, vm->stack);
