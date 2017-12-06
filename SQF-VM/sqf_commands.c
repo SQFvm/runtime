@@ -1650,6 +1650,7 @@ void cmd_select(void* input, CPCMD self)
 	{
 		push_stack(vm, vm->stack,
 			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		vm->warn(vm, WARN_SELECT_NIL_ARRSIZE, vm->stack);
 	}
 	else
 	{
