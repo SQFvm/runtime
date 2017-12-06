@@ -3319,7 +3319,10 @@ void cmd_set(void* input, CPCMD self)
 	}
 	index = floor(arrr->data[0]->val.f);
 	val = arrr->data[1];
-	array_resize_top(arrl, index + 1);
+	if (arrl->size < index + 1)
+	{
+		array_resize_top(arrl, index + 1);
+	}
 	if (arrl->data[index] != 0)
 	{
 		inst_destroy_value(arrl->data[index]);
