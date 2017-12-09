@@ -408,9 +408,11 @@ int load_file(PSTRING buffer, const char* fpath)
 {
 	FILE* fptr = fopen(fpath, "r");
 	size_t size;
-	size_t curlen = buffer->length;
+	wchar_t* buff2;
+	char* filebuff;
 	int tailing = 0;
 	int lcount = 1;
+	int i;
 	if (fptr == 0)
 	{
 		printf("[ERR] Could not open file '%s'", fpath);
@@ -418,22 +420,22 @@ int load_file(PSTRING buffer, const char* fpath)
 	}
 	fseek(fptr, 0, SEEK_END);
 	size = ftell(fptr);
-	;
 	rewind(fptr);
-	string_modify_append2(buffer, size);
-	memset(buffer->val + curlen, 0, sizeof(char) * size);
-	fread(buffer->val + curlen, sizeof(char), size, fptr);
-	for (; curlen < buffer->length; curlen++)
+	filebuff = malloc(sizeof(char) * (size + 1));
+	memset(filebuff, 0, sizeof(char) * (size + 1));
+	fread(filebuff, sizeof(char), size, fptr);
+	for (i = 0; i < size; i++)
 	{
-		if (buffer->val[curlen] == '\n')
+		if (filebuff[i] == '\n')
 			lcount++;
-		else if (buffer->val[curlen] == '\0')
+		else if (filebuff[i] == '\0')
 			tailing++;
 	}
-	if (tailing > 0)
-	{
-		string_modify_append2(buffer, -tailing);
-	}
+
+	buff2 = gen_wchar_string(filebuff);
+	free(filebuff);
+	string_modify_append(buffer, buff2);
+	free(buff2);
 	return lcount;
 }
 
