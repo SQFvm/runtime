@@ -5841,6 +5841,7 @@ void cmd_params(void* input, CPCMD self)
 	}
 	arrformat = right_val->val.ptr;
 	params_helper(vm, left_val, arrformat);
+	inst_destroy(left);
 	inst_destroy(right);
 }
 void cmd_params_UNARY(void* input, CPCMD self)
