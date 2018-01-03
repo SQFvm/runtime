@@ -586,6 +586,7 @@ int main(int argc, char** argv)
 	namespace_destroy(sqf_uiNamespace());
 
 	wsm_destroy_list(sqf_group_map(), inst_destroy_value);
+	config_destroy_node(sqf_configFile());
 
 	destroy_cmdcnt(GET_PCMDCNT());
 
