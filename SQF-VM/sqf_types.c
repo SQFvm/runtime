@@ -505,16 +505,26 @@ PGROUP group_from_ident(PVM vm, const wchar_t* ident)
 {
 	PGROUP grp;
 	int i;
-	int j = wsm_count(vm->groupmap);
+	int j = wsm_count(sqf_group_map());
 	for (i = 0; i < j; i++)
 	{
-		grp = ((PVALUE) wsm_get_value_index(vm->groupmap, i))->val.ptr;
+		grp = ((PVALUE) wsm_get_value_index(sqf_group_map(), i))->val.ptr;
 		if (!wstr_cmpi(grp->ident, -1, ident, -1))
 		{
 			return grp;
 		}
 	}
 	return 0;
+}
+
+
+wsm_list* sqf_group_map(void)
+{
+	static wsm_list* groupmap;
+	if (groupmap == 0)
+	{
+		groupmap = wsm_create_list(20, 5, 5);
+	}
 }
 
 //NON-SQF TYPES

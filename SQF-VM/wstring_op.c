@@ -9,11 +9,11 @@ unsigned int wstr_sw(const wchar_t* lString, const wchar_t* rString)
 {
 	unsigned int i;
 	wchar_t lc, rc;
-	for (i = 0; lString[i] != '\0'; i++)
+	for (i = 0; lString[i] != L'\0'; i++)
 	{
 		lc = lString[i];
 		rc = rString[i];
-		if (rc == '\0')
+		if (rc == L'\0')
 			return 0;
 		if (lc != rc)
 			return i + 1;
@@ -24,11 +24,11 @@ unsigned int wstr_swi(const wchar_t* lString, const wchar_t* rString)
 {
 	unsigned int i;
 	wchar_t lc, rc;
-	for (i = 0; lString[i] != '\0'; i++)
+	for (i = 0; lString[i] != L'\0'; i++)
 	{
 		lc = towlower(lString[i]);
 		rc = towlower(rString[i]);
-		if (rc == '\0')
+		if (rc == L'\0')
 			return 0;
 		if (lc != rc)
 			return i + 1;
@@ -41,15 +41,15 @@ unsigned int wstr_ew(const wchar_t* lString, const wchar_t* rString)
 	unsigned int i;
 	unsigned int rlen = wcslen(rString);
 	wchar_t lc, rc;
-	for (i = 0; lString[i] != '\0'; i++);
+	for (i = 0; lString[i] != L'\0'; i++);
 	if (i < rlen)
 		return 0;
 	i -= rlen;
-	for (; lString[i] != '\0'; i++)
+	for (; lString[i] != L'\0'; i++)
 	{
 		lc = lString[i];
 		rc = rString[i];
-		if (rc == '\0')
+		if (rc == L'\0')
 			return 1;
 		if (lc != rc)
 			return 0;
@@ -61,15 +61,15 @@ unsigned int wstr_ewi(const wchar_t* lString, const wchar_t* rString)
 	unsigned int i;
 	unsigned int rlen = wcslen(rString);
 	wchar_t lc, rc;
-	for (i = 0; lString[i] != '\0'; i++);
+	for (i = 0; lString[i] != L'\0'; i++);
 	if (i < rlen)
 		return 0;
 	i -= rlen;
-	for (; lString[i] != '\0'; i++)
+	for (; lString[i] != L'\0'; i++)
 	{
 		lc = towlower(lString[i]);
 		rc = towlower(rString[i]);
-		if (rc == '\0')
+		if (rc == L'\0')
 			return 1;
 		if (lc != rc)
 			return 0;
@@ -92,9 +92,9 @@ const wchar_t* wstr_strwrd(const wchar_t* lString, const wchar_t* rString, const
 		rc = rString[j];
 		if (flag)
 		{
-			if (rc == '\0')
+			if (rc == L'\0')
 			{
-				if (wchr_is(lc, letters) || lc == '\0')
+				if (wchr_is(lc, letters) || lc == L'\0')
 					return lString + i - j;
 				flag = false;
 				isSeparated = false;
@@ -120,7 +120,7 @@ const wchar_t* wstr_strwrd(const wchar_t* lString, const wchar_t* rString, const
 			isSeparated = wchr_is(lc, letters);
 			j = -1;
 		}
-		if (lc == '\0')
+		if (lc == L'\0')
 			return NULL;
 	}
 }
@@ -140,9 +140,9 @@ const wchar_t* wstr_strwrdi(const wchar_t* lString, const wchar_t* rString, cons
 		rc = towlower(rString[j]);
 		if (flag)
 		{
-			if (rc == '\0')
+			if (rc == L'\0')
 			{
-				if (wchr_is(lc, letters) || lc == '\0')
+				if (wchr_is(lc, letters) || lc == L'\0')
 					return lString + i - j;
 				flag = false;
 				isSeparated = false;
@@ -168,7 +168,7 @@ const wchar_t* wstr_strwrdi(const wchar_t* lString, const wchar_t* rString, cons
 			isSeparated = wchr_is(lc, letters);
 			j = -1;
 		}
-		if (lc == '\0')
+		if (lc == L'\0')
 			return NULL;
 	}
 }
@@ -176,7 +176,7 @@ const wchar_t* wstr_strwrdi(const wchar_t* lString, const wchar_t* rString, cons
 int wchr_is(const wchar_t c, const wchar_t* isArr)
 {
 	unsigned int i;
-	for (i = 0; isArr[i] != '\0'; i++)
+	for (i = 0; isArr[i] != L'\0'; i++)
 	{
 		if (isArr[i] == c)
 			return 1;
@@ -210,7 +210,7 @@ unsigned int wstr_cmp(const wchar_t* lString, int lLen, const wchar_t* rString, 
 	if (lLen != -1 && rLen != -1 && lLen != rLen)
 		return -1;
 	i = 0;
-	while ((lLen != -1 && rLen != -1 && i < lLen) || lString[i] != '\0' || rString[i] != '\0')
+	while (lLen != -1 ? i < lLen : lString[i] != L'\0' || rString[i] != L'\0')
 	{
 		if (lString[i] != rString[i])
 		{
@@ -226,7 +226,7 @@ unsigned int wstr_cmpi(const wchar_t* lString, int lLen, const wchar_t* rString,
 	if (lLen != -1 && rLen != -1 && lLen != rLen)
 		return -1;
 	i = 0;
-	while ((lLen != -1 && rLen != -1 && i < lLen) || lString[i] != '\0' || rString[i] != '\0')
+	while (lLen != -1 ? i < lLen : lString[i] != L'\0' || rString[i] != L'\0')
 	{
 		if (towlower(lString[i]) != towlower(rString[i]))
 		{

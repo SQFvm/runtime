@@ -28,6 +28,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basetype.c" />
+    <ClCompile Include="cfg_base.c" />
+    <ClCompile Include="cfg_parse.c" />
     <ClCompile Include="Entry.c" />
     <ClCompile Include="sqf.c" />
     <ClCompile Include="sqf_array_type.c" />
@@ -44,12 +46,14 @@
     <ClCompile Include="string_map.c" />
     <ClCompile Include="string_op.c" />
     <ClCompile Include="textrange.c" />
+    <ClCompile Include="tokenizer.c" />
     <ClCompile Include="wstring_map.c" />
     <ClCompile Include="wstring_op.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basetype.h" />
     <ClInclude Include="cfg_base.h" />
+    <ClInclude Include="cfg_parse.h" />
     <ClInclude Include="errors.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="sqf.h" />
@@ -68,6 +72,7 @@
     <ClInclude Include="string_map.h" />
     <ClInclude Include="string_op.h" />
     <ClInclude Include="textrange.h" />
+    <ClInclude Include="tokenizer.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="wstring_map.h" />
     <ClInclude Include="wstring_op.h" />
