@@ -34,6 +34,7 @@ void cmd_false(void* input, CPCMD self);
 void cmd_help(void* input, CPCMD self);
 void cmd_help_UNARY(void* input, CPCMD self);
 void cmd_parseconfig(void* input, CPCMD self);
+void cmd_mergefrom(void* input, CPCMD self);
 
 void cmd_str(void* input, CPCMD self);
 
