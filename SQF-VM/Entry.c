@@ -291,8 +291,8 @@ void register_commmands(PVM vm)
 
 	create_cmd(vm, L"help__", 'n', cmd_help, 4, L"help__", L"help__ //nil#", L"Displays all commands available with usage, precedence and type.");
 	create_cmd(vm, L"help__", 'u', cmd_help_UNARY, 4, L"help__ <STRING>", L"help__ \"typeOf\"//nil#", L"Outputs information to given command. Expects a <STRING> on righthand. Usage: help__ \"command\"");
-	create_cmd(vm, L"parseconfig__", 'u', cmd_parseconfig, 4, "parseconfig__ <STRING>", L"", L"");
-	create_cmd(vm, L"mergefrom__", 'b', cmd_mergefrom, 4, "<CONFIG> mergefrom__ <CONFIG>", L"", L"");
+	create_cmd(vm, L"parseconfig__", 'u', cmd_parseconfig, 4, "parseconfig__ <STRING>", L"", L"Parses provided string into an unnamed parent confignode. Returns the unnamed node.");
+	create_cmd(vm, L"mergefrom__", 'b', cmd_mergefrom, 4, "<CONFIG> mergefrom__ <CONFIG>", L"", L"Merges the content from the righthand node into the lefthand node. Cannot merge valuenodes.");
 }
 
 int vm_output_print(PVM vm, const wchar_t* format, ...)
