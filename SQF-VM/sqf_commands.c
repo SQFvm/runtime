@@ -158,7 +158,10 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 				node = node->parent;
 			}
 			string_modify_append(str, node->identifier);
-			string_modify_append(str, L"/");
+			if (i != 0)
+			{
+				string_modify_append(str, L"/");
+			}
 		}
 	}
 	else if (val->type == OBJECT_TYPE())
