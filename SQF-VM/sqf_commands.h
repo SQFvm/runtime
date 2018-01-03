@@ -186,4 +186,7 @@ void cmd_isarray(void* input, CPCMD self);
 void cmd_istext(void* input, CPCMD self);
 void cmd_isclass(void* input, CPCMD self);
 
+void cmd_toupper(void* input, CPCMD self);
+void cmd_tolower(void* input, CPCMD self);
+
 #endif // !_SQF_COMMANDS_H_

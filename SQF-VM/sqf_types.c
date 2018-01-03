@@ -470,11 +470,19 @@ PGROUP group_create(int side)
 	group->refcount = 0;
 	group->members = value_create(ARRAY_TYPE(), base_voidptr(array_create()));
 	group->side = value_create(SIDE_TYPE(), base_int(side));
-	group->ident_len = swprintf(0, 0, L"%c ALPHA %d", side_displayname(side)[0],
+
+#ifdef __linux
+	group->ident_len = 32;
+	group->ident = malloc(sizeof(wchar_t) * (group->ident_len + 1));
+	swprintf(group->ident, group->ident_len + 1, L"%lc ALPHA %d",
+			side_displayname(side)[0], count);
+#else
+	group->ident_len = swprintf(0, 0, L"%lc ALPHA %d", side_displayname(side)[0],
 			count);
 	group->ident = malloc(sizeof(wchar_t) * (group->ident_len + 1));
-	swprintf(group->ident, group->ident_len + 1, L"%c ALPHA %d",
+	swprintf(group->ident, group->ident_len + 1, L"%lc ALPHA %d",
 			side_displayname(side)[0], count);
+#endif
 	count++;
 	return group;
 }
