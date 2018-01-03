@@ -33,6 +33,7 @@ void cmd_true(void* input, CPCMD self);
 void cmd_false(void* input, CPCMD self);
 void cmd_help(void* input, CPCMD self);
 void cmd_help_UNARY(void* input, CPCMD self);
+void cmd_parseconfig(void* input, CPCMD self);
 
 void cmd_str(void* input, CPCMD self);
 
@@ -170,5 +171,7 @@ void cmd_groupid(void* input, CPCMD self);
 void cmd_createunit(void* input, CPCMD self);
 void cmd_units(void* input, CPCMD self);
 void cmd_allgroups(void* input, CPCMD self);
+
+void cmd_configfile(void* input, CPCMD self);
 
 #endif // !_SQF_COMMANDS_H_

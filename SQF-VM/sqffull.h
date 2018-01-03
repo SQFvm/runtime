@@ -6,6 +6,7 @@
 #include "wstring_op.h"
 #include "wstring_map.h"
 #include "textrange.h"
+#include "tokenizer.h"
 
 
 #include "sqf_base.h"
@@ -22,6 +23,7 @@
 #include "sqf_commands.h"
 
 #include "cfg_base.h"
+#include "cfg_parse.h"
 
 
 #if defined(__GNUC__) && defined(_WIN32)

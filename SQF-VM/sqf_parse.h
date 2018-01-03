@@ -15,8 +15,7 @@
 #endif // !_SQF_TYPES_H_
 
 
-
-void tokenize(TR_ARR* arr, const wchar_t* code);
+PSTRING parse_string(PVM vm, const wchar_t* str, unsigned int len);
 CPCMD fndcmd(PVM vm, const wchar_t* name, unsigned int len);
 CPCMD fndcmd2(PVM vm, const wchar_t* name, unsigned int len, unsigned char filter);
 void parse_form_code(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter);
@@ -24,6 +23,4 @@ void parse_form_array(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, un
 void parse_partial(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsigned int arr_start, unsigned int arr_end, unsigned int* stack_counter);
 void parse(PVM vm, const wchar_t* code, bool createscope);
 PCODE parse_into_code(PVM vm, const wchar_t* code);
-
-
 #endif // !_SQF_PARSE_H_

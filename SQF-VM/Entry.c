@@ -285,11 +285,13 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"objNull", 'n', cmd_objnull, 4, L"objNull", L"", L"");
 	create_cmd(vm, L"allGroups", 'n', cmd_allgroups, 4, L"allGroups", L"", L"Return a list of all groups created. Unlike ArmA, contains groups of all sides.");
 	create_cmd(vm, L"nil", 'n', cmd_nil, 4, L"nil", L"", L"Nil value. This value can be used to undefine existing variables.");
+	create_cmd(vm, L"configFile", 'n', cmd_configfile, 4, L"nil", L"", L"Return root of config entries hierarchy.");
 
 
 
 	create_cmd(vm, L"help__", 'n', cmd_help, 4, L"help__", L"help__ //nil#", L"Displays all commands available with usage, precedence and type.");
 	create_cmd(vm, L"help__", 'u', cmd_help_UNARY, 4, L"help__ <STRING>", L"help__ \"typeOf\"//nil#", L"Outputs information to given command. Expects a <STRING> on righthand. Usage: help__ \"command\"");
+	create_cmd(vm, L"parseconfig__", 'u', cmd_parseconfig, 4, "parseconfig__ <STRING>", L"", L"");
 }
 
 int vm_output_print(PVM vm, const wchar_t* format, ...)

@@ -15,183 +15,43 @@
 #include "wstring_op.h"
 #include "wstring_map.h"
 #include "sqffull.h"
+#include "tokenizer.h"
 
-void tokenize(TR_ARR* arr, const wchar_t* code)
+PSTRING parse_string(PVM vm, const wchar_t* str, unsigned int len)
 {
-	int i;
-	wchar_t c, s;
-	int start = -1;
-	int line = 1;
-	int col = 0;
-	bool in_string = false;
-	bool in_line_comment_mode = false;
-	bool in_block_comment_mode = false;
-	for (i = 0; code[i] != '\0'; i++, col++)
+	PSTRING value_string;
+	wchar_t* wcharptr;
+	int k;
+	int l;
+	if (len == 1)
 	{
-		c = code[i];
-		if (in_line_comment_mode)
-		{
-			if (c == '\n')
-			{
-				in_line_comment_mode = false;
-			}
-			continue;
-		}
-		if(in_block_comment_mode)
-		{
-			if (c == '/' && code[i - 1] == '*')
-			{
-				in_block_comment_mode = false;
-			}
-			continue;
-		}
-		if (!in_string && c == '/' && code[i + 1] == '/')
-		{
-			in_line_comment_mode = true;
-			start = -1;
-			continue;
-		}
-		else if (!in_string && c == '/' &&  code[i + 1] == '*')
-		{
-			in_block_comment_mode = true;
-			start = -1;
-			continue;
-		}
-		else if (start == -1)
-		{
-			if (c == ' ' || c == '\t' || c == '\r')
-			{
-				continue;
-			}
-			else if (c == '\n')
-			{
-				line++;
-				col = 0;
-				continue;
-			}
-			start = i;
-		}
-		else 
-		{
-			s = code[start];
-			if (s == '"')
-			{
-				in_string = true;
-				if (c == '"' && code[i + 1] == '"')
-				{
-					i++;
-				}
-				else if (c == '"')
-				{
-					tr_arr_push(arr, (TEXTRANGE)
-					{
-						.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
-					});
-					start = -1;
-					in_string = false;
-				}
-			}
-			else if (s == '\'')
-			{
-				in_string = true;
-				if (c == '\'')
-				{
-					tr_arr_push(arr, (TEXTRANGE)
-					{
-						.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
-					});
-					start = -1;
-					in_string = false;
-				}
-			}
-			else if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
-			{
-				tr_arr_push(arr, (TEXTRANGE)
-				{
-					.start = start, .length = i - start, .line = line, .col = col - (i - start)
-				});
-				start = -1;
-				if (c == '\n')
-				{
-					line++;
-					col = 0;
-					continue;
-				}
-			}
-			else if (s == '(' || s == '{' || s == '[' || s == ')' || s == '}' || s == ']' || s == ':' || s == ';' || s == '+' || s == '-' || s == '*' || s == '/' || s == ',' || s == '%' || s == '^')
-			{
-				tr_arr_push(arr, (TEXTRANGE)
-				{
-					.start = start, .length = i - start, .line = line, .col = col - (i - start)
-				});
-				start = -1;
-				i--;
-				col--;
-			}
-			else if (s >= '0' && s <= '9')
-			{
-				if (!((c >= '0' && c <= '9') || c == '.'))
-				{
-					tr_arr_push(arr, (TEXTRANGE)
-					{
-						.start = start, .length = i - start, .line = line, .col = col - (i - start)
-					});
-					start = -1;
-					i--;
-					col--;
-				}
-			}
-			else if ((s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z') || s == '_')
-			{
-				if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || (c >= '0' && c <= '9')))
-				{
-					tr_arr_push(arr, (TEXTRANGE)
-					{
-						.start = start, .length = i - start, .line = line, .col = col - (i - start)
-					});
-					start = -1;
-					i--;
-					col--;
-				}
-			}
-			else if (s == '=' || s == '>' || s == '<')
-			{
-				if (!(c == '>' || c == '<' || c == '='))
-				{
-					tr_arr_push(arr, (TEXTRANGE)
-					{
-						.start = start, .length = i - start, .line = line, .col = col - (i - start)
-					});
-					start = -1;
-					i--;
-					col--;
-				}
-			}
-			else if (s == '&' || s == '|')
-			{
-				if (!(c == '&' || c == '|'))
-				{
-					tr_arr_push(arr, (TEXTRANGE)
-					{
-						.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
-					});
-					start = -1;
-					i--;
-					col--;
-				}
-			}
-			else 
-			{
-			}
-		}
+		return string_create(0);
 	}
-	if (start != -1)
+	else
 	{
-		tr_arr_push(arr, (TEXTRANGE)
+		k = (str[len - 1] == '"' || str[len - 1] == '\'') ? 2 : 1;
+		value_string = string_create(len - k);
+		wcsncpy(value_string->val, str + 1, len - k);
+
+		wcharptr = value_string->val;
+		l = 0;
+		while ((wcharptr = wcschr(wcharptr, '"')) != 0)
 		{
-			.start = start, .length = i - start + 1, .line = line, .col = col - (i - start + 1)
-		});
-		start = -1;
+			if (wcharptr[1] == '"')
+			{
+				l++;
+				for (k = wcharptr - value_string->val + 1; k + 1 < value_string->length; k++)
+				{
+					value_string->val[k] = value_string->val[k + 1];
+				}
+			}
+			wcharptr++;
+		}
+		if (l > 0)
+		{
+			string_resize(value_string, -l);
+		}
+		return value_string;
 	}
 }
 
@@ -613,39 +473,7 @@ void parse_partial(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsig
 		{
 			if (stack != 0)
 			{
-				if (range.length == 1)
-				{
-					value_string = string_create(0);
-					push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
-				}
-				else
-				{
-					k = (str[range.length - 1] == '"' || str[range.length - 1] == '\'') ? 2 : 1;
-					value_string = string_create(range.length - k);
-					wcsncpy(value_string->val, str + 1, range.length - k);
-
-					wcharptr = value_string->val;
-					l = 0;
-					while ((wcharptr = wcschr(wcharptr, '"')) != 0)
-					{
-						if (wcharptr[1] == '"')
-						{
-							l++;
-							for (k = wcharptr - value_string->val + 1; k + 1 < value_string->length; k++)
-							{
-								value_string->val[k] = value_string->val[k + 1];
-							}
-						}
-						wcharptr++;
-					}
-					if (l > 0)
-					{
-						string_resize(value_string, -l);
-					}
-					
-
-					push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(value_string))));
-				}
+				push_stack(vm, stack, inst_value(value(STRING_TYPE(), base_voidptr(parse_string(vm, str, range.length)))));
 			}
 			(*stack_counter)++;
 		}

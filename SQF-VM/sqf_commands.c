@@ -1101,6 +1101,30 @@ void cmd_help_UNARY(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(right);
 }
+void cmd_parseconfig(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSTRING str;
+	PCONFIGNODE node;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	str = right_val->val.ptr;
+	node = cfgparse(vm, str->val);
+	push_stack(vm, vm->stack, inst_value(value(CONFIG_TYPE(), base_voidptr(node))));
+}
 
 void cmd_str(void* input, CPCMD self)
 {
@@ -6218,3 +6242,9 @@ void cmd_allgroups(void* input, CPCMD self)
 		inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 }
 
+
+void cmd_configfile(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(value(CONFIG_TYPE(), base_voidptr(sqf_configFile()))));
+}
