@@ -5894,12 +5894,12 @@ void cmd_creategroup(void* input, CPCMD self)
 		do
 		{
 			group = group_create(right_val->val.i);
-			tmp = wsm_set_value(vm->groupmap, group->ident,
+			tmp = wsm_set_value(sqf_group_map(), group->ident,
 				value_create(GROUP_TYPE(), base_voidptr(group)));
 			if (tmp != 0)
 			{
 				inst_destroy_value(
-					wsm_set_value(vm->groupmap, group->ident, tmp));
+					wsm_set_value(sqf_group_map(), group->ident, tmp));
 			}
 		} while (tmp != 0);
 		push_stack(vm, vm->stack,
@@ -5933,7 +5933,7 @@ void cmd_deletegroup(void* input, CPCMD self)
 		group = right_val->val.ptr;
 		if (((PARRAY)group->members->val.ptr)->top == 0)
 		{
-			inst_destroy_value(wsm_drop_value(vm->groupmap, group->ident));
+			inst_destroy_value(wsm_drop_value(sqf_group_map(), group->ident));
 		}
 	}
 	else
@@ -6228,14 +6228,14 @@ void cmd_allgroups(void* input, CPCMD self)
 	PARRAY arr;
 	unsigned int i;
 	unsigned int j;
-	j = wsm_count(vm->groupmap);
+	j = wsm_count(sqf_group_map());
 	arr = array_create2(j);
 	for (i = 0; i < j; i++)
 	{
 		array_push(arr,
 			value(GROUP_TYPE(),
 				base_voidptr(
-				((PVALUE)wsm_get_value_index(vm->groupmap, i))->val.ptr)));
+				((PVALUE)wsm_get_value_index(sqf_group_map(), i))->val.ptr)));
 	}
 
 	push_stack(vm, vm->stack,

@@ -101,7 +101,6 @@ typedef struct VM
 	void* print_custom_data;
 
 	unsigned char** sidemap;
-	wsm_list* groupmap;
 } VM;
 typedef VM* PVM;
 
