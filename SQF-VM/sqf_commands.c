@@ -1142,6 +1142,7 @@ void cmd_parseconfig(void* input, CPCMD self)
 	}
 	str = right_val->val.ptr;
 	node = cfgparse(vm, str->val);
+	inst_destroy(right);
 	push_stack(vm, vm->stack, inst_value(value(CONFIG_TYPE(), base_voidptr(node))));
 }
 

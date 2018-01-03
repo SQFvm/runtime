@@ -189,13 +189,13 @@ void config_push_node(PCONFIGNODE config, PCONFIGNODE node)
 		node->children_size = 10;
 		node->children_top = 0;
 	}
-	if (node->children_top >= node->children_size)
+	if (node->children_top >= config->children_size)
 	{
-		node->children_size += 10;
-		node->value.cfgnodes = realloc(node->value.cfgnodes, sizeof(PCONFIGNODE) * node->children_size);
+		config->children_size += 10;
+		config->value.cfgnodes = realloc(config->value.cfgnodes, sizeof(PCONFIGNODE) * config->children_size);
 	}
-	node->value.cfgnodes[node->children_top] = config;
-	node->children_top++;
+	config->value.cfgnodes[config->children_top] = node;
+	config->children_top++;
 	uprefcount(node);
 }
 

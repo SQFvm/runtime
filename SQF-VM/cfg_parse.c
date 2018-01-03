@@ -197,19 +197,16 @@ void cfgparse_valuenode(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* co
 		if (cfgparse_string_start(str, range.length))
 		{
 			cfgparse_string(vm, &val, arr, code, index);
-			config_set_value(root, val);
 		}
 		//NUMBER
 		else if (cfgparse_number_start(str, range.length))
 		{
 			cfgparse_number(vm, &val, arr, code, index);
-			config_set_value(root, val);
 		}
 		//LOCALIZATION
 		else if (cfgparse_localization_start(str, range.length))
 		{
 			cfgparse_localization(vm, &val, arr, code, index);
-			config_set_value(root, val);
 		}
 		else
 		{
@@ -432,5 +429,6 @@ PCONFIGNODE cfgparse(PVM vm, const wchar_t* code)
 
 	PCONFIGNODE node = config_create_node(0, 0);
 	cfgparse_nodelist(vm, node, arr, code, &index);
+	tr_arr_destroy(arr);
 	return node;
 }

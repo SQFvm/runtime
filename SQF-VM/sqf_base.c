@@ -60,7 +60,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, bool allow_dbg, unsig
 	if (find_command(vm, SCRIPT_TYPE()->name, 't') == 0) register_command(vm, SCRIPT_TYPE());
 	//register_command(vm, create_command("TARGET", 't', 0, 0));
 	//register_command(vm, create_command("JCLASS", 't', 0, 0));
-	//register_command(vm, create_command("CONFIG", 't', 0, 0));
+	if (find_command(vm, CONFIG_TYPE()->name, 't') == 0) register_command(vm, CONFIG_TYPE());
 	//register_command(vm, create_command("DISPLAY", 't', 0, 0));
 	//register_command(vm, create_command("CONTROL", 't', 0, 0));
 	//register_command(vm, create_command("NetObject", 't', 0, 0));
