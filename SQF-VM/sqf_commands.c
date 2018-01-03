@@ -71,6 +71,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	PARRAY arr;
 	POBJECT obj;
 	PGROUP grp;
+	PCONFIGNODE node;
 	int i;
 	int j;
 	wchar_t* strptr;
@@ -144,6 +145,21 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	else if (val->type == GROUP_TYPE())
 	{
 		string_modify_append(str, ((PGROUP)val->val.ptr)->ident);
+	}
+	else if (val->type == CONFIG_TYPE())
+	{
+		node = val->val.ptr;
+		i = (int)config_count_parents(node);
+		for (; i >= 0; i--)
+		{
+			node = val->val.ptr;
+			for (j = 0; j < i; j++)
+			{
+				node = node->parent;
+			}
+			string_modify_append(str, node->identifier);
+			string_modify_append(str, L"/");
+		}
 	}
 	else if (val->type == OBJECT_TYPE())
 	{
