@@ -174,5 +174,16 @@ void cmd_units(void* input, CPCMD self);
 void cmd_allgroups(void* input, CPCMD self);
 
 void cmd_configfile(void* input, CPCMD self);
+void cmd_navigateconfighelper(PVM vm, PCONFIGNODE config, PSTRING string);
+void cmd_navigateconfig(void* input, CPCMD self);
+void cmd_configname(void* input, CPCMD self);
+void cmd_inheritsfrom(void* input, CPCMD self);
+void cmd_getnumber(void* input, CPCMD self);
+void cmd_getarray(void* input, CPCMD self);
+void cmd_gettext(void* input, CPCMD self);
+void cmd_isnumber(void* input, CPCMD self);
+void cmd_isarray(void* input, CPCMD self);
+void cmd_istext(void* input, CPCMD self);
+void cmd_isclass(void* input, CPCMD self);
 
 #endif // !_SQF_COMMANDS_H_

@@ -146,7 +146,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"+", 'b', cmd_plus, 6, L"<SCALAR> + <SCALAR> | <STRING> + <STRING> | <ARRAY> + <ANY>", L"1 + 1 //2#" L"\"foo\" + \"bar\" //\"foobar\"#" L"[] + 1 //[1]#", L"b added to a.");
 	create_cmd(vm, L"-", 'b', cmd_minus, 6, L"<SCALAR> - <SCALAR> | <ARRAY> - <ARRAY>", L"1 - 1 //0#" L"[0,[0],[[0]]] - [0] //[[0], [[0]]]#" L"[0,[0],[[0]]] - [[0]] //[0, [[0]]]#" L"[0,[0],[[0]]] - [[[0]]] //[0, [0]]#", L"Subtracts b from a. a and b need to be of the same type, both Numbers or both Arrays. In Arma 3 it is possible to subtract nested arrays.");
 	create_cmd(vm, L"*", 'b', cmd_multiply, 7, L"<SCALAR> * <SCALAR>", L"0.5 * 100 //50#", L"Returns the value of a multiplied by b.");
-	create_cmd(vm, L"/", 'b', cmd_divide, 7, L"<SCALAR> / <SCALAR>", L"15 / 3 //5#", L"a divided by b. Division by 0 throws \"Division by zero\" error, however script doesn't stop and the result of such division is assumed to be 0.");
+	create_cmd(vm, L"/", 'b', cmd_divide, 7, L"<SCALAR> / <SCALAR> | <CONFIG> / <STRING>", L"15 / 3 //5#", L"a divided by b. Division by 0 throws \"Division by zero\" error, however script doesn't stop and the result of such division is assumed to be 0. If lval is CONFIG and rval is STRING then this acts as alias to >>a");
 	create_cmd(vm, L">", 'b', cmd_greaterthan, 3, L"<SCALAR> > <SCALAR>", L"10 > 1 //true#1 > 10 //false#", L"Returns true if a is greater than b, else returns false.");
 	create_cmd(vm, L"<", 'b', cmd_lessthen, 3, L"<SCALAR> < <SCALAR>", L"1 < 2 //true#2 < 1 //false#", L"Returns true if a is less than b, else returns false.");
 	create_cmd(vm, L">=", 'b', cmd_largetthenorequal, 3, L"<SCALAR> >= <SCALAR>", L"10 > 1 //true#1 > 10 //false#10 >= 10 //true#", L"Returns true if a is greater than or equal to b, else returns false.");
@@ -200,6 +200,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"vectorMultiply", 'b', cmd_vectormultiply, 4, L"<VECTOR3D> ectorMultiply <SCALAR>", L"[1,2,3] vectorMultiply 3; //[3,6,9]", L"Multiplies 3D vector by a scalar.");
 	create_cmd(vm, L"vectorDistance", 'b', cmd_vectordistance, 4, L"<VECTOR3D> vectorDistance <VECTOR3D>", L"_euclideanDist = getPosASL player vectorDistance [0,0,0];", L"Distance between two 3D vectors.");
 	create_cmd(vm, L"vectorDistanceSqr", 'b', cmd_vectordistancesqr, 4, L"<VECTOR3D> vectorDistanceSqr <VECTOR3D>", L"_distSqr = getPos player vectorDistanceSqr [0,0,2];", L"Squared distance between two 3D vectors.");
+	create_cmd(vm, L">>", 'b', cmd_vectordistancesqr, 4, L"<CONFIG> >> <STRING>", L"", L"Returns subentry of config entry with given name.");
 
 	create_cmd(vm, L"diag_log", 'u', cmd_diag_LOG, 4, L"diag_log <ANY>", L"", L"Dumps the argument's value. Each call creates a new line.");
 	create_cmd(vm, L"systemChat", 'u', cmd_systemchat, 4, L"systemChat <STRING>", L"", L"Writes the argument's value plaintext. Each call creates a new line.");
@@ -260,6 +261,15 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"vectorMagnitude", 'u', cmd_vectormagnitude, 4, L"vectorMagnitude <VECTOR3D>", L"_size = vectorMagnitude [0,3,4]; //5", L"Magnitude of a 3D vector.");
 	create_cmd(vm, L"vectorMagnitudeSqr", 'u', cmd_vectormagnitudesqr, 4, L"vectorMagnitudeSqr <VECTOR3D>", L"_size = vectorMagnitude [0,3,4]; //25", L"Squared magnitude of a 3D vector.");
 	create_cmd(vm, L"vectorNormalized", 'u', cmd_vectornormalized, 4, L"vectorNormalized <VECTOR3D>", L"vectorNormalized [12345,7890,38383]; //[0.300481,0.192045,0.934254]", L"Returns normalized vector (unit vector, vectorMagnitude = 1) of given vector. If given vector is 0 result is a 0 vector as well.");
+	create_cmd(vm, L"inheritsFrom", 'u', cmd_inheritsfrom, 4, L"inheritsFrom <CONFIG>", L"", L"Returns base entry of config entry.");
+	create_cmd(vm, L"getNumber", 'u', cmd_getnumber, 4, L"getNumber <CONFIG>", L"", L"Extract number from config entry.");
+	create_cmd(vm, L"getText", 'u', cmd_gettext, 4, L"getText <CONFIG>", L"", L"Extract text from config entry.");
+	create_cmd(vm, L"getArray", 'u', cmd_getarray, 4, L"getArray <CONFIG>", L"", L"Extract array from config entry.");
+	create_cmd(vm, L"isArray", 'u', cmd_isarray, 4, L"isArray <CONFIG>", L"", L"Check if config entry represents array.");
+	create_cmd(vm, L"isClass", 'u', cmd_isclass, 4, L"isClass <CONFIG>", L"", L"Check if config entry represents config class.");
+	create_cmd(vm, L"isNumber", 'u', cmd_isnumber, 4, L"isNumber <CONFIG>", L"", L"Check if config entry represents number.");
+	create_cmd(vm, L"isText", 'u', cmd_istext, 4, L"isText <CONFIG>", L"", L"Check if config entry represents text.");
+
 
 	create_cmd(vm, L"true", 'n', cmd_true, 4, L"true", L"", L"");
 	create_cmd(vm, L"false", 'n', cmd_false, 4, L"false", L"", L"");

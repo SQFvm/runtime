@@ -20,10 +20,12 @@
 #include "sqf_script_type.h"
 #include "sqf_side_type.h"
 #include "sqf_parse.h"
-#include "sqf_commands.h"
 
 #include "cfg_base.h"
 #include "cfg_parse.h"
+
+
+#include "sqf_commands.h"
 
 
 #if defined(__GNUC__) && defined(_WIN32)
