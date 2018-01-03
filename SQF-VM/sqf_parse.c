@@ -20,40 +20,51 @@
 PSTRING parse_string(PVM vm, const wchar_t* str, unsigned int len)
 {
 	PSTRING value_string;
-	wchar_t* wcharptr;
-	int k;
-	int l;
+	wchar_t wcharptr;
+	int off;
+	int i;
+	bool wasquotation = false;
 	if (len == 1)
 	{
 		return string_create(0);
 	}
 	else
 	{
-		k = (str[len - 1] == '"' || str[len - 1] == '\'') ? 2 : 1;
-		value_string = string_create(len - k);
+		i = (str[len - 1] == '"' || str[len - 1] == '\'') ? 2 : 1;
+		value_string = string_create(len - i);
 		if (value_string->length == 0)
 		{
 			return value_string;
 		}
-		wcsncpy(value_string->val, str + 1, len - k);
+		wcsncpy(value_string->val, str + 1, len - i);
 
-		wcharptr = value_string->val;
-		l = 0;
-		while ((wcharptr = wcschr(wcharptr, '"')) != 0)
+		if (str[0] == '"')
 		{
-			if (wcharptr[1] == '"')
+			off = 0;
+			for (i = 0; i < value_string->length; i++)
 			{
-				l++;
-				for (k = wcharptr - value_string->val + 1; k + 1 < value_string->length; k++)
+				if (wasquotation)
 				{
-					value_string->val[k] = value_string->val[k + 1];
+					wasquotation = false;
+
+					if (value_string->val[i] == '"')
+					{
+						off++;
+					}
 				}
+				else
+				{
+					if (value_string->val[i] == '"')
+					{
+						wasquotation = true;
+					}
+				}
+				value_string->val[i - off] = value_string->val[i];
 			}
-			wcharptr++;
-		}
-		if (l > 0)
-		{
-			string_resize(value_string, -l);
+			if (off > 0)
+			{
+				string_resize(value_string, -off);
+			}
 		}
 		return value_string;
 	}
