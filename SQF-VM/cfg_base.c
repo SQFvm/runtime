@@ -54,7 +54,7 @@ PCONFIGNODE sqf_configFile(void)
 	static PCONFIGNODE node = 0;
 	if (node == 0)
 	{
-		node = config_create_node(0, 0);
+		node = config_create_node(L"bin\\config.bin", -1);
 		node->refcount++;
 	}
 	return node;
@@ -77,8 +77,9 @@ PCONFIGNODE config_create_node(const wchar_t* ident, int identlen)
 	else
 	{
 		node->identifier = malloc(sizeof(wchar_t) * (node->identifier_length + 1));
+		wcsncpy(node->identifier, ident, node->identifier_length);
+		node->identifier[node->identifier_length] = L'\0';
 	}
-	wcsncpy(node->identifier, ident, node->identifier_length);
 	node->parent = 0;
 	node->inheritingident = 0;
 	node->inheritingident_length = 0;
@@ -90,8 +91,16 @@ PCONFIGNODE config_create_node_value(const wchar_t* ident, int identlen, VALUE v
 	node->children_size = 0;
 	node->children_top = 0;
 	node->identifier_length = identlen == -1 ? wcslen(ident) : identlen;
-	node->identifier = malloc(sizeof(wchar_t) * (node->identifier_length + 1));
-	wcsncpy(node->identifier, ident, node->identifier_length);
+	if (identlen == 0)
+	{
+		node->identifier = 0;
+	}
+	else
+	{
+		node->identifier = malloc(sizeof(wchar_t) * (node->identifier_length + 1));
+		wcsncpy(node->identifier, ident, node->identifier_length);
+		node->identifier[node->identifier_length] = L'\0';
+	}
 	node->parent = 0;
 	node->inheritingident = 0;
 	node->refcount = 0;
@@ -129,6 +138,7 @@ void config_clear_node(PCONFIGNODE config)
 	{
 		for (i = 0; i < config->children_top; i++)
 		{
+			config->value.cfgnodes[i]->parent = 0;
 			downrefcount(config->value.cfgnodes[i]);
 		}
 		free(config->value.cfgnodes);
@@ -158,6 +168,16 @@ const PVALUE config_get_value(PCONFIGNODE config)
 	{
 		return config->value.value;
 	}
+}
+
+unsigned int config_count_parents(PCONFIGNODE config)
+{
+	unsigned int i = 0;
+	while ((config = config->parent) != 0)
+	{
+		i++;
+	}
+	return i;
 }
 
 void config_push_node(PCONFIGNODE config, PCONFIGNODE node)

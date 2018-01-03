@@ -35,6 +35,8 @@ void config_clear_node(PCONFIGNODE config);
 void config_set_value(PCONFIGNODE config, VALUE val);
 const PVALUE config_get_value(PCONFIGNODE config);
 
+unsigned int config_count_parents(PCONFIGNODE config);
+
 void config_push_node(PCONFIGNODE config, PCONFIGNODE node);
 
 CONFIGNODE* config_find_inheriting_node(PCONFIGNODE config);

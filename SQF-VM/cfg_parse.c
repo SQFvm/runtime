@@ -157,7 +157,7 @@ void cfgparse_confignode(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* c
 		vm->print(vm, L"L%u;C%u;", range.line, range.col);
 		vm->error(vm, L"Expected '{'.", 0);
 	}
-	cfgparse_nodelist(vm, root, arr, code, index);
+	cfgparse_nodelist(vm, node, arr, code, index);
 	range = tr_arr_get(arr, *index);
 	str = code + range.start;
 	if (str[0] == L'}' && range.length == 1)
@@ -179,6 +179,7 @@ void cfgparse_valuenode(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* co
 	TEXTRANGE identrange;
 	VALUE val;
 	PCONFIGNODE node;
+	bool error = false;
 	//ident
 	identrange = tr_arr_get(arr, *index);
 	//L'=' | L'['
@@ -214,6 +215,7 @@ void cfgparse_valuenode(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* co
 		{
 			vm->print(vm, L"L%u;C%u;", range.line, range.col);
 			vm->error(vm, L"Expected ''' or '\"' or '-' or NUMBER or '$'.", 0);
+			error = true;
 		}
 	}
 	//L'['
@@ -245,7 +247,6 @@ void cfgparse_valuenode(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* co
 		if (cfgparse_array_start(str, range.length))
 		{
 			cfgparse_array(vm, &val, arr, code, index);
-			config_set_value(root, val);
 		}
 		else
 		{
@@ -257,7 +258,10 @@ void cfgparse_valuenode(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* co
 	{
 		vm->print(vm, L"L%u;C%u;", range.line, range.col);
 		vm->error(vm, L"Expected '=' or '['.", 0);
+		error = true;
 	}
+	if (error)
+		return;
 	str = code + identrange.start;
 	node = config_create_node_value(str, identrange.length, val);
 	config_push_node(root, node);
@@ -312,7 +316,7 @@ void cfgparse_localization(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code,
 	PSTRING pstring;
 	range = tr_arr_get(arr, *index);
 	str = code + range.start;
-	if (str == L'$' && range.length == 1)
+	if (str[0] == L'$' && range.length == 1)
 	{
 		(*index)++;
 		range = tr_arr_get(arr, *index);
@@ -323,9 +327,11 @@ void cfgparse_localization(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code,
 		vm->print(vm, L"L%u;C%u;", range.line, range.col);
 		vm->error(vm, L"Expected '$'.", 0);
 	}
-	pstring = string_create(range.length);
+	pstring = string_create(range.length + 1);
 	wcsncpy(pstring->val, str, range.length);
+	pstring->val[range.length] = L'\0';
 	*out = value(STRING_TYPE(), base_voidptr(pstring));
+	(*index)++;
 }
 //ARRAY = '{' [ VALUE { ',' VALUE } ] '}'
 bool cfgparse_array_start(const wchar_t* code, unsigned int len) { return code[0] == L'{'; }
@@ -334,11 +340,11 @@ void cfgparse_array(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsign
 	TEXTRANGE range;
 	wchar_t* str;
 	PARRAY sqfarr = array_create();
-	*out = value(ARRAY_TYPE(), base_voidptr(out));
-	PVALUE tmp;
+	*out = value(ARRAY_TYPE(), base_voidptr(sqfarr));
+	VALUE tmp;
 	range = tr_arr_get(arr, *index);
 	str = code + range.start;
-	if (str == L'{' && range.length == 1)
+	if (str[0] == L'{' && range.length == 1)
 	{
 		(*index)++;
 		range = tr_arr_get(arr, *index);
@@ -353,15 +359,19 @@ void cfgparse_array(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsign
 	while (cfgparse_value_start(str, range.length))
 	{
 		cfgparse_value(vm, &tmp, arr, code, index);
-		array_push(sqfarr, value2(tmp));
+		array_push(sqfarr, tmp);
 
 		range = tr_arr_get(arr, *index);
 		str = code + range.start;
-		if (str == ',' && range.length == 1)
+		if (str[0] == ',' && range.length == 1)
 		{
 			(*index)++;
 			range = tr_arr_get(arr, *index);
 			str = code + range.start;
+		}
+		else if (str[0] == '}' && range.length == 1)
+		{
+			break;
 		}
 		else
 		{
@@ -372,7 +382,7 @@ void cfgparse_array(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsign
 
 	range = tr_arr_get(arr, *index);
 	str = code + range.start;
-	if (str == L'}' && range.length == 1)
+	if (str[0] == L'}' && range.length == 1)
 	{
 		(*index)++;
 		range = tr_arr_get(arr, *index);
