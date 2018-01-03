@@ -417,7 +417,6 @@ int load_file(PSTRING buffer, const char* fpath)
 	}
 	fseek(fptr, 0, SEEK_END);
 	size = ftell(fptr);
-	;
 	rewind(fptr);
 	string_modify_append2(buffer, size);
 	memset(buffer->val + curlen, 0, sizeof(char) * size);
