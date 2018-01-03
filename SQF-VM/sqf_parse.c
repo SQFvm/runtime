@@ -31,6 +31,10 @@ PSTRING parse_string(PVM vm, const wchar_t* str, unsigned int len)
 	{
 		k = (str[len - 1] == '"' || str[len - 1] == '\'') ? 2 : 1;
 		value_string = string_create(len - k);
+		if (value_string->length == 0)
+		{
+			return value_string;
+		}
 		wcsncpy(value_string->val, str + 1, len - k);
 
 		wcharptr = value_string->val;
