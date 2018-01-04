@@ -1209,8 +1209,8 @@ void cmd_mergefrom(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	from = left_val->val.ptr;
-	into = right_val->val.ptr;
+	from = right_val->val.ptr;
+	into = left_val->val.ptr;
 	if (from->children_size == 0 || into->children_size == 0)
 	{
 		vm->error(vm, ERR_SPECIAL_MERGEFROM, vm->stack);
