@@ -1224,7 +1224,7 @@ void cmd_mergefrom(void* input, CPCMD self)
 	{
 		config_push_node(into, from->value.cfgnodes[i]);
 	}
-	inst_destroy(left);
+	push_stack(vm, vm->stack, left);
 	inst_destroy(right);
 }
 

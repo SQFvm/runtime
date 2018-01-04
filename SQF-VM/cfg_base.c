@@ -140,7 +140,10 @@ void config_clear_node(PCONFIGNODE config)
 	{
 		for (i = 0; i < config->children_top; i++)
 		{
-			config->value.cfgnodes[i]->parent = 0;
+			if (config->value.cfgnodes[i]->parent == config)
+			{
+				config->value.cfgnodes[i]->parent = 0;
+			}
 			downrefcount(config->value.cfgnodes[i]);
 		}
 		free(config->value.cfgnodes);
@@ -198,6 +201,7 @@ void config_push_node(PCONFIGNODE config, PCONFIGNODE node)
 	}
 	config->value.cfgnodes[config->children_top] = node;
 	config->children_top++;
+	node->parent = config;
 	uprefcount(node);
 }
 
