@@ -11,6 +11,8 @@ void TYPE_CONFIG_CALLBACK(void* input, CPCMD self)
 {
 	PVALUE val = input;
 	PCONFIGNODE node = val->val.ptr;
+	if (node == 0)
+		return;
 	if (val->type == 0)
 	{
 		node->refcount--;
