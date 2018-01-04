@@ -83,7 +83,11 @@ void tokenize(TR_ARR* arr, const wchar_t* code)
 			else if (s == '\'')
 			{
 				in_string = true;
-				if (c == '\'')
+				if (c == '\'' && code[i + 1] == '\'')
+				{
+					i++;
+				}
+				else if (c == '\'')
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
