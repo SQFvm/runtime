@@ -300,6 +300,8 @@ CONFIGNODE* config_find_inheriting_node(PCONFIG config)
 {
 	PCONFIG node = config;
 	unsigned int i;
+	if (config->inheritingident == 0)
+		return 0;
 	while ((node = node->parent) != 0)
 	{
 		if (node->identifier != 0 && !wstr_cmpi(config->inheritingident, -1, node->identifier, -1))
