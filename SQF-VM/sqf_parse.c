@@ -23,6 +23,7 @@ PSTRING parse_string(PVM vm, const wchar_t* str, unsigned int len)
 	wchar_t wcharptr;
 	int off;
 	int i;
+	char startchar;
 	bool wasquotation = false;
 	if (len == 1)
 	{
@@ -30,6 +31,7 @@ PSTRING parse_string(PVM vm, const wchar_t* str, unsigned int len)
 	}
 	else
 	{
+		startchar = str[0];
 		i = (str[len - 1] == '"' || str[len - 1] == '\'') ? 2 : 1;
 		value_string = string_create(len - i);
 		if (value_string->length == 0)
@@ -38,7 +40,7 @@ PSTRING parse_string(PVM vm, const wchar_t* str, unsigned int len)
 		}
 		wcsncpy(value_string->val, str + 1, len - i);
 
-		if (str[0] == '"')
+		if (str[0] == startchar)
 		{
 			off = 0;
 			for (i = 0; i < value_string->length; i++)
@@ -47,14 +49,14 @@ PSTRING parse_string(PVM vm, const wchar_t* str, unsigned int len)
 				{
 					wasquotation = false;
 
-					if (value_string->val[i] == '"')
+					if (value_string->val[i] == startchar)
 					{
 						off++;
 					}
 				}
 				else
 				{
-					if (value_string->val[i] == '"')
+					if (value_string->val[i] == startchar)
 					{
 						wasquotation = true;
 					}
