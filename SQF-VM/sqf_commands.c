@@ -151,8 +151,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 		node = val->val.ptr;
 		if (node == 0)
 		{
-			//`str configNull` outputs empty string
-			string_modify_append(str, L"");
+			string_modify_append(str, L"configNull");
 		}
 		else
 		{
