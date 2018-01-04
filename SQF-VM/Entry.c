@@ -342,22 +342,40 @@ int vm_output_print(PVM vm, const wchar_t* format, ...)
 	return len;
 }
 
-DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long max_instructions, wchar_t* buffer, size_t buffer_size)
+
+DLLEXPORT_PREFIX void load_file_into_sqf_configFile(const char* path)
+{
+	PVM vm = sqfvm(10000, 50, 1, 0);
+	PSTRING str = string_create(0);
+	PCONFIG node;
+	load_file(str, path);
+	node = cfgparse2(vm, str->val, 1000000, 2000);
+	string_destroy(str);
+	destroy_sqfvm(vm);
+
+	config_merge(sqf_configFile(), node);
+	config_destroy_node(node);
+}
+
+DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long max_instructions, wchar_t* buffer, size_t buffer_size, PVM vm)
 {
 	int val;
 	int i;
 	unsigned char success;
-	PVM vm = sqfvm(10000, 50, 1, max_instructions);
-	vm->error = custom_error;
-	vm->warn = custom_warn;
+	if (vm == 0)
+	{
+		vm = sqfvm(10000, 50, 1, max_instructions);
+		register_commmands(vm);
+		vm->error = custom_error;
+		vm->warn = custom_warn;
+		vm->print = vm_output_print;
+		vm->print_custom_data = string_create(0);
+	}
 	if (systime_start == 0)
 	{
 		systime_start = system_time_ms();
 	}
 
-	register_commmands(vm);
-	vm->print = vm_output_print;
-	vm->print_custom_data = string_create(0);
 
 	val = setjmp(program_exit);
 	if (!val)
@@ -405,10 +423,15 @@ DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long
 			wcsncpy(buffer, L"<EMPTY>\n", buffer_size);
 		}
 	}
-	string_destroy(vm->print_custom_data);
-	destroy_sqfvm(vm);
+	if (vm == 0)
+	{
+		destroy_sqfvm(vm);
+		string_destroy(vm->print_custom_data);
+	}
 	return success;
 }
+
+
 
 #define RETCDE_OK 0
 #define RETCDE_ERROR 1
@@ -416,15 +439,79 @@ DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long
 
 //#define MAIN_BUFFER_SIZE 1990
 
+int get_bom_skip(const char* buff)
+{
+	if (buff[0] == (char)0xEF && buff[1] == (char)0xBB && buff[2] == (char)0xBF)
+	{
+		//UTF-8
+		return 3;
+	}
+	else if (buff[0] == (char)0xFE && buff[1] == (char)0xFF)
+	{
+		//UTF-16 (BE)
+		return 2;
+	}
+	else if (buff[0] == (char)0xFE && buff[1] == (char)0xFE)
+	{
+		//UTF-16 (LE)
+		return 2;
+	}
+	else if (buff[0] == (char)0x00 && buff[1] == (char)0x00 && buff[2] == (char)0xFF && buff[3] == (char)0xFF)
+	{
+		//UTF-32 (BE)
+		return 2;
+	}
+	else if (buff[0] == (char)0xFF && buff[1] == (char)0xFF && buff[2] == (char)0x00 && buff[3] == (char)0x00)
+	{
+		//UTF-32 (LE)
+		return 2;
+	}
+	else if (buff[0] == (char)0x2B && buff[1] == (char)0x2F && buff[2] == (char)0x76 &&
+		(buff[3] == (char)0x38 || buff[3] == (char)0x39 || buff[3] == (char)0x2B || buff[3] == (char)0x2F))
+	{
+		//UTF-7
+		return 4;
+	}
+	else if (buff[0] == (char)0xF7 && buff[1] == (char)0x64 && buff[2] == (char)0x4C)
+	{
+		//UTF-1
+		return 3;
+	}
+	else if (buff[0] == (char)0xDD && buff[1] == (char)0x73 && buff[2] == (char)0x66 && buff[3] == (char)0x73)
+	{
+		//UTF-EBCDIC
+		return 3;
+	}
+	else if (buff[0] == (char)0x0E && buff[1] == (char)0xFE && buff[2] == (char)0xFF)
+	{
+		//SCSU
+		return 3;
+	}
+	else if (buff[0] == (char)0xFB && buff[1] == (char)0xEE && buff[2] == (char)0x28)
+	{
+		//BOCU-1
+		if (buff[3] == (char)0xFF)
+			return 4;
+		return 3;
+	}
+	else if (buff[0] == (char)0x84 && buff[1] == (char)0x31 && buff[2] == (char)0x95 && buff[3] == (char)0x33)
+	{
+		//GB 18030
+		return 3;
+	}
+	return 0;
+}
+
 int load_file(PSTRING buffer, const char* fpath)
 {
-	FILE* fptr = fopen(fpath, "r");
+	FILE* fptr = fopen(fpath, "rb");
 	size_t size;
 	wchar_t* buff2;
 	char* filebuff;
 	int tailing = 0;
 	int lcount = 1;
 	int i;
+	unsigned int bomskip = 0;
 	if (fptr == 0)
 	{
 		printf("[ERR] Could not open file '%s'", fpath);
@@ -432,11 +519,12 @@ int load_file(PSTRING buffer, const char* fpath)
 	}
 	fseek(fptr, 0, SEEK_END);
 	size = ftell(fptr);
-	rewind(fptr);
+	fseek(fptr, 0, SEEK_SET);
 	filebuff = malloc(sizeof(char) * (size + 1));
 	memset(filebuff, 0, sizeof(char) * (size + 1));
 	fread(filebuff, sizeof(char), size, fptr);
-	for (i = 0; i < size; i++)
+	bomskip = get_bom_skip(filebuff);
+	for (i = 0 + bomskip; i < size; i++)
 	{
 		if (filebuff[i] == '\n')
 			lcount++;
@@ -444,7 +532,7 @@ int load_file(PSTRING buffer, const char* fpath)
 			tailing++;
 	}
 
-	buff2 = gen_wchar_string(filebuff);
+	buff2 = gen_wchar_string(filebuff + bomskip);
 	free(filebuff);
 	string_modify_append(buffer, buff2);
 	free(buff2);
@@ -459,14 +547,19 @@ int main(int argc, char** argv)
 	unsigned char just_execute = 0;
 	unsigned char prog_success = 0;
 	PSTRING pstr;
+	PSTRING cfgbuff;
+	PCONFIG confignode;
 	unsigned long max_inst = 10000;
 	wchar_t* tmpconverted;
+	PVM vm;
 #ifdef MAIN_BUFFER_SIZE
 	wchar_t outbuffer[MAIN_BUFFER_SIZE];
 #endif // MAIN_BUFFER_SIZE
 
 	pstr = string_create(0);
+	cfgbuff = string_create(0);
 #if _WIN32 & _DEBUG
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//_CrtSetBreakAlloc(832);
 #endif
 	j = 0;
@@ -483,17 +576,46 @@ int main(int argc, char** argv)
 				return RETCDE_ERROR;
 			case '?':
 				wprintf(L"SQF-VM Help page\n");
-				wprintf(L"./prog [-j] [-s 10000] [-i <FILE>] [-I <CODE>]\n");
+				wprintf(L"./prog [-j] [-m 10000] [-s <FILE>] [-S <CODE>] [-c <FILE>] [-C <CONFIG>]\n");
 				wprintf(L"\t-?\tOutputs this help\n");
-				wprintf(L"\t-i\tLoads provided input file into the code-buffer.\n");
-				wprintf(L"\t-I\tLoads provided input SQF code into the code-buffer.\n");
+				wprintf(L"\t-s\tLooks up the path, and loads the SQF code inside into the code-buffer.\n");
+				wprintf(L"\t-S\tLoads provided input SQF code into the code-buffer.\n");
 				wprintf(L"\t-a\tDisables user input and just executes the code-buffer.\n");
-				wprintf(L"\t-s\tSets the maximum instruction count allowed before termination.\n");
+				wprintf(L"\t-m\tSets the maximum instruction count allowed before termination.\n");
 				wprintf(L"\t  \tMaximum value is %lu.\n", LONG_MAX);
-				wprintf(L"\t  \tIf `0` is passed, the limit will be disabled.\n");
+				wprintf(L"\t  \tIf `0` is passed, the limit is disabled.\n");
+				wprintf(L"\t-c\tLooks up the path, and merges the config inside into the configFile.\n");
+				wprintf(L"\t-C\tMerges provided input config into the configFile.\n");
 				return RETCDE_OK;
 				break;
-			case 'i':
+			case 'c':
+				if (i + 1 < argc)
+				{
+					k = load_file(cfgbuff, argv[++i]);
+					if (k < 0)
+						return RETCDE_ERROR;
+					j += k;
+				}
+				else
+				{
+					wprintf(L"[ERR] -s empty parameter");
+					return RETCDE_ERROR;
+				}
+				break;
+			case 'C':
+				if (i + 1 < argc)
+				{
+					tmpconverted = gen_wchar_string(argv[++i]);
+					string_modify_append(cfgbuff, tmpconverted);
+					free(tmpconverted);
+				}
+				else
+				{
+					wprintf(L"[ERR] -I empty parameter");
+					return RETCDE_ERROR;
+				}
+				break;
+			case 's':
 				if (i + 1 < argc)
 				{
 					k = load_file(pstr, argv[++i]);
@@ -503,11 +625,11 @@ int main(int argc, char** argv)
 				}
 				else
 				{
-					wprintf(L"[ERR] -i empty parameter");
+					wprintf(L"[ERR] -s empty parameter");
 					return RETCDE_ERROR;
 				}
 				break;
-			case 'I':
+			case 'S':
 				if (i + 1 < argc)
 				{
 					tmpconverted = gen_wchar_string(argv[++i]);
@@ -524,7 +646,7 @@ int main(int argc, char** argv)
 			case 'a':
 				just_execute = 1;
 				break;
-			case 's':
+			case 'm':
 				if (i + 1 < argc)
 				{
 					max_inst = strtoul(argv[i + 1], 0, 10);
@@ -532,7 +654,7 @@ int main(int argc, char** argv)
 				}
 				else
 				{
-					wprintf(L"[ERR] -I empty parameter");
+					wprintf(L"[ERR] -m empty parameter");
 					return RETCDE_ERROR;
 				}
 				break;
@@ -543,6 +665,20 @@ int main(int argc, char** argv)
 	}
 	ptr = 0;
 	i = j;
+	vm = sqfvm(10000, 50, 1, max_inst);
+	register_commmands(vm);
+	vm->error = custom_error;
+	vm->warn = custom_warn;
+	vm->print = vm_output_print;
+	vm->print_custom_data = string_create(0);
+	//load_file_into_sqf_configFile("C:\\Users\\marco.silipo\\Downloads\\AiO.1.62.137494\\test.cpp");
+	load_file_into_sqf_configFile("C:\\Users\\marco.silipo\\Downloads\\AiO.1.62.137494\\AiO.1.62.137494.cpp");
+	if (cfgbuff->length != 0)
+	{
+		confignode = cfgparse(vm, cfgbuff->val);
+		config_merge(sqf_configFile(), confignode);
+		config_destroy_node(confignode);
+	}
 
 	if (!just_execute)
 	{
@@ -562,7 +698,7 @@ int main(int argc, char** argv)
 	{
 		if (pstr->length > 0)
 		{
-			prog_success = start_program(pstr->val, max_inst, outbuffer, MAIN_BUFFER_SIZE);
+			prog_success = start_program(pstr->val, max_inst, outbuffer, MAIN_BUFFER_SIZE, vm);
 			wprintf(L"%ls\n", outbuffer);
 		}
 	}
@@ -571,7 +707,7 @@ int main(int argc, char** argv)
 		wprintf(L"-------------------------------------\n");
 		if (pstr->length > 0)
 		{
-			prog_success = start_program(pstr->val, max_inst, outbuffer, MAIN_BUFFER_SIZE);
+			prog_success = start_program(pstr->val, max_inst, outbuffer, MAIN_BUFFER_SIZE, vm);
 			wprintf(L"%ls\n", outbuffer);
 		}
 		wprintf(L"-------------------------------------\n");
@@ -582,26 +718,29 @@ int main(int argc, char** argv)
 	if (just_execute)
 	{
 		if (pstr->length > 0)
-			prog_success = start_program(pstr->val, max_inst, 0, 0);
+			prog_success = start_program(pstr->val, max_inst, 0, 0, vm);
 	}
 	else
 	{
 		wprintf(L"-------------------------------------\n");
 		if (pstr->length > 0)
-			prog_success = start_program(pstr->val, max_inst, 0, 0);
+			prog_success = start_program(pstr->val, max_inst, 0, 0, vm);
 		wprintf(L"-------------------------------------\n");
 		wprintf(L"Press <ENTER> to finish.");
 		get_line(linebuffer, LINEBUFFER_SIZE);
 	}
 #endif // MAIN_BUFFER_SIZE
+	string_destroy(vm->print_custom_data);
+	config_destroy_node(sqf_configFile());
+	destroy_sqfvm(vm);
 	string_destroy(pstr);
+	string_destroy(cfgbuff);
 	namespace_destroy(sqf_missionNamespace());
 	namespace_destroy(sqf_parsingNamespace());
 	namespace_destroy(sqf_profileNamespace());
 	namespace_destroy(sqf_uiNamespace());
 
 	wsm_destroy_list(sqf_group_map(), inst_destroy_value);
-	config_destroy_node(sqf_configFile());
 
 	destroy_cmdcnt(GET_PCMDCNT());
 

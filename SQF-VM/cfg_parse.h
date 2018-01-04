@@ -34,4 +34,5 @@ void cfgparse_array(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsign
 bool cfgparse_value_start(const wchar_t* code, unsigned int len);
 void cfgparse_value(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsigned int *index);
 PCONFIG cfgparse(PVM vm, const wchar_t* code);
+PCONFIG cfgparse2(PVM vm, const wchar_t* code, unsigned int tr_arr_increase, unsigned int node_init_len);
 #endif // !_CFG_BASE_H_

@@ -25,10 +25,10 @@ typedef struct CONFIGNODE
 typedef CONFIGNODE* PCONFIG;
 
 PCMD CONFIG_TYPE(void);
-PCONFIG config_create_node(const wchar_t* ident, int identlen);
+PCONFIG config_create_node(const wchar_t* ident, int identlen, int initiallen);
 PCONFIG config_create_node_value(const wchar_t* ident, int identlen, VALUE val);
-PCONFIG config_create_inheriting_node(const wchar_t* ident, const wchar_t* parent);
-PCONFIG config_create_inheriting_node_value(const wchar_t* ident, VALUE val, const wchar_t* parent);
+PCONFIG config_create_inheriting_node(const wchar_t* ident, int identlen, const wchar_t* parent, int initiallen);
+PCONFIG config_create_inheriting_node_value(const wchar_t* ident, int identlen, VALUE val, const wchar_t* parent);
 void config_destroy_node(PCONFIG config);
 //Clears the whole node and makes it ready for reuse either as valuenode or as classnode
 //If classnode, will down the reference counter of all children by one and set their parent to 0 if it matches param 1

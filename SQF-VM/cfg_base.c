@@ -56,7 +56,7 @@ PCONFIG sqf_configFile(void)
 	static PCONFIG node = 0;
 	if (node == 0)
 	{
-		node = config_create_node(L"bin\\config.bin", -1);
+		node = config_create_node(L"bin\\config.bin", -1, 1000);
 		node->refcount++;
 	}
 	return node;
@@ -64,11 +64,15 @@ PCONFIG sqf_configFile(void)
 
 
 
-PCONFIG config_create_node(const wchar_t* ident, int identlen)
+PCONFIG config_create_node(const wchar_t* ident, int identlen, int initiallen)
 {
 	PCONFIG node = malloc(sizeof(CONFIGNODE));
-	node->value.cfgnodes = malloc(sizeof(PCONFIG) * 10);
-	node->children_size = 10;
+	if (initiallen == 0)
+	{
+		initiallen = 1;
+	}
+	node->value.cfgnodes = malloc(sizeof(PCONFIG) * initiallen);
+	node->children_size = initiallen;
 	node->children_top = 0;
 	node->refcount = 0;
 	node->identifier_length = identlen == -1 ? wcslen(ident) : identlen;
@@ -110,20 +114,20 @@ PCONFIG config_create_node_value(const wchar_t* ident, int identlen, VALUE val)
 	node->value.value = value_create_noref(val.type, val.val);
 	return node;
 }
-PCONFIG config_create_inheriting_node(const wchar_t* ident, const wchar_t* parent)
+PCONFIG config_create_inheriting_node(const wchar_t* ident, int identlen, const wchar_t* parent, int initiallen)
 {
-	PCONFIG node = config_create_node(ident, -1);
+	PCONFIG node = config_create_node(ident, identlen, initiallen);
 	node->inheritingident_length = wcslen(parent);
 	node->inheritingident = malloc(sizeof(wchar_t) * (node->inheritingident_length + 1));
-	wcscpy(node->inheritingident, ident);
+	wcscpy(node->inheritingident, parent);
 	return node;
 }
-PCONFIG config_create_inheriting_node_value(const wchar_t* ident, VALUE val, const wchar_t* parent)
+PCONFIG config_create_inheriting_node_value(const wchar_t* ident, int identlen, VALUE val, const wchar_t* parent)
 {
-	PCONFIG node = config_create_node_value(ident, -1, val);
+	PCONFIG node = config_create_node_value(ident, identlen, val);
 	node->inheritingident_length = wcslen(parent);
 	node->inheritingident = malloc(sizeof(wchar_t) * (node->inheritingident_length + 1));
-	wcscpy(node->inheritingident, ident);
+	wcscpy(node->inheritingident, parent);
 	return node;
 }
 void config_destroy_node(PCONFIG config)
@@ -189,12 +193,17 @@ void config_resize_children(PCONFIG node, unsigned int newsize)
 	int i;
 	if (node->children_size == newsize)
 		return;
+	if (newsize == 0)
+	{
+		newsize = 1;
+	}
 	if (node->children_size == 0)
 	{
 		config_clear_node(node);
-		node->value.cfgnodes = malloc(sizeof(PCONFIG) * 10);
-		node->children_size = 10;
+		node->value.cfgnodes = malloc(sizeof(PCONFIG) * newsize);
+		node->children_size = newsize;
 		node->children_top = 0;
+		return;
 	}
 	if (node->children_top > newsize)
 	{
@@ -221,14 +230,12 @@ PCONFIG config_clone_node(const PCONFIG source)
 	{
 		if (source->inheritingident != 0)
 		{
-			node = config_create_inheriting_node(source->identifier, source->inheritingident);
+			node = config_create_inheriting_node(source->identifier, source->identifier_length, source->inheritingident, source->children_top);
 		}
 		else
 		{
-			node = config_create_node(source->identifier, source->identifier_length);
+			node = config_create_node(source->identifier, source->identifier_length, source->children_top);
 		}
-		config_resize_children(node, source->children_top);
-		node->children_top = source->children_top;
 		for (i = 0; i < source->children_top; i++)
 		{
 			tmpnode = config_clone_node(source->value.cfgnodes[i]);
@@ -236,12 +243,13 @@ PCONFIG config_clone_node(const PCONFIG source)
 			uprefcount(tmpnode);
 			node->value.cfgnodes[i] = tmpnode;
 		}
+		node->children_top = source->children_top;
 	}
 	else
 	{
 		if (source->inheritingident != 0)
 		{
-			node = config_create_inheriting_node_value(source->identifier, value2(source->value.value), source->inheritingident);
+			node = config_create_inheriting_node_value(source->identifier, source->identifier_length, value2(source->value.value), source->inheritingident);
 		}
 		else
 		{
@@ -289,7 +297,7 @@ void config_push_node(PCONFIG config, PCONFIG node)
 	
 	if (config->children_size == 0 || config->children_top >= config->children_size)
 	{
-		config_resize_children(config, config->children_size + 10);
+		config_resize_children(config, config->children_size + 100);
 	}
 	config->value.cfgnodes[config->children_top] = node;
 	config->children_top++;

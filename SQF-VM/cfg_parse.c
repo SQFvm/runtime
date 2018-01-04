@@ -23,21 +23,35 @@ VALUE = STRING | NUMBER | LOCALIZATION | ARRAY;
 bool cfgparse_isident(const wchar_t* str, unsigned int len)
 {
 	unsigned int i;
-	if (str[0] >= L'a' && str[0] <= L'z' || str[0] >= L'A' && str[0] <= L'Z')
+	char c;
+	for (i = 0; i < len; i++)
 	{
-		for (i = 1; i < len; i++)
-		{
-			if (!(str[0] >= L'a' && str[0] <= L'z' || str[0] >= L'A' && str[0] <= L'Z' || str[0] >= L'0' && str[0] <= L'9'))
-			{
-				return false;
-			}
-		}
-		return true;
+		c = str[0];
+		if (!((c >= L'a' && c <= L'z') || (c >= L'A' && c <= L'Z') || (c >= L'0' && c <= L'9') || (c == '/' || c == '\\' || c == '_')))
+			return false;
 	}
-	else
+	return true;
+}
+
+TEXTRANGE get_ident_range(const wchar_t* code, TR_ARR* arr, unsigned int* index)
+{
+	TEXTRANGE output = tr_arr_get(arr, *index);
+	TEXTRANGE range;
+	unsigned int tmpindex = *index;
+	char c;
+	do
 	{
-		return false;
+		c = ((range = tr_arr_get(arr, tmpindex++)).start + code)[0];
+	} while ((c >= L'a' && c <= L'z') || (c >= L'A' && c <= L'Z') || (c >= L'0' && c <= L'9') || (c == '/' || c == '\\' || c == '_'));
+	tmpindex--;
+	output.length = 0;
+	for (; *index < tmpindex; (*index)++)
+	{
+		range = tr_arr_get(arr, *index);
+		output.length += range.length;
 	}
+	(*index)--;
+	return output;
 }
 
 //NODELIST = { NODE ';' { ';' } };
@@ -117,13 +131,17 @@ void cfgparse_node(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsig
 void cfgparse_confignode(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
+	TEXTRANGE range2;
 	wchar_t* str;
 	PCONFIG node;
+	wchar_t c;
+	int identlen = 0;
 
 	//ident
-	range = tr_arr_get(arr, *index);
+	range = get_ident_range(code, arr, index);
 	str = code + range.start;
-	node = config_create_node(str, range.length);
+
+	node = config_create_node(str, range.length, range.length);
 	node->parent = root;
 	config_push_node(root, node);
 	(*index)++;
@@ -134,7 +152,7 @@ void cfgparse_confignode(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code,
 	{
 		(*index)++;
 		//ident
-		range = tr_arr_get(arr, *index);
+		range = get_ident_range(code, arr, index);
 		str = code + range.start;
 		node->inheritingident = malloc(sizeof(wchar_t) * (range.length + 1));
 		node->inheritingident = wcsncpy(node->inheritingident, str, range.length);
@@ -181,7 +199,7 @@ void cfgparse_valuenode(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, 
 	PCONFIG node;
 	bool error = false;
 	//ident
-	identrange = tr_arr_get(arr, *index);
+	identrange = get_ident_range(code, arr, index);
 	//L'=' | L'['
 	(*index)++;
 	range = tr_arr_get(arr, *index);
@@ -286,7 +304,7 @@ void cfgparse_number(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsig
 	bool invert = false;
 	range = tr_arr_get(arr, *index);
 	str = code + range.start;
-	if (str == L'-' && range.length == 1)
+	if (str[0] == L'-' && range.length == 1)
 	{
 		(*index)++;
 		range = tr_arr_get(arr, *index);
@@ -427,7 +445,20 @@ PCONFIG cfgparse(PVM vm, const wchar_t* code)
 	unsigned int index = 0;
 	tokenize(arr, code);
 
-	PCONFIG node = config_create_node(0, 0);
+	PCONFIG node = config_create_node(0, 0, 10);
+	cfgparse_nodelist(vm, node, arr, code, &index);
+	tr_arr_destroy(arr);
+	return node;
+}
+
+PCONFIG cfgparse2(PVM vm, const wchar_t* code, unsigned int tr_arr_increase, unsigned int node_init_len)
+{
+	TR_ARR* arr = tr_arr_create();
+	arr->increase = tr_arr_increase;
+	unsigned int index = 0;
+	tokenize(arr, code);
+
+	PCONFIG node = config_create_node(0, 0, node_init_len);
 	cfgparse_nodelist(vm, node, arr, code, &index);
 	tr_arr_destroy(arr);
 	return node;

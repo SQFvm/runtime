@@ -4,7 +4,6 @@
 #include "textrange.h"
 #include "tokenizer.h"
 
-
 void tokenize(TR_ARR* arr, const wchar_t* code)
 {
 	int i;
@@ -15,6 +14,8 @@ void tokenize(TR_ARR* arr, const wchar_t* code)
 	bool in_string = false;
 	bool in_line_comment_mode = false;
 	bool in_block_comment_mode = false;
+	bool numhadpoint = false;
+	int numhadexponent = 0;
 	for (i = 0; code[i] != '\0'; i++, col++)
 	{
 		c = code[i];
@@ -123,7 +124,21 @@ void tokenize(TR_ARR* arr, const wchar_t* code)
 			}
 			else if (s >= '0' && s <= '9')
 			{
-				if (!((c >= '0' && c <= '9') || c == '.'))
+				if (c >= '0' && c <= '9')
+				{ }
+				else if (!numhadpoint && c == '.')
+				{
+					numhadpoint = true;
+				}
+				else if (numhadexponent == 0 && c == 'e')
+				{
+					numhadexponent = 1;
+				}
+				else if (numhadexponent == 1 && (c == '+' || c == '-'))
+				{
+					numhadexponent = 2;
+				}
+				else
 				{
 					tr_arr_push(arr, (TEXTRANGE)
 					{
@@ -132,6 +147,8 @@ void tokenize(TR_ARR* arr, const wchar_t* code)
 					start = -1;
 					i--;
 					col--;
+					numhadpoint = false;
+					numhadexponent = 0;
 				}
 			}
 			else if ((s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z') || s == '_')
