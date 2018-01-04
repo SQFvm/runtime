@@ -19,10 +19,10 @@
 
 
 bool cfgparse_isident(const wchar_t* str, unsigned int len);
-void cfgparse_nodelist(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* code, unsigned int *index);
-void cfgparse_node(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* code, unsigned int *index);
-void cfgparse_confignode(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* code, unsigned int *index);
-void cfgparse_valuenode(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* code, unsigned int *index);
+void cfgparse_nodelist(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index);
+void cfgparse_node(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index);
+void cfgparse_confignode(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index);
+void cfgparse_valuenode(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index);
 bool cfgparse_string_start(const wchar_t* code, unsigned int len);
 void cfgparse_string(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsigned int *index);
 bool cfgparse_number_start(const wchar_t* code, unsigned int len);
@@ -33,5 +33,5 @@ bool cfgparse_array_start(const wchar_t* code, unsigned int len);
 void cfgparse_array(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsigned int *index);
 bool cfgparse_value_start(const wchar_t* code, unsigned int len);
 void cfgparse_value(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsigned int *index);
-PCONFIGNODE cfgparse(PVM vm, const wchar_t* code);
+PCONFIG cfgparse(PVM vm, const wchar_t* code);
 #endif // !_CFG_BASE_H_

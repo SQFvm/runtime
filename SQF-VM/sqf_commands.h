@@ -174,7 +174,7 @@ void cmd_units(void* input, CPCMD self);
 void cmd_allgroups(void* input, CPCMD self);
 
 void cmd_configfile(void* input, CPCMD self);
-void cmd_navigateconfighelper(PVM vm, PCONFIGNODE config, PSTRING string);
+void cmd_navigateconfighelper(PVM vm, PCONFIG config, PSTRING string);
 void cmd_navigateconfig(void* input, CPCMD self);
 void cmd_configname(void* input, CPCMD self);
 void cmd_inheritsfrom(void* input, CPCMD self);

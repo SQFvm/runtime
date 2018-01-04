@@ -41,7 +41,7 @@ bool cfgparse_isident(const wchar_t* str, unsigned int len)
 }
 
 //NODELIST = { NODE ';' { ';' } };
-void cfgparse_nodelist(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
+void cfgparse_nodelist(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
 	wchar_t* str;
@@ -92,7 +92,7 @@ void cfgparse_nodelist(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* cod
 	}
 }
 //NODE = 'class' CONFIGNODE | VALUENODE;
-void cfgparse_node(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
+void cfgparse_node(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
 	wchar_t* str;
@@ -114,11 +114,11 @@ void cfgparse_node(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* code, u
 	}
 }
 //CONFIGNODE = ident[':' ident] '{' NODELIST '}'
-void cfgparse_confignode(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
+void cfgparse_confignode(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
 	wchar_t* str;
-	PCONFIGNODE node;
+	PCONFIG node;
 
 	//ident
 	range = tr_arr_get(arr, *index);
@@ -172,13 +172,13 @@ void cfgparse_confignode(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* c
 	//L'}'
 }
 //VALUENODE = ident ('=' (STRING | NUMBER | LOCALIZATION) | '[' ']' '=' ARRAY);
-void cfgparse_valuenode(PVM vm, PCONFIGNODE root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
+void cfgparse_valuenode(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
 	wchar_t* str;
 	TEXTRANGE identrange;
 	VALUE val;
-	PCONFIGNODE node;
+	PCONFIG node;
 	bool error = false;
 	//ident
 	identrange = tr_arr_get(arr, *index);
@@ -421,13 +421,13 @@ void cfgparse_value(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsign
 		vm->error(vm, L"Expected ''' or '\"' or '-' or NUMBER or '$' or '{'.", 0);
 	}
 }
-PCONFIGNODE cfgparse(PVM vm, const wchar_t* code)
+PCONFIG cfgparse(PVM vm, const wchar_t* code)
 {
 	TR_ARR* arr = tr_arr_create();
 	unsigned int index = 0;
 	tokenize(arr, code);
 
-	PCONFIGNODE node = config_create_node(0, 0);
+	PCONFIG node = config_create_node(0, 0);
 	cfgparse_nodelist(vm, node, arr, code, &index);
 	tr_arr_destroy(arr);
 	return node;

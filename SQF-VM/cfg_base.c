@@ -10,7 +10,7 @@
 void TYPE_CONFIG_CALLBACK(void* input, CPCMD self)
 {
 	PVALUE val = input;
-	PCONFIGNODE node = val->val.ptr;
+	PCONFIG node = val->val.ptr;
 	if (node == 0)
 		return;
 	if (val->type == 0)
@@ -27,12 +27,12 @@ void TYPE_CONFIG_CALLBACK(void* input, CPCMD self)
 	}
 }
 
-void uprefcount(PCONFIGNODE node)
+void uprefcount(PCONFIG node)
 {
 	node->refcount++;
 }
 
-void downrefcount(PCONFIGNODE node)
+void downrefcount(PCONFIG node)
 {
 	node->refcount--;
 	if (node->refcount <= 0)
@@ -51,9 +51,9 @@ PCMD CONFIG_TYPE(void)
 	return cmd;
 }
 
-PCONFIGNODE sqf_configFile(void)
+PCONFIG sqf_configFile(void)
 {
-	static PCONFIGNODE node = 0;
+	static PCONFIG node = 0;
 	if (node == 0)
 	{
 		node = config_create_node(L"bin\\config.bin", -1);
@@ -64,10 +64,10 @@ PCONFIGNODE sqf_configFile(void)
 
 
 
-PCONFIGNODE config_create_node(const wchar_t* ident, int identlen)
+PCONFIG config_create_node(const wchar_t* ident, int identlen)
 {
-	PCONFIGNODE node = malloc(sizeof(CONFIGNODE));
-	node->value.cfgnodes = malloc(sizeof(PCONFIGNODE) * 10);
+	PCONFIG node = malloc(sizeof(CONFIGNODE));
+	node->value.cfgnodes = malloc(sizeof(PCONFIG) * 10);
 	node->children_size = 10;
 	node->children_top = 0;
 	node->refcount = 0;
@@ -87,9 +87,9 @@ PCONFIGNODE config_create_node(const wchar_t* ident, int identlen)
 	node->inheritingident_length = 0;
 	return node;
 }
-PCONFIGNODE config_create_node_value(const wchar_t* ident, int identlen, VALUE val)
+PCONFIG config_create_node_value(const wchar_t* ident, int identlen, VALUE val)
 {
-	PCONFIGNODE node = malloc(sizeof(CONFIGNODE));
+	PCONFIG node = malloc(sizeof(CONFIGNODE));
 	node->children_size = 0;
 	node->children_top = 0;
 	node->identifier_length = identlen == -1 ? wcslen(ident) : identlen;
@@ -110,30 +110,30 @@ PCONFIGNODE config_create_node_value(const wchar_t* ident, int identlen, VALUE v
 	node->value.value = value_create_noref(val.type, val.val);
 	return node;
 }
-PCONFIGNODE config_create_inheriting_node(const wchar_t* ident, const wchar_t* parent)
+PCONFIG config_create_inheriting_node(const wchar_t* ident, const wchar_t* parent)
 {
-	PCONFIGNODE node = config_create_node(ident, -1);
+	PCONFIG node = config_create_node(ident, -1);
 	node->inheritingident_length = wcslen(parent);
 	node->inheritingident = malloc(sizeof(wchar_t) * (node->inheritingident_length + 1));
 	wcscpy(node->inheritingident, ident);
 	return node;
 }
-PCONFIGNODE config_create_inheriting_node_value(const wchar_t* ident, VALUE val, const wchar_t* parent)
+PCONFIG config_create_inheriting_node_value(const wchar_t* ident, VALUE val, const wchar_t* parent)
 {
-	PCONFIGNODE node = config_create_node_value(ident, -1, val);
+	PCONFIG node = config_create_node_value(ident, -1, val);
 	node->inheritingident_length = wcslen(parent);
 	node->inheritingident = malloc(sizeof(wchar_t) * (node->inheritingident_length + 1));
 	wcscpy(node->inheritingident, ident);
 	return node;
 }
-void config_destroy_node(PCONFIGNODE config)
+void config_destroy_node(PCONFIG config)
 {
 	config_clear_node(config);
 	free(config->identifier);
 	free(config->inheritingident);
 	free(config);
 }
-void config_clear_node(PCONFIGNODE config)
+void config_clear_node(PCONFIG config)
 {
 	int i;
 	if (config->children_size != 0)
@@ -158,12 +158,12 @@ void config_clear_node(PCONFIGNODE config)
 	}
 }
 
-void config_set_value(PCONFIGNODE config, VALUE val)
+void config_set_value(PCONFIG config, VALUE val)
 {
 	config_clear_node(config);
 	config->value.value = value_create_noref(val.type, val.val);
 }
-const PVALUE config_get_value(PCONFIGNODE config)
+const PVALUE config_get_value(PCONFIG config)
 {
 	if (config->children_size != 0)
 	{
@@ -175,7 +175,7 @@ const PVALUE config_get_value(PCONFIGNODE config)
 	}
 }
 
-unsigned int config_count_parents(PCONFIGNODE config)
+unsigned int config_count_parents(PCONFIG config)
 {
 	unsigned int i = 0;
 	while ((config = config->parent) != 0)
@@ -184,20 +184,111 @@ unsigned int config_count_parents(PCONFIGNODE config)
 	}
 	return i;
 }
-
-void config_push_node(PCONFIGNODE config, PCONFIGNODE node)
+void config_resize_children(PCONFIG node, unsigned int newsize)
 {
-	if (config->children_size == 0)
+	int i;
+	if (node->children_size == newsize)
+		return;
+	if (node->children_size == 0)
 	{
-		config_clear_node(config);
-		node->value.cfgnodes = malloc(sizeof(PCONFIGNODE) * 10);
+		config_clear_node(node);
+		node->value.cfgnodes = malloc(sizeof(PCONFIG) * 10);
 		node->children_size = 10;
 		node->children_top = 0;
 	}
-	if (node->children_top >= config->children_size)
+	if (node->children_top > newsize)
 	{
-		config->children_size += 10;
-		config->value.cfgnodes = realloc(config->value.cfgnodes, sizeof(PCONFIGNODE) * config->children_size);
+		for (i = newsize; i < node->children_top; i++)
+		{
+			if (node->value.cfgnodes[i]->parent == node)
+			{
+				node->value.cfgnodes[i]->parent = 0;
+			}
+			downrefcount(node->value.cfgnodes[i]);
+			node->value.cfgnodes[i] = 0;
+		}
+	}
+	node->children_size = newsize;
+	node->value.cfgnodes = realloc(node->value.cfgnodes, sizeof(PCONFIG) * newsize);
+}
+
+PCONFIG config_clone_node(const PCONFIG source)
+{
+	PCONFIG node;
+	PCONFIG tmpnode;
+	int i;
+	if (source->children_size != 0)
+	{
+		if (source->inheritingident != 0)
+		{
+			node = config_create_inheriting_node(source->identifier, source->inheritingident);
+		}
+		else
+		{
+			node = config_create_node(source->identifier, source->identifier_length);
+		}
+		config_resize_children(node, source->children_size);
+		for (i = 0; i < source->children_top; i++)
+		{
+			tmpnode = config_clone_node(source->value.cfgnodes[i]);
+			tmpnode->parent = node;
+			uprefcount(tmpnode);
+			node->value.cfgnodes[i] = tmpnode;
+		}
+	}
+	else
+	{
+		if (source->inheritingident != 0)
+		{
+			node = config_create_inheriting_node_value(source->identifier, value2(source->value.value), source->inheritingident);
+		}
+		else
+		{
+			node = config_create_node_value(source->identifier, source->identifier_length, value2(source->value.value));
+		}
+	}
+	return node;
+}
+
+void config_merge(PCONFIG target, const PCONFIG source)
+{
+	int i, j, k;
+	PCONFIG node;
+	PCONFIG clone;
+	bool flag;
+	if (source->children_size != 0)
+	{
+		for (i = 0; i < source->children_top; i++)
+		{
+			node = source->value.cfgnodes[i];
+			flag = false;
+			for (j = 0; j < target->children_top; j++)
+			{
+				if (wstr_cmpi(node->identifier, -1, target->value.cfgnodes[j]->identifier, -1) == 0)
+				{
+					config_merge(target->value.cfgnodes[j], node);
+					flag = true;
+					break;
+				}
+			}
+			if (!flag)
+			{
+				config_push_node(target, config_clone_node(node));
+			}
+		}
+	}
+	else if (target->children_size == 0)
+	{
+		config_set_value(target, value2(source->value.value));
+	}
+}
+
+void config_push_node(PCONFIG config, PCONFIG node)
+{
+	
+	if (config->children_size == 0 || config->children_top >= config->children_size)
+	{
+		config_resize_children(config, config->children_size + 10);
 	}
 	config->value.cfgnodes[config->children_top] = node;
 	config->children_top++;
@@ -205,9 +296,9 @@ void config_push_node(PCONFIGNODE config, PCONFIGNODE node)
 	uprefcount(node);
 }
 
-CONFIGNODE* config_find_inheriting_node(PCONFIGNODE config)
+CONFIGNODE* config_find_inheriting_node(PCONFIG config)
 {
-	PCONFIGNODE node = config;
+	PCONFIG node = config;
 	unsigned int i;
 	while ((node = node->parent) != 0)
 	{

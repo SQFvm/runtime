@@ -71,7 +71,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	PARRAY arr;
 	POBJECT obj;
 	PGROUP grp;
-	PCONFIGNODE node;
+	PCONFIG node;
 	int i;
 	int j;
 	wchar_t* strptr;
@@ -1151,7 +1151,7 @@ void cmd_parseconfig(void* input, CPCMD self)
 	PINST right;
 	PVALUE right_val;
 	PSTRING str;
-	PCONFIGNODE node;
+	PCONFIG node;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -1178,8 +1178,8 @@ void cmd_mergefrom(void* input, CPCMD self)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	PCONFIGNODE into;
-	PCONFIGNODE from;
+	PCONFIG into;
+	PCONFIG from;
 	unsigned int i;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
@@ -1211,19 +1211,7 @@ void cmd_mergefrom(void* input, CPCMD self)
 	}
 	from = right_val->val.ptr;
 	into = left_val->val.ptr;
-	if (from->children_size == 0 || into->children_size == 0)
-	{
-		vm->error(vm, ERR_SPECIAL_MERGEFROM, vm->stack);
-		push_stack(vm, vm->stack,
-			inst_value(value(NOTHING_TYPE(), base_int(0))));
-		inst_destroy(left);
-		inst_destroy(right);
-		return;
-	}
-	for (i = 0; i < from->children_top; i++)
-	{
-		config_push_node(into, from->value.cfgnodes[i]);
-	}
+	config_merge(into, from);
 	push_stack(vm, vm->stack, left);
 	inst_destroy(right);
 }
@@ -1720,7 +1708,7 @@ void cmd_select(void* input, CPCMD self)
 	PVALUE right_val;
 	PARRAY arr;
 	PVALUE tmp;
-	PCONFIGNODE node;
+	PCONFIG node;
 	int index;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
@@ -2195,7 +2183,7 @@ void cmd_count_UNARY(void* input, CPCMD self)
 			inst_value(
 				value(SCALAR_TYPE(),
 					base_float(
-					((PCONFIGNODE)right_val->val.ptr)->children_top))));
+					((PCONFIG)right_val->val.ptr)->children_top))));
 	}
 	else
 	{
@@ -6417,9 +6405,9 @@ void cmd_configfile(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(CONFIG_TYPE(), base_voidptr(sqf_configFile()))));
 }
 
-void cmd_navigateconfighelper(PVM vm, PCONFIGNODE config, PSTRING string)
+void cmd_navigateconfighelper(PVM vm, PCONFIG config, PSTRING string)
 {
-	PCONFIGNODE node = config;
+	PCONFIG node = config;
 	bool found = false;
 	int i;
 	if (node == 0)
@@ -6460,7 +6448,7 @@ void cmd_navigateconfig(void* input, CPCMD self)
 	PINST right;
 	PVALUE left_val;
 	PVALUE right_val;
-	PCONFIGNODE node;
+	PCONFIG node;
 	PSTRING string;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
@@ -6501,7 +6489,7 @@ void cmd_configname(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PCONFIGNODE node;
+	PCONFIG node;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -6535,8 +6523,8 @@ void cmd_inheritsfrom(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PCONFIGNODE node;
-	PCONFIGNODE config;
+	PCONFIG node;
+	PCONFIG config;
 	int i;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
@@ -6572,7 +6560,7 @@ void cmd_getnumber(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PCONFIGNODE node;
+	PCONFIG node;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -6615,7 +6603,7 @@ void cmd_getarray(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PCONFIGNODE node;
+	PCONFIG node;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -6658,7 +6646,7 @@ void cmd_gettext(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PCONFIGNODE node;
+	PCONFIG node;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -6701,7 +6689,7 @@ void cmd_isnumber(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PCONFIGNODE node;
+	PCONFIG node;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -6743,7 +6731,7 @@ void cmd_isarray(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PCONFIGNODE node;
+	PCONFIG node;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -6785,7 +6773,7 @@ void cmd_istext(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PCONFIGNODE node;
+	PCONFIG node;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
@@ -6827,7 +6815,7 @@ void cmd_isclass(void* input, CPCMD self)
 	PVM vm = input;
 	PINST right;
 	PVALUE right_val;
-	PCONFIGNODE node;
+	PCONFIG node;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)
