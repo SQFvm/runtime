@@ -227,7 +227,8 @@ PCONFIG config_clone_node(const PCONFIG source)
 		{
 			node = config_create_node(source->identifier, source->identifier_length);
 		}
-		config_resize_children(node, source->children_size);
+		config_resize_children(node, source->children_top);
+		node->children_top = source->children_top;
 		for (i = 0; i < source->children_top; i++)
 		{
 			tmpnode = config_clone_node(source->value.cfgnodes[i]);
