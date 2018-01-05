@@ -672,7 +672,7 @@ int main(int argc, char** argv)
 	vm->print = vm_output_print;
 	vm->print_custom_data = string_create(0);
 	//load_file_into_sqf_configFile("C:\\Users\\marco.silipo\\Downloads\\AiO.1.62.137494\\test.cpp");
-	load_file_into_sqf_configFile("C:\\Users\\marco.silipo\\Downloads\\AiO.1.62.137494\\AiO.1.62.137494.cpp");
+	//load_file_into_sqf_configFile("C:\\Users\\marco.silipo\\Downloads\\AiO.1.62.137494\\AiO.1.62.137494.cpp");
 	if (cfgbuff->length != 0)
 	{
 		confignode = cfgparse(vm, cfgbuff->val);
