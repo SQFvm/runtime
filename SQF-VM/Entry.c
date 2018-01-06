@@ -20,11 +20,6 @@
 
 #include "sqffull.h"
 
-#ifdef _WIN32
-#define DLLEXPORT_PREFIX __declspec(dllexport)
-#else
-#define DLLEXPORT_PREFIX __attribute__((visibility("default")))
-#endif
 
 static jmp_buf program_exit;
 int64_t systime_start = 0;

@@ -1,3 +1,17 @@
+#if _WIN32
+#define NOINLINE __declspec(noinline)
+#elif __GNUC__ 
+#define NOINLINE __attribute__((noinline))
+#else
+#define NOINLINE 
+#endif
+
+#ifdef _WIN32
+#define DLLEXPORT_PREFIX __declspec(dllexport)
+#else
+#define DLLEXPORT_PREFIX __attribute__((visibility("default")))
+#endif
+
 
 #include <math.h>
 

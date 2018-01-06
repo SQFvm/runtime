@@ -120,11 +120,6 @@ void sqfvm_dropscript(PVM vm, PSCRIPT script)
 }
 
 
-void cb_cmdcnt_destroy(void* data)
-{
-	PCMD cmd = data;
-	destroy_command(cmd);
-}
 PCMDCNT create_cmdcnt(void)
 {
 	PCMDCNT cmdcnt = malloc(sizeof(CMDCNT));
@@ -136,10 +131,10 @@ PCMDCNT create_cmdcnt(void)
 }
 void destroy_cmdcnt(PCMDCNT cmdcnt)
 {
-	wsm_destroy_list(cmdcnt->types, cb_cmdcnt_destroy);
-	wsm_destroy_list(cmdcnt->nullar, cb_cmdcnt_destroy);
-	wsm_destroy_list(cmdcnt->unary, cb_cmdcnt_destroy);
-	wsm_destroy_list(cmdcnt->binary, cb_cmdcnt_destroy);
+	wsm_destroy_list(cmdcnt->types, destroy_command);
+	wsm_destroy_list(cmdcnt->nullar, destroy_command);
+	wsm_destroy_list(cmdcnt->unary, destroy_command);
+	wsm_destroy_list(cmdcnt->binary, destroy_command);
 	free(cmdcnt);
 }
 
