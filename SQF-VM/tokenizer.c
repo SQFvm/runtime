@@ -130,7 +130,7 @@ void tokenize(TR_ARR* arr, const wchar_t* code)
 				{
 					numhadpoint = true;
 				}
-				else if (numhadexponent == 0 && c == 'e')
+				else if (numhadexponent == 0 && (c == 'e' || c == 'E'))
 				{
 					numhadexponent = 1;
 				}
