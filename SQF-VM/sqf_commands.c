@@ -6550,7 +6550,7 @@ void cmd_inheritsfrom(void* input, CPCMD self)
 			inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	config = node = right_val->val.ptr;
+	node = right_val->val.ptr;
 	if (node == 0)
 	{
 		vm->error(vm, ERR_RIGHT_TYPE ERR_NOT_NULL, vm->stack);
