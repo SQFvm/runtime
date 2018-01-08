@@ -1187,7 +1187,6 @@ void cmd_mergefrom(void* input, CPCMD self)
 	PVALUE right_val;
 	PCONFIG into;
 	PCONFIG from;
-	unsigned int i;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
 	left_val = get_value(vm, vm->stack, left);
@@ -2021,7 +2020,8 @@ void cmd_do(void* input, CPCMD self)
 			push_stack(vm, vm->stack,
 				inst_value(value(CODE_TYPE(), right_val->val)));
 			push_stack(vm, vm->stack, inst_store_var_local(SWITCH_SPECIAL_VAR));
-			push_stack(vm, vm->stack, inst_value(value(left->type, left->data)));
+			push_stack(vm, vm->stack,
+				inst_value(value(left_val->type, left_val->val)));
 			push_stack(vm, vm->stack, inst_clear_work());
 		}
 	}
@@ -6535,8 +6535,6 @@ void cmd_inheritsfrom(void* input, CPCMD self)
 	PINST right;
 	PVALUE right_val;
 	PCONFIG node;
-	PCONFIG config;
-	int i;
 	right = pop_stack(vm, vm->work);
 	right_val = get_value(vm, vm->stack, right);
 	if (right_val == 0)

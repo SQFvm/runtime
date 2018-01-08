@@ -129,12 +129,14 @@ PCMDCNT create_cmdcnt(void)
 	cmdcnt->binary = wsm_create_list(25, 10, 10);
 	return cmdcnt;
 }
+
+void destroy_command_void(void* d) { destroy_command(d); }
 void destroy_cmdcnt(PCMDCNT cmdcnt)
 {
-	wsm_destroy_list(cmdcnt->types, destroy_command);
-	wsm_destroy_list(cmdcnt->nullar, destroy_command);
-	wsm_destroy_list(cmdcnt->unary, destroy_command);
-	wsm_destroy_list(cmdcnt->binary, destroy_command);
+	wsm_destroy_list(cmdcnt->types, destroy_command_void);
+	wsm_destroy_list(cmdcnt->nullar, destroy_command_void);
+	wsm_destroy_list(cmdcnt->unary, destroy_command_void);
+	wsm_destroy_list(cmdcnt->binary, destroy_command_void);
 	free(cmdcnt);
 }
 

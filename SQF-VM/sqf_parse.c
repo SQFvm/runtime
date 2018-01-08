@@ -20,7 +20,6 @@
 PSTRING parse_string(PVM vm, const wchar_t* str, unsigned int len)
 {
 	PSTRING value_string;
-	wchar_t wcharptr;
 	int off;
 	int i;
 	char startchar;
@@ -338,10 +337,9 @@ void parse_partial(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsig
 	const wchar_t* str;
 	wchar_t* endptr;
 	wchar_t* wcharptr;
-	int i, j = -1, k, l;
+	int i, j = -1, k;
 	float f;
 	TEXTRANGE range;
-	PSTRING value_string;
 	CPCMD cmd = 0, smallest_cmd = 0;
 	int arrcount = 0;
 	int codecount = 0;

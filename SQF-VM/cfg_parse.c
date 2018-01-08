@@ -58,7 +58,7 @@ TEXTRANGE get_ident_range(const wchar_t* code, TR_ARR* arr, unsigned int* index)
 void cfgparse_nodelist(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
-	wchar_t* str;
+	const wchar_t* str;
 
 	//Exit if not start of NODE
 	range = tr_arr_get(arr, *index);
@@ -132,7 +132,7 @@ void cfgparse_confignode(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code,
 {
 	TEXTRANGE range;
 	TEXTRANGE range2;
-	wchar_t* str;
+	const wchar_t* str;
 	PCONFIG node;
 	wchar_t c;
 	int identlen = 0;
@@ -193,7 +193,7 @@ void cfgparse_confignode(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code,
 void cfgparse_valuenode(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
-	wchar_t* str;
+	const wchar_t* str;
 	TEXTRANGE identrange;
 	VALUE val;
 	PCONFIG node;
@@ -287,7 +287,7 @@ bool cfgparse_string_start(const wchar_t* code, unsigned int len) { return code[
 void cfgparse_string(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
-	wchar_t* str;
+	const wchar_t* str;
 	range = tr_arr_get(arr, *index);
 	str = code + range.start;
 	*out = value(STRING_TYPE(), base_voidptr(parse_string(vm, str, range.length)));
@@ -298,7 +298,7 @@ bool cfgparse_number_start(const wchar_t* code, unsigned int len) { return code[
 void cfgparse_number(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
-	wchar_t* str;
+	const wchar_t* str;
 	wchar_t* endptr;
 	float f;
 	bool invert = false;
@@ -327,7 +327,7 @@ bool cfgparse_localization_start(const wchar_t* code, unsigned int len) { return
 void cfgparse_localization(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
-	wchar_t* str;
+	const wchar_t* str;
 	PSTRING pstring;
 	range = tr_arr_get(arr, *index);
 	str = code + range.start;
@@ -353,7 +353,7 @@ bool cfgparse_array_start(const wchar_t* code, unsigned int len) { return code[0
 void cfgparse_array(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
-	wchar_t* str;
+	const wchar_t* str;
 	PARRAY sqfarr = array_create();
 	*out = value(ARRAY_TYPE(), base_voidptr(sqfarr));
 	VALUE tmp;
@@ -414,7 +414,7 @@ bool cfgparse_value_start(const wchar_t* code, unsigned int len) { return cfgpar
 void cfgparse_value(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
-	wchar_t* str;
+	const wchar_t* str;
 	range = tr_arr_get(arr, *index);
 	str = code + range.start;
 	if (cfgparse_string_start(str, range.length))
