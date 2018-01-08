@@ -189,37 +189,44 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 		}
 		else
 		{
-			grp = group_from_ident(vm, ((PUNIT)obj->inner)->groupident->val);
-			if (grp == 0)
+			if (obj->inner == 0)
 			{
-#ifdef __linux
-				swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%ls:%d", L"NA", 0);
-				string_modify_append(str, linux_buffer);
-#else
-				i = swprintf(0, 0, L"%ls:%d", L"NA", 0);
-				strptr = alloca(sizeof(wchar_t) * (i + 1));
-				swprintf(strptr, i + 1, L"%ls:%d", L"NA", 0);
-				string_modify_append(str, strptr);
-#endif
+				string_modify_append(str, L"objNull");
 			}
 			else
 			{
-				for (i = 0; i < ((PARRAY)grp->members->val.ptr)->top; i++)
+				grp = group_from_ident(vm, ((PUNIT)obj->inner)->groupident->val);
+				if (grp == 0)
 				{
-					if (((PARRAY)grp->members->val.ptr)->data[0]->val.ptr
-						== obj)
-						break;
-				}
-				j = i;
 #ifdef __linux
-				swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%ls:%d", grp->ident, j);
-				string_modify_append(str, linux_buffer);
+					swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%ls:%d", L"NA", 0);
+					string_modify_append(str, linux_buffer);
 #else
-				i = swprintf(0, 0, L"%ls:%d", grp->ident, j);
-				strptr = alloca(sizeof(wchar_t) * (i + 1));
-				swprintf(strptr, i + 1, L"%ls:%d", grp->ident, j);
-				string_modify_append(str, strptr);
+					i = swprintf(0, 0, L"%ls:%d", L"NA", 0);
+					strptr = alloca(sizeof(wchar_t) * (i + 1));
+					swprintf(strptr, i + 1, L"%ls:%d", L"NA", 0);
+					string_modify_append(str, strptr);
 #endif
+				}
+				else
+				{
+					for (i = 0; i < ((PARRAY)grp->members->val.ptr)->top; i++)
+					{
+						if (((PARRAY)grp->members->val.ptr)->data[0]->val.ptr
+							== obj)
+							break;
+					}
+					j = i;
+#ifdef __linux
+					swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%ls:%d", grp->ident, j);
+					string_modify_append(str, linux_buffer);
+#else
+					i = swprintf(0, 0, L"%ls:%d", grp->ident, j);
+					strptr = alloca(sizeof(wchar_t) * (i + 1));
+					swprintf(strptr, i + 1, L"%ls:%d", grp->ident, j);
+					string_modify_append(str, strptr);
+#endif
+				}
 			}
 		}
 	}
