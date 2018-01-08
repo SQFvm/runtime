@@ -336,7 +336,6 @@ void parse_partial(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsig
 {
 	const wchar_t* str;
 	wchar_t* endptr;
-	wchar_t* wcharptr;
 	int i, j = -1, k;
 	float f;
 	TEXTRANGE range;
