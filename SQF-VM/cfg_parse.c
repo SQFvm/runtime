@@ -42,7 +42,7 @@ TEXTRANGE get_ident_range(const wchar_t* code, TR_ARR* arr, unsigned int* index)
 	do
 	{
 		c = ((range = tr_arr_get(arr, tmpindex++)).start + code)[0];
-	} while ((c >= L'a' && c <= L'z') || (c >= L'A' && c <= L'Z') || (c >= L'0' && c <= L'9') || (c == '/' || c == '\\' || c == '_'));
+	} while (range.length != 0 && ((c >= L'a' && c <= L'z') || (c >= L'A' && c <= L'Z') || (c >= L'0' && c <= L'9') || (c == '/' || c == '\\' || c == '_')));
 	tmpindex--;
 	output.length = 0;
 	for (; *index < tmpindex; (*index)++)
