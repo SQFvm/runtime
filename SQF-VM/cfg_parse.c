@@ -109,7 +109,7 @@ void cfgparse_nodelist(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, u
 void cfgparse_node(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
-	wchar_t* str;
+	const wchar_t* str;
 
 	//L'class'
 	range = tr_arr_get(arr, *index);
@@ -131,11 +131,8 @@ void cfgparse_node(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsig
 void cfgparse_confignode(PVM vm, PCONFIG root, TR_ARR* arr, const wchar_t* code, unsigned int *index)
 {
 	TEXTRANGE range;
-	TEXTRANGE range2;
 	const wchar_t* str;
 	PCONFIG node;
-	wchar_t c;
-	int identlen = 0;
 
 	//ident
 	range = get_ident_range(code, arr, index);
@@ -306,11 +303,16 @@ void cfgparse_number(PVM vm, VALUE *out, TR_ARR* arr, const wchar_t* code, unsig
 	str = code + range.start;
 	if (str[0] == L'-' && range.length == 1)
 	{
+		invert = true;
 		(*index)++;
 		range = tr_arr_get(arr, *index);
 		str = code + range.start;
 	}
 	f = wcstof(str, &endptr);
+	if (invert)
+	{
+		f *= -1;
+	}
 	if (endptr != str)
 	{
 		*out = value(SCALAR_TYPE(), base_float(f));
