@@ -443,6 +443,11 @@ void parse_partial(PVM vm, PSTACK stack, const wchar_t* code, TR_ARR* arr, unsig
 		{
 			if (wasvariable)
 			{
+				if (stack != 0)
+				{
+					push_stack(vm, stack, inst_debug_info(range.line, range.col, range.start, range.length, code));
+				}
+				(*stack_counter)++;
 				vm->error(vm, L"Syntax Error: Double non-command usage", stack);
 			}
 			wasvariable = 1;
