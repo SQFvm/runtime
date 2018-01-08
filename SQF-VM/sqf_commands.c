@@ -2001,6 +2001,11 @@ void cmd_do(void* input, CPCMD self)
 					inst_value(
 						value(CODE_TYPE(), swtch->default_code->val)));
 			}
+			else
+			{
+				push_stack(vm, vm->stack,
+					inst_value(value(BOOL_TYPE(), base_int(1))));
+			}
 			inst_destroy(left);
 			inst_destroy(right);
 		}
@@ -2016,8 +2021,7 @@ void cmd_do(void* input, CPCMD self)
 			push_stack(vm, vm->stack,
 				inst_value(value(CODE_TYPE(), right_val->val)));
 			push_stack(vm, vm->stack, inst_store_var_local(SWITCH_SPECIAL_VAR));
-			push_stack(vm, vm->stack,
-				inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
+			push_stack(vm, vm->stack, inst_value(value(left->type, left->data)));
 			push_stack(vm, vm->stack, inst_clear_work());
 		}
 	}
