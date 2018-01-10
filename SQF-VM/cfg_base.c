@@ -261,9 +261,8 @@ PCONFIG config_clone_node(const PCONFIG source)
 
 void config_merge(PCONFIG target, const PCONFIG source)
 {
-	int i, j, k;
+	int i, j;
 	PCONFIG node;
-	PCONFIG clone;
 	bool flag;
 	if (source->children_size != 0)
 	{

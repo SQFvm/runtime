@@ -22,7 +22,7 @@ PSTRING parse_string(PVM vm, const wchar_t* str, unsigned int len)
 	PSTRING value_string;
 	int off;
 	int i;
-	char startchar;
+	wchar_t startchar;
 	bool wasquotation = false;
 	if (len == 1)
 	{

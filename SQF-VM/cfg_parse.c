@@ -23,7 +23,7 @@ VALUE = STRING | NUMBER | LOCALIZATION | ARRAY;
 bool cfgparse_isident(const wchar_t* str, unsigned int len)
 {
 	unsigned int i;
-	char c;
+	wchar_t c;
 	for (i = 0; i < len; i++)
 	{
 		c = str[0];
@@ -38,7 +38,7 @@ TEXTRANGE get_ident_range(const wchar_t* code, TR_ARR* arr, unsigned int* index)
 	TEXTRANGE output = tr_arr_get(arr, *index);
 	TEXTRANGE range;
 	unsigned int tmpindex = *index;
-	char c;
+	wchar_t c;
 	do
 	{
 		c = ((range = tr_arr_get(arr, tmpindex++)).start + code)[0];

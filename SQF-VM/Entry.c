@@ -337,7 +337,7 @@ int vm_output_print(PVM vm, const wchar_t* format, ...)
 	return len;
 }
 
-
+int load_file(PSTRING buffer, const char* fpath);
 DLLEXPORT_PREFIX void load_file_into_sqf_configFile(const char* path)
 {
 	PVM vm = sqfvm(10000, 50, 1, 0);

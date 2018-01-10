@@ -525,6 +525,7 @@ wsm_list* sqf_group_map(void)
 	{
 		groupmap = wsm_create_list(20, 5, 5);
 	}
+	return groupmap;
 }
 
 //NON-SQF TYPES

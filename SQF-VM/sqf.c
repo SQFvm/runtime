@@ -433,7 +433,7 @@ void execute(PVM vm, int exitAfter)
 			inst = pop_stack(vm, vm->work);
 			val = get_value(vm, vm->stack, inst);
 
-			i = -(vm->work->top);
+			i = -(int)(vm->work->top);
 			while (vm->work->top != 0)
 			{
 				push_stack(vm, vm->stack, pop_stack(vm, vm->work));
