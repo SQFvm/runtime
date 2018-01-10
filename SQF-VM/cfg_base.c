@@ -139,7 +139,7 @@ void config_destroy_node(PCONFIG config)
 }
 void config_clear_node(PCONFIG config)
 {
-	int i;
+	unsigned int i;
 	if (config->children_size != 0)
 	{
 		for (i = 0; i < config->children_top; i++)
@@ -190,7 +190,7 @@ unsigned int config_count_parents(PCONFIG config)
 }
 void config_resize_children(PCONFIG node, unsigned int newsize)
 {
-	int i;
+	unsigned int i;
 	if (node->children_size == newsize)
 		return;
 	if (newsize == 0)
@@ -225,7 +225,7 @@ PCONFIG config_clone_node(const PCONFIG source)
 {
 	PCONFIG node;
 	PCONFIG tmpnode;
-	int i;
+	unsigned int i;
 	if (source->children_size != 0)
 	{
 		if (source->inheritingident != 0)
@@ -261,7 +261,7 @@ PCONFIG config_clone_node(const PCONFIG source)
 
 void config_merge(PCONFIG target, const PCONFIG source)
 {
-	int i, j;
+	unsigned int i, j;
 	PCONFIG node;
 	bool flag;
 	if (source->children_size != 0)
