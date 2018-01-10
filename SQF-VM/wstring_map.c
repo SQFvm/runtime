@@ -30,6 +30,7 @@ void wsm_destroy_bucket(wsm_bucket* bucket, void(*destroy_ptr)(void*))
 	{
 		for (i = 0; i < (int)bucket->top; i++)
 		{
+			free(bucket->values[i]);
 			free(bucket->names[i]);
 		}
 	}
