@@ -1,5 +1,5 @@
 #ifndef _SQFVM
-#define _SQFVM ::sqfvm::sqfvm
+#define _SQFVM 1
 
 #if !defined(_TYPEINFO) & !defined(_TYPEINFO_)
 #error sqfvm requires <typeinfo> header
@@ -15,12 +15,15 @@
 #error sqfvm requires "value" header
 #endif // !_VALUE
 
-namespace sqfvm
+namespace sqf
 {
-	class sqfvm
+	class virtualmachine
 	{
 	public:
-		sqfvm(int stacksize, int worksize);
+		virtualmachine(int stacksize, int worksize);
 	};
+	typedef std::shared_ptr<virtualmachine> virtualmachine_s;
+	typedef std::weak_ptr<virtualmachine> virtualmachine_w;
+	typedef std::unique_ptr<virtualmachine> virtualmachine_u;
 }
 #endif // !_SQFVM

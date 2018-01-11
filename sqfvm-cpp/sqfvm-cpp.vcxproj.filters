@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\data">
+      <UniqueIdentifier>{a18e4afb-a4ce-4c71-aeab-109430e0699b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\data">
+      <UniqueIdentifier>{d65d65af-2264-43d1-97a5-007331fde389}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entry.cpp">
@@ -22,6 +28,27 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sqfvm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="convert.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="booldata.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="scalardata.h">
+      <Filter>Header Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="scalardata.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="stringdata.h">
+      <Filter>Header Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="stringdata.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="arraydata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -34,6 +61,21 @@
     </ClInclude>
     <ClInclude Include="full.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqftype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="data.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="convert.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="booldata.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="arraydata.h">
+      <Filter>Header Files\data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

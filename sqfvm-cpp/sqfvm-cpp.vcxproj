@@ -118,12 +118,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="arraydata.cpp" />
+    <ClCompile Include="convert.cpp" />
+    <ClCompile Include="booldata.cpp" />
     <ClCompile Include="Entry.cpp" />
+    <ClCompile Include="scalardata.cpp" />
+    <ClCompile Include="scalardata.h" />
     <ClCompile Include="sqfvm.cpp" />
+    <ClCompile Include="stringdata.cpp" />
+    <ClCompile Include="stringdata.h" />
     <ClCompile Include="value.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="arraydata.h" />
+    <ClInclude Include="convert.h" />
+    <ClInclude Include="data.h" />
+    <ClInclude Include="booldata.h" />
     <ClInclude Include="full.h" />
+    <ClInclude Include="sqftype.h" />
     <ClInclude Include="value.h" />
     <ClInclude Include="sqfvm.h" />
   </ItemGroup>
