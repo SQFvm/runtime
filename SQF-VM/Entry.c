@@ -192,7 +192,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"vectorCrossProduct", 'b', cmd_vectorcrossproduct, 4, L"<VECTOR3D> vectorCrossProduct <VECTOR3D>", L"[0,1,0] vectorCrossProduct [-1,0,0]; //[0,-0,1]", L"Cross product of two 3D vectors. In layman's terms, if you have a polygon (surface) defined by 3 points, you can find a normal to it (just like terrain surfaceNormal). To invert direction of the normal, swap arguments around. ");
 	create_cmd(vm, L"vectorDotProduct", 'b', cmd_vectordotproduct, 4, L"<VECTOR3D> vectorDotProduct <VECTOR3D>", L"[1,0,1] vectorDotProduct [0,0,2]; //returns 2", L"Dot product of two 3D vectors.");
 	create_cmd(vm, L"vectorCos", 'b', cmd_vectorcos, 4, L"<VECTOR3D> vectorCos <VECTOR3D>", L"[1,0,0] vectorCos [0,0,2]; //returns 0", L"Cosine of angle between two 3D vectors.");
-	create_cmd(vm, L"vectorMultiply", 'b', cmd_vectormultiply, 4, L"<VECTOR3D> ectorMultiply <SCALAR>", L"[1,2,3] vectorMultiply 3; //[3,6,9]", L"Multiplies 3D vector by a scalar.");
+	create_cmd(vm, L"vectorMultiply", 'b', cmd_vectormultiply, 4, L"<VECTOR3D> vectorMultiply <SCALAR>", L"[1,2,3] vectorMultiply 3; //[3,6,9]", L"Multiplies 3D vector by a scalar.");
 	create_cmd(vm, L"vectorDistance", 'b', cmd_vectordistance, 4, L"<VECTOR3D> vectorDistance <VECTOR3D>", L"_euclideanDist = getPosASL player vectorDistance [0,0,0];", L"Distance between two 3D vectors.");
 	create_cmd(vm, L"vectorDistanceSqr", 'b', cmd_vectordistancesqr, 4, L"<VECTOR3D> vectorDistanceSqr <VECTOR3D>", L"_distSqr = getPos player vectorDistanceSqr [0,0,2];", L"Squared distance between two 3D vectors.");
 	create_cmd(vm, L">>", 'b', cmd_navigateconfig, 4, L"<CONFIG> >> <STRING>", L"", L"Returns subentry of config entry with given name.");
