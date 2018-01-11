@@ -1933,6 +1933,10 @@ void cmd_do(void* input, CPCMD self)
 	}
 	if (left_val->type == WHILE_TYPE())
 	{
+		if (vm->stack->data[vm->stack->top - 1]->type != INST_SCOPE)
+		{
+			push_stack(vm, vm->stack, inst_scope(L"loop"));
+		}
 		push_stack(vm, vm->stack, inst_command(find_command(vm, L"do", 'b')));
 		push_stack(vm, vm->stack, left);
 		push_stack(vm, vm->stack, right);
@@ -1961,11 +1965,14 @@ void cmd_do(void* input, CPCMD self)
 								pfor->current < pfor->end :
 								pfor->current > pfor->end)
 		{
+			if (vm->stack->data[vm->stack->top - 1]->type != INST_SCOPE)
+			{
+				push_stack(vm, vm->stack, inst_scope(L"loop"));
+			}
 			push_stack(vm, vm->stack,
 				inst_command(find_command(vm, L"do", 'b')));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, right);
-			push_stack(vm, vm->stack, inst_scope(L"loop"));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack,
 				inst_value(value(CODE_TYPE(), right_val->val)));
@@ -6921,4 +6928,48 @@ void cmd_tolower(void* input, CPCMD self)
 	}
 	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(outstring))));
 	inst_destroy(right);
+}
+void cmd_exitwith(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PSTRING outstring;
+	unsigned int i;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != IF_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_IF, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (right_val->type != CODE_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	push_stack(vm, vm->stack, inst_scope_dropout(0));
+	push_stack(vm, vm->stack, inst_code_load(true));
+	push_stack(vm, vm->stack, right);
+	push_stack(vm, vm->stack, inst_pop_eval(3, false));
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), left_val->val)));
+	inst_destroy(left);
 }

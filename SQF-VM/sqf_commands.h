@@ -188,5 +188,6 @@ void cmd_isclass(void* input, CPCMD self);
 
 void cmd_toupper(void* input, CPCMD self);
 void cmd_tolower(void* input, CPCMD self);
+void cmd_exitwith(void* input, CPCMD self);
 
 #endif // !_SQF_COMMANDS_H_

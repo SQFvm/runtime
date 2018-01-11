@@ -196,6 +196,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"vectorDistance", 'b', cmd_vectordistance, 4, L"<VECTOR3D> vectorDistance <VECTOR3D>", L"_euclideanDist = getPosASL player vectorDistance [0,0,0];", L"Distance between two 3D vectors.");
 	create_cmd(vm, L"vectorDistanceSqr", 'b', cmd_vectordistancesqr, 4, L"<VECTOR3D> vectorDistanceSqr <VECTOR3D>", L"_distSqr = getPos player vectorDistanceSqr [0,0,2];", L"Squared distance between two 3D vectors.");
 	create_cmd(vm, L">>", 'b', cmd_navigateconfig, 4, L"<CONFIG> >> <STRING>", L"", L"Returns subentry of config entry with given name.");
+	create_cmd(vm, L"exitWith", 'b', cmd_exitwith, 4, L"<IF> exitWith <CODE>", L"", L"Exits current scope {...} it is executed from if condition evaluates true, creates new scope {...code...} and executes the given code in it.");
 
 	create_cmd(vm, L"diag_log", 'u', cmd_diag_LOG, 4, L"diag_log <ANY>", L"", L"Dumps the argument's value. Each call creates a new line.");
 	create_cmd(vm, L"systemChat", 'u', cmd_systemchat, 4, L"systemChat <STRING>", L"", L"Writes the argument's value plaintext. Each call creates a new line.");
