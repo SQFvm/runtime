@@ -88,7 +88,7 @@ PVALUE find_var(PVM vm, const wchar_t* name)
 	PSCOPE scope;
 	if (name == 0)
 		return 0;
-	for (i = vm->stack->top; i >= 0; i--)
+	for (i = vm->stack->top; i != ~0; i--)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
@@ -110,7 +110,7 @@ void set_var(PVM vm, const wchar_t* name, VALUE val)
 	PSCOPE first = 0;
 	PSCOPE scope;
 	PVALUE tmp;
-	for (i = vm->stack->top; i >= 0; i--)
+	for (i = vm->stack->top; i != ~0; i--)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
@@ -137,8 +137,8 @@ void set_var(PVM vm, const wchar_t* name, VALUE val)
 }
 PSCOPE top_scope(PVM vm)
 {
-	int i;
-	for (i = vm->stack->top; i >= 0; i--)
+	unsigned int i;
+	for (i = vm->stack->top; i != ~0; i--)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
