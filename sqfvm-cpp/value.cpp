@@ -1,13 +1,7 @@
 #include "full.h"
 
-using namespace sqf;
 
-template<size_t SIZE> sqf::value::value(std::array<value_s, SIZE> arr)
-{
-	mtype = type::ARRAY;
-	mdata = std::make_shared<arraydata>(arr);
-}
-sqf::value::value(std::vector<value_s> arr)
+sqf::value::value(std::vector<sqf::value_s> arr)
 {
 	mtype = type::ARRAY;
 	mdata = std::make_shared<arraydata>(arr);
@@ -70,29 +64,90 @@ sqf::value::value()
 
 sqf::value::operator float() const
 {
+	auto data = mdata;
+	if (mtype != SCALAR)
+	{
+		data = sqf::convert(data, SCALAR);
+	}
+	return *(std::dynamic_pointer_cast<scalardata>(data).get());
 }
 sqf::value::operator double() const
 {
+	auto data = mdata;
+	if (mtype != SCALAR)
+	{
+		data = sqf::convert(data, SCALAR);
+	}
+	return *(std::dynamic_pointer_cast<scalardata>(data).get());
 }
 
-sqf::value::operator char() const
-{
-}
 
 sqf::value::operator short() const
 {
+	auto data = mdata;
+	if (mtype != SCALAR)
+	{
+		data = sqf::convert(data, SCALAR);
+	}
+	return *(std::dynamic_pointer_cast<scalardata>(data).get());
 }
 
 sqf::value::operator int() const
 {
+	auto data = mdata;
+	if (mtype != SCALAR)
+	{
+		data = sqf::convert(data, SCALAR);
+	}
+	return *(std::dynamic_pointer_cast<scalardata>(data).get());
 }
 
 sqf::value::operator long() const
 {
+	auto data = mdata;
+	if (mtype != SCALAR)
+	{
+		data = sqf::convert(data, SCALAR);
+	}
+	return *(std::dynamic_pointer_cast<scalardata>(data).get());
+}
+
+sqf::value::operator char() const
+{
+	auto data = mdata;
+	if (mtype != SCALAR)
+	{
+		data = sqf::convert(data, SCALAR);
+	}
+	return *(std::dynamic_pointer_cast<scalardata>(data).get());
 }
 
 sqf::value::operator bool() const
 {
+	auto data = mdata;
+	if (mtype != BOOL)
+	{
+		data = sqf::convert(data, SCALAR);
+	}
+	return *(std::dynamic_pointer_cast<booldata>(data).get());
+}
+sqf::value::operator std::wstring() const
+{
+	auto data = mdata;
+	if (mtype != STRING)
+	{
+		data = sqf::convert(data, STRING);
+	}
+	return *(std::dynamic_pointer_cast<stringdata>(data).get());
+}
+sqf::value::operator std::vector<sqf::value_s>() const
+{
+	auto data = mdata;
+	if (mtype != STRING)
+	{
+		data = sqf::convert(data, STRING);
+	}
+	return *(std::dynamic_pointer_cast<arraydata>(data).get());
 }
 
 
@@ -101,7 +156,7 @@ std::wstring sqf::value::name(void) const
 	return std::wstring();
 }
 
-type sqf::value::get_valuetype(void) const
+sqf::type sqf::value::get_valuetype(void) const
 {
 	return mtype;
 }

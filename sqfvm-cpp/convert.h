@@ -7,6 +7,6 @@
 
 namespace sqf
 {
-	static data_s convert(data_s val, type type);
+	data_s convert(data_s val, type type);
 }
 #endif // !_CONVERT

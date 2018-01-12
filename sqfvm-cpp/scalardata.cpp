@@ -1,6 +1,6 @@
 #include "full.h"
 
-sqf::scalardata::scalardata()
+sqf::scalardata::scalardata(void)
 {
 	mvalue = 0;
 }
@@ -35,37 +35,37 @@ sqf::scalardata::scalardata(double num)
 	mvalue = (double)num;
 }
 
-std::string sqf::scalardata::to_string(void) const
+std::wstring sqf::scalardata::to_string(void) const
 {
-	return std::to_string(mvalue);
+	return std::to_wstring(mvalue);
 }
 
-sqf::scalardata::operator char() const
+sqf::scalardata::operator char(void) const
 {
 	return (char)mvalue;
 }
 
-sqf::scalardata::operator short() const
+sqf::scalardata::operator short(void) const
 {
 	return (short)mvalue;
 }
 
-sqf::scalardata::operator int() const
+sqf::scalardata::operator int(void) const
 {
 	return (int)mvalue;
 }
 
-sqf::scalardata::operator long() const
+sqf::scalardata::operator long(void) const
 {
 	return (long)mvalue;
 }
 
-sqf::scalardata::operator float() const
+sqf::scalardata::operator float(void) const
 {
 	return (float)mvalue;
 }
 
-sqf::scalardata::operator double() const
+sqf::scalardata::operator double(void) const
 {
 	return (double)mvalue;
 }

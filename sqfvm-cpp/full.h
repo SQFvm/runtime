@@ -10,12 +10,12 @@
 
 #include "sqftype.h"
 #include "data.h"
+#include "convert.h"
+#include "value.h"
 #include "booldata.h"
 #include "scalardata.h"
 #include "stringdata.h"
 #include "arraydata.h"
-#include "convert.h"
-#include "value.h"
-#include "sqfvm.h"
+#include "virtualmachine.h"
 
 #endif // !_FULL

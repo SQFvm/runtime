@@ -123,10 +123,10 @@
     <ClCompile Include="booldata.cpp" />
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="scalardata.cpp" />
-    <ClCompile Include="scalardata.h" />
-    <ClCompile Include="sqfvm.cpp" />
+    <ClInclude Include="scalardata.h" />
+    <ClCompile Include="virtualmachine.cpp" />
     <ClCompile Include="stringdata.cpp" />
-    <ClCompile Include="stringdata.h" />
+    <ClInclude Include="stringdata.h" />
     <ClCompile Include="value.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -137,7 +137,7 @@
     <ClInclude Include="full.h" />
     <ClInclude Include="sqftype.h" />
     <ClInclude Include="value.h" />
-    <ClInclude Include="sqfvm.h" />
+    <ClInclude Include="virtualmachine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

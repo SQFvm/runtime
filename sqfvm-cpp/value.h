@@ -32,8 +32,7 @@ namespace sqf
 		data_s mdata;
 		type mtype;
 	public:
-		template<size_t SIZE> value(std::array<value_s, SIZE>);
-		value(std::vector<value_s>);
+		value(std::vector<std::shared_ptr<value>>);
 		value(std::wstring);
 		value(float);
 		value(double);
@@ -51,13 +50,21 @@ namespace sqf
 		explicit operator int() const;
 		explicit operator long() const;
 		explicit operator bool() const;
+		explicit operator std::wstring() const;
+		explicit operator std::vector<std::shared_ptr<value>>() const;
 		std::wstring name(void) const;
 		inline std::wstring to_string(void) { return mdata.get() ? mdata->to_string() : std::wstring(L"any"); }
 		type get_valuetype(void) const;
-		inline void convert(type type) { mdata = sqf::convert(std::move(mdata), type); }
+		inline void convert(type type)
+		{
+			if (mtype == type)
+				return;
+			mdata = sqf::convert(std::move(mdata), type);
+		}
 	};
 	typedef std::shared_ptr<value> value_s;
 	typedef std::weak_ptr<value> value_w;
 	typedef std::unique_ptr<value> value_u;
+
 }
 #endif // !_VALUE

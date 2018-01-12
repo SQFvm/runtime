@@ -1,30 +1,29 @@
 #include "full.h"
 
-
 sqf::arraydata::arraydata()
 {
 }
-template<size_t SIZE> sqf::arraydata::arraydata(std::array<value_s, SIZE>)
+
+sqf::arraydata::arraydata(std::vector<std::shared_ptr<sqf::value>>)
 {
 }
 
-template<size_t SIZE> sqf::arraydata::operator std::array<value_s, SIZE>() const
+std::wstring sqf::arraydata::to_string(void) const
 {
-
+	return std::wstring();
 }
 
-std::string sqf::arraydata::to_string(void) const
+std::shared_ptr<sqf::value>& sqf::arraydata::operator[](int index)
 {
-	return std::string();
+	return mvalue.at(index);
 }
 
-
-sqf::value_s & sqf::arraydata::operator[](int i)
+std::shared_ptr<sqf::value> sqf::arraydata::operator[](int index) const
 {
-	return mvalue.at(i);
+	return mvalue[index];
 }
 
-sqf::value_s sqf::arraydata::operator[](int i) const
+sqf::arraydata::operator std::vector<sqf::value_s>(void) const
 {
-	return mvalue[i];
+	return mvalue;
 }

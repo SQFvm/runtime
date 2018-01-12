@@ -7,9 +7,9 @@ sqf::booldata::booldata(bool flag)
 {
 	mflag = flag;
 }
-std::string sqf::booldata::to_string(void) const
+std::wstring sqf::booldata::to_string(void) const
 {
-	return std::string(mflag ? "true" : "false");
+	return std::wstring(mflag ? L"true" : L"false");
 }
 
 sqf::booldata::operator bool() const

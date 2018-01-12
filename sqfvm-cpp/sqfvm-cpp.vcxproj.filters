@@ -27,9 +27,6 @@
     <ClCompile Include="value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sqfvm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="convert.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>
@@ -49,13 +46,13 @@
       <Filter>Source Files\data</Filter>
     </ClCompile>
     <ClCompile Include="arraydata.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="virtualmachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="sqfvm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -76,6 +73,9 @@
     </ClInclude>
     <ClInclude Include="arraydata.h">
       <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="virtualmachine.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

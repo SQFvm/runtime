@@ -2,13 +2,16 @@
 #define _ARRAYDATA 1
 
 #if !defined(_STRING) & !defined(_STRING_)
-#error booldata requires <string> header
+#error arraydata requires <string> header
 #endif // !_STRING
 #if !defined(_MEMORY_) & !defined(_MEMORY_)
-#error booldata requires <memory> header
-#endif // !_STRING
+#error arraydata requires <memory> header
+#endif // !_MEMORY_
+#if !defined(_VECTOR) & !defined(_VECTOR_)
+#error arraydata requires <vector> header
+#endif // !_VECTOR
 #if !defined(_DATA)
-#error booldata requires "data.h" header
+#error arraydata requires "data.h" header
 #endif // !_DATA
 
 namespace sqf
@@ -19,11 +22,11 @@ namespace sqf
 		std::vector<value_s> mvalue;
 	public:
 		arraydata();
-		template<size_t SIZE> arraydata(std::array<value_s, SIZE>);
+		arraydata(std::vector<value_s>);
 		virtual std::wstring to_string(void) const;
-		template<size_t SIZE> operator std::array<value_s, SIZE>() const;
 		value_s& operator[](int);
 		value_s operator[](int) const;
+		operator std::vector<value_s>(void) const;
 	};
 	typedef std::shared_ptr<arraydata> array_s;
 	typedef std::weak_ptr<arraydata> array_w;

@@ -1,6 +1,6 @@
 #include "full.h"
 
-sqf::stringdata::stringdata()
+sqf::stringdata::stringdata(void)
 {
 	mvalue = std::wstring();
 }
@@ -15,12 +15,12 @@ std::wstring sqf::stringdata::to_string(void) const
 	return parse_to_sqf(mvalue);
 }
 
-sqf::stringdata::operator const wchar_t*() const
+sqf::stringdata::operator const wchar_t*(void) const
 {
 	return mvalue.c_str();
 }
 
-sqf::stringdata::operator std::wstring() const
+sqf::stringdata::operator std::wstring(void) const
 {
 	return mvalue;
 }

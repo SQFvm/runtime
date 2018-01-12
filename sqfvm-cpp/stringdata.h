@@ -18,11 +18,11 @@ namespace sqf
 	private:
 		std::wstring mvalue;
 	public:
-		stringdata();
+		stringdata(void);
 		stringdata(std::wstring);
 		virtual std::wstring to_string(void) const;
-		operator const wchar_t*() const;
-		operator std::wstring() const;
+		operator const wchar_t*(void) const;
+		operator std::wstring(void) const;
 
 		static std::wstring parse_from_sqf(std::wstring);
 		static std::wstring parse_to_sqf(std::wstring);

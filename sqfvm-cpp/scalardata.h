@@ -18,7 +18,7 @@ namespace sqf
 	private:
 		double mvalue;
 	public:
-		scalardata();
+		scalardata(void);
 		scalardata(char);
 		scalardata(short);
 		scalardata(int);
@@ -26,12 +26,12 @@ namespace sqf
 		scalardata(float);
 		scalardata(double);
 		virtual std::wstring to_string(void) const;
-		operator char() const;
-		operator short() const;
-		operator int() const;
-		operator long() const;
-		operator float() const;
-		operator double() const;
+		operator char(void) const;
+		operator short(void) const;
+		operator int(void) const;
+		operator long(void) const;
+		operator float(void) const;
+		operator double(void) const;
 	};
 	typedef std::shared_ptr<scalardata> scalar_s;
 	typedef std::weak_ptr<scalardata> scalar_w;
