@@ -71,6 +71,7 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	PARRAY arr;
 	POBJECT obj;
 	PGROUP grp;
+	PCONFIG node;
 	int i;
 	int j;
 	wchar_t* strptr;
@@ -145,6 +146,31 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 	{
 		string_modify_append(str, ((PGROUP)val->val.ptr)->ident);
 	}
+	else if (val->type == CONFIG_TYPE())
+	{
+		node = val->val.ptr;
+		if (node == 0)
+		{
+			string_modify_append(str, L"configNull");
+		}
+		else
+		{
+			i = (int)config_count_parents(node);
+			for (; i >= 0; i--)
+			{
+				node = val->val.ptr;
+				for (j = 0; j < i; j++)
+				{
+					node = node->parent;
+				}
+				string_modify_append(str, node->identifier);
+				if (i != 0)
+				{
+					string_modify_append(str, L"/");
+				}
+			}
+		}
+	}
 	else if (val->type == OBJECT_TYPE())
 	{
 		obj = val->val.ptr;
@@ -163,37 +189,44 @@ void stringify_value(PVM vm, PSTRING str, PVALUE val)
 		}
 		else
 		{
-			grp = group_from_ident(vm, ((PUNIT)obj->inner)->groupident->val);
-			if (grp == 0)
+			if (obj->inner == 0)
 			{
-#ifdef __linux
-				swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%ls:%d", L"NA", 0);
-				string_modify_append(str, linux_buffer);
-#else
-				i = swprintf(0, 0, L"%ls:%d", L"NA", 0);
-				strptr = alloca(sizeof(wchar_t) * (i + 1));
-				swprintf(strptr, i + 1, L"%ls:%d", L"NA", 0);
-				string_modify_append(str, strptr);
-#endif
+				string_modify_append(str, L"objNull");
 			}
 			else
 			{
-				for (i = 0; i < ((PARRAY)grp->members->val.ptr)->top; i++)
+				grp = group_from_ident(vm, ((PUNIT)obj->inner)->groupident->val);
+				if (grp == 0)
 				{
-					if (((PARRAY)grp->members->val.ptr)->data[0]->val.ptr
-						== obj)
-						break;
-				}
-				j = i;
 #ifdef __linux
-				swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%ls:%d", grp->ident, j);
-				string_modify_append(str, linux_buffer);
+					swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%ls:%d", L"NA", 0);
+					string_modify_append(str, linux_buffer);
 #else
-				i = swprintf(0, 0, L"%ls:%d", grp->ident, j);
-				strptr = alloca(sizeof(wchar_t) * (i + 1));
-				swprintf(strptr, i + 1, L"%ls:%d", grp->ident, j);
-				string_modify_append(str, strptr);
+					i = swprintf(0, 0, L"%ls:%d", L"NA", 0);
+					strptr = alloca(sizeof(wchar_t) * (i + 1));
+					swprintf(strptr, i + 1, L"%ls:%d", L"NA", 0);
+					string_modify_append(str, strptr);
 #endif
+				}
+				else
+				{
+					for (i = 0; i < ((PARRAY)grp->members->val.ptr)->top; i++)
+					{
+						if (((PARRAY)grp->members->val.ptr)->data[0]->val.ptr
+							== obj)
+							break;
+					}
+					j = i;
+#ifdef __linux
+					swprintf(linux_buffer, LINUX_BUFFER_SIZE, L"%ls:%d", grp->ident, j);
+					string_modify_append(str, linux_buffer);
+#else
+					i = swprintf(0, 0, L"%ls:%d", grp->ident, j);
+					strptr = alloca(sizeof(wchar_t) * (i + 1));
+					swprintf(strptr, i + 1, L"%ls:%d", grp->ident, j);
+					string_modify_append(str, strptr);
+#endif
+				}
 			}
 		}
 	}
@@ -576,38 +609,56 @@ void cmd_divide(void* input, CPCMD self)
 		inst_destroy(right);
 		return;
 	}
-	if (left_val->type != SCALAR_TYPE())
+	if (left_val->type == SCALAR_TYPE())
 	{
-		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR, vm->stack);
+		if (right_val->type != SCALAR_TYPE())
+		{
+			vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
+		if (right_val->val.f == 0)
+		{
+			vm->error(vm, ERR_SPECIAL_DIVIDE_1, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack, inst_value(value(NAN_TYPE(), base_int(0))));
+			return;
+		}
+		push_stack(vm, vm->stack,
+			inst_value(
+				value(left_val->type,
+					base_float(left_val->val.f / right_val->val.f))));
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	else if (left_val->type == CONFIG_TYPE())
+	{
+		if (right_val->type != STRING_TYPE())
+		{
+			vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+			inst_destroy(left);
+			inst_destroy(right);
+			push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+			return;
+		}
+		cmd_navigateconfighelper(vm, left_val->val.ptr, right_val->val.ptr);
+		inst_destroy(left);
+		inst_destroy(right);
+	}
+	else
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_SCALAR ERR_OR ERR_CONFIG, vm->stack);
 		inst_destroy(left);
 		inst_destroy(right);
 		push_stack(vm, vm->stack,
 			inst_value(value(NOTHING_TYPE(), base_int(0))));
 		return;
 	}
-	if (right_val->type != SCALAR_TYPE())
-	{
-		vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
-		inst_destroy(left);
-		inst_destroy(right);
-		push_stack(vm, vm->stack,
-			inst_value(value(NOTHING_TYPE(), base_int(0))));
-		return;
-	}
-	if (right_val->val.f == 0)
-	{
-		vm->error(vm, ERR_SPECIAL_DIVIDE_1, vm->stack);
-		inst_destroy(left);
-		inst_destroy(right);
-		push_stack(vm, vm->stack, inst_value(value(NAN_TYPE(), base_int(0))));
-		return;
-	}
-	push_stack(vm, vm->stack,
-		inst_value(
-			value(left_val->type,
-				base_float(left_val->val.f / right_val->val.f))));
-	inst_destroy(left);
-	inst_destroy(right);
 }
 void cmd_diag_LOG(void* input, CPCMD self)
 {
@@ -1101,6 +1152,76 @@ void cmd_help_UNARY(void* input, CPCMD self)
 	push_stack(vm, vm->stack, inst_value(value(NOTHING_TYPE(), base_int(0))));
 	inst_destroy(right);
 }
+void cmd_parseconfig(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSTRING str;
+	PCONFIG node;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(right);
+		return;
+	}
+	str = right_val->val.ptr;
+	node = cfgparse(vm, str->val);
+	inst_destroy(right);
+	push_stack(vm, vm->stack, inst_value(value(CONFIG_TYPE(), base_voidptr(node))));
+}
+
+void cmd_mergefrom(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PCONFIG into;
+	PCONFIG from;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_CONFIG, vm->stack);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CONFIG, vm->stack);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	from = right_val->val.ptr;
+	into = left_val->val.ptr;
+	config_merge(into, from);
+	push_stack(vm, vm->stack, left);
+	inst_destroy(right);
+}
+
 
 void cmd_str(void* input, CPCMD self)
 {
@@ -1593,6 +1714,7 @@ void cmd_select(void* input, CPCMD self)
 	PVALUE right_val;
 	PARRAY arr;
 	PVALUE tmp;
+	PCONFIG node;
 	int index;
 	left = pop_stack(vm, vm->work);
 	right = pop_stack(vm, vm->work);
@@ -1626,35 +1748,74 @@ void cmd_select(void* input, CPCMD self)
 			inst_destroy(right);
 			return;
 		}
-	}
-	else
-	{
-		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY, vm->stack);
-		push_stack(vm, vm->stack,
-			inst_value(value(NOTHING_TYPE(), base_int(0))));
-		inst_destroy(left);
-		inst_destroy(right);
-		return;
-	}
 
-	if (index < 0 || index > arr->top)
+		if (index < 0 || index > arr->top)
+		{
+			vm->error(vm, ERR_SPECIAL_SELECT_1, vm->stack);
+			push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+			inst_destroy(left);
+			inst_destroy(right);
+			return;
+		}
+	  else if (index == arr->top)
+	  {
+		  push_stack(vm, vm->stack,
+		  	inst_value(value(NOTHING_TYPE(), base_int(0))));
+		  vm->warn(vm, WARN_SELECT_NIL_ARRSIZE, vm->stack);
+	  }
+	  else
+	  {
+		  tmp = arr->data[index];
+		  push_stack(vm, vm->stack, inst_value(value(tmp->type, tmp->val)));
+	  }
+	}
+	else if (left_val->type == CONFIG_TYPE())
 	{
-		vm->error(vm, ERR_SPECIAL_SELECT_1, vm->stack);
+		node = left_val->val.ptr;
+		if (right_val->type == SCALAR_TYPE())
+		{
+			index = roundf(right_val->val.f);
+		}
+		else
+		{
+			vm->error(vm, ERR_RIGHT_TYPE ERR_SCALAR, vm->stack);
+			push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+			inst_destroy(left);
+			inst_destroy(right);
+			return;
+		}
+
+		//ToDo: Check if `CONFIG select NUMBER (index == config childcount)` returns nil or errors
+		if (index < 0 || index > node->children_top)
+		{
+			vm->error(vm, ERR_SPECIAL_SELECT_1, vm->stack);
+			push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+			inst_destroy(left);
+			inst_destroy(right);
+			return;
+		}
+		else if (index == node->children_top)
+		{
+			push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
+		}
+		else
+		{
+			push_stack(vm, vm->stack, inst_value(value(CONFIG_TYPE(),
+				base_voidptr(node->value.cfgnodes[index]))));
+		}
+	}
+	else
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_ARRAY ERR_OR ERR_CONFIG, vm->stack);
 		push_stack(vm, vm->stack,
 			inst_value(value(NOTHING_TYPE(), base_int(0))));
 		inst_destroy(left);
 		inst_destroy(right);
 		return;
-	}
-	else if (index == arr->top)
-	{
-		push_stack(vm, vm->stack,
-			inst_value(value(NOTHING_TYPE(), base_int(0))));
-	}
-	else
-	{
-		tmp = arr->data[index];
-		push_stack(vm, vm->stack, inst_value(value(tmp->type, tmp->val)));
 	}
 	inst_destroy(left);
 	inst_destroy(right);
@@ -1772,6 +1933,10 @@ void cmd_do(void* input, CPCMD self)
 	}
 	if (left_val->type == WHILE_TYPE())
 	{
+		if (vm->stack->data[vm->stack->top - 1]->type != INST_SCOPE)
+		{
+			push_stack(vm, vm->stack, inst_scope(L"loop"));
+		}
 		push_stack(vm, vm->stack, inst_command(find_command(vm, L"do", 'b')));
 		push_stack(vm, vm->stack, left);
 		push_stack(vm, vm->stack, right);
@@ -1800,11 +1965,14 @@ void cmd_do(void* input, CPCMD self)
 								pfor->current < pfor->end :
 								pfor->current > pfor->end)
 		{
+			if (vm->stack->data[vm->stack->top - 1]->type != INST_SCOPE)
+			{
+				push_stack(vm, vm->stack, inst_scope(L"loop"));
+			}
 			push_stack(vm, vm->stack,
 				inst_command(find_command(vm, L"do", 'b')));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, right);
-			push_stack(vm, vm->stack, inst_scope(L"loop"));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack,
 				inst_value(value(CODE_TYPE(), right_val->val)));
@@ -1839,6 +2007,11 @@ void cmd_do(void* input, CPCMD self)
 					inst_value(
 						value(CODE_TYPE(), swtch->default_code->val)));
 			}
+			else
+			{
+				push_stack(vm, vm->stack,
+					inst_value(value(BOOL_TYPE(), base_int(1))));
+			}
 			inst_destroy(left);
 			inst_destroy(right);
 		}
@@ -1855,7 +2028,7 @@ void cmd_do(void* input, CPCMD self)
 				inst_value(value(CODE_TYPE(), right_val->val)));
 			push_stack(vm, vm->stack, inst_store_var_local(SWITCH_SPECIAL_VAR));
 			push_stack(vm, vm->stack,
-				inst_value(value(SWITCH_TYPE(), base_voidptr(swtch))));
+				inst_value(value(left_val->type, left_val->val)));
 			push_stack(vm, vm->stack, inst_clear_work());
 		}
 	}
@@ -2020,11 +2193,19 @@ void cmd_count_UNARY(void* input, CPCMD self)
 			inst_value(
 				value(SCALAR_TYPE(),
 					base_float(
-						((PARRAY)right_val->val.ptr)->top))));
+					((PARRAY)right_val->val.ptr)->top))));
+	}
+	else if (right_val->type == CONFIG_TYPE())
+	{
+		push_stack(vm, vm->stack,
+			inst_value(
+				value(SCALAR_TYPE(),
+					base_float(
+					((PCONFIG)right_val->val.ptr)->children_top))));
 	}
 	else
 	{
-		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING ERR_OR ERR_ARRAY, vm->stack);
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING ERR_OR ERR_ARRAY ERR_OR ERR_CONFIG, vm->stack);
 		push_stack(vm, vm->stack,
 			inst_value(value(NOTHING_TYPE(), base_int(0))));
 	}
@@ -2472,6 +2653,8 @@ void cmd_foreach(void* input, CPCMD self)
 		arr = right_val->val.ptr;
 		if (arr->top == 0)
 		{
+			push_stack(vm, vm->stack,
+				inst_value(value(NOTHING_TYPE(), base_int(0))));
 			inst_destroy(left);
 			inst_destroy(right);
 		}
@@ -2482,7 +2665,7 @@ void cmd_foreach(void* input, CPCMD self)
 			push_stack(vm, vm->stack,
 				inst_value(value(COUNT_TYPE(), base_voidptr(count))));
 			push_stack(vm, vm->stack, right);
-			push_stack(vm, vm->stack, inst_clear_work());
+			//push_stack(vm, vm->stack, inst_clear_work());
 			push_stack(vm, vm->stack, inst_scope(0));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack, left);
@@ -2510,8 +2693,15 @@ void cmd_foreach(void* input, CPCMD self)
 		arr = right_val->val.ptr;
 		if (++(count->curtop) == arr->top)
 		{
-			push_stack(vm, vm->stack,
-				inst_value(value(NOTHING_TYPE(), base_int(0))));
+			if (vm->work->top != 0)
+			{
+				push_stack(vm, vm->stack, pop_stack(vm, vm->work));
+			}
+			else
+			{
+				push_stack(vm, vm->stack,
+					inst_value(value(NOTHING_TYPE(), base_int(0))));
+			}
 			inst_destroy(left);
 			inst_destroy(right);
 		}
@@ -2520,7 +2710,7 @@ void cmd_foreach(void* input, CPCMD self)
 			push_stack(vm, vm->stack, inst_command(self));
 			push_stack(vm, vm->stack, left);
 			push_stack(vm, vm->stack, right);
-			push_stack(vm, vm->stack, inst_clear_work());
+			//push_stack(vm, vm->stack, inst_clear_work());
 			push_stack(vm, vm->stack, inst_scope(0));
 			push_stack(vm, vm->stack, inst_code_load(0));
 			push_stack(vm, vm->stack,
@@ -2536,6 +2726,10 @@ void cmd_foreach(void* input, CPCMD self)
 			push_stack(vm, vm->stack,
 				inst_value(
 					value(SCALAR_TYPE(), base_float(count->curtop))));
+			if (vm->work->top != 0)
+			{
+				push_stack(vm, vm->stack, inst_clear_work());
+			}
 		}
 	}
 	else
@@ -3306,7 +3500,10 @@ void cmd_set(void* input, CPCMD self)
 	}
 	index = floor(arrr->data[0]->val.f);
 	val = arrr->data[1];
-	array_resize_top(arrl, index + 1);
+	if (arrl->size < index + 1)
+	{
+		array_resize_top(arrl, index + 1);
+	}
 	if (arrl->data[index] != 0)
 	{
 		inst_destroy_value(arrl->data[index]);
@@ -5739,6 +5936,7 @@ void cmd_params(void* input, CPCMD self)
 	}
 	arrformat = right_val->val.ptr;
 	params_helper(vm, left_val, arrformat);
+	inst_destroy(left);
 	inst_destroy(right);
 }
 void cmd_params_UNARY(void* input, CPCMD self)
@@ -5870,12 +6068,12 @@ void cmd_creategroup(void* input, CPCMD self)
 		do
 		{
 			group = group_create(right_val->val.i);
-			tmp = wsm_set_value(vm->groupmap, group->ident,
+			tmp = wsm_set_value(sqf_group_map(), group->ident,
 				value_create(GROUP_TYPE(), base_voidptr(group)));
 			if (tmp != 0)
 			{
 				inst_destroy_value(
-					wsm_set_value(vm->groupmap, group->ident, tmp));
+					wsm_set_value(sqf_group_map(), group->ident, tmp));
 			}
 		} while (tmp != 0);
 		push_stack(vm, vm->stack,
@@ -5909,7 +6107,7 @@ void cmd_deletegroup(void* input, CPCMD self)
 		group = right_val->val.ptr;
 		if (((PARRAY)group->members->val.ptr)->top == 0)
 		{
-			inst_destroy_value(wsm_drop_value(vm->groupmap, group->ident));
+			inst_destroy_value(wsm_drop_value(sqf_group_map(), group->ident));
 		}
 	}
 	else
@@ -6204,17 +6402,574 @@ void cmd_allgroups(void* input, CPCMD self)
 	PARRAY arr;
 	unsigned int i;
 	unsigned int j;
-	j = wsm_count(vm->groupmap);
+	j = wsm_count(sqf_group_map());
 	arr = array_create2(j);
 	for (i = 0; i < j; i++)
 	{
 		array_push(arr,
 			value(GROUP_TYPE(),
 				base_voidptr(
-				((PVALUE)wsm_get_value_index(vm->groupmap, i))->val.ptr)));
+				((PVALUE)wsm_get_value_index(sqf_group_map(), i))->val.ptr)));
 	}
 
 	push_stack(vm, vm->stack,
 		inst_value(value(ARRAY_TYPE(), base_voidptr(arr))));
 }
 
+
+void cmd_configfile(void* input, CPCMD self)
+{
+	PVM vm = input;
+	push_stack(vm, vm->stack, inst_value(value(CONFIG_TYPE(), base_voidptr(sqf_configFile()))));
+}
+
+void cmd_navigateconfighelper(PVM vm, PCONFIG config, PSTRING string)
+{
+	PCONFIG node = config;
+	bool found = false;
+	int i;
+	if (node == 0)
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_NOT_NULL, vm->stack);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	do
+	{
+		for (i = 0; i < node->children_top; i++)
+		{
+			if (wstr_cmpi(node->value.cfgnodes[i]->identifier, -1, string->val, -1) == 0)
+			{
+				node = node->value.cfgnodes[i];
+				found = true;
+				break;
+			}
+		}
+	} while (!found && (node = config_find_inheriting_node(node)) != 0);
+
+	if (node == config || node == 0)
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(CONFIG_TYPE(), base_voidptr(0))));
+	}
+	else
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(CONFIG_TYPE(), base_voidptr(node))));
+	}
+}
+void cmd_navigateconfig(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PCONFIG node;
+	PSTRING string;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_CONFIG, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	node = left_val->val.ptr;
+	string = right_val->val.ptr;
+	cmd_navigateconfighelper(vm, node, string);
+	inst_destroy(left);
+	inst_destroy(right);
+}
+void cmd_configname(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PCONFIG node;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CONFIG, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	node = right_val->val.ptr;
+	if (node == 0)
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NOT_NULL, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	push_stack(vm, vm->stack,
+		inst_value(value(STRING_TYPE(), base_voidptr(string_create2(node->identifier)))));
+	inst_destroy(right);
+}
+void cmd_inheritsfrom(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PCONFIG node;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CONFIG, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	node = right_val->val.ptr;
+	if (node == 0)
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NOT_NULL, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	node = config_find_inheriting_node(node);
+	push_stack(vm, vm->stack,
+		inst_value(value(CONFIG_TYPE(), base_voidptr(0))));
+	inst_destroy(right);
+}
+void cmd_getnumber(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PCONFIG node;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CONFIG, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	node = right_val->val.ptr;
+	if (node == 0)
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NOT_NULL, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (node->children_size == 0 && node->value.value->type == SCALAR_TYPE())
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(SCALAR_TYPE(), node->value.value->val)));
+	}
+	else
+	{
+		vm->warn(vm, ERR_RIGHT_TYPE ERR_CONFIGWITH ERR_SCALAR, vm->stack);
+		push_stack(vm, vm->stack,
+			inst_value(value(SCALAR_TYPE(), base_float(0))));
+	}
+	inst_destroy(right);
+}
+void cmd_getarray(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PCONFIG node;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CONFIG, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	node = right_val->val.ptr;
+	if (node == 0)
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NOT_NULL, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (node->children_size == 0 && node->value.value->type == ARRAY_TYPE())
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(ARRAY_TYPE(), node->value.value->val)));
+	}
+	else
+	{
+		vm->warn(vm, ERR_RIGHT_TYPE ERR_CONFIGWITH ERR_ARRAY, vm->stack);
+		push_stack(vm, vm->stack,
+			inst_value(value(ARRAY_TYPE(), base_voidptr(array_create2(0)))));
+	}
+	inst_destroy(right);
+}
+void cmd_gettext(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PCONFIG node;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CONFIG, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	node = right_val->val.ptr;
+	if (node == 0)
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NOT_NULL, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (node->children_size == 0 && node->value.value->type == STRING_TYPE())
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(STRING_TYPE(), node->value.value->val)));
+	}
+	else
+	{
+		vm->warn(vm, ERR_RIGHT_TYPE ERR_CONFIGWITH ERR_STRING, vm->stack);
+		push_stack(vm, vm->stack,
+			inst_value(value(STRING_TYPE(), base_voidptr(string_create(0)))));
+	}
+	inst_destroy(right);
+}
+void cmd_isnumber(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PCONFIG node;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CONFIG, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	node = right_val->val.ptr;
+	if (node == 0)
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NOT_NULL, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (node->children_size == 0 && node->value.value->type == SCALAR_TYPE())
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(BOOL_TYPE(), base_int(1))));
+	}
+	else
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(BOOL_TYPE(), base_int(0))));
+	}
+	inst_destroy(right);
+}
+void cmd_isarray(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PCONFIG node;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CONFIG, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	node = right_val->val.ptr;
+	if (node == 0)
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NOT_NULL, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (node->children_size == 0 && node->value.value->type == ARRAY_TYPE())
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(BOOL_TYPE(), base_int(1))));
+	}
+	else
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(BOOL_TYPE(), base_int(0))));
+	}
+	inst_destroy(right);
+}
+void cmd_istext(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PCONFIG node;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CONFIG, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	node = right_val->val.ptr;
+	if (node == 0)
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NOT_NULL, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (node->children_size == 0 && node->value.value->type == STRING_TYPE())
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(BOOL_TYPE(), base_int(1))));
+	}
+	else
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(BOOL_TYPE(), base_int(0))));
+	}
+	inst_destroy(right);
+}
+void cmd_isclass(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PCONFIG node;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != CONFIG_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CONFIG, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	node = right_val->val.ptr;
+	if (node == 0)
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_NOT_NULL, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (node->children_size != 0)
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(BOOL_TYPE(), base_int(1))));
+	}
+	else
+	{
+		push_stack(vm, vm->stack,
+			inst_value(value(BOOL_TYPE(), base_int(0))));
+	}
+	inst_destroy(right);
+}
+
+void cmd_toupper(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSTRING outstring;
+	unsigned int i;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	outstring = string_create2(((PSTRING)right_val->val.ptr)->val);
+	for (i = 0; i < outstring->length; i++)
+	{
+		outstring->val[i] = towupper(outstring->val[i]);
+	}
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(outstring))));
+	inst_destroy(right);
+}
+void cmd_tolower(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST right;
+	PVALUE right_val;
+	PSTRING outstring;
+	unsigned int i;
+	right = pop_stack(vm, vm->work);
+	right_val = get_value(vm, vm->stack, right);
+	if (right_val == 0)
+	{
+		inst_destroy(right);
+		return;
+	}
+	if (right_val->type != STRING_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_STRING, vm->stack);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	outstring = string_create2(((PSTRING)right_val->val.ptr)->val);
+	for (i = 0; i < outstring->length; i++)
+	{
+		outstring->val[i] = towlower(outstring->val[i]);
+	}
+	push_stack(vm, vm->stack, inst_value(value(STRING_TYPE(), base_voidptr(outstring))));
+	inst_destroy(right);
+}
+void cmd_exitwith(void* input, CPCMD self)
+{
+	PVM vm = input;
+	PINST left;
+	PINST right;
+	PVALUE left_val;
+	PVALUE right_val;
+	PSTRING outstring;
+	unsigned int i;
+	left = pop_stack(vm, vm->work);
+	right = pop_stack(vm, vm->work);
+	left_val = get_value(vm, vm->stack, left);
+	right_val = get_value(vm, vm->stack, right);
+	if (left_val == 0 || right_val == 0)
+	{
+		inst_destroy(left);
+		inst_destroy(right);
+		return;
+	}
+	if (left_val->type != IF_TYPE())
+	{
+		vm->error(vm, ERR_LEFT_TYPE ERR_IF, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	if (right_val->type != CODE_TYPE())
+	{
+		vm->error(vm, ERR_RIGHT_TYPE ERR_CODE, vm->stack);
+		inst_destroy(left);
+		inst_destroy(right);
+		push_stack(vm, vm->stack,
+			inst_value(value(NOTHING_TYPE(), base_int(0))));
+		return;
+	}
+	push_stack(vm, vm->stack, inst_scope_dropout(0));
+	push_stack(vm, vm->stack, inst_code_load(true));
+	push_stack(vm, vm->stack, right);
+	push_stack(vm, vm->stack, inst_pop_eval(3, false));
+	push_stack(vm, vm->stack, inst_value(value(BOOL_TYPE(), left_val->val)));
+	inst_destroy(left);
+}

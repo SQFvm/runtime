@@ -25,6 +25,12 @@
     <Filter Include="Header Files\generic headers">
       <UniqueIdentifier>{00a927a9-1da9-4ffd-a832-49dc685582d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\config">
+      <UniqueIdentifier>{c25165dc-bedf-40ef-96fe-921dda002244}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\config">
+      <UniqueIdentifier>{9f27bc1c-8912-4959-a4cc-d60f4dad88f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entry.c">
@@ -83,6 +89,15 @@
     </ClCompile>
     <ClCompile Include="sqf_scalar_type.c">
       <Filter>Source Files\sqf types</Filter>
+    </ClCompile>
+    <ClCompile Include="cfg_base.c">
+      <Filter>Source Files\config</Filter>
+    </ClCompile>
+    <ClCompile Include="tokenizer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cfg_parse.c">
+      <Filter>Source Files\config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +166,15 @@
     </ClInclude>
     <ClInclude Include="sqf_scalar_type.h">
       <Filter>Header Files\sqf types</Filter>
+    </ClInclude>
+    <ClInclude Include="cfg_base.h">
+      <Filter>Header Files\config</Filter>
+    </ClInclude>
+    <ClInclude Include="tokenizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cfg_parse.h">
+      <Filter>Header Files\config</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

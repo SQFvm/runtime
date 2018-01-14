@@ -80,6 +80,7 @@ param 2: Characters which are valid, \0 Terminated
 int wchr_is(const wchar_t, const wchar_t*);
 
 
+
 /*
 Replaces provided char in given string with a different one.
 Returns the count of replaced chars.

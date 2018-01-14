@@ -28,6 +28,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basetype.c" />
+    <ClCompile Include="cfg_base.c" />
+    <ClCompile Include="cfg_parse.c" />
     <ClCompile Include="Entry.c" />
     <ClCompile Include="sqf.c" />
     <ClCompile Include="sqf_array_type.c" />
@@ -44,11 +46,14 @@
     <ClCompile Include="string_map.c" />
     <ClCompile Include="string_op.c" />
     <ClCompile Include="textrange.c" />
+    <ClCompile Include="tokenizer.c" />
     <ClCompile Include="wstring_map.c" />
     <ClCompile Include="wstring_op.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basetype.h" />
+    <ClInclude Include="cfg_base.h" />
+    <ClInclude Include="cfg_parse.h" />
     <ClInclude Include="errors.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="sqf.h" />
@@ -67,6 +72,7 @@
     <ClInclude Include="string_map.h" />
     <ClInclude Include="string_op.h" />
     <ClInclude Include="textrange.h" />
+    <ClInclude Include="tokenizer.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="wstring_map.h" />
     <ClInclude Include="wstring_op.h" />
@@ -74,7 +80,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{262E778C-9733-435F-B97D-F8B78C333CC3}</ProjectGuid>
     <RootNamespace>SQFVM</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -150,7 +156,6 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -178,11 +183,13 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLL|Win32'">

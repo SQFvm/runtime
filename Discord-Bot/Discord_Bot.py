@@ -1,9 +1,12 @@
 import discord
 import asyncio
 import os
+import re
 import subprocess
 from ctypes import *
 import _ctypes
+import binascii
+
 
 def init_libsqfvm():
     path = os.path.dirname(os.path.realpath(__file__))
@@ -12,13 +15,22 @@ def init_libsqfvm():
     global libsqfvm
     libsqfvm = CDLL(path)
     libsqfvm.start_program.restype = c_ubyte
-    libsqfvm.start_program.argtypes = [c_wchar_p, c_ulong, c_wchar_p, c_size_t]
+    libsqfvm.start_program.argtypes = [c_wchar_p, c_ulong, c_wchar_p, c_size_t, c_void_p]
+    libsqfvm.load_file_into_sqf_configFile.restype = None
+    libsqfvm.load_file_into_sqf_configFile.argtypes = [c_char_p]
+    file = ""
+    with open('arma.cpp', 'r') as file:
+        file = file.read().strip()
+    if file != "":
+        libsqfvm.load_file_into_sqf_configFile(file)
 
-def execsqf(txt, buffer, bufferlen, note):
+def execsqf(txt, note):
+    buffer = create_unicode_buffer(1990)
     print("Executing '{}' {}".format(txt, note))
-    libsqfvm.start_program(txt, 1000000, None, 0)
-    libsqfvm.start_program(txt, 1000000, buffer, bufferlen)
-    #print("Result: {}", buffer.value.encode("utf-8"))
+    libsqfvm.start_program(txt, 1000000, buffer, 1990, None)
+    str = buffer.value
+    print(str)
+    return str
 
 class MyClient(discord.Client):
     async def on_ready(self):
@@ -27,7 +39,6 @@ class MyClient(discord.Client):
         print(self.user.id)
         print('------------')
         self.allowsqf = True
-        self.outputbuffer = create_unicode_buffer(1990)
         self.admins = [105784568346324992]
 
     async def on_message(self, message):
@@ -64,34 +75,34 @@ class MyClient(discord.Client):
                 return
             elif type(message.channel) is discord.DMChannel:
                 if message.content.startswith('```sqf'):
-                    execsqf(message.content[6:-3], self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
+                    val = execsqf(message.content[6:-3], "from user {}#{}".format(message.author.name, message.author.id))
                     try:
-                        tmp = await message.channel.send("```{}```".format(self.outputbuffer.value.decode("utf-8")))
+                        tmp = await message.channel.send("```{}```".format(val))
                     except Exception as e:
                         await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
                 elif message.content.startswith('<@{}>'.format(self.user.id)):
-                    execsqf(message.content.replace('<@{}>'.format(self.user.id), ""), self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
+                    val = execsqf(message.content.replace('<@{}>'.format(self.user.id), ""), self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
                     try:
-                        tmp = await message.channel.send("```sqf\n{}```".format(self.outputbuffer.value.decode("utf-8")))
+                        tmp = await message.channel.send("```sqf\n{}```".format(val))
                     except Exception as e:
                         await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
                 else:
-                    execsqf(message.content, self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
+                    val = execsqf(message.content, self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
                     try:
-                        tmp = await message.channel.send("```sqf\n{}```".format(self.outputbuffer.value.decode("utf-8")))
+                        tmp = await message.channel.send("```sqf\n{}```".format(val))
                     except Exception as e:
                         await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
             else:
                 if message.channel.name.startswith('sqf') and message.content.startswith('```sqf'):
-                    execsqf(message.content[6:-3], self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
+                    val = execsqf(message.content[6:-3], "from user {}#{}".format(message.author.name, message.author.id))
                     try:
-                        tmp = await message.channel.send("```{}```".format(self.outputbuffer.value.decode("utf-8")))
+                        tmp = await message.channel.send("```{}```".format(val))
                     except Exception as e:
                         await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
                 elif message.content.startswith('<@{}>'.format(self.user.id)):
-                    execsqf(message.content.replace('<@{}>'.format(self.user.id), ""), self.outputbuffer, 1990, "from user {}#{}".format(message.author.name, message.author.id))
+                    val = execsqf(message.content.replace('<@{}>'.format(self.user.id), ""), "from user {}#{}".format(message.author.name, message.author.id))
                     try:
-                        tmp = await message.channel.send("```sqf\n{}```".format(self.outputbuffer.value.decode("utf-8")))
+                        tmp = await message.channel.send("```sqf\n{}```".format(val))
                     except Exception as e:
                         await message.channel.send("```!DISCORD ERROR!\n{}```".format(e))
 client = MyClient()
@@ -99,5 +110,9 @@ token = ""
 with open('DISCORD.TOKEN', 'r') as file:
     token = file.read().strip()
 init_libsqfvm()
+#libsqfvm.start_program("diag_log 1", 1000000, None, 0)
+#print("\n")
+#libsqfvm.start_program(u"diag_log 1", 1000000, None, 0)
+#libsqfvm.start_program(u"'' + 1", 1000000, None, 0)
 print ('Using token --> {}'.format(token))
 client.run(token)

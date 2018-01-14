@@ -99,6 +99,12 @@ PSTRING string_substring(const PSTRING string, unsigned int start, int length)
 	wcsncpy(str->val, string->val + start, length);
 	return str;
 }
+void string_resize(PSTRING string, int change)
+{
+	string->val = realloc(string->val, sizeof(wchar_t) * (string->length + 1 + change));
+	string->length += change;
+	string->val[string->length] = 0;
+}
 void string_modify_append(PSTRING string, const wchar_t* append)
 {
 	if (append == 0)

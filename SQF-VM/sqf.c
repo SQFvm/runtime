@@ -84,11 +84,11 @@ void destroy_command(PCMD command)
 
 PVALUE find_var(PVM vm, const wchar_t* name)
 {
-	int i, j;
+	unsigned int i, j;
 	PSCOPE scope;
 	if (name == 0)
 		return 0;
-	for (i = vm->stack->top; i >= 0; i--)
+	for (i = vm->stack->top; i != ~0; i--)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
@@ -106,11 +106,11 @@ PVALUE find_var(PVM vm, const wchar_t* name)
 }
 void set_var(PVM vm, const wchar_t* name, VALUE val)
 {
-	int i, j;
+	unsigned int i, j;
 	PSCOPE first = 0;
 	PSCOPE scope;
 	PVALUE tmp;
-	for (i = vm->stack->top; i >= 0; i--)
+	for (i = vm->stack->top; i != ~0; i--)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
@@ -137,8 +137,8 @@ void set_var(PVM vm, const wchar_t* name, VALUE val)
 }
 PSCOPE top_scope(PVM vm)
 {
-	int i;
-	for (i = vm->stack->top; i >= 0; i--)
+	unsigned int i;
+	for (i = vm->stack->top; i != ~0; i--)
 	{
 		if (vm->stack->data[i]->type == INST_SCOPE)
 		{
@@ -149,7 +149,7 @@ PSCOPE top_scope(PVM vm)
 }
 void store_in_scope(PVM vm, PSCOPE scope, const wchar_t* name, VALUE val)
 {
-	int i;
+	unsigned int i;
 	for (i = 0; i < scope->varstack_top; i++)
 	{
 		if (wstr_cmpi(scope->varstack_name[i], -1, name, -1) == 0)
@@ -243,7 +243,7 @@ void runvm(PVM vm)
 	PSTACK tmpstack = vm->stack;
 	PSTACK tmpwork = vm->work;
 	PSCRIPT script;
-	int i;
+	unsigned int i;
 	vm->is_suspending_environment = 0;
 	execute(vm, -1);
 	while (vm->scripts_top > 0 && !vm->die_flag)
@@ -294,7 +294,7 @@ void execute(PVM vm, int exitAfter)
 		if (vm->enable_instruction_limit && vm->instcount >= vm->max_instructions
 			&& !vm->die_flag)
 		{
-			vm->error(vm, L"MAX ALLOWED INSTRUCTION COUNT REACHED (10000)", vm->stack);
+			vm->error(vm, L"MAX ALLOWED INSTRUCTION COUNT REACHED", vm->stack);
 			vm->die_flag = 1;
 		}
 		inst = pop_stack(vm, vm->stack);
@@ -433,7 +433,7 @@ void execute(PVM vm, int exitAfter)
 			inst = pop_stack(vm, vm->work);
 			val = get_value(vm, vm->stack, inst);
 
-			i = -(vm->work->top);
+			i = -(int)(vm->work->top);
 			while (vm->work->top != 0)
 			{
 				push_stack(vm, vm->stack, pop_stack(vm, vm->work));

@@ -470,11 +470,19 @@ PGROUP group_create(int side)
 	group->refcount = 0;
 	group->members = value_create(ARRAY_TYPE(), base_voidptr(array_create()));
 	group->side = value_create(SIDE_TYPE(), base_int(side));
-	group->ident_len = swprintf(0, 0, L"%c ALPHA %d", side_displayname(side)[0],
+
+#ifdef __linux
+	group->ident_len = 32;
+	group->ident = malloc(sizeof(wchar_t) * (group->ident_len + 1));
+	swprintf(group->ident, group->ident_len + 1, L"%lc ALPHA %d",
+			side_displayname(side)[0], count);
+#else
+	group->ident_len = swprintf(0, 0, L"%lc ALPHA %d", side_displayname(side)[0],
 			count);
 	group->ident = malloc(sizeof(wchar_t) * (group->ident_len + 1));
-	swprintf(group->ident, group->ident_len + 1, L"%c ALPHA %d",
+	swprintf(group->ident, group->ident_len + 1, L"%lc ALPHA %d",
 			side_displayname(side)[0], count);
+#endif
 	count++;
 	return group;
 }
@@ -497,16 +505,27 @@ PGROUP group_from_ident(PVM vm, const wchar_t* ident)
 {
 	PGROUP grp;
 	int i;
-	int j = wsm_count(vm->groupmap);
+	int j = wsm_count(sqf_group_map());
 	for (i = 0; i < j; i++)
 	{
-		grp = ((PVALUE) wsm_get_value_index(vm->groupmap, i))->val.ptr;
+		grp = ((PVALUE) wsm_get_value_index(sqf_group_map(), i))->val.ptr;
 		if (!wstr_cmpi(grp->ident, -1, ident, -1))
 		{
 			return grp;
 		}
 	}
 	return 0;
+}
+
+
+wsm_list* sqf_group_map(void)
+{
+	static wsm_list* groupmap;
+	if (groupmap == 0)
+	{
+		groupmap = wsm_create_list(20, 5, 5);
+	}
+	return groupmap;
 }
 
 //NON-SQF TYPES

@@ -4,8 +4,9 @@
 TR_ARR* tr_arr_create(void)
 {
 	TR_ARR* arr = malloc(sizeof(TR_ARR));
-	arr->data = malloc(sizeof(TEXTRANGE) * TR_ARR_INC);
-	arr->size = TR_ARR_INC;
+	arr->increase = 15;
+	arr->data = malloc(sizeof(TEXTRANGE) * arr->increase);
+	arr->size = arr->increase;
 	arr->top = 0;
 	return arr;
 }
@@ -36,7 +37,7 @@ void tr_arr_set(TR_ARR* arr, unsigned int index, TEXTRANGE range)
 {
 	if (index >= arr->size)
 	{
-		tr_arr_resize(arr, arr->size + TR_ARR_INC);
+		tr_arr_resize(arr, arr->size + arr->increase);
 	}
 	arr->data[index] = range;
 	if (arr->top < index)
@@ -46,7 +47,7 @@ void tr_arr_push(TR_ARR* arr, TEXTRANGE range)
 {
 	if (arr->top >= arr->size)
 	{
-		tr_arr_resize(arr, arr->size + TR_ARR_INC);
+		tr_arr_resize(arr, arr->size + arr->increase);
 	}
 	arr->data[arr->top++] = range;
 }

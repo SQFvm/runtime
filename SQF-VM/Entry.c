@@ -20,11 +20,6 @@
 
 #include "sqffull.h"
 
-#ifdef _WIN32
-#define DLLEXPORT_PREFIX __declspec(dllexport)
-#else
-#define DLLEXPORT_PREFIX __attribute__((visibility("default")))
-#endif
 
 static jmp_buf program_exit;
 int64_t systime_start = 0;
@@ -88,17 +83,17 @@ void custom_error(PVM vm, const wchar_t* errMsg, PSTACK stack)
 		}
 		if (dbginf != 0)
 		{
-			vm->print(vm, L"%S", dbginf->hint);
-			vm->print(vm, L"[ERR][L%d|C%d] %S\n", dbginf->line, dbginf->col, errMsg);
+			vm->print(vm, L"%ls", dbginf->hint);
+			vm->print(vm, L"[ERR][L%d|C%d] %ls\n", dbginf->line, dbginf->col, errMsg);
 		}
 		else
 		{
-			vm->print(vm, L"[ERR] %S\n", errMsg);
+			vm->print(vm, L"[ERR] %ls\n", errMsg);
 		}
 	}
 	else
 	{
-		vm->print(vm, L"[ERR] %S\n", errMsg);
+		vm->print(vm, L"[ERR] %ls\n", errMsg);
 	}
 	vm->die_flag = 1;
 	//longjmp(program_exit, 1);
@@ -120,17 +115,17 @@ void custom_warn(PVM vm, const wchar_t* errMsg, PSTACK stack)
 		}
 		if (dbginf != 0)
 		{
-			vm->print(vm, L"%S", dbginf->hint);
-			vm->print(vm, L"[WRN][L%d|C%d] %S\n", dbginf->line, dbginf->col, errMsg);
+			vm->print(vm, L"%ls", dbginf->hint);
+			vm->print(vm, L"[WRN][L%d|C%d] %ls\n", dbginf->line, dbginf->col, errMsg);
 		}
 		else
 		{
-			vm->print(vm, L"[WRN] %S\n", errMsg);
+			vm->print(vm, L"[WRN] %ls\n", errMsg);
 		}
 	}
 	else
 	{
-		vm->print(vm, L"[WRN] %S\n", errMsg);
+		vm->print(vm, L"[WRN] %ls\n", errMsg);
 	}
 }
 
@@ -146,7 +141,7 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"+", 'b', cmd_plus, 6, L"<SCALAR> + <SCALAR> | <STRING> + <STRING> | <ARRAY> + <ANY>", L"1 + 1 //2#" L"\"foo\" + \"bar\" //\"foobar\"#" L"[] + 1 //[1]#", L"b added to a.");
 	create_cmd(vm, L"-", 'b', cmd_minus, 6, L"<SCALAR> - <SCALAR> | <ARRAY> - <ARRAY>", L"1 - 1 //0#" L"[0,[0],[[0]]] - [0] //[[0], [[0]]]#" L"[0,[0],[[0]]] - [[0]] //[0, [[0]]]#" L"[0,[0],[[0]]] - [[[0]]] //[0, [0]]#", L"Subtracts b from a. a and b need to be of the same type, both Numbers or both Arrays. In Arma 3 it is possible to subtract nested arrays.");
 	create_cmd(vm, L"*", 'b', cmd_multiply, 7, L"<SCALAR> * <SCALAR>", L"0.5 * 100 //50#", L"Returns the value of a multiplied by b.");
-	create_cmd(vm, L"/", 'b', cmd_divide, 7, L"<SCALAR> / <SCALAR>", L"15 / 3 //5#", L"a divided by b. Division by 0 throws \"Division by zero\" error, however script doesn't stop and the result of such division is assumed to be 0.");
+	create_cmd(vm, L"/", 'b', cmd_divide, 7, L"<SCALAR> / <SCALAR> | <CONFIG> / <STRING>", L"15 / 3 //5#", L"a divided by b. Division by 0 throws \"Division by zero\" error, however script doesn't stop and the result of such division is assumed to be 0. If lval is CONFIG and rval is STRING then this acts as alias to >>a");
 	create_cmd(vm, L">", 'b', cmd_greaterthan, 3, L"<SCALAR> > <SCALAR>", L"10 > 1 //true#1 > 10 //false#", L"Returns true if a is greater than b, else returns false.");
 	create_cmd(vm, L"<", 'b', cmd_lessthen, 3, L"<SCALAR> < <SCALAR>", L"1 < 2 //true#2 < 1 //false#", L"Returns true if a is less than b, else returns false.");
 	create_cmd(vm, L">=", 'b', cmd_largetthenorequal, 3, L"<SCALAR> >= <SCALAR>", L"10 > 1 //true#1 > 10 //false#10 >= 10 //true#", L"Returns true if a is greater than or equal to b, else returns false.");
@@ -176,8 +171,8 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"set", 'b', cmd_set, 4, L"<ARRAY> set <ANY>", L"_arr = [10]; _arr set [0, 9]; _arr //[9]#" L"_arr = []; _arr set [0, 1]; _arr //[1]#", L"Changes the element at the given(zero - based) index of the array.If the element does not exist, resize index + 1 is called to create it.");
 	create_cmd(vm, L"isEqualTo", 'b', cmd_isequalto, 4, L"<ANY> isEqualTo <ANY>", L"1 isEqualTo 2 //false#", L"Performs strict comparison between var1 and var2 and returns true if equal, otherwise false. Strict means that it would check that both arguments are of the same data type and then compare the values.");
 	create_cmd(vm, L"createVehicle", 'b', cmd_createvehicle, 4, L"<STRING> createVehicle <ARRAY>", L"", L"Creates an empty object of given classname type");
-	create_cmd(vm, L"getVariable", 'b', cmd_getvariable, 4, L"<NAMESPACE> getVariable <STRING> | <NAMESPACE> getVariable <ARRAY> | <OBJECT> getVariable <STRING> | <OBJECT> getVariable <ARRAY>", L"", L"Return the value of variable in the variable space assigned to various data types.");
-	create_cmd(vm, L"setVariable", 'b', cmd_setvariable, 4, L"<NAMESPACE> setVariable <ARRAY> | <OBJECT> setVariable <ARRAY>", L"", L"Set variable to given value in the variable space of given element.");
+	create_cmd(vm, L"getVariable", 'b', cmd_getvariable, 4, L"<NAMESPACE> getVariable <STRING> | <NAMESPACE> getVariable <ARRAY> | <OBJECT> getVariable <STRING> | <OBJECT> getVariable <ARRAY>", L"", L"Return the value of variable in the variable space assigned to various data types. Variable name can be anything, including special characters.");
+	create_cmd(vm, L"setVariable", 'b', cmd_setvariable, 4, L"<NAMESPACE> setVariable <ARRAY> | <OBJECT> setVariable <ARRAY>", L"", L"Set variable to given value in the variable space of given element. Variable name can be anything, including special characters.");
 	create_cmd(vm, L"setPos", 'b', cmd_setpos, 4, L" <OBJECT> setPos <ARRAY>", L"_obj = \"B_Soldier_F\" createVehicle [0, 0, 0]; _obj setPos [0, 0, 10]; position _obj //[0, 0, 10]#", L"Sets object position.");
 	create_cmd(vm, L"setVelocity", 'b', cmd_setvelocity, 4, L" <OBJECT> setVelocity <ARRAY>", L"_obj = \"B_Soldier_F\" createVehicle [0, 0, 0]; _obj setVelocity [0, 0, 10]; velocity _obj //[0, 0, 10]#", L"Set velocity (speed vector) of a vehicle. Units are in metres per second.");
 	create_cmd(vm, L"forEach", 'b', cmd_foreach, 4, L"<CODE> forEach <ARRAY> | <COUNT> forEach <ARRAY>", L"", L"Executes the given command(s) on every item of an array. The array items are represented by the magic variable _x.The array indices are represented by _forEachIndex.");
@@ -197,9 +192,11 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"vectorCrossProduct", 'b', cmd_vectorcrossproduct, 4, L"<VECTOR3D> vectorCrossProduct <VECTOR3D>", L"[0,1,0] vectorCrossProduct [-1,0,0]; //[0,-0,1]", L"Cross product of two 3D vectors. In layman's terms, if you have a polygon (surface) defined by 3 points, you can find a normal to it (just like terrain surfaceNormal). To invert direction of the normal, swap arguments around. ");
 	create_cmd(vm, L"vectorDotProduct", 'b', cmd_vectordotproduct, 4, L"<VECTOR3D> vectorDotProduct <VECTOR3D>", L"[1,0,1] vectorDotProduct [0,0,2]; //returns 2", L"Dot product of two 3D vectors.");
 	create_cmd(vm, L"vectorCos", 'b', cmd_vectorcos, 4, L"<VECTOR3D> vectorCos <VECTOR3D>", L"[1,0,0] vectorCos [0,0,2]; //returns 0", L"Cosine of angle between two 3D vectors.");
-	create_cmd(vm, L"vectorMultiply", 'b', cmd_vectormultiply, 4, L"<VECTOR3D> ectorMultiply <SCALAR>", L"[1,2,3] vectorMultiply 3; //[3,6,9]", L"Multiplies 3D vector by a scalar.");
+	create_cmd(vm, L"vectorMultiply", 'b', cmd_vectormultiply, 4, L"<VECTOR3D> vectorMultiply <SCALAR>", L"[1,2,3] vectorMultiply 3; //[3,6,9]", L"Multiplies 3D vector by a scalar.");
 	create_cmd(vm, L"vectorDistance", 'b', cmd_vectordistance, 4, L"<VECTOR3D> vectorDistance <VECTOR3D>", L"_euclideanDist = getPosASL player vectorDistance [0,0,0];", L"Distance between two 3D vectors.");
 	create_cmd(vm, L"vectorDistanceSqr", 'b', cmd_vectordistancesqr, 4, L"<VECTOR3D> vectorDistanceSqr <VECTOR3D>", L"_distSqr = getPos player vectorDistanceSqr [0,0,2];", L"Squared distance between two 3D vectors.");
+	create_cmd(vm, L">>", 'b', cmd_navigateconfig, 4, L"<CONFIG> >> <STRING>", L"", L"Returns subentry of config entry with given name.");
+	create_cmd(vm, L"exitWith", 'b', cmd_exitwith, 4, L"<IF> exitWith <CODE>", L"", L"Exits current scope {...} it is executed from if condition evaluates true, creates new scope {...code...} and executes the given code in it.");
 
 	create_cmd(vm, L"diag_log", 'u', cmd_diag_LOG, 4, L"diag_log <ANY>", L"", L"Dumps the argument's value. Each call creates a new line.");
 	create_cmd(vm, L"systemChat", 'u', cmd_systemchat, 4, L"systemChat <STRING>", L"", L"Writes the argument's value plaintext. Each call creates a new line.");
@@ -260,6 +257,17 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"vectorMagnitude", 'u', cmd_vectormagnitude, 4, L"vectorMagnitude <VECTOR3D>", L"_size = vectorMagnitude [0,3,4]; //5", L"Magnitude of a 3D vector.");
 	create_cmd(vm, L"vectorMagnitudeSqr", 'u', cmd_vectormagnitudesqr, 4, L"vectorMagnitudeSqr <VECTOR3D>", L"_size = vectorMagnitude [0,3,4]; //25", L"Squared magnitude of a 3D vector.");
 	create_cmd(vm, L"vectorNormalized", 'u', cmd_vectornormalized, 4, L"vectorNormalized <VECTOR3D>", L"vectorNormalized [12345,7890,38383]; //[0.300481,0.192045,0.934254]", L"Returns normalized vector (unit vector, vectorMagnitude = 1) of given vector. If given vector is 0 result is a 0 vector as well.");
+	create_cmd(vm, L"inheritsFrom", 'u', cmd_inheritsfrom, 4, L"inheritsFrom <CONFIG>", L"", L"Returns base entry of config entry.");
+	create_cmd(vm, L"getNumber", 'u', cmd_getnumber, 4, L"getNumber <CONFIG>", L"", L"Extract number from config entry.");
+	create_cmd(vm, L"getText", 'u', cmd_gettext, 4, L"getText <CONFIG>", L"", L"Extract text from config entry.");
+	create_cmd(vm, L"getArray", 'u', cmd_getarray, 4, L"getArray <CONFIG>", L"", L"Extract array from config entry.");
+	create_cmd(vm, L"isArray", 'u', cmd_isarray, 4, L"isArray <CONFIG>", L"", L"Check if config entry represents array.");
+	create_cmd(vm, L"isClass", 'u', cmd_isclass, 4, L"isClass <CONFIG>", L"", L"Check if config entry represents config class.");
+	create_cmd(vm, L"isNumber", 'u', cmd_isnumber, 4, L"isNumber <CONFIG>", L"", L"Check if config entry represents number.");
+	create_cmd(vm, L"isText", 'u', cmd_istext, 4, L"isText <CONFIG>", L"", L"Check if config entry represents text.");
+	create_cmd(vm, L"tolower", 'u', cmd_tolower, 4, L"tolower <STRING>", L"tolower \"ABC\"; //\"abc\"", L"Returns a string with every character lowered.");
+	create_cmd(vm, L"toupper", 'u', cmd_toupper, 4, L"toupper <STRING>", L"toupper \"abc\"; //\"ABC\"", L"Returns a string with every character upped.");
+
 
 	create_cmd(vm, L"true", 'n', cmd_true, 4, L"true", L"", L"");
 	create_cmd(vm, L"false", 'n', cmd_false, 4, L"false", L"", L"");
@@ -285,11 +293,14 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"objNull", 'n', cmd_objnull, 4, L"objNull", L"", L"");
 	create_cmd(vm, L"allGroups", 'n', cmd_allgroups, 4, L"allGroups", L"", L"Return a list of all groups created. Unlike ArmA, contains groups of all sides.");
 	create_cmd(vm, L"nil", 'n', cmd_nil, 4, L"nil", L"", L"Nil value. This value can be used to undefine existing variables.");
+	create_cmd(vm, L"configFile", 'n', cmd_configfile, 4, L"nil", L"", L"Return root of config entries hierarchy.");
 
 
 
 	create_cmd(vm, L"help__", 'n', cmd_help, 4, L"help__", L"help__ //nil#", L"Displays all commands available with usage, precedence and type.");
 	create_cmd(vm, L"help__", 'u', cmd_help_UNARY, 4, L"help__ <STRING>", L"help__ \"typeOf\"//nil#", L"Outputs information to given command. Expects a <STRING> on righthand. Usage: help__ \"command\"");
+	create_cmd(vm, L"parseconfig__", 'u', cmd_parseconfig, 4, L"parseconfig__ <STRING>", L"", L"Parses provided string into an unnamed parent confignode. Returns the unnamed node.");
+	create_cmd(vm, L"mergefrom__", 'b', cmd_mergefrom, 4, L"<CONFIG> mergefrom__ <CONFIG>", L"", L"Merges the content from the righthand node into the lefthand node. Cannot merge valuenodes.");
 }
 
 int vm_output_print(PVM vm, const wchar_t* format, ...)
@@ -327,22 +338,40 @@ int vm_output_print(PVM vm, const wchar_t* format, ...)
 	return len;
 }
 
-DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long max_instructions, wchar_t* buffer, size_t buffer_size)
+int load_file(PSTRING buffer, const char* fpath);
+DLLEXPORT_PREFIX void load_file_into_sqf_configFile(const char* path)
+{
+	PVM vm = sqfvm(10000, 50, 1, 0);
+	PSTRING str = string_create(0);
+	PCONFIG node;
+	load_file(str, path);
+	node = cfgparse2(vm, str->val, 1000000, 2000);
+	string_destroy(str);
+	destroy_sqfvm(vm);
+
+	config_merge(sqf_configFile(), node);
+	config_destroy_node(node);
+}
+
+DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long max_instructions, wchar_t* buffer, size_t buffer_size, PVM vm)
 {
 	int val;
 	int i;
 	unsigned char success;
-	PVM vm = sqfvm(10000, 50, 1, max_instructions);
-	vm->error = custom_error;
-	vm->warn = custom_warn;
+	if (vm == 0)
+	{
+		vm = sqfvm(10000, 50, 1, max_instructions);
+		register_commmands(vm);
+		vm->error = custom_error;
+		vm->warn = custom_warn;
+		vm->print = vm_output_print;
+		vm->print_custom_data = string_create(0);
+	}
 	if (systime_start == 0)
 	{
 		systime_start = system_time_ms();
 	}
 
-	register_commmands(vm);
-	vm->print = vm_output_print;
-	vm->print_custom_data = string_create(0);
 
 	val = setjmp(program_exit);
 	if (!val)
@@ -390,10 +419,15 @@ DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long
 			wcsncpy(buffer, L"<EMPTY>\n", buffer_size);
 		}
 	}
-	string_destroy(vm->print_custom_data);
-	destroy_sqfvm(vm);
+	if (vm == 0)
+	{
+		destroy_sqfvm(vm);
+		string_destroy(vm->print_custom_data);
+	}
 	return success;
 }
+
+
 
 #define RETCDE_OK 0
 #define RETCDE_ERROR 1
@@ -401,13 +435,79 @@ DLLEXPORT_PREFIX unsigned char start_program(const wchar_t* input, unsigned long
 
 //#define MAIN_BUFFER_SIZE 1990
 
+int get_bom_skip(const char* buff)
+{
+	if (buff[0] == (char)0xEF && buff[1] == (char)0xBB && buff[2] == (char)0xBF)
+	{
+		//UTF-8
+		return 3;
+	}
+	else if (buff[0] == (char)0xFE && buff[1] == (char)0xFF)
+	{
+		//UTF-16 (BE)
+		return 2;
+	}
+	else if (buff[0] == (char)0xFE && buff[1] == (char)0xFE)
+	{
+		//UTF-16 (LE)
+		return 2;
+	}
+	else if (buff[0] == (char)0x00 && buff[1] == (char)0x00 && buff[2] == (char)0xFF && buff[3] == (char)0xFF)
+	{
+		//UTF-32 (BE)
+		return 2;
+	}
+	else if (buff[0] == (char)0xFF && buff[1] == (char)0xFF && buff[2] == (char)0x00 && buff[3] == (char)0x00)
+	{
+		//UTF-32 (LE)
+		return 2;
+	}
+	else if (buff[0] == (char)0x2B && buff[1] == (char)0x2F && buff[2] == (char)0x76 &&
+		(buff[3] == (char)0x38 || buff[3] == (char)0x39 || buff[3] == (char)0x2B || buff[3] == (char)0x2F))
+	{
+		//UTF-7
+		return 4;
+	}
+	else if (buff[0] == (char)0xF7 && buff[1] == (char)0x64 && buff[2] == (char)0x4C)
+	{
+		//UTF-1
+		return 3;
+	}
+	else if (buff[0] == (char)0xDD && buff[1] == (char)0x73 && buff[2] == (char)0x66 && buff[3] == (char)0x73)
+	{
+		//UTF-EBCDIC
+		return 3;
+	}
+	else if (buff[0] == (char)0x0E && buff[1] == (char)0xFE && buff[2] == (char)0xFF)
+	{
+		//SCSU
+		return 3;
+	}
+	else if (buff[0] == (char)0xFB && buff[1] == (char)0xEE && buff[2] == (char)0x28)
+	{
+		//BOCU-1
+		if (buff[3] == (char)0xFF)
+			return 4;
+		return 3;
+	}
+	else if (buff[0] == (char)0x84 && buff[1] == (char)0x31 && buff[2] == (char)0x95 && buff[3] == (char)0x33)
+	{
+		//GB 18030
+		return 3;
+	}
+	return 0;
+}
+
 int load_file(PSTRING buffer, const char* fpath)
 {
-	FILE* fptr = fopen(fpath, "r");
+	FILE* fptr = fopen(fpath, "rb");
 	size_t size;
-	size_t curlen = buffer->length;
+	wchar_t* buff2;
+	char* filebuff;
 	int tailing = 0;
 	int lcount = 1;
+	int i;
+	unsigned int bomskip = 0;
 	if (fptr == 0)
 	{
 		printf("[ERR] Could not open file '%s'", fpath);
@@ -415,22 +515,23 @@ int load_file(PSTRING buffer, const char* fpath)
 	}
 	fseek(fptr, 0, SEEK_END);
 	size = ftell(fptr);
-	;
-	rewind(fptr);
-	string_modify_append2(buffer, size);
-	memset(buffer->val + curlen, 0, sizeof(char) * size);
-	fread(buffer->val + curlen, sizeof(char), size, fptr);
-	for (; curlen < buffer->length; curlen++)
+	fseek(fptr, 0, SEEK_SET);
+	filebuff = malloc(sizeof(char) * (size + 1));
+	memset(filebuff, 0, sizeof(char) * (size + 1));
+	fread(filebuff, sizeof(char), size, fptr);
+	bomskip = get_bom_skip(filebuff);
+	for (i = 0 + bomskip; i < size; i++)
 	{
-		if (buffer->val[curlen] == '\n')
+		if (filebuff[i] == '\n')
 			lcount++;
-		else if (buffer->val[curlen] == '\0')
+		else if (filebuff[i] == '\0')
 			tailing++;
 	}
-	if (tailing > 0)
-	{
-		string_modify_append2(buffer, -tailing);
-	}
+
+	buff2 = gen_wchar_string(filebuff + bomskip);
+	free(filebuff);
+	string_modify_append(buffer, buff2);
+	free(buff2);
 	return lcount;
 }
 
@@ -442,14 +543,19 @@ int main(int argc, char** argv)
 	unsigned char just_execute = 0;
 	unsigned char prog_success = 0;
 	PSTRING pstr;
+	PSTRING cfgbuff;
+	PCONFIG confignode;
 	unsigned long max_inst = 10000;
 	wchar_t* tmpconverted;
+	PVM vm;
 #ifdef MAIN_BUFFER_SIZE
 	wchar_t outbuffer[MAIN_BUFFER_SIZE];
 #endif // MAIN_BUFFER_SIZE
 
 	pstr = string_create(0);
+	cfgbuff = string_create(0);
 #if _WIN32 & _DEBUG
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//_CrtSetBreakAlloc(832);
 #endif
 	j = 0;
@@ -466,17 +572,46 @@ int main(int argc, char** argv)
 				return RETCDE_ERROR;
 			case '?':
 				wprintf(L"SQF-VM Help page\n");
-				wprintf(L"./prog [-j] [-s 10000] [-i <FILE>] [-I <CODE>]\n");
+				wprintf(L"./prog [-j] [-m 10000] [-s <FILE>] [-S <CODE>] [-c <FILE>] [-C <CONFIG>]\n");
 				wprintf(L"\t-?\tOutputs this help\n");
-				wprintf(L"\t-i\tLoads provided input file into the code-buffer.\n");
-				wprintf(L"\t-I\tLoads provided input SQF code into the code-buffer.\n");
+				wprintf(L"\t-s\tLooks up the path, and loads the SQF code inside into the code-buffer.\n");
+				wprintf(L"\t-S\tLoads provided input SQF code into the code-buffer.\n");
 				wprintf(L"\t-a\tDisables user input and just executes the code-buffer.\n");
-				wprintf(L"\t-s\tSets the maximum instruction count allowed before termination.\n");
+				wprintf(L"\t-m\tSets the maximum instruction count allowed before termination.\n");
 				wprintf(L"\t  \tMaximum value is %lu.\n", LONG_MAX);
-				wprintf(L"\t  \tIf `0` is passed, the limit will be disabled.\n");
+				wprintf(L"\t  \tIf `0` is passed, the limit is disabled.\n");
+				wprintf(L"\t-c\tLooks up the path, and merges the config inside into the configFile.\n");
+				wprintf(L"\t-C\tMerges provided input config into the configFile.\n");
 				return RETCDE_OK;
 				break;
-			case 'i':
+			case 'c':
+				if (i + 1 < argc)
+				{
+					k = load_file(cfgbuff, argv[++i]);
+					if (k < 0)
+						return RETCDE_ERROR;
+					j += k;
+				}
+				else
+				{
+					wprintf(L"[ERR] -s empty parameter");
+					return RETCDE_ERROR;
+				}
+				break;
+			case 'C':
+				if (i + 1 < argc)
+				{
+					tmpconverted = gen_wchar_string(argv[++i]);
+					string_modify_append(cfgbuff, tmpconverted);
+					free(tmpconverted);
+				}
+				else
+				{
+					wprintf(L"[ERR] -I empty parameter");
+					return RETCDE_ERROR;
+				}
+				break;
+			case 's':
 				if (i + 1 < argc)
 				{
 					k = load_file(pstr, argv[++i]);
@@ -486,11 +621,11 @@ int main(int argc, char** argv)
 				}
 				else
 				{
-					wprintf(L"[ERR] -i empty parameter");
+					wprintf(L"[ERR] -s empty parameter");
 					return RETCDE_ERROR;
 				}
 				break;
-			case 'I':
+			case 'S':
 				if (i + 1 < argc)
 				{
 					tmpconverted = gen_wchar_string(argv[++i]);
@@ -507,7 +642,7 @@ int main(int argc, char** argv)
 			case 'a':
 				just_execute = 1;
 				break;
-			case 's':
+			case 'm':
 				if (i + 1 < argc)
 				{
 					max_inst = strtoul(argv[i + 1], 0, 10);
@@ -515,7 +650,7 @@ int main(int argc, char** argv)
 				}
 				else
 				{
-					wprintf(L"[ERR] -I empty parameter");
+					wprintf(L"[ERR] -m empty parameter");
 					return RETCDE_ERROR;
 				}
 				break;
@@ -526,6 +661,20 @@ int main(int argc, char** argv)
 	}
 	ptr = 0;
 	i = j;
+	vm = sqfvm(10000, 50, 1, max_inst);
+	register_commmands(vm);
+	vm->error = custom_error;
+	vm->warn = custom_warn;
+	vm->print = vm_output_print;
+	vm->print_custom_data = string_create(0);
+	//load_file_into_sqf_configFile("C:\\Users\\marco.silipo\\Downloads\\AiO.1.62.137494\\test.cpp");
+	//load_file_into_sqf_configFile("C:\\Users\\marco.silipo\\Downloads\\AiO.1.62.137494\\AiO.1.62.137494.cpp");
+	if (cfgbuff->length != 0)
+	{
+		confignode = cfgparse(vm, cfgbuff->val);
+		config_merge(sqf_configFile(), confignode);
+		config_destroy_node(confignode);
+	}
 
 	if (!just_execute)
 	{
@@ -545,7 +694,7 @@ int main(int argc, char** argv)
 	{
 		if (pstr->length > 0)
 		{
-			prog_success = start_program(pstr->val, max_inst, outbuffer, MAIN_BUFFER_SIZE);
+			prog_success = start_program(pstr->val, max_inst, outbuffer, MAIN_BUFFER_SIZE, vm);
 			wprintf(L"%ls\n", outbuffer);
 		}
 	}
@@ -554,7 +703,7 @@ int main(int argc, char** argv)
 		wprintf(L"-------------------------------------\n");
 		if (pstr->length > 0)
 		{
-			prog_success = start_program(pstr->val, max_inst, outbuffer, MAIN_BUFFER_SIZE);
+			prog_success = start_program(pstr->val, max_inst, outbuffer, MAIN_BUFFER_SIZE, vm);
 			wprintf(L"%ls\n", outbuffer);
 		}
 		wprintf(L"-------------------------------------\n");
@@ -565,23 +714,29 @@ int main(int argc, char** argv)
 	if (just_execute)
 	{
 		if (pstr->length > 0)
-			prog_success = start_program(pstr->val, max_inst, 0, 0);
+			prog_success = start_program(pstr->val, max_inst, 0, 0, vm);
 	}
 	else
 	{
 		wprintf(L"-------------------------------------\n");
 		if (pstr->length > 0)
-			prog_success = start_program(pstr->val, max_inst, 0, 0);
+			prog_success = start_program(pstr->val, max_inst, 0, 0, vm);
 		wprintf(L"-------------------------------------\n");
 		wprintf(L"Press <ENTER> to finish.");
 		get_line(linebuffer, LINEBUFFER_SIZE);
 	}
 #endif // MAIN_BUFFER_SIZE
+	string_destroy(vm->print_custom_data);
+	config_destroy_node(sqf_configFile());
+	destroy_sqfvm(vm);
 	string_destroy(pstr);
+	string_destroy(cfgbuff);
 	namespace_destroy(sqf_missionNamespace());
 	namespace_destroy(sqf_parsingNamespace());
 	namespace_destroy(sqf_profileNamespace());
 	namespace_destroy(sqf_uiNamespace());
+
+	wsm_destroy_list(sqf_group_map(), inst_destroy_value);
 
 	destroy_cmdcnt(GET_PCMDCNT());
 

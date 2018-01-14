@@ -28,7 +28,6 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, bool allow_dbg, unsig
 	vm->sidemap = side_init_sidemap();
 	vm->instcount = 0;
 
-	vm->groupmap = wsm_create_list(20, 5, 5);
 	vm->scripts = malloc(sizeof(PSCRIPT) * 10);
 	vm->scripts_size = 10;
 	vm->scripts_top = 0;
@@ -61,7 +60,7 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, bool allow_dbg, unsig
 	if (find_command(vm, SCRIPT_TYPE()->name, 't') == 0) register_command(vm, SCRIPT_TYPE());
 	//register_command(vm, create_command("TARGET", 't', 0, 0));
 	//register_command(vm, create_command("JCLASS", 't', 0, 0));
-	//register_command(vm, create_command("CONFIG", 't', 0, 0));
+	if (find_command(vm, CONFIG_TYPE()->name, 't') == 0) register_command(vm, CONFIG_TYPE());
 	//register_command(vm, create_command("DISPLAY", 't', 0, 0));
 	//register_command(vm, create_command("CONTROL", 't', 0, 0));
 	//register_command(vm, create_command("NetObject", 't', 0, 0));
@@ -71,10 +70,6 @@ PVM sqfvm(unsigned int stack_size, unsigned int work_size, bool allow_dbg, unsig
 	//register_command(vm, create_command("DIARY_RECORD", 't', 0, 0));
 	//register_command(vm, create_command("LOCATION", 't', 0, 0));
 	return vm;
-}
-void destroy_sqfvm_groupmap_callback(void* ptr)
-{
-	inst_destroy_value(ptr);
 }
 void destroy_sqfvm(PVM vm)
 {
@@ -88,7 +83,6 @@ void destroy_sqfvm(PVM vm)
 	}
 	free(vm->scripts);
 	side_destroy_sidemap(vm->sidemap);
-	wsm_destroy_list(vm->groupmap, destroy_sqfvm_groupmap_callback);
 	destroy_stack(vm->stack);
 	destroy_stack(vm->work);
 	free(vm);
@@ -126,11 +120,6 @@ void sqfvm_dropscript(PVM vm, PSCRIPT script)
 }
 
 
-void cb_cmdcnt_destroy(void* data)
-{
-	PCMD cmd = data;
-	destroy_command(cmd);
-}
 PCMDCNT create_cmdcnt(void)
 {
 	PCMDCNT cmdcnt = malloc(sizeof(CMDCNT));
@@ -140,12 +129,14 @@ PCMDCNT create_cmdcnt(void)
 	cmdcnt->binary = wsm_create_list(25, 10, 10);
 	return cmdcnt;
 }
+
+void destroy_command_void(void* d) { destroy_command(d); }
 void destroy_cmdcnt(PCMDCNT cmdcnt)
 {
-	wsm_destroy_list(cmdcnt->types, cb_cmdcnt_destroy);
-	wsm_destroy_list(cmdcnt->nullar, cb_cmdcnt_destroy);
-	wsm_destroy_list(cmdcnt->unary, cb_cmdcnt_destroy);
-	wsm_destroy_list(cmdcnt->binary, cb_cmdcnt_destroy);
+	wsm_destroy_list(cmdcnt->types, destroy_command_void);
+	wsm_destroy_list(cmdcnt->nullar, destroy_command_void);
+	wsm_destroy_list(cmdcnt->unary, destroy_command_void);
+	wsm_destroy_list(cmdcnt->binary, destroy_command_void);
 	free(cmdcnt);
 }
 
@@ -161,13 +152,13 @@ PCMDCNT GET_PCMDCNT(void)
 
 void orig_error(PVM vm, const wchar_t* errMsg, PSTACK stack)
 {
-	wprintf(L"ERROR: %S\n", errMsg);
+	wprintf(L"ERROR: %ls\n", errMsg);
 	getchar();
 	exit(-1);
 }
 void orig_warn(PVM vm, const wchar_t* errMsg, PSTACK stack)
 {
-	wprintf(L"WARNING: %S\n", errMsg);
+	wprintf(L"WARNING: %ls\n", errMsg);
 }
 int sqfvm_print(PVM vm, const wchar_t* format, ...)
 {

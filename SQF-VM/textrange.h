@@ -10,14 +10,12 @@ typedef struct TEXTRANGE
 	unsigned int col;
 }TEXTRANGE;
 
-
-#define TR_ARR_INC 15
-
 typedef struct TR_ARR
 {
 	TEXTRANGE* data;
 	unsigned int size;
 	unsigned int top;
+	unsigned int increase;
 }TR_ARR;
 
 TR_ARR* tr_arr_create(void);

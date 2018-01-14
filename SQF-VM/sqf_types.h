@@ -101,6 +101,7 @@ PGROUP group_create(int side);
 void group_destroy(PGROUP group);
 PVALUE group_get_leader(PGROUP group);
 PGROUP group_from_ident(PVM vm, const wchar_t* ident);
+wsm_list* sqf_group_map(void);
 
 //NON-SQF compliant types
 
