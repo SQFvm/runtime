@@ -13,9 +13,9 @@
 #if !defined(_ARRAY) & !defined(_ARRAY_)
 #error value requires <vector> header
 #endif // !_ARRAY
-#if !defined(_MEMORY_) & !defined(_MEMORY_)
+#if !defined(_MEMORY) & !defined(_MEMORY_)
 #error value requires <memory> header
-#endif // !_STRING
+#endif // !_MEMORY_
 
 #if !defined(_SQFTYPE)
 #error value requires "sqftype.h" header
@@ -43,15 +43,16 @@ namespace sqf
 		value(bool);
 		value();
 
-		explicit operator float() const;
-		explicit operator double() const;
-		explicit operator char() const;
-		explicit operator short() const;
-		explicit operator int() const;
-		explicit operator long() const;
-		explicit operator bool() const;
-		explicit operator std::wstring() const;
-		explicit operator std::vector<std::shared_ptr<value>>() const;
+		operator float() const;
+		operator double() const;
+		operator char() const;
+		operator short() const;
+		operator int() const;
+		operator long() const;
+		operator bool() const;
+		operator std::wstring() const;
+		operator std::vector<std::shared_ptr<sqf::value>>() const;
+		operator type() const { return mtype; }
 		std::wstring name(void) const;
 		inline std::wstring to_string(void) { return mdata.get() ? mdata->to_string() : std::wstring(L"any"); }
 		type get_valuetype(void) const;

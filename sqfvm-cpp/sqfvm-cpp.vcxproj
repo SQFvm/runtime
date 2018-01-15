@@ -122,12 +122,34 @@
     <ClCompile Include="convert.cpp" />
     <ClCompile Include="booldata.cpp" />
     <ClCompile Include="Entry.cpp" />
+    <ClCompile Include="instassignto.cpp" />
+    <ClCompile Include="instassigntolocal.cpp" />
+    <ClCompile Include="instcallbinary.cpp" />
+    <ClCompile Include="instcallnullar.cpp" />
+    <ClCompile Include="instcallunary.cpp" />
+    <ClCompile Include="instgetvariable.cpp" />
     <ClCompile Include="scalardata.cpp" />
-    <ClInclude Include="scalardata.h" />
     <ClCompile Include="virtualmachine.cpp" />
+    <ClCompile Include="wstring_op.c" />
+    <ClInclude Include="callstack.h" />
+    <ClInclude Include="cmd.h" />
+    <ClInclude Include="instassignto.h" />
+    <ClInclude Include="instassigntolocal.h" />
+    <ClInclude Include="instcallbinary.h" />
+    <ClInclude Include="instcallnullar.h" />
+    <ClInclude Include="instcallunary.h" />
+    <ClInclude Include="instendstatement.h" />
+    <ClInclude Include="instgetvariable.h" />
+    <ClInclude Include="instpush.h" />
+    <ClInclude Include="instruction.h" />
+    <ClInclude Include="namespace.h" />
+    <ClInclude Include="scalardata.h" />
     <ClCompile Include="stringdata.cpp" />
     <ClInclude Include="stringdata.h" />
     <ClCompile Include="value.cpp" />
+    <ClInclude Include="varscope.h" />
+    <ClInclude Include="vmstack.h" />
+    <ClInclude Include="wstring_op.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arraydata.h" />
@@ -135,7 +157,7 @@
     <ClInclude Include="data.h" />
     <ClInclude Include="booldata.h" />
     <ClInclude Include="full.h" />
-    <ClInclude Include="sqftype.h" />
+    <ClInclude Include="type.h" />
     <ClInclude Include="value.h" />
     <ClInclude Include="virtualmachine.h" />
   </ItemGroup>

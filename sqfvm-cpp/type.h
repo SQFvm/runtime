@@ -5,6 +5,7 @@ namespace sqf
 {
 	enum type
 	{
+		NA = -1,
 		NOTHING,
 		ANY,
 		SCALAR,

@@ -140,12 +140,12 @@ sqf::value::operator std::wstring() const
 	}
 	return *(std::dynamic_pointer_cast<stringdata>(data).get());
 }
-sqf::value::operator std::vector<sqf::value_s>() const
+sqf::value::operator std::vector<std::shared_ptr<sqf::value>>() const
 {
 	auto data = mdata;
-	if (mtype != STRING)
+	if (mtype != ARRAY)
 	{
-		data = sqf::convert(data, STRING);
+		data = sqf::convert(data, ARRAY);
 	}
 	return *(std::dynamic_pointer_cast<arraydata>(data).get());
 }

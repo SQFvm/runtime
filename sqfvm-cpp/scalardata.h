@@ -4,7 +4,7 @@
 #if !defined(_STRING) & !defined(_STRING_)
 #error scalardata requires <string> header
 #endif // !_STRING
-#if !defined(_MEMORY_) & !defined(_MEMORY_)
+#if !defined(_MEMORY) & !defined(_MEMORY_)
 #error scalardata requires <memory> header
 #endif // !_STRING
 #if !defined(_DATA)

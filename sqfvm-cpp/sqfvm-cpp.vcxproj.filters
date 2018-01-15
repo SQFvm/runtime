@@ -19,6 +19,15 @@
     <Filter Include="Source Files\data">
       <UniqueIdentifier>{d65d65af-2264-43d1-97a5-007331fde389}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\instructions">
+      <UniqueIdentifier>{b258d7f2-a2b6-4d57-8127-f64c8cc6406f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\instructions">
+      <UniqueIdentifier>{db62f1e7-3b0f-4cc6-a159-67bf03fe3d38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\commands">
+      <UniqueIdentifier>{a89416f8-a537-411b-b018-67df4ebc974d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entry.cpp">
@@ -33,14 +42,8 @@
     <ClCompile Include="booldata.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>
-    <ClCompile Include="scalardata.h">
-      <Filter>Header Files\data</Filter>
-    </ClCompile>
     <ClCompile Include="scalardata.cpp">
       <Filter>Source Files\data</Filter>
-    </ClCompile>
-    <ClCompile Include="stringdata.h">
-      <Filter>Header Files\data</Filter>
     </ClCompile>
     <ClCompile Include="stringdata.cpp">
       <Filter>Source Files\data</Filter>
@@ -48,8 +51,29 @@
     <ClCompile Include="arraydata.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>
+    <ClCompile Include="wstring_op.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="virtualmachine.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="instassignto.cpp">
+      <Filter>Source Files\instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="instassigntolocal.cpp">
+      <Filter>Source Files\instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="instcallbinary.cpp">
+      <Filter>Source Files\instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="instcallnullar.cpp">
+      <Filter>Source Files\instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="instcallunary.cpp">
+      <Filter>Source Files\instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="instgetvariable.cpp">
+      <Filter>Source Files\instructions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -57,9 +81,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="full.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sqftype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="data.h">
@@ -76,6 +97,60 @@
     </ClInclude>
     <ClInclude Include="virtualmachine.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vmstack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="namespace.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="wstring_op.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stringdata.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="scalardata.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="instruction.h">
+      <Filter>Header Files\instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="varscope.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="callstack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cmd.h">
+      <Filter>Header Files\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="instendstatement.h">
+      <Filter>Header Files\instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="instcallnullar.h">
+      <Filter>Header Files\instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="instcallunary.h">
+      <Filter>Header Files\instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="instgetvariable.h">
+      <Filter>Header Files\instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="instpush.h">
+      <Filter>Header Files\instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="instassignto.h">
+      <Filter>Header Files\instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="instassigntolocal.h">
+      <Filter>Header Files\instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="instcallbinary.h">
+      <Filter>Header Files\instructions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
