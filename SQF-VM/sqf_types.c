@@ -43,6 +43,14 @@ bool is_equal_to(PVALUE l, PVALUE r)
 	}
 	else if (l->type == STRING_TYPE())
 	{
+		if (((PSTRING)r->val.ptr)->val == 0 && ((PSTRING)l->val.ptr)->val == 0)
+		{
+			return 1;
+		}
+		else if (((PSTRING)r->val.ptr)->val == 0 || ((PSTRING)l->val.ptr)->val == 0)
+		{
+			return 0;
+		}
 		return !wcscmp(((PSTRING)l->val.ptr)->val, ((PSTRING)r->val.ptr)->val);
 	}
 	else if (l->type == NAMESPACE_TYPE())
