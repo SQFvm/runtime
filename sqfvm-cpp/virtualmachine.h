@@ -46,6 +46,7 @@ namespace sqf
 		virtualmachine(unsigned long long maxinst);
 		void execute(void);
 		inline vmstack_s stack(void) const { return mstack; }
+		static std::wstring dbgsegment(const wchar_t* full, size_t off, size_t length);
 
 		void parse_assembly(std::wstring);
 		void parse_sqf(std::wstring);

@@ -20,8 +20,10 @@ namespace sqf
 	{
 	private:
 		std::vector<value_s> mvalue;
+		size_t msize;
 	public:
 		arraydata();
+		arraydata(size_t);
 		arraydata(std::vector<value_s>);
 		virtual std::wstring to_string(void) const;
 		value_s& operator[](int);

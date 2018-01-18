@@ -15,5 +15,13 @@ void sqf::inst::callbinary::execute(const virtualmachine* vm) const
 		vm->err() << dbginf(L"ASS") << "callBinary could not receive a value for right arg." << std::endl;
 		return;
 	}
-	mcmd->execute(vm, left, right);
+	auto cmd = sqf::commandmap::find(mcmds, left->get_valuetype(), right->get_valuetype());
+	if (cmd.get())
+	{
+		cmd->execute(vm, value_s(), right);
+	}
+	else
+	{
+		vm->err() << dbginf(L"ERR") << "Unknown input type combination. LType:" << right->get_valuetype() << L", RType: " << left->get_valuetype() << L'.' << std::endl;
+	}
 }

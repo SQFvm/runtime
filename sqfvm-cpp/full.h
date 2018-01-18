@@ -38,6 +38,7 @@ extern "C" {
 #include "instcallunary.h"
 #include "instendstatement.h"
 #include "instgetvariable.h"
+#include "instmakearray.h"
 #include "instpush.h"
 
 #include "namespaces.h"

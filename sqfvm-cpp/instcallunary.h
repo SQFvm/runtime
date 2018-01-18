@@ -21,9 +21,9 @@ namespace sqf
 		class callunary : public instruction
 		{
 		private:
-			cmd_s mcmd;
+			std::vector<std::shared_ptr<unarycmd>> mcmds;
 		public:
-			callunary(cmd_s cmd) { mcmd = cmd; }
+			callunary(std::vector<std::shared_ptr<unarycmd>> cmds) { mcmds = cmds; }
 			virtual void execute(const virtualmachine*) const;
 		};
 		typedef std::shared_ptr<callunary> callunary_s;

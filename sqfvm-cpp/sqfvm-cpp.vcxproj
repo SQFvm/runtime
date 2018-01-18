@@ -138,6 +138,7 @@
     <ClCompile Include="wstring_op.c" />
     <ClInclude Include="callstack.h" />
     <ClInclude Include="cmd.h" />
+    <ClInclude Include="compiletime.h" />
     <ClInclude Include="instassignto.h" />
     <ClInclude Include="instassigntolocal.h" />
     <ClInclude Include="instcallbinary.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="instgetvariable.h" />
     <ClInclude Include="instpush.h" />
     <ClInclude Include="instruction.h" />
+    <ClInclude Include="instmakearray.h" />
     <ClInclude Include="namespace.h" />
     <ClInclude Include="namespaces.h" />
     <ClInclude Include="scalardata.h" />

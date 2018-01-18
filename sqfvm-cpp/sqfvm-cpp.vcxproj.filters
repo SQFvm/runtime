@@ -176,5 +176,11 @@
     <ClInclude Include="vmstack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="compiletime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="instmakearray.h">
+      <Filter>Header Files\instructions</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

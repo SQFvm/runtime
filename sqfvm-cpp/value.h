@@ -42,6 +42,7 @@ namespace sqf
 		value(long);
 		value(bool);
 		value();
+		value(data_s d, type t) { mdata = d; mtype = t; }
 
 		operator float() const;
 		operator double() const;

@@ -19,10 +19,22 @@ namespace sqf
 		std::vector<callstack_s> mstacks;
 		std::vector<value_s> mvalstack;
 	public:
-		inline void pushinst(std::shared_ptr<instruction> inst) { mstacks.back()->pushinst(inst); }
-		inline std::shared_ptr<instruction> popinst(void) { if (mstacks.empty()) return instruction_s(); return mstacks.back()->popinst(); }
+		inline void pushinst(std::shared_ptr<instruction> inst) { if (mstacks.empty()) { mstacks.push_back(std::make_shared<callstack>()); } mstacks.back()->pushinst(inst); }
+		inline std::shared_ptr<instruction> popinst(void)
+		{
+			if (mstacks.empty())
+				return instruction_s();
+			auto ret = mstacks.back()->popinst();
+			if (!ret.get())
+			{
+				dropcallstack();
+				ret = mstacks.empty() ? std::shared_ptr<instruction>() : mstacks.back()->popinst();
+			}
+			return ret;
+		}
 		inline std::shared_ptr<instruction> peekinst(void) { if (mstacks.empty()) return instruction_s(); return mstacks.back()->peekinst(); }
 		inline void pushcallstack(callstack_s cs) { mstacks.push_back(cs); }
+		inline void dropcallstack() { if(!mstacks.empty()) mstacks.pop_back(); }
 		inline void dropcallstack(std::wstring name, bool include = true)
 		{
 			int i;
@@ -44,6 +56,7 @@ namespace sqf
 				}
 			}
 		}
+
 
 		inline std::vector<callstack_s>::reverse_iterator stacks_begin(void) { return mstacks.rbegin(); }
 		inline std::vector<callstack_s>::reverse_iterator stacks_end(void) { return mstacks.rend(); }

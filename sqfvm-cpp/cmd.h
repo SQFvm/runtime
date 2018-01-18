@@ -60,26 +60,6 @@ namespace sqf
 		std::unordered_map<std::wstring, std::shared_ptr<nullarcmd>> mnullarcmd;
 		std::unordered_map<std::wstring, std::vector<std::shared_ptr<unarycmd>>> munarycmd;
 		std::unordered_map<std::wstring, std::vector<std::shared_ptr<binarycmd>>> mbinarycmd;
-		std::shared_ptr<unarycmd> find(std::vector<std::shared_ptr<unarycmd>> list, type rtype) {
-			for each (auto it in list)
-			{
-				if (it->matches(type::NA, rtype))
-				{
-					return it;
-				}
-			}
-			return std::shared_ptr<unarycmd>();
-		}
-		std::shared_ptr<binarycmd> find(std::vector<std::shared_ptr<binarycmd>> list, type ltype, type rtype) {
-			for each (auto it in list)
-			{
-				if (it->matches(ltype, rtype))
-				{
-					return it;
-				}
-			}
-			return std::shared_ptr<binarycmd>();
-		}
 	public:
 		commandmap() {}
 		void add(std::shared_ptr<nullarcmd> cmd) { mnullarcmd[cmd->name()] = cmd; }
@@ -101,6 +81,30 @@ namespace sqf
 		std::shared_ptr<binarycmd> get(std::wstring str, type ltype, type rtype)
 		{
 			auto list = mbinarycmd[str];
+			for each (auto it in list)
+			{
+				if (it->matches(ltype, rtype))
+				{
+					return it;
+				}
+			}
+			return std::shared_ptr<binarycmd>();
+		}
+
+		std::vector<std::shared_ptr<unarycmd>> getrange_u(std::wstring str) { return munarycmd[str]; }
+		std::vector<std::shared_ptr<binarycmd>> getrange_b(std::wstring str) { return mbinarycmd[str]; }
+
+		static std::shared_ptr<unarycmd> find(std::vector<std::shared_ptr<unarycmd>> list, type rtype) {
+			for each (auto it in list)
+			{
+				if (it->matches(type::NA, rtype))
+				{
+					return it;
+				}
+			}
+			return std::shared_ptr<unarycmd>();
+		}
+		static std::shared_ptr<binarycmd> find(std::vector<std::shared_ptr<binarycmd>> list, type ltype, type rtype) {
 			for each (auto it in list)
 			{
 				if (it->matches(ltype, rtype))
