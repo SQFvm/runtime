@@ -14,8 +14,15 @@ namespace sqf
 	class virtualmachine;
 	class instruction
 	{
+	private:
+		size_t mline;
+		size_t mcol;
+		std::wstring mfile;
+		std::wstring msegment;
 	public:
-		virtual void execute(const virtualmachine*, std::shared_ptr<vmstack>) const = 0;
+		virtual void execute(const virtualmachine*) const = 0;
+		void setdbginf(size_t line, size_t col, std::wstring file, std::wstring segment);
+		std::wstring dbginf(std::wstring tag) const;
 	};
 	typedef std::shared_ptr<instruction> instruction_s;
 	typedef std::weak_ptr<instruction> instruction_w;

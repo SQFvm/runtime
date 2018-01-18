@@ -24,7 +24,7 @@ namespace sqf
 			value_s mvalue;
 		public:
 			push(value_s val) { mvalue = val; }
-			virtual void execute(const virtualmachine* vm, std::shared_ptr<vmstack> stack) const { stack->pushval(mvalue); }
+			virtual void execute(const virtualmachine* vm) const { vm->stack()->pushval(mvalue); }
 		};
 		typedef std::shared_ptr<push> push_s;
 		typedef std::weak_ptr<push> push_w;

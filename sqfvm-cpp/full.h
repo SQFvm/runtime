@@ -40,4 +40,6 @@ extern "C" {
 #include "instgetvariable.h"
 #include "instpush.h"
 
+#include "namespaces.h"
+
 #endif // !_FULL

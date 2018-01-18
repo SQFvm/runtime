@@ -1,11 +1,11 @@
 #include "full.h"
 
-void sqf::inst::getvariable::execute(const virtualmachine* vm, std::shared_ptr<vmstack> stack) const
+void sqf::inst::getvariable::execute(const virtualmachine* vm) const
 {
 	value_s val;
 	if (mvarname[0] == L'_')
 	{//localvar
-		for (auto it = stack->stacks_begin(); it != stack->stacks_end(); it++)
+		for (auto it = vm->stack()->stacks_begin(); it != vm->stack()->stacks_end(); it++)
 		{
 			if (it->get()->containsvar(mvarname))
 			{
@@ -16,7 +16,7 @@ void sqf::inst::getvariable::execute(const virtualmachine* vm, std::shared_ptr<v
 	}
 	else
 	{//globalvar
-		//ToDo: get from current namespace
+		val = vm->stack()->stacks_top()->getvar(mvarname);
 	}
-	stack->pushval(val);
+	vm->stack()->pushval(val);
 }

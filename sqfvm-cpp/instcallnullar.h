@@ -24,7 +24,7 @@ namespace sqf
 			cmd_s mcmd;
 		public:
 			callnullar(cmd_s cmd) { mcmd = cmd; }
-			virtual void execute(const virtualmachine*, std::shared_ptr<vmstack>) const;
+			virtual void execute(const virtualmachine*) const;
 		};
 		typedef std::shared_ptr<callnullar> callnullar_s;
 		typedef std::weak_ptr<callnullar> callnullar_w;

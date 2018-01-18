@@ -1,8 +1,12 @@
 #ifndef _CMD
 #define _CMD 1
+#include <functional>
 
 namespace sqf
 {
+	typedef value_s(*nullarcb)(const virtualmachine*);
+	typedef value_s(*unarycb)(const virtualmachine*, value_s);
+	typedef value_s(*binarycb)(const virtualmachine*, value_s, value_s);
 	class cmd
 	{
 	private:
@@ -13,37 +17,110 @@ namespace sqf
 
 	public:
 		cmd(std::wstring name, type ltype, type rtype, std::wstring description) { mname = name; mltype = ltype; mrtype = rtype; mdesc = description; }
-		virtual value_s execute(const virtualmachine*, vmstack_s, value_s left, value_s right) const = 0;
+		virtual value_s execute(const virtualmachine*, value_s left, value_s right) const = 0;
 		bool matches(type ltype, type rtype) { return mltype == ltype && mrtype == rtype; }
+		bool matches(std::wstring name, type ltype, type rtype) { return mltype == ltype && mrtype == rtype && wstr_cmpi(mname.c_str(), -1, name.c_str(), -1); }
+		std::wstring desc(void) { return mdesc; }
+		std::wstring name(void) { return mname; }
 	};
 
 
-	class nullar : public cmd
+	class nullarcmd : public cmd
 	{
-	protected:
-		virtual value_s exec(const virtualmachine*, vmstack_s) const = 0;
+	private:
+		nullarcb mfnc;
 	public:
-		nullar(std::wstring name, std::wstring description) : cmd(name, type::NA, type::NA, description) {}
-		virtual value_s execute(const virtualmachine* vm, vmstack_s s, value_s left, value_s right) const { return exec(vm, s); }
+		nullarcmd(std::wstring name, std::wstring description, nullarcb fnc) : cmd(name, type::NA, type::NA, description) { mfnc = fnc; }
+		virtual value_s execute(const virtualmachine* vm, value_s left, value_s right) const { return mfnc(vm); }
 	};
-	class unary : public cmd
+	class unarycmd : public cmd
 	{
-	protected:
-		virtual value_s exec(const virtualmachine*, vmstack_s, value_s right) const = 0;
+	private:
+		unarycb mfnc;
 	public:
-		unary(std::wstring name, type rtype, std::wstring description) : cmd(name, type::NA, rtype, description) {}
-		virtual value_s execute(const virtualmachine* vm, vmstack_s s, value_s left, value_s right) const { return exec(vm, s, right); }
+		unarycmd(std::wstring name, type rtype, std::wstring description, unarycb fnc) : cmd(name, type::NA, rtype, description) { mfnc = fnc; }
+		virtual value_s execute(const virtualmachine* vm, value_s left, value_s right) const { return mfnc(vm, right); }
 	};
-	class binary : public cmd
+	class binarycmd : public cmd
 	{
-	protected:
-		virtual value_s exec(const virtualmachine*, vmstack_s, value_s left, value_s right) const = 0;
+	private:
+		binarycb mfnc;
 	public:
-		binary(std::wstring name, type ltype, type rtype, std::wstring description) : cmd(name, ltype, rtype, description) {}
-		virtual value_s execute(const virtualmachine* vm, vmstack_s s, value_s left, value_s right) const { return exec(vm, s, left, right); }
+		binarycmd(std::wstring name, type ltype, type rtype, std::wstring description, binarycb fnc) : cmd(name, ltype, rtype, description) { mfnc = fnc; }
+		virtual value_s execute(const virtualmachine* vm, value_s left, value_s right) const { return mfnc(vm, left, right); }
 	};
 
+#define nullar(name, description, fnc) std::make_shared<nullarcmd>(name, description, fnc)
+#define unary(name, rtype, description, fnc) std::make_shared<unarycmd>(name, rtype, description, fnc)
+#define binary(name, ltype, rtype, description, fnc) std::make_shared<binarycmd>(name, ltype, rtype, description, fnc)
 
+	class commandmap
+	{
+	private:
+		std::unordered_map<std::wstring, std::shared_ptr<nullarcmd>> mnullarcmd;
+		std::unordered_map<std::wstring, std::vector<std::shared_ptr<unarycmd>>> munarycmd;
+		std::unordered_map<std::wstring, std::vector<std::shared_ptr<binarycmd>>> mbinarycmd;
+		std::shared_ptr<unarycmd> find(std::vector<std::shared_ptr<unarycmd>> list, type rtype) {
+			for each (auto it in list)
+			{
+				if (it->matches(type::NA, rtype))
+				{
+					return it;
+				}
+			}
+			return std::shared_ptr<unarycmd>();
+		}
+		std::shared_ptr<binarycmd> find(std::vector<std::shared_ptr<binarycmd>> list, type ltype, type rtype) {
+			for each (auto it in list)
+			{
+				if (it->matches(ltype, rtype))
+				{
+					return it;
+				}
+			}
+			return std::shared_ptr<binarycmd>();
+		}
+	public:
+		commandmap() {}
+		void add(std::shared_ptr<nullarcmd> cmd) { mnullarcmd[cmd->name()] = cmd; }
+		void add(std::shared_ptr<unarycmd> cmd) { auto list = munarycmd[cmd->name()]; list.push_back(cmd); }
+		void add(std::shared_ptr<binarycmd> cmd) { auto list = mbinarycmd[cmd->name()]; list.push_back(cmd); }
+		std::shared_ptr<nullarcmd> get(std::wstring str) { return mnullarcmd[str]; }
+		std::shared_ptr<unarycmd> get(std::wstring str, type rtype)
+		{
+			auto list = munarycmd[str];
+			for each (auto it in list)
+			{
+				if (it->matches(type::NA, rtype))
+				{
+					return it;
+				}
+			}
+			return std::shared_ptr<unarycmd>();
+		}
+		std::shared_ptr<binarycmd> get(std::wstring str, type ltype, type rtype)
+		{
+			auto list = mbinarycmd[str];
+			for each (auto it in list)
+			{
+				if (it->matches(ltype, rtype))
+				{
+					return it;
+				}
+			}
+			return std::shared_ptr<binarycmd>();
+		}
+
+		static sqf::commandmap& get(void);
+
+		void init(void);
+		inline void uninit(void)
+		{
+			get().mnullarcmd.clear();
+			get().munarycmd.clear();
+			get().mbinarycmd.clear();
+		}
+	};
 	typedef std::shared_ptr<cmd> cmd_s;
 	typedef std::weak_ptr<cmd> cmd_w;
 	typedef std::unique_ptr<cmd> cmd_u;

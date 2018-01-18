@@ -18,7 +18,7 @@ namespace sqf
 		class endstatement : public instruction
 		{
 		public:
-			virtual void execute(const virtualmachine* vm, std::shared_ptr<vmstack> stack) const { stack->dropvals(); }
+			virtual void execute(const virtualmachine* vm) const { vm->stack()->dropvals(); }
 		};
 		typedef std::shared_ptr<endstatement> endstatement_s;
 		typedef std::weak_ptr<endstatement> endstatement_w;

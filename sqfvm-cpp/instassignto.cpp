@@ -1,21 +1,28 @@
 #include "full.h"
 
-void sqf::inst::assignto::execute(const virtualmachine* vm, std::shared_ptr<vmstack> stack) const
+void sqf::inst::assignto::execute(const virtualmachine* vm) const
 {
 	bool flag;
-	auto val = stack->popval(flag);
+	auto val = vm->stack()->popval(flag);
 	if (!flag)
 	{
-		vm->err() << L"[ASS]" << vm->dbginf() << "assignTo could not receive a value." << std::endl;
+		vm->err() << dbginf(L"ASS") << "assignTo could not receive a value." << std::endl;
 		return;
 	}
-	for (auto it = stack->stacks_begin(); it != stack->stacks_end(); it++)
+	if (mvarname[0] == '_')
 	{
-		if (it->get()->containsvar(mvarname))
+		for (auto it = vm->stack()->stacks_begin(); it != vm->stack()->stacks_end(); it++)
 		{
-			it->get()->setvar(mvarname, val);
-			return;
+			if (it->get()->containsvar(mvarname))
+			{
+				it->get()->setvar(mvarname, val);
+				return;
+			}
 		}
+		vm->stack()->stacks_top()->setvar(mvarname, val);
 	}
-	stack->stacks_top()->setvar(mvarname, val);
+	else
+	{
+		vm->stack()->stacks_top()->getnamespace().setvar(mvarname, val);
+	}
 }

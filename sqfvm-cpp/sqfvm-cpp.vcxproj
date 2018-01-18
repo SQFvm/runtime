@@ -119,6 +119,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="arraydata.cpp" />
+    <ClCompile Include="callstack.cpp" />
+    <ClCompile Include="cmd.cpp" />
     <ClCompile Include="convert.cpp" />
     <ClCompile Include="booldata.cpp" />
     <ClCompile Include="Entry.cpp" />
@@ -128,6 +130,9 @@
     <ClCompile Include="instcallnullar.cpp" />
     <ClCompile Include="instcallunary.cpp" />
     <ClCompile Include="instgetvariable.cpp" />
+    <ClCompile Include="instruction.cpp" />
+    <ClCompile Include="namespaces.cpp" />
+    <ClCompile Include="parseassembly.cpp" />
     <ClCompile Include="scalardata.cpp" />
     <ClCompile Include="virtualmachine.cpp" />
     <ClCompile Include="wstring_op.c" />
@@ -143,6 +148,7 @@
     <ClInclude Include="instpush.h" />
     <ClInclude Include="instruction.h" />
     <ClInclude Include="namespace.h" />
+    <ClInclude Include="namespaces.h" />
     <ClInclude Include="scalardata.h" />
     <ClCompile Include="stringdata.cpp" />
     <ClInclude Include="stringdata.h" />

@@ -24,7 +24,7 @@ namespace sqf
 			std::wstring mvarname;
 		public:
 			getvariable(std::wstring varname) { mvarname = varname; }
-			virtual void execute(const virtualmachine*, std::shared_ptr<vmstack>) const;
+			virtual void execute(const virtualmachine*) const;
 		};
 		typedef std::shared_ptr<getvariable> getvariable_s;
 		typedef std::weak_ptr<getvariable> getvariable_w;

@@ -39,14 +39,16 @@ namespace sqf
 		std::wostream* merr;
 		std::wostream* mwrn;
 	public:
-
 		std::wostream& out(void) const { return *mout; }
 		std::wostream& err(void) const { return *merr; }
 		std::wostream& wrn(void) const { return *mwrn; }
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
 		void execute(void);
-		std::wstring dbginf(void) const { return L"\t"; }
+		inline vmstack_s stack(void) const { return mstack; }
+
+		void parse_assembly(std::wstring);
+		void parse_sqf(std::wstring);
 	};
 	typedef std::shared_ptr<virtualmachine> virtualmachine_s;
 	typedef std::weak_ptr<virtualmachine> virtualmachine_w;

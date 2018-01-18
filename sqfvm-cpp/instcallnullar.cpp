@@ -1,6 +1,6 @@
 #include "full.h"
 
-void sqf::inst::callnullar::execute(const virtualmachine* vm, std::shared_ptr<vmstack> stack) const
+void sqf::inst::callnullar::execute(const virtualmachine* vm) const
 {
-	//ToDo: finish
+	mcmd->execute(vm, value_s(), value_s());
 }

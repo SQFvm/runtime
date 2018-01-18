@@ -28,6 +28,12 @@
     <Filter Include="Header Files\commands">
       <UniqueIdentifier>{a89416f8-a537-411b-b018-67df4ebc974d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\commands">
+      <UniqueIdentifier>{34f19fe5-a17a-4fd3-8801-a06c50150e2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\parse">
+      <UniqueIdentifier>{8ff3902c-2819-4e90-acbd-76285561ec1a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entry.cpp">
@@ -75,6 +81,21 @@
     <ClCompile Include="instgetvariable.cpp">
       <Filter>Source Files\instructions</Filter>
     </ClCompile>
+    <ClCompile Include="namespaces.cpp">
+      <Filter>Source Files\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="cmd.cpp">
+      <Filter>Source Files\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="callstack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="instruction.cpp">
+      <Filter>Source Files\instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="parseassembly.cpp">
+      <Filter>Source Files\parse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -99,9 +120,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="type.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="vmstack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="namespace.h">
@@ -151,6 +169,12 @@
     </ClInclude>
     <ClInclude Include="instcallbinary.h">
       <Filter>Header Files\instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="namespaces.h">
+      <Filter>Header Files\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="vmstack.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
