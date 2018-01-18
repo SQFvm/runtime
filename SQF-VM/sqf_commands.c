@@ -1470,16 +1470,16 @@ void cmd_equal(void* input, CPCMD self)
 	}
 	else if (left_val->type == STRING_TYPE())
 	{
-		if (((PSTRING)left_val->val.ptr)->val &&
-			((PSTRING)right_val->val.ptr)->val)
+		if (!((PSTRING)left_val->val.ptr)->val &&
+			!((PSTRING)right_val->val.ptr)->val)
 		{
 			push_stack(vm, vm->stack,
 				inst_value(
 					value(BOOL_TYPE(),
 						base_int(1))));
 		}
-		else if (((PSTRING)left_val->val.ptr)->val &&
-			((PSTRING)right_val->val.ptr)->val)
+		else if (!((PSTRING)left_val->val.ptr)->val &&
+			!((PSTRING)right_val->val.ptr)->val)
 		{
 			push_stack(vm, vm->stack,
 				inst_value(
