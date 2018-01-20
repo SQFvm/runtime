@@ -21,7 +21,7 @@ namespace sqf
 			size_t msize;
 		public:
 			makearray(size_t size) { msize = size; }
-			virtual void execute(const virtualmachine* vm) const { vm->stack()->pushval(std::make_shared<value>(std::vector<value_s>(msize))); }
+			virtual void execute(const virtualmachine* vm) const;
 		};
 		typedef std::shared_ptr<makearray> makearray_s;
 		typedef std::weak_ptr<makearray> makearray_w;

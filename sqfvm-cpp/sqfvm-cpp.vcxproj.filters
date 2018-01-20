@@ -102,6 +102,9 @@
     <ClCompile Include="codedata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="instmakearray.cpp">
+      <Filter>Source Files\instructions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">

@@ -131,6 +131,7 @@
     <ClCompile Include="instcallnullar.cpp" />
     <ClCompile Include="instcallunary.cpp" />
     <ClCompile Include="instgetvariable.cpp" />
+    <ClCompile Include="instmakearray.cpp" />
     <ClCompile Include="instruction.cpp" />
     <ClCompile Include="namespaces.cpp" />
     <ClCompile Include="parseassembly.cpp" />
