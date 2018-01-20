@@ -32,6 +32,7 @@ namespace sqf
 		inline instruction_s popinst(void) { if (mstack.empty()) return instruction_s(); auto ret = mstack.top(); mstack.pop(); return ret; }
 		inline instruction_s peekinst(void) { if (mstack.empty()) return instruction_s(); auto top = mstack.top(); return top; }
 		inline sqfnamespace& getnamespace(void) const { return mwith; }
+		inline size_t inststacksize(void) const { return mstack.size(); }
 		inline void setnamespace(sqfnamespace& ns) { mwith = ns; }
 	};
 

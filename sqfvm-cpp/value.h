@@ -26,6 +26,7 @@
 
 namespace sqf
 {
+	class callstack;
 	class value
 	{
 	private:
@@ -41,6 +42,7 @@ namespace sqf
 		value(int);
 		value(long);
 		value(bool);
+		value(std::shared_ptr<callstack>);
 		value();
 		value(data_s d, type t) { mdata = d; mtype = t; }
 

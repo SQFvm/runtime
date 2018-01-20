@@ -24,6 +24,7 @@ namespace sqf
 	private:
 		std::vector<instruction_s> minsts;
 	public:
+		codedata(callstack_s);
 		virtual std::wstring to_string(void) const;
 		void add(instruction_s inst) { minsts.push_back(inst); }
 		void loadinto(vmstack_s stack)

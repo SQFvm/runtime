@@ -327,13 +327,17 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; code[i] >= L'0' && code[i] <= L'9' || code[i] >= L'A' && code[i] <= L'F' || code[i] >= L'a' && code[i] <= L'f'; i++);
-			number = std::stol(std::wstring(code + curoff, code + curoff + i), 0, 16);
+			number = std::stol(std::wstring(code + curoff, code + i), 0, 16);
+			col += i - curoff;
+			curoff = i;
 		}
 		else if (code[curoff] == L'0' && code[curoff + 1] == L'x')
 		{
 			size_t i;
 			for (i = curoff + 2; code[i] >= L'0' && code[i] <= L'9' || code[i] >= L'A' && code[i] <= L'F' || code[i] >= L'a' && code[i] <= L'f'; i++);
-			number = std::stol(std::wstring(code + curoff, code + curoff + i), 0, 16);
+			number = std::stol(std::wstring(code + curoff, code + i), 0, 16);
+			col += i - curoff;
+			curoff = i;
 		}
 		else
 		{
@@ -371,7 +375,9 @@ namespace
 				}
 
 			}
-			number = std::stod(std::wstring(code + curoff, code + curoff + i));
+			number = std::stod(std::wstring(code + curoff, code + i));
+			col += i - curoff;
+			curoff = i;
 		}
 		cs->pushinst(std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(number)));
 	}
@@ -392,19 +398,103 @@ namespace
 	bool STRING_start(const wchar_t* code, size_t curoff) { return code[curoff] == L'\'' || code[curoff] == L'"'; }
 	void STRING(sqf::virtualmachine* vm, sqf::callstack_s cs, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, std::wstring file)
 	{
-
+		size_t i;
+		auto startchr = code[curoff];
+		col++;
+		for (i = curoff + 1; code[i] != L'\0' && (code[i] != startchr || code[i + 1] == startchr); i++)
+		{
+			switch (code[i])
+			{
+			case L'\n':
+				col = 0;
+				line++;
+				break;
+			default:
+				col++;
+				break;
+			}
+		}
+		auto str = sqf::stringdata::parse_from_sqf(std::wstring(code + curoff, code + i));
+		cs->pushinst(std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(str)));
+		curoff = i;
+		curoff++;
+		col++;
 	}
 	//CODE = "{" SQF "}";
 	bool CODE_start(const wchar_t* code, size_t curoff) { return code[curoff] == L'{'; }
 	void CODE(sqf::virtualmachine* vm, sqf::callstack_s cs, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, std::wstring file)
 	{
+		curoff++;
+		col++;
+		skip(code, line, col, curoff);
 
+		auto newstack = std::make_shared<sqf::callstack>();
+
+		if (SQF_start(code, curoff))
+		{
+			BINARYEXPRESSION(vm, newstack, code, line, col, curoff, file);
+		}
+		else
+		{
+			size_t i;
+			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"\t" << L"Expected SQF start.";
+		}
+
+		if (code[curoff] == L'}')
+		{
+			curoff++;
+			col++;
+		}
+		else
+		{
+			size_t i;
+			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"\t" << L"Expected '}'.";
+		}
+		cs->pushinst(std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(newstack)));
 	}
 	//ARRAY = '[' [ BINARYEXPRESSION { ',' BINARYEXPRESSION } ] ']';
 	bool ARRAY_start(const wchar_t* code, size_t curoff) { return code[curoff] == L'['; }
 	void ARRAY(sqf::virtualmachine* vm, sqf::callstack_s cs, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, std::wstring file)
 	{
+		curoff++;
+		col++;
+		skip(code, line, col, curoff);
+		if (BINARYEXPRESSION_start(code, curoff))
+		{
+			BINARYEXPRESSION(vm, cs, code, line, col, curoff, file);
+			skip(code, line, col, curoff);
+			while (code[curoff] == L',')
+			{
+				col++;
+				curoff++;
+				skip(code, line, col, curoff);
 
+				if (BINARYEXPRESSION_start(code, curoff))
+				{
+					BINARYEXPRESSION(vm, cs, code, line, col, curoff, file);
+					skip(code, line, col, curoff);
+				}
+				else
+				{
+					size_t i;
+					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
+					vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"\t" << L"Expected BINARYEXPRESSION start.";
+				}
+			}
+		}
+		if (code[curoff] == L']')
+		{
+			curoff++;
+			col++;
+		}
+		else
+		{
+			size_t i;
+			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"\t" << L"Expected ']'.";
+		}
 	}
 }
 
@@ -418,7 +508,3 @@ void sqf::virtualmachine::parse_sqf(std::wstring codein)
 	auto cs = std::make_shared<callstack>();
 	SQF(this, cs, code, line, col, curoff);
 }
-test
-_test
-0test
-_0test

@@ -56,6 +56,12 @@ sqf::value::value(bool flag)
 	mdata = std::make_shared<booldata>(flag);
 }
 
+sqf::value::value(std::shared_ptr<sqf::callstack> cs)
+{
+	mtype = type::CODE;
+	mdata = std::make_shared<codedata>(cs);
+}
+
 sqf::value::value()
 {
 	mtype = type::NOTHING;
