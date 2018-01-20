@@ -27,6 +27,7 @@ extern "C" {
 #include "arraydata.h"
 #include "namespace.h"
 #include "instruction.h"
+#include "codedata.h"
 #include "callstack.h"
 #include "vmstack.h"
 #include "virtualmachine.h"

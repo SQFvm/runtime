@@ -84,9 +84,6 @@
     <ClCompile Include="namespaces.cpp">
       <Filter>Source Files\commands</Filter>
     </ClCompile>
-    <ClCompile Include="cmd.cpp">
-      <Filter>Source Files\commands</Filter>
-    </ClCompile>
     <ClCompile Include="callstack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -95,6 +92,15 @@
     </ClCompile>
     <ClCompile Include="parseassembly.cpp">
       <Filter>Source Files\parse</Filter>
+    </ClCompile>
+    <ClCompile Include="parsesqf.cpp">
+      <Filter>Source Files\parse</Filter>
+    </ClCompile>
+    <ClCompile Include="commandmap.cpp">
+      <Filter>Source Files\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="codedata.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -181,6 +187,9 @@
     </ClInclude>
     <ClInclude Include="instmakearray.h">
       <Filter>Header Files\instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="codedata.h">
+      <Filter>Header Files\data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -120,7 +120,8 @@
   <ItemGroup>
     <ClCompile Include="arraydata.cpp" />
     <ClCompile Include="callstack.cpp" />
-    <ClCompile Include="cmd.cpp" />
+    <ClCompile Include="codedata.cpp" />
+    <ClCompile Include="commandmap.cpp" />
     <ClCompile Include="convert.cpp" />
     <ClCompile Include="booldata.cpp" />
     <ClCompile Include="Entry.cpp" />
@@ -133,11 +134,13 @@
     <ClCompile Include="instruction.cpp" />
     <ClCompile Include="namespaces.cpp" />
     <ClCompile Include="parseassembly.cpp" />
+    <ClCompile Include="parsesqf.cpp" />
     <ClCompile Include="scalardata.cpp" />
     <ClCompile Include="virtualmachine.cpp" />
     <ClCompile Include="wstring_op.c" />
     <ClInclude Include="callstack.h" />
     <ClInclude Include="cmd.h" />
+    <ClInclude Include="codedata.h" />
     <ClInclude Include="compiletime.h" />
     <ClInclude Include="instassignto.h" />
     <ClInclude Include="instassigntolocal.h" />

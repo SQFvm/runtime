@@ -58,6 +58,3 @@ std::wstring sqf::virtualmachine::dbgsegment(const wchar_t* full, size_t off, si
 	return sstream.str();
 }
 
-void sqf::virtualmachine::parse_sqf(std::wstring codein)
-{
-}

@@ -8,5 +8,5 @@ sqf::commandmap& sqf::commandmap::get(void)
 
 void sqf::commandmap::init(void)
 {
-	add(nullar(L"test", L"foo", [](const virtualmachine* vm) -> value_s { vm->out() << L"works"; return value_s(); }));
+	add(nullar(4, L"test", L"foo", [](const virtualmachine* vm) -> value_s { vm->out() << L"works" << std::endl; return value_s(); }));
 }
