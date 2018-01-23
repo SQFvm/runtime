@@ -65,8 +65,8 @@ namespace sqf
 		void BRACKETS(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
 		bool PRIMARYEXPRESSION_start(helper &h, const wchar_t* code, size_t curoff);
 		void PRIMARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
-		bool NULLAREXPRESSION_start(helper &h, const wchar_t* code, size_t curoff);
-		void NULLAREXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		bool NULAREXPRESSION_start(helper &h, const wchar_t* code, size_t curoff);
+		void NULAREXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
 		bool UNARYEXPRESSION_start(helper &h, const wchar_t* code, size_t curoff);
 		void UNARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
 		bool NUMBER_start(helper &h, const wchar_t* code, size_t curoff);

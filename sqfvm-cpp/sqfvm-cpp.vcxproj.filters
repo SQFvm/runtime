@@ -75,9 +75,6 @@
     <ClCompile Include="instcallbinary.cpp">
       <Filter>Source Files\instructions</Filter>
     </ClCompile>
-    <ClCompile Include="instcallnullar.cpp">
-      <Filter>Source Files\instructions</Filter>
-    </ClCompile>
     <ClCompile Include="instcallunary.cpp">
       <Filter>Source Files\instructions</Filter>
     </ClCompile>
@@ -106,6 +103,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="instmakearray.cpp">
+      <Filter>Source Files\instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="instcallnular.cpp">
       <Filter>Source Files\instructions</Filter>
     </ClCompile>
   </ItemGroup>
@@ -161,9 +161,6 @@
     <ClInclude Include="instendstatement.h">
       <Filter>Header Files\instructions</Filter>
     </ClInclude>
-    <ClInclude Include="instcallnullar.h">
-      <Filter>Header Files\instructions</Filter>
-    </ClInclude>
     <ClInclude Include="instcallunary.h">
       <Filter>Header Files\instructions</Filter>
     </ClInclude>
@@ -205,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="parsesqf.h">
       <Filter>Header Files\parse</Filter>
+    </ClInclude>
+    <ClInclude Include="instcallnular.h">
+      <Filter>Header Files\instructions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@
 
 namespace sqf
 {
-	typedef value_s(*nullarcb)(const virtualmachine*);
+	typedef value_s(*nularcb)(const virtualmachine*);
 	typedef value_s(*unarycb)(const virtualmachine*, value_s);
 	typedef value_s(*binarycb)(const virtualmachine*, value_s, value_s);
 	class cmd
@@ -27,12 +27,12 @@ namespace sqf
 	};
 
 
-	class nullarcmd : public cmd
+	class nularcmd : public cmd
 	{
 	private:
-		nullarcb mfnc;
+		nularcb mfnc;
 	public:
-		nullarcmd(std::wstring name, std::wstring description, nullarcb fnc) : cmd(4, name, type::NA, type::NA, description) { mfnc = fnc; }
+		nularcmd(std::wstring name, std::wstring description, nularcb fnc) : cmd(4, name, type::NA, type::NA, description) { mfnc = fnc; }
 		virtual value_s execute(const virtualmachine* vm, value_s left, value_s right) const { return mfnc(vm); }
 	};
 	class unarycmd : public cmd
@@ -52,19 +52,19 @@ namespace sqf
 		virtual value_s execute(const virtualmachine* vm, value_s left, value_s right) const { return mfnc(vm, left, right); }
 	};
 
-	static std::shared_ptr<nullarcmd> nullar(std::wstring name, std::wstring description, nullarcb fnc) { return std::make_shared<nullarcmd>(name, description, fnc); }
+	static std::shared_ptr<nularcmd> nular(std::wstring name, std::wstring description, nularcb fnc) { return std::make_shared<nularcmd>(name, description, fnc); }
 	static std::shared_ptr<unarycmd> unary(std::wstring name, type rtype, std::wstring description, unarycb fnc) { return std::make_shared<unarycmd>(name, rtype, description, fnc); }
 	static std::shared_ptr<binarycmd> binary(short precedence, std::wstring name, type ltype, type rtype, std::wstring description, binarycb fnc) { return std::make_shared<binarycmd>(precedence, name, ltype, rtype, description, fnc); }
 
 	class commandmap
 	{
 	private:
-		std::unordered_map<std::wstring, std::shared_ptr<nullarcmd>> mnullarcmd;
+		std::unordered_map<std::wstring, std::shared_ptr<nularcmd>> mnularcmd;
 		std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>> munarycmd;
 		std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>> mbinarycmd;
 	public:
 		commandmap() {}
-		void add(std::shared_ptr<nullarcmd> cmd) { mnullarcmd[cmd->name()] = cmd; }
+		void add(std::shared_ptr<nularcmd> cmd) { mnularcmd[cmd->name()] = cmd; }
 		void add(std::shared_ptr<unarycmd> cmd)
 		{
 			auto listsptr = munarycmd[cmd->name()];
@@ -83,7 +83,7 @@ namespace sqf
 			}
 			listsptr->push_back(cmd);
 		}
-		std::shared_ptr<nullarcmd> get(std::wstring str) { return mnullarcmd[str]; }
+		std::shared_ptr<nularcmd> get(std::wstring str) { return mnularcmd[str]; }
 		std::shared_ptr<unarycmd> get(std::wstring str, type rtype);
 		std::shared_ptr<binarycmd> get(std::wstring str, type ltype, type rtype);
 
@@ -111,7 +111,7 @@ namespace sqf
 			return std::shared_ptr<binarycmd>();
 		}
 
-		bool contains_n(std::wstring name) { return mnullarcmd.find(name) != mnullarcmd.end(); }
+		bool contains_n(std::wstring name) { return mnularcmd.find(name) != mnularcmd.end(); }
 		bool contains_u(std::wstring name) { return munarycmd.find(name) != munarycmd.end(); }
 		bool contains_b(std::wstring name) { return mbinarycmd.find(name) != mbinarycmd.end(); }
 
@@ -120,7 +120,7 @@ namespace sqf
 		void init(void);
 		inline void uninit(void)
 		{
-			get().mnullarcmd.clear();
+			get().mnularcmd.clear();
 			get().munarycmd.clear();
 			get().mbinarycmd.clear();
 		}

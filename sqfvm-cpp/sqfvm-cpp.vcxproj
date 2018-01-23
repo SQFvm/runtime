@@ -128,7 +128,7 @@
     <ClCompile Include="instassignto.cpp" />
     <ClCompile Include="instassigntolocal.cpp" />
     <ClCompile Include="instcallbinary.cpp" />
-    <ClCompile Include="instcallnullar.cpp" />
+    <ClCompile Include="instcallnular.cpp" />
     <ClCompile Include="instcallunary.cpp" />
     <ClCompile Include="instgetvariable.cpp" />
     <ClCompile Include="instmakearray.cpp" />
@@ -147,7 +147,7 @@
     <ClInclude Include="instassignto.h" />
     <ClInclude Include="instassigntolocal.h" />
     <ClInclude Include="instcallbinary.h" />
-    <ClInclude Include="instcallnullar.h" />
+    <ClInclude Include="instcallnular.h" />
     <ClInclude Include="instcallunary.h" />
     <ClInclude Include="instendstatement.h" />
     <ClInclude Include="instgetvariable.h" />

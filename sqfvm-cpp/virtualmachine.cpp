@@ -95,7 +95,7 @@ const wchar_t* sqfasttypename(short id)
 	case sqfasttypes::BINARYOP: return L"BINARYOP";
 	case sqfasttypes::BRACKETS: return L"BRACKETS";
 	case sqfasttypes::PRIMARYEXPRESSION: return L"PRIMARYEXPRESSION";
-	case sqfasttypes::NULLAREXPRESSION: return L"NULLAREXPRESSION";
+	case sqfasttypes::NULAREXPRESSION: return L"NULAREXPRESSION";
 	case sqfasttypes::UNARYEXPRESSION: return L"UNARYEXPRESSION";
 	case sqfasttypes::HEXNUMBER: return L"HEXNUMBER";
 	case sqfasttypes::NUMBER: return L"NUMBER";

@@ -56,7 +56,7 @@ namespace
 	//INSTRUCTIONS = ENDSTATEMENT | ARG | PUSH;
 	bool instructions_start(const wchar_t*, size_t);
 	void instructions(sqf::virtualmachine*, const wchar_t*, size_t&, size_t&, size_t&);
-	//ARG = CALLUNARY | CALLBINARY | ASSIGNTO | ASSIGNTOLOCAL | CALLNULLAR | GETVARIABLE | MAKEARRAY
+	//ARG = CALLUNARY | CALLBINARY | ASSIGNTO | ASSIGNTOLOCAL | CALLNULAR | GETVARIABLE | MAKEARRAY
 	bool arg_start(const wchar_t*, size_t);
 	void arg(sqf::virtualmachine*, const wchar_t*, size_t&, size_t&, size_t&);
 	//ENDSTATEMENT = "endStatement"
@@ -74,9 +74,9 @@ namespace
 	//ASSIGNTOLOCAL = "assignToLocal" anytext
 	bool assigntolocal_start(const wchar_t*, size_t);
 	void assigntolocal(sqf::virtualmachine*, const wchar_t*, size_t&, size_t&, size_t&);
-	//CALLNULLAR = "callNular" command
-	bool callnullar_start(const wchar_t*, size_t);
-	void callnullar(sqf::virtualmachine*, const wchar_t*, size_t&, size_t&, size_t&);
+	//CALLNULAR = "callNular" command
+	bool callnular_start(const wchar_t*, size_t);
+	void callnular(sqf::virtualmachine*, const wchar_t*, size_t&, size_t&, size_t&);
 	//GETVARIABLE = "getVariable" anytext
 	bool getvariable_start(const wchar_t*, size_t);
 	void getvariable(sqf::virtualmachine*, const wchar_t*, size_t&, size_t&, size_t&);
@@ -204,8 +204,8 @@ namespace
 			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"No viable alternative for INSTRUCTIONS." << std::endl;
 		}
 	}
-	//ARG = CALLUNARY | CALLBINARY | ASSIGNTO | ASSIGNTOLOCAL | CALLNULLAR | GETVARIABLE | MAKEARRAY
-	bool arg_start(const wchar_t *code, size_t off) { return callunary_start(code, off) || callbinary_start(code, off) || assignto_start(code, off) || assigntolocal_start(code, off) || callnullar_start(code, off) || getvariable_start(code, off) || makearray_start(code, off); }
+	//ARG = CALLUNARY | CALLBINARY | ASSIGNTO | ASSIGNTOLOCAL | CALLNULAR | GETVARIABLE | MAKEARRAY
+	bool arg_start(const wchar_t *code, size_t off) { return callunary_start(code, off) || callbinary_start(code, off) || assignto_start(code, off) || assigntolocal_start(code, off) || callnular_start(code, off) || getvariable_start(code, off) || makearray_start(code, off); }
 	void arg(sqf::virtualmachine* vm, const wchar_t *code, size_t &line, size_t &col, size_t &curoff)
 	{
 		if (callunary_start(code, curoff))
@@ -224,9 +224,9 @@ namespace
 		{
 			assigntolocal(vm, code, line, col, curoff);
 		}
-		else if (callnullar_start(code, curoff))
+		else if (callnular_start(code, curoff))
 		{
-			callnullar(vm, code, line, col, curoff);
+			callnular(vm, code, line, col, curoff);
 		}
 		else if (getvariable_start(code, curoff))
 		{
@@ -432,14 +432,14 @@ namespace
 			skip(code, line, col, curoff);
 		}
 	}
-	//CALLNULLAR = "callNular" command
-	bool callnullar_start(const wchar_t *code, size_t off) { return wstr_cmpi(code + off, compiletime::strlen(L"callNular"), L"callNular", compiletime::strlen(L"callNular")) == 0 || wstr_cmpi(code + off, compiletime::strlen(L"callNullar"), L"callNullar", compiletime::strlen(L"callNullar")) == 0; }
-	void callnullar(sqf::virtualmachine* vm, const wchar_t *code, size_t &line, size_t &col, size_t &curoff)
+	//CALLNULAR = "callNular" command
+	bool callnular_start(const wchar_t *code, size_t off) { return wstr_cmpi(code + off, compiletime::strlen(L"callNular"), L"callNular", compiletime::strlen(L"callNular")) == 0 || wstr_cmpi(code + off, compiletime::strlen(L"callNular"), L"callNular", compiletime::strlen(L"callNular")) == 0; }
+	void callnular(sqf::virtualmachine* vm, const wchar_t *code, size_t &line, size_t &col, size_t &curoff)
 	{
 		size_t identstart = curoff;
 		size_t identcol = col;
 		size_t identline = line;
-		if (callnullar_start(code, curoff))
+		if (callnular_start(code, curoff))
 		{
 			if (wstr_cmpi(code + curoff, compiletime::strlen(L"callNular"), L"callNular", compiletime::strlen(L"callNular")) == 0)
 			{
@@ -449,8 +449,8 @@ namespace
 			}
 			else
 			{
-				curoff += compiletime::strlen(L"callNullar");
-				col += compiletime::strlen(L"callNullar");
+				curoff += compiletime::strlen(L"callNular");
+				col += compiletime::strlen(L"callNular");
 				skip(code, line, col, curoff);
 			}
 		}
@@ -458,7 +458,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Expected 'callNullar'." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Expected 'callNular'." << std::endl;
 		}
 
 		size_t cmdlen;
@@ -478,8 +478,8 @@ namespace
 			}
 			else
 			{
-				auto inst = std::make_shared<sqf::inst::callnullar>(cmd);
-				inst->setdbginf(identline, identcol, std::wstring(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen(L"callNullar")));
+				auto inst = std::make_shared<sqf::inst::callnular>(cmd);
+				inst->setdbginf(identline, identcol, std::wstring(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen(L"callNular")));
 				vm->stack()->pushinst(inst);
 			}
 			curoff += cmdlen;

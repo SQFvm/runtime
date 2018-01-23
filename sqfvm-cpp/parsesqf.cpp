@@ -31,8 +31,8 @@ namespace sqf
 		ASSIGNMENT(2) = identifier '=' BINARYEXPRESSION | "private" identifier '=' BINARYEXPRESSION;
 		BINARYEXPRESSION = BINARYEXPRESSION<codecontext> boperator BINARYEXPRESSION | PRIMARYEXPRESSION;
 		BRACKETS = '(' BINARYEXPRESSION ')';
-		PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULLAREXPRESSION | VARIABLE | STRING | CODE | BRACKETS | ARRAY;
-		NULLAREXPRESSION = noperator;
+		PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULAREXPRESSION | VARIABLE | STRING | CODE | BRACKETS | ARRAY;
+		NULAREXPRESSION = noperator;
 		UNARYEXPRESSION = uoperator PRIMARYEXPRESSION;
 		NUMBER = ("0x" | '$') hexadecimal | scalar;
 		VARIABLE = identifier;
@@ -89,14 +89,14 @@ namespace sqf
 		bool SQF_start(helper &h, const wchar_t* code, size_t curoff) { return STATEMENT_start(h, code, curoff); }
 		void SQF(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file)
 		{
-			auto thisnode = astnode();
-			thisnode.offset = curoff;
-			thisnode.kind = sqfasttypes::SQF;
+			//auto thisnode = astnode();
+			//thisnode.offset = curoff;
+			//thisnode.kind = sqfasttypes::SQF;
 			skip(code, line, col, curoff);
 			//Iterate over statements as long as it is an instruction start.
 			while (STATEMENT_start(h, code, curoff))
 			{
-				STATEMENT(h, thisnode, code, line, col, curoff, file);
+				STATEMENT(h, root, code, line, col, curoff, file);
 				skip(code, line, col, curoff);
 				//Make sure at least one endchr is available
 				if (!endchr(code, curoff))
@@ -117,8 +117,8 @@ namespace sqf
 					}
 				}
 			}
-			thisnode.length = curoff - thisnode.offset;
-			root.children.push_back(thisnode);
+			//thisnode.length = curoff - thisnode.offset;
+			//root.children.push_back(thisnode);
 		}
 		//STATEMENT = ASSIGNMENT | BINARYEXPRESSION;
 		bool STATEMENT_start(helper &h, const wchar_t* code, size_t curoff) { return ASSIGNMENT_start(h, code, curoff) | BINARYEXPRESSION_start(h, code, curoff); }
@@ -309,8 +309,8 @@ namespace sqf
 			thisnode.length = curoff - thisnode.offset;
 			root.children.push_back(thisnode);
 		}
-		//PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULLAREXPRESSION | VARIABLE | STRING | CODE | BRACKETS | ARRAY;
-		bool PRIMARYEXPRESSION_start(helper &h, const wchar_t* code, size_t curoff) { return NUMBER_start(h, code, curoff) || UNARYEXPRESSION_start(h, code, curoff) || NULLAREXPRESSION_start(h, code, curoff) || VARIABLE_start(h, code, curoff) || STRING_start(h, code, curoff) || CODE_start(h, code, curoff) || BRACKETS_start(h, code, curoff) || ARRAY_start(h, code, curoff); }
+		//PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULAREXPRESSION | VARIABLE | STRING | CODE | BRACKETS | ARRAY;
+		bool PRIMARYEXPRESSION_start(helper &h, const wchar_t* code, size_t curoff) { return NUMBER_start(h, code, curoff) || UNARYEXPRESSION_start(h, code, curoff) || NULAREXPRESSION_start(h, code, curoff) || VARIABLE_start(h, code, curoff) || STRING_start(h, code, curoff) || CODE_start(h, code, curoff) || BRACKETS_start(h, code, curoff) || ARRAY_start(h, code, curoff); }
 		void PRIMARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file)
 		{
 			//auto thisnode = astnode();
@@ -324,9 +324,9 @@ namespace sqf
 			{
 				UNARYEXPRESSION(h, root, code, line, col, curoff, file);
 			}
-			else if (NULLAREXPRESSION_start(h, code, curoff))
+			else if (NULAREXPRESSION_start(h, code, curoff))
 			{
-				NULLAREXPRESSION(h, root, code, line, col, curoff, file);
+				NULAREXPRESSION(h, root, code, line, col, curoff, file);
 			}
 			else if (VARIABLE_start(h, code, curoff))
 			{
@@ -357,12 +357,12 @@ namespace sqf
 			//thisnode.length = curoff - thisnode.offset;
 			//root.children.push_back(thisnode);
 		}
-		//NULLAREXPRESSION = operator;
-		bool NULLAREXPRESSION_start(helper &h, const wchar_t* code, size_t curoff) { auto oplen = operator_(code, curoff); return oplen > 0 ? h.contains_nular(std::wstring(code + curoff, code + curoff + oplen)) : false; }
-		void NULLAREXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file)
+		//NULAREXPRESSION = operator;
+		bool NULAREXPRESSION_start(helper &h, const wchar_t* code, size_t curoff) { auto oplen = operator_(code, curoff); return oplen > 0 ? h.contains_nular(std::wstring(code + curoff, code + curoff + oplen)) : false; }
+		void NULAREXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file)
 		{
 			auto thisnode = astnode();
-			thisnode.kind = sqfasttypes::NULLAREXPRESSION;
+			thisnode.kind = sqfasttypes::NULAREXPRESSION;
 			auto len = operator_(code, curoff);
 			auto ident = std::wstring(code + curoff, code + curoff + len);
 			thisnode.content = ident;

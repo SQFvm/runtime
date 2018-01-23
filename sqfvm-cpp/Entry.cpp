@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 	auto vm = sqf::virtualmachine();
 
 	vm.out() << std::endl << L"ASSEMBLY" << std::endl;
-	vm.parse_assembly(L"callnullar ntest;");
+	vm.parse_assembly(L"callnular ntest;");
 	vm.execute();
 	
 	vm.out() << std::endl << L"SQF" << std::endl;

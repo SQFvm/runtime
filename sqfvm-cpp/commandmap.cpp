@@ -40,7 +40,7 @@ sqf::commandmap& sqf::commandmap::get(void)
 
 void sqf::commandmap::init(void)
 {
-	add(nullar(L"ntest", L"foo", [](const virtualmachine* vm) -> value_s { vm->out() << L"ntest" << std::endl; return value_s(); }));
+	add(nular(L"ntest", L"foo", [](const virtualmachine* vm) -> value_s { vm->out() << L"ntest" << std::endl; return value_s(); }));
 	add(unary(L"utest", sqf::type::ANY, L"foo", [](const virtualmachine* vm, value_s left) -> value_s { vm->out() << L"utest" << std::endl; return value_s(); }));
 	add(binary(6, L"+", sqf::type::SCALAR, sqf::type::SCALAR, L"+", [](const virtualmachine* vm, value_s left, value_s right) -> value_s {  return std::make_shared<value>((left->as_double()) + (right->as_double())); }));
 	add(binary(6, L"-", sqf::type::SCALAR, sqf::type::SCALAR, L"-", [](const virtualmachine* vm, value_s left, value_s right) -> value_s { return std::make_shared<value>((left->as_double()) - (right->as_double())); }));
