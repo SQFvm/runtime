@@ -12,7 +12,8 @@ void sqf::inst::callunary::execute(const virtualmachine* vm) const
 	auto cmd = sqf::commandmap::find(mcmds, right->as_type());
 	if (cmd.get())
 	{
-		cmd->execute(vm, value_s(), right);
+		auto val = cmd->execute(vm, value_s(), right);
+		vm->stack()->pushval(val);
 	}
 	else
 	{

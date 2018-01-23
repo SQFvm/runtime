@@ -108,6 +108,9 @@
     <ClCompile Include="instcallnular.cpp">
       <Filter>Source Files\instructions</Filter>
     </ClCompile>
+    <ClCompile Include="astnode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">

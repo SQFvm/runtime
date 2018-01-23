@@ -83,46 +83,124 @@ short precedence(std::wstring s)
 	}
 	return srange->begin()->get()->precedence();
 }
-const wchar_t* sqfasttypename(short id)
+
+void navigate(const wchar_t* full, sqf::virtualmachine* vm, sqf::callstack_s stack, astnode node)
 {
-	switch (id)
+	switch (node.kind)
 	{
-	case sqfasttypes::SQF: return L"SQF";
-	case sqfasttypes::STATEMENT: return L"STATEMENT";
-	case sqfasttypes::ASSIGNMENT: return L"ASSIGNMENT";
-	case sqfasttypes::ASSIGNMENTLOCAL: return L"ASSIGNMENTLOCAL";
-	case sqfasttypes::BINARYEXPRESSION: return L"BINARYEXPRESSION";
-	case sqfasttypes::BINARYOP: return L"BINARYOP";
-	case sqfasttypes::BRACKETS: return L"BRACKETS";
-	case sqfasttypes::UNARYOP: return L"UNARYOP";
-	case sqfasttypes::PRIMARYEXPRESSION: return L"PRIMARYEXPRESSION";
-	case sqfasttypes::NULAROP: return L"NULAROP";
-	case sqfasttypes::UNARYEXPRESSION: return L"UNARYEXPRESSION";
-	case sqfasttypes::HEXNUMBER: return L"HEXNUMBER";
-	case sqfasttypes::NUMBER: return L"NUMBER";
-	case sqfasttypes::VARIABLE: return L"VARIABLE";
-	case sqfasttypes::STRING: return L"STRING";
-	case sqfasttypes::CODE: return L"CODE";
-	case sqfasttypes::ARRAY: return L"ARRAY";
-	default: return L"NA";
+	case sqfasttypes::BINARYEXPRESSION:
+	{
+		navigate(full, vm, stack, node.children[0]);
+		navigate(full, vm, stack, node.children[2]);
+		auto inst = std::make_shared<sqf::inst::callbinary>(sqf::commandmap::get().getrange_b(node.children[1].content));
+		inst->setdbginf(node.children[1].line, node.children[1].col, node.file, vm->dbgsegment(full, node.children[1].offset, node.children[1].length));
+		stack->pushinst(inst);
+	}
+	break;
+	case sqfasttypes::UNARYEXPRESSION:
+	{
+		navigate(full, vm, stack, node.children[1]);
+		auto inst = std::make_shared<sqf::inst::callunary>(sqf::commandmap::get().getrange_u(node.children[0].content));
+		inst->setdbginf(node.children[0].line, node.children[0].col, node.file, vm->dbgsegment(full, node.children[0].offset, node.children[0].length));
+		stack->pushinst(inst);
+	}
+	break;
+	case sqfasttypes::NULAROP:
+	{
+		auto inst = std::make_shared<sqf::inst::callnular>(sqf::commandmap::get().get(node.content));
+		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+		stack->pushinst(inst);
+	}
+	break;
+	case sqfasttypes::HEXNUMBER:
+	{
+		auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stol(node.content, 0, 16)));
+		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+		stack->pushinst(inst);
+	}
+	break;
+	case sqfasttypes::NUMBER:
+	{
+		auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stod(node.content)));
+		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+		stack->pushinst(inst);
+	}
+	break;
+	case sqfasttypes::STRING:
+	{
+		auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(node.content));
+		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+		stack->pushinst(inst);
+	}
+	break;
+	case sqfasttypes::CODE:
+	{
+		auto cs = std::make_shared<sqf::callstack>();
+		for each (auto subnode in node.children)
+		{
+			navigate(full, vm, cs, subnode);
+		}
+		auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(cs));
+		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+		stack->pushinst(inst);
+	}
+	break;
+	case sqfasttypes::ARRAY:
+	{
+		for each (auto subnode in node.children)
+		{
+			navigate(full, vm, stack, subnode);
+		}
+		auto inst = std::make_shared<sqf::inst::makearray>(node.children.size());
+		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+		stack->pushinst(inst);
+	}
+	break;
+	case sqfasttypes::ASSIGNMENT:
+	{
+		navigate(full, vm, stack, node.children[1]);
+		auto inst = std::make_shared<sqf::inst::assignto>(node.children[0].content);
+		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+		stack->pushinst(inst);
+	}
+	break;
+	case sqfasttypes::ASSIGNMENTLOCAL:
+	{
+		navigate(full, vm, stack, node.children[1]);
+		auto inst = std::make_shared<sqf::inst::assigntolocal>(node.children[0].content);
+		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+		stack->pushinst(inst);
+	}
+	break;
+	case sqfasttypes::VARIABLE:
+	{
+		auto inst = std::make_shared<sqf::inst::getvariable>(node.content);
+		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+		stack->pushinst(inst);
+	}
+	break;
+	default:
+	{
+		for each (auto subnode in node.children)
+		{
+			navigate(full, vm, stack, subnode);
+			auto inst = std::make_shared<sqf::inst::endstatement>();
+			inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+			stack->pushinst(inst);
+		}
+	}
 	}
 }
-void navigate(astnode node, unsigned short level = 0)
-{
-	if (level == 0)
-	{
-		std::wcout << L"Node Type;Offset;Length;Content" << std::endl;
-	}
-	std::wcout << std::wstring(level, L'\t') << sqfasttypename(node.kind) << L';' << node.offset << L';' << node.length << L';' << node.content << std::endl;
-	for each (auto it in node.children)
-	{
-		navigate(it, level + 1);
-	}
-}
+
 
 void sqf::virtualmachine::parse_sqf(std::wstring code)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
-	auto node = sqf::parse::parse_sqf(code.c_str(), h);
-	navigate(node);
+	bool errflag = false;
+	auto node = sqf::parse::parse_sqf(code.c_str(), h, errflag);
+	if (!errflag)
+	{
+		this->stack()->pushcallstack(std::make_shared<sqf::callstack>());
+		navigate(code.c_str(), this, this->stack()->stacks_top(), node);
+	}
 }

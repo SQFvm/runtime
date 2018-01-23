@@ -29,23 +29,26 @@ std::wstring sqf::stringdata::parse_from_sqf(std::wstring s)
 {
 	size_t count = 0;
 	wchar_t start = s[0];
-	for (auto it = s.begin(); it != s.end(); it++)
+	for (size_t i = 0; i < s.length(); i++)
 	{
-		wchar_t c = *it;
-		if (c == start && it[1] == start)
+		wchar_t c = s[i];
+		if (c == start && s[i + 1] == start)
 		{
 			count++;
 		}
 	}
 	size_t size = s.length() - count - 2;
+	size_t index = 0;
 	auto arr = std::make_unique<wchar_t[]>(size);
-	for (auto it = s.begin() + 1; it != s.end() - 1; it++)
+	for (size_t i = 1; i < s.length() - 1; i++)
 	{
-		wchar_t c = *it;
-		if (c == start && it[1] == start)
+		wchar_t c = s[i];
+		if (c == start && s[i + 1] == start)
 		{
-			it++;
+			i++;
 		}
+		arr[index] = c;
+		index++;
 	}
 	return std::wstring(arr.get(), size);
 }
@@ -53,9 +56,10 @@ std::wstring sqf::stringdata::parse_from_sqf(std::wstring s)
 std::wstring sqf::stringdata::parse_to_sqf(std::wstring s)
 {
 	size_t count = 2;
-	for each (auto c in s)
+	for (size_t i = 0; i < s.length(); i++)
 	{
-		if (c == '"')
+		wchar_t c = s[i];
+		if (c == L'"')
 			count++;
 	}
 	size_t size = s.length() + count;
@@ -63,12 +67,14 @@ std::wstring sqf::stringdata::parse_to_sqf(std::wstring s)
 	size_t index = 1;
 	arr[0] = L'"';
 	arr[size - 1] = L'"';
-	for each (auto c in s)
+	for (size_t i = 0; i < s.length(); i++)
 	{
-		arr[index++] = c;
-		if (c == '"')
+		wchar_t c = s[i];
+		arr[index] = c;
+		index++;
+		if (c == L'"')
 		{
-			arr[index++] = c;
+			arr[index] = c;
 			index++;
 		}
 	}

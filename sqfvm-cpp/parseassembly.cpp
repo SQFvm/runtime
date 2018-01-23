@@ -204,7 +204,7 @@ namespace
 			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"No viable alternative for INSTRUCTIONS." << std::endl;
 		}
 	}
-	//ARG = CALLUNARY | CALLBINARY | ASSIGNTO | ASSIGNTOLOCAL | CALLNULAR | GETVARIABLE | MAKEARRAY
+	//ARG = CALLUNARY | CALLBINARY | ASSIGNTOLOCAL | ASSIGNTO | CALLNULAR | GETVARIABLE | MAKEARRAY
 	bool arg_start(const wchar_t *code, size_t off) { return callunary_start(code, off) || callbinary_start(code, off) || assignto_start(code, off) || assigntolocal_start(code, off) || callnular_start(code, off) || getvariable_start(code, off) || makearray_start(code, off); }
 	void arg(sqf::virtualmachine* vm, const wchar_t *code, size_t &line, size_t &col, size_t &curoff)
 	{
@@ -216,13 +216,13 @@ namespace
 		{
 			callbinary(vm, code, line, col, curoff);
 		}
-		else if (assignto_start(code, curoff))
-		{
-			assignto(vm, code, line, col, curoff);
-		}
 		else if (assigntolocal_start(code, curoff))
 		{
 			assigntolocal(vm, code, line, col, curoff);
+		}
+		else if (assignto_start(code, curoff))
+		{
+			assignto(vm, code, line, col, curoff);
 		}
 		else if (callnular_start(code, curoff))
 		{
@@ -532,7 +532,7 @@ namespace
 		size_t identstart = curoff;
 		size_t identcol = col;
 		size_t identline = line;
-		if (assigntolocal_start(code, curoff))
+		if (makearray_start(code, curoff))
 		{
 			curoff += compiletime::strlen(L"makeArray");
 			col += compiletime::strlen(L"makeArray");
@@ -589,7 +589,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"No text provided." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"No type provided." << std::endl;
 		}
 		else
 		{
@@ -609,7 +609,7 @@ namespace
 		}
 		if (textlen > 0)
 		{
-			auto data = std::wstring(code + curoff, code + curoff + typelen);
+			auto data = std::wstring(code + curoff - textlen, code + curoff);
 			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(sqf::convert(std::make_shared<sqf::stringdata>(data), pushtype), pushtype));
 			inst->setdbginf(identline, identcol, std::wstring(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen(L"push")));
 			vm->stack()->pushinst(inst);

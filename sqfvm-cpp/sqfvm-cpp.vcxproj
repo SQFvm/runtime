@@ -119,6 +119,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="arraydata.cpp" />
+    <ClCompile Include="astnode.cpp" />
     <ClCompile Include="callstack.cpp" />
     <ClCompile Include="codedata.cpp" />
     <ClCompile Include="commandmap.cpp" />

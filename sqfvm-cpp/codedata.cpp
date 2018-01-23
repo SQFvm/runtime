@@ -4,7 +4,7 @@ sqf::codedata::codedata(callstack_s cs)
 {
 	instruction_s inst;
 	minsts = std::vector<instruction_s>(cs->inststacksize());
-	for (size_t i = cs->inststacksize(); i != ~0; i--)
+	for (size_t i = cs->inststacksize() - 1; i != ~0; i--)
 	{
 		inst = cs->popinst();
 		minsts[i] = inst;

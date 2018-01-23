@@ -10,6 +10,7 @@
 #include <stack>
 #include <unordered_map>
 #include <ostream>
+#include <queue>
 
 extern "C" {
 #include <wchar.h>

@@ -146,6 +146,7 @@ namespace sqf
 			auto thisnode = astnode();
 			thisnode.kind = sqfasttypes::ASSIGNMENT;
 			thisnode.offset = curoff;
+			thisnode.file = file;
 			size_t len;
 			bool assignlocal = false;
 			//check if prefixed by a 'private'
@@ -166,6 +167,9 @@ namespace sqf
 			varnode.length = len;
 			varnode.content = ident;
 			varnode.kind = sqfasttypes::VARIABLE;
+			varnode.col = col;
+			varnode.line = line;
+			varnode.file = file;
 			thisnode.children.push_back(varnode);
 
 			if (assignlocal && ident[0] != L'_')
@@ -179,6 +183,8 @@ namespace sqf
 			size_t dbgstart = curoff;
 			size_t dbgcol = col;
 			size_t dbgline = line;
+			thisnode.col = col;
+			thisnode.line = line;
 			//skip the '=' (is confirmed to be present in ASSIGNMENT_start)
 			curoff++;
 			col++;
@@ -204,6 +210,7 @@ namespace sqf
 		{
 			auto thisnode = astnode();
 			thisnode.offset = curoff;
+			thisnode.file = file;
 			thisnode.kind = sqfasttypes::BINARYEXPRESSION;
 			PRIMARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag);
 			skip(code, line, col, curoff);
@@ -214,8 +221,11 @@ namespace sqf
 				auto curnode = astnode();
 				curnode.offset = curoff;
 				curnode.kind = sqfasttypes::BINARYOP;
+				curnode.col = col;
+				curnode.line = line;
 				curnode.length = opidentlen;
 				curnode.content = opident;
+				curnode.file = file;
 				thisnode.children.push_back(curnode);
 				auto curprec = h.precedence(opident);
 				if (calleeprec != 0)
@@ -267,6 +277,7 @@ namespace sqf
 			auto thisnode = astnode();
 			thisnode.kind = sqfasttypes::BRACKETS;
 			thisnode.offset = curoff;
+			thisnode.file = file;
 			curoff++;
 			col++;
 			skip(code, line, col, curoff);
@@ -352,11 +363,14 @@ namespace sqf
 		{
 			auto thisnode = astnode();
 			thisnode.kind = sqfasttypes::NULAROP;
+			thisnode.file = file;
 			auto len = operator_(code, curoff);
 			auto ident = std::wstring(code + curoff, code + curoff + len);
 			thisnode.content = ident;
 			thisnode.length = len;
 			thisnode.offset = curoff;
+			thisnode.col = col;
+			thisnode.line = line;
 			curoff += len;
 			col += len;
 			root.children.push_back(thisnode);
@@ -368,6 +382,7 @@ namespace sqf
 			auto thisnode = astnode();
 			thisnode.kind = sqfasttypes::UNARYEXPRESSION;
 			thisnode.offset = curoff;
+			thisnode.file = file;
 			size_t dbgstart = curoff;
 			size_t dbgcol = col;
 			size_t dbgline = line;
@@ -379,6 +394,9 @@ namespace sqf
 			opnode.offset = curoff;
 			opnode.length = len;
 			opnode.content = ident;
+			opnode.col = col;
+			opnode.file = file;
+			opnode.line = line;
 			thisnode.children.push_back(opnode);
 			curoff += len;
 			col += len;
@@ -404,6 +422,9 @@ namespace sqf
 		{
 			auto thisnode = astnode();
 			thisnode.kind = sqfasttypes::NUMBER;
+			thisnode.col = col;
+			thisnode.line = line;
+			thisnode.file = file;
 			double number = 0;
 			if (code[curoff] == L'$')
 			{
@@ -480,11 +501,14 @@ namespace sqf
 		{
 			auto thisnode = astnode();
 			thisnode.kind = sqfasttypes::VARIABLE;
+			thisnode.file = file;
 			auto len = identifier(code, curoff);
 			auto ident = std::wstring(code + curoff, code + curoff + len);
 			thisnode.content = ident;
 			thisnode.length = len;
 			thisnode.offset = curoff;
+			thisnode.col = col;
+			thisnode.line = line;
 
 			curoff += len;
 			col += len;
@@ -496,6 +520,9 @@ namespace sqf
 		{
 			auto thisnode = astnode();
 			thisnode.kind = sqfasttypes::STRING;
+			thisnode.col = col;
+			thisnode.line = line;
+			thisnode.file = file;
 			size_t i;
 			auto startchr = code[curoff];
 			col++;
@@ -533,6 +560,9 @@ namespace sqf
 			auto thisnode = astnode();
 			thisnode.kind = sqfasttypes::CODE;
 			thisnode.offset = curoff;
+			thisnode.col = col;
+			thisnode.line = line;
+			thisnode.file = file;
 			curoff++;
 			col++;
 			skip(code, line, col, curoff);
@@ -571,6 +601,9 @@ namespace sqf
 			auto thisnode = astnode();
 			thisnode.kind = sqfasttypes::ARRAY;
 			thisnode.offset = curoff;
+			thisnode.col = col;
+			thisnode.line = line;
+			thisnode.file = file;
 			curoff++;
 			col++;
 			skip(code, line, col, curoff);

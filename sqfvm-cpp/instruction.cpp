@@ -12,6 +12,6 @@ void sqf::instruction::setdbginf(size_t line, size_t col, std::wstring file, std
 std::wstring sqf::instruction::dbginf(std::wstring tag) const
 {
 	auto sstream = std::wstringstream();
-	sstream << msegment << L'[' << tag << L"][L" << mline << L"|C" << mcol << L'\t';
+	sstream << msegment << L'[' << tag << L"][L" << mline << L"|C" << mcol << L"]\t";
 	return sstream.str();
 }
