@@ -15,31 +15,6 @@ namespace sqf
 {
 	namespace parse
 	{
-		/*
-		endchr = [,;];
-		identifier = [_a-zA-Z][_a-zA-Z0-9]*;
-		hexadecimal = [0-9a-fA-F]+;
-		scalarsub = [0-9]+;
-		scalar = scalarsub(.scalarsub)?;
-		anytext = (?![ \t\r\n;])+;
-		operator_ = [-*+/a-zA-Z><=%_]+;
-		boperator = <codecontext>;
-		uoperator = <codecontext>;
-		noperator = <codecontext>;
-		SQF = { STATEMENT endchr{ endchr } }
-		STATEMENT = ASSIGNMENT | BINARYEXPRESSION;
-		ASSIGNMENT(2) = identifier '=' BINARYEXPRESSION | "private" identifier '=' BINARYEXPRESSION;
-		BINARYEXPRESSION = BINARYEXPRESSION<codecontext> boperator BINARYEXPRESSION | PRIMARYEXPRESSION;
-		BRACKETS = '(' BINARYEXPRESSION ')';
-		PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULAREXPRESSION | VARIABLE | STRING | CODE | BRACKETS | ARRAY;
-		NULAREXPRESSION = noperator;
-		UNARYEXPRESSION = uoperator PRIMARYEXPRESSION;
-		NUMBER = ("0x" | '$') hexadecimal | scalar;
-		VARIABLE = identifier;
-		STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
-		CODE = "{" SQF "}";
-		ARRAY = '[' [ BINARYEXPRESSION { ',' BINARYEXPRESSION } ] ']';
-		*/
 
 		void skip(const wchar_t *code, size_t &curoff)
 		{
@@ -85,7 +60,7 @@ namespace sqf
 		size_t scalar(const wchar_t* code, size_t off) { size_t i = off + scalarsub(code, off); if (code[off] == L'.') i += scalarsub(code, off); return i - off; }
 		//anytext = (?![ \t\r\n;])+;
 		size_t anytext(const wchar_t* code, size_t off) { size_t i; for (i = off; code[i] != L' ' && code[i] != L'\t' && code[i] != L'\r' && code[i] != L'\n' && code[i] != L';'; i++); return i - off; }
-		//SQF = { STATEMENT endchr{ endchr } }
+		//SQF = [ STATEMENT { endchr { endchr } STATEMENT } ]
 		bool SQF_start(helper &h, const wchar_t* code, size_t curoff) { return STATEMENT_start(h, code, curoff); }
 		void SQF(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file)
 		{
@@ -98,8 +73,8 @@ namespace sqf
 			{
 				STATEMENT(h, root, code, line, col, curoff, file);
 				skip(code, line, col, curoff);
-				//Make sure at least one endchr is available
-				if (!endchr(code, curoff))
+				//Make sure at least one endchr is available unless no statement follows
+				if (!endchr(code, curoff) && STATEMENT_start(h, code, curoff))
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
@@ -168,6 +143,7 @@ namespace sqf
 		{
 			auto thisnode = astnode();
 			thisnode.kind = sqfasttypes::ASSIGNMENT;
+			thisnode.offset = curoff;
 			size_t len;
 			bool assignlocal = false;
 			//check if prefixed by a 'private'
@@ -182,9 +158,14 @@ namespace sqf
 			//receive the ident
 			len = identifier(code, curoff);
 			auto ident = std::wstring(code + curoff, code + curoff + len);
-			thisnode.offset = curoff;
-			thisnode.length = len;
-			thisnode.content = ident;
+
+			auto varnode = astnode();
+			varnode.offset = curoff;
+			varnode.length = len;
+			varnode.content = ident;
+			varnode.kind = sqfasttypes::VARIABLE;
+			thisnode.children.push_back(varnode);
+
 			if (assignlocal && ident[0] != L'_')
 			{
 				h.err() << h.dbgsegment(code, curoff, len) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Private variables need to be prefixed with an underscore '_'." << std::endl;
@@ -210,7 +191,7 @@ namespace sqf
 				for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
 				h.err() << h.dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Expected start of BINARYEXPRESSION." << std::endl;
 			}
-			thisnode.content = ident;
+			thisnode.length = curoff - thisnode.offset;
 			root.children.push_back(thisnode);
 		}
 		//BINARYEXPRESSION = PRIMARYEXPRESSION [ boperator BINARYEXPRESSION ];
@@ -362,7 +343,7 @@ namespace sqf
 		void NULAREXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file)
 		{
 			auto thisnode = astnode();
-			thisnode.kind = sqfasttypes::NULAREXPRESSION;
+			thisnode.kind = sqfasttypes::NULAROP;
 			auto len = operator_(code, curoff);
 			auto ident = std::wstring(code + curoff, code + curoff + len);
 			thisnode.content = ident;
@@ -378,15 +359,19 @@ namespace sqf
 		{
 			auto thisnode = astnode();
 			thisnode.kind = sqfasttypes::UNARYEXPRESSION;
+			thisnode.offset = curoff;
 			size_t dbgstart = curoff;
 			size_t dbgcol = col;
 			size_t dbgline = line;
 
 			auto len = operator_(code, curoff);
 			auto ident = std::wstring(code + curoff, code + curoff + len);
-			thisnode.content = ident;
-			thisnode.offset = curoff;
-			thisnode.length = len;
+			auto opnode = astnode();
+			opnode.kind = sqfasttypes::UNARYOP;
+			opnode.offset = curoff;
+			opnode.length = len;
+			opnode.content = ident;
+			thisnode.children.push_back(opnode);
 			curoff += len;
 			col += len;
 			skip(code, line, col, curoff);
@@ -401,6 +386,7 @@ namespace sqf
 				for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
 				h.err() << h.dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Expected start of PRIMARYEXPRESSION." << std::endl;
 			}
+			thisnode.length = curoff - thisnode.offset;
 			root.children.push_back(thisnode);
 		}
 		//NUMBER = ("0x" | '$') hexadecimal | scalar;
@@ -412,17 +398,25 @@ namespace sqf
 			double number = 0;
 			if (code[curoff] == L'$')
 			{
+				thisnode.kind = sqfasttypes::HEXNUMBER;
 				size_t i;
-				for (i = curoff; code[i] >= L'0' && code[i] <= L'9' || code[i] >= L'A' && code[i] <= L'F' || code[i] >= L'a' && code[i] <= L'f'; i++);
-				number = std::stol(std::wstring(code + curoff, code + i), 0, 16);
+				for (i = curoff + 1; code[i] >= L'0' && code[i] <= L'9' || code[i] >= L'A' && code[i] <= L'F' || code[i] >= L'a' && code[i] <= L'f'; i++);
+				auto ident = std::wstring(code + curoff, code + i);
+				thisnode.content = ident;
+				thisnode.offset = curoff;
+				thisnode.length = i - curoff;
 				col += i - curoff;
 				curoff = i;
 			}
 			else if (code[curoff] == L'0' && code[curoff + 1] == L'x')
 			{
+				thisnode.kind = sqfasttypes::HEXNUMBER;
 				size_t i;
 				for (i = curoff + 2; code[i] >= L'0' && code[i] <= L'9' || code[i] >= L'A' && code[i] <= L'F' || code[i] >= L'a' && code[i] <= L'f'; i++);
-				number = std::stol(std::wstring(code + curoff, code + i), 0, 16);
+				auto ident = std::wstring(code + curoff, code + i);
+				thisnode.content = ident;
+				thisnode.offset = curoff;
+				thisnode.length = i - curoff;
 				col += i - curoff;
 				curoff = i;
 			}
@@ -463,7 +457,6 @@ namespace sqf
 
 				}
 				auto ident = std::wstring(code + curoff, code + i);
-				number = std::stod(ident);
 				thisnode.content = ident;
 				thisnode.offset = curoff;
 				thisnode.length = i - curoff;
@@ -501,6 +494,11 @@ namespace sqf
 			{
 				switch (code[i])
 				{
+				case L'\'':
+				case L'"':
+					col += 2;
+					i++;
+					break;
 				case L'\n':
 					col = 0;
 					line++;
@@ -510,13 +508,13 @@ namespace sqf
 					break;
 				}
 			}
+			i++;
+			col++;
 			auto fullstring = std::wstring(code + curoff, code + i);
 			thisnode.content = fullstring;
 			thisnode.length = i - curoff;
 			thisnode.offset = curoff;
 			curoff = i;
-			curoff++;
-			col++;
 			root.children.push_back(thisnode);
 		}
 		//CODE = "{" SQF "}";
@@ -600,6 +598,7 @@ namespace sqf
 				h.err() << h.dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Expected ']'." << std::endl;
 			}
 			thisnode.length = curoff - thisnode.offset;
+			thisnode.content = std::wstring(code + thisnode.offset, code + thisnode.offset + thisnode.length);
 			root.children.push_back(thisnode);
 		}
 

@@ -77,7 +77,7 @@ bool contains_binary(std::wstring ident)
 short precedence(std::wstring s)
 {
 	auto srange = sqf::commandmap::get().getrange_b(s);
-	if (srange->empty())
+	if (!srange.get() || srange->empty())
 	{
 		return 0;
 	}
@@ -94,8 +94,9 @@ const wchar_t* sqfasttypename(short id)
 	case sqfasttypes::BINARYEXPRESSION: return L"BINARYEXPRESSION";
 	case sqfasttypes::BINARYOP: return L"BINARYOP";
 	case sqfasttypes::BRACKETS: return L"BRACKETS";
+	case sqfasttypes::UNARYOP: return L"UNARYOP";
 	case sqfasttypes::PRIMARYEXPRESSION: return L"PRIMARYEXPRESSION";
-	case sqfasttypes::NULAREXPRESSION: return L"NULAREXPRESSION";
+	case sqfasttypes::NULAROP: return L"NULAROP";
 	case sqfasttypes::UNARYEXPRESSION: return L"UNARYEXPRESSION";
 	case sqfasttypes::HEXNUMBER: return L"HEXNUMBER";
 	case sqfasttypes::NUMBER: return L"NUMBER";
