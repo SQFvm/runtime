@@ -1,20 +1,21 @@
 #include "full.h"
 
+
 int main(int argc, char** argv)
 {
 	sqf::commandmap::get().init();
 	auto vm = sqf::virtualmachine();
 
 	vm.out() << std::endl << L"ASSEMBLY" << std::endl;
-	vm.parse_assembly(L"callnullar test;");
+	vm.parse_assembly(L"callnullar ntest;");
 	vm.execute();
-
+	
 	vm.out() << std::endl << L"SQF" << std::endl;
-	vm.parse_sqf(L"test;");
+	vm.parse_sqf(L"1 + 1 - 2;0;1 + 2 * 3 - 1; 6");
 	vm.execute();
 
 	sqf::commandmap::get().uninit();
-	while (1);
+	system("pause");
 }
 
 /*

@@ -56,9 +56,20 @@ namespace sqf
 		operator std::wstring() const;
 		operator std::vector<std::shared_ptr<sqf::value>>() const;
 		operator type() const { return mtype; }
+
+		float as_float(void) const { return *this; }
+		double as_double(void) const { return *this; }
+		char as_char(void) const { return *this; }
+		short as_short(void) const { return *this; }
+		int as_int(void) const { return *this; }
+		long as_long(void) const { return *this; }
+		bool as_bool(void) const { return *this; }
+		std::wstring as_string(void) const { return *this; }
+		std::vector<std::shared_ptr<sqf::value>> as_vector(void) const { return *this; }
+		type as_type(void) const { return *this; }
+
 		std::wstring name(void) const;
 		inline std::wstring to_string(void) { return mdata.get() ? mdata->to_string() : std::wstring(L"any"); }
-		type get_valuetype(void) const;
 		inline void convert(type type)
 		{
 			if (mtype == type)

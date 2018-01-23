@@ -9,7 +9,7 @@
 #endif // !_STRING
 #if !defined(_VECTOR) & !defined(_VECTOR_)
 #error virtualmachine requires <vector> header
-#endif // !_STRING
+#endif // !_VECTOR
 #if !defined(_MEMORY) & !defined(_MEMORY_)
 #error virtualmachine requires <memory> header
 #endif // !_MEMORY

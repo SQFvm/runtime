@@ -21,9 +21,9 @@ namespace sqf
 		class callbinary : public instruction
 		{
 		private:
-			std::vector<std::shared_ptr<binarycmd>> mcmds;
+			std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> mcmds;
 		public:
-			callbinary(std::vector<std::shared_ptr<binarycmd>> cmds) { mcmds = cmds; }
+			callbinary(std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> cmds) { mcmds = cmds; }
 			virtual void execute(const virtualmachine*) const;
 		};
 		typedef std::shared_ptr<callbinary> callbinary_s;

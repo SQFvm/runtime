@@ -34,6 +34,9 @@
     <Filter Include="Source Files\parse">
       <UniqueIdentifier>{8ff3902c-2819-4e90-acbd-76285561ec1a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\parse">
+      <UniqueIdentifier>{2170a3e0-de71-4331-a8b3-79dc0224dc1f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entry.cpp">
@@ -193,6 +196,15 @@
     </ClInclude>
     <ClInclude Include="codedata.h">
       <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="astnode.h">
+      <Filter>Header Files\parse</Filter>
+    </ClInclude>
+    <ClInclude Include="sqfasttypes.h">
+      <Filter>Header Files\parse</Filter>
+    </ClInclude>
+    <ClInclude Include="parsesqf.h">
+      <Filter>Header Files\parse</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

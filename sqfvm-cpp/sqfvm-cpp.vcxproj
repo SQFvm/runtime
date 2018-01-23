@@ -139,6 +139,7 @@
     <ClCompile Include="scalardata.cpp" />
     <ClCompile Include="virtualmachine.cpp" />
     <ClCompile Include="wstring_op.c" />
+    <ClInclude Include="astnode.h" />
     <ClInclude Include="callstack.h" />
     <ClInclude Include="cmd.h" />
     <ClInclude Include="codedata.h" />
@@ -155,8 +156,10 @@
     <ClInclude Include="instmakearray.h" />
     <ClInclude Include="namespace.h" />
     <ClInclude Include="namespaces.h" />
+    <ClInclude Include="parsesqf.h" />
     <ClInclude Include="scalardata.h" />
     <ClCompile Include="stringdata.cpp" />
+    <ClInclude Include="sqfasttypes.h" />
     <ClInclude Include="stringdata.h" />
     <ClCompile Include="value.cpp" />
     <ClInclude Include="varscope.h" />

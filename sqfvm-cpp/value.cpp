@@ -161,8 +161,3 @@ std::wstring sqf::value::name(void) const
 {
 	return std::wstring();
 }
-
-sqf::type sqf::value::get_valuetype(void) const
-{
-	return mtype;
-}
