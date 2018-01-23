@@ -54,32 +54,33 @@ namespace sqf
 		size_t scalar(const wchar_t* code, size_t off);
 		size_t anytext(const wchar_t* code, size_t off);
 		bool SQF_start(helper &h, const wchar_t* code, size_t curoff);
-		void SQF(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		void SQF(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 		bool STATEMENT_start(helper &h, const wchar_t* code, size_t curoff);
-		void STATEMENT(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		void STATEMENT(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 		bool ASSIGNMENT_start(helper &h, const wchar_t* code, size_t curoff);
-		void ASSIGNMENT(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		void ASSIGNMENT(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 		bool BINARYEXPRESSION_start(helper &h, const wchar_t* code, size_t curoff);
-		void BINARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, short* calleeprec = 0);
+		void BINARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag, short* calleeprec = 0);
 		bool BRACKETS_start(helper &h, const wchar_t* code, size_t curoff);
-		void BRACKETS(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		void BRACKETS(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 		bool PRIMARYEXPRESSION_start(helper &h, const wchar_t* code, size_t curoff);
-		void PRIMARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		void PRIMARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 		bool NULAREXPRESSION_start(helper &h, const wchar_t* code, size_t curoff);
-		void NULAREXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		void NULAREXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 		bool UNARYEXPRESSION_start(helper &h, const wchar_t* code, size_t curoff);
-		void UNARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		void UNARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 		bool NUMBER_start(helper &h, const wchar_t* code, size_t curoff);
-		void NUMBER(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		void NUMBER(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 		bool VARIABLE_start(helper &h, const wchar_t* code, size_t curoff);
-		void VARIABLE(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		void VARIABLE(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 		bool STRING_start(helper &h, const wchar_t* code, size_t curoff);
-		void STRING(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		void STRING(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 		bool CODE_start(helper &h, const wchar_t* code, size_t curoff);
-		void CODE(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
+		void CODE(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 		bool ARRAY_start(helper &h, const wchar_t* code, size_t curoff);
-		void ARRAY(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file);
-		astnode parse_sqf(const wchar_t* codein, helper& h);
+		void ARRAY(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
+		astnode parse_sqf(const wchar_t* codein, helper& h, bool &errflag);
+		const wchar_t* astkindname(short id);
 	}
 }
 

@@ -18,4 +18,6 @@ struct astnode
 	std::vector<astnode> children;
 };
 
+void print_navigate_ast(std::wostream* outstreamptr, astnode node, const wchar_t* (*astkindname)(short), unsigned short level = 0);
+
 #endif // !_ASTNODE
