@@ -609,7 +609,7 @@ namespace sqf
 			size_t col = 0;
 			size_t curoff = 0;
 			astnode node;
-			
+			node.kind = sqfasttypes::SQF;
 			node.offset = 0;
 			node.content = codein;
 			SQF(h, node, code, line, col, curoff, L"");
