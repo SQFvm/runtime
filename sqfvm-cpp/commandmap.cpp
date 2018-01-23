@@ -42,8 +42,19 @@ void sqf::commandmap::init(void)
 {
 	add(nular(L"ntest", L"foo", [](const virtualmachine* vm) -> value_s { vm->out() << L"ntest" << std::endl; return value_s(); }));
 	add(unary(L"utest", sqf::type::ANY, L"foo", [](const virtualmachine* vm, value_s left) -> value_s { vm->out() << L"utest" << std::endl; return value_s(); }));
-	add(binary(6, L"+", sqf::type::SCALAR, sqf::type::SCALAR, L"+", [](const virtualmachine* vm, value_s left, value_s right) -> value_s {  return std::make_shared<value>((left->as_double()) + (right->as_double())); }));
-	add(binary(6, L"-", sqf::type::SCALAR, sqf::type::SCALAR, L"-", [](const virtualmachine* vm, value_s left, value_s right) -> value_s { return std::make_shared<value>((left->as_double()) - (right->as_double())); }));
-	add(binary(7, L"*", sqf::type::SCALAR, sqf::type::SCALAR, L"*", [](const virtualmachine* vm, value_s left, value_s right) -> value_s { return std::make_shared<value>((left->as_double()) * (right->as_double())); }));
-	add(binary(7, L"/", sqf::type::SCALAR, sqf::type::SCALAR, L"/", [](const virtualmachine* vm, value_s left, value_s right) -> value_s { return std::make_shared<value>((left->as_double()) / (right->as_double())); }));
+	add(binary(6, L"+", sqf::type::SCALAR, sqf::type::SCALAR, L"b added to a.", [](const virtualmachine* vm, value_s left, value_s right) -> value_s {
+		return std::make_shared<value>((left->as_double()) + (right->as_double()));
+	}));
+	add(binary(6, L"-", sqf::type::SCALAR, sqf::type::SCALAR, L"Subtracts b from a.", [](const virtualmachine* vm, value_s left, value_s right) -> value_s {
+		return std::make_shared<value>((left->as_double()) - (right->as_double()));
+	}));
+	add(binary(7, L"*", sqf::type::SCALAR, sqf::type::SCALAR, L"Returns the value of a multiplied by b.", [](const virtualmachine* vm, value_s left, value_s right) -> value_s {
+		return std::make_shared<value>((left->as_double()) * (right->as_double()));
+	}));
+	add(binary(7, L"/", sqf::type::SCALAR, sqf::type::SCALAR, L"a divided by b. Division by 0 throws \"Division by zero\" error, however script doesn't stop and the result of such division is assumed to be 0.", [](const virtualmachine* vm, value_s left, value_s right) -> value_s {
+		auto r = (right->as_double());
+		if (r == 0)
+			return std::make_shared<value>(0);
+		return std::make_shared<value>((left->as_double()) / r);
+	}));
 }
