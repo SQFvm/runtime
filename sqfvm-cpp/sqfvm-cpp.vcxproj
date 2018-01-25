@@ -134,6 +134,7 @@
     <ClCompile Include="instgetvariable.cpp" />
     <ClCompile Include="instmakearray.cpp" />
     <ClCompile Include="instruction.cpp" />
+    <ClCompile Include="math.cpp" />
     <ClCompile Include="namespaces.cpp" />
     <ClCompile Include="parseassembly.cpp" />
     <ClCompile Include="parsesqf.cpp" />

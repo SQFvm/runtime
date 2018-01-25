@@ -62,7 +62,12 @@ namespace sqf
 		std::unordered_map<std::wstring, std::shared_ptr<nularcmd>> mnularcmd;
 		std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>> munarycmd;
 		std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>> mbinarycmd;
+		void initmath(void);
 	public:
+		inline void init(void)
+		{
+			initmath();
+		}
 		commandmap() {}
 		void add(std::shared_ptr<nularcmd> cmd) { mnularcmd[cmd->name()] = cmd; }
 		void add(std::shared_ptr<unarycmd> cmd)
@@ -117,7 +122,6 @@ namespace sqf
 
 		static sqf::commandmap& get(void);
 
-		void init(void);
 		inline void uninit(void)
 		{
 			get().mnularcmd.clear();
