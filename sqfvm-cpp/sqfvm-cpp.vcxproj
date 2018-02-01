@@ -126,6 +126,7 @@
     <ClCompile Include="convert.cpp" />
     <ClCompile Include="booldata.cpp" />
     <ClCompile Include="Entry.cpp" />
+    <ClCompile Include="genericops.cpp" />
     <ClCompile Include="instassignto.cpp" />
     <ClCompile Include="instassigntolocal.cpp" />
     <ClCompile Include="instcallbinary.cpp" />
@@ -145,6 +146,7 @@
     <ClInclude Include="callstack.h" />
     <ClInclude Include="cmd.h" />
     <ClInclude Include="codedata.h" />
+    <ClInclude Include="commandmap.h" />
     <ClInclude Include="compiletime.h" />
     <ClInclude Include="instassignto.h" />
     <ClInclude Include="instassigntolocal.h" />

@@ -33,6 +33,7 @@ extern "C" {
 #include "codedata.h"
 #include "virtualmachine.h"
 #include "cmd.h"
+#include "commandmap.h"
 #include "instassignto.h"
 #include "instassigntolocal.h"
 #include "instcallbinary.h"

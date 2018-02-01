@@ -114,6 +114,9 @@
     <ClCompile Include="math.cpp">
       <Filter>Source Files\commands</Filter>
     </ClCompile>
+    <ClCompile Include="genericops.cpp">
+      <Filter>Source Files\commands</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -211,6 +214,9 @@
     </ClInclude>
     <ClInclude Include="instcallnular.h">
       <Filter>Header Files\instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="commandmap.h">
+      <Filter>Header Files\commands</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

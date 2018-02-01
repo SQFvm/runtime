@@ -56,12 +56,6 @@ namespace
 	{
 		return std::make_shared<value>(std::exp(right->as_double()));
 	}
-	value_s min_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
-	{
-		auto l = left->as_double();
-		auto r = right->as_double();
-		return std::make_shared<value>(l < r ? l : r);
-	}
 	value_s rad_scalar(const virtualmachine* vm, value_s right)
 	{
 		return std::make_shared<value>(right->as_double() * (compiletime::pi() / 180));
@@ -77,6 +71,59 @@ namespace
 	value_s random_scalar(const virtualmachine* vm, value_s right)
 	{
 		return std::make_shared<value>(compiletime::rand(right->as_double()));
+	}
+	value_s min_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto l = left->as_double();
+		auto r = right->as_double();
+		return std::make_shared<value>(std::fmin(l, r));
+	}
+	value_s max_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto l = left->as_double();
+		auto r = right->as_double();
+		return std::make_shared<value>(std::fmax(l, r));
+	}
+	value_s floor_scalar(const virtualmachine* vm, value_s right)
+	{
+		auto r = right->as_long();
+		return std::make_shared<value>(r);
+	}
+	value_s ceil_scalar(const virtualmachine* vm, value_s right)
+	{
+		auto r = right->as_long();
+		return std::make_shared<value>(std::ceil(r));
+	}
+	value_s asin_scalar(const virtualmachine* vm, value_s right)
+	{
+		auto r = right->as_double();
+		return std::make_shared<value>(asin(r));
+	}
+	value_s atan_scalar(const virtualmachine* vm, value_s right)
+	{
+		auto r = right->as_double();
+		return std::make_shared<value>(atan(r));
+	}
+	value_s cos_scalar(const virtualmachine* vm, value_s right)
+	{
+		auto r = right->as_double();
+		return std::make_shared<value>(cos(r));
+	}
+	value_s ln_scalar(const virtualmachine* vm, value_s right)
+	{
+		auto r = right->as_double();
+		return std::make_shared<value>(log(r));
+	}
+	value_s mod_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto l = left->as_double();
+		auto r = right->as_double();
+		return std::make_shared<value>(fmod(l, r));
+	}
+	value_s round_scalar(const virtualmachine* vm, value_s right)
+	{
+		auto r = right->as_double();
+		return std::make_shared<value>(round(r));
 	}
 }
 
@@ -94,7 +141,17 @@ void sqf::commandmap::initmath(void)
 	add(unary(L"sqrt", sqf::type::SCALAR, L"Returns square root of x.", rad_scalar));
 	add(unary(L"tan", sqf::type::SCALAR, L"Tangent of x, argument in Degrees.", tan_scalar));
 	add(unary(L"random", sqf::type::SCALAR, L"Random real (floating point) value from 0 (inclusive) to x (not inclusive).", random_scalar));
-	add(binary(6, L"+", sqf::type::SCALAR, sqf::type::SCALAR, L"The smaller of a,b", min_scalar_scalar));
+	add(binary(6, L"min", sqf::type::SCALAR, sqf::type::SCALAR, L"The smaller of a, b", min_scalar_scalar));
+	add(binary(6, L"max", sqf::type::SCALAR, sqf::type::SCALAR, L"The greater of a, b.", max_scalar_scalar));
+	add(unary(L"floor", sqf::type::SCALAR, L"Returns the next lowest integer in relation to x.", floor_scalar));
+	add(unary(L"ceil", sqf::type::SCALAR, L"The ceil value of x.", ceil_scalar));
+	add(unary(L"asin", sqf::type::SCALAR, L"Arcsine of a number, result in Degrees.", asin_scalar));
+	add(unary(L"atan", sqf::type::SCALAR, L"ArcTangent of a number, result in Degrees.", atan_scalar));
+	add(unary(L"atg", sqf::type::SCALAR, L"Equivalent to atan.", atan_scalar));
+	add(unary(L"cos", sqf::type::SCALAR, L"Cosine of a number, argument in degrees.", cos_scalar));
+	add(unary(L"ln", sqf::type::SCALAR, L"Natural logarithm of x.", ln_scalar));
+	add(binary(7, L"mod", sqf::type::SCALAR, sqf::type::SCALAR, L"Remainder of a divided by b.", mod_scalar_scalar));
+	add(unary(L"round", sqf::type::SCALAR, L"Rounds up or down to the closest integer.", round_scalar));
 	add(binary(6, L"+", sqf::type::SCALAR, sqf::type::SCALAR, L"b added to a.", plus_scalar_scalar));
 	add(binary(6, L"-", sqf::type::SCALAR, sqf::type::SCALAR, L"Subtracts b from a.", minus_scalar_scalar));
 	add(binary(7, L"*", sqf::type::SCALAR, sqf::type::SCALAR, L"Returns the value of a multiplied by b.", multiply_scalar_scalar));
