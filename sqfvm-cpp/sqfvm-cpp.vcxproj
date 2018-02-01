@@ -74,6 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -96,6 +97,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -125,6 +127,7 @@
     <ClCompile Include="commandmap.cpp" />
     <ClCompile Include="convert.cpp" />
     <ClCompile Include="booldata.cpp" />
+    <ClCompile Include="diagops.cpp" />
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="genericops.cpp" />
     <ClCompile Include="instassignto.cpp" />
@@ -140,6 +143,7 @@
     <ClCompile Include="parseassembly.cpp" />
     <ClCompile Include="parsesqf.cpp" />
     <ClCompile Include="scalardata.cpp" />
+    <ClCompile Include="type.cpp" />
     <ClCompile Include="virtualmachine.cpp" />
     <ClCompile Include="wstring_op.c" />
     <ClInclude Include="astnode.h" />

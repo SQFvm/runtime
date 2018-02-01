@@ -181,12 +181,16 @@ void navigate(const wchar_t* full, sqf::virtualmachine* vm, sqf::callstack_s sta
 	break;
 	default:
 	{
-		for each (auto subnode in node.children)
+		for (size_t i = 0; i < node.children.size(); i++)
 		{
+			if (i != 0)
+			{
+				auto inst = std::make_shared<sqf::inst::endstatement>();
+				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+				stack->pushinst(inst);
+			}
+			auto subnode = node.children[i];
 			navigate(full, vm, stack, subnode);
-			auto inst = std::make_shared<sqf::inst::endstatement>();
-			inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
-			stack->pushinst(inst);
 		}
 	}
 	}
@@ -198,6 +202,7 @@ void sqf::virtualmachine::parse_sqf(std::wstring code)
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
 	auto node = sqf::parse::parse_sqf(code.c_str(), h, errflag);
+	//print_navigate_ast(mout, node, sqf::parse::astkindname);
 	if (!errflag)
 	{
 		this->stack()->pushcallstack(std::make_shared<sqf::callstack>());

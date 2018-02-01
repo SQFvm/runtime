@@ -24,6 +24,6 @@ void sqf::inst::callbinary::execute(const virtualmachine* vm) const
 	}
 	else
 	{
-		vm->err() << dbginf(L"ERR") << L"Unknown input type combination. LType:" << right->as_type() << L", RType: " << left->as_type() << L'.' << std::endl;
+		vm->err() << dbginf(L"ERR") << L"Unknown input type combination. LType:" << sqf::type_str(left->as_type()) << L", RType: " << sqf::type_str(right->as_type()) << L'.' << std::endl;
 	}
 }

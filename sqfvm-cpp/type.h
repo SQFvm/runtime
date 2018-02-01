@@ -1,6 +1,12 @@
 #ifndef _SQFTYPE
 #define _SQFTYPE 1
 
+#if !defined(_STRING) & !defined(_STRING_)
+#error type requires <string> header
+#endif // !_STRING
+
+
+
 namespace sqf
 {
 	enum type
@@ -41,5 +47,6 @@ namespace sqf
 		DIARY_RECORD,
 		LOCATION
 	};
+	std::wstring type_str(type t);
 }
 #endif // !_SQFTYPE

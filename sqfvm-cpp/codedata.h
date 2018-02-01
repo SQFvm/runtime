@@ -30,9 +30,9 @@ namespace sqf
 		void loadinto(vmstack_s stack)
 		{
 			auto cs = std::make_shared<callstack>();
-			for each (auto it in minsts)
+			for (auto it = minsts.rbegin(); it != minsts.rend(); it++)
 			{
-				cs->pushinst(it);
+				cs->pushinst(*it);
 			}
 			stack->pushcallstack(cs);
 		}

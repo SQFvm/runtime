@@ -12,11 +12,14 @@ namespace sqf
 		void initmath(void);
 		void initnamespaces(void);
 		void initgenericops(void);
+		void initdiagops(void);
 	public:
 		inline void init(void)
 		{
 			initmath();
 			initnamespaces();
+			initgenericops();
+			initdiagops();
 		}
 
 

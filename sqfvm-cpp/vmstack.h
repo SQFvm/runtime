@@ -28,7 +28,7 @@ namespace sqf
 			if (!ret.get())
 			{
 				dropcallstack();
-				ret = mstacks.empty() ? std::shared_ptr<instruction>() : mstacks.back()->popinst();
+				return popinst();
 			}
 			return ret;
 		}

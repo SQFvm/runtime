@@ -569,7 +569,7 @@ namespace sqf
 
 			if (SQF_start(h, code, curoff))
 			{
-				BINARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag);
+				SQF(h, thisnode, code, line, col, curoff, file, errflag);
 			}
 			else
 			{
