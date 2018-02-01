@@ -67,6 +67,7 @@ namespace sqf
 		std::wstring as_string(void) const { return *this; }
 		std::vector<std::shared_ptr<sqf::value>> as_vector(void) const { return *this; }
 		type as_type(void) const { return *this; }
+		data_s as_data(void) const { return mdata; }
 
 		std::wstring name(void) const;
 		inline std::wstring to_string(void) { return mdata.get() ? mdata->to_string() : std::wstring(L"any"); }

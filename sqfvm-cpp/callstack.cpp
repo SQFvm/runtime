@@ -2,4 +2,4 @@
 
 sqf::callstack::callstack() : mwith(commands::namespaces::missionNamespace()) {}
 
-sqf::callstack::callstack(sqfnamespace& ns) : mwith(ns) {}
+sqf::callstack::callstack(namespace_s ns) : mwith(ns) {}

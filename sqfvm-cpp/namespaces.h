@@ -8,16 +8,16 @@ namespace sqf
 		class namespaces
 		{
 		private:
-			static sqfnamespace MissionNamespace;
-			static sqfnamespace UiNamespace;
-			static sqfnamespace ParsingNamespace;
-			static sqfnamespace ProfileNamespace;
+			static namespace_s MissionNamespace;
+			static namespace_s UiNamespace;
+			static namespace_s ParsingNamespace;
+			static namespace_s ProfileNamespace;
 			namespaces() {}
 		public:
-			static sqfnamespace& missionNamespace (void) { return MissionNamespace; }
-			static sqfnamespace& uiNamespace (void) { return MissionNamespace; }
-			static sqfnamespace& parsingNamespace (void) { return MissionNamespace; }
-			static sqfnamespace& profileNamespace (void) { return MissionNamespace; }
+			static namespace_s missionNamespace (void) { return MissionNamespace; }
+			static namespace_s uiNamespace (void) { return MissionNamespace; }
+			static namespace_s parsingNamespace (void) { return MissionNamespace; }
+			static namespace_s profileNamespace (void) { return MissionNamespace; }
 		};
 	}
 }

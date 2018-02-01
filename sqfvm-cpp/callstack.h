@@ -24,16 +24,16 @@ namespace sqf
 	{
 	private:
 		std::queue<instruction_s> mstack;
-		sqfnamespace& mwith;
+		namespace_s mwith;
 	public:
 		callstack();
-		callstack(sqfnamespace&);
+		callstack(namespace_s);
 		inline void pushinst(instruction_s value) { mstack.push(value); }
 		inline instruction_s popinst(void) { if (mstack.empty()) return instruction_s(); auto ret = mstack.front(); mstack.pop(); return ret; }
 		inline instruction_s peekinst(void) { if (mstack.empty()) return instruction_s(); auto front = mstack.front(); return front; }
-		inline sqfnamespace& getnamespace(void) const { return mwith; }
+		inline namespace_s getnamespace(void) const { return mwith; }
 		inline size_t inststacksize(void) const { return mstack.size(); }
-		inline void setnamespace(sqfnamespace& ns) { mwith = ns; }
+		inline void setnamespace(namespace_s ns) { mwith = ns; }
 	};
 
 	typedef std::shared_ptr<callstack> callstack_s;

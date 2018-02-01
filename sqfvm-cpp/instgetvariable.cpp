@@ -16,7 +16,7 @@ void sqf::inst::getvariable::execute(const virtualmachine* vm) const
 	}
 	else
 	{//globalvar
-		val = vm->stack()->stacks_top()->getvar(mvarname);
+		val = vm->stack()->stacks_top()->getnamespace()->getvar(mvarname);
 	}
 	vm->stack()->pushval(val);
 }

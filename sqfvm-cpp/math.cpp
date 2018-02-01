@@ -27,6 +27,7 @@ namespace
 	value_s abs_scalar(const virtualmachine* vm, value_s right)
 	{
 		auto r = right->as_double();
+		return std::make_shared<value>(std::fabs(right->as_double()));
 	}
 	value_s atan2_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
 	{
@@ -70,7 +71,7 @@ namespace
 	}
 	value_s random_scalar(const virtualmachine* vm, value_s right)
 	{
-		return std::make_shared<value>(compiletime::rand(right->as_double()));
+		return std::make_shared<value>(compiletime::rand_lim(std::rand(), right->as_double()));
 	}
 	value_s min_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
 	{
@@ -97,33 +98,33 @@ namespace
 	value_s asin_scalar(const virtualmachine* vm, value_s right)
 	{
 		auto r = right->as_double();
-		return std::make_shared<value>(asin(r));
+		return std::make_shared<value>(std::asin(r));
 	}
 	value_s atan_scalar(const virtualmachine* vm, value_s right)
 	{
 		auto r = right->as_double();
-		return std::make_shared<value>(atan(r));
+		return std::make_shared<value>(std::atan(r));
 	}
 	value_s cos_scalar(const virtualmachine* vm, value_s right)
 	{
 		auto r = right->as_double();
-		return std::make_shared<value>(cos(r));
+		return std::make_shared<value>(std::cos(r));
 	}
 	value_s ln_scalar(const virtualmachine* vm, value_s right)
 	{
 		auto r = right->as_double();
-		return std::make_shared<value>(log(r));
+		return std::make_shared<value>(std::log(r));
 	}
 	value_s mod_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
 	{
 		auto l = left->as_double();
 		auto r = right->as_double();
-		return std::make_shared<value>(fmod(l, r));
+		return std::make_shared<value>(std::fmod(l, r));
 	}
 	value_s round_scalar(const virtualmachine* vm, value_s right)
 	{
 		auto r = right->as_double();
-		return std::make_shared<value>(round(r));
+		return std::make_shared<value>(std::round(r));
 	}
 }
 

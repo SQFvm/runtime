@@ -19,7 +19,8 @@ void sqf::inst::callbinary::execute(const virtualmachine* vm) const
 	if (cmd.get())
 	{
 		auto val = cmd->execute(vm, left, right);
-		vm->stack()->pushval(val);
+		if (val.get())
+			vm->stack()->pushval(val);
 	}
 	else
 	{

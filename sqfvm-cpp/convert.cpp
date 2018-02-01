@@ -29,7 +29,6 @@ data_s sqf::convert(data_s val, type type)
 	case sqf::EXCEPTION:
 		return val;
 	case sqf::ARRAY:
-		break;
 	case sqf::TEXT:
 	case sqf::NA:
 	case sqf::NOTHING:

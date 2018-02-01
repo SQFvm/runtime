@@ -13,7 +13,8 @@ void sqf::inst::callunary::execute(const virtualmachine* vm) const
 	if (cmd.get())
 	{
 		auto val = cmd->execute(vm, value_s(), right);
-		vm->stack()->pushval(val);
+		if (val.get())
+			vm->stack()->pushval(val);
 	}
 	else
 	{
