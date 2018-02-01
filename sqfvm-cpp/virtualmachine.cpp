@@ -84,7 +84,7 @@ short precedence(std::wstring s)
 	return srange->begin()->get()->precedence();
 }
 
-void navigate(const wchar_t* full, sqf::virtualmachine* vm, sqf::callstack_s stack, astnode node)
+void navigate(const wchar_t* full, const sqf::virtualmachine* vm, sqf::callstack_s stack, astnode node)
 {
 	switch (node.kind)
 	{
@@ -196,16 +196,19 @@ void navigate(const wchar_t* full, sqf::virtualmachine* vm, sqf::callstack_s sta
 	}
 }
 
-
-void sqf::virtualmachine::parse_sqf(std::wstring code)
+void sqf::virtualmachine::parse_sqf(std::wstring code, callstack_s cs) const
 {
+	if (!cs.get())
+	{
+		cs = std::make_shared<sqf::callstack>();
+		this->stack()->pushcallstack(cs);
+	}
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
 	auto node = sqf::parse::parse_sqf(code.c_str(), h, errflag);
 	//print_navigate_ast(mout, node, sqf::parse::astkindname);
 	if (!errflag)
 	{
-		this->stack()->pushcallstack(std::make_shared<sqf::callstack>());
-		navigate(code.c_str(), this, this->stack()->stacks_top(), node);
+		navigate(code.c_str(), this, cs, node);
 	}
 }

@@ -56,6 +56,12 @@ sqf::value::value(bool flag)
 	mdata = std::make_shared<booldata>(flag);
 }
 
+sqf::value::value(size_t num)
+{
+	mtype = type::SCALAR;
+	mdata = std::make_shared<scalardata>(num);
+}
+
 sqf::value::value(std::shared_ptr<sqf::callstack> cs)
 {
 	mtype = type::CODE;

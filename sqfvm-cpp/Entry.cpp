@@ -43,6 +43,15 @@ int main(int argc, char** argv)
 	sqf::commandmap::get().init();
 	vm.parse_sqf(sstream.str());
 	vm.execute();
+	sqf::value_s val;
+	bool success;
+	do {
+		val = vm.stack()->popval(success);
+		if (success)
+		{
+			vm.out() << L"[WORK]\t<" << sqf::type_str(val->as_type()) << L">\t" << val->as_string() << std::endl;
+		}
+	} while (success);
 	sqf::commandmap::get().uninit();
 	std::wcout << std::endl;
 	system("pause");

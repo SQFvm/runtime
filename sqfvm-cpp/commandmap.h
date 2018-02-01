@@ -13,6 +13,7 @@ namespace sqf
 		void initnamespaces(void);
 		void initgenericops(void);
 		void initdiagops(void);
+		void initsqfvmcmds(void);
 	public:
 		inline void init(void)
 		{
@@ -20,6 +21,7 @@ namespace sqf
 			initnamespaces();
 			initgenericops();
 			initdiagops();
+			initsqfvmcmds();
 		}
 
 
@@ -77,6 +79,11 @@ namespace sqf
 		bool contains_n(std::wstring name) { return mnularcmd.find(name) != mnularcmd.end(); }
 		bool contains_u(std::wstring name) { return munarycmd.find(name) != munarycmd.end(); }
 		bool contains_b(std::wstring name) { return mbinarycmd.find(name) != mbinarycmd.end(); }
+
+
+		const std::unordered_map<std::wstring, std::shared_ptr<nularcmd>>& all_n(void) { return mnularcmd; }
+		const std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>>&  all_u(void) { return munarycmd; }
+		const std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>>&  all_b(void) { return mbinarycmd; }
 
 		static sqf::commandmap& get(void);
 

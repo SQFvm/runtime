@@ -3,26 +3,28 @@
 sqf::stringdata::stringdata(void)
 {
 	mvalue = std::wstring();
+	mvalue_parsed = std::wstring();
 }
 
 sqf::stringdata::stringdata(std::wstring s)
 {
 	mvalue = s;
+	mvalue_parsed = parse_from_sqf(s);
 }
 
 std::wstring sqf::stringdata::to_string(void) const
 {
-	return parse_to_sqf(mvalue);
+	return mvalue;
 }
 
 sqf::stringdata::operator const wchar_t*(void) const
 {
-	return mvalue.c_str();
+	return mvalue_parsed.c_str();
 }
 
 sqf::stringdata::operator std::wstring(void) const
 {
-	return mvalue;
+	return mvalue_parsed;
 }
 
 std::wstring sqf::stringdata::parse_from_sqf(std::wstring s)

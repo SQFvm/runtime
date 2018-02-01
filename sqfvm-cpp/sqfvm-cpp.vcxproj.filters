@@ -123,6 +123,9 @@
     <ClCompile Include="type.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>
+    <ClCompile Include="sqfvmcmds.cpp">
+      <Filter>Source Files\commands</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">

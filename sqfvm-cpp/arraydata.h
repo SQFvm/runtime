@@ -28,6 +28,7 @@ namespace sqf
 		virtual std::wstring to_string(void) const;
 		value_s& operator[](int);
 		value_s operator[](int) const;
+		inline size_t size(void) { return msize; }
 		operator std::vector<value_s>(void) const;
 	};
 	typedef std::shared_ptr<arraydata> array_s;

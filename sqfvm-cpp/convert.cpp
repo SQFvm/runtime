@@ -6,6 +6,7 @@ using namespace sqf;
 
 data_s sqf::convert(data_s val, type type)
 {
+	
 	auto stringval = sqf::stringdata::parse_from_sqf(val->to_string());
 	switch (type)
 	{

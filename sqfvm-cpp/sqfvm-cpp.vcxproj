@@ -143,6 +143,7 @@
     <ClCompile Include="parseassembly.cpp" />
     <ClCompile Include="parsesqf.cpp" />
     <ClCompile Include="scalardata.cpp" />
+    <ClCompile Include="sqfvmcmds.cpp" />
     <ClCompile Include="type.cpp" />
     <ClCompile Include="virtualmachine.cpp" />
     <ClCompile Include="wstring_op.c" />

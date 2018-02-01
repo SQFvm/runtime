@@ -17,6 +17,7 @@ namespace sqf
 	{
 	private:
 		std::wstring mvalue;
+		std::wstring mvalue_parsed;
 	public:
 		stringdata(void);
 		stringdata(std::wstring);
@@ -26,6 +27,7 @@ namespace sqf
 
 		static std::wstring parse_from_sqf(std::wstring);
 		static std::wstring parse_to_sqf(std::wstring);
+		inline size_t length(void) { return mvalue_parsed.size(); }
 	};
 	typedef std::shared_ptr<stringdata> string_s;
 	typedef std::weak_ptr<stringdata> string_w;

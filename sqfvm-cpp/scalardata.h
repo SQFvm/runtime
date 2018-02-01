@@ -25,6 +25,7 @@ namespace sqf
 		scalardata(long);
 		scalardata(float);
 		scalardata(double);
+		scalardata(size_t);
 		virtual std::wstring to_string(void) const;
 		operator char(void) const;
 		operator short(void) const;
@@ -32,6 +33,7 @@ namespace sqf
 		operator long(void) const;
 		operator float(void) const;
 		operator double(void) const;
+		operator size_t(void) const;
 	};
 	typedef std::shared_ptr<scalardata> scalar_s;
 	typedef std::weak_ptr<scalardata> scalar_w;

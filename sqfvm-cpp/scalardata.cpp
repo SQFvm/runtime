@@ -35,9 +35,14 @@ sqf::scalardata::scalardata(double num)
 	mvalue = (double)num;
 }
 
+sqf::scalardata::scalardata(size_t num)
+{
+	mvalue = (double)num;
+}
+
 std::wstring sqf::scalardata::to_string(void) const
 {
-	return std::to_wstring(mvalue);
+	return sqf::stringdata::parse_to_sqf(std::to_wstring(mvalue));
 }
 
 sqf::scalardata::operator char(void) const
@@ -68,4 +73,9 @@ sqf::scalardata::operator float(void) const
 sqf::scalardata::operator double(void) const
 {
 	return (double)mvalue;
+}
+
+sqf::scalardata::operator size_t(void) const
+{
+	return (size_t)mvalue;
 }

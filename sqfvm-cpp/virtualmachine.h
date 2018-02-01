@@ -49,7 +49,8 @@ namespace sqf
 		static std::wstring dbgsegment(const wchar_t* full, size_t off, size_t length);
 
 		void parse_assembly(std::wstring);
-		void parse_sqf(std::wstring);
+		inline void parse_sqf(std::wstring code) { parse_sqf(code, callstack_s()); }
+		void parse_sqf(std::wstring, callstack_s) const;
 	};
 	typedef std::shared_ptr<virtualmachine> virtualmachine_s;
 	typedef std::weak_ptr<virtualmachine> virtualmachine_w;

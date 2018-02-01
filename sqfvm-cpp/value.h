@@ -42,6 +42,7 @@ namespace sqf
 		value(int);
 		value(long);
 		value(bool);
+		value(size_t);
 		value(std::shared_ptr<callstack>);
 		value();
 		value(data_s d, type t) { mdata = d; mtype = t; }
