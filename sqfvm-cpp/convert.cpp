@@ -6,8 +6,8 @@ using namespace sqf;
 
 data_s sqf::convert(data_s val, type type)
 {
-	
-	auto stringval = sqf::stringdata::parse_from_sqf(val->to_string());
+	auto stringifiedval = val->to_string();
+	auto stringval = sqf::stringdata::parse_from_sqf(stringifiedval);
 	switch (type)
 	{
 	case sqf::SCALAR:
@@ -26,7 +26,7 @@ data_s sqf::convert(data_s val, type type)
 			return std::make_shared<booldata>(wcstod(stringval.c_str(), 0) > 0);
 		}
 	case sqf::STRING:
-		return std::make_shared<stringdata>(val->to_string());
+		return std::make_shared<stringdata>(stringifiedval);
 	case sqf::EXCEPTION:
 		return val;
 	case sqf::ARRAY:

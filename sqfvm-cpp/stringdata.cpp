@@ -29,8 +29,12 @@ sqf::stringdata::operator std::wstring(void) const
 
 std::wstring sqf::stringdata::parse_from_sqf(std::wstring s)
 {
+	if (s.length() == 0)
+		return s;
 	size_t count = 0;
 	wchar_t start = s[0];
+	if (start != L'"' || start != L'\'')
+		return s;
 	for (size_t i = 0; i < s.length(); i++)
 	{
 		wchar_t c = s[i];

@@ -1,4 +1,5 @@
 #include "full.h"
+#include <sstream>
 
 sqf::arraydata::arraydata()
 {
@@ -19,7 +20,23 @@ sqf::arraydata::arraydata(std::vector<std::shared_ptr<sqf::value>> v)
 
 std::wstring sqf::arraydata::to_string(void) const
 {
-	return std::wstring();
+	std::wstringstream sstream;
+	sstream << L'[';
+	bool first = true;
+	for each (auto it in mvalue)
+	{
+		if (first)
+		{
+			first = false;
+		}
+		else
+		{
+			sstream << L", ";
+		}
+		sstream << it->to_string();
+	}
+	sstream << L']';
+	return sstream.str();
 }
 
 std::shared_ptr<sqf::value>& sqf::arraydata::operator[](int index)
