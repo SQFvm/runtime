@@ -36,7 +36,7 @@ namespace
 	}
 	value_s str_any(const virtualmachine* vm, value_s right)
 	{
-		return std::make_shared<value>(right->to_string());
+		return std::make_shared<value>(std::make_shared<stringdata>(right->to_string(), false), type::STRING);
 	}
 	value_s nil_(const virtualmachine* vm)
 	{

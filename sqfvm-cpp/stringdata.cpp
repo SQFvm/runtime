@@ -8,8 +8,21 @@ sqf::stringdata::stringdata(void)
 
 sqf::stringdata::stringdata(std::wstring s)
 {
-	mvalue = s;
-	mvalue_parsed = parse_from_sqf(s);
+	mvalue = s[0] != L'"' && s[0] != L'\'' ? parse_to_sqf(s) : s;
+	mvalue_parsed = s[0] != L'"' && s[0] != L'\'' ? s : parse_from_sqf(s);
+}
+sqf::stringdata::stringdata(std::wstring s, bool parse)
+{
+	if (parse)
+	{
+		mvalue = s;
+		mvalue_parsed = parse_from_sqf(s);
+	}
+	else
+	{
+		mvalue = parse_to_sqf(s);
+		mvalue_parsed = s;
+	}
 }
 
 std::wstring sqf::stringdata::to_string(void) const
@@ -33,7 +46,7 @@ std::wstring sqf::stringdata::parse_from_sqf(std::wstring s)
 		return s;
 	size_t count = 0;
 	wchar_t start = s[0];
-	if (start != L'"' || start != L'\'')
+	if (start != L'"' && start != L'\'')
 		return s;
 	for (size_t i = 0; i < s.length(); i++)
 	{

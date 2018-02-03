@@ -12,12 +12,14 @@ namespace
 	value_s toupper_string(const virtualmachine* vm, value_s right)
 	{
 		auto r = right->as_string();
-		return std::make_shared<value>(std::transform(r.begin(), r.end(), r.begin(), ::toupper));
+		std::transform(r.begin(), r.end(), r.begin(), ::toupper);
+		return std::make_shared<value>(r);
 	}
 	value_s tolower_string(const virtualmachine* vm, value_s right)
 	{
 		auto r = right->as_string();
-		return std::make_shared<value>(std::transform(r.begin(), r.end(), r.begin(), ::toupper));
+		std::transform(r.begin(), r.end(), r.begin(), ::toupper);
+		return std::make_shared<value>(r);
 	}
 }
 void sqf::commandmap::initstringcmds(void)
