@@ -15,7 +15,8 @@ namespace sqf
 {
 	namespace parse
 	{
-
+		//ToDo: Allow comments
+		//ToDo: Add preprocessor
 		void skip(const wchar_t *code, size_t &curoff)
 		{
 			while (1)
