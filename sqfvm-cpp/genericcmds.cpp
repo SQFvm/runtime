@@ -42,6 +42,10 @@ namespace
 	{
 		return std::make_shared<value>();
 	}
+	value_s comment_string(const virtualmachine* vm, value_s right)
+	{
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -52,4 +56,5 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary(L"compile", sqf::type::STRING, L"Compile expression.", compile_string));
 	add(unary(L"typeName", sqf::type::ANY, L"Returns the data type of an expression.", typename_any));
 	add(unary(L"str", sqf::type::ANY, L"Converts any value into a string.", str_any));
+	add(unary(L"comment", sqf::type::STRING, L"Define a comment. Mainly used in SQF Syntax, as you're able to introduce comment lines with semicolons in a SQS script.", comment_string));
 }
