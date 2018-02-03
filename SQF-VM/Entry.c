@@ -265,9 +265,10 @@ void register_commmands(PVM vm)
 	create_cmd(vm, L"isClass", 'u', cmd_isclass, 4, L"isClass <CONFIG>", L"", L"Check if config entry represents config class.");
 	create_cmd(vm, L"isNumber", 'u', cmd_isnumber, 4, L"isNumber <CONFIG>", L"", L"Check if config entry represents number.");
 	create_cmd(vm, L"isText", 'u', cmd_istext, 4, L"isText <CONFIG>", L"", L"Check if config entry represents text.");
-	create_cmd(vm, L"tolower", 'u', cmd_tolower, 4, L"tolower <STRING>", L"tolower \"ABC\"; //\"abc\"", L"Returns a string with every character lowered.");
-	create_cmd(vm, L"toupper", 'u', cmd_toupper, 4, L"toupper <STRING>", L"toupper \"abc\"; //\"ABC\"", L"Returns a string with every character upped.");
-
+	create_cmd(vm, L"toLower", 'u', cmd_tolower, 4, L"tolower <STRING>", L"tolower \"ABC\"; //\"abc\"", L"Returns a string with every character lowered.");
+	create_cmd(vm, L"toUpper", 'u', cmd_toupper, 4, L"toupper <STRING>", L"toupper \"abc\"; //\"ABC\"", L"Returns a string with every character upped.");
+	create_cmd(vm, L"configName", 'u', cmd_configname, 4, L"configName <CONFIG>", L"", L"");
+	
 
 	create_cmd(vm, L"true", 'n', cmd_true, 4, L"true", L"", L"");
 	create_cmd(vm, L"false", 'n', cmd_false, 4, L"false", L"", L"");
