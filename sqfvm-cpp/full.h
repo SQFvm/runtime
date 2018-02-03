@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <ostream>
 #include <queue>
+#include <map>
 
 extern "C" {
 #include <wchar.h>

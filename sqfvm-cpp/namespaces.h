@@ -15,9 +15,9 @@ namespace sqf
 			namespaces() {}
 		public:
 			static namespace_s missionNamespace (void) { return MissionNamespace; }
-			static namespace_s uiNamespace (void) { return MissionNamespace; }
-			static namespace_s parsingNamespace (void) { return MissionNamespace; }
-			static namespace_s profileNamespace (void) { return MissionNamespace; }
+			static namespace_s uiNamespace (void) { return UiNamespace; }
+			static namespace_s parsingNamespace (void) { return ParsingNamespace; }
+			static namespace_s profileNamespace (void) { return ProfileNamespace; }
 		};
 	}
 }
