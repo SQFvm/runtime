@@ -28,14 +28,14 @@
     <Filter Include="Header Files\commands">
       <UniqueIdentifier>{a89416f8-a537-411b-b018-67df4ebc974d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\commands">
-      <UniqueIdentifier>{34f19fe5-a17a-4fd3-8801-a06c50150e2b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\parse">
       <UniqueIdentifier>{8ff3902c-2819-4e90-acbd-76285561ec1a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\parse">
       <UniqueIdentifier>{2170a3e0-de71-4331-a8b3-79dc0224dc1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\commandmap">
+      <UniqueIdentifier>{34f19fe5-a17a-4fd3-8801-a06c50150e2b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -81,9 +81,6 @@
     <ClCompile Include="instgetvariable.cpp">
       <Filter>Source Files\instructions</Filter>
     </ClCompile>
-    <ClCompile Include="namespaces.cpp">
-      <Filter>Source Files\commands</Filter>
-    </ClCompile>
     <ClCompile Include="callstack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -97,7 +94,7 @@
       <Filter>Source Files\parse</Filter>
     </ClCompile>
     <ClCompile Include="commandmap.cpp">
-      <Filter>Source Files\commands</Filter>
+      <Filter>Source Files\commandmap</Filter>
     </ClCompile>
     <ClCompile Include="codedata.cpp">
       <Filter>Source Files</Filter>
@@ -111,20 +108,29 @@
     <ClCompile Include="astnode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="math.cpp">
-      <Filter>Source Files\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="genericops.cpp">
-      <Filter>Source Files\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="diagops.cpp">
-      <Filter>Source Files\commands</Filter>
-    </ClCompile>
     <ClCompile Include="type.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>
     <ClCompile Include="sqfvmcmds.cpp">
-      <Filter>Source Files\commands</Filter>
+      <Filter>Source Files\commandmap</Filter>
+    </ClCompile>
+    <ClCompile Include="logiccmds.cpp">
+      <Filter>Source Files\commandmap</Filter>
+    </ClCompile>
+    <ClCompile Include="namespacecmds.cpp">
+      <Filter>Source Files\commandmap</Filter>
+    </ClCompile>
+    <ClCompile Include="diagcmds.cpp">
+      <Filter>Source Files\commandmap</Filter>
+    </ClCompile>
+    <ClCompile Include="mathcmds.cpp">
+      <Filter>Source Files\commandmap</Filter>
+    </ClCompile>
+    <ClCompile Include="genericcmds.cpp">
+      <Filter>Source Files\commandmap</Filter>
+    </ClCompile>
+    <ClCompile Include="stringcmds.cpp">
+      <Filter>Source Files\commandmap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

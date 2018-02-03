@@ -22,6 +22,7 @@ namespace sqf
 		booldata(bool);
 		virtual std::wstring to_string(void) const;
 		operator bool() const;
+		virtual bool equals(std::shared_ptr<data> d) const { return mflag == std::dynamic_pointer_cast<booldata>(d)->booldata; }
 	};
 	typedef std::shared_ptr<booldata> bool_s;
 	typedef std::weak_ptr<booldata> bool_w;

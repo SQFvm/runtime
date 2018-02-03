@@ -30,6 +30,7 @@ namespace sqf
 		value_s operator[](int) const;
 		inline size_t size(void) { return msize; }
 		operator std::vector<value_s>(void) const;
+		virtual bool equals(std::shared_ptr<data> d) const { return mvalue == std::dynamic_pointer_cast<arraydata>(d)->mvalue; }
 	};
 	typedef std::shared_ptr<arraydata> array_s;
 	typedef std::weak_ptr<arraydata> array_w;

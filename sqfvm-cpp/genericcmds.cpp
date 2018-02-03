@@ -23,11 +23,6 @@ namespace
 		auto r = std::static_pointer_cast<arraydata>(right->as_data());
 		return std::make_shared<value>(r->size());
 	}
-	value_s count_string(const virtualmachine* vm, value_s right)
-	{
-		auto r = right->as_string();
-		return std::make_shared<value>(r.length());
-	}
 	value_s compile_string(const virtualmachine* vm, value_s right)
 	{
 		auto r = right->as_string();
@@ -35,12 +30,26 @@ namespace
 		vm->parse_sqf(r, cs);
 		return std::make_shared<value>(cs);
 	}
+	value_s typename_any(const virtualmachine* vm, value_s right)
+	{
+		return std::make_shared<value>(type_str(right->as_type()));
+	}
+	value_s str_any(const virtualmachine* vm, value_s right)
+	{
+		return std::make_shared<value>(right->to_string());
+	}
+	value_s nil_(const virtualmachine* vm)
+	{
+		return std::make_shared<value>();
+	}
 }
-void sqf::commandmap::initgenericops(void)
+void sqf::commandmap::initgenericcmds(void)
 {
+	add(nular(L"nil", L"Nil value. This value can be used to undefine existing variables.", nil_));
 	add(unary(L"call", sqf::type::CODE, L"Executes given set of compiled instructions.", call_code));
 	add(binary(4, L"call", sqf::type::ANY, sqf::type::CODE, L"Executes given set of compiled instructions with an option to pass arguments to the executed Code.", call_any_code));
 	add(unary(L"count", sqf::type::ARRAY, L"Can be used to count: the number of elements in array.", count_array));
-	add(unary(L"count", sqf::type::STRING, L"Can be used to count: the number of characters in a string.", count_string));
 	add(unary(L"compile", sqf::type::STRING, L"Compile expression.", compile_string));
+	add(unary(L"typeName", sqf::type::ANY, L"Returns the data type of an expression.", typename_any));
+	add(unary(L"str", sqf::type::ANY, L"Converts any value into a string.", str_any));
 }

@@ -24,6 +24,7 @@ namespace sqf
 		inline sqfnamespace(std::wstring name) { mname = name; }
 		inline virtual std::wstring to_string(void) const { return mname; }
 		inline std::wstring get_name(void) { return mname; }
+		virtual bool equals(std::shared_ptr<data> d) const { return this == d.get(); }
 	};
 	typedef std::shared_ptr<sqfnamespace> namespace_s;
 	typedef std::weak_ptr<sqfnamespace> namespace_w;

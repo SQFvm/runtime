@@ -29,7 +29,7 @@ namespace
 		return std::make_shared<value>(r);
 	}
 }
-void sqf::commandmap::initdiagops(void)
+void sqf::commandmap::initdiagcmdss(void)
 {
 	add(unary(L"diag_log", sqf::type::ANY, L"Dumps the argument's value to the report file. Each call creates a new line in the file.", diag_log_any));
 	add(nular(L"diag_tickTime", L"In SQF-VM: returns current systemtime in ms. In ArmA: Real time spent from the start of the game. Expressed in fractions of second. Resolution of 1 tick is 1 ms.", diag_tickTime_));

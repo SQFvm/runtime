@@ -36,6 +36,7 @@ namespace sqf
 			}
 			stack->pushcallstack(cs);
 		}
+		virtual bool equals(std::shared_ptr<data> d) const { return minsts == std::dynamic_pointer_cast<codedata>(d)->minsts; }
 	};
 	typedef std::shared_ptr<codedata> code_s;
 	typedef std::weak_ptr<codedata> code_w;

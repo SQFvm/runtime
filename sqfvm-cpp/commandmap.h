@@ -9,19 +9,24 @@ namespace sqf
 		std::unordered_map<std::wstring, std::shared_ptr<nularcmd>> mnularcmd;
 		std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>> munarycmd;
 		std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>> mbinarycmd;
-		void initmath(void);
-		void initnamespaces(void);
-		void initgenericops(void);
-		void initdiagops(void);
+		void initmathcmds(void);
+		void initnamespacecmds(void);
+		void initgenericcmds(void);
+		void initdiagcmdss(void);
 		void initsqfvmcmds(void);
+		void initlogiccmds(void);
+		void initstringcmds(void);
+
 	public:
 		inline void init(void)
 		{
-			initmath();
-			initnamespaces();
-			initgenericops();
-			initdiagops();
+			initmathcmds();
+			initnamespacecmds();
+			initgenericcmds();
+			initdiagcmdss();
 			initsqfvmcmds();
+			initlogiccmds();
+			initstringcmds();
 		}
 
 

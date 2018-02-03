@@ -34,6 +34,7 @@ namespace sqf
 		operator float(void) const;
 		operator double(void) const;
 		operator size_t(void) const;
+		virtual bool equals(std::shared_ptr<data> d) const { return mvalue == std::dynamic_pointer_cast<scalardata>(d)->mvalue; }
 	};
 	typedef std::shared_ptr<scalardata> scalar_s;
 	typedef std::weak_ptr<scalardata> scalar_w;

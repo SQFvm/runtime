@@ -28,6 +28,7 @@ namespace sqf
 		static std::wstring parse_from_sqf(std::wstring);
 		static std::wstring parse_to_sqf(std::wstring);
 		inline size_t length(void) { return mvalue_parsed.size(); }
+		virtual bool equals(std::shared_ptr<data> d) const { wstr_cmpi(mvalue.c_str(), 0, std::dynamic_pointer_cast<stringdata>(d)->mvalue.c_str(), 0); }
 	};
 	typedef std::shared_ptr<stringdata> string_s;
 	typedef std::weak_ptr<stringdata> string_w;

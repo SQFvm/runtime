@@ -126,9 +126,41 @@ namespace
 		auto r = right->as_double();
 		return std::make_shared<value>(std::round(r));
 	}
+	value_s minus_scalar(const virtualmachine* vm, value_s right)
+	{
+		auto r = right->as_double();
+		return std::make_shared<value>(-r);
+	}
+	value_s exclamationmark_bool(const virtualmachine* vm, value_s right)
+	{
+		auto f = right->as_bool();
+		return std::make_shared<value>(!f);
+	}
+	value_s raisetopower_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto l = left->as_double();
+		auto r = right->as_double();
+		return std::make_shared<value>(std::pow(l, r));
+	}
+	value_s and_bool_bool(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto l = left->as_bool();
+		auto r = right->as_bool();
+		return std::make_shared<value>(l && r);
+	}
+	value_s or_bool_bool(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto l = left->as_bool();
+		auto r = right->as_bool();
+		return std::make_shared<value>(l || r);
+	}
+	value_s plus_scalar(const virtualmachine* vm, value_s right)
+	{
+		return right;
+	}
 }
 
-void sqf::commandmap::initmath(void)
+void sqf::commandmap::initmathcmds(void)
 {
 	add(unary(L"abs", sqf::type::SCALAR, L"Absolute value of a real number", abs_scalar));
 	add(binary(7, L"atan2", sqf::type::SCALAR, sqf::type::SCALAR, L"ArcTangent of x/y. Used to determine the angle of a vector [x,y]. Result in Degrees between -180 and 180. Note that this command can handle y being 0, unlike when using atan, and will return 90", atan2_scalar_scalar));
@@ -142,6 +174,9 @@ void sqf::commandmap::initmath(void)
 	add(unary(L"sqrt", sqf::type::SCALAR, L"Returns square root of x.", rad_scalar));
 	add(unary(L"tan", sqf::type::SCALAR, L"Tangent of x, argument in Degrees.", tan_scalar));
 	add(unary(L"random", sqf::type::SCALAR, L"Random real (floating point) value from 0 (inclusive) to x (not inclusive).", random_scalar));
+	add(unary(L"-", sqf::type::SCALAR, L"Zero minus a.", minus_scalar));
+	add(unary(L"+", sqf::type::SCALAR, L"Returns a copy of a.", plus_scalar));
+	add(unary(L"!", sqf::type::BOOL, L"Returns a negation of Boolean expression. That means true becomes false and vice versa.", exclamationmark_bool));
 	add(binary(6, L"min", sqf::type::SCALAR, sqf::type::SCALAR, L"The smaller of a, b", min_scalar_scalar));
 	add(binary(6, L"max", sqf::type::SCALAR, sqf::type::SCALAR, L"The greater of a, b.", max_scalar_scalar));
 	add(unary(L"floor", sqf::type::SCALAR, L"Returns the next lowest integer in relation to x.", floor_scalar));
@@ -151,8 +186,10 @@ void sqf::commandmap::initmath(void)
 	add(unary(L"atg", sqf::type::SCALAR, L"Equivalent to atan.", atan_scalar));
 	add(unary(L"cos", sqf::type::SCALAR, L"Cosine of a number, argument in degrees.", cos_scalar));
 	add(unary(L"ln", sqf::type::SCALAR, L"Natural logarithm of x.", ln_scalar));
-	add(binary(7, L"mod", sqf::type::SCALAR, sqf::type::SCALAR, L"Remainder of a divided by b.", mod_scalar_scalar));
 	add(unary(L"round", sqf::type::SCALAR, L"Rounds up or down to the closest integer.", round_scalar));
+	add(binary(7, L"mod", sqf::type::SCALAR, sqf::type::SCALAR, L"Remainder of a divided by b.", mod_scalar_scalar));
+	add(binary(7, L"%", sqf::type::SCALAR, sqf::type::SCALAR, L"Remainder of a divided by b.", mod_scalar_scalar));
+	add(binary(9, L"^", sqf::type::SCALAR, sqf::type::SCALAR, L"a raised to the power of b.", raisetopower_scalar_scalar));
 	add(binary(6, L"+", sqf::type::SCALAR, sqf::type::SCALAR, L"b added to a.", plus_scalar_scalar));
 	add(binary(6, L"-", sqf::type::SCALAR, sqf::type::SCALAR, L"Subtracts b from a.", minus_scalar_scalar));
 	add(binary(7, L"*", sqf::type::SCALAR, sqf::type::SCALAR, L"Returns the value of a multiplied by b.", multiply_scalar_scalar));

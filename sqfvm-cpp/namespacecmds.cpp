@@ -5,7 +5,7 @@ sqf::namespace_s sqf::commands::namespaces::ParsingNamespace = std::make_shared<
 sqf::namespace_s sqf::commands::namespaces::ProfileNamespace = std::make_shared<sqf::sqfnamespace>(L"profileNamespace");
 
 using namespace sqf;
-void sqf::commandmap::initnamespaces(void)
+void sqf::commandmap::initnamespacecmds(void)
 {
 	add(nular(L"missionNamespace", L"Returns the global namespace attached to mission.",
 		[](const virtualmachine* vm) -> value_s { return std::make_shared<value>(sqf::commands::namespaces::missionNamespace(), sqf::type::NAMESPACE); }));
