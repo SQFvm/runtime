@@ -49,7 +49,7 @@ namespace
 	}
 	value_s isequalto_any_any(const virtualmachine* vm, value_s left, value_s right)
 	{
-		if (left->as_type() == type::STRING && left->as_type() == right->as_type())
+		if (left->dtype() == type::STRING && left->dtype() == right->dtype())
 		{
 			return std::make_shared<value>(left->as_string() == right->as_string());
 		}
@@ -60,7 +60,7 @@ namespace
 	}
 	value_s isequaltype_any_any(const virtualmachine* vm, value_s left, value_s right)
 	{
-		return std::make_shared<value>(left->as_type() == right->as_type());
+		return std::make_shared<value>(left->dtype() == right->dtype());
 	}
 
 	value_s true_(const virtualmachine* vm)

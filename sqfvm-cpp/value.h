@@ -58,21 +58,20 @@ namespace sqf
 		operator std::vector<std::shared_ptr<sqf::value>>() const;
 		operator type() const { return mtype; }
 
-		float as_float(void) const { return *this; }
-		double as_double(void) const { return *this; }
-		char as_char(void) const { return *this; }
-		short as_short(void) const { return *this; }
-		int as_int(void) const { return *this; }
-		long as_long(void) const { return *this; }
-		bool as_bool(void) const { return *this; }
-		std::wstring as_string(void) const { return *this; }
-		std::vector<std::shared_ptr<sqf::value>> as_vector(void) const { return *this; }
-		type as_type(void) const { return *this; }
-		data_s as_data(void) const { return mdata; }
+		inline float as_float(void) const { return *this; }
+		inline double as_double(void) const { return *this; }
+		inline char as_char(void) const { return *this; }
+		inline short as_short(void) const { return *this; }
+		inline int as_int(void) const { return *this; }
+		inline long as_long(void) const { return *this; }
+		inline bool as_bool(void) const { return *this; }
+		inline std::wstring as_string(void) const { return *this; }
+		inline std::vector<std::shared_ptr<sqf::value>> as_vector(void) const { return *this; }
+		type dtype(void) const { return *this; }
+		data_s data(void) const { return mdata; }
 		bool equals(std::shared_ptr<sqf::value> v) const { return mtype == v->mtype ? mdata->equals(v->mdata) : false; }
 
-		std::wstring name(void) const;
-		inline std::wstring to_string(void) { return mdata.get() ? mdata->to_string() : std::wstring(L"nil"); }
+		inline std::wstring tosqf(void) { return mdata.get() ? mdata->tosqf() : std::wstring(L"nil"); }
 		inline void convert(type type)
 		{
 			if (mtype == type)

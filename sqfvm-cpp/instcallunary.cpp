@@ -9,7 +9,7 @@ void sqf::inst::callunary::execute(const virtualmachine* vm) const
 		vm->err() << dbginf(L"ASS") << L"callUnary could not receive a value for right arg." << std::endl;
 		return;
 	}
-	auto cmd = sqf::commandmap::find(mcmds, right->as_type());
+	auto cmd = sqf::commandmap::find(mcmds, right->dtype());
 	if (cmd.get())
 	{
 		auto val = cmd->execute(vm, value_s(), right);
@@ -18,6 +18,6 @@ void sqf::inst::callunary::execute(const virtualmachine* vm) const
 	}
 	else
 	{
-		vm->err() << dbginf(L"ERR") << L"Unknown input type combination. RType:" << sqf::type_str(right->as_type()) << L'.' << std::endl;
+		vm->err() << dbginf(L"ERR") << L"Unknown input type combination. RType:" << sqf::type_str(right->dtype()) << L'.' << std::endl;
 	}
 }

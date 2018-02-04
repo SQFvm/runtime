@@ -5,14 +5,14 @@ namespace
 {
 	value_s call_code(const virtualmachine* vm, value_s right)
 	{
-		auto r = std::static_pointer_cast<codedata>(right->as_data());
+		auto r = std::static_pointer_cast<codedata>(right->data());
 		r->loadinto(vm->stack());
 		vm->stack()->stacks_top()->setvar(L"_this", std::make_shared<value>());
 		return value_s();
 	}
 	value_s call_any_code(const virtualmachine* vm, value_s left, value_s right)
 	{
-		auto r = std::static_pointer_cast<codedata>(right->as_data());
+		auto r = std::static_pointer_cast<codedata>(right->data());
 		r->loadinto(vm->stack());
 		vm->stack()->stacks_top()->setvar(L"_this", std::make_shared<value>());
 		vm->stack()->pushval(left);
@@ -20,7 +20,7 @@ namespace
 	}
 	value_s count_array(const virtualmachine* vm, value_s right)
 	{
-		auto r = std::static_pointer_cast<arraydata>(right->as_data());
+		auto r = std::static_pointer_cast<arraydata>(right->data());
 		return std::make_shared<value>(r->size());
 	}
 	value_s compile_string(const virtualmachine* vm, value_s right)
@@ -32,11 +32,11 @@ namespace
 	}
 	value_s typename_any(const virtualmachine* vm, value_s right)
 	{
-		return std::make_shared<value>(type_str(right->as_type()));
+		return std::make_shared<value>(type_str(right->dtype()));
 	}
 	value_s str_any(const virtualmachine* vm, value_s right)
 	{
-		return std::make_shared<value>(std::make_shared<stringdata>(right->to_string(), false), type::STRING);
+		return std::make_shared<value>(std::make_shared<stringdata>(right->tosqf(), false), type::STRING);
 	}
 	value_s nil_(const virtualmachine* vm)
 	{

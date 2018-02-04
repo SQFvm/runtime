@@ -128,7 +128,6 @@
     <ClCompile Include="codedata.cpp" />
     <ClCompile Include="commandmap.cpp" />
     <ClCompile Include="convert.cpp" />
-    <ClCompile Include="booldata.cpp" />
     <ClCompile Include="diagcmds.cpp" />
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="genericcmds.cpp" />
@@ -145,7 +144,6 @@
     <ClCompile Include="namespacecmds.cpp" />
     <ClCompile Include="parseassembly.cpp" />
     <ClCompile Include="parsesqf.cpp" />
-    <ClCompile Include="scalardata.cpp" />
     <ClCompile Include="sqfvmcmds.cpp" />
     <ClCompile Include="stringcmds.cpp" />
     <ClCompile Include="type.cpp" />

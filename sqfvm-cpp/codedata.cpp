@@ -11,7 +11,7 @@ sqf::codedata::codedata(callstack_s cs)
 	}
 }
 
-std::wstring sqf::codedata::to_string(void) const
+std::wstring sqf::codedata::tosqf(void) const
 {
 	return std::wstring();
 }

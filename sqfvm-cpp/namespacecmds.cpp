@@ -11,7 +11,7 @@ namespace
 {
 	value_s allvariables_namespace(const virtualmachine* vm, value_s right)
 	{
-		auto r = std::static_pointer_cast<sqfnamespace>(right->as_data());
+		auto r = std::static_pointer_cast<sqfnamespace>(right->data());
 		std::vector<value_s> arr(r->varmap().size());
 		transform(r->varmap().begin(), r->varmap().end(), arr.begin(), [](auto pair) { return std::make_shared<value>(pair.first); });
 		return std::make_shared<value>(arr);

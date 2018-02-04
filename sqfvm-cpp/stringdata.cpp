@@ -1,45 +1,5 @@
 #include "full.h"
 
-sqf::stringdata::stringdata(void)
-{
-	mvalue = std::wstring();
-	mvalue_parsed = std::wstring();
-}
-
-sqf::stringdata::stringdata(std::wstring s)
-{
-	mvalue = s[0] != L'"' && s[0] != L'\'' ? parse_to_sqf(s) : s;
-	mvalue_parsed = s[0] != L'"' && s[0] != L'\'' ? s : parse_from_sqf(s);
-}
-sqf::stringdata::stringdata(std::wstring s, bool parse)
-{
-	if (parse)
-	{
-		mvalue = s;
-		mvalue_parsed = parse_from_sqf(s);
-	}
-	else
-	{
-		mvalue = parse_to_sqf(s);
-		mvalue_parsed = s;
-	}
-}
-
-std::wstring sqf::stringdata::to_string(void) const
-{
-	return mvalue;
-}
-
-sqf::stringdata::operator const wchar_t*(void) const
-{
-	return mvalue_parsed.c_str();
-}
-
-sqf::stringdata::operator std::wstring(void) const
-{
-	return mvalue_parsed;
-}
-
 std::wstring sqf::stringdata::parse_from_sqf(std::wstring s)
 {
 	if (s.length() == 0)

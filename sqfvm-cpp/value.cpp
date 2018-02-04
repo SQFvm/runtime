@@ -161,9 +161,3 @@ sqf::value::operator std::vector<std::shared_ptr<sqf::value>>() const
 	}
 	return *(std::dynamic_pointer_cast<arraydata>(data).get());
 }
-
-
-std::wstring sqf::value::name(void) const
-{
-	return std::wstring();
-}

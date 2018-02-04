@@ -13,7 +13,7 @@ namespace sqf
 	class data
 	{
 	public:
-		virtual std::wstring to_string(void) const = 0;
+		virtual std::wstring tosqf(void) const = 0;
 		virtual bool equals(std::shared_ptr<data>) const = 0;
 	};
 	typedef std::shared_ptr<data> data_s;

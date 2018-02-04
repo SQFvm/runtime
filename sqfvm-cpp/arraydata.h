@@ -20,16 +20,15 @@ namespace sqf
 	{
 	private:
 		std::vector<value_s> mvalue;
-		size_t msize;
 	public:
-		arraydata();
-		arraydata(size_t);
-		arraydata(std::vector<value_s>);
-		virtual std::wstring to_string(void) const;
-		value_s& operator[](int);
-		value_s operator[](int) const;
-		inline size_t size(void) { return msize; }
-		operator std::vector<value_s>(void) const;
+		arraydata() : mvalue(std::vector<value_s>()) {}
+		arraydata(size_t size) : mvalue(std::vector<value_s>(size)) {}
+		arraydata(std::vector<value_s> v) : mvalue(std::vector<value_s>(v)) {}
+		virtual std::wstring tosqf(void) const;
+		value_s& operator[](int index) { return mvalue.at(index); }
+		value_s operator[](int index) const { return index < 0 || index >= (int)mvalue.size() ? std::make_shared<value>() : mvalue[index]; }
+		inline size_t size(void) { return mvalue.size(); }
+		operator std::vector<value_s>(void) const { return mvalue; }
 		virtual bool equals(std::shared_ptr<data> d) const { return mvalue == std::dynamic_pointer_cast<arraydata>(d)->mvalue; }
 	};
 	typedef std::shared_ptr<arraydata> array_s;

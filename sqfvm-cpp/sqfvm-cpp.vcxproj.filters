@@ -48,12 +48,6 @@
     <ClCompile Include="convert.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>
-    <ClCompile Include="booldata.cpp">
-      <Filter>Source Files\data</Filter>
-    </ClCompile>
-    <ClCompile Include="scalardata.cpp">
-      <Filter>Source Files\data</Filter>
-    </ClCompile>
     <ClCompile Include="stringdata.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>

@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 		val = vm.stack()->popval(success);
 		if (success)
 		{
-			vm.out() << L"[WORK]\t<" << sqf::type_str(val->as_type()) << L">\t" << val->as_string() << std::endl;
+			vm.out() << L"[WORK]\t<" << sqf::type_str(val->dtype()) << L">\t" << val->as_string() << std::endl;
 		}
 	} while (success);
 	sqf::commandmap::get().uninit();

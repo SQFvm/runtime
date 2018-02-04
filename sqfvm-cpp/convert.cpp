@@ -6,7 +6,7 @@ using namespace sqf;
 
 data_s sqf::convert(data_s val, type type)
 {
-	std::wstring stringifiedval = val.get() ? val->to_string() : L"nil";
+	std::wstring stringifiedval = val.get() ? val->tosqf() : L"nil";
 	auto stringval = sqf::stringdata::parse_from_sqf(stringifiedval);
 	switch (type)
 	{
