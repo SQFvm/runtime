@@ -133,6 +133,41 @@ namespace
 
 		return value_s();
 	}
+	value_s for_string(const virtualmachine* vm, value_s right)
+	{
+		auto str = right->as_string();
+		return std::make_shared<value>(std::make_shared<fordata>(str), type::FOR);
+	}
+	value_s from_for_scalar(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
+		auto index = right->as_double();
+		fordata->from(index);
+		return left;
+	}
+	value_s to_for_scalar(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
+		auto index = right->as_double();
+		fordata->to(index);
+		return left;
+	}
+	value_s step_for_scalar(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
+		auto index = right->as_double();
+		fordata->step(index);
+		return left;
+	}
+	value_s do_for_code(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
+		auto execcode = std::static_pointer_cast<codedata>(right->data());
+
+		auto cs = std::make_shared<callstack_for>(fordata, execcode);
+		vm->stack()->pushcallstack(cs);
+		return value_s();
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -149,5 +184,10 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, L"then", type::IF, type::CODE, L"If left arg is true, right arg is executed. Result of the expression executed is returned as a result (result may be Nothing).", then_if_code));
 	add(binary(5, L"else", type::CODE, type::CODE, L"Concats left and right element into a single, 2 element array.", else_code_code));
 	add(unary(L"while", type::CODE, L"Marks code as WHILE type.", while_code));
-	add(binary(4, L"do", type::WHILE, type::CODE, L"Executed provided code as long as while condition evaluates to true.", do_while_code));
+	add(binary(4, L"do", type::WHILE, type::CODE, L"Executes provided code as long as while condition evaluates to true.", do_while_code));
+	add(unary(L"for", type::STRING, L"Creates a FOR type for usage in 'for <var> from <start> to <end> [ step <stepsize> ] do <code>' construct.", for_string));
+	add(binary(4, L"from", type::FOR, type::SCALAR, L"Sets the start index in a FOR type construct.", from_for_scalar));
+	add(binary(4, L"to", type::FOR, type::SCALAR, L"Sets the end index in a FOR type construct.", to_for_scalar));
+	add(binary(4, L"step", type::FOR, type::SCALAR, L"Sets the step size (default: 1) in a FOR type construct.", step_for_scalar));
+	add(binary(4, L"do", type::FOR, type::CODE, L"Executes provided code as long as the var is smaller then the end index.", do_for_code));
 }

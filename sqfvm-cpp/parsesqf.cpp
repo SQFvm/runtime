@@ -239,23 +239,41 @@ namespace sqf
 				skip(code, line, col, curoff);
 				if (BINARYEXPRESSION_start(h, code, curoff))
 				{
-					BINARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag, &otherprec);
+					BINARYEXPRESSION(h, root, code, line, col, curoff, file, errflag, &otherprec);
 					skip(code, line, col, curoff);
-					if (otherprec <= curprec && otherprec != 0)
+					if (otherprec == 0 || otherprec > curprec)
 					{
-						auto othernode = thisnode.children.back();
-						if (!othernode.children.empty())
-						{
-							thisnode.children.pop_back();
-							thisnode.children.push_back(othernode.children.front());
-							othernode.children.front() = thisnode;
-							thisnode = othernode;
-							if (calleeprec != 0)
-							{
-								*calleeprec = otherprec;
-							}
-						}
+						auto subnode = root.children.back();
+						root.children.pop_back();
+						thisnode.children.push_back(subnode);
+						root.children.push_back(thisnode);
 					}
+					else //if(otherprec < curprec)
+					{
+						auto subnode = &root.children.back();
+						while (subnode->children.front().kind == sqfasttypes::BINARYEXPRESSION)
+						{
+							subnode = &subnode->children.front();
+						}
+						thisnode.children.push_back(subnode->children.front());
+						subnode->children.front() = thisnode;
+					}
+
+					//if (otherprec > curprec || otherprec == 0)
+					//{
+					//	auto othernode = root.children.back();
+					//	if (!othernode.children.empty())
+					//	{
+					//		root.children.pop_back();
+					//		thisnode.children.push_back(othernode.children.front());
+					//		othernode.children.front() = thisnode;
+					//		thisnode = othernode;
+					//		if (calleeprec != 0)
+					//		{
+					//			*calleeprec = otherprec;
+					//		}
+					//	}
+					//}
 				}
 				else
 				{
@@ -264,7 +282,6 @@ namespace sqf
 					h.err() << h.dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Expected start of PRIMARYEXPRESSION.";
 					errflag = true;
 				}
-				root.children.push_back(thisnode);
 			}
 			else
 			{

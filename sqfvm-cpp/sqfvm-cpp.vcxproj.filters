@@ -135,6 +135,9 @@
     <ClCompile Include="callstack_while.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="callstack_for.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -237,6 +240,12 @@
       <Filter>Header Files\commands</Filter>
     </ClInclude>
     <ClInclude Include="callstack_while.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fordata.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="callstack_for.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
