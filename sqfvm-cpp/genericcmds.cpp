@@ -168,6 +168,123 @@ namespace
 		vm->stack()->pushcallstack(cs);
 		return value_s();
 	}
+	value_s select_array_scalar(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto arr = left->as_vector();
+		auto index = right->as_int();
+
+		if (arr.size() > index || index < 0)
+		{
+			vm->err() << L"Index out of range." << std::endl;
+			return std::make_shared<value>();
+		}
+		if (arr.size() == index)
+		{
+			vm->wrn() << L"Index equals range. Returning nil." << std::endl;
+			return std::make_shared<value>();
+		}
+		return arr[index];
+	}
+	value_s select_array_bool(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto arr = left->as_vector();
+		auto flag = right->as_bool();
+		if (!flag && arr.size() < 2 || arr.size() < 1)
+		{
+			vm->wrn() << L"Array should have at least two elements. Returning nil" << std::endl;
+			return std::make_shared<value>();
+		}
+		else if (flag && arr.size() < 2)
+		{
+			vm->wrn() << L"Array should have at least two elements." << std::endl;
+		}
+		return flag ? arr[0] : arr[1];
+	}
+	value_s select_string_array(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto str = left->as_string();
+		auto arr = right->as_vector();
+		if (arr.size() < 1)
+		{
+			vm->err() << L"Array was expected to have at least a single element." << std::endl;
+			return std::make_shared<value>();
+		}
+		if (arr[0]->dtype() != type::SCALAR)
+		{
+			vm->err() << L"First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << L'.' << std::endl;
+			return std::make_shared<value>();
+		}
+		int start = arr[0]->as_int();
+		if (start < 0)
+		{
+			vm->wrn() << L"Start index is smaller then 0. Returning empty string." << std::endl;
+			return std::make_shared<value>(L"");
+		}
+		if (start > (int)str.length())
+		{
+			vm->wrn() << L"Start index is larger then string length. Returning empty string." << std::endl;
+			return std::make_shared<value>(L"");
+		}
+		if (arr.size() >= 2)
+		{
+			if (arr[1]->dtype() != type::SCALAR)
+			{
+				vm->err() << L"Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << L'.' << std::endl;
+				return std::make_shared<value>();
+			}
+			int length = arr[1]->as_int();
+			if (length < 0)
+			{
+				vm->wrn() << L"Length is smaller then 0. Returning empty string." << std::endl;
+				return std::make_shared<value>(L"");
+			}
+			return std::make_shared<value>(str.substr(start, length));
+		}
+		return std::make_shared<value>(str.substr(start));
+	}
+	value_s select_array_array(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto vec = left->as_vector();
+		auto arr = right->as_vector();
+		if (arr.size() < 1)
+		{
+			vm->err() << L"Array was expected to have at least a single element." << std::endl;
+			return std::make_shared<value>();
+		}
+		if (arr[0]->dtype() != type::SCALAR)
+		{
+			vm->err() << L"First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << L'.' << std::endl;
+			return std::make_shared<value>();
+		}
+		int start = arr[0]->as_int();
+		if (start < 0)
+		{
+			vm->wrn() << L"Start index is smaller then 0. Returning empty array." << std::endl;
+			return std::make_shared<value>(L"");
+		}
+		if (start > (int)vec.size())
+		{
+			vm->wrn() << L"Start index is larger then string length. Returning empty array." << std::endl;
+			return std::make_shared<value>(L"");
+		}
+		if (arr.size() >= 2)
+		{
+			if (arr[1]->dtype() != type::SCALAR)
+			{
+				vm->err() << L"Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << L'.' << std::endl;
+				return std::make_shared<value>();
+			}
+			int length = arr[1]->as_int();
+			if (length < 0)
+			{
+				vm->wrn() << L"Length is smaller then 0. Returning empty array." << std::endl;
+				return std::make_shared<value>(L"");
+			}
+			
+			return std::make_shared<value>(std::vector<value_s>(vec.begin() + start, start + length > (int)vec.size() ? vec.end() : vec.begin() + start + length));
+		}
+		return std::make_shared<value>(std::vector<value_s>(vec.begin() + start, vec.end()));
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -190,4 +307,11 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, L"to", type::FOR, type::SCALAR, L"Sets the end index in a FOR type construct.", to_for_scalar));
 	add(binary(4, L"step", type::FOR, type::SCALAR, L"Sets the step size (default: 1) in a FOR type construct.", step_for_scalar));
 	add(binary(4, L"do", type::FOR, type::CODE, L"Executes provided code as long as the var is smaller then the end index.", do_for_code));
+
+	add(binary(4, L"select", type::ARRAY, type::SCALAR, L"Selects the element at provided index from array. If the index provided equals the array length, nil will be returned.", select_array_scalar));
+	add(binary(4, L"select", type::ARRAY, type::BOOL, L"Selects the first element if provided boolean is true, second element if it is false.", select_array_bool));
+	add(binary(4, L"select", type::STRING, type::ARRAY, L"Selects a range of characters in provided string, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_string_array));
+	add(binary(4, L"select", type::ARRAY, type::ARRAY, L"Selects a range of elements in provided array, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_array_array));
+	add(binary(4, L"select", type::ARRAY, type::CODE, L"", [](const virtualmachine* vm, value_s l, value_s r) -> value_s { vm->err() << L"NOT IMPLEMENTED (select)." << std::endl; return std::make_shared<value>(); }));
+	add(binary(4, L"select", type::CONFIG, type::SCALAR, L"", [](const virtualmachine* vm, value_s l, value_s r) -> value_s { vm->err() << L"NOT IMPLEMENTED (select)." << std::endl; return std::make_shared<value>(); }));
 }
