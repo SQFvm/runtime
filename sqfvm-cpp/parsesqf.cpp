@@ -62,7 +62,7 @@ namespace sqf
 		//anytext = (?![ \t\r\n;])+;
 		size_t anytext(const wchar_t* code, size_t off) { size_t i; for (i = off; code[i] != L' ' && code[i] != L'\t' && code[i] != L'\r' && code[i] != L'\n' && code[i] != L';'; i++); return i - off; }
 		//SQF = [ STATEMENT { endchr { endchr } STATEMENT } ]
-		bool SQF_start(helper &h, const wchar_t* code, size_t curoff) { return STATEMENT_start(h, code, curoff); }
+		bool SQF_start(helper &h, const wchar_t* code, size_t curoff) { return true; }
 		void SQF(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag)
 		{
 			//auto thisnode = astnode();

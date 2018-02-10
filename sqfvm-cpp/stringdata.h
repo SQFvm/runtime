@@ -19,8 +19,8 @@ namespace sqf
 		std::wstring mvalue;
 	public:
 		stringdata(void) : mvalue(std::wstring()) {}
-		stringdata(std::wstring s) : mvalue(mvalue = s[0] != L'"' && s[0] != L'\'' ? s : parse_from_sqf(s)) {}
-		stringdata(std::wstring s, bool parse) : mvalue(mvalue = parse ? parse_from_sqf(s) : s) {}
+		stringdata(std::wstring s) : mvalue(s[0] != L'"' && s[0] != L'\'' ? s : parse_from_sqf(s)) {}
+		stringdata(std::wstring s, bool parse) : mvalue(parse ? parse_from_sqf(s) : s) {}
 		virtual std::wstring tosqf(void) const { return parse_to_sqf(mvalue); }
 		operator const wchar_t*(void) const { return mvalue.c_str(); }
 		operator std::wstring(void) const { return mvalue; }

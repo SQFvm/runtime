@@ -22,6 +22,8 @@ namespace sqf
 		inline bool matches(std::wstring name, type ltype, type rtype) { return matches(ltype, rtype) && wstr_cmpi(mname.c_str(), -1, name.c_str(), -1); }
 		std::wstring desc(void) { return mdesc; }
 		std::wstring name(void) { return mname; }
+		type ltype(void) { return mltype; }
+		type rtype(void) { return mrtype; }
 		short precedence(void) { return mprecedence; }
 
 	};

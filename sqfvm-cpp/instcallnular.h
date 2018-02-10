@@ -25,6 +25,7 @@ namespace sqf
 		public:
 			callnular(cmd_s cmd) { mcmd = cmd; }
 			virtual void execute(const virtualmachine*) const;
+			virtual insttype thistype(void) const { return insttype::callnular; }
 		};
 		typedef std::shared_ptr<callnular> callnular_s;
 		typedef std::weak_ptr<callnular> callnular_w;

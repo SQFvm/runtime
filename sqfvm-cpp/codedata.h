@@ -25,17 +25,11 @@ namespace sqf
 		std::vector<instruction_s> minsts;
 	public:
 		codedata(callstack_s);
+		codedata(std::vector<instruction_s> v) : minsts(v) {}
 		virtual std::wstring tosqf(void) const;
 		void add(instruction_s inst) { minsts.push_back(inst); }
-		void loadinto(vmstack_s stack)
-		{
-			auto cs = std::make_shared<callstack>();
-			for (auto it = minsts.rbegin(); it != minsts.rend(); it++)
-			{
-				cs->pushinst(*it);
-			}
-			stack->pushcallstack(cs);
-		}
+		inline void loadinto(vmstack_s stack) { auto cs = std::make_shared<callstack>(); loadinto(stack, cs); stack->pushcallstack(cs); }
+		void loadinto(vmstack_s, callstack_s);
 		virtual bool equals(std::shared_ptr<data> d) const { return minsts == std::dynamic_pointer_cast<codedata>(d)->minsts; }
 	};
 	typedef std::shared_ptr<codedata> code_s;

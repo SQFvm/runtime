@@ -46,6 +46,78 @@ namespace
 	{
 		return std::make_shared<value>();
 	}
+	value_s if_bool(const virtualmachine* vm, value_s right)
+	{
+		return std::make_shared<value>(right->data(), type::IF);
+	}
+	value_s then_if_array(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto ifcond = left->as_bool();
+		auto arr = right->as_vector();
+		if (arr.size() != 2)
+		{
+			vm->err() << L"Expected 2 elements in array." << std::endl;
+			return std::make_shared<value>();
+		}
+		auto el0 = arr[0];
+		auto el1 = arr[1];
+		if (ifcond)
+		{
+			if (el1->dtype() != type::CODE)
+			{
+				vm->wrn() << L"Expected element 1 of array to be of type code." << std::endl;
+			}
+			if (el0->dtype() == type::CODE)
+			{
+				auto code = std::static_pointer_cast<codedata>(el0->data());
+				code->loadinto(vm->stack());
+				return value_s();
+			}
+			else
+			{
+				vm->err() << L"Expected element 0 of array to be of type code." << std::endl;
+				return std::make_shared<value>();
+			}
+		}
+		else
+		{
+			if (el0->dtype() != type::CODE)
+			{
+				vm->wrn() << L"Expected element 0 of array to be of type code." << std::endl;
+			}
+			if (el1->dtype() == type::CODE)
+			{
+				auto code = std::static_pointer_cast<codedata>(el1->data());
+				code->loadinto(vm->stack());
+				return value_s();
+			}
+			else
+			{
+				vm->err() << L"Expected element 1 of array to be of type code." << std::endl;
+				return std::make_shared<value>();
+			}
+		}
+	}
+	value_s then_if_code(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto ifcond = left->as_bool();
+		auto code = std::static_pointer_cast<codedata>(right->data());
+		if (ifcond)
+		{
+			code->loadinto(vm->stack());
+		}
+		else
+		{
+			return std::make_shared<value>();
+		}
+	}
+	value_s else_code_code(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto vec = std::vector<value_s>(2);
+		vec[0] = left;
+		vec[1] = right;
+		return std::make_shared<value>(vec);
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -57,4 +129,9 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary(L"typeName", sqf::type::ANY, L"Returns the data type of an expression.", typename_any));
 	add(unary(L"str", sqf::type::ANY, L"Converts any value into a string.", str_any));
 	add(unary(L"comment", sqf::type::STRING, L"Define a comment. Mainly used in SQF Syntax, as you're able to introduce comment lines with semicolons in a SQS script.", comment_string));
+	add(unary(L"if", sqf::type::BOOL, L"This operator creates a If Type which is used in conjunction with the 'then' command.", if_bool));
+	add(binary(4, L"then", type::IF, type::ARRAY, L"First or second element of array is executed depending on left arg. Result of the expression executed is returned as a result (result may be Nothing).", then_if_array));
+	add(binary(4, L"then", type::IF, type::CODE, L"If left arg is true, right arg is executed. Result of the expression executed is returned as a result (result may be Nothing).", then_if_code));
+	add(binary(4, L"then", type::IF, type::CODE, L"If left arg is true, right arg is executed. Result of the expression executed is returned as a result (result may be Nothing).", then_if_code));
+	add(binary(5, L"else", type::CODE, type::CODE, L"Concats left and right element into a single, 2 element array.", else_code_code));
 }

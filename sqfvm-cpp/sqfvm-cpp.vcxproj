@@ -143,10 +143,12 @@
     <ClCompile Include="mathcmds.cpp" />
     <ClCompile Include="namespacecmds.cpp" />
     <ClCompile Include="parseassembly.cpp" />
+    <ClCompile Include="parsepreprocessor.cpp" />
     <ClCompile Include="parsesqf.cpp" />
     <ClCompile Include="sqfvmcmds.cpp" />
     <ClCompile Include="stringcmds.cpp" />
     <ClCompile Include="type.cpp" />
+    <ClCompile Include="unimplementedcmds.cpp" />
     <ClCompile Include="virtualmachine.cpp" />
     <ClCompile Include="wstring_op.c" />
     <ClInclude Include="astnode.h" />

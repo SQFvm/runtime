@@ -38,10 +38,12 @@ namespace sqf
 		std::wostream* mout;
 		std::wostream* merr;
 		std::wostream* mwrn;
+		bool merrflag;
+		bool mwrnflag;
 	public:
 		std::wostream& out(void) const { return *mout; }
-		std::wostream& err(void) const { return *merr; }
-		std::wostream& wrn(void) const { return *mwrn; }
+		std::wostream& err(void) const { /* on purpose */((virtualmachine*)this)->merrflag = true; return *merr; }
+		std::wostream& wrn(void) const { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return *mwrn; }
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
 		void execute(void);
@@ -51,6 +53,8 @@ namespace sqf
 		void parse_assembly(std::wstring);
 		inline void parse_sqf(std::wstring code) { parse_sqf(code, callstack_s()); }
 		void parse_sqf(std::wstring, callstack_s) const;
+		bool errflag(void) const { return merrflag; }
+		bool wrnflag(void) const { return mwrnflag; }
 	};
 	typedef std::shared_ptr<virtualmachine> virtualmachine_s;
 	typedef std::weak_ptr<virtualmachine> virtualmachine_w;

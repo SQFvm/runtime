@@ -30,6 +30,16 @@ void sqf::virtualmachine::execute(void)
 			break;
 		}
 		inst->execute(this);
+		if (merrflag)
+		{
+			err() << inst->dbginf(L"RNT") << std::endl;
+			break;
+		}
+		if (mwrnflag)
+		{
+			wrn() << inst->dbginf(L"WRN") << std::endl;
+			mwrnflag = false;
+		}
 	}
 }
 std::wstring sqf::virtualmachine::dbgsegment(const wchar_t* full, size_t off, size_t length)

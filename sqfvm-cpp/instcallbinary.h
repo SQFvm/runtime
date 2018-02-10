@@ -25,6 +25,7 @@ namespace sqf
 		public:
 			callbinary(std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> cmds) { mcmds = cmds; }
 			virtual void execute(const virtualmachine*) const;
+			virtual insttype thistype(void) const { return insttype::callbinary; }
 		};
 		typedef std::shared_ptr<callbinary> callbinary_s;
 		typedef std::weak_ptr<callbinary> callbinary_w;

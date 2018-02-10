@@ -19,6 +19,7 @@ namespace sqf
 		{
 		public:
 			virtual void execute(const virtualmachine* vm) const { vm->stack()->dropvals(); }
+			virtual insttype thistype(void) const { return insttype::endstatement; }
 		};
 		typedef std::shared_ptr<endstatement> endstatement_s;
 		typedef std::weak_ptr<endstatement> endstatement_w;

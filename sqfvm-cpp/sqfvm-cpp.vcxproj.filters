@@ -90,9 +90,6 @@
     <ClCompile Include="commandmap.cpp">
       <Filter>Source Files\commandmap</Filter>
     </ClCompile>
-    <ClCompile Include="codedata.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="instmakearray.cpp">
       <Filter>Source Files\instructions</Filter>
     </ClCompile>
@@ -124,6 +121,15 @@
       <Filter>Source Files\commandmap</Filter>
     </ClCompile>
     <ClCompile Include="stringcmds.cpp">
+      <Filter>Source Files\commandmap</Filter>
+    </ClCompile>
+    <ClCompile Include="codedata.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="parsepreprocessor.cpp">
+      <Filter>Source Files\parse</Filter>
+    </ClCompile>
+    <ClCompile Include="unimplementedcmds.cpp">
       <Filter>Source Files\commandmap</Filter>
     </ClCompile>
   </ItemGroup>

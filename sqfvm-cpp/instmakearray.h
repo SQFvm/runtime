@@ -22,6 +22,8 @@ namespace sqf
 		public:
 			makearray(size_t size) { msize = size; }
 			virtual void execute(const virtualmachine* vm) const;
+			virtual insttype thistype(void) const { return insttype::makearray; }
+			inline size_t size(void) { return msize; }
 		};
 		typedef std::shared_ptr<makearray> makearray_s;
 		typedef std::weak_ptr<makearray> makearray_w;

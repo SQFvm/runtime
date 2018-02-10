@@ -25,6 +25,7 @@ namespace sqf
 		public:
 			assigntolocal(std::wstring varname) { mvarname = varname; }
 			virtual void execute(const virtualmachine*) const;
+			virtual insttype thistype(void) const { return insttype::assigntolocal; }
 		};
 		typedef std::shared_ptr<assigntolocal> assigntolocal_s;
 		typedef std::weak_ptr<assigntolocal> assigntolocal_w;

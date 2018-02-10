@@ -25,6 +25,7 @@ namespace sqf
 		public:
 			assignto(std::wstring varname) { mvarname = varname; }
 			virtual void execute(const virtualmachine*) const;
+			virtual insttype thistype(void) const { return insttype::assignto; }
 		};
 		typedef std::shared_ptr<assignto> assignto_s;
 		typedef std::weak_ptr<assignto> assignto_w;
