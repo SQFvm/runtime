@@ -45,6 +45,8 @@ extern "C" {
 #include "instmakearray.h"
 #include "instpush.h"
 
+#include "callstack_while.h"
+
 #include "namespaces.h"
 
 #endif // !_FULL

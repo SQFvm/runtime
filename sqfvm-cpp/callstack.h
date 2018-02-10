@@ -29,8 +29,8 @@ namespace sqf
 		callstack();
 		callstack(namespace_s);
 		inline void pushinst(instruction_s value) { mstack.push(value); }
-		inline instruction_s popinst(void) { if (mstack.empty()) return instruction_s(); auto ret = mstack.front(); mstack.pop(); return ret; }
-		inline instruction_s peekinst(void) { if (mstack.empty()) return instruction_s(); auto front = mstack.front(); return front; }
+		virtual instruction_s popinst(const sqf::virtualmachine* vm) { if (mstack.empty()) return instruction_s(); auto ret = mstack.front(); mstack.pop(); return ret; }
+		instruction_s peekinst(void) { if (mstack.empty()) return instruction_s(); auto front = mstack.front(); return front; }
 		inline namespace_s getnamespace(void) const { return mwith; }
 		inline size_t inststacksize(void) const { return mstack.size(); }
 		inline void setnamespace(namespace_s ns) { mwith = ns; }

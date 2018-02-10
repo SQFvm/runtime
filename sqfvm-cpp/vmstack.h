@@ -20,15 +20,15 @@ namespace sqf
 		std::vector<value_s> mvalstack;
 	public:
 		inline void pushinst(std::shared_ptr<instruction> inst) { if (mstacks.empty()) { mstacks.push_back(std::make_shared<callstack>()); } mstacks.back()->pushinst(inst); }
-		inline std::shared_ptr<instruction> popinst(void)
+		inline std::shared_ptr<instruction> popinst(const sqf::virtualmachine* vm)
 		{
 			if (mstacks.empty())
 				return instruction_s();
-			auto ret = mstacks.back()->popinst();
+			auto ret = mstacks.back()->popinst(vm);
 			if (!ret.get())
 			{
 				dropcallstack();
-				return popinst();
+				return popinst(vm);
 			}
 			return ret;
 		}

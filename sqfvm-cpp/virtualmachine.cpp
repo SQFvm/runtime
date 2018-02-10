@@ -21,7 +21,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 void sqf::virtualmachine::execute(void)
 {
 	instruction_s inst;
-	while ((inst = mstack->popinst()).get())
+	while ((inst = mstack->popinst(this)).get())
 	{
 		minstcount++;
 		if (mmaxinst != 0 && mmaxinst == minstcount)

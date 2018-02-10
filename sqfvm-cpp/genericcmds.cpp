@@ -119,6 +119,20 @@ namespace
 		vec[1] = right;
 		return std::make_shared<value>(vec);
 	}
+	value_s while_code(const virtualmachine* vm, value_s right)
+	{
+		return std::make_shared<value>(right->data(), type::WHILE);
+	}
+	value_s do_while_code(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto whilecond = std::static_pointer_cast<codedata>(left->data());
+		auto execcode = std::static_pointer_cast<codedata>(right->data());
+
+		auto cs = std::make_shared<callstack_while>(whilecond, execcode);
+		vm->stack()->pushcallstack(cs);
+
+		return value_s();
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -134,4 +148,6 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, L"then", type::IF, type::ARRAY, L"First or second element of array is executed depending on left arg. Result of the expression executed is returned as a result (result may be Nothing).", then_if_array));
 	add(binary(4, L"then", type::IF, type::CODE, L"If left arg is true, right arg is executed. Result of the expression executed is returned as a result (result may be Nothing).", then_if_code));
 	add(binary(5, L"else", type::CODE, type::CODE, L"Concats left and right element into a single, 2 element array.", else_code_code));
+	add(unary(L"while", type::CODE, L"Marks code as WHILE type.", while_code));
+	add(binary(4, L"do", type::WHILE, type::CODE, L"Executed provided code as long as while condition evaluates to true.", do_while_code));
 }
