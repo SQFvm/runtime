@@ -192,6 +192,7 @@ void navigate(const wchar_t* full, const sqf::virtualmachine* vm, sqf::callstack
 	default:
 	{
 		for (size_t i = 0; i < node.children.size(); i++)
+
 		{
 			if (i != 0)
 			{
@@ -217,9 +218,14 @@ void sqf::virtualmachine::parse_sqf(std::wstring code, callstack_s cs) const
 	bool errflag = false;
 	auto node = sqf::parse::parse_sqf(code.c_str(), h, errflag);
 #if defined(_DEBUG)
-	out() << L"-------------------------------" << std::endl;
-	print_navigate_ast(mout, node, sqf::parse::astkindname);
-	out() << L"-------------------------------" << std::endl;
+	static bool isinitial = true;
+	if (isinitial)
+	{
+		isinitial = false;
+		out() << L"-------------------------------" << std::endl;
+		print_navigate_ast(mout, node, sqf::parse::astkindname);
+		out() << L"-------------------------------" << std::endl;
+	}
 #endif
 
 	if (!errflag)
