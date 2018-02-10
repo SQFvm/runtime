@@ -105,6 +105,7 @@ namespace
 		if (ifcond)
 		{
 			code->loadinto(vm->stack());
+			return value_s();
 		}
 		else
 		{
@@ -131,7 +132,6 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary(L"comment", sqf::type::STRING, L"Define a comment. Mainly used in SQF Syntax, as you're able to introduce comment lines with semicolons in a SQS script.", comment_string));
 	add(unary(L"if", sqf::type::BOOL, L"This operator creates a If Type which is used in conjunction with the 'then' command.", if_bool));
 	add(binary(4, L"then", type::IF, type::ARRAY, L"First or second element of array is executed depending on left arg. Result of the expression executed is returned as a result (result may be Nothing).", then_if_array));
-	add(binary(4, L"then", type::IF, type::CODE, L"If left arg is true, right arg is executed. Result of the expression executed is returned as a result (result may be Nothing).", then_if_code));
 	add(binary(4, L"then", type::IF, type::CODE, L"If left arg is true, right arg is executed. Result of the expression executed is returned as a result (result may be Nothing).", then_if_code));
 	add(binary(5, L"else", type::CODE, type::CODE, L"Concats left and right element into a single, 2 element array.", else_code_code));
 }

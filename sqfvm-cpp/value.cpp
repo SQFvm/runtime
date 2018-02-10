@@ -137,7 +137,7 @@ sqf::value::operator char() const
 sqf::value::operator bool() const
 {
 	auto data = mdata;
-	if (mtype != BOOL)
+	if (mtype != BOOL && mtype != IF)
 	{
 		data = sqf::convert(data, SCALAR);
 	}

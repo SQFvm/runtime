@@ -216,7 +216,12 @@ void sqf::virtualmachine::parse_sqf(std::wstring code, callstack_s cs) const
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
 	auto node = sqf::parse::parse_sqf(code.c_str(), h, errflag);
-	//print_navigate_ast(mout, node, sqf::parse::astkindname);
+#if defined(_DEBUG)
+	out() << L"-------------------------------" << std::endl;
+	print_navigate_ast(mout, node, sqf::parse::astkindname);
+	out() << L"-------------------------------" << std::endl;
+#endif
+
 	if (!errflag)
 	{
 		navigate(code.c_str(), this, cs, node);
