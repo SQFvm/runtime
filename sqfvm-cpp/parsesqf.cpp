@@ -241,7 +241,7 @@ namespace sqf
 				{
 					BINARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag, &otherprec);
 					skip(code, line, col, curoff);
-					if (otherprec <= curprec)
+					if (otherprec <= curprec && otherprec != 0)
 					{
 						auto othernode = thisnode.children.back();
 						if (!othernode.children.empty())
