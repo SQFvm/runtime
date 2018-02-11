@@ -53,6 +53,7 @@ namespace sqf
 		void parse_assembly(std::wstring);
 		inline void parse_sqf(std::wstring code) { parse_sqf(code, callstack_s()); }
 		void parse_sqf(std::wstring, callstack_s) const;
+		void parse_config(std::wstring, std::shared_ptr<configdata>) const;
 		bool errflag(void) const { return merrflag; }
 		bool wrnflag(void) const { return mwrnflag; }
 	};

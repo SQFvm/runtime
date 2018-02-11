@@ -155,7 +155,7 @@ sqf::value::operator std::wstring() const
 sqf::value::operator std::vector<std::shared_ptr<sqf::value>>() const
 {
 	auto data = mdata;
-	if (mtype != ARRAY)
+	if (mtype != ARRAY && mtype != CONFIG)
 	{
 		data = sqf::convert(data, ARRAY);
 	}

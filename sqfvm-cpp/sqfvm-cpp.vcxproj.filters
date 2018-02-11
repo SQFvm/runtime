@@ -138,6 +138,18 @@
     <ClCompile Include="callstack_for.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="callstack_select.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="configdata.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="parseconfig.cpp">
+      <Filter>Source Files\parse</Filter>
+    </ClCompile>
+    <ClCompile Include="configcmds.cpp">
+      <Filter>Source Files\commandmap</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -227,9 +239,6 @@
     <ClInclude Include="astnode.h">
       <Filter>Header Files\parse</Filter>
     </ClInclude>
-    <ClInclude Include="sqfasttypes.h">
-      <Filter>Header Files\parse</Filter>
-    </ClInclude>
     <ClInclude Include="parsesqf.h">
       <Filter>Header Files\parse</Filter>
     </ClInclude>
@@ -247,6 +256,18 @@
     </ClInclude>
     <ClInclude Include="callstack_for.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="callstack_select.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="configdata.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="helper.h">
+      <Filter>Header Files\parse</Filter>
+    </ClInclude>
+    <ClInclude Include="parseconfig.h">
+      <Filter>Header Files\parse</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

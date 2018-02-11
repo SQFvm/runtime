@@ -17,6 +17,7 @@ namespace sqf
 		void initlogiccmds(void);
 		void initstringcmds(void);
 		void initunimplemented(void);
+		void initconfigcmds(void);
 
 		std::wstring tolowerstring(std::wstring s)
 		{
@@ -35,6 +36,7 @@ namespace sqf
 			initlogiccmds();
 			initstringcmds();
 			initunimplemented();
+			initconfigcmds();
 		}
 
 

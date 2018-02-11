@@ -4,8 +4,9 @@
 
 #include "full.h"
 #include "astnode.h"
+#include "helper.h"
 #include "parsesqf.h"
-#include "sqfasttypes.h"
+#include "parseconfig.h"
 
 
 sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
@@ -94,95 +95,95 @@ short precedence(std::wstring s)
 	return srange->begin()->get()->precedence();
 }
 
-void navigate(const wchar_t* full, const sqf::virtualmachine* vm, sqf::callstack_s stack, astnode node)
+void navigate_sqf(const wchar_t* full, const sqf::virtualmachine* vm, sqf::callstack_s stack, astnode node)
 {
 	switch (node.kind)
 	{
-	case sqfasttypes::BINARYEXPRESSION:
+	case sqf::parse::sqf::sqfasttypes::BINARYEXPRESSION:
 	{
-		navigate(full, vm, stack, node.children[0]);
-		navigate(full, vm, stack, node.children[2]);
+		navigate_sqf(full, vm, stack, node.children[0]);
+		navigate_sqf(full, vm, stack, node.children[2]);
 		auto inst = std::make_shared<sqf::inst::callbinary>(sqf::commandmap::get().getrange_b(node.children[1].content));
 		inst->setdbginf(node.children[1].line, node.children[1].col, node.file, vm->dbgsegment(full, node.children[1].offset, node.children[1].length));
 		stack->pushinst(inst);
 	}
 	break;
-	case sqfasttypes::UNARYEXPRESSION:
+	case sqf::parse::sqf::sqfasttypes::UNARYEXPRESSION:
 	{
-		navigate(full, vm, stack, node.children[1]);
+		navigate_sqf(full, vm, stack, node.children[1]);
 		auto inst = std::make_shared<sqf::inst::callunary>(sqf::commandmap::get().getrange_u(node.children[0].content));
 		inst->setdbginf(node.children[0].line, node.children[0].col, node.file, vm->dbgsegment(full, node.children[0].offset, node.children[0].length));
 		stack->pushinst(inst);
 	}
 	break;
-	case sqfasttypes::NULAROP:
+	case sqf::parse::sqf::sqfasttypes::NULAROP:
 	{
 		auto inst = std::make_shared<sqf::inst::callnular>(sqf::commandmap::get().get(node.content));
 		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 		stack->pushinst(inst);
 	}
 	break;
-	case sqfasttypes::HEXNUMBER:
+	case sqf::parse::sqf::sqfasttypes::HEXNUMBER:
 	{
 		auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stol(node.content, 0, 16)));
 		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 		stack->pushinst(inst);
 	}
 	break;
-	case sqfasttypes::NUMBER:
+	case sqf::parse::sqf::sqfasttypes::NUMBER:
 	{
 		auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stod(node.content)));
 		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 		stack->pushinst(inst);
 	}
 	break;
-	case sqfasttypes::STRING:
+	case sqf::parse::sqf::sqfasttypes::STRING:
 	{
 		auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(node.content));
 		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 		stack->pushinst(inst);
 	}
 	break;
-	case sqfasttypes::CODE:
+	case sqf::parse::sqf::sqfasttypes::CODE:
 	{
 		auto cs = std::make_shared<sqf::callstack>();
 		for each (auto subnode in node.children)
 		{
-			navigate(full, vm, cs, subnode);
+			navigate_sqf(full, vm, cs, subnode);
 		}
 		auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(cs));
 		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 		stack->pushinst(inst);
 	}
 	break;
-	case sqfasttypes::ARRAY:
+	case sqf::parse::sqf::sqfasttypes::ARRAY:
 	{
 		for each (auto subnode in node.children)
 		{
-			navigate(full, vm, stack, subnode);
+			navigate_sqf(full, vm, stack, subnode);
 		}
 		auto inst = std::make_shared<sqf::inst::makearray>(node.children.size());
 		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 		stack->pushinst(inst);
 	}
 	break;
-	case sqfasttypes::ASSIGNMENT:
+	case sqf::parse::sqf::sqfasttypes::ASSIGNMENT:
 	{
-		navigate(full, vm, stack, node.children[1]);
+		navigate_sqf(full, vm, stack, node.children[1]);
 		auto inst = std::make_shared<sqf::inst::assignto>(node.children[0].content);
 		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 		stack->pushinst(inst);
 	}
 	break;
-	case sqfasttypes::ASSIGNMENTLOCAL:
+	case sqf::parse::sqf::sqfasttypes::ASSIGNMENTLOCAL:
 	{
-		navigate(full, vm, stack, node.children[1]);
+		navigate_sqf(full, vm, stack, node.children[1]);
 		auto inst = std::make_shared<sqf::inst::assigntolocal>(node.children[0].content);
 		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 		stack->pushinst(inst);
 	}
 	break;
-	case sqfasttypes::VARIABLE:
+	case sqf::parse::sqf::sqfasttypes::VARIABLE:
 	{
 		auto inst = std::make_shared<sqf::inst::getvariable>(node.content);
 		inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
@@ -192,7 +193,6 @@ void navigate(const wchar_t* full, const sqf::virtualmachine* vm, sqf::callstack
 	default:
 	{
 		for (size_t i = 0; i < node.children.size(); i++)
-
 		{
 			if (i != 0)
 			{
@@ -201,7 +201,7 @@ void navigate(const wchar_t* full, const sqf::virtualmachine* vm, sqf::callstack
 				stack->pushinst(inst);
 			}
 			auto subnode = node.children[i];
-			navigate(full, vm, stack, subnode);
+			navigate_sqf(full, vm, stack, subnode);
 		}
 	}
 	}
@@ -216,20 +216,111 @@ void sqf::virtualmachine::parse_sqf(std::wstring code, callstack_s cs) const
 	}
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
-	auto node = sqf::parse::parse_sqf(code.c_str(), h, errflag);
+	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag);
 #if defined(_DEBUG)
 	static bool isinitial = true;
 	if (isinitial)
 	{
 		isinitial = false;
 		out() << L"-------------------------------" << std::endl;
-		print_navigate_ast(mout, node, sqf::parse::astkindname);
+		print_navigate_ast(mout, node, sqf::parse::sqf::astkindname);
 		out() << L"-------------------------------" << std::endl;
 	}
 #endif
 
 	if (!errflag)
 	{
-		navigate(code.c_str(), this, cs, node);
+		navigate_sqf(code.c_str(), this, cs, node);
+	}
+}
+
+void navigate_config(const wchar_t* full, const sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode node)
+{
+	auto kind = (sqf::parse::config::configasttypes::configasttypes)node.kind;
+	switch (kind)
+	{
+	case sqf::parse::config::configasttypes::CONFIGNODE:
+	{
+		std::shared_ptr<sqf::configdata> curnode;
+		if (node.children.size() > 0 && node.children.front().kind == sqf::parse::config::configasttypes::CONFIGNODE_PARENTIDENT)
+		{
+			curnode = std::make_shared<sqf::configdata>(parent, node.content, node.children.front().content);
+			for (size_t i = 1; i < node.children.size(); i++)
+			{
+				auto subnode = node.children[i];
+				navigate_config(full, vm, curnode, subnode);
+			}
+		}
+		else
+		{
+			curnode = std::make_shared<sqf::configdata>(parent, node.content);
+			for each (auto subnode in node.children)
+			{
+				navigate_config(full, vm, curnode, subnode);
+			}
+		}
+		parent->push_back(std::make_shared<sqf::value>(curnode, sqf::type::CONFIG));
+	} break;
+	case sqf::parse::config::configasttypes::VALUENODE:
+	{
+		std::shared_ptr<sqf::configdata> curnode = std::make_shared<sqf::configdata>(parent, node.content);
+		for each (auto subnode in node.children)
+		{
+			navigate_config(full, vm, curnode, subnode);
+		}
+		parent->push_back(std::make_shared<sqf::value>(curnode, sqf::type::CONFIG));
+	} break;
+	case sqf::parse::config::configasttypes::STRING:
+		parent->value(std::make_shared<sqf::value>(node.content));
+		break;
+	case sqf::parse::config::configasttypes::NUMBER:
+		parent->value(std::make_shared<sqf::value>(std::stod(node.content)));
+		break;
+	case sqf::parse::config::configasttypes::HEXNUMBER:
+		parent->value(std::make_shared<sqf::value>(std::stol(node.content, 0, 16)));
+		break;
+	case sqf::parse::config::configasttypes::LOCALIZATION:
+		parent->value(std::make_shared<sqf::value>(node.content));
+		break;
+	case sqf::parse::config::configasttypes::ARRAY:
+	{
+		std::vector<sqf::value_s> values;
+		for each (auto subnode in node.children)
+		{
+			navigate_config(full, vm, parent, subnode);
+			values.push_back(parent->value());
+		}
+		parent->value(std::make_shared<sqf::value>(values));
+	} break;
+	case sqf::parse::config::configasttypes::VALUE:
+		break;
+	default:
+	{
+		for each (auto subnode in node.children)
+		{
+			navigate_config(full, vm, parent, subnode);
+		}
+	}
+	}
+}
+void sqf::virtualmachine::parse_config(std::wstring code, std::shared_ptr<configdata> parent) const
+{
+	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
+	bool errflag = false;
+	auto node = sqf::parse::config::parse_config(code.c_str(), h, errflag);
+#if defined(_DEBUG)
+	static bool isinitial = true;
+	if (isinitial)
+	{
+		isinitial = false;
+		out() << L"-------------------------------" << std::endl;
+		print_navigate_ast(mout, node, sqf::parse::config::astkindname);
+		out() << L"-------------------------------" << std::endl;
+	}
+#endif
+
+	if (!errflag)
+	{
+		navigate_config(code.c_str(), this, parent, node);
 	}
 }

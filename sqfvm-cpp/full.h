@@ -32,6 +32,7 @@ extern "C" {
 #include "callstack.h"
 #include "vmstack.h"
 #include "codedata.h"
+#include "configdata.h"
 #include "virtualmachine.h"
 #include "cmd.h"
 #include "commandmap.h"
@@ -48,6 +49,7 @@ extern "C" {
 #include "fordata.h"
 #include "callstack_while.h"
 #include "callstack_for.h"
+#include "callstack_select.h"
 
 #include "namespaces.h"
 

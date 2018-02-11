@@ -46,6 +46,7 @@ namespace sqf
 		value(std::shared_ptr<callstack>);
 		value();
 		value(data_s d, type t) { mdata = d; mtype = t; }
+		value(type t) { mtype = t; }
 
 		operator float() const;
 		operator double() const;
@@ -69,9 +70,11 @@ namespace sqf
 		inline std::vector<std::shared_ptr<sqf::value>> as_vector(void) const { return *this; }
 		type dtype(void) const { return *this; }
 		data_s data(void) const { return mdata; }
+		template<class T>
+		std::shared_ptr<T> data(void) const { return std::static_pointer_cast<T>(mdata); }
 		bool equals(std::shared_ptr<sqf::value> v) const { return mtype == v->mtype ? mdata->equals(v->mdata) : false; }
 
-		inline std::wstring tosqf(void) { return mdata.get() ? mdata->tosqf() : std::wstring(L"nil"); }
+		inline std::wstring tosqf(void) { return mdata.get() ? mdata->tosqf() : mtype == type::NOTHING ? std::wstring(L"nil") : mtype == type::ANY ? std::wstring(L"any") : std::wstring(); }
 		inline void convert(type type)
 		{
 			if (mtype == type)

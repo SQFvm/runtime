@@ -20,6 +20,8 @@ namespace sqf
 	{
 	private:
 		std::vector<value_s> mvalue;
+	protected:
+		inline std::vector<value_s>& innervector(void) { return mvalue; }
 	public:
 		arraydata() : mvalue(std::vector<value_s>()) {}
 		arraydata(size_t size) : mvalue(std::vector<value_s>(size)) {}
@@ -30,6 +32,9 @@ namespace sqf
 		inline size_t size(void) { return mvalue.size(); }
 		operator std::vector<value_s>(void) const { return mvalue; }
 		virtual bool equals(std::shared_ptr<data> d) const { return mvalue == std::dynamic_pointer_cast<arraydata>(d)->mvalue; }
+
+		inline void push_back(value_s val) { mvalue.push_back(val); }
+		inline value_s pop_back(void) { auto back = mvalue.back(); mvalue.pop_back(); return back; }
 	};
 	typedef std::shared_ptr<arraydata> array_s;
 	typedef std::weak_ptr<arraydata> array_w;

@@ -41,6 +41,8 @@ int main(int argc, char** argv)
 	*/
 
 	sqf::commandmap::get().init();
+	//auto cd = std::make_shared<sqf::configdata>();
+	//vm.parse_config(L"class test { some = 1; stuff = \"some\"; foo = 2; bar = 3; }; class other : test { arr[] = {1, 2, 3, { \"1\", 2 } }; };", cd);
 	vm.parse_sqf(sstream.str());
 	vm.execute();
 	sqf::value_s val;
