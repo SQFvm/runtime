@@ -96,6 +96,8 @@ namespace sqf
 		inline bool haslogicparent(void) { return !mlogicparent.expired(); }
 		inline value_s logicparent(void) { return mlogicparent.expired() ? configNull() : std::make_shared<sqf::value>(mlogicparent.lock(), type::CONFIG); }
 
+		void mergeinto(std::shared_ptr<configdata>);
+
 		static value_s configFile(void);
 		static value_s configNull(void);
 	};

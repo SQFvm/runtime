@@ -20,6 +20,25 @@ std::wstring sqf::configdata::tosqf(void) const
 	return sstream.str();
 }
 
+void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
+{
+	for each (auto val in innervector())
+	{
+		if (val->dtype() != sqf::type::CONFIG)
+			continue;
+		auto subcd = val->data<configdata>();
+		auto othercd = cd->navigate_unsafe(subcd->mname);
+		if (othercd.get())
+		{
+			subcd->mergeinto(othercd->data<configdata>());
+		}
+		else
+		{
+			cd->push_back(val);
+		}
+	}
+}
+
 sqf::value_s sqf::configdata::configFile(void)
 {
 	static std::shared_ptr<sqf::configdata> cdata = std::make_shared<sqf::configdata>();

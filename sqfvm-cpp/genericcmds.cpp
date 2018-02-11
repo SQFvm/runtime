@@ -280,4 +280,5 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, L"select", type::ARRAY, type::BOOL, L"Selects the first element if provided boolean is true, second element if it is false.", select_array_bool));
 	add(binary(4, L"select", type::ARRAY, type::ARRAY, L"Selects a range of elements in provided array, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_array_array));
 	add(binary(4, L"select", type::ARRAY, type::CODE, L"Selects elements from provided array matching provided condition. Current element will be placed in _x variable.", select_array_code));
+
 }
