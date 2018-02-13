@@ -136,6 +136,7 @@
     <ClCompile Include="diagcmds.cpp" />
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="genericcmds.cpp" />
+    <ClCompile Include="groupcmds.cpp" />
     <ClCompile Include="instassignto.cpp" />
     <ClCompile Include="instassigntolocal.cpp" />
     <ClCompile Include="instcallbinary.cpp" />
@@ -151,6 +152,7 @@
     <ClCompile Include="parseconfig.cpp" />
     <ClCompile Include="parsepreprocessor.cpp" />
     <ClCompile Include="parsesqf.cpp" />
+    <ClCompile Include="sidedata.cpp" />
     <ClCompile Include="sqfvmcmds.cpp" />
     <ClCompile Include="stringcmds.cpp" />
     <ClCompile Include="type.cpp" />
@@ -185,6 +187,7 @@
     <ClInclude Include="parsesqf.h" />
     <ClInclude Include="scalardata.h" />
     <ClCompile Include="stringdata.cpp" />
+    <ClInclude Include="sidedata.h" />
     <ClInclude Include="stringdata.h" />
     <ClCompile Include="value.cpp" />
     <ClInclude Include="varscope.h" />

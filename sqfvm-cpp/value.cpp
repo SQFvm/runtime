@@ -25,7 +25,6 @@ sqf::value::value(float num)
 	mdata = std::make_shared<scalardata>(num);
 }
 
-
 sqf::value::value(double num)
 {
 	mtype = type::SCALAR;

@@ -150,6 +150,12 @@
     <ClCompile Include="configcmds.cpp">
       <Filter>Source Files\commandmap</Filter>
     </ClCompile>
+    <ClCompile Include="sidedata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="groupcmds.cpp">
+      <Filter>Source Files\commandmap</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -268,6 +274,9 @@
     </ClInclude>
     <ClInclude Include="parseconfig.h">
       <Filter>Header Files\parse</Filter>
+    </ClInclude>
+    <ClInclude Include="sidedata.h">
+      <Filter>Header Files\data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

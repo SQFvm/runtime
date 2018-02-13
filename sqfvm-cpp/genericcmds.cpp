@@ -253,6 +253,57 @@ namespace
 		vm->stack()->pushcallstack(cs);
 		return value_s();
 	}
+	value_s resize_array_scalar(const virtualmachine* vm, value_s left, value_s right)
+	{
+		if (right->as_int() < 0)
+		{
+			vm->err() << L"New size cannot be smaller then 0." << std::endl;
+			return std::make_shared<value>();
+		}
+		left->data<arraydata>()->resize(right->as_int());
+		return std::make_shared<value>();
+	}
+	value_s pushback_array_any(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto arr = left->data<arraydata>();
+		auto newindex = arr->size();
+		arr->push_back(right);
+		return std::make_shared<value>(newindex);
+	}
+	value_s reverse_array(const virtualmachine* vm, value_s right)
+	{
+		right->data<arraydata>()->reverse();
+		return std::make_shared<value>();
+	}
+	value_s private_string(const virtualmachine* vm, value_s right)
+	{
+		auto str = right->as_string();
+		vm->stack()->stacks_top()->setvar(str, std::make_shared<value>());
+		return std::make_shared<value>();
+	}
+	value_s private_array(const virtualmachine* vm, value_s right)
+	{
+		auto arr = right->as_vector();
+		bool errflag = false;
+		for (size_t i = 0; i < arr.size(); i++)
+		{
+			auto it = arr[i];
+			if (!it->dtype() == sqf::type::STRING)
+			{
+				vm->err() << L"Index position " << i << L" was expected to be of type 'STRING' but was '" << sqf::type_str(it->dtype()) << L"'." << std::endl;
+			}
+		}
+		if (errflag)
+		{
+			return value_s();
+		}
+		for each (auto it in arr)
+		{
+			auto str = it->as_string();
+			vm->stack()->stacks_top()->setvar(str, std::make_shared<value>());
+		}
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -280,5 +331,9 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, L"select", type::ARRAY, type::BOOL, L"Selects the first element if provided boolean is true, second element if it is false.", select_array_bool));
 	add(binary(4, L"select", type::ARRAY, type::ARRAY, L"Selects a range of elements in provided array, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_array_array));
 	add(binary(4, L"select", type::ARRAY, type::CODE, L"Selects elements from provided array matching provided condition. Current element will be placed in _x variable.", select_array_code));
-
+	add(binary(4, L"resize", type::ARRAY, type::SCALAR, L"Changes the size of the given array. The command does not return new array, it resizes the source array to the desired number of elements. If the new size is bigger than the current size, the new places are filled with nils.", resize_array_scalar));
+	add(binary(4, L"pushBack", type::ARRAY, type::ANY, L"Insert an element to the back of the given array. This command modifies the original array. Returns the index of the newly added element.", pushback_array_any));
+	add(unary(L"reverse", type::ARRAY, L"Reverses given array by reference. Modifies the original array.", reverse_array));
+	add(unary(L"private", type::STRING, L"Sets a variable to the innermost scope.", private_string));
+	add(unary(L"private", type::ARRAY, L"Sets a bunch of variables to the innermost scope.", private_array));
 }

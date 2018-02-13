@@ -35,6 +35,8 @@ namespace sqf
 
 		inline void push_back(value_s val) { mvalue.push_back(val); }
 		inline value_s pop_back(void) { auto back = mvalue.back(); mvalue.pop_back(); return back; }
+		void resize(int newsize);
+		void reverse();
 	};
 	typedef std::shared_ptr<arraydata> array_s;
 	typedef std::weak_ptr<arraydata> array_w;

@@ -28,7 +28,7 @@ namespace
 	{
 		auto cd = left->data<configdata>();
 		auto index = right->as_int();
-		if (index >= cd->size() || index < 0)
+		if (index >= (int)cd->size() || index < 0)
 		{
 			return configdata::configNull();
 		}
@@ -56,7 +56,7 @@ namespace
 	value_s inheritsfrom_config(const virtualmachine* vm, value_s right)
 	{
 		auto cd = right->data<configdata>();
-		return std::make_shared<sqf::value>(cd->logicparent());
+		return cd->logicparent();
 	}
 	value_s isnumber_config(const virtualmachine* vm, value_s right)
 	{

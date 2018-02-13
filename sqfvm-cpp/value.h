@@ -11,7 +11,7 @@
 #error value requires <vector> header
 #endif // !_VECTOR
 #if !defined(_ARRAY) & !defined(_ARRAY_)
-#error value requires <vector> header
+#error value requires <array> header
 #endif // !_ARRAY
 #if !defined(_MEMORY) & !defined(_MEMORY_)
 #error value requires <memory> header
@@ -35,6 +35,8 @@ namespace sqf
 	public:
 		value(std::vector<std::shared_ptr<value>>);
 		value(std::wstring);
+		value(wchar_t* str) : value(std::wstring(str)) {}
+		value(const wchar_t* str) : value(std::wstring(str)) {}
 		value(float);
 		value(double);
 		value(wchar_t);

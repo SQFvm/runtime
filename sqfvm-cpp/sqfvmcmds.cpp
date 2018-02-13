@@ -6,30 +6,38 @@ namespace
 {
 	value_s cmds___(const virtualmachine* vm)
 	{
-		std::wstringstream sstream;
-		bool fdone = false;
-		sstream << L"[";
+		std::vector<sqf::value_s> outarr;
+		auto str = std::make_shared<sqf::value>(L"n");
 		for each (auto pair in commandmap::get().all_n())
 		{
-			if (fdone) { sstream << L", "; }
-			else { fdone = true; }
-			sstream << L"[\"n\", \"" << pair.first << L"\"]";
+			outarr.push_back(std::make_shared<sqf::value>(std::vector<sqf::value_s> { str,
+				std::make_shared<sqf::value>(pair.first)
+			}));
 		}
+		str = std::make_shared<sqf::value>(L"u");
 		for each (auto pair in commandmap::get().all_u())
 		{
-			if (fdone) { sstream << L", "; }
-			else { fdone = true; }
-			sstream << L"[\"u\", \"" << pair.first << L"\"]";
+			for each (auto it in *pair.second.get())
+			{
+				outarr.push_back(std::make_shared<sqf::value>(std::vector<sqf::value_s> { str,
+					std::make_shared<sqf::value>(pair.first),
+					std::make_shared<sqf::value>(sqf::type_str(it->rtype()))
+				}));
+			}
 		}
+		str = std::make_shared<sqf::value>(L"b");
 		for each (auto pair in commandmap::get().all_b())
 		{
-			if (fdone) { sstream << L", "; }
-			else { fdone = true; }
-			sstream << L"[\"b\", \"" << pair.first << L"\"]";
+			for each (auto it in *pair.second.get())
+			{
+				outarr.push_back(std::make_shared<sqf::value>(std::vector<sqf::value_s> { str,
+					std::make_shared<sqf::value>(sqf::type_str(it->ltype())),
+					std::make_shared<sqf::value>(pair.first),
+					std::make_shared<sqf::value>(sqf::type_str(it->rtype()))
+				}));
+			}
 		}
-		sstream << L"]";
-		auto str = sstream.str();
-		return std::make_shared<value>(str);
+		return std::make_shared<sqf::value>(outarr);
 	}
 	value_s help___string(const virtualmachine* vm, value_s right)
 	{
@@ -78,7 +86,7 @@ namespace
 		auto str = right->as_string();
 		auto cd = std::make_shared<sqf::configdata>();
 		vm->parse_config(str, cd);
-		return std::make_shared<value>(cd);
+		return std::make_shared<value>(cd, type::CONFIG);
 	}
 	value_s merge___config_config(const virtualmachine* vm, value_s left, value_s right)
 	{

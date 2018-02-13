@@ -31,7 +31,6 @@ namespace sqf
 		value_s mvalue;
 		bool misnull;
 
-		configdata(std::wstring name) : mname(name), misnull(true) {}
 		value_s parent_unsafe(void)
 		{
 			std::weak_ptr<configdata> lparent = mlogicparent;
@@ -79,6 +78,7 @@ namespace sqf
 			}
 		}
 	public:
+		configdata(std::wstring name) : mname(name), misnull(true) {}
 		configdata() : mname(L"bin\\config.bin"), misnull(false) {}
 		configdata(std::weak_ptr<configdata> logicparent, std::wstring name) : mname(name), mlogicparent(logicparent), misnull(false) {}
 		configdata(std::weak_ptr<configdata> logicparent, std::wstring name, std::wstring parentname) : mname(name), mparentname(parentname), mlogicparent(logicparent), misnull(false) {}

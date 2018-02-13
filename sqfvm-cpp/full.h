@@ -28,6 +28,7 @@ extern "C" {
 #include "stringdata.h"
 #include "arraydata.h"
 #include "namespace.h"
+#include "sidedata.h"
 #include "instruction.h"
 #include "callstack.h"
 #include "vmstack.h"

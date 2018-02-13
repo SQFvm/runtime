@@ -14,6 +14,34 @@ namespace
 		auto r = right->as_bool();
 		return std::make_shared<value>(l || r);
 	}
+	value_s and_bool_code(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto l = left->as_bool();
+		if (l)
+		{
+			auto r = right->data<codedata>();
+			r->loadinto(vm->stack());
+			return value_s();
+		}
+		else
+		{
+			return std::make_shared<value>(false);
+		}
+	}
+	value_s or_bool_code(const virtualmachine* vm, value_s left, value_s right)
+	{
+		auto l = left->as_bool();
+		if (l)
+		{
+			return std::make_shared<value>(true);
+		}
+		else
+		{
+			auto r = right->data<codedata>();
+			r->loadinto(vm->stack());
+			return value_s();
+		}
+	}
 
 	value_s greaterthen_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
 	{
@@ -82,6 +110,10 @@ void sqf::commandmap::initlogiccmds(void)
 	add(binary(2, L"and", sqf::type::BOOL, sqf::type::BOOL, L"Returns true only if both conditions are true. Both sides are always evaluated.", and_bool_bool));
 	add(binary(1, L"||", sqf::type::BOOL, sqf::type::BOOL, L"Returns true only if one or both conditions are true. Both sides are always evaluated.", or_bool_bool));
 	add(binary(1, L"or", sqf::type::BOOL, sqf::type::BOOL, L"Returns true only if one or both conditions are true. Both sides are always evaluated.", or_bool_bool));
+	add(binary(2, L"&&", sqf::type::BOOL, sqf::type::CODE, L"Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to true.", and_bool_code));
+	add(binary(2, L"and", sqf::type::BOOL, sqf::type::CODE, L"Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to true.", and_bool_code));
+	add(binary(1, L"||", sqf::type::BOOL, sqf::type::CODE, L"Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to false.", or_bool_code));
+	add(binary(1, L"or", sqf::type::BOOL, sqf::type::CODE, L"Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to false.", or_bool_code));
 
 	add(binary(3, L">", sqf::type::SCALAR, sqf::type::SCALAR, L"Returns true if a is greater than b, else returns false.", greaterthen_scalar_scalar));
 	add(binary(3, L">=", sqf::type::SCALAR, sqf::type::SCALAR, L"Returns true if a is greater than or equal to b, else returns false.", greaterthenorequal_scalar_scalar));
