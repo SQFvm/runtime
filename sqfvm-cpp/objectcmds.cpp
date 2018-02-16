@@ -10,7 +10,7 @@ namespace
 {
 	std::shared_ptr<value> objnull_(virtualmachine* vm)
 	{
-		return std::make_shared<value>(std::make_shared<objectdata>());
+		return std::make_shared<value>(std::make_shared<objectdata>(), sqf::type::OBJECT);
 	}
 }
 void sqf::commandmap::initobjectcmds(void)
