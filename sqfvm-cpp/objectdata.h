@@ -11,9 +11,11 @@ namespace sqf
 	private:
 		std::weak_ptr<innerobj> mobj;
 	public:
+		objectdata() {}
+		objectdata(std::weak_ptr<innerobj> obj) : mobj(obj) {}
 		virtual std::wstring tosqf(void) const;
 		inline bool isnull(void) const { return mobj.expired(); }
-		inline std::weak_ptr<innerobj> obj(void) { if (mobj.expired()) return std::weak_ptr<innerobj>(); auto sptr = mobj.lock(); return sptr; }
-		virtual bool equals(std::shared_ptr<data> d) const { return this == d.get(); }
+		inline std::shared_ptr<innerobj> obj(void) const { if (mobj.expired()) return std::shared_ptr<innerobj>(); auto sptr = mobj.lock(); return sptr; }
+		virtual bool equals(std::shared_ptr<data> d) const { return obj().get() == std::dynamic_pointer_cast<objectdata>(d)->obj().get(); }
 	};
 }

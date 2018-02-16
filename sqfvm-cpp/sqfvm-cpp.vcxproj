@@ -138,6 +138,7 @@
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="genericcmds.cpp" />
     <ClCompile Include="groupcmds.cpp" />
+    <ClCompile Include="innerobj.cpp" />
     <ClCompile Include="instassignto.cpp" />
     <ClCompile Include="instassigntolocal.cpp" />
     <ClCompile Include="instcallbinary.cpp" />
@@ -151,6 +152,7 @@
     <ClCompile Include="logiccmds.cpp" />
     <ClCompile Include="mathcmds.cpp" />
     <ClCompile Include="namespacecmds.cpp" />
+    <ClCompile Include="objectcmds.cpp" />
     <ClCompile Include="objectdata.cpp" />
     <ClCompile Include="parseassembly.cpp" />
     <ClCompile Include="parseconfig.cpp" />

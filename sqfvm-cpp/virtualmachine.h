@@ -45,7 +45,4 @@ namespace sqf
 		long push_obj(std::shared_ptr<sqf::innerobj> obj);
 		std::shared_ptr<sqf::innerobj> get_obj_netid(long netid);
 	};
-	typedef std::shared_ptr<virtualmachine> virtualmachine_s;
-	typedef std::weak_ptr<virtualmachine> virtualmachine_w;
-	typedef std::unique_ptr<virtualmachine> virtualmachine_u;
 }
