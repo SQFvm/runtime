@@ -18,6 +18,8 @@
 #include "cmd.h"
 #include "configdata.h"
 #include "value.h"
+#include "sidedata.h"
+#include "groupdata.h"
 
 #include <iostream>
 #include <cwctype>
@@ -338,4 +340,44 @@ void sqf::virtualmachine::parse_config(std::wstring code, std::shared_ptr<config
 	{
 		navigate_config(code.c_str(), this, parent, node);
 	}
+}
+
+size_t sqf::virtualmachine::push_obj(std::shared_ptr<sqf::innerobj> obj)
+{
+	if (mfreeobjids.size() != 0)
+	{
+		auto id = mfreeobjids.back();
+		mfreeobjids.pop_back();
+		mobjlist[id] = obj;
+		return id;
+	}
+	else
+	{
+		auto id = mobjlist.size();
+		mobjlist.push_back(obj);
+		return id;
+	}
+}
+
+std::shared_ptr<sqf::innerobj> sqf::virtualmachine::get_obj_netid(size_t netid)
+{
+	if (mobjlist.size() <= netid)
+	{
+		return std::shared_ptr<innerobj>();
+	}
+	return mobjlist[netid];
+}
+
+std::wstring sqf::virtualmachine::get_group_id(std::shared_ptr<sqf::sidedata> side)
+{
+	int sidenum = side->side();
+	int id = mgroupidcounter[sidenum]++;
+	auto sstream = std::wstringstream();
+	sstream << side->tosqf() << L" ALPHA " << id;
+	return sstream.str();
+}
+
+void sqf::virtualmachine::push_group(std::shared_ptr<sqf::groupdata> d)
+{
+	mgroups[d->side()->side()].push_back(d);
 }

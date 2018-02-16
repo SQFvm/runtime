@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <ostream>
+#include <map>
 
 
 namespace sqf
@@ -12,6 +13,9 @@ namespace sqf
 	class configdata;
 	class callstack;
 	class vmstack;
+	class objectdata;
+	class groupdata;
+	class sidedata;
 	class virtualmachine
 	{
 	private:
@@ -23,8 +27,11 @@ namespace sqf
 		std::wostream* mwrn;
 		bool merrflag;
 		bool mwrnflag;
-		std::vector<long> mfreeobjids;
+		std::vector<size_t> mfreeobjids;
 		std::vector<std::shared_ptr<innerobj>> mobjlist;
+
+		std::map<int, size_t> mgroupidcounter;
+		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
 	public:
 		std::wostream& out(void) const { return *mout; }
 		std::wostream& err(void) const { /* on purpose */((virtualmachine*)this)->merrflag = true; return *merr; }
@@ -42,7 +49,9 @@ namespace sqf
 		bool errflag(void) const { return merrflag; }
 		bool wrnflag(void) const { return mwrnflag; }
 
-		long push_obj(std::shared_ptr<sqf::innerobj> obj);
-		std::shared_ptr<sqf::innerobj> get_obj_netid(long netid);
+		size_t push_obj(std::shared_ptr<sqf::innerobj> obj);
+		std::shared_ptr<sqf::innerobj> get_obj_netid(size_t netid);
+		std::wstring get_group_id(std::shared_ptr<sqf::sidedata>);
+		void push_group(std::shared_ptr<sqf::groupdata>);
 	};
 }

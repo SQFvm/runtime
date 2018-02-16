@@ -50,6 +50,7 @@ namespace sqf
 				return L"UNKNOWN";
 			}
 		}
+		sidedata(eside side) : mside(side) {}
 		operator eside() const { return mside; }
 		eside side() const { return mside; }
 		virtual bool equals(std::shared_ptr<data> d) const { return mside == std::dynamic_pointer_cast<sidedata>(d)->mside; }

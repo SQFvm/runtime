@@ -138,6 +138,7 @@
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="genericcmds.cpp" />
     <ClCompile Include="groupcmds.cpp" />
+    <ClCompile Include="groupdata.cpp" />
     <ClCompile Include="innerobj.cpp" />
     <ClCompile Include="instassignto.cpp" />
     <ClCompile Include="instassigntolocal.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="compiletime.h" />
     <ClInclude Include="configdata.h" />
     <ClInclude Include="fordata.h" />
+    <ClInclude Include="groupdata.h" />
     <ClInclude Include="helper.h" />
     <ClInclude Include="innerobj.h" />
     <ClInclude Include="instassignto.h" />

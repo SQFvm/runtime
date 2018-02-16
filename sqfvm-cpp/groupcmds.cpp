@@ -3,24 +3,37 @@
 #include "cmd.h"
 #include "virtualmachine.h"
 #include "sidedata.h"
+#include "groupdata.h"
 #include <sstream>
 
 using namespace sqf;
 namespace
 {
+	std::shared_ptr<value> grpnull_(virtualmachine* vm)
+	{
+		return std::make_shared<value>(groupdata::create(), type::GROUP);
+	}
+	std::shared_ptr<value> creategroup_side(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto side = right->data<sidedata>();
+		return std::make_shared<value>(groupdata::create(vm, side), type::GROUP);
+	}
 }
 void sqf::commandmap::initgroupcmds(void)
 {
-	add(nular(L"blufor", L"Western side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::West); }));
-	add(nular(L"west", L"Western side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::West); }));
-	add(nular(L"opfor", L"Eastern side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::East); }));
-	add(nular(L"east", L"Eastern side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::East); }));
-	add(nular(L"resistance", L"Guerilla side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::Guerilla); }));
-	add(nular(L"independent", L"Guerilla side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::Guerilla); }));
-	add(nular(L"civilian", L"Civilian side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::Civilian); }));
-	add(nular(L"sideEmpty", L"Empty side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::Empty); }));
-	add(nular(L"sideEnemy", L"Enemy side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::Enemy); }));
-	add(nular(L"sideFriendly", L"Friendly side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::Friendly); }));
-	add(nular(L"sideLogic", L"Logic side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::Logic); }));
-	add(nular(L"sideUnknown", L"Unknown side.", [](virtualmachine* vm) -> std::shared_ptr<sqf::value> { return std::make_shared<value>(sidedata::eside::Unknown); }));
+	add(nular(L"blufor", L"Western side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::West), type::SIDE); }));
+	add(nular(L"west", L"Western side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::West), type::SIDE); }));
+	add(nular(L"opfor", L"Eastern side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::East), type::SIDE); }));
+	add(nular(L"east", L"Eastern side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::East), type::SIDE); }));
+	add(nular(L"resistance", L"Guerilla side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::Guerilla), type::SIDE); }));
+	add(nular(L"independent", L"Guerilla side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::Guerilla), type::SIDE); }));
+	add(nular(L"civilian", L"Civilian side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::Civilian), type::SIDE); }));
+	add(nular(L"sideEmpty", L"Empty side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::Empty), type::SIDE); }));
+	add(nular(L"sideEnemy", L"Enemy side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::Enemy), type::SIDE); }));
+	add(nular(L"sideFriendly", L"Friendly side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::Friendly), type::SIDE); }));
+	add(nular(L"sideLogic", L"Logic side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::Logic), type::SIDE); }));
+	add(nular(L"sideUnknown", L"Unknown side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::Unknown), type::SIDE); }));
+
+	add(nular(L"grpNull", L"A non-existing Group. To compare non-existent groups use isNull or isEqualTo.", grpnull_));
+	add(unary(L"createGroup", type::SIDE, L"Creates a new Group for the given Side.", creategroup_side));
 }

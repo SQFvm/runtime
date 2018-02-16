@@ -180,6 +180,9 @@
     <ClCompile Include="objectcmds.cpp">
       <Filter>Source Files\commandmap</Filter>
     </ClCompile>
+    <ClCompile Include="groupdata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -309,6 +312,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sqfnamespace.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="groupdata.h">
       <Filter>Header Files\data</Filter>
     </ClInclude>
   </ItemGroup>

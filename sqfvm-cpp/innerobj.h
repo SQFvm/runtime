@@ -9,7 +9,7 @@ namespace sqf
 	class innerobj
 	{
 	private:
-		long mnetid;
+		size_t mnetid;
 		double mposx;
 		double mposy;
 		double mposz;
@@ -32,7 +32,7 @@ namespace sqf
 		inline double vely(void) { return mvely; }
 		inline double velz(void) { return mvelz; }
 		inline std::wstring classname(void) { return mclassname; }
-		inline long netid(void) { return mnetid; }
+		inline size_t netid(void) { return mnetid; }
 
 		inline void pos(std::array<double, 3> arr) { mposx = arr[0]; mposy = arr[1]; mposz = arr[2]; }
 		inline void posx(double d) { mposx = d; }
