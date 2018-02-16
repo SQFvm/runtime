@@ -51,6 +51,7 @@ extern "C" {
 #include "callstack_while.h"
 #include "callstack_for.h"
 #include "callstack_select.h"
+#include "callstack_isnil.h"
 
 #include "namespaces.h"
 

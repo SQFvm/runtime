@@ -156,6 +156,9 @@
     <ClCompile Include="groupcmds.cpp">
       <Filter>Source Files\commandmap</Filter>
     </ClCompile>
+    <ClCompile Include="callstack_isnil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -277,6 +280,9 @@
     </ClInclude>
     <ClInclude Include="sidedata.h">
       <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="callstack_isnil.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

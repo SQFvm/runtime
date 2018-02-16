@@ -304,6 +304,19 @@ namespace
 		}
 		return std::make_shared<value>();
 	}
+	value_s isnil_string(const virtualmachine* vm, value_s right)
+	{
+		auto varname = right->as_string();
+		auto val = vm->stack()->getlocalvar(varname);
+		return std::make_shared<value>(val->dtype() == sqf::type::NOTHING);
+	}
+	value_s isnil_code(const virtualmachine* vm, value_s right)
+	{
+		auto cdata = right->data<codedata>();
+		auto cs = std::make_shared<callstack_isnil>(vm, cdata);
+		vm->stack()->pushcallstack(cs);
+		return value_s();
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -336,4 +349,6 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary(L"reverse", type::ARRAY, L"Reverses given array by reference. Modifies the original array.", reverse_array));
 	add(unary(L"private", type::STRING, L"Sets a variable to the innermost scope.", private_string));
 	add(unary(L"private", type::ARRAY, L"Sets a bunch of variables to the innermost scope.", private_array));
+	add(unary(L"isNil", type::STRING, L"Tests whether the variable defined by the string argument is undefined.", isnil_string));
+	add(unary(L"isNil", type::CODE, L"Tests whether an expression result passed as code is undefined.", isnil_code));
 }

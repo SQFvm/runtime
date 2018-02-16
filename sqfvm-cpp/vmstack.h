@@ -66,6 +66,18 @@ namespace sqf
 		inline value_s popval(bool &success) { if (mvalstack.empty()) { success = false; return value_s(); } success = true; auto val = mvalstack.back(); mvalstack.pop_back(); return val; }
 		inline value_s peekval(void) { if (mvalstack.empty()) return value_s(); return mvalstack.back(); }
 		inline void dropvals(void) { mvalstack.clear(); }
+		inline value_s getlocalvar(std::wstring varname)
+		{
+			for (auto it = stacks_begin(); it != stacks_end(); it++)
+			{
+				if (it->get()->containsvar(varname))
+				{
+					return it->get()->getvar(varname);
+					break;
+				}
+			}
+			return std::make_shared<sqf::value>();
+		}
 	};
 	typedef std::shared_ptr<vmstack> vmstack_s;
 	typedef std::weak_ptr<vmstack> vmstack_w;
