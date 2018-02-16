@@ -334,6 +334,18 @@ namespace
 		vm->out() << L"[HINT]\t" << r << std::endl;
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> hint_text(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->as_string();
+		vm->out() << L"[HINT]\t" << r << std::endl;
+		return std::make_shared<value>();
+	}
+	std::shared_ptr<value> systemchat_string(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->as_string();
+		vm->out() << L"[CHAT]\tSYSTEM: " << r << std::endl;
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -369,5 +381,6 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary(L"isNil", type::STRING, L"Tests whether the variable defined by the string argument is undefined.", isnil_string));
 	add(unary(L"isNil", type::CODE, L"Tests whether an expression result passed as code is undefined.", isnil_code));
 	add(unary(L"hint", type::STRING, L"Outputs a hint message.", hint_string));
-	add(unary(L"hint", type::TEXT, L"Outputs a hint message.", hint_string));
+	add(unary(L"hint", type::TEXT, L"Outputs a hint message.", hint_text));
+	add(unary(L"systemChat", type::STRING, L"Types text to the system radio channel.", systemchat_string));
 }
