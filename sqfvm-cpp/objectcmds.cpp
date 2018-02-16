@@ -18,7 +18,7 @@ namespace
 		auto obj = right->data<objectdata>();
 		if (obj->isnull())
 		{
-			return std::make_shared<value>(L"OBJECT");
+			return std::make_shared<value>(L"");
 		}
 		else
 		{
