@@ -1,4 +1,7 @@
-#include "full.h"
+#include "virtualmachine.h"
+#include "commandmap.h"
+#include "value.h"
+#include "vmstack.h"
 #include <iostream>
 #include <sstream>
 
@@ -45,7 +48,7 @@ int main(int argc, char** argv)
 	//vm.parse_config(L"class test { some = 1; stuff = \"some\"; foo = 2; bar = 3; }; class other : test { arr[] = {1, 2, 3, { \"1\", 2 } }; };", cd);
 	vm.parse_sqf(sstream.str());
 	vm.execute();
-	sqf::value_s val;
+	std::shared_ptr<sqf::value> val;
 	bool success;
 	do {
 		val = vm.stack()->popval(success);

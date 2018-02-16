@@ -1,12 +1,27 @@
-#include <iostream>
-#include <cwctype>
-#include <sstream>
-
-#include "full.h"
+#include "virtualmachine.h"
 #include "astnode.h"
 #include "helper.h"
 #include "parsesqf.h"
 #include "parseconfig.h"
+#include "instruction.h"
+#include "instassignto.h"
+#include "instassigntolocal.h"
+#include "instcallbinary.h"
+#include "instcallnular.h"
+#include "instcallunary.h"
+#include "instendstatement.h"
+#include "instgetvariable.h"
+#include "instmakearray.h"
+#include "instpush.h"
+#include "vmstack.h"
+#include "commandmap.h"
+#include "cmd.h"
+#include "configdata.h"
+#include "value.h"
+
+#include <iostream>
+#include <cwctype>
+#include <sstream>
 
 
 sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
@@ -21,7 +36,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 
 void sqf::virtualmachine::execute(void)
 {
-	instruction_s inst;
+	std::shared_ptr<sqf::instruction> inst;
 	while ((inst = mstack->popinst(this)).get())
 	{
 		minstcount++;
@@ -95,7 +110,7 @@ short precedence(std::wstring s)
 	return srange->begin()->get()->precedence();
 }
 
-void navigate_sqf(const wchar_t* full, const sqf::virtualmachine* vm, sqf::callstack_s stack, astnode node)
+void navigate_sqf(const wchar_t* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::callstack> stack, astnode node)
 {
 	switch (node.kind)
 	{
@@ -207,7 +222,7 @@ void navigate_sqf(const wchar_t* full, const sqf::virtualmachine* vm, sqf::calls
 	}
 }
 
-void sqf::virtualmachine::parse_sqf(std::wstring code, callstack_s cs) const
+void sqf::virtualmachine::parse_sqf(std::wstring code, std::shared_ptr<sqf::callstack> cs) 
 {
 	if (!cs.get())
 	{
@@ -234,7 +249,7 @@ void sqf::virtualmachine::parse_sqf(std::wstring code, callstack_s cs) const
 	}
 }
 
-void navigate_config(const wchar_t* full, const sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode node)
+void navigate_config(const wchar_t* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode node)
 {
 	auto kind = (sqf::parse::config::configasttypes::configasttypes)node.kind;
 	switch (kind)
@@ -284,7 +299,7 @@ void navigate_config(const wchar_t* full, const sqf::virtualmachine* vm, std::sh
 		break;
 	case sqf::parse::config::configasttypes::ARRAY:
 	{
-		std::vector<sqf::value_s> values;
+		std::vector<std::shared_ptr<sqf::value>> values;
 		for each (auto subnode in node.children)
 		{
 			navigate_config(full, vm, parent, subnode);
@@ -303,7 +318,7 @@ void navigate_config(const wchar_t* full, const sqf::virtualmachine* vm, std::sh
 	}
 	}
 }
-void sqf::virtualmachine::parse_config(std::wstring code, std::shared_ptr<configdata> parent) const
+void sqf::virtualmachine::parse_config(std::wstring code, std::shared_ptr<configdata> parent)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;

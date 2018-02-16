@@ -1,16 +1,8 @@
-#ifndef _BOOLDATA
-#define _BOOLDATA 1
+#pragma once
+#include <string>
+#include <memory>
 
-#if !defined(_STRING) & !defined(_STRING_)
-#error booldata requires <string> header
-#endif // !_STRING
-#if !defined(_MEMORY) & !defined(_MEMORY_)
-#error booldata requires <memory> header
-#endif // !_STRING
-#if !defined(_DATA)
-#error booldata requires "data.h" header
-#endif // !_DATA
-
+#include "data.h"
 namespace sqf
 {
 	class booldata : public data
@@ -28,4 +20,3 @@ namespace sqf
 	typedef std::weak_ptr<booldata> bool_w;
 	typedef std::unique_ptr<booldata> bool_u;
 }
-#endif // !_BOOLDATA

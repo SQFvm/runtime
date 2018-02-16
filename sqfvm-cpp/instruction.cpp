@@ -1,4 +1,4 @@
-#include "full.h"
+#include "instruction.h"
 #include <sstream>
 
 void sqf::instruction::setdbginf(size_t line, size_t col, std::wstring file, std::wstring segment)

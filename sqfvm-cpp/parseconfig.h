@@ -1,12 +1,7 @@
-#ifndef _PARSECONFIG
-#define _PARSECONFIG 1
+#pragma once
+#include "astnode.h"
+#include "helper.h"
 
-#if !defined(_ASTNODE)
-#error parsesqf requires "astnode.h" header
-#endif // !_ASTNODE
-#if !defined(_HELPER)
-#error parsesqf requires "helper.h" header
-#endif // !_ASTNODE
 
 
 namespace sqf
@@ -68,5 +63,3 @@ namespace sqf
 		}
 	}
 }
-
-#endif // !_PARSECONFIG

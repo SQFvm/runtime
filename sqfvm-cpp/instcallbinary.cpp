@@ -1,6 +1,11 @@
-#include "full.h"
+#include "instcallbinary.h"
+#include "virtualmachine.h"
+#include "vmstack.h"
+#include "commandmap.h"
+#include "cmd.h"
+#include "value.h"
 
-void sqf::inst::callbinary::execute(const virtualmachine* vm) const
+void sqf::inst::callbinary::execute(virtualmachine* vm) const
 {
 	bool flag;
 	auto right = vm->stack()->popval(flag);

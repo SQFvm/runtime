@@ -27,6 +27,7 @@ extern "C" {
 #include "scalardata.h"
 #include "stringdata.h"
 #include "arraydata.h"
+#include "objectdata.h"
 #include "namespace.h"
 #include "sidedata.h"
 #include "instruction.h"

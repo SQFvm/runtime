@@ -1,10 +1,13 @@
-#include "full.h"
+#include "convert.h"
+#include "stringdata.h"
+#include "scalardata.h"
+#include "booldata.h"
 #include <cwctype>
 
 
 using namespace sqf;
 
-data_s sqf::convert(data_s val, type type)
+std::shared_ptr<sqf::data> sqf::convert(std::shared_ptr<sqf::data> val, type type)
 {
 	std::wstring stringifiedval = val.get() ? val->tosqf() : L"nil";
 	auto stringval = sqf::stringdata::parse_from_sqf(stringifiedval);
@@ -61,6 +64,6 @@ data_s sqf::convert(data_s val, type type)
 	case sqf::DIARY_RECORD:
 	case sqf::LOCATION:
 	default:
-		return data_s();
+		return std::shared_ptr<sqf::data>();
 	}
 }

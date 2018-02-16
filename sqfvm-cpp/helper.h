@@ -1,19 +1,8 @@
-#ifndef _HELPER
-#define _HELPER 1
-
-#if !defined(_STRING) & !defined(_STRING_)
-#error parsesqf requires <string> header
-#endif // !_STRING
-#if !defined(_VECTOR) & !defined(_VECTOR_)
-#error parsesqf requires <vector> header
-#endif // !_VECTOR
-#if !defined(_OSTREAM) & !defined(_OSTREAM_)
-#error parsesqf requires <ostream> header
-#endif // !_OSTREAM
-#if !defined(_ASTNODE)
-#error parsesqf requires "astnode.h" header
-#endif // !_ASTNODE
-
+#pragma once
+#include <string>
+#include <vector>
+#include <ostream>
+#include "astnode.h"
 
 namespace sqf
 {
@@ -46,5 +35,3 @@ namespace sqf
 		};
 	}
 }
-
-#endif // !_HELPER

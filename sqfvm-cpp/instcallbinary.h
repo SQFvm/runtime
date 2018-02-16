@@ -1,21 +1,11 @@
-#ifndef _INSTCALLBINARY
-#define _INSTCALLBINARY 1
-
-#if !defined(_MEMORY) & !defined(_MEMORY_)
-#error instcallbinary requires <memory> header
-#endif // !_MEMORY
-#if !defined(_STACK) & !defined(_STACK_)
-#error instcallbinary requires <stack> header
-#endif // !_STACK
-#if !defined(_INSTRUCTION)
-#error instcallbinary requires "instruction" header
-#endif // !_INSTRUCTION
-#if !defined(_CMD)
-#error instcallbinary requires "cmd.h" header
-#endif // !_CMD
+#pragma once
+#include <memory>
+#include <vector>
+#include "instruction.h"
 
 namespace sqf
 {
+	class binarycmd;
 	namespace inst
 	{
 		class callbinary : public instruction
@@ -24,13 +14,8 @@ namespace sqf
 			std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> mcmds;
 		public:
 			callbinary(std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> cmds) { mcmds = cmds; }
-			virtual void execute(const virtualmachine*) const;
+			virtual void execute(virtualmachine*) const;
 			virtual insttype thistype(void) const { return insttype::callbinary; }
 		};
-		typedef std::shared_ptr<callbinary> callbinary_s;
-		typedef std::weak_ptr<callbinary> callbinary_w;
-		typedef std::unique_ptr<callbinary> callbinary_u;
 	}
 }
-
-#endif // !_INSTCALLBINARY

@@ -1,6 +1,10 @@
-#include "full.h"
+#include "instassignto.h"
+#include "virtualmachine.h"
+#include "vmstack.h"
+#include "callstack.h"
+#include "sqfnamespace.h"
 
-void sqf::inst::assignto::execute(const virtualmachine* vm) const
+void sqf::inst::assignto::execute(virtualmachine* vm) const
 {
 	bool flag;
 	auto val = vm->stack()->popval(flag);

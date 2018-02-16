@@ -1,160 +1,163 @@
-#include "full.h"
+#include "commandmap.h"
+#include "value.h"
+#include "cmd.h"
+#include "virtualmachine.h"
 #include "compiletime.h"
 #include <cmath>
 #include <random>
 using namespace sqf;
 namespace
 {
-	value_s plus_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> plus_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>((left->as_double()) + (right->as_double()));
 	}
-	value_s minus_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> minus_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>((left->as_double()) - (right->as_double()));
 	}
-	value_s multiply_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> multiply_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>((left->as_double()) * (right->as_double()));
 	}
-	value_s divide_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> divide_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto r = (right->as_double());
 		if (r == 0)
 			return std::make_shared<value>(0);
 		return std::make_shared<value>((left->as_double()) / r);
 	}
-	value_s abs_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> abs_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_double();
 		return std::make_shared<value>(std::fabs(right->as_double()));
 	}
-	value_s atan2_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> atan2_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(std::atan2(left->as_double(), right->as_double()));
 	}
-	value_s deg_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> deg_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(right->as_double() * (180 / compiletime::pi()));
 	}
-	value_s log_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> log_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(std::log10(right->as_double()));
 	}
-	value_s pi_(const virtualmachine* vm)
+	std::shared_ptr<value> pi_(virtualmachine* vm)
 	{
 		return std::make_shared<value>(compiletime::pi());
 	}
-	value_s sin_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> sin_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(std::sin(right->as_double()));
 	}
-	value_s acos_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> acos_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(std::acos(right->as_double()));
 	}
-	value_s exp_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> exp_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(std::exp(right->as_double()));
 	}
-	value_s rad_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> rad_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(right->as_double() * (compiletime::pi() / 180));
 	}
-	value_s sqrt_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> sqrt_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(std::sqrt(right->as_double()));
 	}
-	value_s tan_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> tan_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(std::tan(right->as_double()));
 	}
-	value_s random_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> random_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(compiletime::rand_lim(std::rand(), right->as_double()));
 	}
-	value_s min_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> min_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->as_double();
 		auto r = right->as_double();
 		return std::make_shared<value>(std::fmin(l, r));
 	}
-	value_s max_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> max_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->as_double();
 		auto r = right->as_double();
 		return std::make_shared<value>(std::fmax(l, r));
 	}
-	value_s floor_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> floor_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_long();
 		return std::make_shared<value>(r);
 	}
-	value_s ceil_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> ceil_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_long();
 		return std::make_shared<value>(std::ceil(r));
 	}
-	value_s asin_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> asin_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_double();
 		return std::make_shared<value>(std::asin(r));
 	}
-	value_s atan_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> atan_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_double();
 		return std::make_shared<value>(std::atan(r));
 	}
-	value_s cos_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> cos_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_double();
 		return std::make_shared<value>(std::cos(r));
 	}
-	value_s ln_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> ln_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_double();
 		return std::make_shared<value>(std::log(r));
 	}
-	value_s mod_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> mod_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->as_double();
 		auto r = right->as_double();
 		return std::make_shared<value>(std::fmod(l, r));
 	}
-	value_s round_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> round_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_double();
 		return std::make_shared<value>(std::round(r));
 	}
-	value_s minus_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> minus_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_double();
 		return std::make_shared<value>(-r);
 	}
-	value_s exclamationmark_bool(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> exclamationmark_bool(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto f = right->as_bool();
 		return std::make_shared<value>(!f);
 	}
-	value_s raisetopower_scalar_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> raisetopower_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->as_double();
 		auto r = right->as_double();
 		return std::make_shared<value>(std::pow(l, r));
 	}
-	value_s and_bool_bool(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> and_bool_bool(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->as_bool();
 		auto r = right->as_bool();
 		return std::make_shared<value>(l && r);
 	}
-	value_s or_bool_bool(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> or_bool_bool(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->as_bool();
 		auto r = right->as_bool();
 		return std::make_shared<value>(l || r);
 	}
-	value_s plus_scalar(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> plus_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return right;
 	}

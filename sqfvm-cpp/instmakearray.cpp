@@ -1,8 +1,14 @@
-#include "full.h"
+#include "instmakearray.h"
+#include <vector>
+#include <memory>
+#include "value.h"
+#include "virtualmachine.h"
+#include "vmstack.h"
+#include "sqfnamespace.h"
 
-void sqf::inst::makearray::execute(const virtualmachine * vm) const
+void sqf::inst::makearray::execute(virtualmachine* vm) const
 {
-	auto vec = std::vector<value_s>(msize);
+	auto vec = std::vector<std::shared_ptr<value>>(msize);
 	for (size_t i = msize - 1; i != ~0; i--)
 	{
 		bool flag;

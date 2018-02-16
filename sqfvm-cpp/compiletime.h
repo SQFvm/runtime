@@ -1,12 +1,6 @@
-#ifndef _COMPILETIME
-#define _COMPILETIME 1
-
-#if !defined(_MATH) && !defined(_MATH_)
+#pragma once
 #include <cmath>
-#endif
-#if !defined(_RANDOM) && !defined(_RANDOM_)
 #include <random>
-#endif
 
 class compiletime
 {
@@ -30,5 +24,3 @@ public:
 		return (((double)rnd) / RAND_MAX) * limit;
 	}
 };
-
-#endif // !_COMPILETIME

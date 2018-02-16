@@ -1,15 +1,7 @@
-#ifndef _SIDEDATA
-#define _SIDEDATA 1
-
-#if !defined(_STRING) & !defined(_STRING_)
-#error sidedata requires <string> header
-#endif // !_STRING
-#if !defined(_MEMORY) & !defined(_MEMORY_)
-#error sidedata requires <memory> header
-#endif // !_STRING
-#if !defined(_DATA)
-#error sidedata requires "data.h" header
-#endif // !_DATA
+#pragma once
+#include <string>
+#include <memory>
+#include "data.h"
 
 namespace sqf
 {
@@ -68,4 +60,3 @@ namespace sqf
 		static void set_friendly_to(eside self, eside other, bool flag);
 	};
 }
-#endif // !_SIDEDATA

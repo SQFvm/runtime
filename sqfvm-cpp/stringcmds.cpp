@@ -1,27 +1,30 @@
-#include "full.h"
+#include "commandmap.h"
+#include "value.h"
+#include "cmd.h"
+#include "virtualmachine.h"
 #include <algorithm>
 
 using namespace sqf;
 namespace
 {
-	value_s count_string(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> count_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
 		return std::make_shared<value>(r.length());
 	}
-	value_s toupper_string(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> toupper_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
 		std::transform(r.begin(), r.end(), r.begin(), ::toupper);
 		return std::make_shared<value>(r);
 	}
-	value_s tolower_string(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> tolower_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
 		std::transform(r.begin(), r.end(), r.begin(), ::toupper);
 		return std::make_shared<value>(r);
 	}
-	value_s select_string_array(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> select_string_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto str = left->as_string();
 		auto arr = right->as_vector();

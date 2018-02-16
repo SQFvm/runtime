@@ -1,4 +1,3 @@
-#include <string>
 #include "type.h"
 
 std::wstring sqf::type_str(type t)

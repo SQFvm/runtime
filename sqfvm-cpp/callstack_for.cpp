@@ -1,11 +1,18 @@
-#include "full.h"
+#include "callstack_for.h"
+#include "fordata.h"
+#include "codedata.h"
+#include "value.h"
+#include "virtualmachine.h"
+#include "instpush.h"
+#include "instassigntolocal.h"
+#include "instendstatement.h"
 
 sqf::callstack_for::callstack_for(std::shared_ptr<fordata> fordata, std::shared_ptr<codedata> exec) : mfordata(fordata), mexec(exec)
 {
 	setvar(mfordata->variable(), std::make_shared<value>(mfordata->from()));
 }
 
-sqf::instruction_s sqf::callstack_for::popinst(const sqf::virtualmachine * vm)
+std::shared_ptr<sqf::instruction> sqf::callstack_for::popinst(sqf::virtualmachine * vm)
 {
 	auto ret = sqf::callstack::popinst(vm);
 	if (ret.get())

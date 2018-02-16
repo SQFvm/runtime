@@ -1,6 +1,11 @@
-#include "full.h"
+#include "callstack_while.h"
+#include "codedata.h"
+#include "virtualmachine.h"
+#include "value.h"
+#include "instpush.h"
+#include "instendstatement.h"
 
-sqf::instruction_s sqf::callstack_while::popinst(const sqf::virtualmachine* vm)
+std::shared_ptr<sqf::instruction> sqf::callstack_while::popinst(sqf::virtualmachine* vm)
 {
 	auto ret = sqf::callstack::popinst(vm);
 	if (ret.get())

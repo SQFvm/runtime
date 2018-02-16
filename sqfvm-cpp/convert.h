@@ -1,12 +1,9 @@
-#ifndef _CONVERT
-#define _CONVERT 1
-
-#if !defined(_DATA)
-#error convert requires "data.h" header
-#endif // !_DATA
+#pragma once
+#include <memory>
+#include "type.h"
+#include "data.h"
 
 namespace sqf
 {
-	data_s convert(data_s val, type type);
+	std::shared_ptr<sqf::data> convert(std::shared_ptr<sqf::data> val, sqf::type type);
 }
-#endif // !_CONVERT

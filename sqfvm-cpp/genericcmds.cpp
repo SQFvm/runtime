@@ -1,56 +1,67 @@
-#include "full.h"
+#include "commandmap.h"
+#include "value.h"
+#include "cmd.h"
+#include "virtualmachine.h"
+#include "codedata.h"
+#include "arraydata.h"
+#include "stringdata.h"
+#include "fordata.h"
+#include "callstack_for.h"
+#include "callstack_while.h"
+#include "callstack_select.h"
+#include "callstack_isnil.h"
 
 using namespace sqf;
 namespace
 {
-	value_s call_code(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> call_code(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = std::static_pointer_cast<codedata>(right->data());
 		r->loadinto(vm->stack());
 		vm->stack()->stacks_top()->setvar(L"_this", std::make_shared<value>());
-		return value_s();
+		return std::shared_ptr<value>();
 	}
-	value_s call_any_code(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> call_any_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto r = std::static_pointer_cast<codedata>(right->data());
 		r->loadinto(vm->stack());
 		vm->stack()->stacks_top()->setvar(L"_this", std::make_shared<value>());
 		vm->stack()->pushval(left);
-		return value_s();
+		return std::shared_ptr<value>();
 	}
-	value_s count_array(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> count_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = std::static_pointer_cast<arraydata>(right->data());
 		return std::make_shared<value>(r->size());
 	}
-	value_s compile_string(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> compile_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
 		auto cs = std::make_shared<callstack>();
 		vm->parse_sqf(r, cs);
 		return std::make_shared<value>(cs);
 	}
-	value_s typename_any(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> typename_any(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(type_str(right->dtype()));
 	}
-	value_s str_any(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> str_any(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(std::make_shared<stringdata>(right->tosqf(), false), type::STRING);
 	}
-	value_s nil_(const virtualmachine* vm)
+	std::shared_ptr<value> nil_(virtualmachine* vm)
 	{
 		return std::make_shared<value>();
 	}
-	value_s comment_string(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> comment_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>();
 	}
-	value_s if_bool(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> if_bool(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(right->data(), type::IF);
 	}
-	value_s then_if_array(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> then_if_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto ifcond = left->as_bool();
 		auto arr = right->as_vector();
@@ -71,7 +82,7 @@ namespace
 			{
 				auto code = std::static_pointer_cast<codedata>(el0->data());
 				code->loadinto(vm->stack());
-				return value_s();
+				return std::shared_ptr<value>();
 			}
 			else
 			{
@@ -89,7 +100,7 @@ namespace
 			{
 				auto code = std::static_pointer_cast<codedata>(el1->data());
 				code->loadinto(vm->stack());
-				return value_s();
+				return std::shared_ptr<value>();
 			}
 			else
 			{
@@ -98,32 +109,32 @@ namespace
 			}
 		}
 	}
-	value_s then_if_code(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> then_if_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto ifcond = left->as_bool();
 		auto code = std::static_pointer_cast<codedata>(right->data());
 		if (ifcond)
 		{
 			code->loadinto(vm->stack());
-			return value_s();
+			return std::shared_ptr<value>();
 		}
 		else
 		{
 			return std::make_shared<value>();
 		}
 	}
-	value_s else_code_code(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> else_code_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto vec = std::vector<value_s>(2);
+		auto vec = std::vector<std::shared_ptr<value>>(2);
 		vec[0] = left;
 		vec[1] = right;
 		return std::make_shared<value>(vec);
 	}
-	value_s while_code(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> while_code(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(right->data(), type::WHILE);
 	}
-	value_s do_while_code(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> do_while_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto whilecond = std::static_pointer_cast<codedata>(left->data());
 		auto execcode = std::static_pointer_cast<codedata>(right->data());
@@ -131,44 +142,44 @@ namespace
 		auto cs = std::make_shared<callstack_while>(whilecond, execcode);
 		vm->stack()->pushcallstack(cs);
 
-		return value_s();
+		return std::shared_ptr<value>();
 	}
-	value_s for_string(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> for_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto str = right->as_string();
 		return std::make_shared<value>(std::make_shared<fordata>(str), type::FOR);
 	}
-	value_s from_for_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> from_for_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
 		auto index = right->as_double();
 		fordata->from(index);
 		return left;
 	}
-	value_s to_for_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> to_for_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
 		auto index = right->as_double();
 		fordata->to(index);
 		return left;
 	}
-	value_s step_for_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> step_for_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
 		auto index = right->as_double();
 		fordata->step(index);
 		return left;
 	}
-	value_s do_for_code(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> do_for_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
 		auto execcode = std::static_pointer_cast<codedata>(right->data());
 
 		auto cs = std::make_shared<callstack_for>(fordata, execcode);
 		vm->stack()->pushcallstack(cs);
-		return value_s();
+		return std::shared_ptr<value>();
 	}
-	value_s select_array_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> select_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto arr = left->as_vector();
 		auto index = right->as_int();
@@ -185,7 +196,7 @@ namespace
 		}
 		return arr[index];
 	}
-	value_s select_array_bool(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> select_array_bool(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto arr = left->as_vector();
 		auto flag = right->as_bool();
@@ -200,7 +211,7 @@ namespace
 		}
 		return flag ? arr[0] : arr[1];
 	}
-	value_s select_array_array(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> select_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto vec = left->as_vector();
 		auto arr = right->as_vector();
@@ -239,21 +250,21 @@ namespace
 				return std::make_shared<value>(L"");
 			}
 			
-			return std::make_shared<value>(std::vector<value_s>(vec.begin() + start, start + length > (int)vec.size() ? vec.end() : vec.begin() + start + length));
+			return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, start + length > (int)vec.size() ? vec.end() : vec.begin() + start + length));
 		}
-		return std::make_shared<value>(std::vector<value_s>(vec.begin() + start, vec.end()));
+		return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, vec.end()));
 	}
-	value_s select_array_code(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> select_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto arr = left->as_vector();
 		if (arr.size() == 0)
-			return std::make_shared<value>(std::vector<value_s>());
+			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
 		auto cond = std::static_pointer_cast<codedata>(right->data());
-		auto cs = std::make_shared<callstack_select>(arr, cond);
+		auto cs = std::make_shared<sqf::callstack_select>(arr, cond);
 		vm->stack()->pushcallstack(cs);
-		return value_s();
+		return std::shared_ptr<value>();
 	}
-	value_s resize_array_scalar(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> resize_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		if (right->as_int() < 0)
 		{
@@ -263,39 +274,39 @@ namespace
 		left->data<arraydata>()->resize(right->as_int());
 		return std::make_shared<value>();
 	}
-	value_s pushback_array_any(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> pushback_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto arr = left->data<arraydata>();
 		auto newindex = arr->size();
 		arr->push_back(right);
 		return std::make_shared<value>(newindex);
 	}
-	value_s reverse_array(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> reverse_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		right->data<arraydata>()->reverse();
 		return std::make_shared<value>();
 	}
-	value_s private_string(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> private_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto str = right->as_string();
 		vm->stack()->stacks_top()->setvar(str, std::make_shared<value>());
 		return std::make_shared<value>();
 	}
-	value_s private_array(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> private_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto arr = right->as_vector();
 		bool errflag = false;
 		for (size_t i = 0; i < arr.size(); i++)
 		{
 			auto it = arr[i];
-			if (!it->dtype() == sqf::type::STRING)
+			if (it->dtype() != sqf::type::STRING)
 			{
 				vm->err() << L"Index position " << i << L" was expected to be of type 'STRING' but was '" << sqf::type_str(it->dtype()) << L"'." << std::endl;
 			}
 		}
 		if (errflag)
 		{
-			return value_s();
+			return std::shared_ptr<value>();
 		}
 		for each (auto it in arr)
 		{
@@ -304,18 +315,24 @@ namespace
 		}
 		return std::make_shared<value>();
 	}
-	value_s isnil_string(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> isnil_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto varname = right->as_string();
 		auto val = vm->stack()->getlocalvar(varname);
 		return std::make_shared<value>(val->dtype() == sqf::type::NOTHING);
 	}
-	value_s isnil_code(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> isnil_code(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cdata = right->data<codedata>();
 		auto cs = std::make_shared<callstack_isnil>(vm, cdata);
 		vm->stack()->pushcallstack(cs);
-		return value_s();
+		return std::shared_ptr<value>();
+	}
+	std::shared_ptr<value> hint_string(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->as_string();
+		vm->out() << L"[HINT]\t" << r << std::endl;
+		return std::make_shared<value>();
 	}
 }
 void sqf::commandmap::initgenericcmds(void)
@@ -351,4 +368,6 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary(L"private", type::ARRAY, L"Sets a bunch of variables to the innermost scope.", private_array));
 	add(unary(L"isNil", type::STRING, L"Tests whether the variable defined by the string argument is undefined.", isnil_string));
 	add(unary(L"isNil", type::CODE, L"Tests whether an expression result passed as code is undefined.", isnil_code));
+	add(unary(L"hint", type::STRING, L"Outputs a hint message.", hint_string));
+	add(unary(L"hint", type::TEXT, L"Outputs a hint message.", hint_string));
 }

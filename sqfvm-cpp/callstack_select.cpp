@@ -1,6 +1,11 @@
-#include "full.h"
+#include "callstack_select.h"
+#include "codedata.h"
+#include "virtualmachine.h"
+#include "value.h"
+#include "instpush.h"
+#include "instendstatement.h"
 
-sqf::instruction_s sqf::callstack_select::popinst(const sqf::virtualmachine * vm)
+std::shared_ptr<sqf::instruction> sqf::callstack_select::popinst(sqf::virtualmachine * vm)
 {
 	if (mcurindex == 0 && marr.size() > 0)
 	{

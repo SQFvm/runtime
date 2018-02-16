@@ -1,4 +1,5 @@
-#include "full.h"
+#include "arraydata.h"
+#include "value.h"
 #include <sstream>
 #include <algorithm>
 

@@ -1,4 +1,7 @@
-#include "full.h"
+#include "commandmap.h"
+#include "value.h"
+#include "cmd.h"
+#include "virtualmachine.h"
 #include <ctime>
 #include <sys/timeb.h>
 
@@ -17,13 +20,13 @@ namespace
 		return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
 #endif
 	}
-	value_s diag_log_any(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> diag_log_any(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
-		vm->out() << r << std::endl;
+		vm->out() << L"[DIAG]\t" << r << std::endl;
 		return std::make_shared<value>();
 	}
-	value_s diag_tickTime_(const virtualmachine* vm)
+	std::shared_ptr<value> diag_tickTime_(virtualmachine* vm)
 	{
 		auto r = (long)system_time_ms();
 		return std::make_shared<value>(r);

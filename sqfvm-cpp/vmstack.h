@@ -1,29 +1,27 @@
-#ifndef _VMSTACK
-#define _VMSTACK 1
+#pragma once
+#include <vector>
+#include <memory>
+#include <string>
 
-#if !defined(_MEMORY) & !defined(_MEMORY_)
-#error vmstack requires <memory> header
-#endif // !_MEMORY
-#if !defined(_VECTOR) & !defined(_VECTOR_)
-#error vmstack requires <vector> header
-#endif // !_VECTOR
-#if !defined(_WSTRING_OP_H_)
-#error vmstack requires "wstring_op.h" header
-#endif // !_VECTOR
+#include "callstack.h"
+#include "wstring_op.h"
 
 namespace sqf
 {
+	class value;
+	class instruction;
+	class virtualmachine;
 	class vmstack
 	{
 	private:
-		std::vector<callstack_s> mstacks;
-		std::vector<value_s> mvalstack;
+		std::vector<std::shared_ptr<sqf::callstack>> mstacks;
+		std::vector<std::shared_ptr<sqf::value>> mvalstack;
 	public:
 		inline void pushinst(std::shared_ptr<instruction> inst) { if (mstacks.empty()) { mstacks.push_back(std::make_shared<callstack>()); } mstacks.back()->pushinst(inst); }
-		inline std::shared_ptr<instruction> popinst(const sqf::virtualmachine* vm)
+		inline std::shared_ptr<instruction> popinst(sqf::virtualmachine* vm)
 		{
 			if (mstacks.empty())
-				return instruction_s();
+				return std::shared_ptr<sqf::instruction>();
 			auto ret = mstacks.back()->popinst(vm);
 			if (!ret.get())
 			{
@@ -32,8 +30,8 @@ namespace sqf
 			}
 			return ret;
 		}
-		inline std::shared_ptr<instruction> peekinst(void) { if (mstacks.empty()) return instruction_s(); return mstacks.back()->peekinst(); }
-		inline void pushcallstack(callstack_s cs) { mstacks.push_back(cs); }
+		inline std::shared_ptr<instruction> peekinst(void) { if (mstacks.empty()) return std::shared_ptr<sqf::instruction>(); return mstacks.back()->peekinst(); }
+		inline void pushcallstack(std::shared_ptr<sqf::callstack> cs) { mstacks.push_back(cs); }
 		inline void dropcallstack() { if(!mstacks.empty()) mstacks.pop_back(); }
 		inline void dropcallstack(std::wstring name, bool include = true)
 		{
@@ -58,30 +56,14 @@ namespace sqf
 		}
 
 
-		inline std::vector<callstack_s>::reverse_iterator stacks_begin(void) { return mstacks.rbegin(); }
-		inline std::vector<callstack_s>::reverse_iterator stacks_end(void) { return mstacks.rend(); }
-		inline callstack_s stacks_top(void) { return mstacks.back(); }
+		inline std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator stacks_begin(void) { return mstacks.rbegin(); }
+		inline std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator stacks_end(void) { return mstacks.rend(); }
+		inline std::shared_ptr<sqf::callstack> stacks_top(void) { return mstacks.back(); }
 
-		inline void pushval(value_s val) { mvalstack.push_back(val); }
-		inline value_s popval(bool &success) { if (mvalstack.empty()) { success = false; return value_s(); } success = true; auto val = mvalstack.back(); mvalstack.pop_back(); return val; }
-		inline value_s peekval(void) { if (mvalstack.empty()) return value_s(); return mvalstack.back(); }
+		inline void pushval(std::shared_ptr<value> val) { mvalstack.push_back(val); }
+		inline std::shared_ptr<value> popval(bool &success) { if (mvalstack.empty()) { success = false; return std::shared_ptr<value>(); } success = true; auto val = mvalstack.back(); mvalstack.pop_back(); return val; }
+		inline std::shared_ptr<value> peekval(void) { if (mvalstack.empty()) return std::shared_ptr<value>(); return mvalstack.back(); }
 		inline void dropvals(void) { mvalstack.clear(); }
-		inline value_s getlocalvar(std::wstring varname)
-		{
-			for (auto it = stacks_begin(); it != stacks_end(); it++)
-			{
-				if (it->get()->containsvar(varname))
-				{
-					return it->get()->getvar(varname);
-					break;
-				}
-			}
-			return std::make_shared<sqf::value>();
-		}
+		std::shared_ptr<value> getlocalvar(std::wstring varname);
 	};
-	typedef std::shared_ptr<vmstack> vmstack_s;
-	typedef std::weak_ptr<vmstack> vmstack_w;
-	typedef std::unique_ptr<vmstack> vmstack_u;
 }
-
-#endif // !_VMSTACK

@@ -1,7 +1,12 @@
-#include "full.h"
+#include "value.h"
+#include "arraydata.h"
+#include "booldata.h"
+#include "scalardata.h"
+#include "stringdata.h"
+#include "codedata.h"
 
 
-sqf::value::value(std::vector<sqf::value_s> arr)
+sqf::value::value(std::vector<std::shared_ptr<sqf::value>> arr)
 {
 	mtype = type::ARRAY;
 	mdata = std::make_shared<arraydata>(arr);
@@ -70,7 +75,7 @@ sqf::value::value(std::shared_ptr<sqf::callstack> cs)
 sqf::value::value()
 {
 	mtype = type::NOTHING;
-	mdata = data_s();
+	mdata = std::shared_ptr<sqf::data>();
 }
 
 sqf::value::operator float() const

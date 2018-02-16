@@ -1,6 +1,11 @@
-#include "full.h"
+#include "instcallunary.h"
+#include "virtualmachine.h"
+#include "vmstack.h"
+#include "commandmap.h"
+#include "cmd.h"
+#include "value.h"
 
-void sqf::inst::callunary::execute(const virtualmachine* vm) const
+void sqf::inst::callunary::execute(virtualmachine* vm) const
 {
 	bool flag;
 	auto right = vm->stack()->popval(flag);
@@ -9,10 +14,10 @@ void sqf::inst::callunary::execute(const virtualmachine* vm) const
 		vm->err() << dbginf(L"ASS") << L"callUnary could not receive a value for right arg." << std::endl;
 		return;
 	}
-	auto cmd = sqf::commandmap::find(mcmds, right->dtype());
+	auto cmd = sqf::commandmap::find(mcmds, right->dtype()); 
 	if (cmd.get())
 	{
-		auto val = cmd->execute(vm, value_s(), right);
+		auto val = cmd->execute(vm, std::shared_ptr<value>(), right);
 		if (val.get())
 			vm->stack()->pushval(val);
 	}

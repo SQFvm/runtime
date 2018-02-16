@@ -1,6 +1,9 @@
-#include "full.h"
+#include "instassigntolocal.h"
+#include "virtualmachine.h"
+#include "vmstack.h"
+#include "callstack.h"
 
-void sqf::inst::assigntolocal::execute(const virtualmachine* vm) const
+void sqf::inst::assigntolocal::execute(virtualmachine* vm) const
 {
 	bool flag;
 	auto val = vm->stack()->popval(flag);

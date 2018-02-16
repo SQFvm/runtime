@@ -1,4 +1,4 @@
-#include "full.h"
+#include "stringdata.h"
 
 std::wstring sqf::stringdata::parse_from_sqf(std::wstring s)
 {

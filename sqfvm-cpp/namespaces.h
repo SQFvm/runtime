@@ -1,25 +1,24 @@
-#ifndef _NAMESPACES
-#define _NAMESPACES 1
+#pragma once
+#include <memory>
 
 namespace sqf
 {
+	class sqfnamespace;
 	namespace commands
 	{
 		class namespaces
 		{
 		private:
-			static namespace_s MissionNamespace;
-			static namespace_s UiNamespace;
-			static namespace_s ParsingNamespace;
-			static namespace_s ProfileNamespace;
+			static std::shared_ptr<sqf::sqfnamespace> MissionNamespace;
+			static std::shared_ptr<sqf::sqfnamespace> UiNamespace;
+			static std::shared_ptr<sqf::sqfnamespace> ParsingNamespace;
+			static std::shared_ptr<sqf::sqfnamespace> ProfileNamespace;
 			namespaces() {}
 		public:
-			static namespace_s missionNamespace (void) { return MissionNamespace; }
-			static namespace_s uiNamespace (void) { return UiNamespace; }
-			static namespace_s parsingNamespace (void) { return ParsingNamespace; }
-			static namespace_s profileNamespace (void) { return ProfileNamespace; }
+			static std::shared_ptr<sqf::sqfnamespace> missionNamespace (void) { return MissionNamespace; }
+			static std::shared_ptr<sqf::sqfnamespace> uiNamespace (void) { return UiNamespace; }
+			static std::shared_ptr<sqf::sqfnamespace> parsingNamespace (void) { return ParsingNamespace; }
+			static std::shared_ptr<sqf::sqfnamespace> profileNamespace (void) { return ProfileNamespace; }
 		};
 	}
 }
-
-#endif // !_NAMESPACES

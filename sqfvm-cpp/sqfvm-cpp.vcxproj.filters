@@ -159,12 +159,24 @@
     <ClCompile Include="callstack_isnil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="objectdata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="instpush.cpp">
+      <Filter>Source Files\instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="instendstatement.cpp">
+      <Filter>Source Files\instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="vmstack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="varscope.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="full.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="data.h">
@@ -184,9 +196,6 @@
     </ClInclude>
     <ClInclude Include="type.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="namespace.h">
-      <Filter>Header Files\data</Filter>
     </ClInclude>
     <ClInclude Include="wstring_op.h">
       <Filter>Header Files</Filter>
@@ -232,9 +241,6 @@
     </ClInclude>
     <ClInclude Include="namespaces.h">
       <Filter>Header Files\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="vmstack.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="compiletime.h">
       <Filter>Header Files</Filter>
@@ -283,6 +289,21 @@
     </ClInclude>
     <ClInclude Include="callstack_isnil.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objectdata.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="innerobj.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="full2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vmstack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqfnamespace.h">
+      <Filter>Header Files\data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

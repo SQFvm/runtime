@@ -1,8 +1,12 @@
-#include "full.h"
+#include "instgetvariable.h"
+#include "virtualmachine.h"
+#include "vmstack.h"
+#include "commandmap.h"
+#include "sqfnamespace.h"
 
-void sqf::inst::getvariable::execute(const virtualmachine* vm) const
+void sqf::inst::getvariable::execute(virtualmachine* vm) const
 {
-	value_s val;
+	std::shared_ptr<value> val;
 	if (mvarname[0] == L'_')
 	{//localvar
 		val = vm->stack()->getlocalvar(mvarname);

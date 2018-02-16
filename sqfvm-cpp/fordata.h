@@ -1,15 +1,7 @@
-#ifndef _FORDATA
-#define _FORDATA 1
-
-#if !defined(_STRING) & !defined(_STRING_)
-#error fordata requires <string> header
-#endif // !_STRING
-#if !defined(_MEMORY) & !defined(_MEMORY_)
-#error fordata requires <memory> header
-#endif // !_STRING
-#if !defined(_DATA)
-#error fordata requires "data.h" header
-#endif // !_DATA
+#pragma once
+#include <string>
+#include <memory>
+#include "data.h"
 
 namespace sqf
 {
@@ -33,4 +25,3 @@ namespace sqf
 		virtual bool equals(std::shared_ptr<data> d) const { return false; }
 	};
 }
-#endif // !_FORDATA

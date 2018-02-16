@@ -1,15 +1,7 @@
-#ifndef _SCALARDATA
-#define _SCALARDATA 1
-
-#if !defined(_STRING) & !defined(_STRING_)
-#error scalardata requires <string> header
-#endif // !_STRING
-#if !defined(_MEMORY) & !defined(_MEMORY_)
-#error scalardata requires <memory> header
-#endif // !_STRING
-#if !defined(_DATA)
-#error scalardata requires "data.h" header
-#endif // !_DATA
+#pragma once
+#include <string>
+#include <memory>
+#include "data.h"
 
 namespace sqf
 {
@@ -36,8 +28,4 @@ namespace sqf
 		operator size_t(void) const { return (size_t)mvalue; }
 		virtual bool equals(std::shared_ptr<data> d) const { return mvalue == std::dynamic_pointer_cast<scalardata>(d)->mvalue; }
 	};
-	typedef std::shared_ptr<scalardata> scalar_s;
-	typedef std::weak_ptr<scalardata> scalar_w;
-	typedef std::unique_ptr<scalardata> scalar_u;
 }
-#endif // !_SCALARDATA

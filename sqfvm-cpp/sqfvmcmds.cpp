@@ -1,16 +1,20 @@
-#include "full.h"
+#include "commandmap.h"
+#include "value.h"
+#include "cmd.h"
+#include "virtualmachine.h"
+#include "configdata.h"
 #include <sstream>
 
 using namespace sqf;
 namespace
 {
-	value_s cmds___(const virtualmachine* vm)
+	std::shared_ptr<value> cmds___(virtualmachine* vm)
 	{
-		std::vector<sqf::value_s> outarr;
+		std::vector<std::shared_ptr<sqf::value>> outarr;
 		auto str = std::make_shared<sqf::value>(L"n");
 		for each (auto pair in commandmap::get().all_n())
 		{
-			outarr.push_back(std::make_shared<sqf::value>(std::vector<sqf::value_s> { str,
+			outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
 				std::make_shared<sqf::value>(pair.first)
 			}));
 		}
@@ -19,7 +23,7 @@ namespace
 		{
 			for each (auto it in *pair.second.get())
 			{
-				outarr.push_back(std::make_shared<sqf::value>(std::vector<sqf::value_s> { str,
+				outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
 					std::make_shared<sqf::value>(pair.first),
 					std::make_shared<sqf::value>(sqf::type_str(it->rtype()))
 				}));
@@ -30,7 +34,7 @@ namespace
 		{
 			for each (auto it in *pair.second.get())
 			{
-				outarr.push_back(std::make_shared<sqf::value>(std::vector<sqf::value_s> { str,
+				outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
 					std::make_shared<sqf::value>(sqf::type_str(it->ltype())),
 					std::make_shared<sqf::value>(pair.first),
 					std::make_shared<sqf::value>(sqf::type_str(it->rtype()))
@@ -39,7 +43,7 @@ namespace
 		}
 		return std::make_shared<sqf::value>(outarr);
 	}
-	value_s help___string(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> help___string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		std::wstringstream sstream;
 		auto str = right->as_string();
@@ -81,14 +85,14 @@ namespace
 		}
 		return std::make_shared<value>();
 	}
-	value_s configparse___string(const virtualmachine* vm, value_s right)
+	std::shared_ptr<value> configparse___string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto str = right->as_string();
 		auto cd = std::make_shared<sqf::configdata>();
 		vm->parse_config(str, cd);
 		return std::make_shared<value>(cd, type::CONFIG);
 	}
-	value_s merge___config_config(const virtualmachine* vm, value_s left, value_s right)
+	std::shared_ptr<value> merge___config_config(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto target = left->data<configdata>();
 		auto source = right->data<configdata>();

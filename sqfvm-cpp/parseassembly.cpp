@@ -1,7 +1,24 @@
 #include <cwctype>
 
-#include "full.h"
+#include "virtualmachine.h"
 #include "compiletime.h"
+#include "wstring_op.h"
+#include "type.h"
+#include "vmstack.h"
+#include "instruction.h"
+#include "instassignto.h"
+#include "instassigntolocal.h"
+#include "instcallbinary.h"
+#include "instcallnular.h"
+#include "instcallunary.h"
+#include "instendstatement.h"
+#include "instgetvariable.h"
+#include "instmakearray.h"
+#include "instpush.h"
+#include "convert.h"
+#include "commandmap.h"
+#include "stringdata.h"
+#include "value.h"
 
 /*
 endStatement

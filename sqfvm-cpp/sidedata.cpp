@@ -1,4 +1,4 @@
-#include "full.h"
+#include "sidedata.h"
 
 static bool friendlymap[10][10] = {
 	{ false, false, false, false, false, false, false, false, true , true  }, //empty

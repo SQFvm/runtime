@@ -1,9 +1,20 @@
-#include "full.h"
+#include "codedata.h"
+#include "value.h"
+#include "instruction.h"
+#include "instassignto.h"
+#include "instassigntolocal.h"
+#include "instcallbinary.h"
+#include "instcallnular.h"
+#include "instcallunary.h"
+#include "instendstatement.h"
+#include "instgetvariable.h"
+#include "instmakearray.h"
+#include "instpush.h"
 
-sqf::codedata::codedata(callstack_s cs)
+sqf::codedata::codedata(std::shared_ptr<sqf::callstack> cs)
 {
-	instruction_s inst;
-	minsts = std::vector<instruction_s>(cs->inststacksize());
+	std::shared_ptr<sqf::instruction> inst;
+	minsts = std::vector<std::shared_ptr<sqf::instruction>>(cs->inststacksize());
 	for (size_t i = cs->inststacksize() - 1; i != ~0; i--)
 	{
 		//only valid for sqf::callstack!
@@ -84,7 +95,7 @@ std::wstring sqf::codedata::tosqf(void) const
 	}
 }
 
-void sqf::codedata::loadinto(vmstack_s stack, callstack_s cs)
+void sqf::codedata::loadinto(std::shared_ptr<sqf::vmstack> stack, std::shared_ptr<sqf::callstack> cs)
 {
 	for (auto it = minsts.rbegin(); it != minsts.rend(); it++)
 	{
