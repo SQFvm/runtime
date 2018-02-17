@@ -18,6 +18,11 @@ namespace
 		auto side = right->data<sidedata>();
 		return std::make_shared<value>(groupdata::create(vm, side), type::GROUP);
 	}
+	std::shared_ptr<value> groupid_group(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto grp = right->data<groupdata>();
+		return std::make_shared<value>(grp->groupid());
+	}
 }
 void sqf::commandmap::initgroupcmds(void)
 {
@@ -36,4 +41,5 @@ void sqf::commandmap::initgroupcmds(void)
 
 	add(nular(L"grpNull", L"A non-existing Group. To compare non-existent groups use isNull or isEqualTo.", grpnull_));
 	add(unary(L"createGroup", type::SIDE, L"Creates a new Group for the given Side.", creategroup_side));
+	add(unary(L"groupId", type::GROUP, L"Returns group name.", groupid_group));
 }
