@@ -3,6 +3,7 @@
 #include "cmd.h"
 #include "virtualmachine.h"
 #include <algorithm>
+#include <sstream>
 
 using namespace sqf;
 namespace
@@ -66,6 +67,55 @@ namespace
 		}
 		return std::make_shared<value>(str.substr(start));
 	}
+	std::shared_ptr<value> format_string(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->as_vector();
+		if (r.size() == 0)
+		{
+			vm->wrn() << L"Empty array passed." << std::endl;
+			return std::make_shared<value>(L"");
+		}
+		if (r[0]->dtype() != type::STRING)
+		{
+			vm->wrn() << L"First element of array was expected to be of type STRING." << std::endl;
+			return std::make_shared<value>(L"");
+		}
+		auto format = r[0]->as_string();
+		auto sstream = std::wstringstream();
+		size_t off = 0;
+		size_t newoff = 0;
+		while ((newoff = format.find(L'%', off)) != std::wstring::npos)
+		{
+			sstream << format.substr(off, newoff - off);
+			newoff++;
+
+			if (!(format[newoff] >= L'0' && format[newoff] <= '9'))
+			{
+				vm->wrn() << L'\'' << format[newoff] << L"' is no valid placeholder at string index " << newoff << L'.' << std::endl;
+				newoff++;
+			}
+			else
+			{
+				auto num = std::stoi(format.substr(newoff));
+				if (num <= 0)
+				{
+					vm->wrn() << L"Invalid placeholder index " << num << L" provided at string index " << newoff << L'.' << std::endl;
+				}
+				else if(num >= (int)r.size())
+				{
+					vm->wrn() << L"Placeholder index " << num << L" provided at string index " << newoff << L" is out of range." << std::endl;
+				}
+				else
+				{
+					sstream << r[num]->tosqf();
+				}
+				while (format[newoff] >= L'0' && format[newoff] <= '9') newoff++;
+			}
+			off = newoff;
+		}
+		sstream << format.substr(off);
+		return std::make_shared<value>(sstream.str());
+	}
 }
 void sqf::commandmap::initstringcmds(void)
 {
@@ -73,4 +123,5 @@ void sqf::commandmap::initstringcmds(void)
 	add(unary(L"toLower", sqf::type::STRING, L"Converts the supplied string to all lowercase characters.", tolower_string));
 	add(unary(L"toUpper", sqf::type::STRING, L"Converts the supplied string to all uppercase characters.", toupper_string));
 	add(binary(4, L"select", type::STRING, type::ARRAY, L"Selects a range of characters in provided string, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_string_array));
+	add(unary(L"format", sqf::type::ARRAY, L"Composes a string containing other variables or other variable types. Converts any variable type to a string.", format_string));
 }
