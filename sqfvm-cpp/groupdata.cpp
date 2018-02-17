@@ -7,4 +7,5 @@ std::shared_ptr<sqf::groupdata> sqf::groupdata::create(sqf::virtualmachine * vm,
 	auto grp = std::shared_ptr<sqf::groupdata>(grpptr);
 	grp->mgroupid = vm->get_group_id(side);
 	vm->push_group(grp);
+	return grp;
 }
