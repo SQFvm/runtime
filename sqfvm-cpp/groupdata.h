@@ -2,12 +2,13 @@
 #include <string>
 #include <memory>
 #include "data.h"
+#include "varscope.h"
 #include "sidedata.h"
 
 namespace sqf
 {
 	class virtualmachine;
-	class groupdata : public data
+	class groupdata : public data, public varscope
 	{
 	private:
 		std::shared_ptr<sidedata> mside;
