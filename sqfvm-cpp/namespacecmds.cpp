@@ -2,6 +2,7 @@
 #include "value.h"
 #include "cmd.h"
 #include "virtualmachine.h"
+#include "varscope.h"
 #include "sqfnamespace.h"
 #include "namespaces.h"
 #include "codedata.h"
@@ -38,14 +39,14 @@ namespace
 	}
 	std::shared_ptr<value> getVariable_namespace_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto l = std::static_pointer_cast<varscope>(left->data());
+		auto l = std::dynamic_pointer_cast<varscope>(left->data());
 		auto r = right->as_string();
 		auto var = l->getvar_empty(r);
 		return var;
 	}
 	std::shared_ptr<value> getVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto l = std::static_pointer_cast<varscope>(left->data());
+		auto l = std::dynamic_pointer_cast<varscope>(left->data());
 		auto r = right->as_vector();
 		if (r.size() != 2)
 		{
@@ -63,7 +64,7 @@ namespace
 	}
 	std::shared_ptr<value> setVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto l = std::static_pointer_cast<varscope>(left->data());
+		auto l = std::dynamic_pointer_cast<varscope>(left->data());
 		auto r = right->as_vector();
 		if (r.size() != 2 && r.size() != 3)
 		{
