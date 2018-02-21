@@ -427,5 +427,5 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary(L"hint", type::STRING, L"Outputs a hint message.", hint_string));
 	add(unary(L"hint", type::TEXT, L"Outputs a hint message.", hint_text));
 	add(unary(L"systemChat", type::STRING, L"Types text to the system radio channel.", systemchat_string));
-	add(nular(L"productVersion", L"Returns basic info about the product.", productversion_);
+	add(nular(L"productVersion", L"Returns basic info about the product.", productversion_));
 }
