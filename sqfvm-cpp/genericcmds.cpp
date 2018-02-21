@@ -10,6 +10,7 @@
 #include "callstack_while.h"
 #include "callstack_select.h"
 #include "callstack_isnil.h"
+#include "callstack_exitwith.h"
 
 using namespace sqf;
 namespace
@@ -116,6 +117,22 @@ namespace
 		if (ifcond)
 		{
 			code->loadinto(vm->stack());
+			return std::shared_ptr<value>();
+		}
+		else
+		{
+			return std::make_shared<value>();
+		}
+	}
+	std::shared_ptr<value> exitwith_if_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto ifcond = left->as_bool();
+		auto code = std::static_pointer_cast<codedata>(right->data());
+		if (ifcond)
+		{
+			auto cs = std::make_shared<callstack_exitwith>(code);
+			code->loadinto(vm->stack(), cs);
+			vm->stack()->pushcallstack(cs);
 			return std::shared_ptr<value>();
 		}
 		else
@@ -346,6 +363,12 @@ namespace
 		vm->out() << L"[CHAT]\tSYSTEM: " << r << std::endl;
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> exitwith_if_code(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->as_string();
+		vm->out() << L"[CHAT]\tSYSTEM: " << r << std::endl;
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -361,6 +384,7 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, L"then", type::IF, type::ARRAY, L"First or second element of array is executed depending on left arg. Result of the expression executed is returned as a result (result may be Nothing).", then_if_array));
 	add(binary(4, L"then", type::IF, type::CODE, L"If left arg is true, right arg is executed. Result of the expression executed is returned as a result (result may be Nothing).", then_if_code));
 	add(binary(5, L"else", type::CODE, type::CODE, L"Concats left and right element into a single, 2 element array.", else_code_code));
+	add(binary(4, L"exitWith", type::IF, type::CODE, L"If condition evaluates to true, executes the code in a new scope and exits the current one afterwards.", exitwith_if_code));
 	add(unary(L"while", type::CODE, L"Marks code as WHILE type.", while_code));
 	add(binary(4, L"do", type::WHILE, type::CODE, L"Executes provided code as long as while condition evaluates to true.", do_while_code));
 	add(unary(L"for", type::STRING, L"Creates a FOR type for usage in 'for <var> from <start> to <end> [ step <stepsize> ] do <code>' construct.", for_string));

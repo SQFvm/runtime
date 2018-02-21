@@ -183,6 +183,9 @@
     <ClCompile Include="groupdata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="callstack_exitwith.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -316,6 +319,9 @@
     </ClInclude>
     <ClInclude Include="groupdata.h">
       <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="callstack_exitwith.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
