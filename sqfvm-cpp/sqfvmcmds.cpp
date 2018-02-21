@@ -43,6 +43,13 @@ namespace
 		}
 		return std::make_shared<sqf::value>(outarr);
 	}
+	std::shared_ptr<value> tree___string(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto str = right->as_string();
+		auto sstream = std::wstringstream();
+		vm->parse_sqf(str, &sstream);
+		return std::make_shared<value>(sstream.str());
+	}
 	std::shared_ptr<value> help___string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		std::wstringstream sstream;
@@ -102,6 +109,7 @@ namespace
 }
 void sqf::commandmap::initsqfvmcmds(void)
 {
+	add(unary(L"tree__", sqf::type::STRING, L"Returns a string containing the abstract syntax tree for the provided SQF expression.", tree___string));
 	add(nular(L"cmds__", L"Returns a string containing all commands available as string that can be converted to an array.", cmds___));
 	add(unary(L"help__", sqf::type::STRING, L"Displays all available information for a single command.", help___string));
 	add(unary(L"configparse__", sqf::type::STRING, L"Parses provided string as config into a new config object.", configparse___string));

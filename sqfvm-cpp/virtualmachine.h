@@ -5,6 +5,7 @@
 #include <memory>
 #include <ostream>
 #include <map>
+#include <sstream>
 
 
 namespace sqf
@@ -44,6 +45,7 @@ namespace sqf
 
 		void parse_assembly(std::wstring);
 		inline void parse_sqf(std::wstring code) { parse_sqf(code, std::shared_ptr<sqf::callstack>()); }
+		void parse_sqf(std::wstring, std::wstringstream*);
 		void parse_sqf(std::wstring, std::shared_ptr<sqf::callstack>);
 		void parse_config(std::wstring, std::shared_ptr<configdata>);
 		bool errflag(void) const { return merrflag; }

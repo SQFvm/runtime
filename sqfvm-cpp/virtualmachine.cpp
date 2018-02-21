@@ -225,7 +225,15 @@ void navigate_sqf(const wchar_t* full, sqf::virtualmachine* vm, std::shared_ptr<
 	}
 }
 
-void sqf::virtualmachine::parse_sqf(std::wstring code, std::shared_ptr<sqf::callstack> cs) 
+void sqf::virtualmachine::parse_sqf(std::wstring code, std::wstringstream* sstream)
+{
+	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
+	bool errflag = false;
+	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag);
+	print_navigate_ast(sstream, node, sqf::parse::sqf::astkindname);
+}
+
+void sqf::virtualmachine::parse_sqf(std::wstring code, std::shared_ptr<sqf::callstack> cs)
 {
 	if (!cs.get())
 	{
