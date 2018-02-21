@@ -51,6 +51,7 @@ void sqf::virtualmachine::execute(void)
 		if (merrflag)
 		{
 			err() << inst->dbginf(L"RNT") << std::endl;
+			//Only for non-scheduled
 			break;
 		}
 		if (mwrnflag)
