@@ -116,6 +116,59 @@ namespace
 		sstream << format.substr(off);
 		return std::make_shared<value>(sstream.str());
 	}
+	std::shared_ptr<value> toarray_string(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->as_string();
+		auto arr = std::vector<std::shared_ptr<value>>(r.size());
+		for (size_t i = 0; i < r.size(); i++)
+		{
+			arr[i] = std::make_shared<value>((int)(r[i]));
+		}
+		return std::make_shared<value>(arr);
+	}
+	std::shared_ptr<value> tostring_array(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		/*
+		diag_log toString [84];
+		diag_log toString [true];
+		diag_log toString [false];
+		diag_log toString ["something"];
+		diag_log toString [{}];
+		diag_log toString [[]];
+		diag_log str(toArray toString [84]);
+		diag_log str(toArray toString [true]);
+		diag_log str(toArray toString [false]);
+		diag_log str(toArray toString ["something"]);
+		diag_log str(toArray toString [{}]);
+		diag_log str(toArray toString [[]]);
+
+		19:54:38 "T"
+		19:54:38 ""
+		19:54:38 ""
+		19:54:38 Bad conversion: scalar
+		19:54:38 ""
+		19:54:38 Bad conversion: scalar
+		19:54:38 ""
+		19:54:38 Bad conversion: scalar
+		19:54:38 ""
+		19:54:38 "[84]"
+		19:54:38 "[1]"
+		19:54:38 "[]"
+		19:54:38 Bad conversion: scalar
+		19:54:38 "[]"
+		19:54:38 Bad conversion: scalar
+		19:54:38 "[]"
+		19:54:38 Bad conversion: scalar
+		19:54:38 "[]"
+		*/
+		auto r = right->as_vector();
+		auto sstream = std::wstringstream();
+		for each (auto val in r)
+		{
+			sstream << val->tosqf();
+		}
+		return std::make_shared<value>(sstream.str());
+	}
 }
 void sqf::commandmap::initstringcmds(void)
 {
@@ -124,4 +177,6 @@ void sqf::commandmap::initstringcmds(void)
 	add(unary(L"toUpper", sqf::type::STRING, L"Converts the supplied string to all uppercase characters.", toupper_string));
 	add(binary(4, L"select", type::STRING, type::ARRAY, L"Selects a range of characters in provided string, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_string_array));
 	add(unary(L"format", sqf::type::ARRAY, L"Composes a string containing other variables or other variable types. Converts any variable type to a string.", format_string));
+	add(unary(L"toArray", sqf::type::STRING, L"Converts the supplied String into an Array of Numbers.", toarray_string));
+	add(unary(L"toString", sqf::type::ARRAY, L"Converts the supplied String into an Array of Numbers.", tostring_array));
 }

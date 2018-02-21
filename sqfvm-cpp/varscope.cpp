@@ -3,5 +3,5 @@
 
 std::shared_ptr<sqf::value> sqf::varscope::getvar(std::wstring key)
 {
-	auto it = mvarmap.find(tolowerstring(key)); return it == mvarmap.end() ? std::make_shared<value>() : it->second;
+	auto it = getvar_empty(key); return it.get() ? it : std::make_shared<value>();
 }

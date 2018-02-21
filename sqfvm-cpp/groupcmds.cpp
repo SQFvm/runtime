@@ -33,6 +33,7 @@ namespace
 }
 void sqf::commandmap::initgroupcmds(void)
 {
+	//GetVariable & SetVariable are in namespacecmds as simple alias.
 	add(nular(L"blufor", L"Western side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::West), type::SIDE); }));
 	add(nular(L"west", L"Western side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::West), type::SIDE); }));
 	add(nular(L"opfor", L"Eastern side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::East), type::SIDE); }));
