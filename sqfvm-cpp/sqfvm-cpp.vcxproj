@@ -129,6 +129,7 @@
     <ClCompile Include="callstack_for.cpp" />
     <ClCompile Include="callstack_isnil.cpp" />
     <ClCompile Include="callstack_select.cpp" />
+    <ClCompile Include="callstack_switch.cpp" />
     <ClCompile Include="callstack_while.cpp" />
     <ClCompile Include="codedata.cpp" />
     <ClCompile Include="commandmap.cpp" />
@@ -163,6 +164,7 @@
     <ClCompile Include="sidedata.cpp" />
     <ClCompile Include="sqfvmcmds.cpp" />
     <ClCompile Include="stringcmds.cpp" />
+    <ClCompile Include="switchdata.cpp" />
     <ClCompile Include="type.cpp" />
     <ClCompile Include="unimplementedcmds.cpp" />
     <ClCompile Include="varscope.cpp" />
@@ -175,6 +177,7 @@
     <ClInclude Include="callstack_for.h" />
     <ClInclude Include="callstack_isnil.h" />
     <ClInclude Include="callstack_select.h" />
+    <ClInclude Include="callstack_switch.h" />
     <ClInclude Include="callstack_while.h" />
     <ClInclude Include="cmd.h" />
     <ClInclude Include="codedata.h" />
@@ -205,6 +208,7 @@
     <ClInclude Include="sidedata.h" />
     <ClInclude Include="stringdata.h" />
     <ClCompile Include="value.cpp" />
+    <ClInclude Include="switchdata.h" />
     <ClInclude Include="varscope.h" />
     <ClInclude Include="vmstack.h" />
     <ClInclude Include="wstring_op.h" />

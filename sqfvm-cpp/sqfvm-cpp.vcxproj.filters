@@ -186,6 +186,12 @@
     <ClCompile Include="callstack_exitwith.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="switchdata.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="callstack_switch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -321,6 +327,12 @@
       <Filter>Header Files\data</Filter>
     </ClInclude>
     <ClInclude Include="callstack_exitwith.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="switchdata.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="callstack_switch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

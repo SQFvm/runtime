@@ -19,7 +19,7 @@ namespace
 {
 	std::shared_ptr<value> allvariables_namespace(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		auto r = right->data<sqfnamespace>();
+		auto r = std::dynamic_pointer_cast<varscope>(right->data());
 		std::vector<std::shared_ptr<value>> arr(r->varmap().size());
 		transform(r->varmap().begin(), r->varmap().end(), arr.begin(), [](auto pair) { return std::make_shared<value>(pair.first); });
 		return std::make_shared<value>(arr);
@@ -93,6 +93,8 @@ void sqf::commandmap::initnamespacecmds(void)
 	add(nular(L"profileNamespace", L"Returns the global namespace attached to the active user profile. Use setVariable and getVariable to save and load data to and from this Namespace. A variable can be deleted by setting its value to nil. By default the variables set in this namespace will exist while the game is running. In order to make variables save permanently, use saveProfileNamespace before the game is over.",
 		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(sqf::commands::namespaces::profileNamespace(), sqf::type::NAMESPACE); }));
 	add(unary(L"allVariables", type::NAMESPACE, L"Returns a list of all variables from desired namespace.", allvariables_namespace));
+	add(unary(L"allVariables", type::OBJECT, L"Returns a list of all variables from desired namespace.", allvariables_namespace));
+	add(unary(L"allVariables", type::GROUP, L"Returns a list of all variables from desired namespace.", allvariables_namespace));
 	add(unary(L"with", type::NAMESPACE, L"Creates a WITH type that is used inside a do construct in order to execute code inside a given namespace.", with_namespace));
 	add(binary(4, L"do", type::WITH, type::CODE, L"Executes code in the namespace provided via the WITH parameter.", do_with_code));
 	add(binary(4, L"getVariable", type::NAMESPACE, type::STRING, L"Return the value of variable in the variable space assigned to various data types. Returns nil if variable is undefined.", getVariable_namespace_string));

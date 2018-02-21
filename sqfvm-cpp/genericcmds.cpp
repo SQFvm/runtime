@@ -6,11 +6,13 @@
 #include "arraydata.h"
 #include "stringdata.h"
 #include "fordata.h"
+#include "switchdata.h"
 #include "callstack_for.h"
 #include "callstack_while.h"
 #include "callstack_select.h"
 #include "callstack_isnil.h"
 #include "callstack_exitwith.h"
+#include "callstack_switch.h"
 
 using namespace sqf;
 namespace
@@ -97,7 +99,7 @@ namespace
 		{
 			if (el1->dtype() != type::CODE)
 			{
-				vm->wrn() << L"Expected element 1 of array to be of type code." << std::endl;
+				vm->wrn() << L"Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1->dtype()) << L"'." << std::endl;
 			}
 			if (el0->dtype() == type::CODE)
 			{
@@ -107,7 +109,7 @@ namespace
 			}
 			else
 			{
-				vm->err() << L"Expected element 0 of array to be of type code." << std::endl;
+				vm->err() << L"Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0->dtype()) << L"'." << std::endl;
 				return std::make_shared<value>();
 			}
 		}
@@ -115,7 +117,7 @@ namespace
 		{
 			if (el0->dtype() != type::CODE)
 			{
-				vm->wrn() << L"Expected element 0 of array to be of type code." << std::endl;
+				vm->wrn() << L"Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0->dtype()) << L"'." << std::endl;
 			}
 			if (el1->dtype() == type::CODE)
 			{
@@ -125,7 +127,7 @@ namespace
 			}
 			else
 			{
-				vm->err() << L"Expected element 1 of array to be of type code." << std::endl;
+				vm->err() << L"Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1->dtype()) << L"'." << std::endl;
 				return std::make_shared<value>();
 			}
 		}
@@ -150,7 +152,7 @@ namespace
 		auto code = std::static_pointer_cast<codedata>(right->data());
 		if (ifcond)
 		{
-			auto cs = std::make_shared<callstack_exitwith>(code);
+			auto cs = std::make_shared<callstack_exitwith>();
 			code->loadinto(vm->stack(), cs);
 			vm->stack()->pushcallstack(cs);
 			return std::shared_ptr<value>();
@@ -389,6 +391,65 @@ namespace
 		vm->out() << L"[CHAT]\tSYSTEM: " << r << std::endl;
 		return std::make_shared<value>();
 	}
+
+#define MAGIC_SWITCH L"___switch"
+	std::shared_ptr<value> switch_any(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		return std::make_shared<value>(std::make_shared<switchdata>(right), sqf::type::SWITCH);
+	}
+	std::shared_ptr<value> do_switch_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto r = right->data<codedata>();
+		auto cs = std::make_shared<callstack_switch>(left->data<switchdata>());
+		vm->stack()->pushcallstack(cs);
+		r->loadinto(vm->stack(), cs);
+		cs->setvar(MAGIC_SWITCH, left);
+		return std::shared_ptr<value>();
+	}
+	std::shared_ptr<value> case_any(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto valswtch = vm->stack()->getlocalvar(MAGIC_SWITCH);
+		if (valswtch->dtype() != sqf::type::SWITCH)
+		{
+			vm->err() << L"Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch->dtype()) << L"'.";
+			return std::shared_ptr<value>();
+		}
+		auto swtch = valswtch->data<switchdata>();
+		
+		if (right->equals(swtch->value()))
+		{
+			swtch->flag(true);
+		}
+		return std::make_shared<value>(swtch, sqf::type::SWITCH);
+	}
+	std::shared_ptr<value> default_code(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto valswtch = vm->stack()->getlocalvar(MAGIC_SWITCH);
+		if (valswtch->dtype() != sqf::type::SWITCH)
+		{
+			vm->err() << L"Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch->dtype()) << L"'.";
+			return std::shared_ptr<value>();
+		}
+		auto swtch = valswtch->data<switchdata>();
+		swtch->defaultexec(right->data<codedata>());
+		return std::make_shared<value>();
+	}
+	std::shared_ptr<value> colon_switch_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<switchdata>();
+		if (l->executed())
+		{
+			return std::make_shared<value>();
+		}
+		auto r = right->data<codedata>();
+		if (l->flag())
+		{
+			l->executed(true);
+			r->loadinto(vm->stack());
+			return std::shared_ptr<value>();
+		}
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -428,4 +489,10 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary(L"hint", type::TEXT, L"Outputs a hint message.", hint_text));
 	add(unary(L"systemChat", type::STRING, L"Types text to the system radio channel.", systemchat_string));
 	add(nular(L"productVersion", L"Returns basic info about the product.", productversion_));
+
+	add(unary(L"switch", type::ANY, L"Creates a SWITCH type that can be used in 'switch do {...}'.", switch_any));
+	add(binary(4, L"do", type::SWITCH, type::CODE, L"Executes provided code and sets the magic switch variable.", do_switch_code));
+	add(unary(L"case", type::ANY, L"Command to create a case inside a switch do construct. Will check if argument matches the one provided in switch strict. Requires a magic variable to be set. Cannot be used outside of switch do codeblock!", case_any));
+	add(binary(4, L":", type::SWITCH, type::CODE, L"Checks if switch type has the case flag being set and executes provided code then. If another switch got executed already, nothing will be done.", colon_switch_code));
+	add(unary(L"default", type::CODE, L"Sets the code to be executed by default if no case matched.", default_code));
 }
