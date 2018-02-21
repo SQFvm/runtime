@@ -15,6 +15,26 @@
 using namespace sqf;
 namespace
 {
+	std::shared_ptr<value> productversion_(virtualmachine* vm)
+	{
+		auto vec = std::vector<std::shared_ptr<value>> {
+			std::make_shared<value>(L"SQF-VM"), //product name
+			std::make_shared<value>(L"sqf-vm"),
+			std::make_shared<value>(2),
+			std::make_shared<value>(0),
+			std::make_shared<value>(L"COMMUNITY"),
+			std::make_shared<value>(false),
+#if _WIN32
+			std::make_shared<value>(L"Windows"),
+#elif __linux__
+			std::make_shared<value>(L"Linux"),
+#else
+			std::make_shared<value>(L"NA"),
+#endif
+			std::make_shared<value>(L"x86")
+		};
+		return std::make_shared<value>(vec);
+	}
 	std::shared_ptr<value> call_code(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = std::static_pointer_cast<codedata>(right->data());
@@ -407,4 +427,5 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary(L"hint", type::STRING, L"Outputs a hint message.", hint_string));
 	add(unary(L"hint", type::TEXT, L"Outputs a hint message.", hint_text));
 	add(unary(L"systemChat", type::STRING, L"Types text to the system radio channel.", systemchat_string));
+	add(nular(L"productVersion", L"Returns basic info about the product.", productversion_);
 }
