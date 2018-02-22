@@ -96,9 +96,6 @@
     <ClCompile Include="instcallnular.cpp">
       <Filter>Source Files\instructions</Filter>
     </ClCompile>
-    <ClCompile Include="astnode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="type.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>
@@ -197,6 +194,12 @@
     </ClCompile>
     <ClCompile Include="scriptdata.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="python_externc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="astnode.cpp">
+      <Filter>Source Files\parse</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -346,6 +349,9 @@
     </ClInclude>
     <ClInclude Include="scriptdata.h">
       <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="python_externc.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

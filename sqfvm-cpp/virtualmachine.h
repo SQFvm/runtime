@@ -27,9 +27,9 @@ namespace sqf
 		std::shared_ptr<sqf::vmstack> mmainstack;
 		std::shared_ptr<sqf::vmstack> mactivestack;
 		std::list<std::shared_ptr<scriptdata>> mspawns;
-		std::wostream* mout;
-		std::wostream* merr;
-		std::wostream* mwrn;
+		std::basic_ostream<wchar_t, std::char_traits<wchar_t>>* mout;
+		std::basic_ostream<wchar_t, std::char_traits<wchar_t>>* merr;
+		std::basic_ostream<wchar_t, std::char_traits<wchar_t>>* mwrn;
 		bool merrflag;
 		bool mwrnflag;
 		std::vector<size_t> mfreeobjids;
@@ -39,9 +39,12 @@ namespace sqf
 		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
 		void performexecute(size_t exitAfter = ~0);
 	public:
-		std::wostream& out(void) const { return *mout; }
-		std::wostream& err(void) const { /* on purpose */((virtualmachine*)this)->merrflag = true; return *merr; }
-		std::wostream& wrn(void) const { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return *mwrn; }
+		inline std::basic_ostream<wchar_t, std::char_traits<wchar_t>>& out(void) const { return *mout; }
+		inline std::basic_ostream<wchar_t, std::char_traits<wchar_t>>& err(void) const { /* on purpose */((virtualmachine*)this)->merrflag = true; return *merr; }
+		inline std::basic_ostream<wchar_t, std::char_traits<wchar_t>>& wrn(void) const { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return *mwrn; }
+		inline void out(std::basic_ostream<wchar_t, std::char_traits<wchar_t>>* strm) { mout = strm; }
+		inline void err(std::basic_ostream<wchar_t, std::char_traits<wchar_t>>* strm) { merr = strm; }
+		inline void wrn(std::basic_ostream<wchar_t, std::char_traits<wchar_t>>* strm) { mwrn = strm; }
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
 		void execute(void);
