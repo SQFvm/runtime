@@ -70,7 +70,7 @@ std::wstring sqf::configdata::tosqf(void) const
 	return sstream.str();
 }
 
-std::shared_ptr<sqf::value> sqf::configdata::logcparent(void)
+std::shared_ptr<sqf::value> sqf::configdata::logicparent(void)
 {
 	return mlogicparent.expired() ? configNull() : std::make_shared<sqf::value>(mlogicparent.lock(), type::CONFIG);
 }

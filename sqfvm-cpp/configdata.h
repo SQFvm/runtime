@@ -26,7 +26,7 @@ namespace sqf
 		configdata(std::weak_ptr<configdata> logicparent, std::wstring name) : mname(name), mlogicparent(logicparent), misnull(false) {}
 		configdata(std::weak_ptr<configdata> logicparent, std::wstring name, std::wstring parentname) : mname(name), mparentname(parentname), mlogicparent(logicparent), misnull(false) {}
 
-		inline std::shared_ptr<value> value(void) const { return mvalue; }
+		inline std::shared_ptr<sqf::value> value(void) const { return mvalue; }
 		inline void value(std::shared_ptr<sqf::value> val) { mvalue = val; }
 		inline std::wstring name(void) const { return mname; }
 
@@ -37,7 +37,7 @@ namespace sqf
 		inline std::shared_ptr<sqf::value> navigate(std::wstring nextnode) { auto val = navigate_full_unsafe(nextnode); return val.get() ? val : configNull(); }
 
 		inline bool haslogicparent(void) { return !mlogicparent.expired(); }
-		std::shared_ptr<sqf::value> logcparent(void);
+		std::shared_ptr<sqf::value> logicparent(void);
 
 		void mergeinto(std::shared_ptr<configdata>);
 
