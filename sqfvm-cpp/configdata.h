@@ -37,7 +37,7 @@ namespace sqf
 		inline std::shared_ptr<sqf::value> navigate(std::wstring nextnode) { auto val = navigate_full_unsafe(nextnode); return val.get() ? val : configNull(); }
 
 		inline bool haslogicparent(void) { return !mlogicparent.expired(); }
-		inline std::shared_ptr<sqf::value> logicparent(void) { return mlogicparent.expired() ? configNull() : std::make_shared<sqf::value>(mlogicparent.lock(), type::CONFIG); }
+		std::shared_ptr<sqf::value> logcparent(void);
 
 		void mergeinto(std::shared_ptr<configdata>);
 

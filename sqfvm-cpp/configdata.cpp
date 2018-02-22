@@ -70,6 +70,11 @@ std::wstring sqf::configdata::tosqf(void) const
 	return sstream.str();
 }
 
+std::shared_ptr<sqf::value> sqf::configdata::logcparent(void)
+{
+	return mlogicparent.expired() ? configNull() : std::make_shared<sqf::value>(mlogicparent.lock(), type::CONFIG);
+}
+
 void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 {
 	for each (auto val in innervector())
