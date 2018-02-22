@@ -145,6 +145,6 @@ void sqf::commandmap::initlogiccmds(void)
 	add(binary(3, L"!=", sqf::type::DISPLAY, sqf::type::DISPLAY, L"Returns whether one value is not equal to another.", notequals_any_any));
 	add(binary(3, L"!=", sqf::type::CONTROL, sqf::type::CONTROL, L"Returns whether one value is not equal to another.", notequals_any_any));
 	add(binary(3, L"!=", sqf::type::LOCATION, sqf::type::LOCATION, L"Returns whether one value is not equal to another.", notequals_any_any));
-	add(binary(3, L"isEqualTo", sqf::type::ANY, sqf::type::ANY, L"Check if one value is equal to another. Both values need to be of the same type.", isequalto_any_any));
-	add(binary(3, L"isEqualType", sqf::type::ANY, sqf::type::ANY, L"Compares 2 values by their type. A much faster alternative to typeName a == typeName b.", isequaltype_any_any));
+	add(binary(4, L"isEqualTo", sqf::type::ANY, sqf::type::ANY, L"Check if one value is equal to another. Both values need to be of the same type.", isequalto_any_any));
+	add(binary(4, L"isEqualType", sqf::type::ANY, sqf::type::ANY, L"Compares 2 values by their type. A much faster alternative to typeName a == typeName b.", isequaltype_any_any));
 }
