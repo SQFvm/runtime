@@ -471,6 +471,11 @@ namespace
 		scrpt->stack()->stacks_top()->setvar(L"_this", left);
 		return std::make_shared<value>(scrpt, sqf::type::SCRIPT);
 	}
+	std::shared_ptr<value> scriptdone_script(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->data<scriptdata>();
+		return std::make_shared<value>(r->hasfinished());
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -518,4 +523,6 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary(L"default", type::CODE, L"Sets the code to be executed by default if no case matched.", default_code));
 	add(binary(4, L"apply", type::ARRAY, type::CODE, L"Applies given code to each element of the array and returns resulting array. The value of the current array element, to which the code will be applied, is stored in variable _x.", apply_array_code));
 	add(binary(4, L"spawn", type::ANY, type::CODE, L"Adds given code to the scheduler. For SQF-VM, every script is guaranteed to get the same ammount of instructions done before being suspended.", spawn_any_code));
+	add(unary(L"scriptDone", type::SCRIPT, L"Check if a script is finished running using the Script_(Handle).", scriptdone_script));
+
 }
