@@ -500,6 +500,11 @@ namespace
 		arr->operator[](index) = val;
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> plus_array(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->data<arraydata>();
+		return std::make_shared<value>(r->operator std::vector<std::shared_ptr<sqf::value>, std::allocator<std::shared_ptr<sqf::value>>>());
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -551,5 +556,5 @@ void sqf::commandmap::initgenericcmds(void)
 
 
 	add(binary(4, L"set", type::ARRAY, type::ARRAY, L"Changes the element at the given (zero-based) index of the array. If the array size is smaller then the index provided, it is resized to allow for the index to be set.", set_array_array));
-
+	add(unary(L"+", sqf::type::ARRAY, L"Returns a copy of an array.", plus_array));
 }

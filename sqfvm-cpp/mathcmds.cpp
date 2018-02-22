@@ -179,6 +179,7 @@ void sqf::commandmap::initmathcmds(void)
 	add(unary(L"random", sqf::type::SCALAR, L"Random real (floating point) value from 0 (inclusive) to x (not inclusive).", random_scalar));
 	add(unary(L"-", sqf::type::SCALAR, L"Zero minus a.", minus_scalar));
 	add(unary(L"+", sqf::type::SCALAR, L"Returns a copy of a.", plus_scalar));
+	add(unary(L"+", sqf::type::NaN, L"Returns a copy of a.", plus_scalar));
 	add(unary(L"!", sqf::type::BOOL, L"Returns a negation of Boolean expression. That means true becomes false and vice versa.", exclamationmark_bool));
 	add(binary(6, L"min", sqf::type::SCALAR, sqf::type::SCALAR, L"The smaller of a, b", min_scalar_scalar));
 	add(binary(6, L"max", sqf::type::SCALAR, sqf::type::SCALAR, L"The greater of a, b.", max_scalar_scalar));
