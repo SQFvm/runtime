@@ -3,6 +3,7 @@
 #include "commandmap.h"
 #include "value.h"
 #include "vmstack.h"
+#include "configdata.h"
 #include <iostream>
 #include <sstream>
 
@@ -32,6 +33,11 @@ extern "C" {
 		auto str = sstream.str();
 
 		std::wcsncpy(buffer, str.c_str(), bufferlen);
+	}
+
+	DLLEXPORT_PREFIX void py_loadconfig(wchar_t* cfg)
+	{
+		py_virtualmachine->parse_config(cfg, sqf::configdata::configFile()->data<sqf::configdata>());
 	}
 
 	DLLEXPORT_PREFIX void py_uninit()
