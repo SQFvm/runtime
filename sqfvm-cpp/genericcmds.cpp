@@ -476,6 +476,30 @@ namespace
 		auto r = right->data<scriptdata>();
 		return std::make_shared<value>(r->hasfinished());
 	}
+	std::shared_ptr<value> set_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto arr = left->data<arraydata>();
+		auto params = right->as_vector();
+		if (params.size() != 2)
+		{
+			vm->err() << L"Expected 2 elements in array, got " << params.size() << L". Returning NIL." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		if (params[0]->dtype() != sqf::type::SCALAR)
+		{
+			vm->err() << L"Index position 0 was expected to be of type 'SCALAR' but was '" << sqf::type_str(params[0]->dtype()) << L"'." << std::endl;
+			return std::shared_ptr<value>();
+		}
+
+		auto index = params[0]->as_int();
+		auto val = params[1];
+		if ((int)arr->size() <= index)
+		{
+			arr->resize(index + 1);
+		}
+		arr->operator[](index) = val;
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -524,5 +548,8 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, L"apply", type::ARRAY, type::CODE, L"Applies given code to each element of the array and returns resulting array. The value of the current array element, to which the code will be applied, is stored in variable _x.", apply_array_code));
 	add(binary(4, L"spawn", type::ANY, type::CODE, L"Adds given code to the scheduler. For SQF-VM, every script is guaranteed to get the same ammount of instructions done before being suspended.", spawn_any_code));
 	add(unary(L"scriptDone", type::SCRIPT, L"Check if a script is finished running using the Script_(Handle).", scriptdone_script));
+
+
+	add(binary(4, L"set", type::ARRAY, type::ARRAY, L"Changes the element at the given (zero-based) index of the array. If the array size is smaller then the index provided, it is resized to allow for the index to be set.", set_array_array));
 
 }

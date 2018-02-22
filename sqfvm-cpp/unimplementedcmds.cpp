@@ -6,6 +6,7 @@
 using namespace sqf;
 void sqf::commandmap::initunimplemented(void)
 {
+#ifndef _DEBUG
 	add(binary(4, L"lnbsetcurselrow", type::ANY, type::ANY, L"", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (lnbsetcurselrow)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, L"removemenuitem", type::ANY, type::ANY, L"", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (removemenuitem)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, L"curatorcoef", type::ANY, type::ANY, L"", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (curatorcoef)." << std::endl; return std::make_shared<value>(); }));
@@ -273,7 +274,6 @@ void sqf::commandmap::initunimplemented(void)
 	add(binary(4, L"unregistertask", type::ANY, type::ANY, L"", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (unregistertask)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, L"camcreate", type::ANY, type::ANY, L"", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (camcreate)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, L"say", type::ANY, type::ANY, L"", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (say)." << std::endl; return std::make_shared<value>(); }));
-	add(binary(4, L"set", type::ANY, type::ANY, L"", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (set)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, L"ctrlsetscale", type::ANY, type::ANY, L"", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (ctrlsetscale)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, L"ppeffectenable", type::ANY, type::ANY, L"", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (ppeffectenable)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, L"intersect", type::ANY, type::ANY, L"", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (intersect)." << std::endl; return std::make_shared<value>(); }));
@@ -2259,4 +2259,5 @@ void sqf::commandmap::initunimplemented(void)
 	add(nular(L"getmouseposition", L"", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (getmouseposition)." << std::endl; return std::make_shared<value>(); }));
 	add(nular(L"get3deniconsvisible", L"", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (get3deniconsvisible)." << std::endl; return std::make_shared<value>(); }));
 	add(nular(L"isstreamfriendlyuienabled", L"", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << L"NOT IMPLEMENTED (isstreamfriendlyuienabled)." << std::endl; return std::make_shared<value>(); }));
+#endif
 }
