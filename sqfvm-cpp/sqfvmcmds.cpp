@@ -12,14 +12,14 @@ namespace
 	{
 		std::vector<std::shared_ptr<sqf::value>> outarr;
 		auto str = std::make_shared<sqf::value>(L"n");
-		for each (auto pair in commandmap::get().all_n())
+		for (auto pair : commandmap::get().all_n())
 		{
 			outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
 				std::make_shared<sqf::value>(pair.first)
 			}));
 		}
 		str = std::make_shared<sqf::value>(L"u");
-		for each (auto pair in commandmap::get().all_u())
+		for (auto pair : commandmap::get().all_u())
 		{
 			for each (auto it in *pair.second.get())
 			{
@@ -30,7 +30,7 @@ namespace
 			}
 		}
 		str = std::make_shared<sqf::value>(L"b");
-		for each (auto pair in commandmap::get().all_b())
+		for (auto pair : commandmap::get().all_b())
 		{
 			for each (auto it in *pair.second.get())
 			{
@@ -54,7 +54,7 @@ namespace
 	{
 		std::wstringstream sstream;
 		auto str = right->as_string();
-		for each (auto pair in commandmap::get().all_n())
+		for (auto pair : commandmap::get().all_n())
 		{
 			if (wstr_cmpi(pair.first.c_str(), pair.first.length(), str.c_str(), str.length()) != 0)
 				continue;
@@ -64,7 +64,7 @@ namespace
 			else
 				vm->out() << L"NULAR '" << pair.first << L"'\t<" << cmd->name() << L" " << L">\t" << cmd->desc() << std::endl;
 		}
-		for each (auto pair in commandmap::get().all_u())
+		for (auto pair : commandmap::get().all_u())
 		{
 			if (wstr_cmpi(pair.first.c_str(), pair.first.length(), str.c_str(), str.length()) != 0)
 				continue;
@@ -77,7 +77,7 @@ namespace
 					vm->out() << L"UNARY '" << pair.first << L"'\t<" << cmd->name() << L" " << sqf::type_str(cmd->rtype()) << L">" << std::endl;
 			}
 		}
-		for each (auto pair in commandmap::get().all_b())
+		for (auto pair : commandmap::get().all_b())
 		{
 			if (wstr_cmpi(pair.first.c_str(), pair.first.length(), str.c_str(), str.length()) != 0)
 				continue;

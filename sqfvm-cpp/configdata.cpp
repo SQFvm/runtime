@@ -54,7 +54,7 @@ std::shared_ptr<sqf::value> sqf::configdata::navigate_full_unsafe(std::wstring n
 std::wstring sqf::configdata::tosqf(void) const
 {
 	std::wstringstream sstream;
-	for (size_t i = logicalparentcount(); i != ~0; i--)
+	for (size_t i = logicalparentcount(); i != (size_t)~0; i--)
 	{
 		auto node = std::shared_ptr<configdata>((configdata*)this, [](configdata*) {});;
 		for (size_t j = 0; j < i; j++)
