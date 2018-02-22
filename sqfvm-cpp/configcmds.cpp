@@ -65,37 +65,37 @@ namespace
 	std::shared_ptr<value> isnumber_config(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cd = right->data<configdata>();
-		return std::make_shared<sqf::value>(cd->value()->dtype() == sqf::type::SCALAR);
+		return std::make_shared<sqf::value>(cd->cfgvalue()->dtype() == sqf::type::SCALAR);
 	}
 	std::shared_ptr<value> istext_config(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cd = right->data<configdata>();
-		return std::make_shared<sqf::value>(cd->value()->dtype() == sqf::type::STRING);
+		return std::make_shared<sqf::value>(cd->cfgvalue()->dtype() == sqf::type::STRING);
 	}
 	std::shared_ptr<value> isclass_config(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cd = right->data<configdata>();
-		return std::make_shared<sqf::value>(!cd->value().get());
+		return std::make_shared<sqf::value>(!cd->cfgvalue().get());
 	}
 	std::shared_ptr<value> isarray_config(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cd = right->data<configdata>();
-		return std::make_shared<sqf::value>(cd->value()->dtype() == sqf::type::ARRAY);
+		return std::make_shared<sqf::value>(cd->cfgvalue()->dtype() == sqf::type::ARRAY);
 	}
 	std::shared_ptr<value> getnumber_config(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cd = right->data<configdata>();
-		return cd->value()->dtype() == sqf::type::SCALAR ? cd->value() : std::make_shared<sqf::value>(0);
+		return cd->cfgvalue()->dtype() == sqf::type::SCALAR ? cd->cfgvalue() : std::make_shared<sqf::value>(0);
 	}
 	std::shared_ptr<value> gettext_config(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cd = right->data<configdata>();
-		return cd->value()->dtype() == sqf::type::STRING ? cd->value() : std::make_shared<sqf::value>(L"");
+		return cd->cfgvalue()->dtype() == sqf::type::STRING ? cd->cfgvalue() : std::make_shared<sqf::value>(L"");
 	}
 	std::shared_ptr<value> getarray_config(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cd = right->data<configdata>();
-		return cd->value()->dtype() == sqf::type::ARRAY ? cd->value() : std::make_shared<sqf::value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
+		return cd->cfgvalue()->dtype() == sqf::type::ARRAY ? cd->cfgvalue() : std::make_shared<sqf::value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
 	}
 }
 void sqf::commandmap::initconfigcmds(void)

@@ -319,16 +319,16 @@ void navigate_config(const wchar_t* full, sqf::virtualmachine* vm, std::shared_p
 		parent->push_back(std::make_shared<sqf::value>(curnode, sqf::type::CONFIG));
 	} break;
 	case sqf::parse::config::configasttypes::STRING:
-		parent->value(std::make_shared<sqf::value>(node.content));
+		parent->cfgvalue(std::make_shared<sqf::value>(node.content));
 		break;
 	case sqf::parse::config::configasttypes::NUMBER:
-		parent->value(std::make_shared<sqf::value>(std::stod(node.content)));
+		parent->cfgvalue(std::make_shared<sqf::value>(std::stod(node.content)));
 		break;
 	case sqf::parse::config::configasttypes::HEXNUMBER:
-		parent->value(std::make_shared<sqf::value>(std::stol(node.content, 0, 16)));
+		parent->cfgvalue(std::make_shared<sqf::value>(std::stol(node.content, 0, 16)));
 		break;
 	case sqf::parse::config::configasttypes::LOCALIZATION:
-		parent->value(std::make_shared<sqf::value>(node.content));
+		parent->cfgvalue(std::make_shared<sqf::value>(node.content));
 		break;
 	case sqf::parse::config::configasttypes::ARRAY:
 	{
@@ -336,9 +336,9 @@ void navigate_config(const wchar_t* full, sqf::virtualmachine* vm, std::shared_p
 		for each (auto subnode in node.children)
 		{
 			navigate_config(full, vm, parent, subnode);
-			values.push_back(parent->value());
+			values.push_back(parent->cfgvalue());
 		}
-		parent->value(std::make_shared<sqf::value>(values));
+		parent->cfgvalue(std::make_shared<sqf::value>(values));
 	} break;
 	case sqf::parse::config::configasttypes::VALUE:
 		break;
