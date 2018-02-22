@@ -13,6 +13,7 @@
 #include "callstack_isnil.h"
 #include "callstack_exitwith.h"
 #include "callstack_switch.h"
+#include "callstack_apply.h"
 
 using namespace sqf;
 namespace
@@ -450,6 +451,16 @@ namespace
 		}
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> apply_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto arr = left->as_vector();
+		if (arr.size() == 0)
+			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
+		auto cond = std::static_pointer_cast<codedata>(right->data());
+		auto cs = std::make_shared<sqf::callstack_apply>(arr, cond);
+		vm->stack()->pushcallstack(cs);
+		return std::shared_ptr<value>();
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -495,4 +506,5 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary(L"case", type::ANY, L"Command to create a case inside a switch do construct. Will check if argument matches the one provided in switch strict. Requires a magic variable to be set. Cannot be used outside of switch do codeblock!", case_any));
 	add(binary(4, L":", type::SWITCH, type::CODE, L"Checks if switch type has the case flag being set and executes provided code then. If another switch got executed already, nothing will be done.", colon_switch_code));
 	add(unary(L"default", type::CODE, L"Sets the code to be executed by default if no case matched.", default_code));
+	add(binary(4, L"apply", type::ARRAY, type::CODE, L"Applies given code to each element of the array and returns resulting array. The value of the current array element, to which the code will be applied, is stored in variable _x.", apply_array_code));
 }
