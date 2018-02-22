@@ -18,11 +18,7 @@ def init_libsqfvm():
     libsqfvm.start_program.argtypes = [c_wchar_p, c_ulong, c_wchar_p, c_size_t, c_void_p]
     libsqfvm.load_file_into_sqf_configFile.restype = None
     libsqfvm.load_file_into_sqf_configFile.argtypes = [c_char_p]
-    file = ""
-    with open('arma.cpp', 'r') as file:
-        file = file.read().strip()
-    if file != "":
-        libsqfvm.load_file_into_sqf_configFile(file)
+    libsqfvm.load_file_into_sqf_configFile("arma.cpp".encode("utf-8"))
 
 def execsqf(txt, note):
     buffer = create_unicode_buffer(1990)
