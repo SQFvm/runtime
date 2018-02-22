@@ -195,6 +195,9 @@
     <ClCompile Include="callstack_apply.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="scriptdata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -340,6 +343,9 @@
     </ClInclude>
     <ClInclude Include="callstack_apply.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scriptdata.h">
+      <Filter>Header Files\data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

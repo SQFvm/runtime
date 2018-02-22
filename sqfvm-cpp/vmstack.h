@@ -16,7 +16,10 @@ namespace sqf
 	private:
 		std::vector<std::shared_ptr<sqf::callstack>> mstacks;
 		std::vector<std::shared_ptr<sqf::value>> mvalstack;
+		bool misscheduled;
 	public:
+		vmstack(void) : misscheduled(false) {}
+		vmstack(bool isscheduled) : misscheduled(isscheduled) {}
 		inline void pushinst(std::shared_ptr<instruction> inst) { if (mstacks.empty()) { mstacks.push_back(std::make_shared<callstack>()); } mstacks.back()->pushinst(inst); }
 		inline std::shared_ptr<instruction> popinst(sqf::virtualmachine* vm)
 		{
@@ -65,5 +68,7 @@ namespace sqf
 		inline std::shared_ptr<value> peekval(void) { if (mvalstack.empty()) return std::shared_ptr<value>(); return mvalstack.back(); }
 		inline void dropvals(void) { mvalstack.clear(); }
 		std::shared_ptr<value> getlocalvar(std::wstring varname);
+		inline bool isempty(void) { return mstacks.size() == 0; }
+		inline bool isscheduled(void) { return misscheduled; }
 	};
 }

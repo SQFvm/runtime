@@ -20,6 +20,7 @@
 #include "value.h"
 #include "sidedata.h"
 #include "groupdata.h"
+#include "scriptdata.h"
 
 #include <iostream>
 #include <cwctype>
@@ -33,15 +34,31 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	merr = &std::wcerr;
 	minstcount = 0;
 	mmaxinst = maxinst;
-	mstack = std::make_shared<vmstack>();
+	mmainstack = std::make_shared<vmstack>();
+	mactivestack = mmainstack;
 }
-
-void sqf::virtualmachine::execute(void)
+void sqf::virtualmachine::execute()
+{
+	while (mspawns.size() != 0 || !mmainstack->isempty())
+	{
+		mactivestack = mmainstack;
+		performexecute();
+		
+		for each (auto it in mspawns)
+		{
+			mactivestack = it->stack();
+			performexecute(150);
+		}
+		mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished(); });
+	}
+}
+void sqf::virtualmachine::performexecute(size_t exitAfter)
 {
 	std::shared_ptr<sqf::instruction> inst;
-	while ((inst = mstack->popinst(this)).get())
+	while (exitAfter != 0 && (inst = mactivestack->popinst(this)).get())
 	{
 		minstcount++;
+		exitAfter--;
 		if (mmaxinst != 0 && mmaxinst == minstcount)
 		{
 			err() << L"MAX INST COUNT REACHED (" << mmaxinst << L")" << std::endl;
@@ -51,8 +68,11 @@ void sqf::virtualmachine::execute(void)
 		if (merrflag)
 		{
 			err() << inst->dbginf(L"RNT") << std::endl;
-			//Only for non-scheduled
-			break;
+			//Only for non-scheduled (and thus the mainstack)
+			if (mactivestack->isscheduled())
+			{
+				break;
+			}
 		}
 		if (mwrnflag)
 		{
@@ -233,12 +253,12 @@ void sqf::virtualmachine::parse_sqf(std::wstring code, std::wstringstream* sstre
 	print_navigate_ast(sstream, node, sqf::parse::sqf::astkindname);
 }
 
-void sqf::virtualmachine::parse_sqf(std::wstring code, std::shared_ptr<sqf::callstack> cs)
+void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::wstring code, std::shared_ptr<sqf::callstack> cs)
 {
 	if (!cs.get())
 	{
 		cs = std::make_shared<sqf::callstack>();
-		this->stack()->pushcallstack(cs);
+		vmstck->pushcallstack(cs);
 	}
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;

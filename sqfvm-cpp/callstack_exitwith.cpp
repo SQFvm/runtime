@@ -8,6 +8,6 @@ std::shared_ptr<sqf::instruction> sqf::callstack_exitwith::popinst(sqf::virtualm
 	if (!ret.get())
 	{
 		vm->stack()->dropcallstack();
-		return ret;
 	}
+	return ret;
 }

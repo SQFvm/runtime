@@ -162,6 +162,7 @@
     <ClCompile Include="parseconfig.cpp" />
     <ClCompile Include="parsepreprocessor.cpp" />
     <ClCompile Include="parsesqf.cpp" />
+    <ClCompile Include="scriptdata.cpp" />
     <ClCompile Include="sidedata.cpp" />
     <ClCompile Include="sqfvmcmds.cpp" />
     <ClCompile Include="stringcmds.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="instpush.h" />
     <ClInclude Include="instruction.h" />
     <ClInclude Include="instmakearray.h" />
+    <ClInclude Include="scriptdata.h" />
     <ClInclude Include="sqfnamespace.h" />
     <ClInclude Include="namespaces.h" />
     <ClInclude Include="objectdata.h" />

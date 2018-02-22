@@ -20,7 +20,7 @@ std::shared_ptr<sqf::instruction> sqf::callstack_while::popinst(sqf::virtualmach
 		{
 			auto sptr = std::shared_ptr<callstack_while>(this, [](callstack_while*){});
 			mexec->loadinto(vm->stack(), sptr);
-			return sqf::callstack::popinst(vm);
+			return popinst(vm);
 		}
 		else
 		{

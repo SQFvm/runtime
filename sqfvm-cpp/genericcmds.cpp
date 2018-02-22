@@ -7,6 +7,7 @@
 #include "stringdata.h"
 #include "fordata.h"
 #include "switchdata.h"
+#include "scriptdata.h"
 #include "callstack_for.h"
 #include "callstack_while.h"
 #include "callstack_select.h"
@@ -461,6 +462,15 @@ namespace
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
+	std::shared_ptr<value> spawn_any_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto code = right->data<codedata>();
+		auto scrpt = std::make_shared<scriptdata>();
+		code->loadinto(scrpt->stack());
+		vm->push_spawn(scrpt);
+		scrpt->stack()->stacks_top()->setvar(L"_this", left);
+		return std::make_shared<value>(scrpt, sqf::type::SCRIPT);
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -507,4 +517,5 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, L":", type::SWITCH, type::CODE, L"Checks if switch type has the case flag being set and executes provided code then. If another switch got executed already, nothing will be done.", colon_switch_code));
 	add(unary(L"default", type::CODE, L"Sets the code to be executed by default if no case matched.", default_code));
 	add(binary(4, L"apply", type::ARRAY, type::CODE, L"Applies given code to each element of the array and returns resulting array. The value of the current array element, to which the code will be applied, is stored in variable _x.", apply_array_code));
+	add(binary(4, L"spawn", type::ANY, type::CODE, L"Adds given code to the scheduler. For SQF-VM, every script is guaranteed to get the same ammount of instructions done before being suspended.", spawn_any_code));
 }
