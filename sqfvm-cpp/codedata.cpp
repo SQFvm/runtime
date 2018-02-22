@@ -15,7 +15,7 @@ sqf::codedata::codedata(std::shared_ptr<sqf::callstack> cs)
 {
 	std::shared_ptr<sqf::instruction> inst;
 	minsts = std::vector<std::shared_ptr<sqf::instruction>>(cs->inststacksize());
-	for (size_t i = cs->inststacksize() - 1; i != ~0; i--)
+	for (size_t i = cs->inststacksize() - 1; i != (size_t)~0; i--)
 	{
 		//only valid for sqf::callstack!
 		//all others might crash here
@@ -29,7 +29,7 @@ std::wstring sqf::codedata::tosqf(void) const
 	return L"{...}";
 	//ToDo: Mark values that belong to other instructions
 	std::vector<size_t> marks;
-	for (size_t i = minsts.size(); i != ~0; i--)
+	for (size_t i = minsts.size(); i != (size_t)~0; i--)
 	{
 		auto inst = minsts[i];
 		auto insttype = inst->thistype();
@@ -47,9 +47,13 @@ std::wstring sqf::codedata::tosqf(void) const
 			auto instmakearray = std::static_pointer_cast<sqf::inst::makearray>(inst);
 			marks.push_back(instmakearray->size());
 		} break;
+		case sqf::instruction::push:
+		case sqf::instruction::callnular:
+		case sqf::instruction::getvariable:
+			break;
 		}
 	}
-	for (size_t i = minsts.size(); i != ~0; i--)
+	for (size_t i = minsts.size(); i != (size_t)~0; i--)
 	{
 		auto inst = minsts[i];
 		auto insttype = inst->thistype();

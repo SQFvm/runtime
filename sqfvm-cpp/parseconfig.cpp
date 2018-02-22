@@ -374,11 +374,11 @@ namespace sqf
 				thisnode.col = col;
 				thisnode.line = line;
 				thisnode.file = file;
-				double number = 0;if (code[curoff] == L'0' && code[curoff + 1] == L'x')
+				if (code[curoff] == L'0' && code[curoff + 1] == L'x')
 				{
 					thisnode.kind = configasttypes::HEXNUMBER;
 					size_t i;
-					for (i = curoff + 2; code[i] >= L'0' && code[i] <= L'9' || code[i] >= L'A' && code[i] <= L'F' || code[i] >= L'a' && code[i] <= L'f'; i++);
+					for (i = curoff + 2; (code[i] >= L'0' && code[i] <= L'9') || (code[i] >= L'A' && code[i] <= L'F') || (code[i] >= L'a' && code[i] <= L'f'); i++);
 					auto ident = std::wstring(code + curoff, code + i);
 					thisnode.content = ident;
 					thisnode.offset = curoff;
@@ -408,13 +408,13 @@ namespace sqf
 							numhaddot = true;
 							continue;
 						}
-						else if (numhadexp == 0 && code[i] == L'e' || code[i] == L'E')
+						else if (numhadexp == 0 && (code[i] == L'e' || code[i] == L'E'))
 						{
 							i++;
 							numhadexp++;
 							continue;
 						}
-						else if (numhadexp == 1 && code[i] == L'+' || code[i] == L'-')
+						else if (numhadexp == 1 && (code[i] == L'+' || code[i] == L'-'))
 						{
 							i++;
 							numhadexp++;

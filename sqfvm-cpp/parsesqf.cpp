@@ -458,7 +458,7 @@ namespace sqf
 				{
 					thisnode.kind = sqfasttypes::HEXNUMBER;
 					size_t i;
-					for (i = curoff + 1; (code[i] >= L'0' && code[i] <= L'9') || code[i] >= L'A' && code[i] <= L'F' || (code[i] >= L'a' && code[i] <= L'f'); i++);
+					for (i = curoff + 1; (code[i] >= L'0' && code[i] <= L'9') || (code[i] >= L'A' && code[i] <= L'F') || (code[i] >= L'a' && code[i] <= L'f'); i++);
 					auto ident = std::wstring(code + curoff, code + i);
 					thisnode.content = ident;
 					thisnode.offset = curoff;
@@ -470,7 +470,7 @@ namespace sqf
 				{
 					thisnode.kind = sqfasttypes::HEXNUMBER;
 					size_t i;
-					for (i = curoff + 2; (code[i] >= L'0' && code[i] <= L'9') || code[i] >= L'A' && code[i] <= L'F' || (code[i] >= L'a' && code[i] <= L'f'); i++);
+					for (i = curoff + 2; (code[i] >= L'0' && code[i] <= L'9') || (code[i] >= L'A' && code[i] <= L'F') || (code[i] >= L'a' && code[i] <= L'f'); i++);
 					auto ident = std::wstring(code + curoff, code + i);
 					thisnode.content = ident;
 					thisnode.offset = curoff;
