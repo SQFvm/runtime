@@ -169,6 +169,26 @@ namespace
 		}
 		return std::make_shared<value>(sstream.str());
 	}
+	std::shared_ptr<value> joinstring_array_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->as_vector();
+		auto r = right->as_string();
+		auto sstream = std::wstringstream();
+		bool separator = false;
+		for each (auto it in l)
+		{
+			if (separator)
+			{
+				sstream << r << it->tosqf();
+			}
+			else
+			{
+				separator = true;
+				sstream << it->tosqf();
+			}
+		}
+		return std::make_shared<value>(sstream.str());
+	}
 }
 void sqf::commandmap::initstringcmds(void)
 {
@@ -179,4 +199,5 @@ void sqf::commandmap::initstringcmds(void)
 	add(unary(L"format", sqf::type::ARRAY, L"Composes a string containing other variables or other variable types. Converts any variable type to a string.", format_string));
 	add(unary(L"toArray", sqf::type::STRING, L"Converts the supplied String into an Array of Numbers.", toarray_string));
 	add(unary(L"toString", sqf::type::ARRAY, L"Converts the supplied String into an Array of Numbers.", tostring_array));
+	add(binary(4, L"joinString", sqf::type::ARRAY, sqf::type::STRING, L"Joins array into String with provided separator. Array can be of mixed types, all elements will be converted to String prior to joining, but the fastest operation is on the array of Strings.", joinstring_array_string));
 }
