@@ -147,16 +147,10 @@
     <ClCompile Include="configcmds.cpp">
       <Filter>Source Files\commandmap</Filter>
     </ClCompile>
-    <ClCompile Include="sidedata.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="groupcmds.cpp">
       <Filter>Source Files\commandmap</Filter>
     </ClCompile>
     <ClCompile Include="callstack_isnil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="objectdata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="instpush.cpp">
@@ -171,14 +165,8 @@
     <ClCompile Include="varscope.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="innerobj.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="objectcmds.cpp">
       <Filter>Source Files\commandmap</Filter>
-    </ClCompile>
-    <ClCompile Include="groupdata.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="callstack_exitwith.cpp">
       <Filter>Source Files</Filter>
@@ -192,14 +180,26 @@
     <ClCompile Include="callstack_apply.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="scriptdata.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="python_externc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="astnode.cpp">
       <Filter>Source Files\parse</Filter>
+    </ClCompile>
+    <ClCompile Include="sidedata.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="scriptdata.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="objectdata.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="innerobj.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="groupdata.cpp">
+      <Filter>Source Files\data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
