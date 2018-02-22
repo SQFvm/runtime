@@ -15,4 +15,4 @@ struct astnode
 	std::vector<astnode> children;
 };
 
-void print_navigate_ast(std::wostream* outstreamptr, astnode node, const wchar_t* (*astkindname)(short), unsigned short level = 0);
+void print_navigate_ast(std::basic_ostream<wchar_t, std::char_traits<wchar_t>>* outstreamptr, astnode node, const wchar_t* (*astkindname)(short), unsigned short level = 0);
