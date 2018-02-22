@@ -7,7 +7,7 @@ HEADERS = $(wildcard *.h)
 
 all: libsqfvm.so sqfvm
 
-%.o: %.c $(HEADERS)
+%.o: %.cpp $(HEADERS)
 	$(COMPILER) $(ARGS) $(CARGS) -c $< -o $@
 
 libsqfvm.so: $(OBJECTS)
