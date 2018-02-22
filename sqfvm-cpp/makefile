@@ -1,13 +1,13 @@
-COMPILER = g++
+COMPILER = g++ -Wunused-function
 ARGS = -fpic
 CARGS = -g -Wall
 LIBS = -lm -ldl
-OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
+OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c*))
 HEADERS = $(wildcard *.h)
 
 all: libsqfvm.so sqfvm
 
-%.o: %.cpp $(HEADERS)
+%.o: %.c $(HEADERS)
 	$(COMPILER) $(ARGS) $(CARGS) -c $< -o $@
 
 libsqfvm.so: $(OBJECTS)
