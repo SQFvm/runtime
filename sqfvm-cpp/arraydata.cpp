@@ -8,7 +8,7 @@ std::wstring sqf::arraydata::tosqf(void) const
 	std::wstringstream sstream;
 	sstream << L'[';
 	bool first = true;
-	for each (auto it in mvalue)
+	for (auto it : mvalue)
 	{
 		if (first)
 		{

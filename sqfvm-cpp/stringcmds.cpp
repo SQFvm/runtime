@@ -163,7 +163,7 @@ namespace
 		*/
 		auto r = right->as_vector();
 		auto sstream = std::wstringstream();
-		for each (auto val in r)
+		for (auto val : r)
 		{
 			sstream << val->tosqf();
 		}
@@ -175,7 +175,7 @@ namespace
 		auto r = right->as_string();
 		auto sstream = std::wstringstream();
 		bool separator = false;
-		for each (auto it in l)
+		for (auto it : l)
 		{
 			if (separator)
 			{

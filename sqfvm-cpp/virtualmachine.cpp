@@ -46,7 +46,7 @@ void sqf::virtualmachine::execute()
 		mactivestack = mmainstack;
 		performexecute();
 		
-		for each (auto it in mspawns)
+		for (auto it : mspawns)
 		{
 			mactivestack = it->stack();
 			performexecute(150);

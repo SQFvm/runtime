@@ -349,7 +349,7 @@ namespace
 		{
 			return std::shared_ptr<value>();
 		}
-		for each (auto it in arr)
+		for (auto it : arr)
 		{
 			auto str = it->as_string();
 			vm->stack()->stacks_top()->setvar(str, std::make_shared<value>());
