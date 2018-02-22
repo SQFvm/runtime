@@ -1,8 +1,8 @@
 #include "commandmap.h"
-#include "value.h"
 #include "configdata.h"
 #include "cmd.h"
 #include "virtualmachine.h"
+#include "value.h"
 #include <algorithm>
 
 
