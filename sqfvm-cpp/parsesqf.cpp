@@ -239,6 +239,15 @@ namespace sqf
 					col += opidentlen;
 					curoff += opidentlen;
 					skip(code, line, col, curoff);
+
+					//ToDo: Fix broken predecense on too many layers
+					/*
+						100 call {
+							for "_i" from _this to _this + 100 do {
+								systemChat _i;
+							};
+						};
+					*/
 					if (BINARYEXPRESSION_start(h, code, curoff))
 					{
 						BINARYEXPRESSION(h, root, code, line, col, curoff, file, errflag, &otherprec);
