@@ -10,24 +10,29 @@ import binascii
 
 def init_libsqfvm():
     path = os.path.dirname(os.path.realpath(__file__))
-    path = "{}/../SQF-VM/libsqfvm.so".format(path)
+    path = "{}/../sqfvm-cpp/libsqfvm.so".format(path)
     print('Loading libsqfvm from {}'.format(path))
     global libsqfvm
     libsqfvm = CDLL(path)
-    libsqfvm.start_program.restype = c_ubyte
-    libsqfvm.start_program.argtypes = [c_wchar_p, c_ulong, c_wchar_p, c_size_t, c_void_p]
-    libsqfvm.load_file_into_sqf_configFile.restype = None
-    libsqfvm.load_file_into_sqf_configFile.argtypes = [c_char_p]
+    libsqfvm.py_init.restype = None
+    libsqfvm.py_init.argtypes = [c_ulonglong]
+    libsqfvm.py_exec.restype = None
+    libsqfvm.py_exec.argtypes = [c_wchar_p, c_wchar_p, c_size_t]
+    libsqfvm.py_uninit.restype = None
+    libsqfvm.py_uninit.argtypes = []
+    libsqfvm.py_parseconfig.restype = None
+    libsqfvm.py_parseconfig.argtypes = [c_wchar_p]
+    libsqfvm.py_init(1000000)
     file = ""
     with open('arma.cpp', 'r') as file:
         file = file.read().strip()
     if file != "":
-        libsqfvm.load_file_into_sqf_configFile(file)
+        libsqfvm.py_parseconfig(file)
 
 def execsqf(txt, note):
     buffer = create_unicode_buffer(1990)
     print("Executing '{}' {}".format(txt, note))
-    libsqfvm.start_program(txt, 1000000, buffer, 1990, None)
+    libsqfvm.py_exec(txt, buffer, 1990)
     str = buffer.value
     print(str)
     return str
@@ -44,17 +49,18 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         if message.author.id == self.user.id:
             return
-        if message.content.startswith('!'):
+        if message.content.startswith('!') and message.author.id in self.admins:
             cmd = message.content[1:].strip()
-            if cmd.lower() == 'rebuild' and message.author.id in self.admins:
+            if cmd.lower() == 'rebuild':
                 tmp = await message.channel.send("```Freeing current...```")
                 try:
                     self.allowsqf = False
+                    libsqfvm.py_uninit()
                     _ctypes.dlclose(libsqfvm._handle)
                     await tmp.edit(content="```Pulling latest sources...```")
                     subprocess.call(['git', 'pull'])
                     await tmp.edit(content="```Building libsqfvm...```")
-                    if subprocess.call(['make', 'all', '-C' ,'../SQF-VM/']):
+                    if subprocess.call(['make', 'all', '-C' ,'../sqfvm-cpp/']):
                         await tmp.edit(content="```!BUILD FAILED!```")
                         return
                     await tmp.edit(content="```Loading libsqfvm...```")
@@ -110,9 +116,5 @@ token = ""
 with open('DISCORD.TOKEN', 'r') as file:
     token = file.read().strip()
 init_libsqfvm()
-#libsqfvm.start_program("diag_log 1", 1000000, None, 0)
-#print("\n")
-#libsqfvm.start_program(u"diag_log 1", 1000000, None, 0)
-#libsqfvm.start_program(u"'' + 1", 1000000, None, 0)
 print ('Using token --> {}'.format(token))
 client.run(token)
