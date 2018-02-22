@@ -24,7 +24,7 @@ namespace sqf
 		inline bool flag(void) { return mflag; }
 		inline void executed(bool f) { mexecuted = f; }
 		inline bool executed(void) { return mexecuted; }
-		inline std::shared_ptr<value> value(void) { return mvalue; }
+		inline std::shared_ptr<value> val(void) { return mvalue; }
 		inline void defaultexec(std::shared_ptr<codedata> exec) { mdefaultexec = exec; }
 		inline std::shared_ptr<codedata> defaultexec(void) { return mdefaultexec; }
 		virtual bool equals(std::shared_ptr<data> d) const { return mvalue == std::dynamic_pointer_cast<switchdata>(d)->mvalue; }

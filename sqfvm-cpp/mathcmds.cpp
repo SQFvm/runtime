@@ -30,7 +30,7 @@ namespace
 	std::shared_ptr<value> abs_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_double();
-		return std::make_shared<value>(std::fabs(right->as_double()));
+		return std::make_shared<value>(std::fabs(r));
 	}
 	std::shared_ptr<value> atan2_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -145,18 +145,6 @@ namespace
 		auto r = right->as_double();
 		return std::make_shared<value>(std::pow(l, r));
 	}
-	std::shared_ptr<value> and_bool_bool(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
-	{
-		auto l = left->as_bool();
-		auto r = right->as_bool();
-		return std::make_shared<value>(l && r);
-	}
-	std::shared_ptr<value> or_bool_bool(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
-	{
-		auto l = left->as_bool();
-		auto r = right->as_bool();
-		return std::make_shared<value>(l || r);
-	}
 	std::shared_ptr<value> plus_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return right;
@@ -174,7 +162,7 @@ void sqf::commandmap::initmathcmds(void)
 	add(unary(L"acos", sqf::type::SCALAR, L"ArcCosine of a number, result in Degrees.", acos_scalar));
 	add(unary(L"exp", sqf::type::SCALAR, L"Let x be a number, then exp (x) is equal to e to the power of x (or e^x).", exp_scalar));
 	add(unary(L"rad", sqf::type::SCALAR, L"Convert x from Degrees to Radians. 360 degrees is equal to 2 multiplied with pi.", rad_scalar));
-	add(unary(L"sqrt", sqf::type::SCALAR, L"Returns square root of x.", rad_scalar));
+	add(unary(L"sqrt", sqf::type::SCALAR, L"Returns square root of x.", sqrt_scalar));
 	add(unary(L"tan", sqf::type::SCALAR, L"Tangent of x, argument in Degrees.", tan_scalar));
 	add(unary(L"random", sqf::type::SCALAR, L"Random real (floating point) value from 0 (inclusive) to x (not inclusive).", random_scalar));
 	add(unary(L"-", sqf::type::SCALAR, L"Zero minus a.", minus_scalar));

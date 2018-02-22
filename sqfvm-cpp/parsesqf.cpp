@@ -183,9 +183,9 @@ namespace sqf
 				curoff += len;
 				skip(code, line, col, curoff);
 				//store the dbginf for the '='
-				size_t dbgstart = curoff;
-				size_t dbgcol = col;
-				size_t dbgline = line;
+				//size_t dbgstart = curoff;
+				//size_t dbgcol = col;
+				//size_t dbgline = line;
 				thisnode.col = col;
 				thisnode.line = line;
 				//skip the '=' (is confirmed to be present in ASSIGNMENT_start)
@@ -412,9 +412,9 @@ namespace sqf
 				thisnode.kind = sqfasttypes::UNARYEXPRESSION;
 				thisnode.offset = curoff;
 				thisnode.file = file;
-				size_t dbgstart = curoff;
-				size_t dbgcol = col;
-				size_t dbgline = line;
+				//size_t dbgstart = curoff;
+				//size_t dbgcol = col;
+				//size_t dbgline = line;
 
 				auto len = operator_(code, curoff);
 				auto ident = std::wstring(code + curoff, code + curoff + len);
@@ -454,12 +454,11 @@ namespace sqf
 				thisnode.col = col;
 				thisnode.line = line;
 				thisnode.file = file;
-				double number = 0;
 				if (code[curoff] == L'$')
 				{
 					thisnode.kind = sqfasttypes::HEXNUMBER;
 					size_t i;
-					for (i = curoff + 1; code[i] >= L'0' && code[i] <= L'9' || code[i] >= L'A' && code[i] <= L'F' || code[i] >= L'a' && code[i] <= L'f'; i++);
+					for (i = curoff + 1; (code[i] >= L'0' && code[i] <= L'9') || code[i] >= L'A' && code[i] <= L'F' || (code[i] >= L'a' && code[i] <= L'f'); i++);
 					auto ident = std::wstring(code + curoff, code + i);
 					thisnode.content = ident;
 					thisnode.offset = curoff;
@@ -471,7 +470,7 @@ namespace sqf
 				{
 					thisnode.kind = sqfasttypes::HEXNUMBER;
 					size_t i;
-					for (i = curoff + 2; code[i] >= L'0' && code[i] <= L'9' || code[i] >= L'A' && code[i] <= L'F' || code[i] >= L'a' && code[i] <= L'f'; i++);
+					for (i = curoff + 2; (code[i] >= L'0' && code[i] <= L'9') || code[i] >= L'A' && code[i] <= L'F' || (code[i] >= L'a' && code[i] <= L'f'); i++);
 					auto ident = std::wstring(code + curoff, code + i);
 					thisnode.content = ident;
 					thisnode.offset = curoff;
@@ -497,13 +496,13 @@ namespace sqf
 							numhaddot = true;
 							continue;
 						}
-						else if (numhadexp == 0 && code[i] == L'e' || code[i] == L'E')
+						else if ((numhadexp == 0 && code[i] == L'e') || code[i] == L'E')
 						{
 							i++;
 							numhadexp++;
 							continue;
 						}
-						else if (numhadexp == 1 && code[i] == L'+' || code[i] == L'-')
+						else if ((numhadexp == 1 && code[i] == L'+') || code[i] == L'-')
 						{
 							i++;
 							numhadexp++;

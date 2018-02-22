@@ -241,7 +241,7 @@ namespace
 	{
 		auto arr = left->as_vector();
 		auto flag = right->as_bool();
-		if (!flag && arr.size() < 2 || arr.size() < 1)
+		if ((!flag && arr.size() < 2) || arr.size() < 1)
 		{
 			vm->wrn() << L"Array should have at least two elements. Returning nil" << std::endl;
 			return std::make_shared<value>();
@@ -387,12 +387,6 @@ namespace
 		vm->out() << L"[CHAT]\tSYSTEM: " << r << std::endl;
 		return std::make_shared<value>();
 	}
-	std::shared_ptr<value> exitwith_if_code(virtualmachine* vm, std::shared_ptr<value> right)
-	{
-		auto r = right->as_string();
-		vm->out() << L"[CHAT]\tSYSTEM: " << r << std::endl;
-		return std::make_shared<value>();
-	}
 
 #define MAGIC_SWITCH L"___switch"
 	std::shared_ptr<value> switch_any(virtualmachine* vm, std::shared_ptr<value> right)
@@ -418,7 +412,7 @@ namespace
 		}
 		auto swtch = valswtch->data<switchdata>();
 		
-		if (right->equals(swtch->value()))
+		if (right->equals(swtch->val()))
 		{
 			swtch->flag(true);
 		}
