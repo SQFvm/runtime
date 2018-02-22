@@ -6,10 +6,7 @@
 #include "compiletime.h"
 #include "helper.h"
 #include "parseconfig.h"
-extern "C"
-{
 #include "wstring_op.h"
-}
 /*
 NODELIST = { NODE ';' { ';' } };
 NODE = 'class' CONFIGNODE | VALUENODE;

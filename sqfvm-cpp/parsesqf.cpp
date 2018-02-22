@@ -6,10 +6,7 @@
 #include "compiletime.h"
 #include "helper.h"
 #include "parsesqf.h"
-extern "C"
-{
 #include "wstring_op.h"
-}
 
 namespace sqf
 {

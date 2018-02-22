@@ -1,9 +1,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
-extern "C" {
 #include "wstring_op.h"
-}
 #include "compiletime.h"
 
 class macro

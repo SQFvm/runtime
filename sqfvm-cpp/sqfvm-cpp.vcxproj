@@ -275,7 +275,6 @@
     <ClInclude Include="convert.h" />
     <ClInclude Include="data.h" />
     <ClInclude Include="booldata.h" />
-    <ClInclude Include="full2.h" />
     <ClInclude Include="type.h" />
     <ClInclude Include="value.h" />
     <ClInclude Include="virtualmachine.h" />

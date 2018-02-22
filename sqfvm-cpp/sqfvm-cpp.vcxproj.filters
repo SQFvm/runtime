@@ -323,9 +323,6 @@
     <ClInclude Include="innerobj.h">
       <Filter>Header Files\data</Filter>
     </ClInclude>
-    <ClInclude Include="full2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="vmstack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
