@@ -179,12 +179,26 @@ namespace
 		{
 			if (separator)
 			{
-				sstream << r << it->tosqf();
+				if (it->dtype() == sqf::type::STRING)
+				{
+					sstream << r << it->as_string();
+				}
+				else
+				{
+					sstream << r << it->tosqf();
+				}
 			}
 			else
 			{
 				separator = true;
-				sstream << it->tosqf();
+				if (it->dtype() == sqf::type::STRING)
+				{
+					sstream << it->as_string();
+				}
+				else
+				{
+					sstream << it->tosqf();
+				}
 			}
 		}
 		return std::make_shared<value>(sstream.str());
