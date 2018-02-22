@@ -16,11 +16,11 @@ std::shared_ptr<sqf::data> sqf::convert(std::shared_ptr<sqf::data> val, type typ
 	case sqf::SCALAR:
 		return std::make_shared<scalardata>(wcstod(stringval.c_str(), 0));
 	case sqf::BOOL:
-		if (wstr_cmpi(stringval.c_str(), stringval.length(), L"true", 4) == 0)
+		if (wstr_cmpi(stringval.c_str(), (int)stringval.length(), L"true", 4) == 0)
 		{
 			return std::make_shared<booldata>(true);
 		}
-		else if (wstr_cmpi(stringval.c_str(), stringval.length(), L"false", 5) == 0)
+		else if (wstr_cmpi(stringval.c_str(), (int)stringval.length(), L"false", 5) == 0)
 		{
 			return std::make_shared<booldata>(false);
 		}

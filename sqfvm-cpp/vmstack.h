@@ -39,12 +39,12 @@ namespace sqf
 		inline void dropcallstack(std::wstring name, bool include = true)
 		{
 			int i;
-			for (i = mstacks.size() - 1; i >= 0; i--)
+			for (i = (int)mstacks.size() - 1; i >= 0; i--)
 			{
 				auto stack = mstacks[i];
 				if (wstr_cmpi(stack->getscopename().c_str(), -1, name.c_str(), -1) == 0)
 				{
-					i = mstacks.size() - i;
+					i = (int)mstacks.size() - i;
 					if (include)
 					{
 						i++;

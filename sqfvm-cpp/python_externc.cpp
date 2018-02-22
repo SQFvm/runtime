@@ -7,12 +7,12 @@
 #include <sstream>
 
 extern "C" {
-	void py_init(unsigned long long limit)
+	DLLEXPORT_PREFIX void py_init(unsigned long long limit)
 	{
 		py_virtualmachine = std::make_shared<sqf::virtualmachine>(limit);
 		sqf::commandmap::get().init();
 	}
-	void py_exec(wchar_t* code, wchar_t* buffer, unsigned int bufferlen)
+	DLLEXPORT_PREFIX void py_exec(wchar_t* code, wchar_t* buffer, unsigned int bufferlen)
 	{
 		auto sstream = std::wstringstream();
 		py_virtualmachine->out(&sstream);
@@ -34,7 +34,7 @@ extern "C" {
 		std::wcsncpy(buffer, str.c_str(), bufferlen);
 	}
 
-	void py_uninit()
+	DLLEXPORT_PREFIX void py_uninit()
 	{
 		sqf::commandmap::get().uninit();
 		py_virtualmachine = std::shared_ptr<sqf::virtualmachine>();

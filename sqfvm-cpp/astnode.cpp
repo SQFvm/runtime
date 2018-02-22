@@ -7,7 +7,7 @@ void print_navigate_ast(std::basic_ostream<wchar_t, std::char_traits<wchar_t>>* 
 {
 	if (level == 0)
 	{
-		std::wcout << L"Node Type;Offset;Length;Content" << std::endl;
+		*outstreamptr << L"Node Type;Offset;Length;Content" << std::endl;
 	}
 	*outstreamptr << std::wstring(level, L'\t') << astkindname(node.kind) << L';' << node.offset << L';' << node.length << L';' << node.content << std::endl;
 	for each (auto it in node.children)

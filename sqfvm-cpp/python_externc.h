@@ -5,9 +5,15 @@ namespace sqf
 {
 	class virtualmachine;
 }
+#ifdef _WIN32
+#define DLLEXPORT_PREFIX __declspec(dllexport)
+#else
+#define DLLEXPORT_PREFIX __attribute__((visibility("default")))
+#endif
+
 static std::shared_ptr<sqf::virtualmachine> py_virtualmachine;
 extern "C" {
-	void py_init(unsigned long long);
-	void py_uninit(void);
-	void py_exec(wchar_t*, wchar_t*, unsigned int);
+	DLLEXPORT_PREFIX void py_init(unsigned long long);
+	DLLEXPORT_PREFIX void py_uninit(void);
+	DLLEXPORT_PREFIX void py_exec(wchar_t*, wchar_t*, unsigned int);
 }
