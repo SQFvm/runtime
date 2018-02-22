@@ -50,6 +50,7 @@ std::wstring sqf::codedata::tosqf(void) const
 		case sqf::instruction::push:
 		case sqf::instruction::callnular:
 		case sqf::instruction::getvariable:
+		case sqf::instruction::endstatement:
 			break;
 		}
 	}
