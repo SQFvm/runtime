@@ -20,7 +20,7 @@ std::shared_ptr<sqf::value> sqf::configdata::parent_unsafe(void)
 
 std::shared_ptr<sqf::value> sqf::configdata::navigate_unsafe(std::wstring nextnode)
 {
-	for each (auto it in innervector())
+	for (auto it : innervector())
 	{
 		if (it->dtype() != type::CONFIG)
 			continue;
@@ -77,7 +77,7 @@ std::shared_ptr<sqf::value> sqf::configdata::logicparent(void)
 
 void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 {
-	for each (auto val in innervector())
+	for (auto val : innervector())
 	{
 		if (val->dtype() != sqf::type::CONFIG)
 			continue;

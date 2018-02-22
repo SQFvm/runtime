@@ -92,7 +92,7 @@ void parse_command(pphelper &helper, const wchar_t* source, size_t &line, size_t
 }
 bool isactionstart(pphelper &helper, const wchar_t* source, size_t offset)
 {
-	for each (auto it in helper.macros())
+	for (auto it : helper.macros())
 	{
 		if (wstr_cmpi(source, it.name().length(), it.name().c_str(), it.name().length()) == 0)
 		{
