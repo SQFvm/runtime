@@ -10,10 +10,10 @@
 
 int main(int argc, char** argv)
 {
-	py_init(100000);
-	wchar_t buff[2000];
-	py_exec(L"diag_log 12", buff, 2000);
-	py_uninit();
+	//py_init(100000);
+	//wchar_t buff[2000];
+	//py_exec(L"diag_log 12", buff, 2000);
+	//py_uninit();
 
 	auto vm = sqf::virtualmachine();
 	//std::wstring line;
