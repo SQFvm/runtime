@@ -40,7 +40,7 @@ extern "C" {
 		py_virtualmachine->parse_config(cfg, sqf::configdata::configFile()->data<sqf::configdata>());
 	}
 
-	DLLEXPORT_PREFIX void py_uninit()
+	DLLEXPORT_PREFIX void py_uninit(void)
 	{
 		sqf::commandmap::get().uninit();
 		py_virtualmachine = std::shared_ptr<sqf::virtualmachine>();
