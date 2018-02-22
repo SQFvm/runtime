@@ -125,6 +125,7 @@
     <ClCompile Include="arraydata.cpp" />
     <ClCompile Include="astnode.cpp" />
     <ClCompile Include="callstack.cpp" />
+    <ClCompile Include="callstack_apply.cpp" />
     <ClCompile Include="callstack_exitwith.cpp" />
     <ClCompile Include="callstack_for.cpp" />
     <ClCompile Include="callstack_isnil.cpp" />
@@ -173,6 +174,7 @@
     <ClCompile Include="wstring_op.c" />
     <ClInclude Include="astnode.h" />
     <ClInclude Include="callstack.h" />
+    <ClInclude Include="callstack_apply.h" />
     <ClInclude Include="callstack_exitwith.h" />
     <ClInclude Include="callstack_for.h" />
     <ClInclude Include="callstack_isnil.h" />

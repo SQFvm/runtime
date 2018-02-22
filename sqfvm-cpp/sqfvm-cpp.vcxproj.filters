@@ -192,6 +192,9 @@
     <ClCompile Include="callstack_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="callstack_apply.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -333,6 +336,9 @@
       <Filter>Header Files\data</Filter>
     </ClInclude>
     <ClInclude Include="callstack_switch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="callstack_apply.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
