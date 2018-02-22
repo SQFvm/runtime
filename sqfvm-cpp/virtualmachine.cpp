@@ -36,6 +36,8 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mmaxinst = maxinst;
 	mmainstack = std::make_shared<vmstack>();
 	mactivestack = mmainstack;
+	merrflag = false;
+	mwrnflag = false;
 }
 void sqf::virtualmachine::execute()
 {
