@@ -8,7 +8,6 @@
 
 namespace sqf
 {
-	class value;
 	class configdata : public arraydata
 	{
 	private:
