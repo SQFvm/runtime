@@ -45,7 +45,7 @@ void sqf::virtualmachine::execute()
 	{
 		mactivestack = mmainstack;
 		performexecute();
-		
+		while (!mmainstack->isempty()) { mmainstack->dropcallstack(); }
 		for (auto it : mspawns)
 		{
 			mactivestack = it->stack();
@@ -69,6 +69,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		inst->execute(this);
 		if (merrflag)
 		{
+			merrflag = false;
 			err() << inst->dbginf(L"RNT") << std::endl;
 			//Only for non-scheduled (and thus the mainstack)
 			if (mactivestack->isscheduled())
@@ -78,8 +79,8 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		}
 		if (mwrnflag)
 		{
-			wrn() << inst->dbginf(L"WRN") << std::endl;
 			mwrnflag = false;
+			wrn() << inst->dbginf(L"WRN") << std::endl;
 		}
 	}
 }
