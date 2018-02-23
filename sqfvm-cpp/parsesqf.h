@@ -47,7 +47,7 @@ namespace sqf
 			bool ASSIGNMENT_start(helper &h, const wchar_t* code, size_t curoff);
 			void ASSIGNMENT(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 			bool BINARYEXPRESSION_start(helper &h, const wchar_t* code, size_t curoff);
-			void BINARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag, short* calleeprec = 0);
+			void BINARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 			bool BRACKETS_start(helper &h, const wchar_t* code, size_t curoff);
 			void BRACKETS(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag);
 			bool PRIMARYEXPRESSION_start(helper &h, const wchar_t* code, size_t curoff);

@@ -1,12 +1,13 @@
-#include <cwctype>
-#include <vector>
-#include <string>
-#include <sstream>
 #include "astnode.h"
 #include "compiletime.h"
 #include "helper.h"
 #include "parsesqf.h"
 #include "wstring_op.h"
+#include <algorithm>
+#include <cwctype>
+#include <vector>
+#include <string>
+#include <sstream>
 
 namespace sqf
 {
@@ -206,95 +207,102 @@ namespace sqf
 			}
 			//BINARYEXPRESSION = PRIMARYEXPRESSION [ boperator BINARYEXPRESSION ];
 			bool BINARYEXPRESSION_start(helper &h, const wchar_t* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void BINARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag, short* calleeprec)
+			void BINARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag)
 			{
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.file = file;
-				thisnode.kind = sqfasttypes::BINARYEXPRESSION;
-				PRIMARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag);
-				skip(code, line, col, curoff);
-				auto opidentlen = operator_(code, curoff);
-				if (opidentlen > 0)
+				size_t oplen;
+				std::wstring op;
+				//Get all nodes for current expression
+				while (true)
 				{
-					auto opident = std::wstring(code + curoff, code + curoff + opidentlen);
-					auto curnode = astnode();
-					curnode.offset = curoff;
-					curnode.kind = sqfasttypes::BINARYOP;
-					curnode.col = col;
-					curnode.line = line;
-					curnode.length = opidentlen;
-					curnode.content = opident;
-					curnode.file = file;
-					thisnode.children.push_back(curnode);
-					auto curprec = h.precedence(opident);
-					if (calleeprec != 0)
-					{
-						*calleeprec = curprec;
-					}
-					short otherprec = 0;
-					col += opidentlen;
-					curoff += opidentlen;
 					skip(code, line, col, curoff);
-
-					//ToDo: Fix broken predecense on too many layers
-					/*
-						100 call {
-							for "_i" from _this to _this + 100 do {
-								systemChat _i;
-							};
-						};
-					*/
-					if (BINARYEXPRESSION_start(h, code, curoff))
+					if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::wstring(code + curoff, code + curoff + oplen)))
 					{
-						BINARYEXPRESSION(h, root, code, line, col, curoff, file, errflag, &otherprec);
-						skip(code, line, col, curoff);
-						if (otherprec == 0 || otherprec > curprec)
-						{
-							auto subnode = root.children.back();
-							root.children.pop_back();
-							thisnode.children.push_back(subnode);
-							root.children.push_back(thisnode);
-						}
-						else //if(otherprec < curprec)
-						{
-							auto subnode = &root.children.back();
-							while (subnode->children.front().kind == sqfasttypes::BINARYEXPRESSION)
-							{
-								subnode = &subnode->children.front();
-							}
-							thisnode.children.push_back(subnode->children.front());
-							subnode->children.front() = thisnode;
-						}
-
-						//if (otherprec > curprec || otherprec == 0)
-						//{
-						//	auto othernode = root.children.back();
-						//	if (!othernode.children.empty())
-						//	{
-						//		root.children.pop_back();
-						//		thisnode.children.push_back(othernode.children.front());
-						//		othernode.children.front() = thisnode;
-						//		thisnode = othernode;
-						//		if (calleeprec != 0)
-						//		{
-						//			*calleeprec = otherprec;
-						//		}
-						//	}
-						//}
+						auto node = astnode();
+						node.content = op;
+						node.offset = curoff;
+						node.kind = sqfasttypes::BINARYOP;
+						node.col = col;
+						node.line = line;
+						node.length = oplen;
+						node.file = file;
+						root.children.push_back(node);
+						curoff += oplen;
+					}
+					else if (PRIMARYEXPRESSION_start(h, code, curoff))
+					{
+						PRIMARYEXPRESSION(h, root, code, line, col, curoff, file, errflag);
 					}
 					else
 					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Expected start of PRIMARYEXPRESSION.";
-						errflag = true;
+						break;
 					}
 				}
-				else
+				//Group the BinaryExpressions
+				auto vec = root.children;
+				root.children = std::vector<astnode>();
+				std::reverse(vec.begin(), vec.end());
+				auto curnode = astnode();
+				curnode.kind = sqfasttypes::BINARYEXPRESSION;
+				bool isOrig = true;
+				while (!vec.empty())
 				{
-					root.children.push_back(thisnode.children.back());
+					auto it = vec.back();
+					vec.pop_back();
+
+					curnode.children.push_back(it);
+					if (curnode.children.size() == (isOrig ? 3 : 2))
+					{
+						root.children.push_back(curnode);
+						curnode = astnode();
+						curnode.kind = sqfasttypes::BINARYEXPRESSION;
+						isOrig = false;
+					}
 				}
+				if (curnode.children.size() == 1)
+				{
+					curnode = curnode.children.front();
+				}
+				else if (isOrig && curnode.children.size() == 2)
+				{
+					size_t i;
+					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Missing RARG for binary operator.";
+					errflag = true;
+				}
+				if (curnode.children.size() != 0)
+				{
+					root.children.push_back(curnode);
+				}
+				//Exit if no sorting is required
+				if (root.children.size() <= 1)
+					return;
+				//Sort according to precedence
+				vec = root.children;
+				root.children = std::vector<astnode>();
+				std::reverse(vec.begin(), vec.end());
+
+				curnode = vec.back();
+				vec.pop_back();
+				auto curprec = h.precedence(curnode.children[1].content);
+				while (!vec.empty())
+				{
+					auto node = vec.back();
+					vec.pop_back();
+					auto prec = h.precedence(node.children[0].content);
+					node.children.push_back(node.children[1]);
+					node.children[1] = node.children[0];
+					if (curprec < prec)
+					{
+						node.children[0] = curnode.children.back();
+						curnode.children.back() = node;
+					}
+					else
+					{
+						node.children[0] = curnode;
+						curnode = node;
+					}
+				}
+				root.children.push_back(curnode);
 			}
 			//BRACKETS = '(' BINARYEXPRESSION ')';
 			bool BRACKETS_start(helper &h, const wchar_t* code, size_t curoff) { return code[curoff] == L'('; }
