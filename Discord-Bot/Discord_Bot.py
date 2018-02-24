@@ -20,14 +20,14 @@ def init_libsqfvm():
     libsqfvm.py_exec.argtypes = [c_wchar_p, c_wchar_p, c_size_t]
     libsqfvm.py_uninit.restype = None
     libsqfvm.py_uninit.argtypes = []
-    libsqfvm.py_parseconfig.restype = None
-    libsqfvm.py_parseconfig.argtypes = [c_wchar_p]
+    libsqfvm.py_loadconfig.restype = None
+    libsqfvm.py_loadconfig.argtypes = [c_wchar_p]
     libsqfvm.py_init(1000000)
     file = ""
     with open('arma.cpp', 'r') as file:
         file = file.read().strip()
     if file != "":
-        libsqfvm.py_parseconfig(file)
+        libsqfvm.py_loadconfig(file)
 
 def execsqf(txt, note):
     buffer = create_unicode_buffer(1990)
