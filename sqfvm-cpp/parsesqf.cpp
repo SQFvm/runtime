@@ -269,6 +269,13 @@ namespace sqf
 					h.err() << h.dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Missing RARG for binary operator.";
 					errflag = true;
 				}
+				else if (curnode.children.size() == 3 && curnode.children[1].kind != sqfasttypes::BINARYOP)
+				{
+					size_t i;
+					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Expected binary operator.";
+					errflag = true;
+				}
 				if (curnode.children.size() != 0)
 				{
 					root.children.push_back(curnode);
