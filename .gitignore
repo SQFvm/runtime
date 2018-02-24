@@ -8,6 +8,8 @@
 *.user
 *.userosscache
 *.sln.docstates
+arma.cpp
+arma2.cpp
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
