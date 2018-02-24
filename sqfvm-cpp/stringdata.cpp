@@ -8,6 +8,8 @@ std::wstring sqf::stringdata::parse_from_sqf(std::wstring s)
 	wchar_t start = s[0];
 	if (start != L'"' && start != L'\'')
 		return s;
+	if (s.length() == 2)
+		return L"";
 	for (size_t i = 0; i < s.length(); i++)
 	{
 		wchar_t c = s[i];
