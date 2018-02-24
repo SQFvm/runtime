@@ -252,6 +252,13 @@ namespace sqf
 					curnode.children.push_back(it);
 					if (curnode.children.size() == (isOrig ? 3 : 2))
 					{
+						if (curnode.children.size() == (isOrig ? 3 : 2) && curnode.children[(isOrig ? 1 : 0)].kind != sqfasttypes::BINARYOP)
+						{
+							size_t i;
+							for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
+							h.err() << h.dbgsegment(code, curnode.offset, curnode.length) << L"[ERR][L" << curnode.line << L"|C" << curnode.col << L"]\t" << L"Expected binary operator." << std::endl;
+							errflag = true;
+						}
 						root.children.push_back(curnode);
 						curnode = astnode();
 						curnode.kind = sqfasttypes::BINARYEXPRESSION;
@@ -266,13 +273,14 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << L"[ERR][L" << line << L"|C" << col << L"]\t" << L"Missing RARG for binary operator.";
+					h.err() << h.dbgsegment(code, curnode.offset, curnode.length) << L"[ERR][L" << curnode.line << L"|C" << curnode.col << L"]\t" << L"Missing RARG for binary operator." << std::endl;
 					errflag = true;
 				}
 				if (curnode.children.size() != 0)
 				{
 					root.children.push_back(curnode);
 				}
+
 				//Exit if no sorting is required
 				if (root.children.size() <= 1)
 					return;
