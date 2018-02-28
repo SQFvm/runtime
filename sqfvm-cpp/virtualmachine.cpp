@@ -69,8 +69,8 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		inst->execute(this);
 		if (merrflag)
 		{
-			merrflag = false;
 			err() << inst->dbginf(L"RNT") << std::endl;
+			merrflag = false;
 			//Only for non-scheduled (and thus the mainstack)
 			if (mactivestack->isscheduled())
 			{
@@ -79,8 +79,8 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		}
 		if (mwrnflag)
 		{
-			mwrnflag = false;
 			wrn() << inst->dbginf(L"WRN") << std::endl;
+			mwrnflag = false;
 		}
 	}
 }
