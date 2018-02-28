@@ -209,13 +209,16 @@ namespace sqf
 			bool BINARYEXPRESSION_start(helper &h, const wchar_t* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
 			void BINARYEXPRESSION(helper &h, astnode &root, const wchar_t* code, size_t &line, size_t &col, size_t &curoff, const wchar_t* file, bool &errflag)
 			{
+				auto thisnode = astnode();
+				thisnode.offset = curoff;
+				thisnode.kind = sqfasttypes::BINARYSTATEMENT;
 				size_t oplen;
 				std::wstring op;
 				//Get all nodes for current expression
 				while (true)
 				{
 					skip(code, line, col, curoff);
-					if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::wstring(code + curoff, code + curoff + oplen)))
+					if (thisnode.children.size() % 2 == 1 && (oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::wstring(code + curoff, code + curoff + oplen)))
 					{
 						auto node = astnode();
 						node.content = op;
@@ -225,12 +228,12 @@ namespace sqf
 						node.line = line;
 						node.length = oplen;
 						node.file = file;
-						root.children.push_back(node);
+						thisnode.children.push_back(node);
 						curoff += oplen;
 					}
 					else if (PRIMARYEXPRESSION_start(h, code, curoff))
 					{
-						PRIMARYEXPRESSION(h, root, code, line, col, curoff, file, errflag);
+						PRIMARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag);
 					}
 					else
 					{
@@ -238,8 +241,8 @@ namespace sqf
 					}
 				}
 				//Group the BinaryExpressions
-				auto vec = root.children;
-				root.children = std::vector<astnode>();
+				auto vec = thisnode.children;
+				thisnode.children = std::vector<astnode>();
 				std::reverse(vec.begin(), vec.end());
 				auto curnode = astnode();
 				curnode.kind = sqfasttypes::BINARYEXPRESSION;
@@ -259,7 +262,7 @@ namespace sqf
 							h.err() << h.dbgsegment(code, curnode.offset, curnode.length) << L"[ERR][L" << curnode.line << L"|C" << curnode.col << L"]\t" << L"Expected binary operator." << std::endl;
 							errflag = true;
 						}
-						root.children.push_back(curnode);
+						thisnode.children.push_back(curnode);
 						curnode = astnode();
 						curnode.kind = sqfasttypes::BINARYEXPRESSION;
 						isOrig = false;
@@ -267,26 +270,31 @@ namespace sqf
 				}
 				if (curnode.children.size() == 1)
 				{
-					curnode = curnode.children.front();
+					auto tmp = curnode.children[0];
+					curnode = tmp;
+					thisnode.children.push_back(curnode);
 				}
 				else if (isOrig && curnode.children.size() == 2)
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curnode.offset, curnode.length) << L"[ERR][L" << curnode.line << L"|C" << curnode.col << L"]\t" << L"Missing RARG for binary operator." << std::endl;
+					h.err() << h.dbgsegment(code, curnode.children.back().offset, curnode.children.back().length) << L"[ERR][L" << curnode.line << L"|C" << curnode.col << L"]\t" << L"Missing RARG for binary operator." << std::endl;
 					errflag = true;
 				}
-				if (curnode.children.size() != 0)
+				else if (curnode.children.size() != 0)
 				{
-					root.children.push_back(curnode);
+					thisnode.children.push_back(curnode);
 				}
 
 				//Exit if no sorting is required
-				if (root.children.size() <= 1)
+				if (thisnode.children.size() <= 1)
+				{
+					root.children.push_back(thisnode.children.size() == 1 ? thisnode.children.back() : thisnode);
 					return;
+				}
 				//Sort according to precedence
-				vec = root.children;
-				root.children = std::vector<astnode>();
+				vec = thisnode.children;
+				thisnode.children = std::vector<astnode>();
 				std::reverse(vec.begin(), vec.end());
 
 				curnode = vec.back();
@@ -310,7 +318,8 @@ namespace sqf
 						curnode = node;
 					}
 				}
-				root.children.push_back(curnode);
+				thisnode.children.push_back(curnode);
+				root.children.push_back(thisnode);
 			}
 			//BRACKETS = '(' BINARYEXPRESSION ')';
 			bool BRACKETS_start(helper &h, const wchar_t* code, size_t curoff) { return code[curoff] == L'('; }

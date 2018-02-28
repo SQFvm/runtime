@@ -30,7 +30,8 @@ namespace sqf
 					VARIABLE,
 					STRING,
 					CODE,
-					ARRAY
+					ARRAY,
+					BINARYSTATEMENT
 				};
 			}
 			size_t endchr(const wchar_t* code, size_t off);
