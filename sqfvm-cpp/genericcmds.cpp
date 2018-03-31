@@ -499,6 +499,70 @@ namespace
 		auto r = right->data<arraydata>();
 		return std::make_shared<value>(r->operator std::vector<std::shared_ptr<sqf::value>, std::allocator<std::shared_ptr<sqf::value>>>());
 	}
+	std::shared_ptr<value> selectmax_array(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->data<arraydata>();
+		double max = 0;
+		for (size_t i = r->size() - 1; i != ~0; i--)
+		{
+			auto tmp = r->at(i);
+			if (tmp->dtype() == sqf::type::SCALAR)
+			{
+				if (tmp->as_double() > max)
+				{
+					max = tmp->as_double();
+				}
+			}
+			else if (tmp->dtype() == sqf::type::BOOL)
+			{
+				if (tmp->as_bool() ? 1 : 0 > max)
+				{
+					max = tmp->as_bool() ? 1 : 0;
+				}
+			}
+			else
+			{
+				if (0 > max)
+				{
+					max = 0;
+				}
+				vm->wrn() << L"Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp->dtype()) << L"'." << std::endl;
+			}
+		}
+		return std::make_shared<value>(max);
+	}
+	std::shared_ptr<value> selectmin_array(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->data<arraydata>();
+		double min = 0;
+		for (size_t i = r->size() - 1; i != ~0; i--)
+		{
+			auto tmp = r->at(i);
+			if (tmp->dtype() == sqf::type::SCALAR)
+			{
+				if (tmp->as_double() < min)
+				{
+					min = tmp->as_double();
+				}
+			}
+			else if (tmp->dtype() == sqf::type::BOOL)
+			{
+				if (tmp->as_bool() ? 1 : 0 < min)
+				{
+					min = tmp->as_bool() ? 1 : 0;
+				}
+			}
+			else
+			{
+				if (0 < min)
+				{
+					min = 0;
+				}
+				vm->wrn() << L"Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp->dtype()) << L"'." << std::endl;
+			}
+		}
+		return std::make_shared<value>(min);
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -551,4 +615,7 @@ void sqf::commandmap::initgenericcmds(void)
 
 	add(binary(4, L"set", type::ARRAY, type::ARRAY, L"Changes the element at the given (zero-based) index of the array. If the array size is smaller then the index provided, it is resized to allow for the index to be set.", set_array_array));
 	add(unary(L"+", sqf::type::ARRAY, L"Returns a copy of an array.", plus_array));
+
+	add(unary(L"selectMax", type::ARRAY, L"Returns the array element with maximum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmax_array));
+	add(unary(L"selectMin", type::ARRAY, L"Returns the array element with minimum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmin_array));
 }
