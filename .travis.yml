@@ -1,9 +1,9 @@
-language: c
+language: cpp
 
 os:
   - linux
   - osx
 
 script:
-  - cd SQF-VM
+  - cd sqfvm-cpp
   - make
