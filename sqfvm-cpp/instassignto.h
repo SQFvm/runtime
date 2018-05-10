@@ -9,9 +9,9 @@ namespace sqf
 		class assignto : public instruction
 		{
 		private:
-			std::wstring mvarname;
+			std::string mvarname;
 		public:
-			assignto(std::wstring varname) { mvarname = varname; }
+			assignto(std::string varname) { mvarname = varname; }
 			virtual void execute(virtualmachine*) const;
 			virtual insttype thistype(void) const { return insttype::assignto; }
 		};

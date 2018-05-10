@@ -19,7 +19,7 @@ namespace sqf
 		bool mexecuted;
 	public:
 		switchdata(std::shared_ptr<value> val) : mvalue(val), mflag(false), mexecuted(false) {}
-		virtual std::wstring tosqf(void) const;
+		virtual std::string tosqf(void) const;
 		inline void flag(bool f) { mflag = f; }
 		inline bool flag(void) { return mflag; }
 		inline void executed(bool f) { mexecuted = f; }

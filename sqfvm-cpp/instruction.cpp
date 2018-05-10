@@ -1,7 +1,7 @@
 #include "instruction.h"
 #include <sstream>
 
-void sqf::instruction::setdbginf(size_t line, size_t col, std::wstring file, std::wstring segment)
+void sqf::instruction::setdbginf(size_t line, size_t col, std::string file, std::string segment)
 {
 	mline = line;
 	mcol = col;
@@ -9,9 +9,9 @@ void sqf::instruction::setdbginf(size_t line, size_t col, std::wstring file, std
 	msegment = segment;
 }
 
-std::wstring sqf::instruction::dbginf(std::wstring tag) const
+std::string sqf::instruction::dbginf(std::string tag) const
 {
-	auto sstream = std::wstringstream();
-	sstream << msegment << L'[' << tag << L"][L" << mline << L"|C" << mcol << L"]\t";
+	auto sstream = std::stringstream();
+	sstream << msegment << '[' << tag << "][" << mline << "|C" << mcol << "]\t";
 	return sstream.str();
 }

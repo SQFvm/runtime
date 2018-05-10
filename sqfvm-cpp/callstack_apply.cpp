@@ -9,7 +9,7 @@ std::shared_ptr<sqf::instruction> sqf::callstack_apply::popinst(sqf::virtualmach
 {
 	if (mcurindex == 0 && marr.size() > 0)
 	{
-		setvar(L"_x", marr[mcurindex]);
+		setvar("_x", marr[mcurindex]);
 		mcurindex++;
 		auto sptr = std::shared_ptr<callstack_apply>(this, [](callstack_apply*) {});
 		mapply->loadinto(vm->stack(), sptr);
@@ -31,7 +31,7 @@ std::shared_ptr<sqf::instruction> sqf::callstack_apply::popinst(sqf::virtualmach
 			mend = true;
 			return sqf::callstack::popinst(vm);
 		}
-		setvar(L"_x", marr[mcurindex]);
+		setvar("_x", marr[mcurindex]);
 		mcurindex++;
 
 		auto sptr = std::shared_ptr<callstack_apply>(this, [](callstack_apply*) {});

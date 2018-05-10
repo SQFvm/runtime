@@ -3,13 +3,13 @@
 #include <vector>
 #include "astnode.h"
 
-void print_navigate_ast(std::basic_ostream<wchar_t, std::char_traits<wchar_t>>* outstreamptr, astnode node, const wchar_t *(*astkindname)(short), unsigned short level)
+void print_navigate_ast(std::basic_ostream<char, std::char_traits<char>>* outstreamptr, astnode node, const char *(*astkindname)(short), unsigned short level)
 {
 	if (level == 0)
 	{
-		*outstreamptr << L"Node Type;Offset;Length;Content" << std::endl;
+		*outstreamptr << "Node Type;Offset;Length;Content" << std::endl;
 	}
-	*outstreamptr << std::wstring(level, L'\t') << astkindname(node.kind) << L';' << node.offset << L';' << node.length << L';' << node.content << std::endl;
+	*outstreamptr << std::string(level, '\t') << astkindname(node.kind) << ';' << node.offset << ';' << node.length << ';' << node.content << std::endl;
 	for (auto it : node.children)
 	{
 		print_navigate_ast(outstreamptr, it, astkindname, level + 1);

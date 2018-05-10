@@ -11,9 +11,9 @@ public:
 	{
 		return str[0] ? 1 + strlen(str + 1) : 0;
 	}
-	static unsigned int constexpr strlen(const wchar_t* str)
+	static unsigned int constexpr wcslen(const wchar_t* str)
 	{
-		return str[0] ? 1 + strlen(str + 1) : 0;
+		return str[0] ? 1 + wcslen(str + 1) : 0;
 	}
 	static constexpr double pi()
 	{

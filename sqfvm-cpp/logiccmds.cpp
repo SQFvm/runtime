@@ -108,43 +108,43 @@ namespace
 
 void sqf::commandmap::initlogiccmds(void)
 {
-	add(nular(L"true", L"Always true.", true_));
-	add(nular(L"false", L"Always false.", false_));
+	add(nular("true", "Always true.", true_));
+	add(nular("false", "Always false.", false_));
 
-	add(binary(2, L"&&", sqf::type::BOOL, sqf::type::BOOL, L"Returns true only if both conditions are true. Both sides are always evaluated.", and_bool_bool));
-	add(binary(2, L"and", sqf::type::BOOL, sqf::type::BOOL, L"Returns true only if both conditions are true. Both sides are always evaluated.", and_bool_bool));
-	add(binary(1, L"||", sqf::type::BOOL, sqf::type::BOOL, L"Returns true only if one or both conditions are true. Both sides are always evaluated.", or_bool_bool));
-	add(binary(1, L"or", sqf::type::BOOL, sqf::type::BOOL, L"Returns true only if one or both conditions are true. Both sides are always evaluated.", or_bool_bool));
-	add(binary(2, L"&&", sqf::type::BOOL, sqf::type::CODE, L"Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to true.", and_bool_code));
-	add(binary(2, L"and", sqf::type::BOOL, sqf::type::CODE, L"Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to true.", and_bool_code));
-	add(binary(1, L"||", sqf::type::BOOL, sqf::type::CODE, L"Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to false.", or_bool_code));
-	add(binary(1, L"or", sqf::type::BOOL, sqf::type::CODE, L"Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to false.", or_bool_code));
+	add(binary(2, "&&", sqf::type::BOOL, sqf::type::BOOL, "Returns true only if both conditions are true. Both sides are always evaluated.", and_bool_bool));
+	add(binary(2, "and", sqf::type::BOOL, sqf::type::BOOL, "Returns true only if both conditions are true. Both sides are always evaluated.", and_bool_bool));
+	add(binary(1, "||", sqf::type::BOOL, sqf::type::BOOL, "Returns true only if one or both conditions are true. Both sides are always evaluated.", or_bool_bool));
+	add(binary(1, "or", sqf::type::BOOL, sqf::type::BOOL, "Returns true only if one or both conditions are true. Both sides are always evaluated.", or_bool_bool));
+	add(binary(2, "&&", sqf::type::BOOL, sqf::type::CODE, "Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to true.", and_bool_code));
+	add(binary(2, "and", sqf::type::BOOL, sqf::type::CODE, "Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to true.", and_bool_code));
+	add(binary(1, "||", sqf::type::BOOL, sqf::type::CODE, "Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to false.", or_bool_code));
+	add(binary(1, "or", sqf::type::BOOL, sqf::type::CODE, "Returns true only if both conditions are true. Left side is always evaluated. Right side only will get evaluated if left side evaluates to false.", or_bool_code));
 
-	add(binary(3, L">", sqf::type::SCALAR, sqf::type::SCALAR, L"Returns true if a is greater than b, else returns false.", greaterthen_scalar_scalar));
-	add(binary(3, L">=", sqf::type::SCALAR, sqf::type::SCALAR, L"Returns true if a is greater than or equal to b, else returns false.", greaterthenorequal_scalar_scalar));
-	add(binary(3, L"<", sqf::type::SCALAR, sqf::type::SCALAR, L"Returns true if a is less than b, else returns false.", lessthen_scalar_scalar));
-	add(binary(3, L"<=", sqf::type::SCALAR, sqf::type::SCALAR, L"Returns true if a is less than or equal to b, else returns false.", lessthenorequal_scalar_scalar));
+	add(binary(3, ">", sqf::type::SCALAR, sqf::type::SCALAR, "Returns true if a is greater than b, else returns false.", greaterthen_scalar_scalar));
+	add(binary(3, ">=", sqf::type::SCALAR, sqf::type::SCALAR, "Returns true if a is greater than or equal to b, else returns false.", greaterthenorequal_scalar_scalar));
+	add(binary(3, "<", sqf::type::SCALAR, sqf::type::SCALAR, "Returns true if a is less than b, else returns false.", lessthen_scalar_scalar));
+	add(binary(3, "<=", sqf::type::SCALAR, sqf::type::SCALAR, "Returns true if a is less than or equal to b, else returns false.", lessthenorequal_scalar_scalar));
 
-	add(binary(3, L"==", sqf::type::SCALAR, sqf::type::SCALAR, L"Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
-	add(binary(3, L"==", sqf::type::SIDE, sqf::type::SIDE, L"Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
-	add(binary(3, L"==", sqf::type::STRING, sqf::type::STRING, L"Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
-	add(binary(3, L"==", sqf::type::OBJECT, sqf::type::OBJECT, L"Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
-	add(binary(3, L"==", sqf::type::GROUP, sqf::type::GROUP, L"Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
-	add(binary(3, L"==", sqf::type::TEXT, sqf::type::TEXT, L"Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
-	add(binary(3, L"==", sqf::type::CONFIG, sqf::type::CONFIG, L"Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
-	add(binary(3, L"==", sqf::type::DISPLAY, sqf::type::DISPLAY, L"Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
-	add(binary(3, L"==", sqf::type::CONTROL, sqf::type::CONTROL, L"Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
-	add(binary(3, L"==", sqf::type::LOCATION, sqf::type::LOCATION, L"Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
-	add(binary(3, L"!=", sqf::type::ANY, sqf::type::ANY, L"Returns whether one value is not equal to another.", notequals_any_any));
-	add(binary(3, L"!=", sqf::type::SIDE, sqf::type::SIDE, L"Returns whether one value is not equal to another.", notequals_any_any));
-	add(binary(3, L"!=", sqf::type::STRING, sqf::type::STRING, L"Returns whether one value is not equal to another.", notequals_any_any));
-	add(binary(3, L"!=", sqf::type::OBJECT, sqf::type::OBJECT, L"Returns whether one value is not equal to another.", notequals_any_any));
-	add(binary(3, L"!=", sqf::type::GROUP, sqf::type::GROUP, L"Returns whether one value is not equal to another.", notequals_any_any));
-	add(binary(3, L"!=", sqf::type::TEXT, sqf::type::TEXT, L"Returns whether one value is not equal to another.", notequals_any_any));
-	add(binary(3, L"!=", sqf::type::CONFIG, sqf::type::CONFIG, L"Returns whether one value is not equal to another.", notequals_any_any));
-	add(binary(3, L"!=", sqf::type::DISPLAY, sqf::type::DISPLAY, L"Returns whether one value is not equal to another.", notequals_any_any));
-	add(binary(3, L"!=", sqf::type::CONTROL, sqf::type::CONTROL, L"Returns whether one value is not equal to another.", notequals_any_any));
-	add(binary(3, L"!=", sqf::type::LOCATION, sqf::type::LOCATION, L"Returns whether one value is not equal to another.", notequals_any_any));
-	add(binary(4, L"isEqualTo", sqf::type::ANY, sqf::type::ANY, L"Check if one value is equal to another. Both values need to be of the same type.", isequalto_any_any));
-	add(binary(4, L"isEqualType", sqf::type::ANY, sqf::type::ANY, L"Compares 2 values by their type. A much faster alternative to typeName a == typeName b.", isequaltype_any_any));
+	add(binary(3, "==", sqf::type::SCALAR, sqf::type::SCALAR, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
+	add(binary(3, "==", sqf::type::SIDE, sqf::type::SIDE, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
+	add(binary(3, "==", sqf::type::STRING, sqf::type::STRING, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
+	add(binary(3, "==", sqf::type::OBJECT, sqf::type::OBJECT, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
+	add(binary(3, "==", sqf::type::GROUP, sqf::type::GROUP, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
+	add(binary(3, "==", sqf::type::TEXT, sqf::type::TEXT, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
+	add(binary(3, "==", sqf::type::CONFIG, sqf::type::CONFIG, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
+	add(binary(3, "==", sqf::type::DISPLAY, sqf::type::DISPLAY, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
+	add(binary(3, "==", sqf::type::CONTROL, sqf::type::CONTROL, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
+	add(binary(3, "==", sqf::type::LOCATION, sqf::type::LOCATION, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
+	add(binary(3, "!=", sqf::type::ANY, sqf::type::ANY, "Returns whether one value is not equal to another.", notequals_any_any));
+	add(binary(3, "!=", sqf::type::SIDE, sqf::type::SIDE, "Returns whether one value is not equal to another.", notequals_any_any));
+	add(binary(3, "!=", sqf::type::STRING, sqf::type::STRING, "Returns whether one value is not equal to another.", notequals_any_any));
+	add(binary(3, "!=", sqf::type::OBJECT, sqf::type::OBJECT, "Returns whether one value is not equal to another.", notequals_any_any));
+	add(binary(3, "!=", sqf::type::GROUP, sqf::type::GROUP, "Returns whether one value is not equal to another.", notequals_any_any));
+	add(binary(3, "!=", sqf::type::TEXT, sqf::type::TEXT, "Returns whether one value is not equal to another.", notequals_any_any));
+	add(binary(3, "!=", sqf::type::CONFIG, sqf::type::CONFIG, "Returns whether one value is not equal to another.", notequals_any_any));
+	add(binary(3, "!=", sqf::type::DISPLAY, sqf::type::DISPLAY, "Returns whether one value is not equal to another.", notequals_any_any));
+	add(binary(3, "!=", sqf::type::CONTROL, sqf::type::CONTROL, "Returns whether one value is not equal to another.", notequals_any_any));
+	add(binary(3, "!=", sqf::type::LOCATION, sqf::type::LOCATION, "Returns whether one value is not equal to another.", notequals_any_any));
+	add(binary(4, "isEqualTo", sqf::type::ANY, sqf::type::ANY, "Check if one value is equal to another. Both values need to be of the same type.", isequalto_any_any));
+	add(binary(4, "isEqualType", sqf::type::ANY, sqf::type::ANY, "Compares 2 values by their type. A much faster alternative to typeName a == typeName b.", isequaltype_any_any));
 }

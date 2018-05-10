@@ -17,7 +17,7 @@ namespace sqf
 	public:
 		codedata(std::shared_ptr<sqf::callstack>);
 		codedata(std::vector<std::shared_ptr<sqf::instruction>> v) : minsts(v) {}
-		virtual std::wstring tosqf(void) const;
+		virtual std::string tosqf(void) const;
 		void add(std::shared_ptr<sqf::instruction> inst) { minsts.push_back(inst); }
 		inline void loadinto(std::shared_ptr<sqf::vmstack> stack) { auto cs = std::make_shared<callstack>(); loadinto(stack, cs); stack->pushcallstack(cs); }
 		void loadinto(std::shared_ptr<sqf::vmstack>, std::shared_ptr<sqf::callstack>);

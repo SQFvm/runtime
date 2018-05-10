@@ -54,9 +54,6 @@
     <ClCompile Include="arraydata.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>
-    <ClCompile Include="wstring_op.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="virtualmachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -201,6 +198,9 @@
     <ClCompile Include="groupdata.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>
+    <ClCompile Include="string_op.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -222,9 +222,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="type.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wstring_op.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stringdata.h">
@@ -348,6 +345,12 @@
       <Filter>Header Files\data</Filter>
     </ClInclude>
     <ClInclude Include="python_externc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dlops.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="string_op.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

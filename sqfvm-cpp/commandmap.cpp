@@ -1,7 +1,7 @@
 #include "commandmap.h"
 #include "cmd.h"
 
-std::shared_ptr<sqf::unarycmd> sqf::commandmap::get(std::wstring str, type rtype)
+std::shared_ptr<sqf::unarycmd> sqf::commandmap::get(std::string str, type rtype)
 {
 	auto listsptr = munarycmd[tolowerstring(str)];
 	if (listsptr.get())
@@ -17,7 +17,7 @@ std::shared_ptr<sqf::unarycmd> sqf::commandmap::get(std::wstring str, type rtype
 	return std::shared_ptr<unarycmd>();
 }
 
-std::shared_ptr<sqf::binarycmd> sqf::commandmap::get(std::wstring str, type ltype, type rtype)
+std::shared_ptr<sqf::binarycmd> sqf::commandmap::get(std::string str, type ltype, type rtype)
 {
 	auto listsptr = mbinarycmd[tolowerstring(str)];
 	if (listsptr.get())

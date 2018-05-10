@@ -11,27 +11,27 @@ namespace sqf
 
 		class helper
 		{
-			std::wostream* merr;
-			std::wstring(*mdbgsegmentcb)(const wchar_t*, size_t, size_t);
-			bool(*mcontains_nular)(std::wstring);
-			bool(*mcontains_unary)(std::wstring);
-			bool(*mcontains_binary)(std::wstring);
-			short(*mprecedence)(std::wstring);
+			std::ostream* merr;
+			std::string(*mdbgsegmentcb)(const char*, size_t, size_t);
+			bool(*mcontains_nular)(std::string);
+			bool(*mcontains_unary)(std::string);
+			bool(*mcontains_binary)(std::string);
+			short(*mprecedence)(std::string);
 		public:
 			helper(
-				std::wostream* err,
-				std::wstring(*dbgsegment)(const wchar_t*, size_t, size_t),
-				bool(*contains_nular)(std::wstring),
-				bool(*contains_unary)(std::wstring),
-				bool(*contains_binary)(std::wstring),
-				short(*precedence)(std::wstring)
+				std::ostream* err,
+				std::string(*dbgsegment)(const char*, size_t, size_t),
+				bool(*contains_nular)(std::string),
+				bool(*contains_unary)(std::string),
+				bool(*contains_binary)(std::string),
+				short(*precedence)(std::string)
 			) : merr(err), mdbgsegmentcb(dbgsegment), mcontains_nular(contains_nular), mcontains_unary(contains_unary), mcontains_binary(contains_binary), mprecedence(precedence) {}
-			std::wostream& err(void) { return *merr; }
-			std::wstring dbgsegment(const wchar_t* full, size_t off, size_t length) { return mdbgsegmentcb(full, off, length); }
-			bool contains_nular(std::wstring s) { return mcontains_nular(s); }
-			bool contains_unary(std::wstring s) { return mcontains_unary(s); }
-			bool contains_binary(std::wstring s) { return mcontains_binary(s); }
-			short precedence(std::wstring s) { return mprecedence(s); }
+			std::ostream& err(void) { return *merr; }
+			std::string dbgsegment(const char* full, size_t off, size_t length) { return mdbgsegmentcb(full, off, length); }
+			bool contains_nular(std::string s) { return mcontains_nular(s); }
+			bool contains_unary(std::string s) { return mcontains_unary(s); }
+			bool contains_binary(std::string s) { return mcontains_binary(s); }
+			short precedence(std::string s) { return mprecedence(s); }
 		};
 	}
 }

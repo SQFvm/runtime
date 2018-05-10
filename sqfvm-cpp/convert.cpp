@@ -9,24 +9,24 @@ using namespace sqf;
 
 std::shared_ptr<sqf::data> sqf::convert(std::shared_ptr<sqf::data> val, type type)
 {
-	std::wstring stringifiedval = val.get() ? val->tosqf() : L"nil";
+	std::string stringifiedval = val.get() ? val->tosqf() : "ni";
 	auto stringval = sqf::stringdata::parse_from_sqf(stringifiedval);
 	switch (type)
 	{
 	case sqf::SCALAR:
-		return std::make_shared<scalardata>(wcstod(stringval.c_str(), 0));
+		return std::make_shared<scalardata>(strtod(stringval.c_str(), 0));
 	case sqf::BOOL:
-		if (wstr_cmpi(stringval.c_str(), (int)stringval.length(), L"true", 4) == 0)
+		if (str_cmpi(stringval.c_str(), (int)stringval.length(), "true", 4) == 0)
 		{
 			return std::make_shared<booldata>(true);
 		}
-		else if (wstr_cmpi(stringval.c_str(), (int)stringval.length(), L"false", 5) == 0)
+		else if (str_cmpi(stringval.c_str(), (int)stringval.length(), "false", 5) == 0)
 		{
 			return std::make_shared<booldata>(false);
 		}
 		else
 		{
-			return std::make_shared<booldata>(wcstod(stringval.c_str(), 0) > 0);
+			return std::make_shared<booldata>(strtod(stringval.c_str(), 0) > 0);
 		}
 	case sqf::STRING:
 		return std::make_shared<stringdata>(stringifiedval);

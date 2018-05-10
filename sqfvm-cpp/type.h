@@ -43,5 +43,5 @@ namespace sqf
 		DIARY_RECORD,
 		LOCATION
 	};
-	std::wstring type_str(type t);
+	std::string type_str(type t);
 }

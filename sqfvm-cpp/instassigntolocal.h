@@ -9,9 +9,9 @@ namespace sqf
 		class assigntolocal : public instruction
 		{
 		private:
-			std::wstring mvarname;
+			std::string mvarname;
 		public:
-			assigntolocal(std::wstring varname) { mvarname = varname; }
+			assigntolocal(std::string varname) { mvarname = varname; }
 			virtual void execute(virtualmachine*) const;
 			virtual insttype thistype(void) const { return insttype::assigntolocal; }
 		};

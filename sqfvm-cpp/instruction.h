@@ -11,8 +11,8 @@ namespace sqf
 	private:
 		size_t mline;
 		size_t mcol;
-		std::wstring mfile;
-		std::wstring msegment;
+		std::string mfile;
+		std::string msegment;
 	public:
 		enum insttype
 		{
@@ -27,8 +27,8 @@ namespace sqf
 			getvariable
 		};
 		virtual void execute(virtualmachine*) const = 0;
-		void setdbginf(size_t line, size_t col, std::wstring file, std::wstring segment);
-		std::wstring dbginf(std::wstring tag) const;
+		void setdbginf(size_t line, size_t col, std::string file, std::string segment);
+		std::string dbginf(std::string tag) const;
 		virtual insttype thistype(void) const = 0;
 	};
 }

@@ -4,7 +4,7 @@
 #include <string>
 
 #include "callstack.h"
-#include "wstring_op.h"
+#include "string_op.h"
 
 namespace sqf
 {
@@ -36,13 +36,13 @@ namespace sqf
 		inline std::shared_ptr<instruction> peekinst(void) { if (mstacks.empty()) return std::shared_ptr<sqf::instruction>(); return mstacks.back()->peekinst(); }
 		inline void pushcallstack(std::shared_ptr<sqf::callstack> cs) { mstacks.push_back(cs); }
 		inline void dropcallstack() { if(!mstacks.empty()) mstacks.pop_back(); }
-		inline void dropcallstack(std::wstring name, bool include = true)
+		inline void dropcallstack(std::string name, bool include = true)
 		{
 			int i;
 			for (i = (int)mstacks.size() - 1; i >= 0; i--)
 			{
 				auto stack = mstacks[i];
-				if (wstr_cmpi(stack->getscopename().c_str(), -1, name.c_str(), -1) == 0)
+				if (str_cmpi(stack->getscopename().c_str(), -1, name.c_str(), -1) == 0)
 				{
 					i = (int)mstacks.size() - i;
 					if (include)
@@ -67,7 +67,7 @@ namespace sqf
 		inline std::shared_ptr<value> popval(bool &success) { if (mvalstack.empty()) { success = false; return std::shared_ptr<value>(); } success = true; auto val = mvalstack.back(); mvalstack.pop_back(); return val; }
 		inline std::shared_ptr<value> peekval(void) { if (mvalstack.empty()) return std::shared_ptr<value>(); return mvalstack.back(); }
 		inline void dropvals(void) { mvalstack.clear(); }
-		std::shared_ptr<value> getlocalvar(std::wstring varname);
+		std::shared_ptr<value> getlocalvar(std::string varname);
 		inline bool isempty(void) { return mstacks.size() == 0; }
 		inline bool isscheduled(void) { return misscheduled; }
 	};

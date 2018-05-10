@@ -13,9 +13,9 @@ extern "C" {
 		py_virtualmachine = std::make_shared<sqf::virtualmachine>(limit);
 		sqf::commandmap::get().init();
 	}
-	DLLEXPORT_PREFIX void py_exec(wchar_t* code, wchar_t* buffer, unsigned int bufferlen)
+	DLLEXPORT_PREFIX void py_exec(char* code, char* buffer, unsigned int bufferlen)
 	{
-		auto sstream = std::wstringstream();
+		auto sstream = std::stringstream();
 		py_virtualmachine->out(&sstream);
 		py_virtualmachine->err(&sstream);
 		py_virtualmachine->wrn(&sstream);
@@ -27,15 +27,15 @@ extern "C" {
 			val = py_virtualmachine->stack()->popval(success);
 			if (success)
 			{
-				py_virtualmachine->out() << L"[WORK]\t<" << sqf::type_str(val->dtype()) << L">\t" << val->as_string() << std::endl;
+				py_virtualmachine->out() << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
 			}
 		} while (success);
 		auto str = sstream.str();
 
-		std::wcsncpy(buffer, str.c_str(), bufferlen);
+		std::strncpy(buffer, str.c_str(), bufferlen);
 	}
 
-	DLLEXPORT_PREFIX void py_loadconfig(wchar_t* cfg)
+	DLLEXPORT_PREFIX void py_loadconfig(char* cfg)
 	{
 		py_virtualmachine->parse_config(cfg, sqf::configdata::configFile()->data<sqf::configdata>());
 	}

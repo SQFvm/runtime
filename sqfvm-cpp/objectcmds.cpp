@@ -19,7 +19,7 @@ namespace
 		auto obj = right->data<objectdata>();
 		if (obj->isnull())
 		{
-			return std::make_shared<value>(L"");
+			return std::make_shared<value>("");
 		}
 		else
 		{
@@ -30,6 +30,6 @@ namespace
 void sqf::commandmap::initobjectcmds(void)
 {
 	//GetVariable & SetVariable & AllVariables are in namespacecmds as simple alias.
-	add(nular(L"objNull", L"A non-existent Object. To compare non-existent objects use isNull or isEqualTo.", objnull_));
-	add(unary(L"typeOf", sqf::type::OBJECT, L"Returns the config class name of given object.", typeof_object));
+	add(nular("objNul", "A non-existent Object. To compare non-existent objects use isNull or isEqualTo.", objnull_));
+	add(unary("typeOf", sqf::type::OBJECT, "Returns the config class name of given object.", typeof_object));
 }

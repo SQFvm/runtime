@@ -15,7 +15,7 @@ void sqf::inst::makearray::execute(virtualmachine* vm) const
 		vec[i] = vm->stack()->popval(flag);
 		if (!flag)
 		{
-			vm->err() << dbginf(L"ERR") << L"Missing elements on value stack. Expected " << msize << L", got " << msize - i << std::endl;
+			vm->err() << dbginf("ERR") << "Missing elements on value stack. Expected " << msize << ", got " << msize - i << std::endl;
 			break;
 		}
 	}

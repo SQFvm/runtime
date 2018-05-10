@@ -12,16 +12,16 @@ sqf::value::value(std::vector<std::shared_ptr<sqf::value>> arr)
 	mdata = std::make_shared<arraydata>(arr);
 }
 
-sqf::value::value(std::wstring s)
+sqf::value::value(std::string s)
 {
 	mtype = type::STRING;
 	mdata = std::make_shared<stringdata>(s);
 }
 
-sqf::value::value(wchar_t c)
+sqf::value::value(char c)
 {
 	mtype = type::STRING;
-	mdata = std::make_shared<stringdata>(std::wstring(1, c));
+	mdata = std::make_shared<stringdata>(std::string(1, c));
 }
 
 sqf::value::value(float num)
@@ -147,7 +147,7 @@ sqf::value::operator bool() const
 	}
 	return *(std::dynamic_pointer_cast<booldata>(data).get());
 }
-sqf::value::operator std::wstring() const
+sqf::value::operator std::string() const
 {
 	auto data = mdata;
 	if (mtype != STRING)

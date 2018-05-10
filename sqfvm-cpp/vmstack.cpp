@@ -1,7 +1,7 @@
 #include "vmstack.h"
 #include "value.h"
 
-std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::wstring varname)
+std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string varname)
 {
 	for (auto it = stacks_begin(); it != stacks_end(); it++)
 	{

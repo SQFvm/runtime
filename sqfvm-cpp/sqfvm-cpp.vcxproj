@@ -224,7 +224,7 @@
     <ClCompile Include="varscope.cpp" />
     <ClCompile Include="virtualmachine.cpp" />
     <ClCompile Include="vmstack.cpp" />
-    <ClCompile Include="wstring_op.c" />
+    <ClCompile Include="string_op.c" />
     <ClInclude Include="astnode.h" />
     <ClInclude Include="callstack.h" />
     <ClInclude Include="callstack_apply.h" />
@@ -239,6 +239,7 @@
     <ClInclude Include="commandmap.h" />
     <ClInclude Include="compiletime.h" />
     <ClInclude Include="configdata.h" />
+    <ClInclude Include="dlops.h" />
     <ClInclude Include="fordata.h" />
     <ClInclude Include="groupdata.h" />
     <ClInclude Include="helper.h" />
@@ -268,7 +269,7 @@
     <ClInclude Include="switchdata.h" />
     <ClInclude Include="varscope.h" />
     <ClInclude Include="vmstack.h" />
-    <ClInclude Include="wstring_op.h" />
+    <ClInclude Include="string_op.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arraydata.h" />

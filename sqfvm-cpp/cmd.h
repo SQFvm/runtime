@@ -2,7 +2,7 @@
 #include <string>
 #include <memory>
 #include "type.h"
-#include "wstring_op.h"
+#include "string_op.h"
 namespace sqf
 {
 	class virtualmachine;
@@ -16,17 +16,17 @@ namespace sqf
 	private:
 		type mltype;
 		type mrtype;
-		std::wstring mdesc;
-		std::wstring mname;
+		std::string mdesc;
+		std::string mname;
 		short mprecedence;
 
 	public:
-		cmd(short precedence, std::wstring name, type ltype, type rtype, std::wstring description) { mprecedence = precedence; mname = name; mltype = ltype; mrtype = rtype; mdesc = description; }
+		cmd(short precedence, std::string name, type ltype, type rtype, std::string description) { mprecedence = precedence; mname = name; mltype = ltype; mrtype = rtype; mdesc = description; }
 		virtual std::shared_ptr<value> execute(virtualmachine*, std::shared_ptr<value> left, std::shared_ptr<value> right) const = 0;
 		inline bool matches(type ltype, type rtype) { return (mltype == ltype || mltype == type::ANY) && (mrtype == rtype || mrtype == type::ANY); }
-		inline bool matches(std::wstring name, type ltype, type rtype) { return matches(ltype, rtype) && wstr_cmpi(mname.c_str(), -1, name.c_str(), -1); }
-		std::wstring desc(void) { return mdesc; }
-		std::wstring name(void) { return mname; }
+		inline bool matches(std::string name, type ltype, type rtype) { return matches(ltype, rtype) && str_cmpi(mname.c_str(), -1, name.c_str(), -1); }
+		std::string desc(void) { return mdesc; }
+		std::string name(void) { return mname; }
 		type ltype(void) { return mltype; }
 		type rtype(void) { return mrtype; }
 		short precedence(void) { return mprecedence; }
@@ -39,7 +39,7 @@ namespace sqf
 	private:
 		nularcb mfnc;
 	public:
-		nularcmd(std::wstring name, std::wstring description, nularcb fnc) : cmd(4, name, type::NA, type::NA, description) { mfnc = fnc; }
+		nularcmd(std::string name, std::string description, nularcb fnc) : cmd(4, name, type::NA, type::NA, description) { mfnc = fnc; }
 		virtual std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const { return mfnc(vm); }
 	};
 	class unarycmd : public cmd
@@ -47,7 +47,7 @@ namespace sqf
 	private:
 		unarycb mfnc;
 	public:
-		unarycmd(std::wstring name, type rtype, std::wstring description, unarycb fnc) : cmd(4, name, type::NA, rtype, description) { mfnc = fnc; }
+		unarycmd(std::string name, type rtype, std::string description, unarycb fnc) : cmd(4, name, type::NA, rtype, description) { mfnc = fnc; }
 		virtual std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const { return mfnc(vm, right); }
 	};
 	class binarycmd : public cmd
@@ -55,11 +55,11 @@ namespace sqf
 	private:
 		binarycb mfnc;
 	public:
-		binarycmd(short precedence, std::wstring name, type ltype, type rtype, std::wstring description, binarycb fnc) : cmd(precedence, name, ltype, rtype, description) { mfnc = fnc; }
+		binarycmd(short precedence, std::string name, type ltype, type rtype, std::string description, binarycb fnc) : cmd(precedence, name, ltype, rtype, description) { mfnc = fnc; }
 		virtual std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const { return mfnc(vm, left, right); }
 	};
 
-	inline static std::shared_ptr<nularcmd> nular(std::wstring name, std::wstring description, nularcb fnc) { return std::make_shared<nularcmd>(name, description, fnc); }
-	inline static std::shared_ptr<unarycmd> unary(std::wstring name, type rtype, std::wstring description, unarycb fnc) { return std::make_shared<unarycmd>(name, rtype, description, fnc); }
-	inline static std::shared_ptr<binarycmd> binary(short precedence, std::wstring name, type ltype, type rtype, std::wstring description, binarycb fnc) { return std::make_shared<binarycmd>(precedence, name, ltype, rtype, description, fnc); }
+	inline static std::shared_ptr<nularcmd> nular(std::string name, std::string description, nularcb fnc) { return std::make_shared<nularcmd>(name, description, fnc); }
+	inline static std::shared_ptr<unarycmd> unary(std::string name, type rtype, std::string description, unarycb fnc) { return std::make_shared<unarycmd>(name, rtype, description, fnc); }
+	inline static std::shared_ptr<binarycmd> binary(short precedence, std::string name, type ltype, type rtype, std::string description, binarycb fnc) { return std::make_shared<binarycmd>(precedence, name, ltype, rtype, description, fnc); }
 }

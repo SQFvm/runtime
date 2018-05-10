@@ -3,10 +3,10 @@
 #include <sstream>
 #include <algorithm>
 
-std::wstring sqf::arraydata::tosqf(void) const
+std::string sqf::arraydata::tosqf(void) const
 {
-	std::wstringstream sstream;
-	sstream << L'[';
+	std::stringstream sstream;
+	sstream << '[';
 	bool first = true;
 	for (auto it : mvalue)
 	{
@@ -16,11 +16,11 @@ std::wstring sqf::arraydata::tosqf(void) const
 		}
 		else
 		{
-			sstream << L", ";
+			sstream << ", ";
 		}
 		sstream << it->tosqf();
 	}
-	sstream << L']';
+	sstream << ']';
 	return sstream.str();
 }
 

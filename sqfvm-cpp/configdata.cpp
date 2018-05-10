@@ -18,20 +18,20 @@ std::shared_ptr<sqf::value> sqf::configdata::parent_unsafe(void)
 	return std::shared_ptr<sqf::value>();
 }
 
-std::shared_ptr<sqf::value> sqf::configdata::navigate_unsafe(std::wstring nextnode)
+std::shared_ptr<sqf::value> sqf::configdata::navigate_unsafe(std::string nextnode)
 {
 	for (auto it : innervector())
 	{
 		if (it->dtype() != type::CONFIG)
 			continue;
 		auto cd = it->data<sqf::configdata>();
-		if (wstr_cmpi(cd->mname.c_str(), -1, nextnode.c_str(), -1) == 0)
+		if (str_cmpi(cd->mname.c_str(), -1, nextnode.c_str(), -1) == 0)
 			return it;
 	}
 	return std::shared_ptr<sqf::value>();
 }
 
-std::shared_ptr<sqf::value> sqf::configdata::navigate_full_unsafe(std::wstring nextnode)
+std::shared_ptr<sqf::value> sqf::configdata::navigate_full_unsafe(std::string nextnode)
 {
 	auto it = navigate_unsafe(nextnode);
 	if (it.get())
@@ -51,9 +51,9 @@ std::shared_ptr<sqf::value> sqf::configdata::navigate_full_unsafe(std::wstring n
 	}
 }
 
-std::wstring sqf::configdata::tosqf(void) const
+std::string sqf::configdata::tosqf(void) const
 {
-	std::wstringstream sstream;
+	std::stringstream sstream;
 	for (size_t i = logicalparentcount(); i != (size_t)~0; i--)
 	{
 		auto node = std::shared_ptr<configdata>((configdata*)this, [](configdata*) {});;
@@ -64,7 +64,7 @@ std::wstring sqf::configdata::tosqf(void) const
 		sstream << node->mname;
 		if (i != 0)
 		{
-			sstream << L'/';
+			sstream << '/';
 		}
 	}
 	return sstream.str();
@@ -102,6 +102,6 @@ std::shared_ptr<sqf::value> sqf::configdata::configFile(void)
 
 std::shared_ptr<sqf::value> sqf::configdata::configNull(void)
 {
-	static std::shared_ptr<sqf::configdata> cdata = std::make_shared<sqf::configdata>(L"");
+	static std::shared_ptr<sqf::configdata> cdata = std::make_shared<sqf::configdata>("");
 	return std::make_shared<sqf::value>(cdata, sqf::type::CONFIG);
 }

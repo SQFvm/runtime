@@ -9,7 +9,7 @@ std::shared_ptr<sqf::instruction> sqf::callstack_select::popinst(sqf::virtualmac
 {
 	if (mcurindex == 0 && marr.size() > 0)
 	{
-		setvar(L"_x", marr[mcurindex]);
+		setvar("_x", marr[mcurindex]);
 		mcurindex++;
 		auto sptr = std::shared_ptr<callstack_select>(this, [](callstack_select*) {});
 		mcond->loadinto(vm->stack(), sptr);
@@ -34,7 +34,7 @@ std::shared_ptr<sqf::instruction> sqf::callstack_select::popinst(sqf::virtualmac
 			mend = true;
 			return sqf::callstack::popinst(vm);
 		}
-		setvar(L"_x", marr[mcurindex]);
+		setvar("_x", marr[mcurindex]);
 		mcurindex++;
 
 		auto sptr = std::shared_ptr<callstack_select>(this, [](callstack_select*) {});

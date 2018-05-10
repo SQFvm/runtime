@@ -29,9 +29,9 @@
 
 sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 {
-	mout = &std::wcout;
-	mwrn = &std::wcerr;
-	merr = &std::wcerr;
+	mout = &std::cout;
+	mwrn = &std::cerr;
+	merr = &std::cerr;
 	minstcount = 0;
 	mmaxinst = maxinst;
 	mmainstack = std::make_shared<vmstack>();
@@ -63,13 +63,13 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		exitAfter--;
 		if (mmaxinst != 0 && mmaxinst == minstcount)
 		{
-			err() << L"MAX INST COUNT REACHED (" << mmaxinst << L")" << std::endl;
+			err() << "MAX INST COUNT REACHED (" << mmaxinst << ")" << std::endl;
 			break;
 		}
 		inst->execute(this);
 		if (merrflag)
 		{
-			err() << inst->dbginf(L"RNT") << std::endl;
+			err() << inst->dbginf("RNT") << std::endl;
 			merrflag = false;
 			//Only for non-scheduled (and thus the mainstack)
 			if (mactivestack->isscheduled())
@@ -79,14 +79,14 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		}
 		if (mwrnflag)
 		{
-			wrn() << inst->dbginf(L"WRN") << std::endl;
+			wrn() << inst->dbginf("WRN") << std::endl;
 			mwrnflag = false;
 		}
 	}
 }
-std::wstring sqf::virtualmachine::dbgsegment(const wchar_t* full, size_t off, size_t length)
+std::string sqf::virtualmachine::dbgsegment(const char* full, size_t off, size_t length)
 {
-	auto sstream = std::wstringstream();
+	auto sstream = std::stringstream();
 	size_t i = off < 15 ? 0 : off - 15;
 	size_t len = 30 + length;
 	if (i < 0)
@@ -96,8 +96,8 @@ std::wstring sqf::virtualmachine::dbgsegment(const wchar_t* full, size_t off, si
 	}
 	for (size_t j = i; j < i + len; j++)
 	{
-		wchar_t wc = full[j];
-		if (wc == L'\0' || wc == L'\n')
+		char wc = full[j];
+		if (wc == '\0' || wc == '\n')
 		{
 			if (j < off)
 			{
@@ -110,23 +110,23 @@ std::wstring sqf::virtualmachine::dbgsegment(const wchar_t* full, size_t off, si
 			}
 		}
 	}
-	sstream << std::wstring(full + i, full + i + len) << std::endl
-		<< std::wstring(off - i, L' ') << std::wstring(length, L'^') << std::endl;
+	sstream << std::string(full + i, full + i + len) << std::endl
+		<< std::string(off - i, ' ') << std::string(length, '^') << std::endl;
 	return sstream.str();
 }
-bool contains_nular(std::wstring ident)
+bool contains_nular(std::string ident)
 {
 	return sqf::commandmap::get().contains_n(ident);
 }
-bool contains_unary(std::wstring ident)
+bool contains_unary(std::string ident)
 {
 	return sqf::commandmap::get().contains_u(ident);
 }
-bool contains_binary(std::wstring ident)
+bool contains_binary(std::string ident)
 {
 	return sqf::commandmap::get().contains_b(ident);
 }
-short precedence(std::wstring s)
+short precedence(std::string s)
 {
 	auto srange = sqf::commandmap::get().getrange_b(s);
 	if (!srange.get() || srange->empty())
@@ -136,7 +136,7 @@ short precedence(std::wstring s)
 	return srange->begin()->get()->precedence();
 }
 
-void navigate_sqf(const wchar_t* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::callstack> stack, astnode node)
+void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::callstack> stack, astnode node)
 {
 	switch (node.kind)
 	{
@@ -248,7 +248,7 @@ void navigate_sqf(const wchar_t* full, sqf::virtualmachine* vm, std::shared_ptr<
 	}
 }
 
-void sqf::virtualmachine::parse_sqf(std::wstring code, std::wstringstream* sstream)
+void sqf::virtualmachine::parse_sqf(std::string code, std::stringstream* sstream)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
@@ -256,7 +256,7 @@ void sqf::virtualmachine::parse_sqf(std::wstring code, std::wstringstream* sstre
 	print_navigate_ast(sstream, node, sqf::parse::sqf::astkindname);
 }
 
-void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::wstring code, std::shared_ptr<sqf::callstack> cs)
+void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::string code, std::shared_ptr<sqf::callstack> cs)
 {
 	if (!cs.get())
 	{
@@ -271,9 +271,9 @@ void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::w
 	if (isinitial)
 	{
 		isinitial = false;
-		out() << L"-------------------------------" << std::endl;
+		out() << "-------------------------------" << std::endl;
 		print_navigate_ast(mout, node, sqf::parse::sqf::astkindname);
-		out() << L"-------------------------------" << std::endl;
+		out() << "-------------------------------" << std::endl;
 	}
 #endif
 
@@ -283,7 +283,7 @@ void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::w
 	}
 }
 
-void navigate_config(const wchar_t* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode node)
+void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode node)
 {
 	auto kind = (sqf::parse::config::configasttypes::configasttypes)node.kind;
 	switch (kind)
@@ -352,21 +352,21 @@ void navigate_config(const wchar_t* full, sqf::virtualmachine* vm, std::shared_p
 	}
 	}
 }
-void sqf::virtualmachine::parse_config(std::wstring code, std::shared_ptr<configdata> parent)
+void sqf::virtualmachine::parse_config(std::string code, std::shared_ptr<configdata> parent)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
 	auto node = sqf::parse::config::parse_config(code.c_str(), h, errflag);
-#if defined(_DEBUG)
-	static bool isinitial = true;
-	if (isinitial)
-	{
-		isinitial = false;
-		out() << L"-------------------------------" << std::endl;
-		print_navigate_ast(mout, node, sqf::parse::config::astkindname);
-		out() << L"-------------------------------" << std::endl;
-	}
-#endif
+//#if defined(_DEBUG)
+//	static bool isinitial = true;
+//	if (isinitial)
+//	{
+//		isinitial = false;
+//		out() << "-------------------------------" << std::endl;
+//		print_navigate_ast(mout, node, sqf::parse::config::astkindname);
+//		out() << "-------------------------------" << std::endl;
+//	}
+//#endif
 
 	if (!errflag)
 	{
@@ -400,12 +400,12 @@ std::shared_ptr<sqf::innerobj> sqf::virtualmachine::get_obj_netid(size_t netid)
 	return mobjlist[netid];
 }
 
-std::wstring sqf::virtualmachine::get_group_id(std::shared_ptr<sqf::sidedata> side)
+std::string sqf::virtualmachine::get_group_id(std::shared_ptr<sqf::sidedata> side)
 {
 	int sidenum = side->side();
 	int id = mgroupidcounter[sidenum]++;
-	auto sstream = std::wstringstream();
-	sstream << side->tosqf() << L" ALPHA " << id;
+	auto sstream = std::stringstream();
+	sstream << side->tosqf() << " ALPHA " << id;
 	return sstream.str();
 }
 

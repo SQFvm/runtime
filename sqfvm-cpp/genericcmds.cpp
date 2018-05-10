@@ -16,26 +16,45 @@
 #include "callstack_switch.h"
 #include "callstack_apply.h"
 
+
+#define CALLEXTBUFFSIZE 10240
+#define CALLEXTVERSIONBUFFSIZE 32
+#define RVARGSLIMIT 1024
+
+#if defined(__linux__)
+#include <dlfcn.h>
+typedef void(*RVExtensionVersion)(char*, int);
+typedef void(*RVExtension)(char*, int, const char*);
+typedef int(*RVExtensionArgs)(char*, int, const char*, const char**, int);
+#elif defined(_WIN32)
+typedef void(__stdcall *RVExtensionVersion)(char*, int);
+typedef void(__stdcall *RVExtension)(char*, int, const char*);
+typedef int(__stdcall *RVExtensionArgs)(char*, int, const char*, const char**, int);
+#else
+#error UNSUPPORTED PLATFORM
+#endif
+
+
 using namespace sqf;
 namespace
 {
 	std::shared_ptr<value> productversion_(virtualmachine* vm)
 	{
-		auto vec = std::vector<std::shared_ptr<value>> {
-			std::make_shared<value>(L"SQF-VM"), //product name
-			std::make_shared<value>(L"sqf-vm"),
+		auto vec = std::vector<std::shared_ptr<value>>{
+			std::make_shared<value>("SQF-VM"), //product name
+			std::make_shared<value>("sqf-vm"),
 			std::make_shared<value>(2),
 			std::make_shared<value>(0),
-			std::make_shared<value>(L"COMMUNITY"),
+			std::make_shared<value>("COMMUNITY"),
 			std::make_shared<value>(false),
 #if _WIN32
-			std::make_shared<value>(L"Windows"),
+			std::make_shared<value>("Windows"),
 #elif __linux__
-			std::make_shared<value>(L"Linux"),
+			std::make_shared<value>("Linux"),
 #else
-			std::make_shared<value>(L"NA"),
+			std::make_shared<value>("NA"),
 #endif
-			std::make_shared<value>(L"x86")
+			std::make_shared<value>("x86")
 		};
 		return std::make_shared<value>(vec);
 	}
@@ -43,14 +62,14 @@ namespace
 	{
 		auto r = std::static_pointer_cast<codedata>(right->data());
 		r->loadinto(vm->stack());
-		vm->stack()->stacks_top()->setvar(L"_this", std::make_shared<value>());
+		vm->stack()->stacks_top()->setvar("_this", std::make_shared<value>());
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> call_any_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto r = std::static_pointer_cast<codedata>(right->data());
 		r->loadinto(vm->stack());
-		vm->stack()->stacks_top()->setvar(L"_this", std::make_shared<value>());
+		vm->stack()->stacks_top()->setvar("_this", std::make_shared<value>());
 		vm->stack()->pushval(left);
 		return std::shared_ptr<value>();
 	}
@@ -92,7 +111,7 @@ namespace
 		auto arr = right->as_vector();
 		if (arr.size() != 2)
 		{
-			vm->err() << L"Expected 2 elements in array." << std::endl;
+			vm->err() << "Expected 2 elements in array." << std::endl;
 			return std::make_shared<value>();
 		}
 		auto el0 = arr[0];
@@ -101,7 +120,7 @@ namespace
 		{
 			if (el1->dtype() != type::CODE)
 			{
-				vm->wrn() << L"Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1->dtype()) << L"'." << std::endl;
+				vm->wrn() << "Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1->dtype()) << "'." << std::endl;
 			}
 			if (el0->dtype() == type::CODE)
 			{
@@ -111,7 +130,7 @@ namespace
 			}
 			else
 			{
-				vm->err() << L"Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0->dtype()) << L"'." << std::endl;
+				vm->err() << "Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0->dtype()) << "'." << std::endl;
 				return std::make_shared<value>();
 			}
 		}
@@ -119,7 +138,7 @@ namespace
 		{
 			if (el0->dtype() != type::CODE)
 			{
-				vm->wrn() << L"Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0->dtype()) << L"'." << std::endl;
+				vm->wrn() << "Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0->dtype()) << "'." << std::endl;
 			}
 			if (el1->dtype() == type::CODE)
 			{
@@ -129,7 +148,7 @@ namespace
 			}
 			else
 			{
-				vm->err() << L"Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1->dtype()) << L"'." << std::endl;
+				vm->err() << "Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1->dtype()) << "'." << std::endl;
 				return std::make_shared<value>();
 			}
 		}
@@ -227,12 +246,12 @@ namespace
 
 		if ((int)arr.size() <= index || index < 0)
 		{
-			vm->err() << L"Index out of range." << std::endl;
+			vm->err() << "Index out of range." << std::endl;
 			return std::make_shared<value>();
 		}
 		if ((int)arr.size() == index)
 		{
-			vm->wrn() << L"Index equals range. Returning nil." << std::endl;
+			vm->wrn() << "Index equals range. Returning nil." << std::endl;
 			return std::make_shared<value>();
 		}
 		return arr[index];
@@ -243,12 +262,12 @@ namespace
 		auto flag = right->as_bool();
 		if ((!flag && arr.size() < 2) || arr.size() < 1)
 		{
-			vm->wrn() << L"Array should have at least two elements. Returning nil" << std::endl;
+			vm->wrn() << "Array should have at least two elements. Returning ni" << std::endl;
 			return std::make_shared<value>();
 		}
 		else if (flag && arr.size() < 2)
 		{
-			vm->wrn() << L"Array should have at least two elements." << std::endl;
+			vm->wrn() << "Array should have at least two elements." << std::endl;
 		}
 		return flag ? arr[0] : arr[1];
 	}
@@ -258,39 +277,39 @@ namespace
 		auto arr = right->as_vector();
 		if (arr.size() < 1)
 		{
-			vm->err() << L"Array was expected to have at least a single element." << std::endl;
+			vm->err() << "Array was expected to have at least a single element." << std::endl;
 			return std::make_shared<value>();
 		}
 		if (arr[0]->dtype() != type::SCALAR)
 		{
-			vm->err() << L"First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << L'.' << std::endl;
+			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
 		int start = arr[0]->as_int();
 		if (start < 0)
 		{
-			vm->wrn() << L"Start index is smaller then 0. Returning empty array." << std::endl;
-			return std::make_shared<value>(L"");
+			vm->wrn() << "Start index is smaller then 0. Returning empty array." << std::endl;
+			return std::make_shared<value>("");
 		}
 		if (start > (int)vec.size())
 		{
-			vm->wrn() << L"Start index is larger then string length. Returning empty array." << std::endl;
-			return std::make_shared<value>(L"");
+			vm->wrn() << "Start index is larger then string length. Returning empty array." << std::endl;
+			return std::make_shared<value>("");
 		}
 		if (arr.size() >= 2)
 		{
 			if (arr[1]->dtype() != type::SCALAR)
 			{
-				vm->err() << L"Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << L'.' << std::endl;
+				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
 				return std::make_shared<value>();
 			}
 			int length = arr[1]->as_int();
 			if (length < 0)
 			{
-				vm->wrn() << L"Length is smaller then 0. Returning empty array." << std::endl;
-				return std::make_shared<value>(L"");
+				vm->wrn() << "Length is smaller then 0. Returning empty array." << std::endl;
+				return std::make_shared<value>("");
 			}
-			
+
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, start + length > (int)vec.size() ? vec.end() : vec.begin() + start + length));
 		}
 		return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, vec.end()));
@@ -309,7 +328,7 @@ namespace
 	{
 		if (right->as_int() < 0)
 		{
-			vm->err() << L"New size cannot be smaller then 0." << std::endl;
+			vm->err() << "New size cannot be smaller then 0." << std::endl;
 			return std::make_shared<value>();
 		}
 		left->data<arraydata>()->resize(right->as_int());
@@ -342,7 +361,7 @@ namespace
 			auto it = arr[i];
 			if (it->dtype() != sqf::type::STRING)
 			{
-				vm->err() << L"Index position " << i << L" was expected to be of type 'STRING' but was '" << sqf::type_str(it->dtype()) << L"'." << std::endl;
+				vm->err() << "Index position " << i << " was expected to be of type 'STRING' but was '" << sqf::type_str(it->dtype()) << "'." << std::endl;
 			}
 		}
 		if (errflag)
@@ -372,23 +391,23 @@ namespace
 	std::shared_ptr<value> hint_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
-		vm->out() << L"[HINT]\t" << r << std::endl;
+		vm->out() << "[HINT]\t" << r << std::endl;
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> hint_text(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
-		vm->out() << L"[HINT]\t" << r << std::endl;
+		vm->out() << "[HINT]\t" << r << std::endl;
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> systemchat_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
-		vm->out() << L"[CHAT]\tSYSTEM: " << r << std::endl;
+		vm->out() << "[CHAT]\tSYSTEM: " << r << std::endl;
 		return std::make_shared<value>();
 	}
 
-#define MAGIC_SWITCH L"___switch"
+#define MAGIC_SWITCH "___switch"
 	std::shared_ptr<value> switch_any(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		return std::make_shared<value>(std::make_shared<switchdata>(right), sqf::type::SWITCH);
@@ -407,11 +426,11 @@ namespace
 		auto valswtch = vm->stack()->getlocalvar(MAGIC_SWITCH);
 		if (valswtch->dtype() != sqf::type::SWITCH)
 		{
-			vm->err() << L"Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch->dtype()) << L"'.";
+			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch->dtype()) << "'.";
 			return std::shared_ptr<value>();
 		}
 		auto swtch = valswtch->data<switchdata>();
-		
+
 		if (right->equals(swtch->val()))
 		{
 			swtch->flag(true);
@@ -423,7 +442,7 @@ namespace
 		auto valswtch = vm->stack()->getlocalvar(MAGIC_SWITCH);
 		if (valswtch->dtype() != sqf::type::SWITCH)
 		{
-			vm->err() << L"Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch->dtype()) << L"'.";
+			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch->dtype()) << "'.";
 			return std::shared_ptr<value>();
 		}
 		auto swtch = valswtch->data<switchdata>();
@@ -462,7 +481,7 @@ namespace
 		auto scrpt = std::make_shared<scriptdata>();
 		code->loadinto(scrpt->stack());
 		vm->push_spawn(scrpt);
-		scrpt->stack()->stacks_top()->setvar(L"_this", left);
+		scrpt->stack()->stacks_top()->setvar("_this", left);
 		return std::make_shared<value>(scrpt, sqf::type::SCRIPT);
 	}
 	std::shared_ptr<value> scriptdone_script(virtualmachine* vm, std::shared_ptr<value> right)
@@ -476,12 +495,12 @@ namespace
 		auto params = right->as_vector();
 		if (params.size() != 2)
 		{
-			vm->err() << L"Expected 2 elements in array, got " << params.size() << L". Returning NIL." << std::endl;
+			vm->err() << "Expected 2 elements in array, got " << params.size() << ". Returning NIL." << std::endl;
 			return std::shared_ptr<value>();
 		}
 		if (params[0]->dtype() != sqf::type::SCALAR)
 		{
-			vm->err() << L"Index position 0 was expected to be of type 'SCALAR' but was '" << sqf::type_str(params[0]->dtype()) << L"'." << std::endl;
+			vm->err() << "Index position 0 was expected to be of type 'SCALAR' but was '" << sqf::type_str(params[0]->dtype()) << "'." << std::endl;
 			return std::shared_ptr<value>();
 		}
 
@@ -526,7 +545,7 @@ namespace
 				{
 					max = 0;
 				}
-				vm->wrn() << L"Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp->dtype()) << L"'." << std::endl;
+				vm->wrn() << "Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp->dtype()) << "'." << std::endl;
 			}
 		}
 		return std::make_shared<value>(max);
@@ -558,64 +577,193 @@ namespace
 				{
 					min = 0;
 				}
-				vm->wrn() << L"Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp->dtype()) << L"'." << std::endl;
+				vm->wrn() << "Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp->dtype()) << "'." << std::endl;
 			}
 		}
 		return std::make_shared<value>(min);
 	}
+
+	std::shared_ptr<dlops> helpermethod_callextension_loadlibrary(virtualmachine* vm, std::string name)
+	{
+		static char buffer[CALLEXTVERSIONBUFFSIZE + 1] = { 0 };
+		for (auto it : vm->libraries())
+		{
+			if (!it->path().compare(name))
+			{
+				return it;
+			}
+		}
+		vm->libraries().push_back(std::make_shared<dlops>(name));
+		auto& dl = vm->libraries().back();
+		void* sym;
+		if (dl->try_resolve("RVExtensionVersion", &sym))
+		{
+			((RVExtensionVersion)sym)(buffer, CALLEXTVERSIONBUFFSIZE);
+			if (buffer[CALLEXTVERSIONBUFFSIZE - 1] != '\0')
+			{
+				vm->wrn() << "Library '" << name << "' is not terminating RVExtensionVersion output buffer with a '\\0'!" << std::endl;
+			}
+			vm->out() << "[RPT]\tCallExtension loaded: '" << name << "' [" << buffer <<  ']' << std::endl;
+		}
+		else
+		{
+			vm->out() << "[RPT]\tCallExtension loaded: '" << name << '\'' << std::endl;
+		}
+		return dl;
+	}
+	std::shared_ptr<value> callextension_string_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		static char buffer[CALLEXTBUFFSIZE + 1] = { 0 };
+		try
+		{
+			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
+#if defined(_WIN32) & !defined(_WIN64)
+			auto method = (RVExtension)dl->resolve("_RVExtension@12");
+#else
+			auto method = (RVExtension)dl->resolve("RVExtension");
+#endif
+			method(buffer, CALLEXTBUFFSIZE, right->as_string().c_str());
+			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
+			{
+				vm->wrn() << "Library '" << left->as_string() << "' is not terminating RVExtension output buffer with a '\\0'!" << std::endl;
+			}
+			return std::make_shared<value>(buffer);
+		}
+		catch (std::runtime_error ex)
+		{
+			vm->wrn() << "Could not complete command execution due to error with library '" << left->as_string() << "' (RVExtension):" << ex.what() << std::endl;
+			return std::make_shared<value>("");
+		}
+	}
+	std::shared_ptr<value> callextension_string_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		static char buffer[CALLEXTBUFFSIZE + 1] = { 0 };
+		auto rvec = right->data<arraydata>();
+		if (rvec->size() < 2)
+		{
+			vm->wrn() << "Expected 2 elements in array, got " << rvec->size() << ". Returning error code PARAMS_ERROR_TOO_MANY_ARGS(201)." << std::endl;
+			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(201) });
+			return std::shared_ptr<value>();
+		}
+		if (rvec->at(0)->dtype() != type::STRING)
+		{
+			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(rvec->at(0)->dtype()) << "'." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		if (rvec->at(1)->dtype() != type::ARRAY)
+		{
+			vm->err() << "Index position 1 was expected to be of type 'STRING' but was '" << sqf::type_str(rvec->at(1)->dtype()) << "'." << std::endl;
+			return std::shared_ptr<value>();
+		}
+
+		auto arr = rvec->at(1)->data<arraydata>();
+		if (arr->size() > RVARGSLIMIT)
+		{
+			vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_SIZE(101) error with '" << left->as_string() << "' (RVExtensionArgs)" << std::endl;
+			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(101) });
+		}
+		std::vector<std::string> argstringvec;
+
+		for (size_t i = 0; i < arr->size(); i++)
+		{
+			auto& at = arr->at(i);
+			switch (at->dtype())
+			{
+			case type::BOOL:
+			case type::STRING:
+			case type::SCALAR:
+			case type::ARRAY:
+				argstringvec.push_back(at->as_string());
+				break;
+			default:
+				vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_TYPE(102) error with '" << left->as_string() << "' (RVExtensionArgs)" << std::endl;
+				return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(102) });
+			}
+		}
+		std::vector<const char*> argvec;
+		argvec.reserve(argstringvec.size());
+		for (size_t i = 0; i < argstringvec.size(); i++)
+		{
+			argvec.push_back(argstringvec[i].c_str());
+		}
+
+		try
+		{
+			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
+#if defined(_WIN32) & !defined(_WIN64)
+			auto method = (RVExtensionArgs)dl->resolve("_RVExtensionArgs@20");
+#else
+			auto method = (RVExtensionArgs)dl->resolve("RVExtensionArgs");
+#endif
+			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0)->as_string().c_str(), argvec.data(), (int)argvec.size());
+			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
+			{
+				vm->wrn() << "Library '" << left->as_string() << "' is not terminating RVExtensionArgs output buffer with a '\\0'!" << std::endl;
+			}
+			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(buffer), std::make_shared<value>(res), std::make_shared<value>(0) });
+		}
+		catch (std::runtime_error ex)
+		{
+			vm->wrn() << "Could not complete command execution due to error with library '" << left->as_string() << "' (RVExtensionArgs):" << ex.what() << std::endl;
+			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(501) });
+		}
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
-	add(nular(L"nil", L"Nil value. This value can be used to undefine existing variables.", nil_));
-	add(unary(L"call", sqf::type::CODE, L"Executes given set of compiled instructions.", call_code));
-	add(binary(4, L"call", sqf::type::ANY, sqf::type::CODE, L"Executes given set of compiled instructions with an option to pass arguments to the executed Code.", call_any_code));
-	add(unary(L"count", sqf::type::ARRAY, L"Can be used to count: the number of elements in array.", count_array));
-	add(unary(L"compile", sqf::type::STRING, L"Compile expression.", compile_string));
-	add(unary(L"typeName", sqf::type::ANY, L"Returns the data type of an expression.", typename_any));
-	add(unary(L"str", sqf::type::ANY, L"Converts any value into a string.", str_any));
-	add(unary(L"comment", sqf::type::STRING, L"Define a comment. Mainly used in SQF Syntax, as you're able to introduce comment lines with semicolons in a SQS script.", comment_string));
-	add(unary(L"if", sqf::type::BOOL, L"This operator creates a If Type which is used in conjunction with the 'then' command.", if_bool));
-	add(binary(4, L"then", type::IF, type::ARRAY, L"First or second element of array is executed depending on left arg. Result of the expression executed is returned as a result (result may be Nothing).", then_if_array));
-	add(binary(4, L"then", type::IF, type::CODE, L"If left arg is true, right arg is executed. Result of the expression executed is returned as a result (result may be Nothing).", then_if_code));
-	add(binary(5, L"else", type::CODE, type::CODE, L"Concats left and right element into a single, 2 element array.", else_code_code));
-	add(binary(4, L"exitWith", type::IF, type::CODE, L"If condition evaluates to true, executes the code in a new scope and exits the current one afterwards.", exitwith_if_code));
-	add(unary(L"while", type::CODE, L"Marks code as WHILE type.", while_code));
-	add(binary(4, L"do", type::WHILE, type::CODE, L"Executes provided code as long as while condition evaluates to true.", do_while_code));
-	add(unary(L"for", type::STRING, L"Creates a FOR type for usage in 'for <var> from <start> to <end> [ step <stepsize> ] do <code>' construct.", for_string));
-	add(binary(4, L"from", type::FOR, type::SCALAR, L"Sets the start index in a FOR type construct.", from_for_scalar));
-	add(binary(4, L"to", type::FOR, type::SCALAR, L"Sets the end index in a FOR type construct.", to_for_scalar));
-	add(binary(4, L"step", type::FOR, type::SCALAR, L"Sets the step size (default: 1) in a FOR type construct.", step_for_scalar));
-	add(binary(4, L"do", type::FOR, type::CODE, L"Executes provided code as long as the var is smaller then the end index.", do_for_code));
+	add(nular("ni", "Nil value. This value can be used to undefine existing variables.", nil_));
+	add(unary("cal", sqf::type::CODE, "Executes given set of compiled instructions.", call_code));
+	add(binary(4, "cal", sqf::type::ANY, sqf::type::CODE, "Executes given set of compiled instructions with an option to pass arguments to the executed Code.", call_any_code));
+	add(unary("count", sqf::type::ARRAY, "Can be used to count: the number of elements in array.", count_array));
+	add(unary("compile", sqf::type::STRING, "Compile expression.", compile_string));
+	add(unary("typeName", sqf::type::ANY, "Returns the data type of an expression.", typename_any));
+	add(unary("str", sqf::type::ANY, "Converts any value into a string.", str_any));
+	add(unary("comment", sqf::type::STRING, "Define a comment. Mainly used in SQF Syntax, as you're able to introduce comment lines with semicolons in a SQS script.", comment_string));
+	add(unary("if", sqf::type::BOOL, "This operator creates a If Type which is used in conjunction with the 'then' command.", if_bool));
+	add(binary(4, "then", type::IF, type::ARRAY, "First or second element of array is executed depending on left arg. Result of the expression executed is returned as a result (result may be Nothing).", then_if_array));
+	add(binary(4, "then", type::IF, type::CODE, "If left arg is true, right arg is executed. Result of the expression executed is returned as a result (result may be Nothing).", then_if_code));
+	add(binary(5, "else", type::CODE, type::CODE, "Concats left and right element into a single, 2 element array.", else_code_code));
+	add(binary(4, "exitWith", type::IF, type::CODE, "If condition evaluates to true, executes the code in a new scope and exits the current one afterwards.", exitwith_if_code));
+	add(unary("while", type::CODE, "Marks code as WHILE type.", while_code));
+	add(binary(4, "do", type::WHILE, type::CODE, "Executes provided code as long as while condition evaluates to true.", do_while_code));
+	add(unary("for", type::STRING, "Creates a FOR type for usage in 'for <var> from <start> to <end> [ step <stepsize> ] do <code>' construct.", for_string));
+	add(binary(4, "from", type::FOR, type::SCALAR, "Sets the start index in a FOR type construct.", from_for_scalar));
+	add(binary(4, "to", type::FOR, type::SCALAR, "Sets the end index in a FOR type construct.", to_for_scalar));
+	add(binary(4, "step", type::FOR, type::SCALAR, "Sets the step size (default: 1) in a FOR type construct.", step_for_scalar));
+	add(binary(4, "do", type::FOR, type::CODE, "Executes provided code as long as the var is smaller then the end index.", do_for_code));
 
-	add(binary(4, L"select", type::ARRAY, type::SCALAR, L"Selects the element at provided index from array. If the index provided equals the array length, nil will be returned.", select_array_scalar));
-	add(binary(4, L"select", type::ARRAY, type::BOOL, L"Selects the first element if provided boolean is true, second element if it is false.", select_array_bool));
-	add(binary(4, L"select", type::ARRAY, type::ARRAY, L"Selects a range of elements in provided array, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_array_array));
-	add(binary(4, L"select", type::ARRAY, type::CODE, L"Selects elements from provided array matching provided condition. Current element will be placed in _x variable.", select_array_code));
-	add(binary(4, L"resize", type::ARRAY, type::SCALAR, L"Changes the size of the given array. The command does not return new array, it resizes the source array to the desired number of elements. If the new size is bigger than the current size, the new places are filled with nils.", resize_array_scalar));
-	add(binary(4, L"pushBack", type::ARRAY, type::ANY, L"Insert an element to the back of the given array. This command modifies the original array. Returns the index of the newly added element.", pushback_array_any));
-	add(unary(L"reverse", type::ARRAY, L"Reverses given array by reference. Modifies the original array.", reverse_array));
-	add(unary(L"private", type::STRING, L"Sets a variable to the innermost scope.", private_string));
-	add(unary(L"private", type::ARRAY, L"Sets a bunch of variables to the innermost scope.", private_array));
-	add(unary(L"isNil", type::STRING, L"Tests whether the variable defined by the string argument is undefined.", isnil_string));
-	add(unary(L"isNil", type::CODE, L"Tests whether an expression result passed as code is undefined.", isnil_code));
-	add(unary(L"hint", type::STRING, L"Outputs a hint message.", hint_string));
-	add(unary(L"hint", type::TEXT, L"Outputs a hint message.", hint_text));
-	add(unary(L"systemChat", type::STRING, L"Types text to the system radio channel.", systemchat_string));
-	add(nular(L"productVersion", L"Returns basic info about the product.", productversion_));
+	add(binary(4, "select", type::ARRAY, type::SCALAR, "Selects the element at provided index from array. If the index provided equals the array length, nil will be returned.", select_array_scalar));
+	add(binary(4, "select", type::ARRAY, type::BOOL, "Selects the first element if provided boolean is true, second element if it is false.", select_array_bool));
+	add(binary(4, "select", type::ARRAY, type::ARRAY, "Selects a range of elements in provided array, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_array_array));
+	add(binary(4, "select", type::ARRAY, type::CODE, "Selects elements from provided array matching provided condition. Current element will be placed in _x variable.", select_array_code));
+	add(binary(4, "resize", type::ARRAY, type::SCALAR, "Changes the size of the given array. The command does not return new array, it resizes the source array to the desired number of elements. If the new size is bigger than the current size, the new places are filled with nils.", resize_array_scalar));
+	add(binary(4, "pushBack", type::ARRAY, type::ANY, "Insert an element to the back of the given array. This command modifies the original array. Returns the index of the newly added element.", pushback_array_any));
+	add(unary("reverse", type::ARRAY, "Reverses given array by reference. Modifies the original array.", reverse_array));
+	add(unary("private", type::STRING, "Sets a variable to the innermost scope.", private_string));
+	add(unary("private", type::ARRAY, "Sets a bunch of variables to the innermost scope.", private_array));
+	add(unary("isNi", type::STRING, "Tests whether the variable defined by the string argument is undefined.", isnil_string));
+	add(unary("isNi", type::CODE, "Tests whether an expression result passed as code is undefined.", isnil_code));
+	add(unary("hint", type::STRING, "Outputs a hint message.", hint_string));
+	add(unary("hint", type::TEXT, "Outputs a hint message.", hint_text));
+	add(unary("systemChat", type::STRING, "Types text to the system radio channel.", systemchat_string));
+	add(nular("productVersion", "Returns basic info about the product.", productversion_));
 
-	add(unary(L"switch", type::ANY, L"Creates a SWITCH type that can be used in 'switch do {...}'.", switch_any));
-	add(binary(4, L"do", type::SWITCH, type::CODE, L"Executes provided code and sets the magic switch variable.", do_switch_code));
-	add(unary(L"case", type::ANY, L"Command to create a case inside a switch do construct. Will check if argument matches the one provided in switch strict. Requires a magic variable to be set. Cannot be used outside of switch do codeblock!", case_any));
-	add(binary(4, L":", type::SWITCH, type::CODE, L"Checks if switch type has the case flag being set and executes provided code then. If another switch got executed already, nothing will be done.", colon_switch_code));
-	add(unary(L"default", type::CODE, L"Sets the code to be executed by default if no case matched.", default_code));
-	add(binary(4, L"apply", type::ARRAY, type::CODE, L"Applies given code to each element of the array and returns resulting array. The value of the current array element, to which the code will be applied, is stored in variable _x.", apply_array_code));
-	add(binary(4, L"spawn", type::ANY, type::CODE, L"Adds given code to the scheduler. For SQF-VM, every script is guaranteed to get the same ammount of instructions done before being suspended.", spawn_any_code));
-	add(unary(L"scriptDone", type::SCRIPT, L"Check if a script is finished running using the Script_(Handle).", scriptdone_script));
+	add(unary("switch", type::ANY, "Creates a SWITCH type that can be used in 'switch do {...}'.", switch_any));
+	add(binary(4, "do", type::SWITCH, type::CODE, "Executes provided code and sets the magic switch variable.", do_switch_code));
+	add(unary("case", type::ANY, "Command to create a case inside a switch do construct. Will check if argument matches the one provided in switch strict. Requires a magic variable to be set. Cannot be used outside of switch do codeblock!", case_any));
+	add(binary(4, ":", type::SWITCH, type::CODE, "Checks if switch type has the case flag being set and executes provided code then. If another switch got executed already, nothing will be done.", colon_switch_code));
+	add(unary("default", type::CODE, "Sets the code to be executed by default if no case matched.", default_code));
+	add(binary(4, "apply", type::ARRAY, type::CODE, "Applies given code to each element of the array and returns resulting array. The value of the current array element, to which the code will be applied, is stored in variable _x.", apply_array_code));
+	add(binary(4, "spawn", type::ANY, type::CODE, "Adds given code to the scheduler. For SQF-VM, every script is guaranteed to get the same ammount of instructions done before being suspended.", spawn_any_code));
+	add(unary("scriptDone", type::SCRIPT, "Check if a script is finished running using the Script_(Handle).", scriptdone_script));
 
 
-	add(binary(4, L"set", type::ARRAY, type::ARRAY, L"Changes the element at the given (zero-based) index of the array. If the array size is smaller then the index provided, it is resized to allow for the index to be set.", set_array_array));
-	add(unary(L"+", sqf::type::ARRAY, L"Returns a copy of an array.", plus_array));
+	add(binary(4, "set", type::ARRAY, type::ARRAY, "Changes the element at the given (zero-based) index of the array. If the array size is smaller then the index provided, it is resized to allow for the index to be set.", set_array_array));
+	add(unary("+", sqf::type::ARRAY, "Returns a copy of an array.", plus_array));
 
-	add(unary(L"selectMax", type::ARRAY, L"Returns the array element with maximum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmax_array));
-	add(unary(L"selectMin", type::ARRAY, L"Returns the array element with minimum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmin_array));
+	add(unary("selectMax", type::ARRAY, "Returns the array element with maximum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmax_array));
+	add(unary("selectMin", type::ARRAY, "Returns the array element with minimum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmin_array));
+
+	add(binary(4, "callExtension", type::STRING, type::STRING, "See https://community.bistudio.com/wiki/callExtension", callextension_string_string));
+	add(binary(4, "callExtension", type::STRING, type::ARRAY, "See https://community.bistudio.com/wiki/callExtension", callextension_string_array));
 }

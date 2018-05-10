@@ -23,7 +23,7 @@ namespace
 	std::shared_ptr<value> diag_log_any(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
-		vm->out() << L"[DIAG]\t" << r << std::endl;
+		vm->out() << "[DIAG]\t" << r << std::endl;
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> diag_tickTime_(virtualmachine* vm)
@@ -34,6 +34,6 @@ namespace
 }
 void sqf::commandmap::initdiagcmdss(void)
 {
-	add(unary(L"diag_log", sqf::type::ANY, L"Dumps the argument's value to the report file. Each call creates a new line in the file.", diag_log_any));
-	add(nular(L"diag_tickTime", L"In SQF-VM: returns current systemtime in ms. In ArmA: Real time spent from the start of the game. Expressed in fractions of second. Resolution of 1 tick is 1 ms.", diag_tickTime_));
+	add(unary("diag_log", sqf::type::ANY, "Dumps the argument's value to the report file. Each call creates a new line in the file.", diag_log_any));
+	add(nular("diag_tickTime", "In SQF-VM: returns current systemtime in ms. In ArmA: Real time spent from the start of the game. Expressed in fractions of second. Resolution of 1 tick is 1 ms.", diag_tickTime_));
 }

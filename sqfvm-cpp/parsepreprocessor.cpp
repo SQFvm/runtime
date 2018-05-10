@@ -1,15 +1,15 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include "wstring_op.h"
+#include "string_op.h"
 #include "compiletime.h"
 
 class macro
 {
 private:
-	std::wstring mname;
+	std::string mname;
 public:
-	std::wstring name(void) { return mname; }
+	std::string name(void) { return mname; }
 };
 class pphelper
 {
@@ -22,25 +22,25 @@ public:
 };
 
 
-void skiptillaction(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream);
-bool iscommandstart(pphelper &helper, const wchar_t* source, size_t offset);
-void parse_command(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream);
-bool isactionstart(pphelper &helper, const wchar_t* source, size_t offset);
-void parse_action(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream);
-void parse_ifdef(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream);
-void parse_ifndef(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream);
-void parse_undefine(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream);
-void parse_define(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream);
-void parse_else(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream);
-void parse_endif(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream);
-void parse_include(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream);
+void skiptillaction(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream);
+bool iscommandstart(pphelper &helper, const char* source, size_t offset);
+void parse_command(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream);
+bool isactionstart(pphelper &helper, const char* source, size_t offset);
+void parse_action(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream);
+void parse_ifdef(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream);
+void parse_ifndef(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream);
+void parse_undefine(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream);
+void parse_define(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream);
+void parse_else(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream);
+void parse_endif(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream);
+void parse_include(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream);
 
-void skiptillaction(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream)
+void skiptillaction(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream)
 {
-	wchar_t c;
-	while ((c = source[offset]) != L'#' && c != L'\0' && !isactionstart(helper, source, offset))
+	char c;
+	while ((c = source[offset]) != '#' && c != '\0' && !isactionstart(helper, source, offset))
 	{
-		if (c == L'\n')
+		if (c == '\n')
 		{
 			line++;
 			col = 0;
@@ -50,68 +50,68 @@ void skiptillaction(pphelper &helper, const wchar_t* source, size_t &line, size_
 	}
 }
 
-bool iscommandstart(pphelper &helper, const wchar_t* source, size_t offset) { return source[offset] == L'#'; }
-void parse_command(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream)
+bool iscommandstart(pphelper &helper, const char* source, size_t offset) { return source[offset] == '#'; }
+void parse_command(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream)
 {
 	offset++;
 	col++;
-	if (wstr_cmpi(source, compiletime::strlen(L"ifdef"), L"ifdef", compiletime::strlen(L"ifdef")) == 0)
+	if (str_cmpi(source, compiletime::strlen("ifdef"), "ifdef", compiletime::strlen("ifdef")) == 0)
 	{
 		parse_ifdef(helper, source, line, col, offset, sstream);
 	}
-	else if (wstr_cmpi(source, compiletime::strlen(L"ifndef"), L"ifndef", compiletime::strlen(L"ifndef")) == 0)
+	else if (str_cmpi(source, compiletime::strlen("ifndef"), "ifndef", compiletime::strlen("ifndef")) == 0)
 	{
 		parse_ifndef(helper, source, line, col, offset, sstream);
 	}
-	else if (wstr_cmpi(source, compiletime::strlen(L"undefine"), L"undefine", compiletime::strlen(L"undefine")) == 0)
+	else if (str_cmpi(source, compiletime::strlen("undefine"), "undefine", compiletime::strlen("undefine")) == 0)
 	{
 		parse_undefine(helper, source, line, col, offset, sstream);
 	}
-	else if (wstr_cmpi(source, compiletime::strlen(L"define"), L"define", compiletime::strlen(L"define")) == 0)
+	else if (str_cmpi(source, compiletime::strlen("define"), "define", compiletime::strlen("define")) == 0)
 	{
 		parse_define(helper, source, line, col, offset, sstream);
 	}
-	else if (wstr_cmpi(source, compiletime::strlen(L"else"), L"else", compiletime::strlen(L"else")) == 0)
+	else if (str_cmpi(source, compiletime::strlen("else"), "else", compiletime::strlen("else")) == 0)
 	{
 		parse_else(helper, source, line, col, offset, sstream);
 	}
-	else if (wstr_cmpi(source, compiletime::strlen(L"endif"), L"endif", compiletime::strlen(L"endif")) == 0)
+	else if (str_cmpi(source, compiletime::strlen("endif"), "endif", compiletime::strlen("endif")) == 0)
 	{
 		parse_endif(helper, source, line, col, offset, sstream);
 	}
-	else if (wstr_cmpi(source, compiletime::strlen(L"include"), L"include", compiletime::strlen(L"include")) == 0)
+	else if (str_cmpi(source, compiletime::strlen("include"), "include", compiletime::strlen("include")) == 0)
 	{
 		parse_include(helper, source, line, col, offset, sstream);
 	}
 	else
 	{
-		helper.err() << L"[PPE][L" << line << L"|C" << col << L"]\t" << L"Unknown PP Command" << std::endl;
+		helper.err() << "[PPE][" << line << "|C" << col << "]\t" << "Unknown PP Command" << std::endl;
 	}
 }
-bool isactionstart(pphelper &helper, const wchar_t* source, size_t offset)
+bool isactionstart(pphelper &helper, const char* source, size_t offset)
 {
 	for (auto it : helper.macros())
 	{
-		if (wstr_cmpi(source, it.name().length(), it.name().c_str(), it.name().length()) == 0)
+		if (str_cmpi(source, it.name().length(), it.name().c_str(), it.name().length()) == 0)
 		{
 			return true;
 		}
 	} return false;
 }
-void parse_action(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream) {}
+void parse_action(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream) {}
 
-void parse_ifdef(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream) {}
-void parse_ifndef(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream) {}
-void parse_undefine(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream) {}
-void parse_define(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream) {}
-void parse_else(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream) {}
-void parse_endif(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream) {}
-void parse_include(pphelper &helper, const wchar_t* source, size_t &line, size_t &col, size_t &offset, std::wstringstream &sstream) {}
+void parse_ifdef(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream) {}
+void parse_ifndef(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream) {}
+void parse_undefine(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream) {}
+void parse_define(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream) {}
+void parse_else(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream) {}
+void parse_endif(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream) {}
+void parse_include(pphelper &helper, const char* source, size_t &line, size_t &col, size_t &offset, std::stringstream &sstream) {}
 
 
-std::wstring parse(std::wstring source)
+std::string parse(std::string source)
 {
-	std::wstringstream sstream;
+	std::stringstream sstream;
 	size_t offset = 0;
 	size_t line = 0;
 	size_t col = 0;

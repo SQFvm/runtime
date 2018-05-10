@@ -16,9 +16,9 @@ namespace sqf
 	class commandmap
 	{
 	private:
-		std::unordered_map<std::wstring, std::shared_ptr<nularcmd>> mnularcmd;
-		std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>> munarycmd;
-		std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>> mbinarycmd;
+		std::unordered_map<std::string, std::shared_ptr<nularcmd>> mnularcmd;
+		std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>> munarycmd;
+		std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>> mbinarycmd;
 		void initmathcmds(void);
 		void initnamespacecmds(void);
 		void initgenericcmds(void);
@@ -31,7 +31,7 @@ namespace sqf
 		void initgroupcmds(void);
 		void initobjectcmds(void);
 
-		std::wstring tolowerstring(std::wstring s)
+		std::string tolowerstring(std::string s)
 		{
 			std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 			return s;
@@ -59,24 +59,24 @@ namespace sqf
 		void add(std::shared_ptr<nularcmd> cmd);
 		void add(std::shared_ptr<unarycmd> cmd);
 		void add(std::shared_ptr<binarycmd> cmd);
-		std::shared_ptr<nularcmd> get(std::wstring str) { return mnularcmd[tolowerstring(str)]; }
-		std::shared_ptr<unarycmd> get(std::wstring str, type rtype);
-		std::shared_ptr<binarycmd> get(std::wstring str, type ltype, type rtype);
+		std::shared_ptr<nularcmd> get(std::string str) { return mnularcmd[tolowerstring(str)]; }
+		std::shared_ptr<unarycmd> get(std::string str, type rtype);
+		std::shared_ptr<binarycmd> get(std::string str, type ltype, type rtype);
 
-		std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>> getrange_u(std::wstring str) { return munarycmd[tolowerstring(str)]; }
-		std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> getrange_b(std::wstring str) { return mbinarycmd[tolowerstring(str)]; }
+		std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>> getrange_u(std::string str) { return munarycmd[tolowerstring(str)]; }
+		std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> getrange_b(std::string str) { return mbinarycmd[tolowerstring(str)]; }
 
 		static std::shared_ptr<unarycmd> find(std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>> list, type rtype);
 		static std::shared_ptr<binarycmd> find(std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> list, type ltype, type rtype);
 
-		bool contains_n(std::wstring name) { return mnularcmd.find(tolowerstring(name)) != mnularcmd.end(); }
-		bool contains_u(std::wstring name) { return munarycmd.find(tolowerstring(name)) != munarycmd.end(); }
-		bool contains_b(std::wstring name) { return mbinarycmd.find(tolowerstring(name)) != mbinarycmd.end(); }
+		bool contains_n(std::string name) { return mnularcmd.find(tolowerstring(name)) != mnularcmd.end(); }
+		bool contains_u(std::string name) { return munarycmd.find(tolowerstring(name)) != munarycmd.end(); }
+		bool contains_b(std::string name) { return mbinarycmd.find(tolowerstring(name)) != mbinarycmd.end(); }
 
 
-		const std::unordered_map<std::wstring, std::shared_ptr<nularcmd>>& all_n(void) { return mnularcmd; }
-		const std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>>&  all_u(void) { return munarycmd; }
-		const std::unordered_map<std::wstring, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>>&  all_b(void) { return mbinarycmd; }
+		const std::unordered_map<std::string, std::shared_ptr<nularcmd>>& all_n(void) { return mnularcmd; }
+		const std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>>&  all_u(void) { return munarycmd; }
+		const std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>>&  all_b(void) { return mbinarycmd; }
 
 		static sqf::commandmap& get(void);
 

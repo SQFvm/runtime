@@ -1,44 +1,44 @@
 #include "type.h"
 
-std::wstring sqf::type_str(type t)
+std::string sqf::type_str(type t)
 {
 	switch (t)
 	{
-	case sqf::NA: return L"NA";
-	case sqf::NOTHING: return L"NOTHING";
-	case sqf::ANY: return L"ANY";
-	case sqf::SCALAR: return L"SCALAR";
-	case sqf::BOOL: return L"BOOL";
-	case sqf::ARRAY: return L"ARRAY";
-	case sqf::STRING: return L"STRING";
-	case sqf::NAMESPACE: return L"NAMESPACE";
-	case sqf::NaN: return L"NaN";
-	case sqf::IF: return L"IF";
-	case sqf::WHILE: return L"WHILE";
-	case sqf::FOR: return L"FOR";
-	case sqf::SWITCH: return L"SWITCH";
-	case sqf::EXCEPTION: return L"EXCEPTION";
-	case sqf::WITH: return L"WITH";
-	case sqf::CODE: return L"CODE";
-	case sqf::OBJECT: return L"OBJECT";
-	case sqf::VECTOR: return L"VECTOR";
-	case sqf::TRANS: return L"TRANS";
-	case sqf::ORIENT: return L"ORIENT";
-	case sqf::SIDE: return L"SIDE";
-	case sqf::GROUP: return L"GROUP";
-	case sqf::TEXT: return L"TEXT";
-	case sqf::SCRIPT: return L"SCRIPT";
-	case sqf::TARGET: return L"TARGET";
-	case sqf::JCLASS: return L"JCLASS";
-	case sqf::CONFIG: return L"CONFIG";
-	case sqf::DISPLAY: return L"DISPLAY";
-	case sqf::CONTROL: return L"CONTROL";
-	case sqf::NetObject: return L"NetObject";
-	case sqf::SUBGROUP: return L"SUBGROUP";
-	case sqf::TEAM_MEMBER: return L"TEAM_MEMBER";
-	case sqf::TASK: return L"TASK";
-	case sqf::DIARY_RECORD: return L"DIARY_RECORD";
-	case sqf::LOCATION: return L"LOCATION";
-	default: return std::wstring();
+	case sqf::NA: return "NA";
+	case sqf::NOTHING: return "NOTHING";
+	case sqf::ANY: return "ANY";
+	case sqf::SCALAR: return "SCALAR";
+	case sqf::BOOL: return "BOO";
+	case sqf::ARRAY: return "ARRAY";
+	case sqf::STRING: return "STRING";
+	case sqf::NAMESPACE: return "NAMESPACE";
+	case sqf::NaN: return "NaN";
+	case sqf::IF: return "IF";
+	case sqf::WHILE: return "WHILE";
+	case sqf::FOR: return "FOR";
+	case sqf::SWITCH: return "SWITCH";
+	case sqf::EXCEPTION: return "EXCEPTION";
+	case sqf::WITH: return "WITH";
+	case sqf::CODE: return "CODE";
+	case sqf::OBJECT: return "OBJECT";
+	case sqf::VECTOR: return "VECTOR";
+	case sqf::TRANS: return "TRANS";
+	case sqf::ORIENT: return "ORIENT";
+	case sqf::SIDE: return "SIDE";
+	case sqf::GROUP: return "GROUP";
+	case sqf::TEXT: return "TEXT";
+	case sqf::SCRIPT: return "SCRIPT";
+	case sqf::TARGET: return "TARGET";
+	case sqf::JCLASS: return "JCLASS";
+	case sqf::CONFIG: return "CONFIG";
+	case sqf::DISPLAY: return "DISPLAY";
+	case sqf::CONTROL: return "CONTRO";
+	case sqf::NetObject: return "NetObject";
+	case sqf::SUBGROUP: return "SUBGROUP";
+	case sqf::TEAM_MEMBER: return "TEAM_MEMBER";
+	case sqf::TASK: return "TASK";
+	case sqf::DIARY_RECORD: return "DIARY_RECORD";
+	case sqf::LOCATION: return "LOCATION";
+	default: return std::string();
 	}
 }

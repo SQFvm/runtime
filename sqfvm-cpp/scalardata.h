@@ -18,7 +18,7 @@ namespace sqf
 		scalardata(float num) : mvalue((double)num) {}
 		scalardata(double num) : mvalue((double)num) {}
 		scalardata(size_t num) : mvalue((double)num) {}
-		virtual std::wstring tosqf(void) const { return std::to_wstring(mvalue); }
+		virtual std::string tosqf(void) const { return std::to_string(mvalue); }
 		operator char(void) const { return (char)mvalue; }
 		operator short(void) const { return (short)mvalue; }
 		operator int(void) const { return (int)mvalue; }

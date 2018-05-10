@@ -24,9 +24,9 @@ sqf::codedata::codedata(std::shared_ptr<sqf::callstack> cs)
 	}
 }
 
-std::wstring sqf::codedata::tosqf(void) const
+std::string sqf::codedata::tosqf(void) const
 {
-	return L"{...}";
+	return "{...}";
 	//ToDo: Mark values that belong to other instructions
 	std::vector<size_t> marks;
 	for (size_t i = minsts.size(); i != (size_t)~0; i--)

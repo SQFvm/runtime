@@ -10,7 +10,7 @@ void sqf::inst::assignto::execute(virtualmachine* vm) const
 	auto val = vm->stack()->popval(flag);
 	if (!flag)
 	{
-		vm->err() << dbginf(L"ASS") << "assignTo could not receive a value." << std::endl;
+		vm->err() << dbginf("ASS") << "assignTo could not receive a value." << std::endl;
 		return;
 	}
 	if (mvarname[0] == '_')

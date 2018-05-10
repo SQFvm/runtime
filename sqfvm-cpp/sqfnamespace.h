@@ -10,11 +10,11 @@ namespace sqf
 	class sqfnamespace : public data, public varscope
 	{
 	private:
-		std::wstring mname;
+		std::string mname;
 	public:
-		inline sqfnamespace(std::wstring name) { mname = name; }
-		inline virtual std::wstring tosqf(void) const { return mname; }
-		inline std::wstring get_name(void) { return mname; }
+		inline sqfnamespace(std::string name) { mname = name; }
+		inline virtual std::string tosqf(void) const { return mname; }
+		inline std::string get_name(void) { return mname; }
 		virtual bool equals(std::shared_ptr<data> d) const { return this == d.get(); }
 	};
 }

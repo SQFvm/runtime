@@ -24,30 +24,30 @@ namespace sqf
 	private:
 		eside mside;
 	public:
-		virtual std::wstring tosqf(void) const
+		virtual std::string tosqf(void) const
 		{
 			switch (mside)
 			{
 			case sqf::sidedata::Empty:
-				return L"EMPTY";
+				return "EMPTY";
 			case sqf::sidedata::Civilian:
-				return L"CIV";
+				return "CIV";
 			case sqf::sidedata::West:
-				return L"WEST";
+				return "WEST";
 			case sqf::sidedata::East:
-				return L"EAST";
+				return "EAST";
 			case sqf::sidedata::Guerilla:
-				return L"GUER";
+				return "GUER";
 			case sqf::sidedata::Logic:
-				return L"LOGIC";
+				return "LOGIC";
 			case sqf::sidedata::Enemy:
-				return L"ENEMY";
+				return "ENEMY";
 			case sqf::sidedata::Friendly:
-				return L"FRIENDLY";
+				return "FRIENDLY";
 			case sqf::sidedata::AmbientLife:
-				return L"AMBIENT LIFE";
+				return "AMBIENT LIFE";
 			default:
-				return L"UNKNOWN";
+				return "UNKNOWN";
 			}
 		}
 		sidedata(eside side) : mside(side) {}

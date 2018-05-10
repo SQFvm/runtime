@@ -9,9 +9,9 @@ namespace sqf
 		class getvariable : public instruction
 		{
 		private:
-			std::wstring mvarname;
+			std::string mvarname;
 		public:
-			getvariable(std::wstring varname) { mvarname = varname; }
+			getvariable(std::string varname) { mvarname = varname; }
 			virtual void execute(virtualmachine*) const;
 			virtual insttype thistype(void) const { return insttype::getvariable; }
 		};
