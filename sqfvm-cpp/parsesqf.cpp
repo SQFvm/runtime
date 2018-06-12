@@ -216,12 +216,35 @@ namespace sqf
 			//BEXP8 = BEXP9 [ boperator BEXP10 ];
 			//BEXP9 = BEXP10 [ boperator BEXP10 ];
 			//BEXP10 = PRIMARYEXPRESSION [ boperator BEXP10 ];
+			void bexp_orderfix(astnode& root, astnode& thisnode, short plevel)
+			{
+				auto othernode = thisnode.children.back();
+				if (othernode.children.size() == 3 && othernode.kind == plevel)
+				{
+					astnode* ptr = &othernode.children.front();
+					astnode* lptr = &othernode;
+					while (ptr->children.size() == 3 && ptr->kind == plevel)
+					{
+						lptr = ptr;
+						ptr = &ptr->children.front();
+					}
+
+					thisnode.children.pop_back();
+					thisnode.children.push_back(*ptr);
+					lptr->children.front() = thisnode;
+					root.children.push_back(othernode);
+				}
+				else
+				{
+					root.children.push_back(thisnode);
+				}
+			}
 			bool bexp10_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
 			void bexp10(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag)
 			{
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BINARYEXPRESSION;
+				thisnode.kind = sqfasttypes::BEXP10;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, curoff);
@@ -262,7 +285,7 @@ namespace sqf
 						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						errflag = true;
 					}
-					root.children.push_back(thisnode);
+					bexp_orderfix(root, thisnode, sqfasttypes::BEXP10);
 				}
 				else
 				{
@@ -277,7 +300,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BINARYEXPRESSION;
+				thisnode.kind = sqfasttypes::BEXP9;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, curoff);
@@ -317,7 +340,7 @@ namespace sqf
 						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						errflag = true;
 					}
-					root.children.push_back(thisnode);
+					bexp_orderfix(root, thisnode, sqfasttypes::BEXP9);
 				}
 				else
 				{
@@ -332,7 +355,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BINARYEXPRESSION;
+				thisnode.kind = sqfasttypes::BEXP8;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, curoff);
@@ -372,7 +395,7 @@ namespace sqf
 						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						errflag = true;
 					}
-					root.children.push_back(thisnode);
+					bexp_orderfix(root, thisnode, sqfasttypes::BEXP8);
 				}
 				else
 				{
@@ -387,7 +410,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BINARYEXPRESSION;
+				thisnode.kind = sqfasttypes::BEXP7;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, curoff);
@@ -427,7 +450,7 @@ namespace sqf
 						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						errflag = true;
 					}
-					root.children.push_back(thisnode);
+					bexp_orderfix(root, thisnode, sqfasttypes::BEXP7);
 				}
 				else
 				{
@@ -442,7 +465,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BINARYEXPRESSION;
+				thisnode.kind = sqfasttypes::BEXP6;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, curoff);
@@ -482,7 +505,7 @@ namespace sqf
 						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						errflag = true;
 					}
-					root.children.push_back(thisnode);
+					bexp_orderfix(root, thisnode, sqfasttypes::BEXP6);
 				}
 				else
 				{
@@ -497,7 +520,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BINARYEXPRESSION;
+				thisnode.kind = sqfasttypes::BEXP5;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, curoff);
@@ -537,7 +560,7 @@ namespace sqf
 						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						errflag = true;
 					}
-					root.children.push_back(thisnode);
+					bexp_orderfix(root, thisnode, sqfasttypes::BEXP5);
 				}
 				else
 				{
@@ -552,7 +575,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BINARYEXPRESSION;
+				thisnode.kind = sqfasttypes::BEXP4;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, curoff);
@@ -592,7 +615,7 @@ namespace sqf
 						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						errflag = true;
 					}
-					root.children.push_back(thisnode);
+					bexp_orderfix(root, thisnode, sqfasttypes::BEXP4);
 				}
 				else
 				{
@@ -607,7 +630,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BINARYEXPRESSION;
+				thisnode.kind = sqfasttypes::BEXP3;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, curoff);
@@ -647,7 +670,7 @@ namespace sqf
 						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						errflag = true;
 					}
-					root.children.push_back(thisnode);
+					bexp_orderfix(root, thisnode, sqfasttypes::BEXP3);
 				}
 				else
 				{
@@ -662,7 +685,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BINARYEXPRESSION;
+				thisnode.kind = sqfasttypes::BEXP2;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, curoff);
@@ -702,7 +725,7 @@ namespace sqf
 						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						errflag = true;
 					}
-					root.children.push_back(thisnode);
+					bexp_orderfix(root, thisnode, sqfasttypes::BEXP2);
 				}
 				else
 				{
@@ -717,7 +740,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BINARYEXPRESSION;
+				thisnode.kind = sqfasttypes::BEXP1;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, curoff);
@@ -757,7 +780,7 @@ namespace sqf
 						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						errflag = true;
 					}
-					root.children.push_back(thisnode);
+					bexp_orderfix(root, thisnode, sqfasttypes::BEXP1);
 				}
 				else
 				{
@@ -1108,7 +1131,7 @@ namespace sqf
 				root.children.push_back(thisnode);
 			}
 			//VARIABLE = identifier;
-			bool VARIABLE_start(helper &h, const char* code, size_t curoff) { return identifier(code, curoff) > 0; }
+			bool VARIABLE_start(helper &h, const char* code, size_t curoff) { auto len = identifier(code, curoff); return len > 0 && !h.contains_binary(std::string(code + curoff, code + curoff + len), 0); }
 			void VARIABLE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag)
 			{
 				auto thisnode = astnode();
@@ -1272,6 +1295,13 @@ namespace sqf
 				node.content = codein;
 				SQF(h, node, code, line, col, curoff, file, errflag);
 				node.length = curoff;
+				skip(codein, line, col, curoff);
+				if (!errflag && codein[curoff] != '\0') {
+					size_t i;
+					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Reached EOF before finishing parsing." << std::endl;
+					errflag = true;
+				}
 				return node;
 			}
 			const char * astkindname(short id)
@@ -1282,6 +1312,16 @@ namespace sqf
 				case sqfasttypes::STATEMENT: return "STATEMENT";
 				case sqfasttypes::ASSIGNMENT: return "ASSIGNMENT";
 				case sqfasttypes::ASSIGNMENTLOCAL: return "ASSIGNMENTLOCA";
+				case sqfasttypes::BEXP1: return "BEXP1";
+				case sqfasttypes::BEXP2: return "BEXP2";
+				case sqfasttypes::BEXP3: return "BEXP3";
+				case sqfasttypes::BEXP4: return "BEXP4";
+				case sqfasttypes::BEXP5: return "BEXP5";
+				case sqfasttypes::BEXP6: return "BEXP6";
+				case sqfasttypes::BEXP7: return "BEXP7";
+				case sqfasttypes::BEXP8: return "BEXP8";
+				case sqfasttypes::BEXP9: return "BEXP9";
+				case sqfasttypes::BEXP10: return "BEXP10";
 				case sqfasttypes::BINARYEXPRESSION: return "BINARYEXPRESSION";
 				case sqfasttypes::BINARYOP: return "BINARYOP";
 				case sqfasttypes::BRACKETS: return "BRACKETS";

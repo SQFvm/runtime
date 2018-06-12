@@ -21,6 +21,7 @@ namespace sqf
 	class groupdata;
 	class sidedata;
 	class scriptdata;
+	class debugger;
 	class virtualmachine
 	{
 	private:
@@ -41,6 +42,7 @@ namespace sqf
 		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
 		void performexecute(size_t exitAfter = ~0);
 		std::vector<std::shared_ptr<dlops>> mlibraries;
+		debugger* _debugger;
 	public:
 		inline std::basic_ostream<char, std::char_traits<char>>& out(void) const { return *mout; }
 		inline std::basic_ostream<char, std::char_traits<char>>& err(void) const { /* on purpose */((virtualmachine*)this)->merrflag = true; return *merr; }
@@ -63,6 +65,9 @@ namespace sqf
 		bool errflag(void) const { return merrflag; }
 		bool wrnflag(void) const { return mwrnflag; }
 		std::vector<std::shared_ptr<dlops>>& libraries(void) { return mlibraries; }
+
+		debugger* dbg(void) { return _debugger; }
+		void dbg(debugger* debugger) { _debugger = debugger; }
 
 		size_t push_obj(std::shared_ptr<sqf::innerobj> obj);
 		std::shared_ptr<sqf::innerobj> get_obj_netid(size_t netid);

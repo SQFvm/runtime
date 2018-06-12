@@ -207,6 +207,9 @@
     <ClCompile Include="networking.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="debugger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -363,6 +366,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="netserver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="debugger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

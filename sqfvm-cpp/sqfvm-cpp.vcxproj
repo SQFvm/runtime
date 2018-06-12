@@ -194,6 +194,7 @@
     <ClCompile Include="configcmds.cpp" />
     <ClCompile Include="configdata.cpp" />
     <ClCompile Include="convert.cpp" />
+    <ClCompile Include="debugger.cpp" />
     <ClCompile Include="diagcmds.cpp" />
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="genericcmds.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="commandmap.h" />
     <ClInclude Include="compiletime.h" />
     <ClInclude Include="configdata.h" />
+    <ClInclude Include="debugger.h" />
     <ClInclude Include="dlops.h" />
     <ClInclude Include="fordata.h" />
     <ClInclude Include="groupdata.h" />

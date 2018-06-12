@@ -13,7 +13,6 @@
 class netserver
 {
 private:
-	const std::string _ip;
 	const unsigned short _port;
 	SOCKET _socket;
 	std::stringstream builder;
@@ -104,7 +103,7 @@ private:
 	}
 
 public:
-	netserver(const char* ip, unsigned short port) : _ip(ip), _port(port), builder()
+	netserver(unsigned short port) : _port(port), builder()
 	{
 		if (networking_create_server(&_socket))
 		{

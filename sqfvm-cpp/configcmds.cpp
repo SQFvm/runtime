@@ -100,7 +100,7 @@ namespace
 }
 void sqf::commandmap::initconfigcmds(void)
 {
-	add(nular("configNul", "A non-existing Config.", confignull__));
+	add(nular("configNull", "A non-existing Config.", confignull__));
 	add(nular("configFile", "Return root of config entries hierarchy.", configfile__));
 	add(unary("configName", type::CONFIG, "Returns name of config entry.", configname_config));
 	add(binary(3, ">>", type::CONFIG, type::STRING, "Returns subentry of config entry with given name.", greaterthengreaterthen_config_string));

@@ -21,6 +21,7 @@
 #include "sidedata.h"
 #include "groupdata.h"
 #include "scriptdata.h"
+#include "debugger.h"
 
 #include <iostream>
 #include <cwctype>
@@ -38,6 +39,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mactivestack = mmainstack;
 	merrflag = false;
 	mwrnflag = false;
+	_debugger = nullptr;
 }
 void sqf::virtualmachine::execute()
 {
@@ -69,6 +71,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		inst->execute(this);
 		if (merrflag)
 		{
+			_debugger->error(this, inst->line(), inst->col(), inst->file(), inst->dbginf("RNT"));
 			err() << inst->dbginf("RNT") << std::endl;
 			merrflag = false;
 			//Only for non-scheduled (and thus the mainstack)
@@ -79,8 +82,12 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		}
 		if (mwrnflag)
 		{
+			_debugger->error(this, inst->line(), inst->col(), inst->file(), inst->dbginf("WRN"));
 			wrn() << inst->dbginf("WRN") << std::endl;
 			mwrnflag = false;
+		}
+		if (_debugger) {
+			_debugger->check(this, inst->line(), inst->col(), inst->file());
 		}
 	}
 }
@@ -125,12 +132,12 @@ bool contains_unary(std::string ident)
 bool contains_binary(std::string ident, short p)
 {
 	auto flag = sqf::commandmap::get().contains_b(ident);
-	if (flag)
+	if (flag && p > 0)
 	{
 		auto cmds = sqf::commandmap::get().getrange_b(ident);
 		return cmds->front()->precedence() == p;
 	}
-	return true;
+	return flag;
 }
 short precedence(std::string s)
 {
@@ -146,6 +153,16 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 {
 	switch (node.kind)
 	{
+	case sqf::parse::sqf::sqfasttypes::BEXP1:
+	case sqf::parse::sqf::sqfasttypes::BEXP2:
+	case sqf::parse::sqf::sqfasttypes::BEXP3:
+	case sqf::parse::sqf::sqfasttypes::BEXP4:
+	case sqf::parse::sqf::sqfasttypes::BEXP5:
+	case sqf::parse::sqf::sqfasttypes::BEXP6:
+	case sqf::parse::sqf::sqfasttypes::BEXP7:
+	case sqf::parse::sqf::sqfasttypes::BEXP8:
+	case sqf::parse::sqf::sqfasttypes::BEXP9:
+	case sqf::parse::sqf::sqfasttypes::BEXP10:
 	case sqf::parse::sqf::sqfasttypes::BINARYEXPRESSION:
 	{
 		navigate_sqf(full, vm, stack, node.children[0]);

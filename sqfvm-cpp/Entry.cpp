@@ -11,10 +11,10 @@
 #include <tclap\CmdLine.h>
 
 #include "python_externc.h"
+#include "debugger.h"
 
 
 static std::string load_file(const std::string& filename);
-static std::vector<char> readFileW(const std::string& filename);
 static std::vector<char> readFile(const std::string& filename);
 
 static std::string load_file(const std::string& filename)
@@ -67,6 +67,9 @@ int main(int argc, char** argv)
 	TCLAP::ValueArg<int> maxInstructionsArg("m", "max-instructions", "Sets the maximum ammount of instructions to execute before a hard exit may occur. Setting this to 0 will disable the limit.", false, 0, "NUMBER");
 	cmd.add(maxInstructionsArg);
 
+	TCLAP::ValueArg<int> serverPortArg("p", "server-port", "Sets the port of the server. Defaults to 9090.", false, 9090, "NUMBER");
+	cmd.add(serverPortArg);
+
 	TCLAP::SwitchArg noPrintArg("n", "no-print", "Prevents the value stack to be printed out at the very end.", false);
 	cmd.add(noPrintArg);
 
@@ -77,11 +80,14 @@ int main(int argc, char** argv)
 	bool noPrompt = noPromptArg.getValue() || useDebuggingServer.getValue();
 	bool startServer = useDebuggingServer.getValue();
 	int maxinstructions = maxInstructionsArg.getValue();
+	int serverPort = serverPortArg.getValue();
 	bool noPrint = noPrintArg.getValue();
 
 	auto vm = sqf::virtualmachine();
 	sqf::commandmap::get().init();
 	bool errflag = false;
+	netserver* srv = nullptr;
+	sqf::debugger* dbg = nullptr;
 
 	//Load all sqf-files provided via arg.
 	for (auto& f : sqfFiles)
@@ -134,6 +140,8 @@ int main(int argc, char** argv)
 	if (startServer)
 	{
 		networking_init();
+		dbg = new sqf::debugger((srv = new netserver(serverPort)));
+		vm.dbg(dbg);
 	}
 
 	vm.execute();
@@ -156,6 +164,16 @@ int main(int argc, char** argv)
 	if (startServer)
 	{
 		networking_cleanup();
+		if (dbg)
+		{
+			delete dbg;
+			dbg = nullptr;
+		}
+		if (srv)
+		{
+			delete srv;
+			srv = nullptr;
+		}
 	}
 
 	sqf::commandmap::get().uninit();

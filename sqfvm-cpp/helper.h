@@ -15,6 +15,7 @@ namespace sqf
 			std::string(*mdbgsegmentcb)(const char*, size_t, size_t);
 			bool(*mcontains_nular)(std::string);
 			bool(*mcontains_unary)(std::string);
+			//precedence 0 is being used as placeholder for `any`
 			bool(*mcontains_binary)(std::string, short);
 			short(*mprecedence)(std::string);
 		public:
