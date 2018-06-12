@@ -89,7 +89,7 @@ int main(int argc, char** argv)
 		try
 		{
 			auto str = load_file(f);
-			vm.parse_sqf(str);
+			vm.parse_sqf(str, f);
 		}
 		catch (std::runtime_error ex)
 		{
