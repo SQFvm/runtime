@@ -30,8 +30,7 @@ namespace sqf
 					VARIABLE,
 					STRING,
 					CODE,
-					ARRAY,
-					BINARYSTATEMENT
+					ARRAY
 				};
 			}
 			size_t endchr(const char* code, size_t off);
@@ -67,7 +66,7 @@ namespace sqf
 			void CODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag);
 			bool ARRAY_start(helper &h, const char* code, size_t curoff);
 			void ARRAY(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag);
-			astnode parse_sqf(const char* codein, helper& h, bool &errflag);
+			astnode parse_sqf(const char* codein, helper& h, bool &errflag, const char* file);
 			const char* astkindname(short id);
 		}
 	}

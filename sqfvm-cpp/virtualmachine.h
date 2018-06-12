@@ -55,10 +55,10 @@ namespace sqf
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
 
 		void parse_assembly(std::string);
-		inline void parse_sqf(std::string code) { parse_sqf(code, std::shared_ptr<sqf::callstack>()); }
 		void parse_sqf(std::string, std::stringstream*);
-		void parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs) { parse_sqf(stack(), str, cs); }
-		void parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>);
+		inline void parse_sqf(std::string code, std::string filepath = "") { parse_sqf(stack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
+		inline void parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { parse_sqf(stack(), str, cs, filepath); }
+		void parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>, std::string = "");
 		void parse_config(std::string, std::shared_ptr<configdata>);
 		bool errflag(void) const { return merrflag; }
 		bool wrnflag(void) const { return mwrnflag; }

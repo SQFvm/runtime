@@ -122,9 +122,15 @@ bool contains_unary(std::string ident)
 {
 	return sqf::commandmap::get().contains_u(ident);
 }
-bool contains_binary(std::string ident)
+bool contains_binary(std::string ident, short p)
 {
-	return sqf::commandmap::get().contains_b(ident);
+	auto flag = sqf::commandmap::get().contains_b(ident);
+	if (flag)
+	{
+		auto cmds = sqf::commandmap::get().getrange_b(ident);
+		return cmds->front()->precedence() == p;
+	}
+	return true;
 }
 short precedence(std::string s)
 {
@@ -252,11 +258,11 @@ void sqf::virtualmachine::parse_sqf(std::string code, std::stringstream* sstream
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag);
+	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, "");
 	print_navigate_ast(sstream, node, sqf::parse::sqf::astkindname);
 }
 
-void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::string code, std::shared_ptr<sqf::callstack> cs)
+void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::string code, std::shared_ptr<sqf::callstack> cs, std::string filename)
 {
 	if (!cs.get())
 	{
@@ -265,17 +271,7 @@ void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 	}
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag);
-#if defined(_DEBUG)
-	static bool isinitial = true;
-	if (isinitial)
-	{
-		isinitial = false;
-		out() << "-------------------------------" << std::endl;
-		print_navigate_ast(mout, node, sqf::parse::sqf::astkindname);
-		out() << "-------------------------------" << std::endl;
-	}
-#endif
+	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, filename.c_str());
 
 	if (!errflag)
 	{

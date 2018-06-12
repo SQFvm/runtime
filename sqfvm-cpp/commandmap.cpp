@@ -75,6 +75,10 @@ void sqf::commandmap::add(std::shared_ptr<unarycmd> cmd)
 }
 void sqf::commandmap::add(std::shared_ptr<binarycmd> cmd)
 {
+	if (cmd->precedence() > 10 || cmd->precedence() <= 0)
+	{
+		throw std::runtime_error("precedence needs to be > 0 & <= 10");
+	}
 	auto listsptr = mbinarycmd[tolowerstring(cmd->name())];
 	if (!listsptr.get())
 	{
