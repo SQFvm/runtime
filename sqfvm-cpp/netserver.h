@@ -20,6 +20,7 @@ private:
 	std::queue<std::string> _messageQueueIn;
 	std::queue<std::string> _messageQueueOut;
 	bool _die;
+	bool _accept;
 	std::mutex _inLock;
 	std::mutex _outLock;
 
@@ -38,6 +39,7 @@ private:
 			if (!networking_server_accept_block(&srv->_socket, &sclient, &aclient))
 			{
 				bool flag = true;
+				srv->_accept = true;
 				while (!srv->_die && flag)
 				{
 					if (networking_poll(&sclient, 100))
@@ -65,6 +67,7 @@ private:
 				catch (std::runtime_error err) {}
 				srv->_outLock.unlock();
 				networking_close(sclient);
+				srv->_accept = false;
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
@@ -103,7 +106,7 @@ private:
 	}
 
 public:
-	netserver(unsigned short port) : _port(port), builder()
+	netserver(unsigned short port) : _port(port), builder(), _accept(false)
 	{
 		if (networking_create_server(&_socket))
 		{
@@ -132,6 +135,12 @@ public:
 	bool has_message(void) { return !_messageQueueIn.empty(); }
 	void request_close(void) { _die = true; }
 	void force_close(void) { _die = true; networking_close(_socket); _currentThread.join(); }
+	void wait_accept(void) {
+		while (!_accept) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
+	}
+	bool is_accept(void) { return _accept; }
 
 	void push_message(std::string str) { _outLock.lock(); _messageQueueOut.push(str); _outLock.unlock(); }
 };

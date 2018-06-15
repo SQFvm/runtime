@@ -142,6 +142,7 @@ int main(int argc, char** argv)
 		networking_init();
 		dbg = new sqf::debugger((srv = new netserver(serverPort)));
 		vm.dbg(dbg);
+		srv->wait_accept();
 	}
 
 	vm.execute();

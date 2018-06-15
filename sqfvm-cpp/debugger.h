@@ -11,7 +11,8 @@ namespace sqf {
 		void breakmode(virtualmachine* vm);
 	public:
 		debugger(netserver* server) : _server(server) {}
-		void check(virtualmachine* vm, int line, int col, std::string file);
+		void check(virtualmachine* vm);
 		void error(virtualmachine* vm, int line, int col, std::string file, std::string msg);
+		bool stop(virtualmachine* vm);
 	};
 }

@@ -7,6 +7,7 @@
 #include "sqfnamespace.h"
 #include "namespaces.h"
 #include "value.h"
+#include "instruction.h"
 #include <sstream>
 
 namespace {
@@ -74,6 +75,17 @@ namespace {
 				jcs["namespace"] = cs->getnamespace()->get_name();
 				auto variables = nlohmann::json::array();
 				jcs["variables"] = variables;
+				nlohmann::json options;
+				if (cs->inststacksize() <= 0) {
+					options["line"] = nullptr;
+					options["column"] = nullptr;
+					options["file"] = nullptr;
+				}
+				else {
+					options["line"] = cs->peekinst()->line();
+					options["column"] = cs->peekinst()->col();
+					options["file"] = cs->peekinst()->file();
+				}
 				for (auto pair : cs->varmap())
 				{
 					variables.push_back(nlohmann::json{ { "name", pair.first },{ "value", pair.second->as_string() } });
@@ -107,25 +119,37 @@ namespace {
 					}
 					else
 					{
-						
-						//data.push_back(nlohmann::json{ { "name", name },{ "value", pair.second->as_string() } });
+						std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator s;
+						for (s = _stack->stacks_begin(); s != _stack->stacks_end() && numscope != 0; s++, numscope++);
+						if (s == _stack->stacks_end())
+						{
+							data.push_back(nlohmann::json{ { "name", name },{ "value", nullptr } });
+						}
+						else
+						{
+							data.push_back(nlohmann::json{ { "name", name },{ "value", (*s)->getvar(name)->as_string() } });
+						}
 					}
 				}
 				else if (scope.get<std::string>().compare("missionNamespace"))
 				{
-
+					auto ns = sqf::commands::namespaces::missionNamespace();
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
 				else if (scope.get<std::string>().compare("uiNamespace"))
 				{
-
+					auto ns = sqf::commands::namespaces::uiNamespace();
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
 				else if (scope.get<std::string>().compare("profileNamespace"))
 				{
-
+					auto ns = sqf::commands::namespaces::profileNamespace();
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
 				else if (scope.get<std::string>().compare("parsingNamespace"))
 				{
-
+					auto ns = sqf::commands::namespaces::parsingNamespace();
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
 			}
 			return nlohmann::json{
@@ -142,7 +166,7 @@ void sqf::debugger::breakmode(virtualmachine * vm)
 	
 }
 
-void sqf::debugger::check(virtualmachine * vm, int line, int col, std::string file)
+void sqf::debugger::check(virtualmachine * vm)
 {
 	while (_server->has_message())
 	{
@@ -159,6 +183,10 @@ void sqf::debugger::check(virtualmachine * vm, int line, int col, std::string fi
 			auto data = json["data"];
 			_server->push_message(variablemsg(vm->stack(), data));
 		}
+		else if (!mode.compare("set-breakpoint")) {
+			auto data = json["data"];
+			//ToDo
+		}
 		else {
 			std::stringstream sstream;
 			sstream << "Provided mode '" << mode << "' is not known to the debugger.";
@@ -172,4 +200,11 @@ void sqf::debugger::error(virtualmachine * vm, int line, int col, std::string fi
 	_server->push_message(statusupdate(srvstatus::HALT));
 	_server->push_message(errormsg(msg));
 	breakmode(vm);
+}
+
+bool sqf::debugger::stop(virtualmachine * vm)
+{
+	if (!_server->is_accept())
+		return false;
+	return true;
 }

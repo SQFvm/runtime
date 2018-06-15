@@ -43,7 +43,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 }
 void sqf::virtualmachine::execute()
 {
-	while (mspawns.size() != 0 || !mmainstack->isempty())
+	while (mspawns.size() != 0 || !mmainstack->isempty() || (_debugger && _debugger->stop(this)))
 	{
 		mactivestack = mmainstack;
 		performexecute();
@@ -87,7 +87,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			mwrnflag = false;
 		}
 		if (_debugger) {
-			_debugger->check(this, inst->line(), inst->col(), inst->file());
+			_debugger->check(this);
 		}
 	}
 }
