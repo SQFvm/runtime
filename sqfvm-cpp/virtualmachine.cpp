@@ -71,7 +71,9 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		inst->execute(this);
 		if (merrflag)
 		{
-			_debugger->error(this, inst->line(), inst->col(), inst->file(), inst->dbginf("RNT"));
+			if (_debugger) {
+				_debugger->error(this, inst->line(), inst->col(), inst->file(), inst->dbginf("RNT"));
+			}
 			err() << inst->dbginf("RNT") << std::endl;
 			merrflag = false;
 			//Only for non-scheduled (and thus the mainstack)
@@ -82,7 +84,9 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		}
 		if (mwrnflag)
 		{
-			_debugger->error(this, inst->line(), inst->col(), inst->file(), inst->dbginf("WRN"));
+			if (_debugger) {
+				_debugger->error(this, inst->line(), inst->col(), inst->file(), inst->dbginf("WRN"));
+			}
 			wrn() << inst->dbginf("WRN") << std::endl;
 			mwrnflag = false;
 		}
