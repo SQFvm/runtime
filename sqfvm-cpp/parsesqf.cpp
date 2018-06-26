@@ -50,6 +50,8 @@ namespace sqf
 			size_t endchr(const char* code, size_t off) { return code[off] == ';' || code[off] == ',' ? 1 : 0; }
 			//identifier = [_a-zA-Z][_a-zA-Z0-9]*;
 			size_t identifier(const char* code, size_t off) { size_t i = off; if (!((code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '_')) return 0; for (i = off + 1; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++); return i - off; }
+			//identifier = [_a-zA-Z0-9]+;
+			size_t assidentifier(const char* code, size_t off) { size_t i = off; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++); return i - off; }
 			//operator_ = [-*+/a-zA-Z><=%_:]+;
 			//ToDo: Add clearer non-alphabetical checks (eg. -- should not be detected as SINGLE operator but rather as two operators)
 			size_t operator_(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '+' || code[i] == '-' || code[i] == '*' || code[i] == '/' || code[i] == ':' || code[i] == '&' || code[i] == '|' || code[i] == '>' || code[i] == '<' || code[i] == '=' || code[i] == '%' || code[i] == '_'; i++); return i - off; }
@@ -122,7 +124,7 @@ namespace sqf
 				//thisnode.length = curoff - thisnode.offset;
 				//root.children.push_back(thisnode);
 			}
-			//ASSIGNMENT(2) = identifier '=' BINARYEXPRESSION | "private" identifier '=' BINARYEXPRESSION;
+			//ASSIGNMENT(2) = assidentifier '=' BINARYEXPRESSION | "private" assidentifier '=' BINARYEXPRESSION;
 			bool ASSIGNMENT_start(helper &h, const char* code, size_t curoff)
 			{
 				size_t len;
@@ -131,7 +133,7 @@ namespace sqf
 					curoff += compiletime::strlen("private");
 					skip(code, curoff);
 				}
-				if ((len = identifier(code, curoff)) > 0)
+				if ((len = assidentifier(code, curoff)) > 0)
 				{
 					curoff += len;
 					skip(code, curoff);
@@ -160,7 +162,7 @@ namespace sqf
 					thisnode.kind = sqfasttypes::ASSIGNMENTLOCAL;
 				}
 				//receive the ident
-				len = identifier(code, curoff);
+				len = assidentifier(code, curoff);
 				auto ident = std::string(code + curoff, code + curoff + len);
 
 				auto varnode = astnode();
