@@ -595,7 +595,7 @@ namespace
 		}
 		vm->libraries().push_back(std::make_shared<dlops>(name));
 		auto& dl = vm->libraries().back();
-		void* sym;
+		void* sym = nullptr;
 		if (dl->try_resolve("RVExtensionVersion", &sym))
 		{
 			((RVExtensionVersion)sym)(buffer, CALLEXTVERSIONBUFFSIZE);
