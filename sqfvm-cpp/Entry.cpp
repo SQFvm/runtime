@@ -8,10 +8,17 @@
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
-#include <tclap\CmdLine.h>
+#include <tclap/CmdLine.h>
 
 #include "python_externc.h"
 #include "debugger.h"
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <sys/ioctl.h>
+#include <stdio.h>
+#include <unistd.h>
+#endif
 
 
 static std::string load_file(const std::string& filename);

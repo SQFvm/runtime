@@ -129,7 +129,7 @@ int networking_server_bind(SOCKET* s, unsigned short port)
 #ifdef WIN32
 	server.sin_addr.S_un.S_addr = INADDR_ANY;
 #else
-	server.sin_addr = INADDR_ANY;
+	server.sin_addr.s_addr = INADDR_ANY;
 #endif
 	server.sin_port = htons(port);
 	res = bind(*s, (struct sockaddr *)&server, sizeof(server));

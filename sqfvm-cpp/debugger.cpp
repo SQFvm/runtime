@@ -1,7 +1,7 @@
 #include "debugger.h"
 #include "netserver.h"
 #include "virtualmachine.h"
-#include "nlohmann\json.hpp"
+#include <nlohmann/json.hpp>
 #include "vmstack.h"
 #include "callstack.h"
 #include "sqfnamespace.h"

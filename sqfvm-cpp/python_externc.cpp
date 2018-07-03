@@ -6,6 +6,7 @@
 #include "configdata.h"
 #include <iostream>
 #include <sstream>
+#include <cstring>
 
 extern "C" {
 	DLLEXPORT_PREFIX void py_init(unsigned long long limit)
