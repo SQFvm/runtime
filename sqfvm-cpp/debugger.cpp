@@ -226,7 +226,7 @@ void sqf::debugger::check(virtualmachine * vm)
 				auto data = json["data"];
 				_server->push_message(statusupdate(_status));
 			}
-			else if (!mode.compare("get-variable"))
+			else if (!mode.compare("get-variables"))
 			{
 				auto data = json["data"];
 				_server->push_message(variablemsg(vm->stack(), data));
