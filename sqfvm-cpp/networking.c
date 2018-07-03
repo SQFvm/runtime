@@ -118,7 +118,7 @@ int networking_poll(SOCKET* s, int timeoutms)
 	struct pollfd poll_set[1];
 	poll_set[0].fd = *s;
 	poll_set[0].events = POLLIN;
-	return poll(&poll_set, 1, timeoutms) > 0;
+	return poll(poll_set, 1, timeoutms) > 0;
 #endif
 }
 int networking_server_bind(SOCKET* s, unsigned short port)
@@ -129,7 +129,7 @@ int networking_server_bind(SOCKET* s, unsigned short port)
 #ifdef WIN32
 	server.sin_addr.S_un.S_addr = INADDR_ANY;
 #else
-	server.s_addr = INADDR_ANY;
+	server.sin_addr = INADDR_ANY;
 #endif
 	server.sin_port = htons(port);
 	res = bind(*s, (struct sockaddr *)&server, sizeof(server));
