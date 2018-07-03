@@ -84,6 +84,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			err() << inst->dbginf("RNT") << std::endl;
 			(*merr) << merr_buff.str();
 			if (_debugger) {
+				_debugger->position(inst->line(), inst->col(), inst->file());
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
 			}
 			merr_buff.str(std::string());
@@ -99,6 +100,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			wrn() << inst->dbginf("WRN") << std::endl;
 			(*mwrn) << mwrn_buff.str();
 			if (_debugger) {
+				_debugger->position(inst->line(), inst->col(), inst->file());
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
 			}
 			mwrn_buff.str(std::string());

@@ -161,7 +161,7 @@ namespace {
 	public:
 		positionmsg(size_t line, size_t col, std::string file) : _line(line), _col(col), _file(file) {}
 		std::string serialize(void) {
-			nlohmann::json json = { { "mode", "message" }, { "data", { "line", _line, "col", _col, "file", _file } } };
+			nlohmann::json json = { { "mode", "position" }, { "data", { "line", _line, "col", _col, "file", _file } } };
 			return json.dump();
 		}
 	};
