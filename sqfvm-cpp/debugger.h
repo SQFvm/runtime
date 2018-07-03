@@ -34,15 +34,17 @@ namespace sqf {
 	private:
 		netserver* _server;
 		std::vector<breakpoint> _breakpoints;
-		void breakmode(virtualmachine* vm);
 		srvstatus _status;
 		srvcontrol _control;
 
 	public:
 		debugger(netserver* server) : _server(server), _status(NA), _control(RUN) {}
+		void breakmode(virtualmachine* vm);
 		void check(virtualmachine* vm);
+		bool hitbreakpoint(size_t line, std::string file);
 		void error(virtualmachine* vm, int line, int col, std::string file, std::string msg);
 		bool stop(virtualmachine* vm);
+		void position(size_t line, size_t col, std::string file);
 		inline srvstatus status(void) { return _status; }
 		inline srvcontrol controlstatus(void) { return _control; }
 		inline void status(srvstatus status) { _status = status; }

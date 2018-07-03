@@ -119,7 +119,7 @@ namespace {
 						for (s = _stack->stacks_begin(); s != _stack->stacks_end() && numscope != 0; s++, numscope++);
 						if (s == _stack->stacks_end())
 						{
-							data.push_back(nlohmann::json{ { "name", name },{ "value", nullptr } });
+							data.push_back(nlohmann::json{ { "name", name },{ "value", "nil" } });
 						}
 						else
 						{
@@ -154,9 +154,23 @@ namespace {
 			}.dump();
 		}
 	};
+	class positionmsg : public srvmessage {
+		size_t _line;
+		size_t _col;
+		std::string _file;
+	public:
+		positionmsg(size_t line, size_t col, std::string file) : _line(line), _col(col), _file(file) {}
+		std::string serialize(void) {
+			nlohmann::json json = { { "mode", "position" }, { "data", { "line", _line, "col", _col, "file", _file } } };
+			return json.dump();
+		}
+	};
 }
 
-
+void sqf::debugger::position(size_t line, size_t col, std::string file)
+{
+	_server->push_message(positionmsg(line, col, file));
+}
 void sqf::debugger::breakmode(virtualmachine * vm)
 {
 	_control = srvcontrol::PAUSE;
@@ -171,6 +185,18 @@ void sqf::debugger::breakmode(virtualmachine * vm)
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
+}
+
+bool sqf::debugger::hitbreakpoint(size_t line, std::string file)
+{
+	for (auto& bp : _breakpoints)
+	{
+		if (bp.line() == line && bp.file().compare(file) == 0)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void sqf::debugger::check(virtualmachine * vm)
@@ -200,7 +226,7 @@ void sqf::debugger::check(virtualmachine * vm)
 				auto data = json["data"];
 				_server->push_message(statusupdate(_status));
 			}
-			else if (!mode.compare("get-variable"))
+			else if (!mode.compare("get-variables"))
 			{
 				auto data = json["data"];
 				_server->push_message(variablemsg(vm->stack(), data));
@@ -233,7 +259,6 @@ void sqf::debugger::check(virtualmachine * vm)
 			_server->push_message(errormsg(err.what()));
 		}
 	}
-
 }
 
 void sqf::debugger::error(virtualmachine * vm, int line, int col, std::string file, std::string msg)
