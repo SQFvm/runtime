@@ -159,12 +159,14 @@ namespace {
 
 void sqf::debugger::breakmode(virtualmachine * vm)
 {
+	_control = srvcontrol::PAUSE;
 	while (_status != srvstatus::RUNNING)
 	{
 		check(vm);
-		if (_control == RESUME)
+		if (_control != PAUSE)
 		{
 			_status = srvstatus::RUNNING;
+			_server->push_message(statusupdate(srvstatus::RUNNING));
 			break;
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
