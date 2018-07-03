@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <tclap/CmdLine.h>
 
-#include "python_externc.h"
+#include "dllexports.h"
 #include "debugger.h"
 #ifdef _WIN32
 #include <windows.h>
