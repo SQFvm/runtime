@@ -18,7 +18,7 @@ std::string sqf::stringdata::parse_from_sqf(std::string s)
 			count++;
 		}
 	}
-	size_t size = s.length() - count - 2;
+	size_t size = s.length() - (count - 2);
 	size_t index = 0;
 	auto arr = std::make_unique<char[]>(size);
 	for (size_t i = 1; i < s.length() - 1; i++)
