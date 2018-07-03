@@ -42,15 +42,35 @@ namespace sqf
 			}
 			void skip(const char *code, size_t &line, size_t &col, size_t &curoff)
 			{
+				short commentmode = 0;
 				while (1)
 				{
 					switch (code[curoff])
 					{
-					case ' ': curoff++; col++; continue;
-					case '\t': curoff++; col++; continue;
-					case '\r': curoff++; col++; continue;
-					case '\n': curoff++; line++; col = 0; continue;
-					default: return;
+						case ' ': curoff++; col++; continue;
+						case '\t': curoff++; col++; continue;
+						case '\r': curoff++; col++; continue;
+						case '\n': curoff++; line++; col = 0; if (commentmode == 2) { commentmode = 0; } continue;
+						case '/': if (code[curoff + 1] == '*') { commentmode = 1; curoff += 2; col += 2; continue; }
+								  else if (code[curoff + 1] == '/') { commentmode = 2; curoff += 2; col += 2; continue; }
+						default: {
+							if (commentmode == 1)
+							{
+								if ((code[curoff] == '*' && code[curoff + 1] == '/') || code[curoff] == '\0')
+								{
+									commentmode = false;
+									curoff += 2;
+								}
+								else
+								{
+									curoff++;
+								}
+							}
+							else
+							{
+								return;
+							}
+						} break;
 					}
 				}
 			}
@@ -83,11 +103,6 @@ namespace sqf
 				//Iterate over statements as long as it is an instruction start.
 				while (NODE_start(code, curoff))
 				{
-					if (line == 88782)
-					{
-						line++;
-						line--;
-					}
 					NODE(h, root, code, line, col, curoff, file, errflag);
 					skip(code, line, col, curoff);
 					//Make sure at least one endchr is available unless no statement follows
