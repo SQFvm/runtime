@@ -26,8 +26,8 @@ unsigned int str_swi(const char* lString, const char* rString)
 	char lc, rc;
 	for (i = 0; lString[i] != '\0'; i++)
 	{
-		lc = towlower(lString[i]);
-		rc = towlower(rString[i]);
+		lc = tolower(lString[i]);
+		rc = tolower(rString[i]);
 		if (rc == '\0')
 			return 0;
 		if (lc != rc)
@@ -67,8 +67,8 @@ unsigned int str_ewi(const char* lString, const char* rString)
 	i -= rlen;
 	for (; lString[i] != '\0'; i++)
 	{
-		lc = towlower(lString[i]);
-		rc = towlower(rString[i]);
+		lc = tolower(lString[i]);
+		rc = tolower(rString[i]);
 		if (rc == '\0')
 			return 1;
 		if (lc != rc)
@@ -136,8 +136,8 @@ const char* str_strwrdi(const char* lString, const char* rString, const char* le
 		letters = " ,-_\t";
 	for (i = 0, j = 0;; i++, j++)
 	{
-		lc = towlower(lString[i]);
-		rc = towlower(rString[j]);
+		lc = tolower(lString[i]);
+		rc = tolower(rString[j]);
 		if (flag)
 		{
 			if (rc == '\0')
@@ -228,7 +228,7 @@ unsigned int str_cmpi(const char* lString, int lLen, const char* rString, int rL
 	i = 0;
 	while (lLen != -1 ? i < lLen : lString[i] != '\0' || rString[i] != '\0')
 	{
-		if (towlower(lString[i]) != towlower(rString[i]))
+		if (tolower(lString[i]) != tolower(rString[i]))
 		{
 			return -1;
 		}
