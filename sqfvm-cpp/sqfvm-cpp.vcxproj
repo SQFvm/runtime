@@ -214,6 +214,7 @@
     <ClCompile Include="logiccmds.cpp" />
     <ClCompile Include="mathcmds.cpp" />
     <ClCompile Include="namespacecmds.cpp" />
+    <ClCompile Include="netserver.cpp" />
     <ClCompile Include="networking.c" />
     <ClCompile Include="objectcmds.cpp" />
     <ClCompile Include="objectdata.cpp" />

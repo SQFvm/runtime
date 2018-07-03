@@ -49,6 +49,22 @@ void StartServer()
 
 }
 
+int console_width(void)
+{
+#if _WIN32
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	int columns, rows;
+
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	columns = csbi.srWindow.Right - csbi.srWindow.Left;
+	return columns;
+#else
+	struct winsize w;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	return w.ws_row;
+#endif
+}
+
 int main(int argc, char** argv)
 {
 	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', "1.0");
@@ -58,10 +74,16 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> loadConfigFileArg("F", "config-file", "Loads provided config-file from the hdd into the sqf-vm.", false, "PATH");
 	cmd.add(loadConfigFileArg);
 
+	TCLAP::MultiArg<std::string> loadSqfRawArg("r", "sqf-code", "Loads provided sqf-code directly into the sqf-vm. (executed after files)", false, "CODE");
+	cmd.add(loadSqfRawArg);
+
+	TCLAP::MultiArg<std::string> loadConfigRawArg("R", "config-code", "Loads provided config-code directly into the sqf-vm. (executed after files)", false, "CODE");
+	cmd.add(loadConfigRawArg);
+
 	TCLAP::SwitchArg noPromptArg("a", "no-prompt", "Disables the prompt which expects you to type in sqf-code.", false);
 	cmd.add(noPromptArg);
 
-	TCLAP::SwitchArg useDebuggingServer("s", "start-server", "Causes the sqf-vm to start a network server allowing for automated control. Implicitly will cause --no-prompt to be set.", false);
+	TCLAP::SwitchArg useDebuggingServer("s", "start-server", "Causes the sqf-vm to start a network server allowing for automated control.", false);
 	cmd.add(useDebuggingServer);
 
 	TCLAP::ValueArg<int> maxInstructionsArg("m", "max-instructions", "Sets the maximum ammount of instructions to execute before a hard exit may occur. Setting this to 0 will disable the limit.", false, 0, "NUMBER");
@@ -77,7 +99,9 @@ int main(int argc, char** argv)
 
 	std::vector<std::string> sqfFiles = loadSqfFileArg.getValue();
 	std::vector<std::string> configFiles = loadConfigFileArg.getValue();
-	bool noPrompt = noPromptArg.getValue() || useDebuggingServer.getValue();
+	std::vector<std::string> sqfRaw = loadSqfRawArg.getValue();
+	std::vector<std::string> configRaw = loadConfigRawArg.getValue();
+	bool noPrompt = noPromptArg.getValue();
 	bool startServer = useDebuggingServer.getValue();
 	int maxinstructions = maxInstructionsArg.getValue();
 	int serverPort = serverPortArg.getValue();
@@ -118,6 +142,17 @@ int main(int argc, char** argv)
 			std::cout << ex.what() << std::endl;
 		}
 	}
+	//Load all sqf-code provided via arg.
+	for (auto& raw : sqfRaw)
+	{
+		vm.parse_sqf(raw);
+	}
+
+	//Load & merge all config-code provided via arg.
+	for (auto& raw : configRaw)
+	{
+		vm.parse_config(raw, sqf::configdata::configFile()->data<sqf::configdata>());
+	}
 
 	if (!noPrompt)
 	{
@@ -142,11 +177,15 @@ int main(int argc, char** argv)
 		networking_init();
 		dbg = new sqf::debugger((srv = new netserver(serverPort)));
 		vm.dbg(dbg);
+		std::cout << "Waiting for client to connect..." << std::endl;
 		srv->wait_accept();
+		std::cout << "Client connected!" << std::endl;
 	}
 
+	std::cout << "Executing..." << std::endl;
+	std::cout << std::string(console_width(), '-') << std::endl;
 	vm.execute();
-
+	std::cout << std::string(console_width(), '-') << std::endl;
 	if (!noPrint)
 	{
 		std::shared_ptr<sqf::value> val;
@@ -155,7 +194,7 @@ int main(int argc, char** argv)
 			val = vm.stack()->popval(success);
 			if (success)
 			{
-				vm.out() << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+				std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
 			}
 		} while (success);
 		sqf::commandmap::get().uninit();

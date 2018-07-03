@@ -33,6 +33,10 @@ namespace sqf
 		std::basic_ostream<char, std::char_traits<char>>* mout;
 		std::basic_ostream<char, std::char_traits<char>>* merr;
 		std::basic_ostream<char, std::char_traits<char>>* mwrn;
+		std::stringstream mout_buff;
+		std::stringstream merr_buff;
+		std::stringstream mwrn_buff;
+		bool moutflag;
 		bool merrflag;
 		bool mwrnflag;
 		std::vector<size_t> mfreeobjids;
@@ -44,9 +48,9 @@ namespace sqf
 		std::vector<std::shared_ptr<dlops>> mlibraries;
 		debugger* _debugger;
 	public:
-		inline std::basic_ostream<char, std::char_traits<char>>& out(void) const { return *mout; }
-		inline std::basic_ostream<char, std::char_traits<char>>& err(void) const { /* on purpose */((virtualmachine*)this)->merrflag = true; return *merr; }
-		inline std::basic_ostream<char, std::char_traits<char>>& wrn(void) const { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return *mwrn; }
+		inline std::stringstream& out(void) { /* on purpose */((virtualmachine*)this)->moutflag = true; return mout_buff; }
+		inline std::stringstream& err(void) { /* on purpose */((virtualmachine*)this)->merrflag = true; return merr_buff; }
+		inline std::stringstream& wrn(void) { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return mwrn_buff; }
 		inline void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
 		inline void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
 		inline void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }

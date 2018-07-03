@@ -45,6 +45,7 @@ void sqf::virtualmachine::execute()
 {
 	while (mspawns.size() != 0 || !mmainstack->isempty() || (_debugger && _debugger->stop(this)))
 	{
+		if (_debugger) { _debugger->status(sqf::debugger::RUNNING); }
 		mactivestack = mmainstack;
 		performexecute();
 		while (!mmainstack->isempty()) { mmainstack->dropcallstack(); }
@@ -52,7 +53,9 @@ void sqf::virtualmachine::execute()
 		{
 			mactivestack = it->stack();
 			performexecute(150);
+			if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { break; }
 		}
+		if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { mspawns.clear(); }
 		mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished(); });
 	}
 }
@@ -66,15 +69,23 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		if (mmaxinst != 0 && mmaxinst == minstcount)
 		{
 			err() << "MAX INST COUNT REACHED (" << mmaxinst << ")" << std::endl;
+			err() << inst->dbginf("RNT") << std::endl;
+			(*merr) << merr_buff.str();
+			if (_debugger) {
+				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
+			}
+			merr_buff.str(std::string());
 			break;
 		}
 		inst->execute(this);
 		if (merrflag)
 		{
-			if (_debugger) {
-				_debugger->error(this, inst->line(), inst->col(), inst->file(), inst->dbginf("RNT"));
-			}
 			err() << inst->dbginf("RNT") << std::endl;
+			(*merr) << merr_buff.str();
+			if (_debugger) {
+				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
+			}
+			merr_buff.str(std::string());
 			merrflag = false;
 			//Only for non-scheduled (and thus the mainstack)
 			if (mactivestack->isscheduled())
@@ -84,14 +95,26 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		}
 		if (mwrnflag)
 		{
-			if (_debugger) {
-				_debugger->error(this, inst->line(), inst->col(), inst->file(), inst->dbginf("WRN"));
-			}
 			wrn() << inst->dbginf("WRN") << std::endl;
+			(*mwrn) << mwrn_buff.str();
+			if (_debugger) {
+				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
+			}
+			mwrn_buff.str(std::string());
 			mwrnflag = false;
+		}
+		if (moutflag)
+		{
+			(*mout) << mout_buff.str();
+			mout_buff.str(std::string());
+			moutflag = false;
 		}
 		if (_debugger) {
 			_debugger->check(this);
+			if (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)
+			{
+				break;
+			}
 		}
 	}
 }
