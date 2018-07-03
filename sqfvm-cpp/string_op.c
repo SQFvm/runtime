@@ -228,7 +228,7 @@ unsigned int str_cmpi(const char* lString, int lLen, const char* rString, int rL
 	i = 0;
 	while (lLen != -1 ? i < lLen : lString[i] != '\0' || rString[i] != '\0')
 	{
-		if (towlower(lString[i]) != towlower(rString[i]))
+		if (tolower(lString[i]) != tolower(rString[i]))
 		{
 			return -1;
 		}
