@@ -77,6 +77,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			merr_buff.str(std::string());
 			break;
 		}
+		if (_debugger && _debugger->hitbreakpoint(inst->line(), inst->file())) { _debugger->position(inst->line(), inst->col(), inst->file()); _debugger->breakmode(this); }
 		inst->execute(this);
 		if (merrflag)
 		{
