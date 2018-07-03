@@ -30,6 +30,6 @@ namespace
 void sqf::commandmap::initobjectcmds(void)
 {
 	//GetVariable & SetVariable & AllVariables are in namespacecmds as simple alias.
-	add(nular("objNul", "A non-existent Object. To compare non-existent objects use isNull or isEqualTo.", objnull_));
+	add(nular("objNull", "A non-existent Object. To compare non-existent objects use isNull or isEqualTo.", objnull_));
 	add(unary("typeOf", sqf::type::OBJECT, "Returns the config class name of given object.", typeof_object));
 }

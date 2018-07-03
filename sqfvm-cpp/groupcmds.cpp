@@ -47,7 +47,7 @@ void sqf::commandmap::initgroupcmds(void)
 	add(nular("sideLogic", "Logic side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::Logic), type::SIDE); }));
 	add(nular("sideUnknown", "Unknown side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::Unknown), type::SIDE); }));
 
-	add(nular("grpNul", "A non-existing Group. To compare non-existent groups use isNull or isEqualTo.", grpnull_));
+	add(nular("grpNull", "A non-existing Group. To compare non-existent groups use isNull or isEqualTo.", grpnull_));
 	add(unary("createGroup", type::SIDE, "Creates a new Group for the given Side.", creategroup_side));
 	add(unary("groupId", type::GROUP, "Returns group name.", groupid_group));
 	add(unary("allVariables", type::GROUP, "Returns a list of all variables from desired group.", allvariables_group));

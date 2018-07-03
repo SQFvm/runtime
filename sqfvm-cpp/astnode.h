@@ -13,6 +13,7 @@ struct astnode
 	std::string file;
 	short kind;
 	std::vector<astnode> children;
+	astnode() { children.reserve(100); }
 };
 
 void print_navigate_ast(std::basic_ostream<char, std::char_traits<char>>* outstreamptr, astnode node, const char* (*astkindname)(short), unsigned short level = 0);

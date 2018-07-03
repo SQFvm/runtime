@@ -307,3 +307,20 @@ libsqfvm.*
 
 /DLL2
 /sqfvm-cpp/DLL2
+/tclap-1.2.2/config
+/tclap-1.2.2/docs
+/tclap-1.2.2/examples
+/tclap-1.2.2/msc
+/tclap-1.2.2/tests
+/tclap-1.2.2/tclap.pc.in
+/tclap-1.2.2/README
+/tclap-1.2.2/NEWS
+/tclap-1.2.2/Makefile.in
+/tclap-1.2.2/Makefile.am
+/tclap-1.2.2/INSTALL
+/tclap-1.2.2/COPYING
+/tclap-1.2.2/configure.in
+/tclap-1.2.2/configure
+/tclap-1.2.2/ChangeLog
+/tclap-1.2.2/AUTHORS
+/tclap-1.2.2/aclocal.m4

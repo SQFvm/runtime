@@ -21,6 +21,7 @@ namespace sqf
 	class groupdata;
 	class sidedata;
 	class scriptdata;
+	class debugger;
 	class virtualmachine
 	{
 	private:
@@ -32,6 +33,10 @@ namespace sqf
 		std::basic_ostream<char, std::char_traits<char>>* mout;
 		std::basic_ostream<char, std::char_traits<char>>* merr;
 		std::basic_ostream<char, std::char_traits<char>>* mwrn;
+		std::stringstream mout_buff;
+		std::stringstream merr_buff;
+		std::stringstream mwrn_buff;
+		bool moutflag;
 		bool merrflag;
 		bool mwrnflag;
 		std::vector<size_t> mfreeobjids;
@@ -41,10 +46,11 @@ namespace sqf
 		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
 		void performexecute(size_t exitAfter = ~0);
 		std::vector<std::shared_ptr<dlops>> mlibraries;
+		debugger* _debugger;
 	public:
-		inline std::basic_ostream<char, std::char_traits<char>>& out(void) const { return *mout; }
-		inline std::basic_ostream<char, std::char_traits<char>>& err(void) const { /* on purpose */((virtualmachine*)this)->merrflag = true; return *merr; }
-		inline std::basic_ostream<char, std::char_traits<char>>& wrn(void) const { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return *mwrn; }
+		inline std::stringstream& out(void) { /* on purpose */((virtualmachine*)this)->moutflag = true; return mout_buff; }
+		inline std::stringstream& err(void) { /* on purpose */((virtualmachine*)this)->merrflag = true; return merr_buff; }
+		inline std::stringstream& wrn(void) { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return mwrn_buff; }
 		inline void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
 		inline void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
 		inline void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }
@@ -55,14 +61,17 @@ namespace sqf
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
 
 		void parse_assembly(std::string);
-		inline void parse_sqf(std::string code) { parse_sqf(code, std::shared_ptr<sqf::callstack>()); }
 		void parse_sqf(std::string, std::stringstream*);
-		void parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs) { parse_sqf(stack(), str, cs); }
-		void parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>);
+		inline void parse_sqf(std::string code, std::string filepath = "") { parse_sqf(stack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
+		inline void parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { parse_sqf(stack(), str, cs, filepath); }
+		void parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>, std::string = "");
 		void parse_config(std::string, std::shared_ptr<configdata>);
 		bool errflag(void) const { return merrflag; }
 		bool wrnflag(void) const { return mwrnflag; }
 		std::vector<std::shared_ptr<dlops>>& libraries(void) { return mlibraries; }
+
+		debugger* dbg(void) { return _debugger; }
+		void dbg(debugger* debugger) { _debugger = debugger; }
 
 		size_t push_obj(std::shared_ptr<sqf::innerobj> obj);
 		std::shared_ptr<sqf::innerobj> get_obj_netid(size_t netid);

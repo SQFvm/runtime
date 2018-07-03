@@ -595,7 +595,7 @@ namespace
 		}
 		vm->libraries().push_back(std::make_shared<dlops>(name));
 		auto& dl = vm->libraries().back();
-		void* sym;
+		void* sym = nullptr;
 		if (dl->try_resolve("RVExtensionVersion", &sym))
 		{
 			((RVExtensionVersion)sym)(buffer, CALLEXTVERSIONBUFFSIZE);
@@ -711,9 +711,9 @@ namespace
 }
 void sqf::commandmap::initgenericcmds(void)
 {
-	add(nular("ni", "Nil value. This value can be used to undefine existing variables.", nil_));
-	add(unary("cal", sqf::type::CODE, "Executes given set of compiled instructions.", call_code));
-	add(binary(4, "cal", sqf::type::ANY, sqf::type::CODE, "Executes given set of compiled instructions with an option to pass arguments to the executed Code.", call_any_code));
+	add(nular("nil", "Nil value. This value can be used to undefine existing variables.", nil_));
+	add(unary("call", sqf::type::CODE, "Executes given set of compiled instructions.", call_code));
+	add(binary(4, "call", sqf::type::ANY, sqf::type::CODE, "Executes given set of compiled instructions with an option to pass arguments to the executed Code.", call_any_code));
 	add(unary("count", sqf::type::ARRAY, "Can be used to count: the number of elements in array.", count_array));
 	add(unary("compile", sqf::type::STRING, "Compile expression.", compile_string));
 	add(unary("typeName", sqf::type::ANY, "Returns the data type of an expression.", typename_any));
@@ -741,8 +741,8 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary("reverse", type::ARRAY, "Reverses given array by reference. Modifies the original array.", reverse_array));
 	add(unary("private", type::STRING, "Sets a variable to the innermost scope.", private_string));
 	add(unary("private", type::ARRAY, "Sets a bunch of variables to the innermost scope.", private_array));
-	add(unary("isNi", type::STRING, "Tests whether the variable defined by the string argument is undefined.", isnil_string));
-	add(unary("isNi", type::CODE, "Tests whether an expression result passed as code is undefined.", isnil_code));
+	add(unary("isNil", type::STRING, "Tests whether the variable defined by the string argument is undefined.", isnil_string));
+	add(unary("isNil", type::CODE, "Tests whether an expression result passed as code is undefined.", isnil_code));
 	add(unary("hint", type::STRING, "Outputs a hint message.", hint_string));
 	add(unary("hint", type::TEXT, "Outputs a hint message.", hint_text));
 	add(unary("systemChat", type::STRING, "Types text to the system radio channel.", systemchat_string));

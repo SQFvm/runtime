@@ -1,0 +1,19 @@
+/* REQUEST */
+{
+    "mode": "get-callstack",
+    "data":  null
+}
+/* RESPONSE */
+{
+    "mode": "callstack",
+    "data":  [
+		{
+			"lvl": 0,
+			"scopename": "string",
+			"namespace": "string",
+			"variables": [
+				{ "name": "string", "value", "string" }
+			]
+		}
+	]
+}

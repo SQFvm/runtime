@@ -9,7 +9,7 @@ using namespace sqf;
 
 std::shared_ptr<sqf::data> sqf::convert(std::shared_ptr<sqf::data> val, type type)
 {
-	std::string stringifiedval = val.get() ? val->tosqf() : "ni";
+	std::string stringifiedval = val.get() ? val->tosqf() : "nil";
 	auto stringval = sqf::stringdata::parse_from_sqf(stringifiedval);
 	switch (type)
 	{

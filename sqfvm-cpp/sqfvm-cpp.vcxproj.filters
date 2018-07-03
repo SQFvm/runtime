@@ -37,6 +37,9 @@
     <Filter Include="Source Files\commandmap">
       <UniqueIdentifier>{34f19fe5-a17a-4fd3-8801-a06c50150e2b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\net">
+      <UniqueIdentifier>{574f9387-e3e4-4c0c-ad2d-00dbd4eba736}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entry.cpp">
@@ -201,6 +204,15 @@
     <ClCompile Include="string_op.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="networking.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="debugger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="netserver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -351,6 +363,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="string_op.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="networking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="netserver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="debugger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

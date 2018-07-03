@@ -1,7 +1,7 @@
 #include <ctype.h>
 #include <stdbool.h>
-#include <wchar.h>
-#include <wctype.h>
+#include <string.h>
+#include <stdio.h>
 #include "string_op.h"
 
 
@@ -39,7 +39,7 @@ unsigned int str_swi(const char* lString, const char* rString)
 unsigned int str_ew(const char* lString, const char* rString)
 {
 	unsigned int i;
-	unsigned int rlen = wcslen(rString);
+	unsigned int rlen = strlen(rString);
 	char lc, rc;
 	for (i = 0; lString[i] != '\0'; i++);
 	if (i < rlen)
@@ -59,7 +59,7 @@ unsigned int str_ew(const char* lString, const char* rString)
 unsigned int str_ewi(const char* lString, const char* rString)
 {
 	unsigned int i;
-	unsigned int rlen = wcslen(rString);
+	unsigned int rlen = strlen(rString);
 	char lc, rc;
 	for (i = 0; lString[i] != '\0'; i++);
 	if (i < rlen)
@@ -190,7 +190,7 @@ unsigned int str_repchr(char* str, char toFind, char toReplace, int length)
 	int i, j = 0;
 	if (length == -1)
 	{
-		length = wcslen(str);
+		length = strlen(str);
 	}
 	for (i = 0; i < length; i++)
 	{

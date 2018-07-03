@@ -21,6 +21,7 @@
 #include "sidedata.h"
 #include "groupdata.h"
 #include "scriptdata.h"
+#include "debugger.h"
 
 #include <iostream>
 #include <cwctype>
@@ -38,11 +39,13 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mactivestack = mmainstack;
 	merrflag = false;
 	mwrnflag = false;
+	_debugger = nullptr;
 }
 void sqf::virtualmachine::execute()
 {
-	while (mspawns.size() != 0 || !mmainstack->isempty())
+	while (mspawns.size() != 0 || !mmainstack->isempty() || (_debugger && _debugger->stop(this)))
 	{
+		if (_debugger) { _debugger->status(sqf::debugger::RUNNING); }
 		mactivestack = mmainstack;
 		performexecute();
 		while (!mmainstack->isempty()) { mmainstack->dropcallstack(); }
@@ -50,7 +53,9 @@ void sqf::virtualmachine::execute()
 		{
 			mactivestack = it->stack();
 			performexecute(150);
+			if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { break; }
 		}
+		if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { mspawns.clear(); }
 		mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished(); });
 	}
 }
@@ -64,12 +69,23 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		if (mmaxinst != 0 && mmaxinst == minstcount)
 		{
 			err() << "MAX INST COUNT REACHED (" << mmaxinst << ")" << std::endl;
+			err() << inst->dbginf("RNT") << std::endl;
+			(*merr) << merr_buff.str();
+			if (_debugger) {
+				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
+			}
+			merr_buff.str(std::string());
 			break;
 		}
 		inst->execute(this);
 		if (merrflag)
 		{
 			err() << inst->dbginf("RNT") << std::endl;
+			(*merr) << merr_buff.str();
+			if (_debugger) {
+				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
+			}
+			merr_buff.str(std::string());
 			merrflag = false;
 			//Only for non-scheduled (and thus the mainstack)
 			if (mactivestack->isscheduled())
@@ -80,7 +96,25 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		if (mwrnflag)
 		{
 			wrn() << inst->dbginf("WRN") << std::endl;
+			(*mwrn) << mwrn_buff.str();
+			if (_debugger) {
+				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
+			}
+			mwrn_buff.str(std::string());
 			mwrnflag = false;
+		}
+		if (moutflag)
+		{
+			(*mout) << mout_buff.str();
+			mout_buff.str(std::string());
+			moutflag = false;
+		}
+		if (_debugger) {
+			_debugger->check(this);
+			if (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)
+			{
+				break;
+			}
 		}
 	}
 }
@@ -122,9 +156,15 @@ bool contains_unary(std::string ident)
 {
 	return sqf::commandmap::get().contains_u(ident);
 }
-bool contains_binary(std::string ident)
+bool contains_binary(std::string ident, short p)
 {
-	return sqf::commandmap::get().contains_b(ident);
+	auto flag = sqf::commandmap::get().contains_b(ident);
+	if (flag && p > 0)
+	{
+		auto cmds = sqf::commandmap::get().getrange_b(ident);
+		return cmds->front()->precedence() == p;
+	}
+	return flag;
 }
 short precedence(std::string s)
 {
@@ -140,6 +180,16 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 {
 	switch (node.kind)
 	{
+	case sqf::parse::sqf::sqfasttypes::BEXP1:
+	case sqf::parse::sqf::sqfasttypes::BEXP2:
+	case sqf::parse::sqf::sqfasttypes::BEXP3:
+	case sqf::parse::sqf::sqfasttypes::BEXP4:
+	case sqf::parse::sqf::sqfasttypes::BEXP5:
+	case sqf::parse::sqf::sqfasttypes::BEXP6:
+	case sqf::parse::sqf::sqfasttypes::BEXP7:
+	case sqf::parse::sqf::sqfasttypes::BEXP8:
+	case sqf::parse::sqf::sqfasttypes::BEXP9:
+	case sqf::parse::sqf::sqfasttypes::BEXP10:
 	case sqf::parse::sqf::sqfasttypes::BINARYEXPRESSION:
 	{
 		navigate_sqf(full, vm, stack, node.children[0]);
@@ -252,11 +302,11 @@ void sqf::virtualmachine::parse_sqf(std::string code, std::stringstream* sstream
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag);
+	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, "");
 	print_navigate_ast(sstream, node, sqf::parse::sqf::astkindname);
 }
 
-void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::string code, std::shared_ptr<sqf::callstack> cs)
+void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::string code, std::shared_ptr<sqf::callstack> cs, std::string filename)
 {
 	if (!cs.get())
 	{
@@ -265,17 +315,7 @@ void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 	}
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag);
-#if defined(_DEBUG)
-	static bool isinitial = true;
-	if (isinitial)
-	{
-		isinitial = false;
-		out() << "-------------------------------" << std::endl;
-		print_navigate_ast(mout, node, sqf::parse::sqf::astkindname);
-		out() << "-------------------------------" << std::endl;
-	}
-#endif
+	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, filename.c_str());
 
 	if (!errflag)
 	{
