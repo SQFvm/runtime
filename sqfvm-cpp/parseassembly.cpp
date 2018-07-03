@@ -57,7 +57,7 @@ namespace
 	sqf::type parsetype(std::string);
 	void skip(const char*, size_t&, size_t&, size_t&);
 	//ident = [a-zA-Z]+;
-	size_t ident(const char*, size_t);
+	//size_t ident(const char*, size_t);
 	//command = [-+*/%a-zA-Z|&_><=\[\]]+;
 	size_t command(const char*, size_t);
 	//anytext = (?![ \t\r\n;])+;
@@ -65,7 +65,7 @@ namespace
 	//type = [a-zA-Z]+;
 	size_t type(const char*, size_t);
 	//integer = [0-9]+;
-	size_t integer(const char*, size_t);
+	//size_t integer(const char*, size_t);
 	//semicolon = ';';
 	size_t semicolon(const char*, size_t);
 	//ASSEMBLY = { INSTRUCTIONS ';' { ';' } };
