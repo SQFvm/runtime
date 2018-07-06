@@ -31,5 +31,7 @@ namespace sqf
 		inline std::shared_ptr<value> pop_back(void) { auto back = mvalue.back(); mvalue.pop_back(); return back; }
 		void resize(int newsize);
 		void reverse();
+		void extend(std::vector<std::shared_ptr<value>> other);
+		void sqf::arraydata::delete_at(int position);
 	};
 }

@@ -41,3 +41,14 @@ void sqf::arraydata::reverse()
 {
 	std::reverse(mvalue.begin(), mvalue.end());
 }
+
+void sqf::arraydata::extend(std::vector<std::shared_ptr<value>> other)
+{
+	mvalue.reserve(mvalue.size() + std::distance(other.begin(), other.end()));
+	mvalue.insert(mvalue.end(), other.begin(), other.end());
+}
+
+void sqf::arraydata::delete_at(int position)
+{
+	mvalue.erase(mvalue.begin() + position);
+}
