@@ -24,6 +24,23 @@ std::string sqf::arraydata::tosqf(void) const
 	return sstream.str();
 }
 
+bool sqf::arraydata::equals(std::shared_ptr<data> d) const
+{
+	auto data = std::dynamic_pointer_cast<arraydata>(d);
+	if (mvalue.size() != data->size())
+	{
+		return false;
+	}
+	for (size_t i = 0; i < mvalue.size(); i++)
+	{
+		if (!mvalue[i]->equals(data->at(i)))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 void sqf::arraydata::resize(int newsize)
 {
 	auto cursize = (int)mvalue.size();
