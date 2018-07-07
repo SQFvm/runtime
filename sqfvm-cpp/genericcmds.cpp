@@ -525,29 +525,43 @@ namespace
 		result->data<arraydata>()->extend(right->as_vector());
 		return result;
 	}
+
+	bool value_equals_casesensitive(std::shared_ptr<value> a, std::shared_ptr<value> b)
+	{
+		// TODO: put this into value class? make use of it elsewhere
+		if (a->dtype() == type::STRING && a->dtype() == b->dtype())
+		{
+			return a->as_string() == b->as_string();
+		}
+		else
+		{
+			return a->equals(b);
+		}
+	}
+
 	std::shared_ptr<value> minus_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		// TODO: optimize (e.g. build a hash based set of the right array and check against it)
-		// TOOO: might require changes for checking array equality (https://github.com/X39/sqf-vm/issues/17)
-		// TODO: double check string equality
 		auto l = left->data<arraydata>();
 		auto r = right->data<arraydata>();
 		std::vector<std::shared_ptr<value>> result;
-		for (size_t i = 0; i < l->size(); i++)
+		for (int i = 0; i < l->size(); i++)
 		{
 			auto current = l->at(i);
 			bool keep = true;
-			for (size_t j = 0; j < r->size(); j++)
+			for (int j = 0; j < r->size(); j++)
 			{
-				auto check_against = r->at(j);
-				if (current->equals(check_against))
+				auto check = r->at(j);
+				if (value_equals_casesensitive(current, check))
 				{
 					keep = false;
 					break;
 				}
 			}
 			if (keep)
+			{
 				result.insert(result.end(), current);
+			}
 		}
 		return std::make_shared<value>(result);
 	}
@@ -558,21 +572,19 @@ namespace
 	}
 	std::shared_ptr<value> arrayintersect_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		// TODO: optimize (e.g. build a hash based ordered set)
-		// TOOO: might require changes for checking array equality (https://github.com/X39/sqf-vm/issues/17)
-		// TODO: double check string equality
+		// TODO: optimize (e.g. use hash set for checking)
 		auto l = left->data<arraydata>();
 		auto r = right->data<arraydata>();
 		std::vector<std::shared_ptr<value>> result;
 
-		for (size_t i = 0; i < l->size(); i++)
+		for (int i = 0; i < l->size(); i++)
 		{
 			bool add = true;
 			auto current = l->at(i);
-			for (size_t j = 0; j < result.size(); j++)
+			for (int j = 0; j < result.size(); j++)
 			{
 				auto check = result.at(j);
-				if (current->equals(check))
+				if (value_equals_casesensitive(current, check))
 				{
 					add = false;
 					break;
@@ -582,10 +594,10 @@ namespace
 			if (!add) continue; 
 
 			add = false;
-			for (size_t j = 0; j < r->size(); j++)
+			for (int j = 0; j < r->size(); j++)
 			{
 				auto check = r->at(j);
-				if (current->equals(check))
+				if (value_equals_casesensitive(current, check))
 				{
 					add = true;
 					break;
@@ -593,7 +605,9 @@ namespace
 			}
 
 			if (add)
+			{
 				result.insert(result.end(), current);
+			}
 		}
 
 		return std::make_shared<value>(result);
@@ -612,14 +626,13 @@ namespace
 	}
 	std::shared_ptr<value> find_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		// TODO: strings should be case sensitive
-		// TOOO: might require changes for checking array equality (https://github.com/X39/sqf-vm/issues/17)
-		// TODO: use vector::find
 		auto l = left->data<arraydata>();
-		for (size_t i = 0; i < l->size(); i++)
+		for (int i = 0; i < l->size(); i++)
 		{
-			if (l->at(i)->equals(right))
+			if (value_equals_casesensitive(l->at(i), right))
+			{
 				return std::make_shared<value>(i);
+			}
 		}
 		return std::make_shared<value>(-1);
 	}
