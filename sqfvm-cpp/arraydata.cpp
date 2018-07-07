@@ -33,9 +33,19 @@ bool sqf::arraydata::equals(std::shared_ptr<data> d) const
 	}
 	for (size_t i = 0; i < mvalue.size(); i++)
 	{
-		if (!mvalue[i]->equals(data->at(i)))
+		if (mvalue[i]->dtype() == type::STRING && mvalue[i]->dtype() == data->at(i)->dtype())
 		{
-			return false;
+			if (mvalue[i]->as_string() != data->at(i)->as_string())
+			{
+				return false;
+			}
+		} 
+		else
+		{
+			if (!mvalue[i]->equals(data->at(i)))
+			{
+				return false;
+			}
 		}
 	}
 	return true;
