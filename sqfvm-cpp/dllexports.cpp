@@ -28,7 +28,7 @@ extern "C" {
 			val = sqfvm_virtualmachine->stack()->popval(success);
 			if (success)
 			{
-				sqfvm_virtualmachine->out() << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+				sstream << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
 			}
 		} while (success);
 		auto str = sstream.str();
