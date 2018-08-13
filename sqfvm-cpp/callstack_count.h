@@ -1,0 +1,21 @@
+#pragma once
+#include <memory>
+#include "callstack.h"
+#include "arraydata.h"
+
+namespace sqf
+{
+	class fordata;
+	class codedata;
+	class callstack_count : public callstack
+	{
+	private:
+		std::shared_ptr<arraydata> marr;
+		std::shared_ptr<codedata> mexec;
+		size_t mCurIndex;
+		int mCount;
+	public:
+		callstack_count(std::shared_ptr<codedata> exec, std::shared_ptr<arraydata> arr);
+		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
+	};
+}

@@ -226,6 +226,7 @@
     <ClCompile Include="astnode.cpp" />
     <ClCompile Include="callstack.cpp" />
     <ClCompile Include="callstack_apply.cpp" />
+    <ClCompile Include="callstack_count.cpp" />
     <ClCompile Include="callstack_exitwith.cpp" />
     <ClCompile Include="callstack_for.cpp" />
     <ClCompile Include="callstack_foreach.cpp" />
@@ -281,6 +282,7 @@
     <ClInclude Include="astnode.h" />
     <ClInclude Include="callstack.h" />
     <ClInclude Include="callstack_apply.h" />
+    <ClInclude Include="callstack_count.h" />
     <ClInclude Include="callstack_exitwith.h" />
     <ClInclude Include="callstack_for.h" />
     <ClInclude Include="callstack_foreach.h" />

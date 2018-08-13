@@ -16,6 +16,7 @@
 #include "callstack_switch.h"
 #include "callstack_apply.h"
 #include "callstack_foreach.h"
+#include "callstack_count.h"
 
 
 #define CALLEXTBUFFSIZE 10240
@@ -78,6 +79,14 @@ namespace
 	{
 		auto r = std::static_pointer_cast<arraydata>(right->data());
 		return std::make_shared<value>(r->size());
+	}
+	std::shared_ptr<value> count_code_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<codedata>();
+		auto r = right->data<arraydata>();
+		auto cs = std::make_shared<callstack_count>(l, r);
+		vm->stack()->pushcallstack(cs);
+		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> compile_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
@@ -842,6 +851,7 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary("call", sqf::type::CODE, "Executes given set of compiled instructions.", call_code));
 	add(binary(4, "call", sqf::type::ANY, sqf::type::CODE, "Executes given set of compiled instructions with an option to pass arguments to the executed Code.", call_any_code));
 	add(unary("count", sqf::type::ARRAY, "Can be used to count: the number of elements in array.", count_array));
+	add(binary(4, "count", sqf::type::CODE, sqf::type::ARRAY, "Can be used to count: the number of elements in array with condition.", count_code_array));
 	add(unary("compile", sqf::type::STRING, "Compile expression.", compile_string));
 	add(unary("typeName", sqf::type::ANY, "Returns the data type of an expression.", typename_any));
 	add(unary("str", sqf::type::ANY, "Converts any value into a string.", str_any));
