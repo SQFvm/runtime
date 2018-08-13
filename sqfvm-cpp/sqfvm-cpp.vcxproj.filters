@@ -213,6 +213,9 @@
     <ClCompile Include="dllexports.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="callstack_foreach.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="value.h">
@@ -375,6 +378,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="callstack_foreach.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
