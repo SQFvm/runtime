@@ -518,6 +518,124 @@ namespace
 		auto r = right->data<arraydata>();
 		return std::make_shared<value>(r->operator std::vector<std::shared_ptr<sqf::value>, std::allocator<std::shared_ptr<sqf::value>>>());
 	}
+	std::shared_ptr<value> plus_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		// create a copy of left array
+		auto result = std::make_shared<value>(left->as_vector());
+		result->data<arraydata>()->extend(right->as_vector());
+		return result;
+	}
+
+	bool value_equals_casesensitive(std::shared_ptr<value> a, std::shared_ptr<value> b)
+	{
+		// TODO: put this into value class? make use of it elsewhere
+		if (a->dtype() == type::STRING && a->dtype() == b->dtype())
+		{
+			return a->as_string() == b->as_string();
+		}
+		else
+		{
+			return a->equals(b);
+		}
+	}
+
+	std::shared_ptr<value> minus_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		// TODO: optimize (e.g. build a hash based set of the right array and check against it)
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		std::vector<std::shared_ptr<value>> result;
+		for (int i = 0; i < l->size(); i++)
+		{
+			auto current = l->at(i);
+			bool keep = true;
+			for (int j = 0; j < r->size(); j++)
+			{
+				auto check = r->at(j);
+				if (value_equals_casesensitive(current, check))
+				{
+					keep = false;
+					break;
+				}
+			}
+			if (keep)
+			{
+				result.insert(result.end(), current);
+			}
+		}
+		return std::make_shared<value>(result);
+	}
+	std::shared_ptr<value> append_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		left->data<arraydata>()->extend(right->as_vector());
+		return std::make_shared<value>();
+	}
+	std::shared_ptr<value> arrayintersect_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		// TODO: optimize (e.g. use hash set for checking)
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		std::vector<std::shared_ptr<value>> result;
+
+		for (int i = 0; i < l->size(); i++)
+		{
+			bool add = true;
+			auto current = l->at(i);
+			for (int j = 0; j < result.size(); j++)
+			{
+				auto check = result.at(j);
+				if (value_equals_casesensitive(current, check))
+				{
+					add = false;
+					break;
+				}
+			}
+
+			if (!add) continue; 
+
+			add = false;
+			for (int j = 0; j < r->size(); j++)
+			{
+				auto check = r->at(j);
+				if (value_equals_casesensitive(current, check))
+				{
+					add = true;
+					break;
+				}
+			}
+
+			if (add)
+			{
+				result.insert(result.end(), current);
+			}
+		}
+
+		return std::make_shared<value>(result);
+	}
+	std::shared_ptr<value> deleteat_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto index = right->as_int();
+		if (index < 0 || index >= l->size())
+		{
+			vm->err() << "Array index out of bounds." << std::endl;
+			return std::make_shared<value>();
+		}
+		l->delete_at(index);
+		return std::make_shared<value>();
+	}
+	std::shared_ptr<value> find_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		for (int i = 0; i < l->size(); i++)
+		{
+			if (value_equals_casesensitive(l->at(i), right))
+			{
+				return std::make_shared<value>(i);
+			}
+		}
+		return std::make_shared<value>(-1);
+	}
 	std::shared_ptr<value> selectmax_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->data<arraydata>();
@@ -760,6 +878,12 @@ void sqf::commandmap::initgenericcmds(void)
 
 	add(binary(4, "set", type::ARRAY, type::ARRAY, "Changes the element at the given (zero-based) index of the array. If the array size is smaller then the index provided, it is resized to allow for the index to be set.", set_array_array));
 	add(unary("+", sqf::type::ARRAY, "Returns a copy of an array.", plus_array));
+	add(binary(6, "+", sqf::type::ARRAY, sqf::type::ARRAY, "Concatenates two arrays.", plus_array_array));
+	add(binary(6, "-", sqf::type::ARRAY, sqf::type::ARRAY, "Creates a new array with elements from the first parameter, that don't occur in the second one.", minus_array_array));
+	add(binary(4, "append", sqf::type::ARRAY, sqf::type::ARRAY, "Appends the second array's element to the first array.", append_array_array));
+	add(binary(4, "arrayIntersect", sqf::type::ARRAY, sqf::type::ARRAY, "Creates a new array that contains unique elements that occur in the first and the second array.", arrayintersect_array_array));
+	add(binary(4, "deleteAt", sqf::type::ARRAY, sqf::type::SCALAR, "Deletes the item at a given array position.", deleteat_array_scalar));
+	add(binary(4, "find", sqf::type::ARRAY, sqf::type::ANY, "Returns the index of an element in the array, or -1", find_array_any));
 
 	add(unary("selectMax", type::ARRAY, "Returns the array element with maximum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmax_array));
 	add(unary("selectMin", type::ARRAY, "Returns the array element with minimum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmin_array));
