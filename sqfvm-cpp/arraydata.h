@@ -32,6 +32,6 @@ namespace sqf
 		void resize(int newsize);
 		void reverse();
 		void extend(std::vector<std::shared_ptr<value>> other);
-		void sqf::arraydata::delete_at(int position);
+		void delete_at(int position);
 	};
 }
