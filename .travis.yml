@@ -1,10 +1,22 @@
 language: cpp
 compiler: gcc
 
-os:
-  - linux
-  - osx
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+    - os: osx
+      osx_image: xcode9.4
 
+before_install:
+  - eval "${MATRIX_EVAL}"
 script:
   - cd sqfvm-cpp
   - make

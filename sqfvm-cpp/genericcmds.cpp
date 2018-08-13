@@ -21,7 +21,7 @@
 #define CALLEXTVERSIONBUFFSIZE 32
 #define RVARGSLIMIT 1024
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__) || defined(__unix__)
 #include <dlfcn.h>
 typedef void(*RVExtensionVersion)(char*, int);
 typedef void(*RVExtension)(char*, int, const char*);
