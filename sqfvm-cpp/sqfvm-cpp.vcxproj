@@ -101,6 +101,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL2|x64'">
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)</OutDir>
     <IntDir>$(Configuration)\$(Platform)</IntDir>
+    <TargetName>libsqfvm</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)</OutDir>
@@ -113,6 +114,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL2|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)</OutDir>
     <IntDir>$(Configuration)\$(Platform)</IntDir>
+    <TargetName>libsqfvm</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)</OutDir>
@@ -308,6 +310,7 @@
     <ClInclude Include="netserver.h" />
     <ClInclude Include="networking.h" />
     <ClInclude Include="dllexports.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="scriptdata.h" />
     <ClInclude Include="sqfnamespace.h" />
     <ClInclude Include="namespaces.h" />
@@ -332,6 +335,12 @@
     <ClInclude Include="type.h" />
     <ClInclude Include="value.h" />
     <ClInclude Include="virtualmachine.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="sqfvm-cpp.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

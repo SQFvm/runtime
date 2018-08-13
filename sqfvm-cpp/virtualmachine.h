@@ -52,8 +52,11 @@ namespace sqf
 		inline std::stringstream& err(void) { /* on purpose */((virtualmachine*)this)->merrflag = true; return merr_buff; }
 		inline std::stringstream& wrn(void) { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return mwrn_buff; }
 		inline void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
+		inline void out_buffprint(void) { (*mout) << mout_buff.str(); mout_buff.str(std::string()); }
 		inline void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
+		inline void err_buffprint(void) { (*merr) << merr_buff.str(); merr_buff.str(std::string()); }
 		inline void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }
+		inline void wrn_buffprint(void) { (*mwrn) << mwrn_buff.str(); mwrn_buff.str(std::string()); }
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
 		void execute(void);
@@ -65,6 +68,7 @@ namespace sqf
 		inline void parse_sqf(std::string code, std::string filepath = "") { parse_sqf(stack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
 		inline void parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { parse_sqf(stack(), str, cs, filepath); }
 		void parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>, std::string = "");
+		void sqf::virtualmachine::pretty_print_sqf(std::string code);
 		void parse_config(std::string, std::shared_ptr<configdata>);
 		bool errflag(void) const { return merrflag; }
 		bool wrnflag(void) const { return mwrnflag; }
