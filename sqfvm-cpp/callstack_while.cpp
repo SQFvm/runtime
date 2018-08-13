@@ -30,6 +30,8 @@ std::shared_ptr<sqf::instruction> sqf::callstack_while::popinst(sqf::virtualmach
 	else
 	{
 		mdoexec = true;
+		bool success;
+		vm->stack()->popval(success);
 		auto sptr = std::shared_ptr<callstack_while>(this, [](callstack_while*) {});
 		mwhilecond->loadinto(vm->stack(), sptr);
 		return std::make_shared<sqf::inst::endstatement>();
