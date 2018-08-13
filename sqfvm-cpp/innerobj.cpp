@@ -4,7 +4,7 @@
 
 std::string sqf::innerobj::tosqf(void) const
 {
-	auto sstream = std::stringstream();
+	std::stringstream sstream;
 	sstream << (const void*)this << "# " << this->mnetid << ": " << mclassname;
 	return sstream.str();
 }

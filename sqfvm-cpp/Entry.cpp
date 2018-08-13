@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 	bool noPrint = noPrintArg.getValue();
 	bool noExecutePrint = noExecutePrintArg.getValue();
 
-	auto vm = sqf::virtualmachine();
+	sqf::virtualmachine vm;
 	sqf::commandmap::get().init();
 	bool errflag = false;
 	netserver* srv = nullptr;
