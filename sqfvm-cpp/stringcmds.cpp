@@ -211,6 +211,13 @@ namespace
 		sstream << l << r;
 		return std::make_shared<value>(sstream.str());
 	}
+	std::shared_ptr<value> find_string_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->as_string();
+		auto r = right->as_string();
+		int res = l.find(r);
+		return std::make_shared<value>(res == std::string::npos ? -1 : res);
+	}
 }
 void sqf::commandmap::initstringcmds(void)
 {
@@ -223,4 +230,5 @@ void sqf::commandmap::initstringcmds(void)
 	add(unary("toString", sqf::type::ARRAY, "Converts the supplied String into an Array of Numbers.", tostring_array));
 	add(binary(4, "joinString", sqf::type::ARRAY, sqf::type::STRING, "Joins array into String with provided separator. Array can be of mixed types, all elements will be converted to String prior to joining, but the fastest operation is on the array of Strings.", joinstring_array_string));
 	add(binary(6, "+", sqf::type::STRING, sqf::type::STRING, "Concatinates two strings together.", plus_string_string));
+	add(binary(4, "find", sqf::type::STRING, sqf::type::STRING, "Searches for a string within a string. Returns the 0 based index on success or -1 if not found.", find_string_string));
 }

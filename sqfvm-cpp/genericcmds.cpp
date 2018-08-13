@@ -15,6 +15,7 @@
 #include "callstack_exitwith.h"
 #include "callstack_switch.h"
 #include "callstack_apply.h"
+#include "callstack_foreach.h"
 
 
 #define CALLEXTBUFFSIZE 10240
@@ -236,6 +237,14 @@ namespace
 		auto execcode = std::static_pointer_cast<codedata>(right->data());
 
 		auto cs = std::make_shared<callstack_for>(fordata, execcode);
+		vm->stack()->pushcallstack(cs);
+		return std::shared_ptr<value>();
+	}
+	std::shared_ptr<value> foreach_code_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<sqf::codedata>();
+		auto r = right->data<sqf::arraydata>();
+		auto cs = std::make_shared<callstack_foreach>(l, r);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
@@ -849,6 +858,7 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, "to", type::FOR, type::SCALAR, "Sets the end index in a FOR type construct.", to_for_scalar));
 	add(binary(4, "step", type::FOR, type::SCALAR, "Sets the step size (default: 1) in a FOR type construct.", step_for_scalar));
 	add(binary(4, "do", type::FOR, type::CODE, "Executes provided code as long as the var is smaller then the end index.", do_for_code));
+	add(binary(4, "forEach", type::CODE, type::ARRAY, "Executes the given command(s) on every item of an array. The array items are represented by the magic variable _x. The array indices are represented by _forEachIndex.", foreach_code_array));
 
 	add(binary(4, "select", type::ARRAY, type::SCALAR, "Selects the element at provided index from array. If the index provided equals the array length, nil will be returned.", select_array_scalar));
 	add(binary(4, "select", type::ARRAY, type::BOOL, "Selects the first element if provided boolean is true, second element if it is false.", select_array_bool));
