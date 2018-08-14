@@ -69,8 +69,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		if (mmaxinst != 0 && mmaxinst == minstcount)
 		{
 			err() << "MAX INST COUNT REACHED (" << mmaxinst << ")" << std::endl;
-			err() << inst->dbginf("RNT") << std::endl;
-			(*merr) << merr_buff.str();
+			(*merr) << inst->dbginf("RNT") << merr_buff.str();
 			if (_debugger) {
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
 			}
@@ -81,8 +80,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		inst->execute(this);
 		if (merrflag)
 		{
-			err() << inst->dbginf("RNT") << std::endl;
-			(*merr) << merr_buff.str();
+			(*merr) << inst->dbginf("RNT") << merr_buff.str();
 			if (_debugger) {
 				_debugger->position(inst->line(), inst->col(), inst->file());
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
@@ -97,8 +95,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		}
 		if (mwrnflag)
 		{
-			wrn() << inst->dbginf("WRN") << std::endl;
-			(*mwrn) << mwrn_buff.str();
+			(*mwrn) << inst->dbginf("WRN") << mwrn_buff.str();
 			if (_debugger) {
 				_debugger->position(inst->line(), inst->col(), inst->file());
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
