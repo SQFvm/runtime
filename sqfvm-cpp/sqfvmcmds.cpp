@@ -46,7 +46,7 @@ namespace
 	std::shared_ptr<value> tree___string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto str = right->as_string();
-		auto sstream = std::stringstream();
+		std::stringstream sstream;
 		vm->parse_sqf(str, &sstream);
 		return std::make_shared<value>(sstream.str());
 	}

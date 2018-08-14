@@ -120,7 +120,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 }
 std::string sqf::virtualmachine::dbgsegment(const char* full, size_t off, size_t length)
 {
-	auto sstream = std::stringstream();
+	std::stringstream sstream;
 	size_t i = off < 15 ? 0 : off - 15;
 	size_t len = 30 + length;
 	if (i < 0)
@@ -554,7 +554,7 @@ std::string sqf::virtualmachine::get_group_id(std::shared_ptr<sqf::sidedata> sid
 {
 	int sidenum = side->side();
 	int id = mgroupidcounter[sidenum]++;
-	auto sstream = std::stringstream();
+	std::stringstream sstream;
 	sstream << side->tosqf() << " ALPHA " << id;
 	return sstream.str();
 }

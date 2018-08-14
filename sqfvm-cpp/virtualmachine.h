@@ -68,7 +68,7 @@ namespace sqf
 		inline void parse_sqf(std::string code, std::string filepath = "") { parse_sqf(stack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
 		inline void parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { parse_sqf(stack(), str, cs, filepath); }
 		void parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>, std::string = "");
-		void sqf::virtualmachine::pretty_print_sqf(std::string code);
+		void pretty_print_sqf(std::string code);
 		void parse_config(std::string, std::shared_ptr<configdata>);
 		bool errflag(void) const { return merrflag; }
 		bool wrnflag(void) const { return mwrnflag; }

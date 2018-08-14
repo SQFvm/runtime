@@ -16,7 +16,7 @@ extern "C" {
 	}
 	DLLEXPORT_PREFIX void sqfvm_exec(const char* code, char* buffer, unsigned int bufferlen)
 	{
-		auto sstream = std::stringstream();
+		std::stringstream sstream;
 		sqfvm_virtualmachine->out(&sstream);
 		sqfvm_virtualmachine->err(&sstream);
 		sqfvm_virtualmachine->wrn(&sstream);
