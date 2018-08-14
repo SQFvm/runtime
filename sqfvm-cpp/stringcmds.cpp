@@ -81,7 +81,7 @@ namespace
 			return std::make_shared<value>("");
 		}
 		auto format = r[0]->as_string();
-		auto sstream = std::stringstream();
+		std::stringstream sstream;
 		size_t off = 0;
 		size_t newoff = 0;
 		while ((newoff = format.find(L'%', off)) != std::string::npos)
@@ -162,7 +162,7 @@ namespace
 		19:54:38 "[]"
 		*/
 		auto r = right->as_vector();
-		auto sstream = std::stringstream();
+		std::stringstream sstream;
 		for (auto val : r)
 		{
 			sstream << val->tosqf();
@@ -173,7 +173,7 @@ namespace
 	{
 		auto l = left->as_vector();
 		auto r = right->as_string();
-		auto sstream = std::stringstream();
+		std::stringstream sstream;
 		bool separator = false;
 		for (auto it : l)
 		{
@@ -207,7 +207,7 @@ namespace
 	{
 		auto l = left->as_string();
 		auto r = right->as_string();
-		auto sstream = std::stringstream();
+		std::stringstream sstream;
 		sstream << l << r;
 		return std::make_shared<value>(sstream.str());
 	}
