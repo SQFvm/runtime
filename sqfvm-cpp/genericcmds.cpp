@@ -287,7 +287,7 @@ namespace
 		{
 			vm->wrn() << "Array should have at least two elements." << std::endl;
 		}
-		return flag ? arr[0] : arr[1];
+		return flag ? arr[1] : arr[0];
 	}
 	std::shared_ptr<value> select_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
