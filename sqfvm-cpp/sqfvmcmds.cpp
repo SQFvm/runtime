@@ -54,6 +54,7 @@ namespace
 	{
 		std::stringstream sstream;
 		auto str = right->as_string();
+		bool wasfound = false;
 		for (auto pair : commandmap::get().all_n())
 		{
 			if (str_cmpi(pair.first.c_str(), pair.first.length(), str.c_str(), str.length()) != 0)
@@ -63,6 +64,7 @@ namespace
 				vm->out() << "NULAR '" << pair.first << "'\t<" << cmd->name() << " " << ">" << std::endl;
 			else
 				vm->out() << "NULAR '" << pair.first << "'\t<" << cmd->name() << " " << ">\t" << cmd->desc() << std::endl;
+			wasfound = true;
 		}
 		for (auto pair : commandmap::get().all_u())
 		{
@@ -75,6 +77,7 @@ namespace
 					vm->out() << "UNARY '" << pair.first << "'\t<" << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">\t" << cmd->desc() << std::endl;
 				else
 					vm->out() << "UNARY '" << pair.first << "'\t<" << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">" << std::endl;
+				wasfound = true;
 			}
 		}
 		for (auto pair : commandmap::get().all_b())
@@ -89,6 +92,11 @@ namespace
 				else
 					vm->out() << "BINARY '" << pair.first << "'\t<" << sqf::type_str(cmd->ltype()) << " " << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">" << std::endl;
 			}
+			wasfound = true;
+		}
+		if (!wasfound)
+		{
+			vm->out() << "Could not find any command with that name." << std::endl;
 		}
 		return std::make_shared<value>();
 	}
@@ -110,7 +118,7 @@ namespace
 void sqf::commandmap::initsqfvmcmds(void)
 {
 	add(unary("tree__", sqf::type::STRING, "Returns a string containing the abstract syntax tree for the provided SQF expression.", tree___string));
-	add(nular("cmds__", "Returns a string containing all commands available as string that can be converted to an array.", cmds___));
+	add(nular("cmds__", "Returns an array containing all commands available.", cmds___));
 	add(unary("help__", sqf::type::STRING, "Displays all available information for a single command.", help___string));
 	add(unary("configparse__", sqf::type::STRING, "Parses provided string as config into a new config object.", configparse___string));
 	add(binary(4, "merge__", sqf::type::CONFIG, sqf::type::CONFIG, "Merges contents from the right config into the left config. Duplicate entries will be overriden. Contents will not be copied but referenced.", merge___config_config));
