@@ -14,26 +14,26 @@ def init_libsqfvm():
     print('Loading libsqfvm from {}'.format(path))
     global libsqfvm
     libsqfvm = CDLL(path)
-    libsqfvm.py_init.restype = None
-    libsqfvm.py_init.argtypes = [c_ulonglong]
-    libsqfvm.py_exec.restype = None
-    libsqfvm.py_exec.argtypes = [c_wchar_p, c_wchar_p, c_size_t]
-    libsqfvm.py_uninit.restype = None
-    libsqfvm.py_uninit.argtypes = []
-    libsqfvm.py_loadconfig.restype = None
-    libsqfvm.py_loadconfig.argtypes = [c_wchar_p]
-    libsqfvm.py_init(1000000)
+    libsqfvm.sqfvm_init.restype = None
+    libsqfvm.sqfvm_init.argtypes = [c_ulonglong]
+    libsqfvm.sqfvm_exec.restype = None
+    libsqfvm.sqfvm_exec.argtypes = [c_char_p, c_char_p, c_size_t]
+    libsqfvm.sqfvm_uninit.restype = None
+    libsqfvm.sqfvm_uninit.argtypes = []
+    libsqfvm.sqfvm_loadconfig.restype = None
+    libsqfvm.sqfvm_loadconfig.argtypes = [c_char_p]
+    libsqfvm.sqfvm_init(1000000)
     file = ""
     with open('arma.cpp', 'r') as file:
         file = file.read().strip()
     if file != "":
-        libsqfvm.py_loadconfig(file)
+        libsqfvm.sqfvm_loadconfig(file.encode('utf-8'))
 
 def execsqf(txt, note):
-    buffer = create_unicode_buffer(1990)
+    buffer = create_string_buffer(b'\000', 1990)
     print("Executing '{}' {}".format(txt, note))
-    libsqfvm.py_exec(txt, buffer, 1990)
-    str = buffer.value
+    libsqfvm.sqfvm_exec(txt.encode('utf-8'), buffer, 1990)
+    str = buffer.raw.decode('utf-8').strip()
     print(str)
     return str
 
@@ -55,7 +55,7 @@ class MyClient(discord.Client):
                 tmp = await message.channel.send("```Freeing current...```")
                 try:
                     self.allowsqf = False
-                    libsqfvm.py_uninit()
+                    libsqfvm.sqfvm_uninit()
                     _ctypes.dlclose(libsqfvm._handle)
                     await tmp.edit(content="```Pulling latest sources...```")
                     subprocess.call(['git', 'pull'])
@@ -118,3 +118,4 @@ with open('DISCORD.TOKEN', 'r') as file:
 init_libsqfvm()
 print ('Using token --> {}'.format(token))
 client.run(token)
+
