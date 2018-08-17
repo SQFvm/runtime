@@ -23,13 +23,6 @@ namespace
 		auto grp = right->data<groupdata>();
 		return std::make_shared<value>(grp->groupid());
 	}
-	std::shared_ptr<value> allvariables_group(virtualmachine* vm, std::shared_ptr<value> right)
-	{
-		auto r = right->data<groupdata>();
-		std::vector<std::shared_ptr<value>> arr(r->varmap().size());
-		transform(r->varmap().begin(), r->varmap().end(), arr.begin(), [](auto pair) { return std::make_shared<value>(pair.first); });
-		return std::make_shared<value>(arr);
-	}
 }
 void sqf::commandmap::initgroupcmds(void)
 {
@@ -50,5 +43,4 @@ void sqf::commandmap::initgroupcmds(void)
 	add(nular("grpNull", "A non-existing Group. To compare non-existent groups use isNull or isEqualTo.", grpnull_));
 	add(unary("createGroup", type::SIDE, "Creates a new Group for the given Side.", creategroup_side));
 	add(unary("groupId", type::GROUP, "Returns group name.", groupid_group));
-	add(unary("allVariables", type::GROUP, "Returns a list of all variables from desired group.", allvariables_group));
 }
