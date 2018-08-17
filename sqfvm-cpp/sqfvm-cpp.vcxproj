@@ -101,6 +101,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL2|x64'">
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)</OutDir>
     <IntDir>$(Configuration)\$(Platform)</IntDir>
+    <TargetName>libsqfvm</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)</OutDir>
@@ -113,6 +114,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL2|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)</OutDir>
     <IntDir>$(Configuration)\$(Platform)</IntDir>
+    <TargetName>libsqfvm</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)</OutDir>
@@ -224,8 +226,10 @@
     <ClCompile Include="astnode.cpp" />
     <ClCompile Include="callstack.cpp" />
     <ClCompile Include="callstack_apply.cpp" />
+    <ClCompile Include="callstack_count.cpp" />
     <ClCompile Include="callstack_exitwith.cpp" />
     <ClCompile Include="callstack_for.cpp" />
+    <ClCompile Include="callstack_foreach.cpp" />
     <ClCompile Include="callstack_isnil.cpp" />
     <ClCompile Include="callstack_select.cpp" />
     <ClCompile Include="callstack_switch.cpp" />
@@ -278,8 +282,10 @@
     <ClInclude Include="astnode.h" />
     <ClInclude Include="callstack.h" />
     <ClInclude Include="callstack_apply.h" />
+    <ClInclude Include="callstack_count.h" />
     <ClInclude Include="callstack_exitwith.h" />
     <ClInclude Include="callstack_for.h" />
+    <ClInclude Include="callstack_foreach.h" />
     <ClInclude Include="callstack_isnil.h" />
     <ClInclude Include="callstack_select.h" />
     <ClInclude Include="callstack_switch.h" />
@@ -308,6 +314,7 @@
     <ClInclude Include="netserver.h" />
     <ClInclude Include="networking.h" />
     <ClInclude Include="dllexports.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="scriptdata.h" />
     <ClInclude Include="sqfnamespace.h" />
     <ClInclude Include="namespaces.h" />
@@ -332,6 +339,12 @@
     <ClInclude Include="type.h" />
     <ClInclude Include="value.h" />
     <ClInclude Include="virtualmachine.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="sqfvm-cpp.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

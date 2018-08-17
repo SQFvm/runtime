@@ -16,7 +16,7 @@ extern "C" {
 	}
 	DLLEXPORT_PREFIX void sqfvm_exec(const char* code, char* buffer, unsigned int bufferlen)
 	{
-		auto sstream = std::stringstream();
+		std::stringstream sstream;
 		sqfvm_virtualmachine->out(&sstream);
 		sqfvm_virtualmachine->err(&sstream);
 		sqfvm_virtualmachine->wrn(&sstream);
@@ -28,11 +28,12 @@ extern "C" {
 			val = sqfvm_virtualmachine->stack()->popval(success);
 			if (success)
 			{
-				sqfvm_virtualmachine->out() << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+				sstream << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
 			}
 		} while (success);
 		auto str = sstream.str();
 
+		memset(buffer, 0, sizeof(char) * bufferlen);
 		std::strncpy(buffer, str.c_str(), bufferlen);
 	}
 

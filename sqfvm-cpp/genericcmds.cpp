@@ -15,13 +15,15 @@
 #include "callstack_exitwith.h"
 #include "callstack_switch.h"
 #include "callstack_apply.h"
+#include "callstack_foreach.h"
+#include "callstack_count.h"
 
 
 #define CALLEXTBUFFSIZE 10240
 #define CALLEXTVERSIONBUFFSIZE 32
 #define RVARGSLIMIT 1024
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__) || defined(__unix__)
 #include <dlfcn.h>
 typedef void(*RVExtensionVersion)(char*, int);
 typedef void(*RVExtension)(char*, int, const char*);
@@ -77,6 +79,14 @@ namespace
 	{
 		auto r = std::static_pointer_cast<arraydata>(right->data());
 		return std::make_shared<value>(r->size());
+	}
+	std::shared_ptr<value> count_code_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<codedata>();
+		auto r = right->data<arraydata>();
+		auto cs = std::make_shared<callstack_count>(l, r);
+		vm->stack()->pushcallstack(cs);
+		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> compile_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
@@ -239,6 +249,14 @@ namespace
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
+	std::shared_ptr<value> foreach_code_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<sqf::codedata>();
+		auto r = right->data<sqf::arraydata>();
+		auto cs = std::make_shared<callstack_foreach>(l, r);
+		vm->stack()->pushcallstack(cs);
+		return std::shared_ptr<value>();
+	}
 	std::shared_ptr<value> select_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto arr = left->as_vector();
@@ -269,7 +287,7 @@ namespace
 		{
 			vm->wrn() << "Array should have at least two elements." << std::endl;
 		}
-		return flag ? arr[0] : arr[1];
+		return flag ? arr[1] : arr[0];
 	}
 	std::shared_ptr<value> select_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -518,6 +536,124 @@ namespace
 		auto r = right->data<arraydata>();
 		return std::make_shared<value>(r->operator std::vector<std::shared_ptr<sqf::value>, std::allocator<std::shared_ptr<sqf::value>>>());
 	}
+	std::shared_ptr<value> plus_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		// create a copy of left array
+		auto result = std::make_shared<value>(left->as_vector());
+		result->data<arraydata>()->extend(right->as_vector());
+		return result;
+	}
+
+	bool value_equals_casesensitive(std::shared_ptr<value> a, std::shared_ptr<value> b)
+	{
+		// TODO: put this into value class? make use of it elsewhere
+		if (a->dtype() == type::STRING && a->dtype() == b->dtype())
+		{
+			return a->as_string() == b->as_string();
+		}
+		else
+		{
+			return a->equals(b);
+		}
+	}
+
+	std::shared_ptr<value> minus_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		// TODO: optimize (e.g. build a hash based set of the right array and check against it)
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		std::vector<std::shared_ptr<value>> result;
+		for (int i = 0; i < l->size(); i++)
+		{
+			auto current = l->at(i);
+			bool keep = true;
+			for (int j = 0; j < r->size(); j++)
+			{
+				auto check = r->at(j);
+				if (value_equals_casesensitive(current, check))
+				{
+					keep = false;
+					break;
+				}
+			}
+			if (keep)
+			{
+				result.insert(result.end(), current);
+			}
+		}
+		return std::make_shared<value>(result);
+	}
+	std::shared_ptr<value> append_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		left->data<arraydata>()->extend(right->as_vector());
+		return std::make_shared<value>();
+	}
+	std::shared_ptr<value> arrayintersect_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		// TODO: optimize (e.g. use hash set for checking)
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		std::vector<std::shared_ptr<value>> result;
+
+		for (int i = 0; i < l->size(); i++)
+		{
+			bool add = true;
+			auto current = l->at(i);
+			for (int j = 0; j < result.size(); j++)
+			{
+				auto check = result.at(j);
+				if (value_equals_casesensitive(current, check))
+				{
+					add = false;
+					break;
+				}
+			}
+
+			if (!add) continue; 
+
+			add = false;
+			for (int j = 0; j < r->size(); j++)
+			{
+				auto check = r->at(j);
+				if (value_equals_casesensitive(current, check))
+				{
+					add = true;
+					break;
+				}
+			}
+
+			if (add)
+			{
+				result.insert(result.end(), current);
+			}
+		}
+
+		return std::make_shared<value>(result);
+	}
+	std::shared_ptr<value> deleteat_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto index = right->as_int();
+		if (index < 0 || index >= l->size())
+		{
+			vm->err() << "Array index out of bounds." << std::endl;
+			return std::make_shared<value>();
+		}
+		l->delete_at(index);
+		return std::make_shared<value>();
+	}
+	std::shared_ptr<value> find_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		for (int i = 0; i < l->size(); i++)
+		{
+			if (value_equals_casesensitive(l->at(i), right))
+			{
+				return std::make_shared<value>(i);
+			}
+		}
+		return std::make_shared<value>(-1);
+	}
 	std::shared_ptr<value> selectmax_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->data<arraydata>();
@@ -708,6 +844,129 @@ namespace
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(501) });
 		}
 	}
+	std::shared_ptr<value> params_array_array(virtualmachine* vm, std::shared_ptr<value> src, std::shared_ptr<value> trgt)
+	{
+		auto elements = src->data<sqf::arraydata>();
+		auto format = trgt->data<sqf::arraydata>();
+		size_t i, j;
+		bool flag;
+		for (i = 0; i < format->size(); i++)
+		{
+			auto fel = format->at(i);
+			std::vector<std::shared_ptr<sqf::value>> fels;
+			if (fel->dtype() == sqf::ARRAY)
+			{
+				fels = fel->as_vector();
+			}
+			else
+			{
+				fels = { fel };
+			}
+			//validation step
+			if (fels.size() < 1 || fels.at(0)->dtype() != sqf::STRING)
+			{
+				if (fel->dtype() == sqf::ARRAY)
+				{
+					vm->err() << "Params element " << i << " was expected to be a " << type_str(STRING) << " or an " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(0)->dtype()) << '.' << std::endl;
+				}
+				else
+				{
+					vm->err() << "Params element " << i << " was expected to have the first element be a " << type_str(STRING) << ". Got " << sqf::type_str(fels.at(0)->dtype()) << '.' << std::endl;
+				}
+				continue;
+			}
+			if (fels.size() >= 3 && fels.at(2)->dtype() != sqf::ARRAY)
+			{
+				vm->err() << "Params element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
+				continue;
+			}
+			if (fels.size() >= 4 && (fels.at(3)->dtype() != sqf::ARRAY || fels.at(3)->dtype() != sqf::SCALAR))
+			{
+				vm->err() << "Params element " << i << " is required to have its fourth element to be of type " << type_str(ARRAY) << " or " << type_str(SCALAR) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
+				continue;
+			}
+			else if (fels.size() >= 4 && fels.at(3)->dtype() == sqf::ARRAY)
+			{
+				auto tmp = fels.at(3)->data<arraydata>();
+				flag = false;
+				for (j = 0; j < tmp->size(); j++)
+				{
+					if (tmp->at(j)->dtype() != sqf::SCALAR)
+					{
+						vm->err() << "Params element " << i << " and its inner " << j << ". element was expected to be of type " << type_str(SCALAR) << ". Got " << sqf::type_str(tmp->at(j)->dtype()) << '.' << std::endl;
+						flag = true;
+						continue;
+					}
+				}
+				if (flag)
+				{
+					continue;
+				}
+			}
+
+			if (i < elements->size())
+			{
+				auto el = elements->at(i);
+				if (fels.size() >= 3 && fels.at(2)->data<arraydata>()->size() != 0)
+				{
+					auto tmp = fels.at(2)->data<arraydata>();
+					flag = false;
+					for (j = 0; j < tmp->size(); j++)
+					{
+						if (el->dtype() == tmp->at(j)->dtype())
+						{
+							flag = true;
+							break;
+						}
+					}
+					if (!flag)
+					{
+						vm->wrn() << "Element " << i << " is not matching provided expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
+						vm->stack()->stacks_top()->setvar(fels.at(0)->as_string(), fels.at(1));
+						continue;
+					}
+				}
+				if (fels.size() >= 4 && el->dtype() == sqf::ARRAY)
+				{
+					flag = true;
+					if (fels.at(2)->dtype() == sqf::ARRAY)
+					{
+						auto tmp = fels.at(2)->data<arraydata>();
+						auto len = el->data<arraydata>()->size();
+						flag = false;
+						for (j = 0; j < tmp->size(); j++)
+						{
+							if (el->dtype() == tmp->at(j)->as_int())
+							{
+								flag = true;
+								break;
+							}
+						}
+					}
+					else if (el->data<arraydata>()->size() != fels.at(3)->as_int())
+					{
+						flag = false;
+					}
+					if (!flag)
+					{
+						vm->wrn() << "Element " << i << " is not matching expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
+						vm->stack()->stacks_top()->setvar(fels.at(0)->as_string(), fels.at(1));
+						continue;
+					}
+				}
+				vm->stack()->stacks_top()->setvar(fels.at(0)->as_string(), el);
+			}
+			else
+			{
+				vm->stack()->stacks_top()->setvar(fels.at(0)->as_string(), fels.size() == 2 ? fels.at(1) : std::make_shared<sqf::value>());
+			}
+		}
+		return std::make_shared<sqf::value>();
+	}
+	std::shared_ptr<value> params_array(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		return params_array_array(vm, vm->stack()->getlocalvar("_this"), right);
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -715,6 +974,7 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary("call", sqf::type::CODE, "Executes given set of compiled instructions.", call_code));
 	add(binary(4, "call", sqf::type::ANY, sqf::type::CODE, "Executes given set of compiled instructions with an option to pass arguments to the executed Code.", call_any_code));
 	add(unary("count", sqf::type::ARRAY, "Can be used to count: the number of elements in array.", count_array));
+	add(binary(4, "count", sqf::type::CODE, sqf::type::ARRAY, "Can be used to count: the number of elements in array with condition.", count_code_array));
 	add(unary("compile", sqf::type::STRING, "Compile expression.", compile_string));
 	add(unary("typeName", sqf::type::ANY, "Returns the data type of an expression.", typename_any));
 	add(unary("str", sqf::type::ANY, "Converts any value into a string.", str_any));
@@ -731,6 +991,7 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, "to", type::FOR, type::SCALAR, "Sets the end index in a FOR type construct.", to_for_scalar));
 	add(binary(4, "step", type::FOR, type::SCALAR, "Sets the step size (default: 1) in a FOR type construct.", step_for_scalar));
 	add(binary(4, "do", type::FOR, type::CODE, "Executes provided code as long as the var is smaller then the end index.", do_for_code));
+	add(binary(4, "forEach", type::CODE, type::ARRAY, "Executes the given command(s) on every item of an array. The array items are represented by the magic variable _x. The array indices are represented by _forEachIndex.", foreach_code_array));
 
 	add(binary(4, "select", type::ARRAY, type::SCALAR, "Selects the element at provided index from array. If the index provided equals the array length, nil will be returned.", select_array_scalar));
 	add(binary(4, "select", type::ARRAY, type::BOOL, "Selects the first element if provided boolean is true, second element if it is false.", select_array_bool));
@@ -760,10 +1021,19 @@ void sqf::commandmap::initgenericcmds(void)
 
 	add(binary(4, "set", type::ARRAY, type::ARRAY, "Changes the element at the given (zero-based) index of the array. If the array size is smaller then the index provided, it is resized to allow for the index to be set.", set_array_array));
 	add(unary("+", sqf::type::ARRAY, "Returns a copy of an array.", plus_array));
+	add(binary(6, "+", sqf::type::ARRAY, sqf::type::ARRAY, "Concatenates two arrays.", plus_array_array));
+	add(binary(6, "-", sqf::type::ARRAY, sqf::type::ARRAY, "Creates a new array with elements from the first parameter, that don't occur in the second one.", minus_array_array));
+	add(binary(4, "append", sqf::type::ARRAY, sqf::type::ARRAY, "Appends the second array's element to the first array.", append_array_array));
+	add(binary(4, "arrayIntersect", sqf::type::ARRAY, sqf::type::ARRAY, "Creates a new array that contains unique elements that occur in the first and the second array.", arrayintersect_array_array));
+	add(binary(4, "deleteAt", sqf::type::ARRAY, sqf::type::SCALAR, "Deletes the item at a given array position.", deleteat_array_scalar));
+	add(binary(4, "find", sqf::type::ARRAY, sqf::type::ANY, "Returns the index of an element in the array, or -1.", find_array_any));
 
 	add(unary("selectMax", type::ARRAY, "Returns the array element with maximum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmax_array));
 	add(unary("selectMin", type::ARRAY, "Returns the array element with minimum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmin_array));
 
 	add(binary(4, "callExtension", type::STRING, type::STRING, "See https://community.bistudio.com/wiki/callExtension", callextension_string_string));
 	add(binary(4, "callExtension", type::STRING, type::ARRAY, "See https://community.bistudio.com/wiki/callExtension", callextension_string_array));
+
+	add(unary("params", type::ARRAY, "Parses arguments inside of _this into array of private variables.", params_array));
+	add(binary(4, "params", type::ARRAY, type::ARRAY, "Parses input argument into array of private variables.", params_array_array));
 }

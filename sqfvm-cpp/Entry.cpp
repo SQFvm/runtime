@@ -51,10 +51,6 @@ static std::vector<char> readFile(const std::string& filename)
 	return buffer;
 }
 
-void StartServer()
-{
-
-}
 
 int console_width(void)
 {
@@ -102,6 +98,13 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg noPrintArg("n", "no-print", "Prevents the value stack to be printed out at the very end.", false);
 	cmd.add(noPrintArg);
 
+	TCLAP::SwitchArg noExecutePrintArg("N", "no-execute-print", "Prevents the `Execute` and two horizontal lines to be printed.", false);
+	cmd.add(noExecutePrintArg);
+
+
+	TCLAP::MultiArg<std::string> prettyPrintArg("", "pretty-print", "Loads provided file from disk and pretty-prints it onto console.", false, "PATH");
+	cmd.add(prettyPrintArg);
+
 	cmd.parse(argc, argv);
 
 	std::vector<std::string> sqfFiles = loadSqfFileArg.getValue();
@@ -113,12 +116,28 @@ int main(int argc, char** argv)
 	int maxinstructions = maxInstructionsArg.getValue();
 	int serverPort = serverPortArg.getValue();
 	bool noPrint = noPrintArg.getValue();
+	bool noExecutePrint = noExecutePrintArg.getValue();
 
-	auto vm = sqf::virtualmachine();
+	sqf::virtualmachine vm;
 	sqf::commandmap::get().init();
 	bool errflag = false;
 	netserver* srv = nullptr;
 	sqf::debugger* dbg = nullptr;
+
+	for (auto& f : prettyPrintArg.getValue())
+	{
+		try
+		{
+			auto str = load_file(f);
+			vm.pretty_print_sqf(str);
+			vm.out_buffprint();
+		}
+		catch (std::runtime_error ex)
+		{
+			errflag = true;
+			std::cout << ex.what() << std::endl;
+		}
+	}
 
 	//Load all sqf-files provided via arg.
 	for (auto& f : sqfFiles)
@@ -189,10 +208,17 @@ int main(int argc, char** argv)
 		std::cout << "Client connected!" << std::endl;
 	}
 
-	std::cout << "Executing..." << std::endl;
-	std::cout << std::string(console_width(), '-') << std::endl;
-	vm.execute();
-	std::cout << std::string(console_width(), '-') << std::endl;
+	if (noExecutePrint)
+	{
+		vm.execute();
+	}
+	else
+	{
+		std::cout << "Executing..." << std::endl;
+		std::cout << std::string(console_width(), '-') << std::endl;
+		vm.execute();
+		std::cout << std::string(console_width(), '-') << std::endl;
+	}
 	if (!noPrint)
 	{
 		std::shared_ptr<sqf::value> val;

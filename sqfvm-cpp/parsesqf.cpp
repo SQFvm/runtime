@@ -52,9 +52,19 @@ namespace sqf
 			size_t identifier(const char* code, size_t off) { size_t i = off; if (!((code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '_')) return 0; for (i = off + 1; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++); return i - off; }
 			//identifier = [_a-zA-Z0-9]+;
 			size_t assidentifier(const char* code, size_t off) { size_t i = off; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++); return i - off; }
-			//operator_ = [-*+/a-zA-Z><=%_:]+;
-			//ToDo: Add clearer non-alphabetical checks (eg. -- should not be detected as SINGLE operator but rather as two operators)
-			size_t operator_(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '+' || code[i] == '-' || code[i] == '*' || code[i] == '/' || code[i] == ':' || code[i] == '&' || code[i] == '|' || code[i] == '>' || code[i] == '<' || code[i] == '=' || code[i] == '%' || code[i] == '_'; i++); return i - off; }
+			//operator_ = [+-*/%^]|&&|\|\||==|[!<>][=]?|[a-zA-Z_]+;
+			size_t operator_(const char* code, size_t off) {
+				if (code[off] == '+' || code[off] == '-' || code[off] == '*' || code[off] == '/' || code[off] == '%' || code[off] == '^') return 1;
+				if ((code[off] == '|' && code[off + 1] == '|') || (code[off] == '&' && code[off + 1] == '&') || (code[off] == '=' && code[off + 1] == '=') || (code[off] == '>' && code[off + 1] == '>')) return 2;
+				if (code[off] == '<' || code[off] == '>' || code[off] == '!')
+				{
+					if (code[off + 1] == '=') return 2;
+					return 1;
+				}
+				size_t i;
+				for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '_'; i++);
+				return i - off; 
+			}
 			//hexadecimal = [0-9a-fA-F]+;
 			size_t hexadecimal(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'f') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] >= '0' && code[i] <= '9'); i++); return i - off; }
 			//scalarsub = [0-9]+;
@@ -940,7 +950,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected ')'.";
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected ')'." << std::endl;
 					errflag = true;
 				}
 				thisnode.length = curoff - thisnode.offset;

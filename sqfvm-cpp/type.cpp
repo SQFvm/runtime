@@ -8,7 +8,7 @@ std::string sqf::type_str(type t)
 	case sqf::NOTHING: return "NOTHING";
 	case sqf::ANY: return "ANY";
 	case sqf::SCALAR: return "SCALAR";
-	case sqf::BOOL: return "BOO";
+	case sqf::BOOL: return "BOOL";
 	case sqf::ARRAY: return "ARRAY";
 	case sqf::STRING: return "STRING";
 	case sqf::NAMESPACE: return "NAMESPACE";

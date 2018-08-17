@@ -25,6 +25,8 @@ std::shared_ptr<sqf::instruction> sqf::callstack_for::popinst(sqf::virtualmachin
 		|| (mfordata->to() == val->as_double() && mfordata->from() == mfordata->to())
 		)
 	{
+		bool success;
+		vm->stack()->popval(success);
 		auto sptr = std::shared_ptr<callstack_for>(this, [](callstack_for*) {});
 		mexec->loadinto(vm->stack(), sptr);
 		pushinst(std::make_shared<sqf::inst::push>(std::make_shared<value>(val->as_double() + mfordata->step())));

@@ -1,6 +1,6 @@
-COMPILER = g++ -Wunused-function -I "$(shell readlink ../json/include/ -f)/" -I "$(shell readlink ../tclap-1.2.2/include/ -f)/"
-ARGS = -fpic
-CARGS = -g -Wall
+CC_ARGS = -fpic -Wall
+CXX_ARGS = -fpic -std=c++14
+INCLUDE = -I ../json/include/ -I ../tclap-1.2.2/include/
 LIBS = -lm -ldl -lpthread
 OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c*))
 HEADERS = $(wildcard *.h)
@@ -8,13 +8,13 @@ HEADERS = $(wildcard *.h)
 all: libsqfvm.so sqfvm
 
 %.o: %.c $(HEADERS)
-	$(COMPILER) $(ARGS) $(CARGS) -c $< -o $@
+	$(CC) $(CC_ARGS) $(INCLUDE) -c $< -o $@
 
 libsqfvm.so: $(OBJECTS)
-	$(COMPILER) $(ARGS) -shared -o $@ $(OBJECTS) $(LIBS)
+	$(CXX) $(CXX_ARGS) $(INCLUDE) -shared -o $@ $(OBJECTS) $(LIBS)
 
 sqfvm: libsqfvm.so
-	$(COMPILER) $(ARGS) -o $@ -L. -lsqfvm $(LIBS)
+	$(CXX) $(CXX_ARGS) $(INCLUDE) -o $@ -L. -lsqfvm $(LIBS)
 
 clean:
 	rm sqfvm

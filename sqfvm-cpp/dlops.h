@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__) || defined(__unix__)
 #include <dlfcn.h>
 #define DLOPS_LIB_OPEN(P) dlopen(P, RTLD_LAZY)
 #define DLOPS_LIB_CLOSE(H) dlclose(H)

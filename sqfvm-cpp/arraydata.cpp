@@ -24,6 +24,33 @@ std::string sqf::arraydata::tosqf(void) const
 	return sstream.str();
 }
 
+bool sqf::arraydata::equals(std::shared_ptr<data> d) const
+{
+	auto data = std::dynamic_pointer_cast<arraydata>(d);
+	if (mvalue.size() != data->size())
+	{
+		return false;
+	}
+	for (size_t i = 0; i < mvalue.size(); i++)
+	{
+		if (mvalue[i]->dtype() == type::STRING && mvalue[i]->dtype() == data->at(i)->dtype())
+		{
+			if (mvalue[i]->as_string() != data->at(i)->as_string())
+			{
+				return false;
+			}
+		} 
+		else
+		{
+			if (!mvalue[i]->equals(data->at(i)))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 void sqf::arraydata::resize(int newsize)
 {
 	auto cursize = (int)mvalue.size();
@@ -40,4 +67,15 @@ void sqf::arraydata::resize(int newsize)
 void sqf::arraydata::reverse()
 {
 	std::reverse(mvalue.begin(), mvalue.end());
+}
+
+void sqf::arraydata::extend(std::vector<std::shared_ptr<value>> other)
+{
+	mvalue.reserve(mvalue.size() + std::distance(other.begin(), other.end()));
+	mvalue.insert(mvalue.end(), other.begin(), other.end());
+}
+
+void sqf::arraydata::delete_at(int position)
+{
+	mvalue.erase(mvalue.begin() + position);
 }
