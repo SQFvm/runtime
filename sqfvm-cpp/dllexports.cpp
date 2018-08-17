@@ -33,8 +33,8 @@ extern "C" {
 		} while (success);
 		auto str = sstream.str();
 
+		memset(buffer, 0, sizeof(char) * bufferlen);
 		std::strncpy(buffer, str.c_str(), bufferlen);
-		buffer[str.length() >= bufferlen ? bufferlen - 1 : str.length()] = '\0';
 	}
 
 	DLLEXPORT_PREFIX void sqfvm_loadconfig(const char* cfg)
