@@ -128,44 +128,19 @@ namespace
 	}
 	std::shared_ptr<value> tostring_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		/*
-		diag_log toString [84];
-		diag_log toString [true];
-		diag_log toString [false];
-		diag_log toString ["something"];
-		diag_log toString [{}];
-		diag_log toString [[]];
-		diag_log str(toArray toString [84]);
-		diag_log str(toArray toString [true]);
-		diag_log str(toArray toString [false]);
-		diag_log str(toArray toString ["something"]);
-		diag_log str(toArray toString [{}]);
-		diag_log str(toArray toString [[]]);
-
-		19:54:38 "T"
-		19:54:38 ""
-		19:54:38 ""
-		19:54:38 Bad conversion: scalar
-		19:54:38 ""
-		19:54:38 Bad conversion: scalar
-		19:54:38 ""
-		19:54:38 Bad conversion: scalar
-		19:54:38 ""
-		19:54:38 "[84]"
-		19:54:38 "[1]"
-		19:54:38 "[]"
-		19:54:38 Bad conversion: scalar
-		19:54:38 "[]"
-		19:54:38 Bad conversion: scalar
-		19:54:38 "[]"
-		19:54:38 Bad conversion: scalar
-		19:54:38 "[]"
-		*/
 		auto r = right->as_vector();
 		std::stringstream sstream;
-		for (auto val : r)
+		for (size_t i = 0; i < r.size(); i++)
 		{
-			sstream << val->tosqf();
+			auto& val = r[i];
+			if (val->dtype() == SCALAR)
+			{
+				sstream << (char)val->as_int();
+			}
+			else
+			{
+				vm->err() << "Element " << i << " of input array was not of type SCALAR. Got " << sqf::type_str(val->dtype()) << '.' << std::endl;
+			}
 		}
 		return std::make_shared<value>(sstream.str());
 	}
