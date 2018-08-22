@@ -43,7 +43,6 @@ namespace sqf
 		bool mwrnflag;
 		std::vector<size_t> mfreeobjids;
 		std::vector<std::shared_ptr<innerobj>> mobjlist;
-		std::vector<std::shared_ptr<sqf::value>> mgroups;
 
 		std::shared_ptr<sqf::sqfnamespace> mmissionnamespace;
 		std::shared_ptr<sqf::sqfnamespace> muinamespace;
@@ -51,6 +50,7 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> mprofilenamespace;
 
 		std::map<int, size_t> mgroupidcounter;
+		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
 		void performexecute(size_t exitAfter = ~0);
 		std::vector<std::shared_ptr<dlops>> mlibraries;
 		debugger* _debugger;
