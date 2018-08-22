@@ -1,5 +1,5 @@
-CC_ARGS = -fpic -Wall
-CXX_ARGS = -fpic -std=c++14
+CC_ARGS = -fpic -Wall -O2
+CXX_ARGS = -fpic -std=c++14 -O2
 INCLUDE = -I ../json/include/ -I ../tclap-1.2.2/include/
 LIBS = -lm -ldl -lpthread
 OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c*))
