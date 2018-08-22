@@ -42,7 +42,7 @@ namespace sqf
 		inline void velx(double d) { mvelx = d; }
 		inline void vely(double d) { mvely = d; }
 		inline void velz(double d) { mvelz = d; }
-		inline void destroy(sqf::virtualmachine*);
+		void destroy(sqf::virtualmachine*);
 
 		static std::shared_ptr<sqf::innerobj> create(sqf::virtualmachine* vm, std::string classname, bool isvehicle);
 	};
