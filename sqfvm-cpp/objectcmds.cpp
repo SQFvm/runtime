@@ -98,7 +98,7 @@ namespace
 		veh->posx(position->at(0)->as_double() + ((std::rand() % (int)(radius * 2)) - radius));
 		veh->posy(position->at(1)->as_double() + ((std::rand() % (int)(radius * 2)) - radius));
 		veh->posz(position->at(2)->as_double());
-		return std::make_shared<value>(std::make_shared<objectdata>(veh));
+		return std::make_shared<value>(std::make_shared<objectdata>(veh), OBJECT);
 	}
 	std::shared_ptr<value> createvehicle_string_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -132,7 +132,7 @@ namespace
 		veh->posx(position->at(0)->as_double());
 		veh->posy(position->at(1)->as_double());
 		veh->posz(position->at(2)->as_double());
-		return std::make_shared<value>(std::make_shared<objectdata>(veh));
+		return std::make_shared<value>(std::make_shared<objectdata>(veh), OBJECT);
 	}
 
 	std::shared_ptr<value> deletevehicle_array(virtualmachine* vm, std::shared_ptr<value> right)
@@ -159,7 +159,7 @@ namespace
 		arr->push_back(std::make_shared<value>(pos[0]));
 		arr->push_back(std::make_shared<value>(pos[1]));
 		arr->push_back(std::make_shared<value>(pos[2]));
-		return std::make_shared<value>(arr);
+		return std::make_shared<value>(arr, ARRAY);
 	}
 	std::shared_ptr<value> setposition_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -202,7 +202,7 @@ namespace
 		arr->push_back(std::make_shared<value>(vel[0]));
 		arr->push_back(std::make_shared<value>(vel[1]));
 		arr->push_back(std::make_shared<value>(vel[2]));
-		return std::make_shared<value>(arr);
+		return std::make_shared<value>(arr, ARRAY);
 	}
 	std::shared_ptr<value> setvelocity_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
