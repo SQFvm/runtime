@@ -967,6 +967,11 @@ namespace
 	{
 		return params_array_array(vm, vm->stack()->getlocalvar("_this"), right);
 	}
+	std::shared_ptr<value> selectrandom_array(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto arr = right->data<arraydata>();
+		return arr->at(rand() % arr->size());
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -994,6 +999,8 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, "forEach", type::CODE, type::ARRAY, "Executes the given command(s) on every item of an array. The array items are represented by the magic variable _x. The array indices are represented by _forEachIndex.", foreach_code_array));
 
 	add(binary(4, "select", type::ARRAY, type::SCALAR, "Selects the element at provided index from array. If the index provided equals the array length, nil will be returned.", select_array_scalar));
+	add(unary("selectRandom", type::ARRAY, "Returns a random element from the given array.", selectrandom_array));
+
 	add(binary(4, "select", type::ARRAY, type::BOOL, "Selects the first element if provided boolean is true, second element if it is false.", select_array_bool));
 	add(binary(4, "select", type::ARRAY, type::ARRAY, "Selects a range of elements in provided array, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_array_array));
 	add(binary(4, "select", type::ARRAY, type::CODE, "Selects elements from provided array matching provided condition. Current element will be placed in _x variable.", select_array_code));
