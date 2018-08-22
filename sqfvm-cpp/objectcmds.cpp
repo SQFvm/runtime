@@ -146,6 +146,49 @@ namespace
 		veh->obj()->destroy(vm);
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> position_object(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto veh = right->data<objectdata>();
+		if (veh->is_null())
+		{
+			vm->err() << "Object is null." << std::endl;
+			return std::make_shared<value>();
+		}
+		auto pos = veh->obj()->pos();
+		auto arr = std::make_shared<arraydata>();
+		arr->push_back(std::make_shared<value>(pos[0]));
+		arr->push_back(std::make_shared<value>(pos[1]));
+		arr->push_back(std::make_shared<value>(pos[2]));
+		return std::make_shared<value>(arr);
+	}
+	std::shared_ptr<value> setposition_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto veh = left->data<objectdata>();
+		if (veh->is_null())
+		{
+			vm->wrn() << "Object is null." << std::endl;
+			return std::make_shared<value>();
+		}
+		auto position = right->data<arraydata>();
+		if (position->size() != 3)
+		{
+			vm->err() << "Input array was expected to have 3 elements of type SCALAR. Got " << position->size() << '.' << std::endl;
+			return std::make_shared<value>();
+		}
+		for (size_t i = 0; i < 3; i++)
+		{
+			if (position->at(i)->dtype() != SCALAR)
+			{
+				vm->err() << "Element " << i << " of input array was expected to be of type SCALAR. Got " << type_str(position->at(i)->dtype()) << '.' << std::endl;
+				return std::make_shared<value>();
+			}
+		}
+		auto inner = veh->obj();
+		inner->posx(position->at(0)->as_double());
+		inner->posy(position->at(1)->as_double());
+		inner->posz(position->at(2)->as_double());
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initobjectcmds(void)
 {
@@ -156,4 +199,7 @@ void sqf::commandmap::initobjectcmds(void)
 	add(binary(4, "createVehicle", type::STRING, type::ARRAY, "Creates an empty object of given classname type.", createvehicle_string_array));
 	add(binary(4, "createVehicleLocal", type::ANY, type::ANY, "Creates an empty object of given classname type.", createvehicle_string_array));
 	add(unary("deleteVehicle", type::OBJECT, "Deletes an object.", deletevehicle_array));
+	add(unary("position", type::OBJECT, "Returns the object position in format PositionAGLS. Z value is height over the surface underneath.", position_object));
+	add(unary("getPos", type::OBJECT, "Returns the object position in format PositionAGLS. Z value is height over the surface underneath.", position_object));
+	add(binary(4, "setPos", type::OBJECT, type::ARRAY, "", setposition_object_array));
 }
