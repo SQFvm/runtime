@@ -9,7 +9,7 @@ std::string sqf::innerobj::tosqf(void) const
 	return sstream.str();
 }
 
-inline void sqf::innerobj::destroy(sqf::virtualmachine * vm)
+void sqf::innerobj::destroy(sqf::virtualmachine * vm)
 {
 	vm->drop_obj(this);
 }
