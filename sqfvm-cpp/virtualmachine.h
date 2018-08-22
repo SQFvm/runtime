@@ -95,6 +95,7 @@ namespace sqf
 		void dbg(debugger* debugger) { _debugger = debugger; }
 
 		size_t push_obj(std::shared_ptr<sqf::innerobj> obj);
+		void drop_obj(const sqf::innerobj * obj);
 		std::shared_ptr<sqf::innerobj> get_obj_netid(size_t netid);
 		std::string get_group_id(std::shared_ptr<sqf::sidedata>);
 		void push_group(std::shared_ptr<sqf::groupdata>);

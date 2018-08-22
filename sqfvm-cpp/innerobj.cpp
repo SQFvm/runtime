@@ -9,6 +9,11 @@ std::string sqf::innerobj::tosqf(void) const
 	return sstream.str();
 }
 
+inline void sqf::innerobj::destroy(sqf::virtualmachine * vm)
+{
+	vm->drop_obj(this);
+}
+
 std::shared_ptr<sqf::innerobj> sqf::innerobj::create(sqf::virtualmachine* vm, std::string classname, bool isvehicle)
 {
 	auto objptr = new innerobj(classname, isvehicle);

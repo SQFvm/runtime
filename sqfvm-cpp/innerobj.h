@@ -32,7 +32,7 @@ namespace sqf
 		inline double vely(void) { return mvely; }
 		inline double velz(void) { return mvelz; }
 		inline std::string classname(void) { return mclassname; }
-		inline size_t netid(void) { return mnetid; }
+		inline size_t netid(void) const { return mnetid; }
 
 		inline void pos(std::array<double, 3> arr) { mposx = arr[0]; mposy = arr[1]; mposz = arr[2]; }
 		inline void posx(double d) { mposx = d; }
@@ -42,6 +42,7 @@ namespace sqf
 		inline void velx(double d) { mvelx = d; }
 		inline void vely(double d) { mvely = d; }
 		inline void velz(double d) { mvelz = d; }
+		inline void destroy(sqf::virtualmachine*);
 
 		static std::shared_ptr<sqf::innerobj> create(sqf::virtualmachine* vm, std::string classname, bool isvehicle);
 	};

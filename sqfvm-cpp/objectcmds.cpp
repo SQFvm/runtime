@@ -20,7 +20,7 @@ namespace
 	std::shared_ptr<value> typeof_object(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto obj = right->data<objectdata>();
-		if (obj->isnull())
+		if (obj->is_null())
 		{
 			return std::make_shared<value>("");
 		}
@@ -134,6 +134,18 @@ namespace
 		veh->posz(position->at(2)->as_double());
 		return std::make_shared<value>(std::make_shared<objectdata>(veh));
 	}
+
+	std::shared_ptr<value> deletevehicle_array(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto veh = right->data<objectdata>();
+		if (veh->is_null())
+		{
+			vm->wrn() << "Attempt to delete NULL object." << std::endl;
+			return std::make_shared<value>();
+		}
+		veh->obj()->destroy(vm);
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initobjectcmds(void)
 {
@@ -143,5 +155,5 @@ void sqf::commandmap::initobjectcmds(void)
 	add(unary("createVehicle", type::ARRAY, "Creates an empty object of given classname type.", createvehicle_array));
 	add(binary(4, "createVehicle", type::STRING, type::ARRAY, "Creates an empty object of given classname type.", createvehicle_string_array));
 	add(binary(4, "createVehicleLocal", type::ANY, type::ANY, "Creates an empty object of given classname type.", createvehicle_string_array));
-
+	add(unary("deleteVehicle", type::OBJECT, "Deletes an object.", deletevehicle_array));
 }

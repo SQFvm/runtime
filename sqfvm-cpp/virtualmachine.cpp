@@ -23,6 +23,7 @@
 #include "scriptdata.h"
 #include "debugger.h"
 #include "sqfnamespace.h"
+#include "innerobj.h"
 
 #include <iostream>
 #include <cwctype>
@@ -544,6 +545,12 @@ size_t sqf::virtualmachine::push_obj(std::shared_ptr<sqf::innerobj> obj)
 		mobjlist.push_back(obj);
 		return id;
 	}
+}
+void sqf::virtualmachine::drop_obj(const sqf::innerobj * obj)
+{
+	auto id = obj->netid();
+	mobjlist[id] = std::shared_ptr<sqf::innerobj>();
+	mfreeobjids.push_back(id);
 }
 
 std::shared_ptr<sqf::innerobj> sqf::virtualmachine::get_obj_netid(size_t netid)
