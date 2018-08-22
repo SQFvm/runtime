@@ -20,9 +20,9 @@ namespace sqf
 		std::shared_ptr<sqf::value> parent_unsafe(void);
 		std::shared_ptr<sqf::value> navigate_unsafe(std::string nextnode);
 		std::shared_ptr<sqf::value> navigate_full_unsafe(std::string nextnode);
+	public:
 		configdata(std::string name) : mname(name), misnull(true) {}
 		configdata() : mname("bin\\config.bin"), misnull(false) {}
-	public:
 		configdata(std::weak_ptr<configdata> logicparent, std::string name) : mname(name), mlogicparent(logicparent), misnull(false) {}
 		configdata(std::weak_ptr<configdata> logicparent, std::string name, std::string parentname) : mname(name), mparentname(parentname), mlogicparent(logicparent), misnull(false) {}
 
