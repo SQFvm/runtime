@@ -189,6 +189,49 @@ namespace
 		inner->posz(position->at(2)->as_double());
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> velocity_object(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto veh = right->data<objectdata>();
+		if (veh->is_null())
+		{
+			vm->err() << "Object is null." << std::endl;
+			return std::make_shared<value>();
+		}
+		auto vel = veh->obj()->vel();
+		auto arr = std::make_shared<arraydata>();
+		arr->push_back(std::make_shared<value>(vel[0]));
+		arr->push_back(std::make_shared<value>(vel[1]));
+		arr->push_back(std::make_shared<value>(vel[2]));
+		return std::make_shared<value>(arr);
+	}
+	std::shared_ptr<value> setvelocity_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto veh = left->data<objectdata>();
+		if (veh->is_null())
+		{
+			vm->wrn() << "Object is null." << std::endl;
+			return std::make_shared<value>();
+		}
+		auto velocity = right->data<arraydata>();
+		if (velocity->size() != 3)
+		{
+			vm->err() << "Input array was expected to have 3 elements of type SCALAR. Got " << velocity->size() << '.' << std::endl;
+			return std::make_shared<value>();
+		}
+		for (size_t i = 0; i < 3; i++)
+		{
+			if (velocity->at(i)->dtype() != SCALAR)
+			{
+				vm->err() << "Element " << i << " of input array was expected to be of type SCALAR. Got " << type_str(velocity->at(i)->dtype()) << '.' << std::endl;
+				return std::make_shared<value>();
+			}
+		}
+		auto inner = veh->obj();
+		inner->velx(velocity->at(0)->as_double());
+		inner->vely(velocity->at(1)->as_double());
+		inner->velz(velocity->at(2)->as_double());
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initobjectcmds(void)
 {
@@ -202,4 +245,6 @@ void sqf::commandmap::initobjectcmds(void)
 	add(unary("position", type::OBJECT, "Returns the object position in format PositionAGLS. Z value is height over the surface underneath.", position_object));
 	add(unary("getPos", type::OBJECT, "Returns the object position in format PositionAGLS. Z value is height over the surface underneath.", position_object));
 	add(binary(4, "setPos", type::OBJECT, type::ARRAY, "", setposition_object_array));
+	add(unary("velocity", type::OBJECT, "Return velocity (speed vector) of Unit as an array with format [x, y, z].", velocity_object));
+	add(binary(4, "setVelocity", type::OBJECT, type::ARRAY, "Set velocity (speed vector) of a vehicle. Units are in metres per second.", setvelocity_object_array));
 }
