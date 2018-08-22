@@ -20,7 +20,7 @@ namespace sqf
 	public:
 		vmstack(void) : misscheduled(false) {}
 		vmstack(bool isscheduled) : misscheduled(isscheduled) {}
-		inline void pushinst(std::shared_ptr<instruction> inst) { if (mstacks.empty()) { mstacks.push_back(std::make_shared<callstack>()); } mstacks.back()->pushinst(inst); }
+		void pushinst(sqf::virtualmachine* vm, std::shared_ptr<instruction> inst);
 		inline std::shared_ptr<instruction> popinst(sqf::virtualmachine* vm)
 		{
 			if (mstacks.empty())

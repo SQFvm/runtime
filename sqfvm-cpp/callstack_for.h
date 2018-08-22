@@ -12,7 +12,7 @@ namespace sqf
 		std::shared_ptr<fordata> mfordata;
 		std::shared_ptr<codedata> mexec;
 	public:
-		callstack_for(std::shared_ptr<fordata> fordata, std::shared_ptr<codedata> exec);
+		callstack_for(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<fordata> fordata, std::shared_ptr<codedata> exec);
 		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
 	};
 }

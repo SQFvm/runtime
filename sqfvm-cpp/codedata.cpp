@@ -10,6 +10,7 @@
 #include "instgetvariable.h"
 #include "instmakearray.h"
 #include "instpush.h"
+#include "virtualmachine.h"
 
 sqf::codedata::codedata(std::shared_ptr<sqf::callstack> cs)
 {
@@ -98,6 +99,13 @@ std::string sqf::codedata::tosqf(void) const
 		} break;
 		}
 	}
+}
+
+void sqf::codedata::loadinto(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmstack> stack)
+{
+	auto cs = std::make_shared<callstack>(vm->missionnamespace());
+	loadinto(stack, cs);
+	stack->pushcallstack(cs);
 }
 
 void sqf::codedata::loadinto(std::shared_ptr<sqf::vmstack> stack, std::shared_ptr<sqf::callstack> cs)

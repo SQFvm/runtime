@@ -22,6 +22,8 @@ namespace sqf
 	class sidedata;
 	class scriptdata;
 	class debugger;
+	class value;
+	class sqfnamespace;
 	class virtualmachine
 	{
 	private:
@@ -41,6 +43,13 @@ namespace sqf
 		bool mwrnflag;
 		std::vector<size_t> mfreeobjids;
 		std::vector<std::shared_ptr<innerobj>> mobjlist;
+		std::vector<std::shared_ptr<sqf::value>> objects;
+		std::vector<std::shared_ptr<sqf::value>> groups;
+
+		std::shared_ptr<sqf::sqfnamespace> mmissionnamespace;
+		std::shared_ptr<sqf::sqfnamespace> muinamespace;
+		std::shared_ptr<sqf::sqfnamespace> mparsingnamespace;
+		std::shared_ptr<sqf::sqfnamespace> mprofilenamespace;
 
 		std::map<int, size_t> mgroupidcounter;
 		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
@@ -48,6 +57,10 @@ namespace sqf
 		std::vector<std::shared_ptr<dlops>> mlibraries;
 		debugger* _debugger;
 	public:
+		inline std::shared_ptr<sqf::sqfnamespace> missionnamespace(void) { return mmissionnamespace; }
+		inline std::shared_ptr<sqf::sqfnamespace> uinamespace(void) { return muinamespace; }
+		inline std::shared_ptr<sqf::sqfnamespace> parsingnamespace(void) { return mparsingnamespace; }
+		inline std::shared_ptr<sqf::sqfnamespace> profilenamespace(void) { return mprofilenamespace; }
 		inline std::stringstream& out(void) { /* on purpose */((virtualmachine*)this)->moutflag = true; return mout_buff; }
 		inline std::stringstream& err(void) { /* on purpose */((virtualmachine*)this)->merrflag = true; return merr_buff; }
 		inline std::stringstream& wrn(void) { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return mwrn_buff; }

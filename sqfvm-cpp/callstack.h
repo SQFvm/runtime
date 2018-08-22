@@ -17,7 +17,6 @@ namespace sqf
 		std::queue<std::shared_ptr<sqf::instruction>> mstack;
 		std::shared_ptr<sqf::sqfnamespace> mwith;
 	public:
-		callstack();
 		callstack(std::shared_ptr<sqf::sqfnamespace>);
 		inline void pushinst(std::shared_ptr<sqf::instruction> value) { mstack.push(value); }
 		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) { if (mstack.empty()) return std::shared_ptr<sqf::instruction>(); auto ret = mstack.front(); mstack.pop(); return ret; }

@@ -4,15 +4,10 @@
 #include "virtualmachine.h"
 #include "varscope.h"
 #include "sqfnamespace.h"
-#include "namespaces.h"
 #include "codedata.h"
 #include "callstack.h"
 #include <algorithm>
 
-std::shared_ptr<sqf::sqfnamespace> sqf::commands::namespaces::MissionNamespace = std::make_shared<sqf::sqfnamespace>("missionNamespace");
-std::shared_ptr<sqf::sqfnamespace> sqf::commands::namespaces::UiNamespace = std::make_shared< sqf::sqfnamespace>("uiNamespace");
-std::shared_ptr<sqf::sqfnamespace> sqf::commands::namespaces::ParsingNamespace = std::make_shared<sqf::sqfnamespace>("parsingNamespace");
-std::shared_ptr<sqf::sqfnamespace> sqf::commands::namespaces::ProfileNamespace = std::make_shared<sqf::sqfnamespace>("profileNamespace");
 
 using namespace sqf;
 namespace
@@ -34,7 +29,7 @@ namespace
 		auto l = std::static_pointer_cast<sqfnamespace>(left->data());
 		auto r = std::static_pointer_cast<codedata>(right->data());
 		auto cs = std::make_shared<callstack>(l);
-		r->loadinto(vm->stack());
+		r->loadinto(vm, vm->stack());
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> getVariable_namespace_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
@@ -85,13 +80,13 @@ namespace
 void sqf::commandmap::initnamespacecmds(void)
 {
 	add(nular("missionNamespace", "Returns the global namespace attached to mission.",
-		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(sqf::commands::namespaces::missionNamespace(), sqf::type::NAMESPACE); }));
+		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->missionnamespace(), sqf::type::NAMESPACE); }));
 	add(nular("uiNamespace", "The value of PI.",
-		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(sqf::commands::namespaces::uiNamespace(), sqf::type::NAMESPACE); }));
+		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->uinamespace(), sqf::type::NAMESPACE); }));
 	add(nular("parsingNamespace", "Returns the global namespace attached to config parser.",
-		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(sqf::commands::namespaces::parsingNamespace(), sqf::type::NAMESPACE); }));
+		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->parsingnamespace(), sqf::type::NAMESPACE); }));
 	add(nular("profileNamespace", "Returns the global namespace attached to the active user profile. Use setVariable and getVariable to save and load data to and from this Namespace. A variable can be deleted by setting its value to nil. By default the variables set in this namespace will exist while the game is running. In order to make variables save permanently, use saveProfileNamespace before the game is over.",
-		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(sqf::commands::namespaces::profileNamespace(), sqf::type::NAMESPACE); }));
+		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->profilenamespace(), sqf::type::NAMESPACE); }));
 	add(unary("allVariables", type::NAMESPACE, "Returns a list of all variables from desired namespace.", allvariables_namespace));
 	add(unary("allVariables", type::OBJECT, "Returns a list of all variables from desired namespace.", allvariables_namespace));
 	add(unary("allVariables", type::GROUP, "Returns a list of all variables from desired namespace.", allvariables_namespace));

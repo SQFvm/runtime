@@ -22,6 +22,7 @@
 #include "groupdata.h"
 #include "scriptdata.h"
 #include "debugger.h"
+#include "sqfnamespace.h"
 
 #include <iostream>
 #include <cwctype>
@@ -40,6 +41,10 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	merrflag = false;
 	mwrnflag = false;
 	_debugger = nullptr;
+	mmissionnamespace = std::make_shared<sqf::sqfnamespace>("missionNamespace");
+	muinamespace = std::make_shared< sqf::sqfnamespace>("uiNamespace");
+	mparsingnamespace = std::make_shared<sqf::sqfnamespace>("parsingNamespace");
+	mprofilenamespace = std::make_shared<sqf::sqfnamespace>("profileNamespace");
 }
 void sqf::virtualmachine::execute()
 {
@@ -237,7 +242,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		break;
 		case sqf::parse::sqf::sqfasttypes::CODE:
 		{
-			auto cs = std::make_shared<sqf::callstack>();
+			auto cs = std::make_shared<sqf::callstack>(vm->missionnamespace());
 			for (auto subnode : node.children)
 			{
 				navigate_sqf(full, vm, cs, subnode);
@@ -409,7 +414,7 @@ void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 {
 	if (!cs.get())
 	{
-		cs = std::make_shared<sqf::callstack>();
+		cs = std::make_shared<sqf::callstack>(this->missionnamespace());
 		vmstck->pushcallstack(cs);
 	}
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);

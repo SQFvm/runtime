@@ -4,7 +4,6 @@
 #include "value.h"
 #include "instpush.h"
 
-sqf::callstack_count::callstack_count(std::shared_ptr<codedata> exec, std::shared_ptr<arraydata> arr) : mexec(exec), marr(arr), mCurIndex(0), mCount(0) { }
 
 std::shared_ptr<sqf::instruction> sqf::callstack_count::popinst(sqf::virtualmachine * vm)
 {

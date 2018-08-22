@@ -14,7 +14,7 @@ namespace sqf
 		std::vector<std::shared_ptr<value>> moutarr;
 		std::shared_ptr<codedata> mapply;
 	public:
-		callstack_apply(std::vector<std::shared_ptr<value>> arr, std::shared_ptr<codedata> apply) : mcurindex(0), mend(arr.size() == 0), marr(arr), moutarr(arr.size()), mapply(apply){}
+		callstack_apply(std::shared_ptr<sqf::sqfnamespace> ns, std::vector<std::shared_ptr<value>> arr, std::shared_ptr<codedata> apply) : callstack(ns), mcurindex(0), mend(arr.size() == 0), marr(arr), moutarr(arr.size()), mapply(apply) {}
 		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
 	};
 }

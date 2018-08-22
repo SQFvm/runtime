@@ -1,7 +1,6 @@
+#include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include <string.h>
-#include <stdio.h>
 #include "string_op.h"
 
 
@@ -94,7 +93,7 @@ const char* str_strwrd(const char* lString, const char* rString, const char* let
 		{
 			if (rc == '\0')
 			{
-				if (wchr_is(lc, letters) || lc == '\0')
+				if (chr_is(lc, letters) || lc == '\0')
 					return lString + i - j;
 				flag = false;
 				isSeparated = false;
@@ -102,12 +101,12 @@ const char* str_strwrd(const char* lString, const char* rString, const char* let
 			if (lc != rc)
 			{
 				flag = false;
-				isSeparated = wchr_is(lc, letters);
+				isSeparated = chr_is(lc, letters);
 			}
 		}
 		else if (!isSeparated)
 		{
-			if (wchr_is(lc, letters))
+			if (chr_is(lc, letters))
 				isSeparated = true;
 			j = -1;
 		}
@@ -117,7 +116,7 @@ const char* str_strwrd(const char* lString, const char* rString, const char* let
 		}
 		else
 		{
-			isSeparated = wchr_is(lc, letters);
+			isSeparated = chr_is(lc, letters);
 			j = -1;
 		}
 		if (lc == '\0')
@@ -142,7 +141,7 @@ const char* str_strwrdi(const char* lString, const char* rString, const char* le
 		{
 			if (rc == '\0')
 			{
-				if (wchr_is(lc, letters) || lc == '\0')
+				if (chr_is(lc, letters) || lc == '\0')
 					return lString + i - j;
 				flag = false;
 				isSeparated = false;
@@ -150,12 +149,12 @@ const char* str_strwrdi(const char* lString, const char* rString, const char* le
 			if (lc != rc)
 			{
 				flag = false;
-				isSeparated = wchr_is(lc, letters);
+				isSeparated = chr_is(lc, letters);
 			}
 		}
 		else if (!isSeparated)
 		{
-			if (wchr_is(lc, letters))
+			if (chr_is(lc, letters))
 				isSeparated = true;
 			j = -1;
 		}
@@ -165,7 +164,7 @@ const char* str_strwrdi(const char* lString, const char* rString, const char* le
 		}
 		else
 		{
-			isSeparated = wchr_is(lc, letters);
+			isSeparated = chr_is(lc, letters);
 			j = -1;
 		}
 		if (lc == '\0')
@@ -173,7 +172,7 @@ const char* str_strwrdi(const char* lString, const char* rString, const char* le
 	}
 }
 
-int wchr_is(const char c, const char* isArr)
+int chr_is(const char c, const char* isArr)
 {
 	unsigned int i;
 	for (i = 0; isArr[i] != '\0'; i++)
@@ -187,7 +186,7 @@ int wchr_is(const char c, const char* isArr)
 
 unsigned int str_repchr(char* str, char toFind, char toReplace, int length)
 {
-	int i, j = 0;
+	unsigned int i, j = 0;
 	if (length == -1)
 	{
 		length = strlen(str);

@@ -63,14 +63,14 @@ namespace
 	std::shared_ptr<value> call_code(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = std::static_pointer_cast<codedata>(right->data());
-		r->loadinto(vm->stack());
+		r->loadinto(vm, vm->stack());
 		vm->stack()->stacks_top()->setvar("_this", std::make_shared<value>());
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> call_any_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto r = std::static_pointer_cast<codedata>(right->data());
-		r->loadinto(vm->stack());
+		r->loadinto(vm, vm->stack());
 		vm->stack()->stacks_top()->setvar("_this", std::make_shared<value>());
 		vm->stack()->pushval(left);
 		return std::shared_ptr<value>();
@@ -84,14 +84,14 @@ namespace
 	{
 		auto l = left->data<codedata>();
 		auto r = right->data<arraydata>();
-		auto cs = std::make_shared<callstack_count>(l, r);
+		auto cs = std::make_shared<callstack_count>(vm->stack()->stacks_top()->getnamespace(), l, r);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> compile_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
-		auto cs = std::make_shared<callstack>();
+		auto cs = std::make_shared<callstack>(vm->stack()->stacks_top()->getnamespace());
 		vm->parse_sqf(r, cs);
 		return std::make_shared<value>(cs);
 	}
@@ -135,7 +135,7 @@ namespace
 			if (el0->dtype() == type::CODE)
 			{
 				auto code = std::static_pointer_cast<codedata>(el0->data());
-				code->loadinto(vm->stack());
+				code->loadinto(vm, vm->stack());
 				return std::shared_ptr<value>();
 			}
 			else
@@ -153,7 +153,7 @@ namespace
 			if (el1->dtype() == type::CODE)
 			{
 				auto code = std::static_pointer_cast<codedata>(el1->data());
-				code->loadinto(vm->stack());
+				code->loadinto(vm, vm->stack());
 				return std::shared_ptr<value>();
 			}
 			else
@@ -169,7 +169,7 @@ namespace
 		auto code = std::static_pointer_cast<codedata>(right->data());
 		if (ifcond)
 		{
-			code->loadinto(vm->stack());
+			code->loadinto(vm, vm->stack());
 			return std::shared_ptr<value>();
 		}
 		else
@@ -183,7 +183,7 @@ namespace
 		auto code = std::static_pointer_cast<codedata>(right->data());
 		if (ifcond)
 		{
-			auto cs = std::make_shared<callstack_exitwith>();
+			auto cs = std::make_shared<callstack_exitwith>(vm->stack()->stacks_top()->getnamespace());
 			code->loadinto(vm->stack(), cs);
 			vm->stack()->pushcallstack(cs);
 			return std::shared_ptr<value>();
@@ -209,7 +209,7 @@ namespace
 		auto whilecond = std::static_pointer_cast<codedata>(left->data());
 		auto execcode = std::static_pointer_cast<codedata>(right->data());
 
-		auto cs = std::make_shared<callstack_while>(whilecond, execcode);
+		auto cs = std::make_shared<callstack_while>(vm->stack()->stacks_top()->getnamespace(), whilecond, execcode);
 		vm->stack()->pushcallstack(cs);
 
 		return std::shared_ptr<value>();
@@ -245,7 +245,7 @@ namespace
 		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
 		auto execcode = std::static_pointer_cast<codedata>(right->data());
 
-		auto cs = std::make_shared<callstack_for>(fordata, execcode);
+		auto cs = std::make_shared<callstack_for>(vm->stack()->stacks_top()->getnamespace(), fordata, execcode);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
@@ -253,7 +253,7 @@ namespace
 	{
 		auto l = left->data<sqf::codedata>();
 		auto r = right->data<sqf::arraydata>();
-		auto cs = std::make_shared<callstack_foreach>(l, r);
+		auto cs = std::make_shared<callstack_foreach>(vm->stack()->stacks_top()->getnamespace(), l, r);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
@@ -338,7 +338,7 @@ namespace
 		if (arr.size() == 0)
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
 		auto cond = std::static_pointer_cast<codedata>(right->data());
-		auto cs = std::make_shared<sqf::callstack_select>(arr, cond);
+		auto cs = std::make_shared<sqf::callstack_select>(vm->stack()->stacks_top()->getnamespace(), arr, cond);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
@@ -402,7 +402,7 @@ namespace
 	std::shared_ptr<value> isnil_code(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cdata = right->data<codedata>();
-		auto cs = std::make_shared<callstack_isnil>(vm, cdata);
+		auto cs = std::make_shared<callstack_isnil>(vm->stack()->stacks_top()->getnamespace(), vm, cdata);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
@@ -433,7 +433,7 @@ namespace
 	std::shared_ptr<value> do_switch_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto r = right->data<codedata>();
-		auto cs = std::make_shared<callstack_switch>(left->data<switchdata>());
+		auto cs = std::make_shared<callstack_switch>(vm->stack()->stacks_top()->getnamespace(), left->data<switchdata>());
 		vm->stack()->pushcallstack(cs);
 		r->loadinto(vm->stack(), cs);
 		cs->setvar(MAGIC_SWITCH, left);
@@ -478,7 +478,7 @@ namespace
 		if (l->flag())
 		{
 			l->executed(true);
-			r->loadinto(vm->stack());
+			r->loadinto(vm, vm->stack());
 			return std::shared_ptr<value>();
 		}
 		return std::make_shared<value>();
@@ -489,18 +489,18 @@ namespace
 		if (arr.size() == 0)
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
 		auto cond = std::static_pointer_cast<codedata>(right->data());
-		auto cs = std::make_shared<sqf::callstack_apply>(arr, cond);
+		auto cs = std::make_shared<sqf::callstack_apply>(vm->stack()->stacks_top()->getnamespace(), arr, cond);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> spawn_any_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto code = right->data<codedata>();
-		auto scrpt = std::make_shared<scriptdata>();
-		code->loadinto(scrpt->stack());
-		vm->push_spawn(scrpt);
-		scrpt->stack()->stacks_top()->setvar("_this", left);
-		return std::make_shared<value>(scrpt, sqf::type::SCRIPT);
+		auto script = std::make_shared<scriptdata>();
+		code->loadinto(vm, script->stack());
+		vm->push_spawn(script);
+		script->stack()->stacks_top()->setvar("_this", left);
+		return std::make_shared<value>(script, sqf::type::SCRIPT);
 	}
 	std::shared_ptr<value> scriptdone_script(virtualmachine* vm, std::shared_ptr<value> right)
 	{

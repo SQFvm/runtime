@@ -12,7 +12,7 @@ namespace sqf
 		std::shared_ptr<codedata> mexec;
 		bool mdoexec;
 	public:
-		callstack_while(std::shared_ptr<codedata> whilecond, std::shared_ptr<codedata> exec) : mwhilecond(whilecond), mexec(exec), mdoexec(false) {}
+		callstack_while(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<codedata> whilecond, std::shared_ptr<codedata> exec) : callstack(ns), mwhilecond(whilecond), mexec(exec), mdoexec(false) {}
 		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
 	};
 }

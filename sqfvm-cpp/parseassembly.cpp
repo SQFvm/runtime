@@ -269,7 +269,7 @@ namespace
 			skip(code, line, col, curoff);
 			auto inst = std::make_shared<sqf::inst::endstatement>();
 			inst->setdbginf(line, col, std::string(), sqf::virtualmachine::dbgsegment(code, curoff, compiletime::strlen("endStatement")));
-			vm->stack()->pushinst(inst);
+			vm->stack()->pushinst(vm, inst);
 			curoff += compiletime::strlen("endStatement");
 			col += compiletime::strlen("endStatement");
 		}
@@ -319,7 +319,7 @@ namespace
 			{
 				auto inst = std::make_shared<sqf::inst::callunary>(cmdrange);
 				inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("callUnary")));
-				vm->stack()->pushinst(inst);
+				vm->stack()->pushinst(vm, inst);
 			}
 			curoff += cmdlen;
 			col += cmdlen;
@@ -365,7 +365,7 @@ namespace
 			{
 				auto inst = std::make_shared<sqf::inst::callbinary>(cmdrange);
 				inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("callBinary")));
-				vm->stack()->pushinst(inst);
+				vm->stack()->pushinst(vm, inst);
 			}
 			curoff += cmdlen;
 			col += cmdlen;
@@ -404,7 +404,7 @@ namespace
 			std::string text = std::string(code + curoff, code + curoff + textlen);
 			auto inst = std::make_shared<sqf::inst::assignto>(text);
 			inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("assignTo")));
-			vm->stack()->pushinst(inst);
+			vm->stack()->pushinst(vm, inst);
 			curoff += textlen;
 			col += textlen;
 			skip(code, line, col, curoff);
@@ -442,7 +442,7 @@ namespace
 			std::string text = std::string(code + curoff, code + curoff + textlen);
 			auto inst = std::make_shared<sqf::inst::assigntolocal>(text);
 			inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("assignToLoca")));
-			vm->stack()->pushinst(inst);
+			vm->stack()->pushinst(vm, inst);
 
 			curoff += textlen;
 			col += textlen;
@@ -497,7 +497,7 @@ namespace
 			{
 				auto inst = std::make_shared<sqf::inst::callnular>(cmd);
 				inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("callNular")));
-				vm->stack()->pushinst(inst);
+				vm->stack()->pushinst(vm, inst);
 			}
 			curoff += cmdlen;
 			col += cmdlen;
@@ -536,7 +536,7 @@ namespace
 			std::string text = std::string(code + curoff, code + curoff + textlen);
 			auto inst = std::make_shared<sqf::inst::getvariable>(text);
 			inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("getVariable")));
-			vm->stack()->pushinst(inst);
+			vm->stack()->pushinst(vm, inst);
 			curoff += textlen;
 			col += textlen;
 			skip(code, line, col, curoff);
@@ -574,7 +574,7 @@ namespace
 			std::string text = std::string(code + curoff, code + curoff + textlen);
 			auto inst = std::make_shared<sqf::inst::makearray>((size_t)std::stoul(text));
 			inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("makeArray")));
-			vm->stack()->pushinst(inst);
+			vm->stack()->pushinst(vm, inst);
 			curoff += textlen;
 			col += textlen;
 			skip(code, line, col, curoff);
@@ -629,7 +629,7 @@ namespace
 			auto data = std::string(code + curoff - textlen, code + curoff);
 			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(sqf::convert(std::make_shared<sqf::stringdata>(data), pushtype), pushtype));
 			inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("push")));
-			vm->stack()->pushinst(inst);
+			vm->stack()->pushinst(vm, inst);
 		}
 	}	
 }

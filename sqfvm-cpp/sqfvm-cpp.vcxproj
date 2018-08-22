@@ -317,7 +317,6 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="scriptdata.h" />
     <ClInclude Include="sqfnamespace.h" />
-    <ClInclude Include="namespaces.h" />
     <ClInclude Include="objectdata.h" />
     <ClInclude Include="parseconfig.h" />
     <ClInclude Include="parsesqf.h" />

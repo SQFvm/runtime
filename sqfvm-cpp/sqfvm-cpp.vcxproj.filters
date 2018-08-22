@@ -281,9 +281,6 @@
     <ClInclude Include="instcallbinary.h">
       <Filter>Header Files\instructions</Filter>
     </ClInclude>
-    <ClInclude Include="namespaces.h">
-      <Filter>Header Files\commands</Filter>
-    </ClInclude>
     <ClInclude Include="compiletime.h">
       <Filter>Header Files</Filter>
     </ClInclude>

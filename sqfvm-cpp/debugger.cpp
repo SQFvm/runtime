@@ -5,7 +5,6 @@
 #include "vmstack.h"
 #include "callstack.h"
 #include "sqfnamespace.h"
-#include "namespaces.h"
 #include "value.h"
 #include "instruction.h"
 #include <sstream>
@@ -97,9 +96,10 @@ namespace {
 	};
 	class variablemsg : public srvmessage {
 		std::shared_ptr<sqf::vmstack> _stack;
+		sqf::virtualmachine * _vm;
 		nlohmann::json _data;
 	public:
-		variablemsg(std::shared_ptr<sqf::vmstack> stack, nlohmann::json data) : _stack(stack), _data(data) {}
+		variablemsg(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmstack> stack, nlohmann::json data) : _stack(stack), _data(data), _vm(vm) {}
 		std::string serialize(void) {
 			auto data = nlohmann::json::array();
 			for (auto it = _data.begin(); it != _data.end(); it++)
@@ -129,22 +129,22 @@ namespace {
 				}
 				else if (scope.get<std::string>().compare("missionNamespace"))
 				{
-					auto ns = sqf::commands::namespaces::missionNamespace();
+					auto ns = _vm->missionnamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
 				else if (scope.get<std::string>().compare("uiNamespace"))
 				{
-					auto ns = sqf::commands::namespaces::uiNamespace();
+					auto ns = _vm->uinamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
 				else if (scope.get<std::string>().compare("profileNamespace"))
 				{
-					auto ns = sqf::commands::namespaces::profileNamespace();
+					auto ns = _vm->profilenamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
 				else if (scope.get<std::string>().compare("parsingNamespace"))
 				{
-					auto ns = sqf::commands::namespaces::parsingNamespace();
+					auto ns = _vm->parsingnamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
 			}
@@ -229,7 +229,7 @@ void sqf::debugger::check(virtualmachine * vm)
 			else if (!mode.compare("get-variables"))
 			{
 				auto data = json["data"];
-				_server->push_message(variablemsg(vm->stack(), data));
+				_server->push_message(variablemsg(vm, vm->stack(), data));
 			}
 			else if (!mode.compare("set-breakpoint"))
 			{

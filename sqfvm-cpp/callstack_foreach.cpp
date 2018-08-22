@@ -3,9 +3,7 @@
 #include "codedata.h"
 #include "value.h"
 
-sqf::callstack_foreach::callstack_foreach(std::shared_ptr<codedata> exec, std::shared_ptr<arraydata> arr) : mexec(exec), marr(arr), mCurIndex(0)
-{
-}
+
 
 std::shared_ptr<sqf::instruction> sqf::callstack_foreach::popinst(sqf::virtualmachine * vm)
 {

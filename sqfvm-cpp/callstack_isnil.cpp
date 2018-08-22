@@ -4,7 +4,7 @@
 #include "instpush.h"
 #include "value.h"
 
-sqf::callstack_isnil::callstack_isnil(sqf::virtualmachine * vm, std::shared_ptr<codedata> exec)
+sqf::callstack_isnil::callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf::virtualmachine * vm, std::shared_ptr<codedata> exec) : callstack(ns)
 {
 	auto sptr = std::shared_ptr<callstack_isnil>(this, [](callstack_isnil*) {});
 	exec->loadinto(vm->stack(), sptr);

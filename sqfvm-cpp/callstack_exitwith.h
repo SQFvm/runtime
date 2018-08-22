@@ -7,7 +7,7 @@ namespace sqf
 	class callstack_exitwith : public callstack
 	{
 	public:
-		callstack_exitwith() {}
+		callstack_exitwith(std::shared_ptr<sqf::sqfnamespace> ns) : callstack(ns) {}
 		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
 	};
 }

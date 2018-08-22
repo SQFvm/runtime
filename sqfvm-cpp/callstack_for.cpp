@@ -7,7 +7,7 @@
 #include "instassigntolocal.h"
 #include "instendstatement.h"
 
-sqf::callstack_for::callstack_for(std::shared_ptr<fordata> fordata, std::shared_ptr<codedata> exec) : mfordata(fordata), mexec(exec)
+sqf::callstack_for::callstack_for(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<fordata> fordata, std::shared_ptr<codedata> exec) : callstack(ns), mfordata(fordata), mexec(exec)
 {
 	setvar(mfordata->variable(), std::make_shared<value>(mfordata->from()));
 }
