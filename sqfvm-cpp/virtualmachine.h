@@ -43,8 +43,7 @@ namespace sqf
 		bool mwrnflag;
 		std::vector<size_t> mfreeobjids;
 		std::vector<std::shared_ptr<innerobj>> mobjlist;
-		std::vector<std::shared_ptr<sqf::value>> objects;
-		std::vector<std::shared_ptr<sqf::value>> groups;
+		std::vector<std::shared_ptr<sqf::value>> mgroups;
 
 		std::shared_ptr<sqf::sqfnamespace> mmissionnamespace;
 		std::shared_ptr<sqf::sqfnamespace> muinamespace;
@@ -56,6 +55,8 @@ namespace sqf
 		void performexecute(size_t exitAfter = ~0);
 		std::vector<std::shared_ptr<dlops>> mlibraries;
 		debugger* _debugger;
+
+		bool mperformclassnamechecks;
 	public:
 		inline std::shared_ptr<sqf::sqfnamespace> missionnamespace(void) { return mmissionnamespace; }
 		inline std::shared_ptr<sqf::sqfnamespace> uinamespace(void) { return muinamespace; }
@@ -75,6 +76,9 @@ namespace sqf
 		void execute(void);
 		inline std::shared_ptr<sqf::vmstack> stack(void) const { return mactivestack; }
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
+
+		bool perform_classname_checks(void) { return mperformclassnamechecks; }
+		void perform_classname_checks(bool f) { mperformclassnamechecks = f; }
 
 		void parse_assembly(std::string);
 		void parse_sqf(std::string, std::stringstream*);
