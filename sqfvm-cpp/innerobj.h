@@ -23,16 +23,17 @@ namespace sqf
 	public:
 		virtual std::string tosqf(void) const;
 
-		inline std::array<double, 3> pos(void) { return { mposx, mposy, mposz }; }
-		inline double posx(void) { return mposx; }
-		inline double posy(void) { return mposy; }
-		inline double posz(void) { return mposz; }
-		inline std::array<double, 3> vel(void) { return { mvelx, mvely, mvelz }; }
-		inline double velx(void) { return mvelx; }
-		inline double vely(void) { return mvely; }
-		inline double velz(void) { return mvelz; }
-		inline std::string classname(void) { return mclassname; }
+		inline std::array<double, 3> pos(void) const { return { mposx, mposy, mposz }; }
+		inline double posx(void) const { return mposx; }
+		inline double posy(void) const { return mposy; }
+		inline double posz(void) const { return mposz; }
+		inline std::array<double, 3> vel(void) const { return { mvelx, mvely, mvelz }; }
+		inline double velx(void) const { return mvelx; }
+		inline double vely(void) const { return mvely; }
+		inline double velz(void) const { return mvelz; }
+		inline std::string classname(void) const { return mclassname; }
 		inline size_t netid(void) const { return mnetid; }
+		inline bool is_vehicle(void) const { return misvehicle; }
 
 		inline void pos(std::array<double, 3> arr) { mposx = arr[0]; mposy = arr[1]; mposz = arr[2]; }
 		inline void posx(double d) { mposx = d; }

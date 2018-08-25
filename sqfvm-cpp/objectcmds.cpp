@@ -162,7 +162,7 @@ namespace
 		arr->push_back(std::make_shared<value>(pos[2]));
 		return std::make_shared<value>(arr, ARRAY);
 	}
-	std::shared_ptr<value> setposition_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> setpos_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto veh = left->data<objectdata>();
 		if (veh->is_null())
@@ -233,6 +233,44 @@ namespace
 		inner->velz(velocity->at(2)->as_double());
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> domove_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto obj = left->data<objectdata>()->obj();
+		if (obj->is_vehicle())
+		{
+			vm->err() << "Attempt to execute doMove on a vehicle. The operator doMove can only be executed on Units." << std::endl;
+			return std::make_shared<value>();
+		}
+		setpos_object_array(vm, left, right);
+		return std::make_shared<value>();
+	}
+	std::shared_ptr<value> domove_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto arr = left->data<arraydata>();
+		bool errflag = false;
+		for (size_t i = 0; i < arr->size(); i++)
+		{
+			if (arr->at(i)->dtype() != OBJECT)
+			{
+				vm->err() << "Element " << i << " of left input array was expected to be of type OBJECT. Got " << type_str(arr->at(i)->dtype()) << '.' << std::endl;
+				errflag = true;
+			}
+			else if (arr->at(i)->data<objectdata>()->obj()->is_vehicle())
+			{
+				vm->err() << "Attempt to execute doMove on a vehicle. The operator doMove can only be executed on Units." << std::endl;
+				errflag = true;
+			}
+		}
+		if (errflag)
+		{
+			return std::shared_ptr<value>();
+		}
+		for (size_t i = 0; i < arr->size(); i++)
+		{
+			setpos_object_array(vm, arr->at(i), right);
+		}
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initobjectcmds(void)
 {
@@ -245,7 +283,10 @@ void sqf::commandmap::initobjectcmds(void)
 	add(unary("deleteVehicle", type::OBJECT, "Deletes an object.", deletevehicle_array));
 	add(unary("position", type::OBJECT, "Returns the object position in format PositionAGLS. Z value is height over the surface underneath.", position_object));
 	add(unary("getPos", type::OBJECT, "Returns the object position in format PositionAGLS. Z value is height over the surface underneath.", position_object));
-	add(binary(4, "setPos", type::OBJECT, type::ARRAY, "", setposition_object_array));
+	add(binary(4, "setPos", type::OBJECT, type::ARRAY, "", setpos_object_array));
 	add(unary("velocity", type::OBJECT, "Return velocity (speed vector) of Unit as an array with format [x, y, z].", velocity_object));
 	add(binary(4, "setVelocity", type::OBJECT, type::ARRAY, "Set velocity (speed vector) of a vehicle. Units are in metres per second.", setvelocity_object_array));
+	add(binary(4, "doMove", type::OBJECT, type::ARRAY, "Order the given unit(s) to move to the given position (without radio messages). In SQFVM this command acts like setPos.", domove_object_array));
+	add(binary(4, "doMove", type::ARRAY, type::ARRAY, "Order the given unit(s) to move to the given position (without radio messages). In SQFVM this command acts like setPos.", domove_array_array));
+
 }
