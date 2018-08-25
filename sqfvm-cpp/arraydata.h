@@ -5,13 +5,13 @@
 #include <array>
 
 #include "data.h"
+#include "type.h"
 
 
 namespace sqf
 {
 	class value;
 	class virtualmachine;
-	enum type;
 	class arraydata : public data
 	{
 	private:

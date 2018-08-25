@@ -157,7 +157,7 @@ namespace
 	}
 	inline double vectorMagnitudeSqr(std::array<double, 3> arr)
 	{
-		return std::powf(arr[0], 2) + std::powf(arr[1], 2) + std::powf(arr[2], 2);
+		return std::pow(arr[0], 2) + std::pow(arr[1], 2) + std::pow(arr[2], 2);
 	}
 	inline double vectorMagnitude(std::array<double, 3> arr)
 	{
@@ -165,7 +165,7 @@ namespace
 	}
 	inline double vectorDistanceSqr(std::array<double, 3> left, std::array<double, 3> right)
 	{
-		return std::powf(left[0] - right[0], 2) + std::powf(left[1] - right[1], 2) + std::powf(left[2] - right[2], 2);
+		return std::pow(left[0] - right[0], 2) + std::pow(left[1] - right[1], 2) + std::pow(left[2] - right[2], 2);
 	}
 	inline double vectorDistance(std::array<double, 3> left, std::array<double, 3> right)
 	{

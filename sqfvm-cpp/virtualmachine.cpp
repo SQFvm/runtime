@@ -582,7 +582,7 @@ void sqf::virtualmachine::drop_group(std::shared_ptr<sqf::groupdata> grp)
 	auto& grpList = mgroups[grp->side()->side()];
 	for (size_t i = 0; i < grpList.size(); i++)
 	{
-		if (grpList[i].get() == grp)
+		if (grpList[i].get() == grp.get())
 		{
 			grpList[i] = grpList.back();
 			grpList.pop_back();
