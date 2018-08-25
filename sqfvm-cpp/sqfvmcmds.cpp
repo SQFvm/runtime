@@ -3,6 +3,9 @@
 #include "cmd.h"
 #include "virtualmachine.h"
 #include "configdata.h"
+#include "arraydata.h"
+#include "innerobj.h"
+#include "objectdata.h"
 #include <sstream>
 
 using namespace sqf;
@@ -114,6 +117,16 @@ namespace
 		source->mergeinto(target);
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> allObjects__(virtualmachine* vm)
+	{
+		auto arr = std::make_shared<arraydata>();
+		for (auto it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
+		{
+			auto veh = *it;
+			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(veh), OBJECT));
+		}
+		return std::make_shared<value>(arr, ARRAY);
+	}
 }
 void sqf::commandmap::initsqfvmcmds(void)
 {
@@ -122,4 +135,5 @@ void sqf::commandmap::initsqfvmcmds(void)
 	add(unary("help__", sqf::type::STRING, "Displays all available information for a single command.", help___string));
 	add(unary("configparse__", sqf::type::STRING, "Parses provided string as config into a new config object.", configparse___string));
 	add(binary(4, "merge__", sqf::type::CONFIG, sqf::type::CONFIG, "Merges contents from the right config into the left config. Duplicate entries will be overriden. Contents will not be copied but referenced.", merge___config_config));
+	add(nular("allObjects__", "Returns an array containing all objects created.", allObjects__));
 }

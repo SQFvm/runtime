@@ -57,6 +57,8 @@ namespace sqf
 
 		bool mperformclassnamechecks;
 	public:
+		inline std::vector<std::shared_ptr<innerobj>>::iterator get_objlist_iterator_begin(void) { return mobjlist.begin(); }
+		inline std::vector<std::shared_ptr<innerobj>>::iterator get_objlist_iterator_end(void) { return mobjlist.end(); }
 		inline std::shared_ptr<sqf::sqfnamespace> missionnamespace(void) { return mmissionnamespace; }
 		inline std::shared_ptr<sqf::sqfnamespace> uinamespace(void) { return muinamespace; }
 		inline std::shared_ptr<sqf::sqfnamespace> parsingnamespace(void) { return mparsingnamespace; }
