@@ -6,7 +6,8 @@
 namespace sqf
 {
 	class virtualmachine;
-	class innerobj
+	class groupdata;
+	class innerobj : public std::enable_shared_from_this<innerobj>
 	{
 	private:
 		size_t mnetid;
@@ -17,6 +18,7 @@ namespace sqf
 		double mvely;
 		double mvelz;
 		std::string mclassname;
+		std::shared_ptr<groupdata> mgroup;
 
 		bool misvehicle;
 		innerobj(std::string classname, bool isvehicle) : mclassname(classname), misvehicle(isvehicle) {}
@@ -34,6 +36,7 @@ namespace sqf
 		inline std::string classname(void) const { return mclassname; }
 		inline size_t netid(void) const { return mnetid; }
 		inline bool is_vehicle(void) const { return misvehicle; }
+		inline std::shared_ptr<groupdata> group(void) const { return mgroup; }
 
 		inline void pos(std::array<double, 3> arr) { mposx = arr[0]; mposy = arr[1]; mposz = arr[2]; }
 		inline void posx(double d) { mposx = d; }
@@ -43,6 +46,8 @@ namespace sqf
 		inline void velx(double d) { mvelx = d; }
 		inline void vely(double d) { mvely = d; }
 		inline void velz(double d) { mvelz = d; }
+		inline void group(std::shared_ptr<groupdata> g) { mgroup = g; }
+
 		void destroy(sqf::virtualmachine*);
 
 		static std::shared_ptr<sqf::innerobj> create(sqf::virtualmachine* vm, std::string classname, bool isvehicle);

@@ -100,6 +100,7 @@ namespace sqf
 		std::shared_ptr<sqf::innerobj> get_obj_netid(size_t netid);
 		std::string get_group_id(std::shared_ptr<sqf::sidedata>);
 		void push_group(std::shared_ptr<sqf::groupdata>);
+		void drop_group(std::shared_ptr<sqf::groupdata>);
 		inline void push_spawn(std::shared_ptr<scriptdata> scrpt) { mspawns.push_back(scrpt); }
 	};
 }

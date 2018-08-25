@@ -1,5 +1,6 @@
 #include "innerobj.h"
 #include "virtualmachine.h"
+#include "groupdata.h"
 #include <sstream>
 
 std::string sqf::innerobj::tosqf(void) const
@@ -11,6 +12,10 @@ std::string sqf::innerobj::tosqf(void) const
 
 void sqf::innerobj::destroy(sqf::virtualmachine * vm)
 {
+	if (mgroup.get())
+	{
+		mgroup->drop_unit(shared_from_this());
+	}
 	vm->drop_obj(this);
 }
 
