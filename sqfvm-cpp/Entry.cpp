@@ -101,6 +101,9 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg noExecutePrintArg("N", "no-execute-print", "Prevents the `Execute` and two horizontal lines to be printed.", false);
 	cmd.add(noExecutePrintArg);
 
+	TCLAP::SwitchArg disableClassnameCheckArg("c", "disable-classname-check", "Disables the config checking for eg. createVehicle.", false);
+	cmd.add(disableClassnameCheckArg);
+
 
 	TCLAP::MultiArg<std::string> prettyPrintArg("", "pretty-print", "Loads provided file from disk and pretty-prints it onto console.", false, "PATH");
 	cmd.add(prettyPrintArg);
@@ -117,12 +120,18 @@ int main(int argc, char** argv)
 	int serverPort = serverPortArg.getValue();
 	bool noPrint = noPrintArg.getValue();
 	bool noExecutePrint = noExecutePrintArg.getValue();
+	bool disableClassnameCheck = disableClassnameCheckArg.getValue();
 
 	sqf::virtualmachine vm;
 	sqf::commandmap::get().init();
 	bool errflag = false;
 	netserver* srv = nullptr;
 	sqf::debugger* dbg = nullptr;
+
+	if (disableClassnameCheck)
+	{
+		vm.perform_classname_checks(false);
+	}
 
 	for (auto& f : prettyPrintArg.getValue())
 	{
