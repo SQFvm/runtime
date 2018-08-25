@@ -22,6 +22,7 @@ namespace
 		auto obj = right->data<objectdata>();
 		if (obj->is_null())
 		{
+			vm->wrn() << "Attempt to get typeOf a NULL OBJECT has been made." << std::endl;
 			return std::make_shared<value>("");
 		}
 		else
