@@ -3,8 +3,10 @@
 #include "cmd.h"
 #include "virtualmachine.h"
 #include "compiletime.h"
+#include "arraydata.h"
 #include <cmath>
 #include <random>
+#include <array>
 using namespace sqf;
 namespace
 {
@@ -149,6 +151,166 @@ namespace
 	{
 		return right;
 	}
+	inline double dotProduct(std::array<double, 3> left, std::array<double, 3> right)
+	{
+		return left[0] * right[0] + left[1] * right[1] + left[2] * right[2];
+	}
+	inline double vectorMagnitudeSqr(std::array<double, 3> arr)
+	{
+		return std::powf(arr[0], 2) + std::powf(arr[1], 2) + std::powf(arr[2], 2);
+	}
+	inline double vectorMagnitude(std::array<double, 3> arr)
+	{
+		return std::sqrt(vectorMagnitudeSqr(arr));
+	}
+	inline double vectorDistanceSqr(std::array<double, 3> left, std::array<double, 3> right)
+	{
+		return std::powf(left[0] - right[0], 2) + std::powf(left[1] - right[1], 2) + std::powf(left[2] - right[2], 2);
+	}
+	inline double vectorDistance(std::array<double, 3> left, std::array<double, 3> right)
+	{
+		return std::sqrt(vectorDistanceSqr(left, right));
+	}
+	std::shared_ptr<value> vectoradd_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		auto arr = std::make_shared<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
+		{
+			return std::shared_ptr<value>();
+		}
+		arr->push_back(std::make_shared<value>(l->at(0)->as_double() + r->at(0)->as_double()));
+		arr->push_back(std::make_shared<value>(l->at(1)->as_double() + r->at(1)->as_double()));
+		arr->push_back(std::make_shared<value>(l->at(2)->as_double() + r->at(2)->as_double()));
+		return std::make_shared<value>(arr, ARRAY);
+	}
+	std::shared_ptr<value> vectorcos_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		auto arr = std::make_shared<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
+		{
+			return std::shared_ptr<value>();
+		}
+		return std::make_shared<value>(dotProduct(*l, *r) / (vectorMagnitude(*l) * vectorMagnitude(*r)));
+	}
+	std::shared_ptr<value> vectorcrossproduct_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		auto arr = std::make_shared<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
+		{
+			return std::shared_ptr<value>();
+		}
+		arr->push_back(std::make_shared<value>(l->at(1)->as_double() * r->at(2)->as_double() - l->at(2)->as_double() * r->at(1)->as_double()));
+		arr->push_back(std::make_shared<value>(l->at(2)->as_double() * r->at(0)->as_double() - l->at(0)->as_double() * r->at(2)->as_double()));
+		arr->push_back(std::make_shared<value>(l->at(0)->as_double() * r->at(1)->as_double() - l->at(1)->as_double() * r->at(0)->as_double()));
+		return std::make_shared<value>(arr, ARRAY);
+	}
+	std::shared_ptr<value> vectordistance_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		auto arr = std::make_shared<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
+		{
+			return std::shared_ptr<value>();
+		}
+		return std::make_shared<value>(vectorDistance(*l, *r));
+	}
+	std::shared_ptr<value> vectordistancesqr_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		auto arr = std::make_shared<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
+		{
+			return std::shared_ptr<value>();
+		}
+		return std::make_shared<value>(vectorDistanceSqr(*l, *r));
+	}
+	std::shared_ptr<value> vectormultiply_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto r = right->as_double();
+		auto arr = std::make_shared<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3))
+		{
+			return std::shared_ptr<value>();
+		}
+		arr->push_back(std::make_shared<value>(l->at(1)->as_double() * r));
+		arr->push_back(std::make_shared<value>(l->at(2)->as_double() * r));
+		arr->push_back(std::make_shared<value>(l->at(0)->as_double() * r));
+		return std::make_shared<value>(arr, ARRAY);
+	}
+	std::shared_ptr<value> vectordiff_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		auto arr = std::make_shared<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
+		{
+			return std::shared_ptr<value>();
+		}
+		arr->push_back(std::make_shared<value>(l->at(1)->as_double() - r->at(1)->as_double()));
+		arr->push_back(std::make_shared<value>(l->at(2)->as_double() - r->at(2)->as_double()));
+		arr->push_back(std::make_shared<value>(l->at(0)->as_double() - r->at(0)->as_double()));
+		return std::make_shared<value>(arr, ARRAY);
+	}
+	std::shared_ptr<value> vectordotproduct_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
+		{
+			return std::shared_ptr<value>();
+		}
+		return std::make_shared<value>(dotProduct(*l, *r));
+	}
+	std::shared_ptr<value> vectormagnitude_array(virtualmachine* vm, std::shared_ptr<value> left)
+	{
+		auto l = left->data<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3))
+		{
+			return std::shared_ptr<value>();
+		}
+		return std::make_shared<value>(vectorMagnitude(*l));
+	}
+	std::shared_ptr<value> vectormagnitudesqr_array(virtualmachine* vm, std::shared_ptr<value> left)
+	{
+		auto l = left->data<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3))
+		{
+			return std::shared_ptr<value>();
+		}
+		return std::make_shared<value>(vectorMagnitudeSqr(*l));
+	}
+	std::shared_ptr<value> vectornormalized_array(virtualmachine* vm, std::shared_ptr<value> left)
+	{
+		auto l = left->data<arraydata>();
+		auto arr = std::make_shared<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3))
+		{
+			return std::shared_ptr<value>();
+		}
+		auto magnitude = vectorMagnitude(*l);
+		if (magnitude == 0)
+		{
+			arr->push_back(std::make_shared<value>(0));
+			arr->push_back(std::make_shared<value>(0));
+			arr->push_back(std::make_shared<value>(0));
+		}
+		else
+		{
+			arr->push_back(std::make_shared<value>(l->at(1)->as_double() / magnitude));
+			arr->push_back(std::make_shared<value>(l->at(2)->as_double() / magnitude));
+			arr->push_back(std::make_shared<value>(l->at(0)->as_double() / magnitude));
+		}
+		return std::make_shared<value>(vectorMagnitudeSqr(*l));
+	}
 }
 
 void sqf::commandmap::initmathcmds(void)
@@ -186,4 +348,17 @@ void sqf::commandmap::initmathcmds(void)
 	add(binary(6, "-", sqf::type::SCALAR, sqf::type::SCALAR, "Subtracts b from a.", minus_scalar_scalar));
 	add(binary(7, "*", sqf::type::SCALAR, sqf::type::SCALAR, "Returns the value of a multiplied by b.", multiply_scalar_scalar));
 	add(binary(7, "/", sqf::type::SCALAR, sqf::type::SCALAR, "a divided by b. Division by 0 throws \"Division by zero\" error, however script doesn't stop and the result of such division is assumed to be 0.", divide_scalar_scalar));
+
+	add(binary(4, "vectorAdd", type::ARRAY, type::ARRAY, "Adds two 3D vectors.", vectoradd_array_array));
+	add(binary(4, "vectorCos", type::ARRAY, type::ARRAY, "Cosine of angle between two 3D vectors.", vectorcos_array_array));
+	add(binary(4, "vectorCrossProduct", type::ARRAY, type::ARRAY, "Cross product of two 3D vectors.", vectorcrossproduct_array_array));
+	add(binary(4, "vectorDiff", type::ARRAY, type::ARRAY, "Subtracts one 3D vector from another.", vectordiff_array_array));
+	add(binary(4, "vectorDistance", type::ARRAY, type::ARRAY, "Distance between two 3D vectors.", vectordistance_array_array));
+	add(binary(4, "vectorDistanceSqr", type::ARRAY, type::ARRAY, "Squared distance between two 3D vectors.", vectordistancesqr_array_array));
+	add(binary(4, "vectorDotProduct", type::ARRAY, type::ARRAY, "Dot product of two 3D vectors.", vectordotproduct_array_array));
+	add(unary("vectorMagnitude", type::ARRAY, "Magnitude of a 3D vector.", vectormagnitude_array));
+	add(unary("vectorMagnitudeSqr", type::ARRAY, "Squared magnitude of a 3D vector.", vectormagnitudesqr_array));
+	add(binary(4, "vectorMultiply", type::ARRAY, type::SCALAR, "Multiplies 3D vector by a scalar.", vectormultiply_array_scalar));
+	add(unary("vectorNormalized", type::ARRAY, "", vectornormalized_array));
+
 }

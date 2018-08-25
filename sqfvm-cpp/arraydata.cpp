@@ -1,5 +1,7 @@
 #include "arraydata.h"
 #include "value.h"
+#include "virtualmachine.h"
+#include "type.h"
 #include <sstream>
 #include <algorithm>
 
@@ -78,4 +80,28 @@ void sqf::arraydata::extend(std::vector<std::shared_ptr<value>> other)
 void sqf::arraydata::delete_at(int position)
 {
 	mvalue.erase(mvalue.begin() + position);
+}
+
+std::array<double, 3> sqf::arraydata::as_vector(void) const
+{
+	return std::array<double, 3> {at(0)->as_double(), at(1)->as_double(), at(2)->as_double()};
+}
+
+bool sqf::arraydata::check_type(virtualmachine * vm, type t, size_t len) const
+{
+	bool errflag = true;
+	if (size() != len)
+	{
+		vm->err() << "Array was expected to have 3 elements of type " << type_str(t) << ". Got " << size() << '.' << std::endl;
+		return false;
+	}
+	for (size_t i = 0; i < len; i++)
+	{
+		if (at(i)->dtype() != SCALAR)
+		{
+			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(t) << ". Got " << type_str(at(i)->dtype()) << '.' << std::endl;
+			errflag = false;
+		}
+	}
+	return errflag;
 }

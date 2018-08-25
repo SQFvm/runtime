@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <array>
 
 #include "data.h"
 
@@ -9,6 +10,8 @@
 namespace sqf
 {
 	class value;
+	class virtualmachine;
+	enum type;
 	class arraydata : public data
 	{
 	private:
@@ -23,7 +26,8 @@ namespace sqf
 		std::shared_ptr<value>& operator[](int index) { return mvalue.at(index); }
 		std::shared_ptr<value> operator[](int index) const { return index < 0 || index >= (int)mvalue.size() ? std::make_shared<value>() : mvalue[index]; }
 		std::shared_ptr<value>& at(int index) { return mvalue.at(index); }
-		inline size_t size(void) { return mvalue.size(); }
+		const std::shared_ptr<value> at(int index) const { return mvalue.at(index); }
+		inline size_t size(void) const { return mvalue.size(); }
 		operator std::vector<std::shared_ptr<value>>(void) const { return mvalue; }
 		virtual bool equals(std::shared_ptr<data> d) const;
 
@@ -33,5 +37,9 @@ namespace sqf
 		void reverse();
 		void extend(std::vector<std::shared_ptr<value>> other);
 		void delete_at(int position);
+		std::array<double, 3> as_vector(void) const;
+		operator std::array<double, 3>(void) const { return as_vector(); }
+
+		bool check_type(virtualmachine*, type, size_t) const;
 	};
 }
