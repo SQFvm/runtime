@@ -101,7 +101,7 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg noExecutePrintArg("N", "no-execute-print", "Prevents the `Execute` and two horizontal lines to be printed.", false);
 	cmd.add(noExecutePrintArg);
 
-	TCLAP::SwitchArg disableClassnameCheckArg("c", "disable-classname-check", "Disables the config checking for eg. createVehicle.", false);
+	TCLAP::SwitchArg disableClassnameCheckArg("c", "enable-classname-check", "Enables the config checking for eg. createVehicle.", false);
 	cmd.add(disableClassnameCheckArg);
 
 
@@ -128,10 +128,7 @@ int main(int argc, char** argv)
 	netserver* srv = nullptr;
 	sqf::debugger* dbg = nullptr;
 
-	if (disableClassnameCheck)
-	{
-		vm.perform_classname_checks(false);
-	}
+	vm.perform_classname_checks(disableClassnameCheck);
 
 	for (auto& f : prettyPrintArg.getValue())
 	{
