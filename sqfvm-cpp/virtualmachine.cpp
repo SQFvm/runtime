@@ -46,6 +46,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	muinamespace = std::make_shared< sqf::sqfnamespace>("uiNamespace");
 	mparsingnamespace = std::make_shared<sqf::sqfnamespace>("parsingNamespace");
 	mprofilenamespace = std::make_shared<sqf::sqfnamespace>("profileNamespace");
+	mperformclassnamechecks = true;
 }
 void sqf::virtualmachine::execute()
 {
