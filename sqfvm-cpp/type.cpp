@@ -32,7 +32,7 @@ std::string sqf::type_str(type t)
 	case sqf::JCLASS: return "JCLASS";
 	case sqf::CONFIG: return "CONFIG";
 	case sqf::DISPLAY: return "DISPLAY";
-	case sqf::CONTROL: return "CONTRO";
+	case sqf::CONTROL: return "CONTROL";
 	case sqf::NetObject: return "NetObject";
 	case sqf::SUBGROUP: return "SUBGROUP";
 	case sqf::TEAM_MEMBER: return "TEAM_MEMBER";
