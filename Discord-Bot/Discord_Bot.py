@@ -74,6 +74,7 @@ class MyClient(discord.Client):
                     await tmp.edit(content="```!FAILED!\n{}```".format(e))
             elif cmd.lower() == 'quit' and message.author.id in self.admins:
                 self.logout()
+                exit()
             elif cmd.lower() == 'help':
                 tmp = await message.channel.send("```\nhelp - Displays this\nrebuild - Rebuilds the bot (requires being botadmin)\nquit - quits the bot, can be used for restart (requires being botadmin)```")
             else:
