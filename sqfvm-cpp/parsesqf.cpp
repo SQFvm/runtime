@@ -1175,20 +1175,19 @@ namespace sqf
 				col++;
 				for (i = curoff + 1; code[i] != '\0' && (code[i] != startchr || code[i + 1] == startchr); i++)
 				{
-					switch (code[i])
+					if (code[i] == startchr)
 					{
-					case '\'':
-					case '"':
 						col += 2;
 						i++;
-						break;
-					case '\n':
+					}
+					else if (code[i] == '\n')
+					{
 						col = 0;
 						line++;
-						break;
-					default:
+					}
+					else
+					{
 						col++;
-						break;
 					}
 				}
 				i++;
