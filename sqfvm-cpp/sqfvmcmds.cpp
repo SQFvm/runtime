@@ -127,6 +127,12 @@ namespace
 		}
 		return std::make_shared<value>(arr, ARRAY);
 	}
+	std::shared_ptr<value> prettyprintsqf___string(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto str = right->as_string();
+		vm->pretty_print_sqf(str);
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initsqfvmcmds(void)
 {
@@ -136,4 +142,5 @@ void sqf::commandmap::initsqfvmcmds(void)
 	add(unary("configparse__", sqf::type::STRING, "Parses provided string as config into a new config object.", configparse___string));
 	add(binary(4, "merge__", sqf::type::CONFIG, sqf::type::CONFIG, "Merges contents from the right config into the left config. Duplicate entries will be overriden. Contents will not be copied but referenced.", merge___config_config));
 	add(nular("allObjects__", "Returns an array containing all objects created.", allObjects__));
+	add(unary("prettyprintsqf__", sqf::type::STRING, "Takes provided SQF code and pretty-prints it to output.", prettyprintsqf___string));
 }
