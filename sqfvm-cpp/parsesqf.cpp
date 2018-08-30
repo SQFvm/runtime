@@ -54,7 +54,7 @@ namespace sqf
 			size_t assidentifier(const char* code, size_t off) { size_t i = off; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++); return i - off; }
 			//operator_ = [+-*/%^]|&&|\|\||==|[!<>][=]?|[a-zA-Z_]+;
 			size_t operator_(const char* code, size_t off) {
-				if (code[off] == '+' || code[off] == '-' || code[off] == '*' || code[off] == '/' || code[off] == '%' || code[off] == '^') return 1;
+				if (code[off] == '+' || code[off] == '-' || code[off] == '*' || code[off] == '/' || code[off] == '%' || code[off] == '^' || code[off] == ':') return 1;
 				if ((code[off] == '|' && code[off + 1] == '|') || (code[off] == '&' && code[off + 1] == '&') || (code[off] == '=' && code[off + 1] == '=') || (code[off] == '>' && code[off + 1] == '>')) return 2;
 				if (code[off] == '<' || code[off] == '>' || code[off] == '!')
 				{
