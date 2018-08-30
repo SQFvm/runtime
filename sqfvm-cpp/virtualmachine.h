@@ -54,6 +54,8 @@ namespace sqf
 		void performexecute(size_t exitAfter = ~0);
 		std::vector<std::shared_ptr<dlops>> mlibraries;
 		debugger* _debugger;
+		bool mexitflag;
+
 
 		bool mperformclassnamechecks;
 	public:
@@ -77,6 +79,8 @@ namespace sqf
 		void execute(void);
 		inline std::shared_ptr<sqf::vmstack> stack(void) const { return mactivestack; }
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
+		inline void exitflag(bool flag) { mexitflag = flag; }
+		inline bool exitflag(void) { return mexitflag; }
 
 		bool perform_classname_checks(void) { return mperformclassnamechecks; }
 		void perform_classname_checks(bool f) { mperformclassnamechecks = f; }

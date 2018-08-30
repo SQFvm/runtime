@@ -186,24 +186,6 @@ int main(int argc, char** argv)
 		vm.parse_config(raw, sqf::configdata::configFile()->data<sqf::configdata>());
 	}
 
-	if (!noPrompt)
-	{
-		//Prompt user to type in code.
-		int i = 0;
-		printf("Please enter your SQF code.\nTo get the capabilities, use the `help__` instruction.\nTo run the code, Press <ENTER> twice.\n");
-		std::string line;
-		std::stringstream sstream;
-		do
-		{
-			printf("%d:\t", i++);
-			std::getline(std::cin, line);
-			sstream << line << std::endl;
-		} while (line.size() != 0);
-
-		std::cout << std::endl;
-		vm.parse_sqf(sstream.str());
-	}
-
 	if (startServer)
 	{
 		networking_init();
@@ -213,32 +195,55 @@ int main(int argc, char** argv)
 		srv->wait_accept();
 		std::cout << "Client connected!" << std::endl;
 	}
-
-	if (noExecutePrint)
+	do
 	{
-		vm.execute();
-	}
-	else
-	{
-		std::cout << "Executing..." << std::endl;
-		std::cout << std::string(console_width(), '-') << std::endl;
-		vm.execute();
-		std::cout << std::string(console_width(), '-') << std::endl;
-	}
-	if (!noPrint)
-	{
-		std::shared_ptr<sqf::value> val;
-		bool success;
-		do {
-			val = vm.stack()->popval(success);
-			if (success)
+		if (!noPrompt)
+		{
+			//Prompt user to type in code.
+			int i = 0;
+			printf("Please enter your SQF code.\nTo get the capabilities, use the `help__` instruction.\nTo run the code, Press [ENTER] twice.\nTo exit, use the `exit__` command.\n");
+			std::string line;
+			std::stringstream sstream;
+			do
 			{
-				std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
-			}
-		} while (success);
-		sqf::commandmap::get().uninit();
-		std::wcout << std::endl;
-	}
+				printf("%d:\t", i++);
+				std::getline(std::cin, line);
+				sstream << line << std::endl;
+			} while (line.size() != 0);
+
+			std::cout << std::endl;
+			vm.parse_sqf(sstream.str());
+		}
+
+
+		if (noExecutePrint)
+		{
+			vm.execute();
+		}
+		else
+		{
+			std::cout << "Executing..." << std::endl;
+			std::cout << std::string(console_width(), '-') << std::endl;
+			vm.execute();
+			std::cout << std::string(console_width(), '-') << std::endl;
+		}
+		if (!noPrint)
+		{
+			std::shared_ptr<sqf::value> val;
+			bool success;
+			do {
+				val = vm.stack()->popval(success);
+				if (success)
+				{
+					std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+				}
+			} while (success);
+			std::wcout << std::endl;
+		}
+
+	} while (!noPrompt && !vm.exitflag());
+
+	sqf::commandmap::get().uninit();
 
 	if (startServer)
 	{
@@ -256,11 +261,4 @@ int main(int argc, char** argv)
 	}
 
 	sqf::commandmap::get().uninit();
-
-	if (!noPrompt)
-	{
-		std::cout << std::endl << std::endl << "Press [ENTER] to continue.";
-		std::string line;
-		std::getline(std::cin, line);
-	}
 }

@@ -133,6 +133,11 @@ namespace
 		vm->pretty_print_sqf(str);
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> exit___(virtualmachine* vm)
+	{
+		vm->exitflag(true);
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initsqfvmcmds(void)
 {
@@ -143,4 +148,5 @@ void sqf::commandmap::initsqfvmcmds(void)
 	add(binary(4, "merge__", sqf::type::CONFIG, sqf::type::CONFIG, "Merges contents from the right config into the left config. Duplicate entries will be overriden. Contents will not be copied but referenced.", merge___config_config));
 	add(nular("allObjects__", "Returns an array containing all objects created.", allObjects__));
 	add(unary("prettyprintsqf__", sqf::type::STRING, "Takes provided SQF code and pretty-prints it to output.", prettyprintsqf___string));
+	add(nular("exit__", "Exits the execution immediately. Will not notify debug interface when used.", exit___));
 }
