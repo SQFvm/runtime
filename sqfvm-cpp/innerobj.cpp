@@ -1,6 +1,7 @@
 #include "innerobj.h"
 #include "virtualmachine.h"
 #include "groupdata.h"
+#include "arraydata.h"
 #include <sstream>
 
 std::string sqf::innerobj::tosqf(void) const
@@ -8,6 +9,11 @@ std::string sqf::innerobj::tosqf(void) const
 	std::stringstream sstream;
 	sstream << (const void*)this << "# " << this->mnetid << ": " << mclassname;
 	return sstream.str();
+}
+
+double sqf::innerobj::distance_to(std::array<double, 3> otherpos) const
+{
+	return arraydata::distance(pos(), otherpos);
 }
 
 void sqf::innerobj::destroy(sqf::virtualmachine * vm)

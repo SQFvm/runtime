@@ -82,7 +82,7 @@ void sqf::arraydata::delete_at(int position)
 	mvalue.erase(mvalue.begin() + position);
 }
 
-std::array<double, 3> sqf::arraydata::as_vector(void) const
+std::array<double, 3> sqf::arraydata::as_vec3(void) const
 {
 	return std::array<double, 3> {at(0)->as_double(), at(1)->as_double(), at(2)->as_double()};
 }

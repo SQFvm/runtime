@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <array>
+#include <cmath>
 
 #include "data.h"
 #include "type.h"
@@ -37,9 +38,13 @@ namespace sqf
 		void reverse();
 		void extend(std::vector<std::shared_ptr<value>> other);
 		void delete_at(int position);
-		std::array<double, 3> as_vector(void) const;
-		operator std::array<double, 3>(void) const { return as_vector(); }
+		std::array<double, 3> as_vec3(void) const;
+		operator std::array<double, 3>(void) const { return as_vec3(); }
 
 		bool check_type(virtualmachine*, type, size_t) const;
+		static inline double distance(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { distance(l->as_vec3(), r->as_vec3()); }
+		static inline double distance(const arraydata* l, const arraydata* r) { distance(l->as_vec3(), r->as_vec3()); }
+		static inline double distance(std::array<double, 3> l, std::array<double, 3> r)
+		{ return std::sqrt(std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2) + std::pow(l[2] - r[2], 2)); }
 	};
 }

@@ -419,6 +419,62 @@ namespace
 		veh->posz(position->at(2)->as_double());
 		return std::make_shared<value>(std::make_shared<objectdata>(veh), OBJECT);
 	}
+	std::shared_ptr<value> distance_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto r = right->data<arraydata>();
+		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
+		{
+			return std::make_shared<value>();
+		}
+		return std::make_shared<value>(arraydata::distance(l, r));
+	}
+	std::shared_ptr<value> distance_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<objectdata>();
+		auto r = right->data<arraydata>();
+		if (l->is_null())
+		{
+			vm->err() << "Left value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		if (!r->check_type(vm, SCALAR, 3))
+		{
+			return std::make_shared<value>();
+		}
+		return std::make_shared<value>(l->obj()->distance_to(r->as_vec3()));
+	}
+	std::shared_ptr<value> distance_array_object(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<arraydata>();
+		auto r = right->data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		if (!l->check_type(vm, SCALAR, 3))
+		{
+			return std::make_shared<value>();
+		}
+		return std::make_shared<value>(r->obj()->distance_to(l->as_vec3()));
+	}
+	std::shared_ptr<value> distance_object_object(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<objectdata>();
+		auto r = right->data<objectdata>();
+		if (l->is_null())
+		{
+			vm->err() << "Left value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		return std::make_shared<value>(l->obj()->distance_to(r));
+	}
 }
 void sqf::commandmap::initobjectcmds(void)
 {
@@ -438,4 +494,9 @@ void sqf::commandmap::initobjectcmds(void)
 	add(binary(4, "doMove", type::ARRAY, type::ARRAY, "Order the given unit(s) to move to the given position (without radio messages). In SQFVM this command acts like setPos.", domove_array_array));
 	add(binary(4, "createUnit", type::GROUP, type::ARRAY, "Create unit of a class that's defined in CfgVehicles.", createUnit_group_array));
 	add(binary(4, "createUnit", type::STRING, type::ARRAY, "Create unit of a class that's defined in CfgVehicles.", createUnit_string_array));
+	add(binary(4, "distance", type::ARRAY, type::ARRAY, "Returns a distance in meters between two positions.", distance_array_array));
+	add(binary(4, "distance", type::OBJECT, type::ARRAY, "Returns a distance in meters between two positions.", distance_object_array));
+	add(binary(4, "distance", type::ARRAY, type::OBJECT, "Returns a distance in meters between two positions.", distance_array_object));
+	add(binary(4, "distance", type::OBJECT, type::OBJECT, "Returns a distance in meters between two positions.", distance_object_object));
+
 }
