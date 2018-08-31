@@ -11,9 +11,21 @@ std::string sqf::innerobj::tosqf(void) const
 	return sstream.str();
 }
 
-double sqf::innerobj::distance_to(std::array<double, 3> otherpos) const
+double sqf::innerobj::distance3dsqr(std::array<double, 3> otherpos) const
 {
-	return arraydata::distance(pos(), otherpos);
+	return arraydata::distance3dsqr(pos(), otherpos);
+}
+double sqf::innerobj::distance3d(std::array<double, 3> otherpos) const
+{
+	return arraydata::distance3d(pos(), otherpos);
+}
+double sqf::innerobj::distance2dsqr(std::array<double, 2> otherpos) const
+{
+	return arraydata::distance2dsqr(std::array<double, 2> { mposx, mposy }, otherpos);
+}
+double sqf::innerobj::distance2d(std::array<double, 2> otherpos) const
+{
+	return arraydata::distance2d(std::array<double, 2> { mposx, mposy }, otherpos);
 }
 
 void sqf::innerobj::destroy(sqf::virtualmachine * vm)

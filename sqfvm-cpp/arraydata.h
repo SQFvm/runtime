@@ -39,12 +39,33 @@ namespace sqf
 		void extend(std::vector<std::shared_ptr<value>> other);
 		void delete_at(int position);
 		std::array<double, 3> as_vec3(void) const;
+		std::array<double, 2> as_vec2(void) const;
 		operator std::array<double, 3>(void) const { return as_vec3(); }
 
 		bool check_type(virtualmachine*, type, size_t) const;
-		static inline double distance(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { distance(l->as_vec3(), r->as_vec3()); }
-		static inline double distance(const arraydata* l, const arraydata* r) { distance(l->as_vec3(), r->as_vec3()); }
-		static inline double distance(std::array<double, 3> l, std::array<double, 3> r)
-		{ return std::sqrt(std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2) + std::pow(l[2] - r[2], 2)); }
+		static inline double distance3dsqr(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { distance3d(l->as_vec3(), r->as_vec3()); }
+		static inline double distance3dsqr(const arraydata* l, const arraydata* r) { distance3d(l->as_vec3(), r->as_vec3()); }
+		static inline double distance3dsqr(std::array<double, 3> l, std::array<double, 3> r)
+		{
+			return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2) + std::pow(l[2] - r[2], 2);
+		}
+		static inline double distance3d(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { distance3d(l->as_vec3(), r->as_vec3()); }
+		static inline double distance3d(const arraydata* l, const arraydata* r) { distance3d(l->as_vec3(), r->as_vec3()); }
+		static inline double distance3d(std::array<double, 3> l, std::array<double, 3> r)
+		{
+			return std::sqrt(distance3dsqr(l, r));
+		}
+		static inline double distance2dsqr(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { distance2d(l->as_vec2(), r->as_vec2()); }
+		static inline double distance2dsqr(const arraydata* l, const arraydata* r) { distance2d(l->as_vec2(), r->as_vec2()); }
+		static inline double distance2dsqr(std::array<double, 2> l, std::array<double, 2> r)
+		{
+			return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2) + std::pow(l[2] - r[2], 2);
+		}
+		static inline double distance2d(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { distance2d(l->as_vec2(), r->as_vec2()); }
+		static inline double distance2d(const arraydata* l, const arraydata* r) { distance2d(l->as_vec2(), r->as_vec2()); }
+		static inline double distance2d(std::array<double, 2> l, std::array<double, 2> r)
+		{
+			return std::sqrt(distance2dsqr(l, r));
+		}
 	};
 }

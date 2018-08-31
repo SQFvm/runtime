@@ -427,7 +427,7 @@ namespace
 		{
 			return std::make_shared<value>();
 		}
-		return std::make_shared<value>(arraydata::distance(l, r));
+		return std::make_shared<value>(arraydata::distance3d(l, r));
 	}
 	std::shared_ptr<value> distance_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -442,7 +442,7 @@ namespace
 		{
 			return std::make_shared<value>();
 		}
-		return std::make_shared<value>(l->obj()->distance_to(r->as_vec3()));
+		return std::make_shared<value>(l->obj()->distance3d(r->as_vec3()));
 	}
 	std::shared_ptr<value> distance_array_object(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -457,7 +457,7 @@ namespace
 		{
 			return std::make_shared<value>();
 		}
-		return std::make_shared<value>(r->obj()->distance_to(l->as_vec3()));
+		return std::make_shared<value>(r->obj()->distance3d(l->as_vec3()));
 	}
 	std::shared_ptr<value> distance_object_object(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -473,7 +473,7 @@ namespace
 			vm->err() << "Right value provided is NULL object." << std::endl;
 			return std::shared_ptr<value>();
 		}
-		return std::make_shared<value>(l->obj()->distance_to(r));
+		return std::make_shared<value>(l->obj()->distance3d(r->obj()));
 	}
 }
 void sqf::commandmap::initobjectcmds(void)

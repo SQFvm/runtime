@@ -37,9 +37,20 @@ namespace sqf
 		inline size_t netid(void) const { return mnetid; }
 		inline bool is_vehicle(void) const { return misvehicle; }
 		inline std::shared_ptr<groupdata> group(void) const { return mgroup; }
-		inline double distance_to(std::shared_ptr<innerobj> obj) const { return distance_to(obj->pos()); }
-		inline double distance_to(const innerobj* obj) const { return distance_to(obj->pos()); }
-		double distance_to(std::array<double, 3> otherpos) const;
+
+		inline double distance3dsqr(std::shared_ptr<innerobj> obj) const { return distance3dsqr(obj->pos()); }
+		inline double distance3dsqr(const innerobj* obj) const { return distance3dsqr(obj->pos()); }
+		double distance3dsqr(std::array<double, 3> otherpos) const;
+		inline double distance3d(std::shared_ptr<innerobj> obj) const { return distance3d(obj->pos()); }
+		inline double distance3d(const innerobj* obj) const { return distance3d(obj->pos()); }
+		double distance3d(std::array<double, 3> otherpos) const;
+
+		inline double distance2dsqr(std::shared_ptr<innerobj> obj) const { return distance2dsqr(std::array<double, 2> { obj->mposx, obj->mposy }); }
+		inline double distance2dsqr(const innerobj* obj) const { return distance2dsqr(std::array<double, 2> { obj->mposx, obj->mposy }); }
+		double distance2dsqr(std::array<double, 2> otherpos) const;
+		inline double distance2d(std::shared_ptr<innerobj> obj) const { return distance2d(std::array<double, 2> { obj->mposx, obj->mposy }); }
+		inline double distance2d(const innerobj* obj) const { return distance2d(std::array<double, 2> { obj->mposx, obj->mposy }); }
+		double distance2d(std::array<double, 2> otherpos) const;
 
 		inline void pos(std::array<double, 3> arr) { mposx = arr[0]; mposy = arr[1]; mposz = arr[2]; }
 		inline void posx(double d) { mposx = d; }
