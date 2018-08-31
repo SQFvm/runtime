@@ -62,6 +62,8 @@ namespace sqf
 		inline void velz(double d) { mvelz = d; }
 		inline void group(std::shared_ptr<groupdata> g) { mgroup = g; }
 
+		bool iskindof(std::string cfgname);
+
 		void destroy(sqf::virtualmachine*);
 
 		static std::shared_ptr<sqf::innerobj> create(sqf::virtualmachine* vm, std::string classname, bool isvehicle);

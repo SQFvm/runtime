@@ -475,6 +475,140 @@ namespace
 		}
 		return std::make_shared<value>(l->obj()->distance3d(r->obj()));
 	}
+	class nearestobjects_distancesort3d
+	{
+		std::array<double, 3> pos;
+	public:
+		nearestobjects_distancesort3d(std::array<double, 3> p) : pos(p) {}
+		bool operator() (std::shared_ptr<value> l, std::shared_ptr<value> r) { return l->data<objectdata>()->obj()->distance3d(pos) < r->data<objectdata>()->obj()->distance3d(pos); }
+	};
+	class nearestobjects_distancesort2d
+	{
+		std::array<double, 2> pos;
+	public:
+		nearestobjects_distancesort2d(std::array<double, 2> p) : pos(p) {}
+		bool operator() (std::shared_ptr<value> l, std::shared_ptr<value> r) { return l->data<objectdata>()->obj()->distance2d(pos) < r->data<objectdata>()->obj()->distance2d(pos); }
+	};
+	std::shared_ptr<value> nearestobjects_array(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto arr = right->data<arraydata>();
+		if (arr->size() != 3 && arr->size() != 4)
+		{
+			vm->err() << "Input array was expected to contain either 3 or 4 elements. Got " << arr->size() << '.' << std::endl;
+			return std::shared_ptr<value>();
+		}
+		std::array<double, 3> position;
+		auto dtype = arr->at(0)->dtype();
+		if (dtype == ARRAY)
+		{
+			if (!arr->at(0)->data<arraydata>()->check_type(vm, SCALAR, 3))
+			{
+				return std::make_shared<value>();
+			}
+			position = arr->at(0)->data<arraydata>()->as_vec3();
+		}
+		else if (dtype == OBJECT)
+		{
+			if (arr->at(0)->data<objectdata>()->is_null())
+			{
+				vm->err() << "Input array element 0 is NULL object." << std::endl;
+				return std::shared_ptr<value>();
+			}
+			position = arr->at(0)->data<objectdata>()->obj()->pos();
+		}
+		else
+		{
+			vm->err() << "Input array element 0 was expected to be of type ARRAY or OBJECT. Got " << type_str(arr->at(0)->dtype()) << '.' << std::endl;
+			return std::shared_ptr<value>();
+		}
+		if (arr->at(1)->dtype() != ARRAY)
+		{
+			vm->err() << "Input array element 1 was expected to be of type ARRAY. Got " << type_str(arr->at(1)->dtype()) << '.' << std::endl;
+			return std::shared_ptr<value>();
+		}
+		auto filterarr = arr->at(1)->data<arraydata>();
+		for (size_t i = 0; i < filterarr->size(); i++)
+		{
+			if (filterarr->at(i)->dtype() != STRING)
+			{
+				vm->err() << "Input array element 1 contains non-string element at array index " << i << ". Got " << type_str(filterarr->at(i)->dtype()) << '.' << std::endl;
+				return std::shared_ptr<value>();
+			}
+		}
+		if (arr->at(2)->dtype() != SCALAR)
+		{
+			vm->err() << "Input array element 2 was expected to be of type SCALAR. Got " << type_str(arr->at(2)->dtype()) << '.' << std::endl;
+			return std::shared_ptr<value>();
+		}
+		auto radius = arr->at(2)->as_double();
+		auto is2ddistance = false;
+		if (arr->size() == 4)
+		{
+			if (arr->at(3)->dtype() != sqf::BOOL)
+			{
+				vm->err() << "Input array element 3 was expected to be of type BOOLEAN. Got " << type_str(arr->at(3)->dtype()) << '.' << std::endl;
+				return std::shared_ptr<value>();
+			}
+			is2ddistance = arr->at(3)->as_bool();
+		}
+		auto outputarr = std::make_shared<arraydata>();
+		if (is2ddistance)
+		{
+			auto position2d = std::array<double, 2>{ position[0], position[1] };
+			for (auto& it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
+			{
+				if ((*it)->distance2d(position2d) <= radius)
+				{
+					bool match = filterarr->size() == 0 || !vm->perform_classname_checks() ? true : false;
+					if (!match)
+					{
+						for (size_t i = 0; i < filterarr->size(); i++)
+						{
+							auto str = filterarr->at(i)->as_string();
+							if ((*it)->iskindof(str))
+							{
+								match = true;
+								break;
+							}
+						}
+					}
+					if (match)
+					{
+						outputarr->push_back(std::make_shared<value>(std::make_shared<objectdata>(*it), OBJECT));
+					}
+				}
+			}
+			std::sort(outputarr->begin(), outputarr->end(), nearestobjects_distancesort2d(position2d));
+		}
+		else
+		{
+			for (auto& it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
+			{
+				if ((*it)->distance3d(position) <= radius)
+				{
+					bool match = filterarr->size() == 0 || !vm->perform_classname_checks() ? true : false;
+					if (!match)
+					{
+						for (size_t i = 0; i < filterarr->size(); i++)
+						{
+							auto str = filterarr->at(i)->as_string();
+							if ((*it)->iskindof(str))
+							{
+								match = true;
+								break;
+							}
+						}
+					}
+					if (match)
+					{
+						outputarr->push_back(std::make_shared<value>(std::make_shared<objectdata>(*it), OBJECT));
+					}
+				}
+			}
+			std::sort(outputarr->begin(), outputarr->end(), nearestobjects_distancesort3d(position));
+		}
+		return std::make_shared<value>(outputarr, ARRAY);
+	}
 }
 void sqf::commandmap::initobjectcmds(void)
 {
@@ -498,5 +632,6 @@ void sqf::commandmap::initobjectcmds(void)
 	add(binary(4, "distance", type::OBJECT, type::ARRAY, "Returns a distance in meters between two positions.", distance_object_array));
 	add(binary(4, "distance", type::ARRAY, type::OBJECT, "Returns a distance in meters between two positions.", distance_array_object));
 	add(binary(4, "distance", type::OBJECT, type::OBJECT, "Returns a distance in meters between two positions.", distance_object_object));
+	add(unary("nearestObjects", type::ARRAY, "Returns a list of nearest objects of the given types to the given position or object, within the specified distance. If more than one object is found they will be ordered by proximity, the closest one will be first in the array.", nearestobjects_array));
 
 }

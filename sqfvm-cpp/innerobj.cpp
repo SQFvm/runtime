@@ -2,6 +2,9 @@
 #include "virtualmachine.h"
 #include "groupdata.h"
 #include "arraydata.h"
+#include "configdata.h"
+#include "value.h"
+#include "string_op.h"
 #include <sstream>
 
 std::string sqf::innerobj::tosqf(void) const
@@ -26,6 +29,26 @@ double sqf::innerobj::distance2dsqr(std::array<double, 2> otherpos) const
 double sqf::innerobj::distance2d(std::array<double, 2> otherpos) const
 {
 	return arraydata::distance2d(std::array<double, 2> { mposx, mposy }, otherpos);
+}
+
+bool sqf::innerobj::iskindof(std::string cfgname)
+{
+	auto configbin = configdata::configFile()->data<configdata>();
+	auto cfgVehicles = configbin->navigate("CfgVehicles")->data<configdata>();
+	if (cfgVehicles->is_null())
+	{
+		return false;
+	}
+	auto node = cfgVehicles->navigate(this->classname())->data<configdata>();
+	while (!node->is_null())
+	{
+		if (str_cmpi(node->name().c_str(), -1, cfgname.c_str(), -1) == 0)
+		{
+			return true;
+		}
+		node = node->parent()->data<configdata>();
+	}
+	return false;
 }
 
 void sqf::innerobj::destroy(sqf::virtualmachine * vm)
