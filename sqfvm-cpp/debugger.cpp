@@ -63,28 +63,31 @@ namespace {
 			{
 				nlohmann::json jcs;
 				auto cs = *it;
-				jcs["lvl"] = lvl;
+				jcs["lvl"] = lvl--;
 				jcs["scopename"] = cs->getscopename();
 				jcs["namespace"] = cs->getnamespace()->get_name();
-				auto variables = nlohmann::json::array();
-				jcs["variables"] = variables;
 				nlohmann::json options;
-				if (cs->inststacksize() <= 0) {
+				if (cs->inststacksize() <= 0)
+				{
 					options["line"] = 0;
 					options["column"] = 0;
-					options["file"] = 0;
+					options["file"] = "";
 					options["available"] = false;
 				}
-				else {
+				else
+				{
 					options["line"] = cs->peekinst()->line();
 					options["column"] = cs->peekinst()->col();
 					options["file"] = cs->peekinst()->file();
 					options["available"] = true;
 				}
+				jcs["options"] = options;
+				auto variables = nlohmann::json::array();
 				for (auto pair : cs->varmap())
 				{
 					variables.push_back(nlohmann::json{ { "name", pair.first },{ "value", pair.second->as_string() } });
 				}
+				jcs["variables"] = variables;
 				data.push_back(jcs);
 			}
 
@@ -161,7 +164,7 @@ namespace {
 	public:
 		positionmsg(size_t line, size_t col, std::string file) : _line(line), _col(col), _file(file) {}
 		std::string serialize(void) {
-			nlohmann::json json = { { "mode", "position" }, { "data", { "line", _line, "col", _col, "file", _file } } };
+			nlohmann::json json = { { "mode", "position" }, { "data", { { "line", _line }, { "col", _col }, { "file", _file } } } };
 			return json.dump();
 		}
 	};
@@ -174,6 +177,8 @@ void sqf::debugger::position(size_t line, size_t col, std::string file)
 void sqf::debugger::breakmode(virtualmachine * vm)
 {
 	_control = srvcontrol::PAUSE;
+	if (_status == RUNNING) { _status = HALT; }
+	_server->push_message(statusupdate(_status));
 	while (_status != srvstatus::RUNNING)
 	{
 		check(vm);
@@ -205,7 +210,8 @@ void sqf::debugger::check(virtualmachine * vm)
 	{
 		try
 		{
-			auto json = nlohmann::json::parse(_server->next_message());
+			auto msg = _server->next_message();
+			auto json = nlohmann::json::parse(msg);
 			std::string mode = json["mode"];
 			if (!mode.compare("get-callstack"))
 			{
@@ -216,7 +222,7 @@ void sqf::debugger::check(virtualmachine * vm)
 				std::string status = json["data"]["status"];
 				if (!status.compare("run")) { _control = RUN; }
 				else if (!status.compare("stop")) { _control = STOP; }
-				else if (!status.compare("pause")) { _control = PAUSE; }
+				else if (!status.compare("pause")) { if (_control != PAUSE) { breakmode(vm); } }
 				else if (!status.compare("resume")) { _control = RESUME; }
 				else if (!status.compare("quit")) { _control = QUIT; }
 				else { _server->push_message(errormsg("Received invalid status. Accepted: [run, stop, pause, resume, quit]")); }
@@ -254,7 +260,11 @@ void sqf::debugger::check(virtualmachine * vm)
 				_server->push_message(errormsg(sstream.str()));
 			}
 		}
-		catch (std::runtime_error err)
+		catch (nlohmann::json::parse_error err)
+		{
+			_server->push_message(errormsg(err.what()));
+		}
+		catch (std::exception err)
 		{
 			_server->push_message(errormsg(err.what()));
 		}

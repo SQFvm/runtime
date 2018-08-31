@@ -20,6 +20,8 @@
 #include <unistd.h>
 #endif
 
+#define VERSION "INDEV"
+
 
 static std::string load_file(const std::string& filename);
 static std::vector<char> readFile(const std::string& filename);
@@ -70,7 +72,7 @@ int console_width(void)
 
 int main(int argc, char** argv)
 {
-	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', "1.0");
+	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', VERSION " - " __DATE__ " " __TIME__ "\n");
 	TCLAP::MultiArg<std::string> loadSqfFileArg("f", "sqf-file", "Loads provided sqf-file from the hdd into the sqf-vm.", false, "PATH");
 	cmd.add(loadSqfFileArg);
 
@@ -104,9 +106,9 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg disableClassnameCheckArg("c", "enable-classname-check", "Enables the config checking for eg. createVehicle.", false);
 	cmd.add(disableClassnameCheckArg);
 
-
 	TCLAP::MultiArg<std::string> prettyPrintArg("", "pretty-print", "Loads provided file from disk and pretty-prints it onto console.", false, "PATH");
 	cmd.add(prettyPrintArg);
+
 
 	cmd.parse(argc, argv);
 
@@ -141,7 +143,7 @@ int main(int argc, char** argv)
 		catch (std::runtime_error ex)
 		{
 			errflag = true;
-			std::cout << ex.what() << std::endl;
+			std::cout << "Failed to load file " << ex.what() << std::endl;
 		}
 	}
 
@@ -156,7 +158,7 @@ int main(int argc, char** argv)
 		catch (std::runtime_error ex)
 		{
 			errflag = true;
-			std::cout << ex.what() << std::endl;
+			std::cout << "Failed to load file " << ex.what() << std::endl;
 		}
 	}
 
@@ -171,7 +173,7 @@ int main(int argc, char** argv)
 		catch (std::runtime_error ex)
 		{
 			errflag = true;
-			std::cout << ex.what() << std::endl;
+			std::cout << "Failed to load file " << ex.what() << std::endl;
 		}
 	}
 	//Load all sqf-code provided via arg.

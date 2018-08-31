@@ -24,6 +24,7 @@
 #include "debugger.h"
 #include "sqfnamespace.h"
 #include "innerobj.h"
+//#include "parsepp_handler.h"
 
 #include <iostream>
 #include <cwctype>
@@ -47,10 +48,12 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mparsingnamespace = std::make_shared<sqf::sqfnamespace>("parsingNamespace");
 	mprofilenamespace = std::make_shared<sqf::sqfnamespace>("profileNamespace");
 	mperformclassnamechecks = true;
+	mexitflag = false;
 }
 void sqf::virtualmachine::execute()
 {
-	while (mspawns.size() != 0 || !mmainstack->isempty() || (_debugger && _debugger->stop(this)))
+	mexitflag = false;
+	while (!mexitflag && mspawns.size() != 0 || !mmainstack->isempty() || (_debugger && _debugger->stop(this)))
 	{
 		if (_debugger) { _debugger->status(sqf::debugger::RUNNING); }
 		mactivestack = mmainstack;
@@ -69,7 +72,7 @@ void sqf::virtualmachine::execute()
 void sqf::virtualmachine::performexecute(size_t exitAfter)
 {
 	std::shared_ptr<sqf::instruction> inst;
-	while (exitAfter != 0 && (inst = mactivestack->popinst(this)).get())
+	while (!mexitflag && exitAfter != 0 && (inst = mactivestack->popinst(this)).get())
 	{
 		minstcount++;
 		exitAfter--;
@@ -152,7 +155,7 @@ std::string sqf::virtualmachine::dbgsegment(const char* full, size_t off, size_t
 		}
 	}
 	sstream << std::string(full + i, full + i + len) << std::endl
-		<< std::string(off - i, ' ') << std::string(length, '^') << std::endl;
+		<< std::string(off - i, ' ') << std::string(length == 0 ? 1 : length, '^') << std::endl;
 	return sstream.str();
 }
 bool contains_nular(std::string ident)
@@ -590,3 +593,9 @@ void sqf::virtualmachine::drop_group(std::shared_ptr<sqf::groupdata> grp)
 		}
 	}
 }
+//std::string sqf::virtualmachine::preprocess_file(std::string inputfile)
+//{
+//	//parse::preprocessor::ppparser parser;
+//	//return parser.parse(this, inputfile);
+//	return "";
+//}
