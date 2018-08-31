@@ -66,12 +66,23 @@ namespace DebuggerCLI
             ));
             handler.Add(new CommandHandlerItem<int, string>("bp", "breakpoint", "Adds a breakpoint at provided line and file.", (line, file) =>
             {
-                var obj = JsonConvert.DeserializeObject($@"{{ ""mode"": ""set-breakpoint"", ""data"": {{ ""line"": {line}, ""file"": ""{(file == null ? "" : file)}"" }} }}");
+                var obj = JsonConvert.DeserializeObject($@"{{ ""mode"": ""set-breakpoint"", ""data"": {{ ""line"": {line}, ""file"": ""{(file ?? "")}"" }} }}");
                 toExecute = JsonConvert.SerializeObject(obj, Formatting.Indented);
             }).SetDetails(
                 "Expects up to 2 input arguments:",
                 "- line number to break on.",
                 "- OPTIONAL file name."
+            ));
+            handler.Add(new CommandHandlerItem<string, string>("sqf", "parsesqf", "Parses and executes provided SQF code.", (sqf, file) =>
+            {
+                if (String.IsNullOrWhiteSpace(sqf)) { throw new ArgumentException("Missing argument 1"); }
+                var obj = JsonConvert.DeserializeObject($@"{{ ""mode"": ""parse-sqf"", ""data"": {{ ""sqf"": {sqf}, ""file"": ""{(file ?? "")}"" }} }}");
+                toExecute = JsonConvert.SerializeObject(obj, Formatting.Indented);
+            }).SetDetails(
+                "Expects up to 2 input arguments:",
+                "- SQF content.",
+                "- OPTIONAL file name.",
+                "You can glue SQF code together using '\"'."
             ));
             Console.CancelKeyPress += (sender, e) =>
             {

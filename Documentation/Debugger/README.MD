@@ -4,6 +4,7 @@
 * [get-variables](get-variables.md)
 * [control](control.md)
 * [set-breakpoint](set-breakpoint.md)
+* [parse-sqf](parse-sqf.md)
 
 # Server-Modes
 * [callstack](get-callstack.md)

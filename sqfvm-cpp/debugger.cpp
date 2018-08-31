@@ -237,6 +237,13 @@ void sqf::debugger::check(virtualmachine * vm)
 				auto data = json["data"];
 				_server->push_message(variablemsg(vm, vm->stack(), data));
 			}
+			else if (!mode.compare("parse-sqf"))
+			{
+				auto data = json["data"];
+				std::string sqf = data["sqf"];
+				std::string file = data["file"];
+				vm->parse_sqf(sqf, file);
+			}
 			else if (!mode.compare("set-breakpoint"))
 			{
 				auto data = json["data"];
