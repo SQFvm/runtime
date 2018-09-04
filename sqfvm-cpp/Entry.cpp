@@ -4,6 +4,7 @@
 #include "value.h"
 #include "vmstack.h"
 #include "configdata.h"
+#include "fileio.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -21,37 +22,6 @@
 #endif
 
 #define VERSION "INDEV"
-
-
-static std::string load_file(const std::string& filename);
-static std::vector<char> readFile(const std::string& filename);
-
-static std::string load_file(const std::string& filename)
-{
-	auto vec = readFile(filename);
-	return std::string(vec.begin(), vec.end());
-}
-static std::vector<char> readFile(const std::string& filename)
-{
-	std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-	if (!file.is_open())
-	{
-		std::stringstream sstream("Could not open file '");
-		sstream << filename << "'.";
-		throw std::runtime_error(sstream.str());
-	}
-
-	size_t fileSize = (size_t)file.tellg();
-	std::vector<char> buffer(fileSize);
-
-	file.seekg(0);
-	file.read(buffer.data(), fileSize);
-
-	file.close();
-
-	return buffer;
-}
 
 
 int console_width(void)

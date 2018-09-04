@@ -242,6 +242,7 @@
     <ClCompile Include="debugger.cpp" />
     <ClCompile Include="diagcmds.cpp" />
     <ClCompile Include="Entry.cpp" />
+    <ClCompile Include="fileio.cpp" />
     <ClCompile Include="genericcmds.cpp" />
     <ClCompile Include="groupcmds.cpp" />
     <ClCompile Include="groupdata.cpp" />
@@ -297,6 +298,7 @@
     <ClInclude Include="configdata.h" />
     <ClInclude Include="debugger.h" />
     <ClInclude Include="dlops.h" />
+    <ClInclude Include="fileio.h" />
     <ClInclude Include="fordata.h" />
     <ClInclude Include="groupdata.h" />
     <ClInclude Include="helper.h" />
