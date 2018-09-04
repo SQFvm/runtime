@@ -41,6 +41,7 @@ namespace DebuggerCLI
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             var maxname = this._Commands.Max((it) => GetHelpName(it).Length);
+            PrintAccording(0, "Using quotes (\") you can group stuff together. Escaping quotes is not possible yet.", false);
             foreach (var cmd in this._Commands)
             {
                 var name = GetHelpName(cmd);

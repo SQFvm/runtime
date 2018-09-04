@@ -7,6 +7,7 @@
 #include "sqfnamespace.h"
 #include "value.h"
 #include "instruction.h"
+#include "fileio.h"
 #include <sstream>
 
 namespace {
@@ -243,6 +244,14 @@ void sqf::debugger::check(virtualmachine * vm)
 				std::string sqf = data["sqf"];
 				std::string file = data["file"];
 				vm->parse_sqf(sqf, file);
+			}
+			else if (!mode.compare("load-sqf"))
+			{
+				auto data = json["data"];
+				std::string path = data["path"];
+				std::string name = data["name"];
+				auto sqf = load_file(path);
+				vm->parse_sqf(sqf, name);
 			}
 			else if (!mode.compare("set-breakpoint"))
 			{

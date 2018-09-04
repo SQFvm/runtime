@@ -24,12 +24,17 @@ namespace DebuggerCLI
             var isInInterrupt = false;
             var toExecute = String.Empty;
             var handler = new CommandHandler();
+            #region quit
             handler.Add(new CommandHandlerItem("q", "quit", "Shuts down the application.", () => Environment.Exit(0)));
+            #endregion
+            #region callstack (cs)
             handler.Add(new CommandHandlerItem("cs", "callstack", "Sends a request to get the current callstack.", () =>
             {
                 var obj = JsonConvert.DeserializeObject(@"{""mode"":""get-callstack"",""data"":null}");
                 toExecute = JsonConvert.SerializeObject(obj, Formatting.Indented);
             }));
+            #endregion
+            #region getvariable (gv)
             handler.Add(new CommandHandlerItem<string, string>("gv", "getvariable", "Sends a request to get a variable from the connected VM.", (var, scope) =>
             {
                 if (String.IsNullOrWhiteSpace(var)) { throw new ArgumentException("Missing argument 1"); }
@@ -50,6 +55,8 @@ namespace DebuggerCLI
                 "- profileNamespace",
                 "- parsingNamespace"
             ));
+            #endregion
+            #region control (c)
             handler.Add(new CommandHandlerItem<string>("c", "control", "Changes the current state of the VM.", (status) =>
             {
                 if (String.IsNullOrWhiteSpace(status)) { throw new ArgumentException("Missing argument 1"); }
@@ -64,6 +71,8 @@ namespace DebuggerCLI
                 "- resume",
                 "- quit"
             ));
+            #endregion
+            #region breakpoint (bp)
             handler.Add(new CommandHandlerItem<int, string>("bp", "breakpoint", "Adds a breakpoint at provided line and file.", (line, file) =>
             {
                 var obj = JsonConvert.DeserializeObject($@"{{ ""mode"": ""set-breakpoint"", ""data"": {{ ""line"": {line}, ""file"": ""{(file ?? "")}"" }} }}");
@@ -73,17 +82,68 @@ namespace DebuggerCLI
                 "- line number to break on.",
                 "- OPTIONAL file name."
             ));
+            #endregion
+            #region parseqf (sqf)
             handler.Add(new CommandHandlerItem<string, string>("sqf", "parsesqf", "Parses and executes provided SQF code.", (sqf, file) =>
             {
                 if (String.IsNullOrWhiteSpace(sqf)) { throw new ArgumentException("Missing argument 1"); }
-                var obj = JsonConvert.DeserializeObject($@"{{ ""mode"": ""parse-sqf"", ""data"": {{ ""sqf"": {sqf}, ""file"": ""{(file ?? "")}"" }} }}");
+                var obj = new Newtonsoft.Json.Linq.JObject
+                {
+                    { "mode", "parse-sqf" },
+                    { "data", new Newtonsoft.Json.Linq.JObject {
+                        { "sqf", sqf },
+                        { "file", file ?? "" }
+                    } }
+                };
                 toExecute = JsonConvert.SerializeObject(obj, Formatting.Indented);
             }).SetDetails(
                 "Expects up to 2 input arguments:",
                 "- SQF content.",
-                "- OPTIONAL file name.",
-                "You can glue SQF code together using '\"'."
+                "- OPTIONAL file name."
             ));
+            #endregion
+            #region loadsqflocal (lsqf)
+            handler.Add(new CommandHandlerItem<string, string>("lsqf", "loadsqflocal", "Loads sqf from provided path on disk where the application is local, transfers and executes it.", (filepath, file) =>
+            {
+                if (String.IsNullOrWhiteSpace(filepath)) { throw new ArgumentException("Missing argument 1"); }
+                if (!File.Exists(filepath)) { throw new ArgumentException("File from argument 1 could not be located"); }
+                using (var reader = new StreamReader(filepath))
+                {
+                    var obj = new Newtonsoft.Json.Linq.JObject
+                    {
+                        { "mode", "parse-sqf" },
+                        { "data", new Newtonsoft.Json.Linq.JObject {
+                            { "sqf", reader.ReadToEnd() },
+                            { "file", file ?? "" }
+                        } }
+                    };
+                    toExecute = JsonConvert.SerializeObject(obj, Formatting.Indented);
+                }
+            }).SetDetails(
+                "Expects up to 2 input arguments:",
+                "- Path to file.",
+                "- OPTIONAL file name."
+            ));
+            #endregion
+            #region loadsqf
+            handler.Add(new CommandHandlerItem<string, string>("loadsqf", "Loads sqf from provided path on disk where the VM is local and executes it.", (path, file) =>
+            {
+                if (String.IsNullOrWhiteSpace(path)) { throw new ArgumentException("Missing argument 1"); }
+                var obj = new Newtonsoft.Json.Linq.JObject
+                    {
+                        { "mode", "load-sqf" },
+                        { "data", new Newtonsoft.Json.Linq.JObject {
+                            { "path", path },
+                            { "file", file ?? "" }
+                        } }
+                    };
+                toExecute = JsonConvert.SerializeObject(obj, Formatting.Indented);
+            }).SetDetails(
+                "Expects up to 2 input arguments:",
+                "- Path to file (needs to be local to VM!).",
+                "- OPTIONAL file name."
+            ));
+            #endregion
             Console.CancelKeyPress += (sender, e) =>
             {
                 e.Cancel = true;
