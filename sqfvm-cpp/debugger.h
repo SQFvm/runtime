@@ -45,6 +45,7 @@ namespace sqf {
 		void error(virtualmachine* vm, int line, int col, std::string file, std::string msg);
 		bool stop(virtualmachine* vm);
 		void position(size_t line, size_t col, std::string file);
+		void message(std::string);
 		inline srvstatus status(void) { return _status; }
 		inline srvcontrol controlstatus(void) { return _control; }
 		inline void status(srvstatus status) { _status = status; }

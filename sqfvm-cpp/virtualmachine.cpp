@@ -116,6 +116,9 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		if (moutflag)
 		{
 			(*mout) << mout_buff.str();
+			if (_debugger) {
+				_debugger->message(mout_buff.str());
+			}
 			mout_buff.str(std::string());
 			moutflag = false;
 		}

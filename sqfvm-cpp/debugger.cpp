@@ -16,13 +16,25 @@ namespace {
 		virtual std::string serialize(void) = 0;
 		operator std::string(void) { return serialize(); }
 	};
+	class simplemessage : public srvmessage {
+		std::string _msg;
+	public:
+		simplemessage(std::string msg) : _msg(msg) {}
+		std::string serialize(void) {
+			nlohmann::json json = {
+				{ "mode", "message" },
+			{ "data", _msg }
+			};
+			return json.dump();
+		}
+	};
 	class errormsg : public srvmessage {
 		std::string _msg;
 	public:
 		errormsg(std::string msg) : _msg(msg) {}
 		std::string serialize(void) {
 			nlohmann::json json = {
-				{ "mode", "message" },
+				{ "mode", "error" },
 				{ "data", _msg }
 			};
 			return json.dump();
@@ -175,12 +187,19 @@ void sqf::debugger::position(size_t line, size_t col, std::string file)
 {
 	_server->push_message(positionmsg(line, col, file));
 }
+void sqf::debugger::message(std::string s)
+{
+	_server->push_message(simplemessage(s));
+}
 void sqf::debugger::breakmode(virtualmachine * vm)
 {
 	_control = srvcontrol::PAUSE;
-	if (_status == RUNNING) { _status = HALT; }
-	_server->push_message(statusupdate(_status));
-	while (_status != srvstatus::RUNNING)
+	if (_status == RUNNING)
+	{
+		_status = HALT;
+		_server->push_message(statusupdate(_status));
+	}
+	while (_status != srvstatus::RUNNING && _server->is_accept())
 	{
 		check(vm);
 		if (_control != PAUSE)
@@ -290,7 +309,6 @@ void sqf::debugger::check(virtualmachine * vm)
 void sqf::debugger::error(virtualmachine * vm, int line, int col, std::string file, std::string msg)
 {
 	_status = HALT;
-	_server->push_message(statusupdate(_status));
 	_server->push_message(errormsg(msg));
 	breakmode(vm);
 }
