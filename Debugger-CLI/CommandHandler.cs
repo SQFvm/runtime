@@ -125,12 +125,20 @@ namespace DebuggerCLI
                 {
                     if (cmd.Name.Equals(command) || cmd.ShortName.Equals(command))
                     {
-                        var values = Regex.Matches(content, @"[\""].+?[\""]|[^ ]+").Cast<Match>().Select(m => m.Value.Trim()).ToArray();
+                        var values = Regex.Matches(content, @"[\""].+?[\""]|[^ ]+").Cast<Match>().Select(m =>
+                        {
+                            var val = m.Value.Trim();
+                            if (val.Length >= 2 && val[0] == '"' && val[val.Length - 1] == '"')
+                            {
+                                return val.Substring(1, val.Length - 2);
+                            }
+                            return val;
+                        }).ToArray();
                         try
                         {
                             cmd.Execute(values);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Console.ForegroundColor = ConsoleColor.Black;
                             Console.BackgroundColor = ConsoleColor.Red;

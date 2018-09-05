@@ -12,6 +12,39 @@ namespace DebuggerCLI
 {
     class Program
     {
+        private static string DecodeMSG(dynamic obj)
+        {
+            switch (((string)obj.mode).ToLower())
+            {
+                case "position":
+                    return $"line {obj.data.line}, col {obj.data.col}, file {obj.data.file}";
+                case "error":
+                    return $"Error: {obj.data}";
+                case "message":
+                    return $"{obj.data}";
+                case "variables":
+                    {
+                        var builder = new StringBuilder();
+                        foreach (var it in obj.data)
+                        {
+                            if (builder.Length > 0)
+                            {
+                                builder.Append(", ");
+                            }
+                            builder.Append($"{it.name}: {it.value}");
+                        }
+                        return builder.ToString();
+                    }
+                case "status":
+                    return $"Server now in {obj.data} status.";
+                case "callstack":
+                default:
+                    {
+                        var output = JsonConvert.SerializeObject(obj, Formatting.Indented);
+                        return output;
+                    }
+            }
+        }
         static Stream stream;
         static void Main(string[] args)
         {
@@ -24,8 +57,16 @@ namespace DebuggerCLI
             var isInInterrupt = false;
             var toExecute = String.Empty;
             var handler = new CommandHandler();
+            var decodemessages = true;
+            var displaysend = false;
             #region quit
             handler.Add(new CommandHandlerItem("q", "quit", "Shuts down the application.", () => Environment.Exit(0)));
+            #endregion
+            #region decodemsg
+            handler.Add(new CommandHandlerItem<bool>("", "decodemsg", $"Allows to change if server messages should be decoded or not. Default: {decodemessages}", (flag) => decodemessages = flag));
+            #endregion
+            #region decodemsg
+            handler.Add(new CommandHandlerItem<bool>("", "displaysend", $"Will set a flag wether or not you want the send stuff to output. Default: {displaysend}", (flag) => decodemessages = flag));
             #endregion
             #region callstack (cs)
             handler.Add(new CommandHandlerItem("cs", "callstack", "Sends a request to get the current callstack.", () =>
@@ -162,10 +203,13 @@ namespace DebuggerCLI
                 {
                     if (!String.IsNullOrWhiteSpace(toExecute))
                     {
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"[-->][{DateTime.Now}] SEND");
-                        Console.WriteLine(toExecute);
-                        Console.ResetColor();
+                        if (displaysend)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine($"[-->][{DateTime.Now}] SEND");
+                            Console.WriteLine(toExecute);
+                            Console.ResetColor();
+                        }
                         bytes = Encoding.ASCII.GetBytes(toExecute);
                         stream.Write(bytes, 0, bytes.Length);
                         stream.WriteByte(0);
@@ -213,10 +257,17 @@ namespace DebuggerCLI
                                 while (isInInterrupt) { Thread.Sleep(100); }
                                 try
                                 {
-                                    var obj = JsonConvert.DeserializeObject(str);
-                                    var output = JsonConvert.SerializeObject(obj, Formatting.Indented);
-                                    Console.WriteLine($"[<--][{DateTime.Now}] RECEIVE");
-                                    Console.WriteLine(output);
+                                    dynamic obj = JsonConvert.DeserializeObject(str);
+                                    if (decodemessages)
+                                    {
+                                        Console.WriteLine($"[<--][{DateTime.Now}] {DecodeMSG(obj)}");
+                                    }
+                                    else
+                                    {
+                                        var output = JsonConvert.SerializeObject(obj, Formatting.Indented);
+                                        Console.WriteLine($"[<--][{DateTime.Now}] RECEIVE");
+                                        Console.WriteLine(output);
+                                    }
                                 }
                                 catch(Exception ex)
                                 {
