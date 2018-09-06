@@ -555,7 +555,7 @@ namespace
 		if (is2ddistance)
 		{
 			auto position2d = std::array<double, 2>{ position[0], position[1] };
-			for (auto& it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
+			for (auto it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
 			{
 				if ((*it)->distance2d(position2d) <= radius)
 				{
@@ -582,7 +582,7 @@ namespace
 		}
 		else
 		{
-			for (auto& it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
+			for (auto it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
 			{
 				if ((*it)->distance3d(position) <= radius)
 				{
