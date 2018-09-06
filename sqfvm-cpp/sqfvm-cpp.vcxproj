@@ -345,7 +345,7 @@
     <ResourceCompile Include="sqfvm-cpp.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\icon.ico" />
+    <Image Include="..\Icon\icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -399,7 +399,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\icon.ico">
+    <Image Include="..\Icon\icon.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
