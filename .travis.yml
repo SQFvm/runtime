@@ -28,5 +28,5 @@ matrix:
 before_install:
   - eval "${MATRIX_EVAL}"
 script:
-  - cd sqfvm-cpp
+  - cmake .
   - make
