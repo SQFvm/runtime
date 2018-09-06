@@ -15,7 +15,7 @@ include_directories("${PROJECT_SOURCE_DIR}/include/tclap-1.2.2/include")
 
 file(GLOB vm_src "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c")
 
+find_package(Threads)
 add_executable(sqfvm ${vm_src})
-target_link_libraries(sqfvm)
-
+target_link_libraries(sqfvm ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 add_library(libsqfvm SHARED ${vm_src})
