@@ -97,6 +97,11 @@ namespace
 		auto cd = right->data<configdata>();
 		return cd->cfgvalue()->dtype() == sqf::type::ARRAY ? cd->cfgvalue() : std::make_shared<sqf::value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
 	}
+	std::shared_ptr<value> isnull_config(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto cd = right->data<configdata>();
+		return std::make_shared<sqf::value>(cd->is_null());
+	}
 }
 void sqf::commandmap::initconfigcmds(void)
 {
@@ -116,4 +121,5 @@ void sqf::commandmap::initconfigcmds(void)
 	add(unary("getNumber", type::CONFIG, "Extract number from config entry.", getnumber_config));
 	add(unary("getText", type::CONFIG, "Extract text from config entry.", gettext_config));
 	add(unary("getArray", type::CONFIG, "Extract array from config entry.", getarray_config));
+	add(unary("isNull", type::CONFIG, "Checks whether the tested item is Null.", isnull_config));
 }

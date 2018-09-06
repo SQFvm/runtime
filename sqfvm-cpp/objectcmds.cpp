@@ -609,6 +609,11 @@ namespace
 		}
 		return std::make_shared<value>(outputarr, ARRAY);
 	}
+	std::shared_ptr<value> isnull_object(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto obj = right->data<objectdata>();
+		return std::make_shared<value>(obj->is_null());
+	}
 }
 void sqf::commandmap::initobjectcmds(void)
 {
@@ -633,5 +638,5 @@ void sqf::commandmap::initobjectcmds(void)
 	add(binary(4, "distance", type::ARRAY, type::OBJECT, "Returns a distance in meters between two positions.", distance_array_object));
 	add(binary(4, "distance", type::OBJECT, type::OBJECT, "Returns a distance in meters between two positions.", distance_object_object));
 	add(unary("nearestObjects", type::ARRAY, "Returns a list of nearest objects of the given types to the given position or object, within the specified distance. If more than one object is found they will be ordered by proximity, the closest one will be first in the array.", nearestobjects_array));
-
+	add(unary("isNull", type::OBJECT, "Checks whether the tested item is Null.", isnull_object));
 }

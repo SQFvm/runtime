@@ -16,7 +16,8 @@ namespace sqf
 		std::vector<std::shared_ptr<innerobj>> munits;
 		std::shared_ptr<sidedata> mside;
 		std::string mgroupid;
-		groupdata(std::shared_ptr<sidedata> side) : mside(side) { }
+		bool misnull;
+		groupdata(std::shared_ptr<sidedata> side) : mside(side), misnull(false) { }
 		groupdata() { }
 	public:
 
@@ -31,8 +32,9 @@ namespace sqf
 		inline std::vector<std::shared_ptr<innerobj>>::iterator units_begin(void) { return munits.begin(); }
 		inline std::vector<std::shared_ptr<innerobj>>::iterator units_end(void) { return munits.end(); }
 		inline bool is_empty(void) const { return munits.size() == 0; }
+		inline bool is_null(void) const { return misnull; }
 
-		static inline std::shared_ptr<sqf::groupdata> create() { return std::shared_ptr<groupdata>(); }
+		static std::shared_ptr<sqf::groupdata> create();
 		static std::shared_ptr<sqf::groupdata> create(sqf::virtualmachine* vm, std::shared_ptr<sqf::sidedata> side);
 
 		void add_unit(std::shared_ptr<innerobj> unit);

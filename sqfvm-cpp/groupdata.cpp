@@ -2,6 +2,13 @@
 #include "virtualmachine.h"
 #include "innerobj.h"
 
+std::shared_ptr<sqf::groupdata> sqf::groupdata::create()
+{
+	auto grpptr = new sqf::groupdata();
+	grpptr->misnull = true;
+	auto grp = std::shared_ptr<sqf::groupdata>(grpptr);
+	return grp;
+}
 std::shared_ptr<sqf::groupdata> sqf::groupdata::create(sqf::virtualmachine * vm, std::shared_ptr<sqf::sidedata> side)
 {
 	auto grpptr = new sqf::groupdata(side);
