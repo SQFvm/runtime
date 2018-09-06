@@ -1,0 +1,32 @@
+@SKIP \ \r\t\n
+@CASESENSITIVE true
+@LINECOMMENTSTART \/\/
+@BLOCKCOMMENTSTART \/\*
+@BLOCKCOMMENTEND \*\/
+
+hash = "#" > \#;
+ifdef => ifdef;
+else => else;
+endif => endif;
+define => define;
+undefine => undefine;
+include => include;
+string => \"(.)+\";
+identifier => (a-zA-Z)(a-zA-Z0-9\_)+;
+ro = "(" > \(;
+rc = ")" > \);
+comma = "," > \,;
+anytext => (.)+;
+content =? 0;
+
+
+ROOT = { identifier [ PARAMLIST ] | PP | anytext };
+PP = hash ( IFDEF | ELSE | ENDIF | DEFINE | UNDEFINE | INCLUDE );
+IFDEF = ifdef identifier;
+ELSE = else;
+ENDIF = endif;
+DEFINE = define [ PARAMLIST ] identifier content;
+PARAMLIST = ro [ identifier { comma identifier } ] rc;
+ARGLIST = ro [ anytext { comma anytext } ] rc;
+UNDEFINE = undefine identifier;
+INCLUDE = include string;

@@ -1,0 +1,10 @@
+/* REQUEST */
+{
+    "mode": "get-status",
+    "data":  null
+}
+/* RESPONSE */
+{
+    "mode": "status",
+    "data":  "string" /* HALT | RUNNING | DONE | NA */
+}
