@@ -991,6 +991,10 @@ namespace
 		vm->stack()->sleep(num * 1000);
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> cansuspend_(virtualmachine* vm)
+	{
+		return std::make_shared<value>(vm->stack()->isscheduled());
+	}
 }
 void sqf::commandmap::initgenericcmds(void)
 {
@@ -1063,4 +1067,5 @@ void sqf::commandmap::initgenericcmds(void)
 	add(unary("params", type::ARRAY, "Parses arguments inside of _this into array of private variables.", params_array));
 	add(binary(4, "params", type::ARRAY, type::ARRAY, "Parses input argument into array of private variables.", params_array_array));
 	add(unary("sleep", type::SCALAR, "Suspends code execution for given time in seconds. The delay given is the minimal delay expected.", sleep_scalar));
+	add(nular("canSuspend", "Returns true if sleep, uiSleep or waitUntil commands can be used in current scope.", cansuspend_));
 }

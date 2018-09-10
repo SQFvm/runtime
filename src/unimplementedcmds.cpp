@@ -2054,7 +2054,6 @@ void sqf::commandmap::initunimplemented(void)
 	add(nular("diag_activemissionfsms", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (diag_activemissionfsms)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("hudmovementlevels", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (hudmovementlevels)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("rainbow", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (rainbow)." << std::endl; return std::make_shared<value>(); }));
-	add(nular("cansuspend", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (cansuspend)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("servertime", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (servertime)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("teams", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (teams)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("all3denentities", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (all3denentities)." << std::endl; return std::make_shared<value>(); }));
