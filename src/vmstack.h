@@ -17,9 +17,11 @@ namespace sqf
 		std::vector<std::shared_ptr<sqf::callstack>> mstacks;
 		std::vector<std::shared_ptr<sqf::value>> mvalstack;
 		bool misscheduled;
+		long long mwakeupstamp;
+		bool misasleep;
 	public:
-		vmstack(void) : misscheduled(false) {}
-		vmstack(bool isscheduled) : misscheduled(isscheduled) {}
+		vmstack(void) : misscheduled(false), misasleep(false) {}
+		vmstack(bool isscheduled) : misscheduled(isscheduled), misasleep(false) {}
 		void pushinst(sqf::virtualmachine* vm, std::shared_ptr<instruction> inst);
 		inline std::shared_ptr<instruction> popinst(sqf::virtualmachine* vm)
 		{
@@ -70,5 +72,9 @@ namespace sqf
 		std::shared_ptr<value> getlocalvar(std::string varname);
 		inline bool isempty(void) { return mstacks.size() == 0; }
 		inline bool isscheduled(void) { return misscheduled; }
+		inline bool isasleep(void) { return misasleep; }
+		inline void wakeup(void) { misasleep = false; }
+		inline long long get_wakeupstamp(void) { return mwakeupstamp; }
+		void sleep(long long ms);
 	};
 }

@@ -55,8 +55,7 @@ namespace sqf
 		std::vector<std::shared_ptr<dlops>> mlibraries;
 		debugger* _debugger;
 		bool mexitflag;
-
-
+		bool mallowsleep;
 		bool mperformclassnamechecks;
 	public:
 		inline std::vector<std::shared_ptr<innerobj>>::iterator get_objlist_iterator_begin(void) { return mobjlist.begin(); }
@@ -106,5 +105,6 @@ namespace sqf
 		void push_group(std::shared_ptr<sqf::groupdata>);
 		void drop_group(std::shared_ptr<sqf::groupdata>);
 		inline void push_spawn(std::shared_ptr<scriptdata> scrpt) { mspawns.push_back(scrpt); }
+		static long long system_time_ms(void);
 	};
 }

@@ -29,6 +29,8 @@
 #include <iostream>
 #include <cwctype>
 #include <sstream>
+#include <ctime>
+#include <sys/timeb.h>
 
 
 sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
@@ -49,6 +51,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mprofilenamespace = std::make_shared<sqf::sqfnamespace>("profileNamespace");
 	mperformclassnamechecks = true;
 	mexitflag = false;
+	mallowsleep = true;
 }
 void sqf::virtualmachine::execute()
 {
@@ -62,20 +65,35 @@ void sqf::virtualmachine::execute()
 		for (auto it : mspawns)
 		{
 			mactivestack = it->stack();
+			if (mallowsleep && mactivestack->isasleep())
+			{
+				if (mactivestack->get_wakeupstamp() <= virtualmachine::system_time_ms())
+				{
+					mactivestack->wakeup();
+				}
+				else
+				{
+					continue;
+				}
+			}
 			performexecute(150);
 			if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { break; }
 		}
 		if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { mspawns.clear(); }
 		mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished(); });
 	}
+	mactivestack = mmainstack;
 }
 void sqf::virtualmachine::performexecute(size_t exitAfter)
 {
 	std::shared_ptr<sqf::instruction> inst;
-	while (!mexitflag && exitAfter != 0 && (inst = mactivestack->popinst(this)).get())
+	while (!mexitflag && exitAfter != 0 && !mactivestack->isasleep() && (inst = mactivestack->popinst(this)).get())
 	{
 		minstcount++;
-		exitAfter--;
+		if (exitAfter > 0)
+		{
+			exitAfter--;
+		}
 		if (mmaxinst != 0 && mmaxinst == minstcount)
 		{
 			err() << "MAX INST COUNT REACHED (" << mmaxinst << ")" << std::endl;
@@ -595,6 +613,18 @@ void sqf::virtualmachine::drop_group(std::shared_ptr<sqf::groupdata> grp)
 			return;
 		}
 	}
+}
+long long sqf::virtualmachine::system_time_ms(void)
+{
+#ifdef _WIN32
+	struct _timeb timebuffer;
+	_ftime(&timebuffer);
+	return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
+#else
+	struct timeb timebuffer;
+	ftime(&timebuffer);
+	return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
+#endif
 }
 //std::string sqf::virtualmachine::preprocess_file(std::string inputfile)
 //{

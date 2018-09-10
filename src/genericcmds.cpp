@@ -965,12 +965,31 @@ namespace
 	}
 	std::shared_ptr<value> params_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		return params_array_array(vm, vm->stack()->getlocalvar("_this"), right);
+		auto _this = vm->stack()->getlocalvar("_this");
+		if (_this->dtype() != ARRAY)
+		{
+			auto arr = std::make_shared<arraydata>();
+			arr->push_back(_this);
+			_this = std::make_shared<value>(arr, ARRAY);
+		}
+		return params_array_array(vm, _this, right);
 	}
 	std::shared_ptr<value> selectrandom_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto arr = right->data<arraydata>();
 		return arr->at(rand() % arr->size());
+	}
+	std::shared_ptr<value> sleep_scalar(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		if (!vm->stack()->isscheduled())
+		{
+			vm->err() << "Cannot suspend in non-scheduled environment." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		auto num = right->as_float();
+
+		vm->stack()->sleep(num * 1000);
+		return std::make_shared<value>();
 	}
 }
 void sqf::commandmap::initgenericcmds(void)
@@ -1043,4 +1062,5 @@ void sqf::commandmap::initgenericcmds(void)
 
 	add(unary("params", type::ARRAY, "Parses arguments inside of _this into array of private variables.", params_array));
 	add(binary(4, "params", type::ARRAY, type::ARRAY, "Parses input argument into array of private variables.", params_array_array));
+	add(unary("sleep", type::SCALAR, "Suspends code execution for given time in seconds. The delay given is the minimal delay expected.", sleep_scalar));
 }

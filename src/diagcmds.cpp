@@ -2,24 +2,10 @@
 #include "value.h"
 #include "cmd.h"
 #include "virtualmachine.h"
-#include <ctime>
-#include <sys/timeb.h>
 
 using namespace sqf;
 namespace
 {
-	int64_t system_time_ms(void)
-	{
-#ifdef _WIN32
-		struct _timeb timebuffer;
-		_ftime(&timebuffer);
-		return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
-#else
-		struct timeb timebuffer;
-		ftime(&timebuffer);
-		return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
-#endif
-	}
 	std::shared_ptr<value> diag_log_any(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
@@ -28,7 +14,7 @@ namespace
 	}
 	std::shared_ptr<value> diag_tickTime_(virtualmachine* vm)
 	{
-		auto r = (long)system_time_ms();
+		auto r = (long)virtualmachine::system_time_ms();
 		return std::make_shared<value>(r);
 	}
 }

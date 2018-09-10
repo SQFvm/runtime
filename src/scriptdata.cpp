@@ -3,7 +3,7 @@
 
 sqf::scriptdata::scriptdata()
 {
-	mthisstack = std::make_shared<sqf::vmstack>();
+	mthisstack = std::make_shared<sqf::vmstack>(true);
 }
 
 bool sqf::scriptdata::hasfinished(void)

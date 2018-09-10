@@ -1,7 +1,6 @@
 #include "vmstack.h"
 #include "value.h"
 #include "virtualmachine.h"
-
 void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instruction> inst)
 {
 	if (mstacks.empty())
@@ -22,4 +21,10 @@ std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string varname)
 		}
 	}
 	return std::make_shared<sqf::value>();
+}
+
+void sqf::vmstack::sleep(long long ms)
+{
+	mwakeupstamp = sqf::virtualmachine::system_time_ms() + ms;
+	misasleep = true;
 }
