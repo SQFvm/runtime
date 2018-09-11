@@ -92,19 +92,53 @@ std::array<double, 2> sqf::arraydata::as_vec2(void) const
 	return std::array<double, 2> {at(0)->as_double(), at(1)->as_double()};
 }
 
-bool sqf::arraydata::check_type(virtualmachine * vm, type t, size_t len) const
+bool sqf::arraydata::check_type(virtualmachine * vm, type t, size_t min, size_t max) const
+{
+	bool errflag = true;
+	if (size() < min || size() > max)
+	{
+		if (min == max)
+		{
+			vm->err() << "Array was expected to have " << min << " elements of type " << type_str(t) << ". Got " << size() << '.' << std::endl;
+		}
+		else
+		{
+			vm->err() << "Array was expected to have " << min << " to " << max << " elements of type " << type_str(t) << ". Got " << size() << '.' << std::endl;
+		}
+		return false;
+	}
+	for (size_t i = 0; i < size(); i++)
+	{
+		if (at(i)->dtype() != t)
+		{
+			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(t) << ". Got " << type_str(at(i)->dtype()) << '.' << std::endl;
+			errflag = false;
+		}
+	}
+	return errflag;
+}
+bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size_t len)
 {
 	bool errflag = true;
 	if (size() != len)
 	{
-		vm->err() << "Array was expected to have 3 elements of type " << type_str(t) << ". Got " << size() << '.' << std::endl;
+		vm->err() << "Array was expected to have " << len << " elements of type combination { ";
+		for (size_t i = 0; i < len; i++)
+		{
+			if (i > 0)
+			{
+				vm->err() << ", ";
+			}
+			vm->err() << type_str(arr[i]);
+		}
+		vm->err() << " }. Got " << size() << '.' << std::endl;
 		return false;
 	}
 	for (size_t i = 0; i < len; i++)
 	{
-		if (at(i)->dtype() != SCALAR)
+		if (at(i)->dtype() != arr[i])
 		{
-			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(t) << ". Got " << type_str(at(i)->dtype()) << '.' << std::endl;
+			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(arr[i]) << ". Got " << type_str(at(i)->dtype()) << '.' << std::endl;
 			errflag = false;
 		}
 	}

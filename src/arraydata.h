@@ -17,6 +17,7 @@ namespace sqf
 	{
 	private:
 		std::vector<std::shared_ptr<value>> mvalue;
+		bool check_type(virtualmachine*, const sqf::type*, size_t);
 	protected:
 		inline std::vector<std::shared_ptr<value>>& innervector(void) { return mvalue; }
 	public:
@@ -45,7 +46,11 @@ namespace sqf
 		std::array<double, 2> as_vec2(void) const;
 		operator std::array<double, 3>(void) const { return as_vec3(); }
 
-		bool check_type(virtualmachine*, type, size_t) const;
+		inline bool check_type(virtualmachine* vm, type t, size_t len) const { check_type(vm, t, len, len); }
+		bool check_type(virtualmachine*, type, size_t min, size_t max) const;
+		template<size_t size>
+		inline bool check_type(virtualmachine* vm, std::array<sqf::type, size> arr) const { check_type(vm, arr.data(), size); }
+
 		static inline double distance3dsqr(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { return distance3d(l->as_vec3(), r->as_vec3()); }
 		static inline double distance3dsqr(const arraydata* l, const arraydata* r) { return distance3d(l->as_vec3(), r->as_vec3()); }
 		static inline double distance3dsqr(std::array<double, 3> l, std::array<double, 3> r)
