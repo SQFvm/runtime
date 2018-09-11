@@ -103,6 +103,8 @@ namespace sqf
 		bool errflag(void) const { return merrflag; }
 		bool wrnflag(void) const { return mwrnflag; }
 		std::vector<std::shared_ptr<dlops>>& libraries(void) { return mlibraries; }
+		inline bool allowsleep(void) const { return mallowsleep; }
+		void allowsleep(bool flag) { mallowsleep = flag; }
 
 		debugger* dbg(void) { return _debugger; }
 		void dbg(debugger* debugger) { _debugger = debugger; }

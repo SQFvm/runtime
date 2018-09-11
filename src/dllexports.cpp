@@ -12,6 +12,7 @@ extern "C" {
 	DLLEXPORT_PREFIX void sqfvm_init(unsigned long long limit)
 	{
 		sqfvm_virtualmachine = std::make_shared<sqf::virtualmachine>(limit);
+		sqfvm_virtualmachine->allowsleep(false);
 		sqf::commandmap::get().init();
 	}
 	DLLEXPORT_PREFIX void sqfvm_exec(const char* code, char* buffer, unsigned int bufferlen)
