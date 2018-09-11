@@ -64,9 +64,9 @@ namespace
 				continue;
 			auto cmd = pair.second;
 			if (cmd->desc().empty())
-				vm->out() << "NULAR '" << pair.first << "'\t<" << cmd->name() << " " << ">" << std::endl;
+				vm->out() << "NULAR '" << pair.first << "'\t<" << cmd->name() << ">" << std::endl;
 			else
-				vm->out() << "NULAR '" << pair.first << "'\t<" << cmd->name() << " " << ">\t" << cmd->desc() << std::endl;
+				vm->out() << "NULAR '" << pair.first << "'\t<" << cmd->name() << ">\t" << cmd->desc() << std::endl;
 			wasfound = true;
 		}
 		for (auto pair : commandmap::get().all_u())
