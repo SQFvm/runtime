@@ -46,6 +46,47 @@ namespace
 		}
 		return std::make_shared<sqf::value>(outarr);
 	}
+	std::shared_ptr<value> cmdsimplemented___(virtualmachine* vm)
+	{
+		std::vector<std::shared_ptr<sqf::value>> outarr;
+		auto str = std::make_shared<sqf::value>("n");
+		for (auto pair : commandmap::get().all_n())
+		{
+			if (pair.second->desc().length() == 0)
+				continue;
+			outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
+				std::make_shared<sqf::value>(pair.first)
+			}));
+		}
+		str = std::make_shared<sqf::value>("u");
+		for (auto pair : commandmap::get().all_u())
+		{
+			for (auto it : *pair.second.get())
+			{
+				if (it->desc().length() == 0)
+					continue;
+				outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
+					std::make_shared<sqf::value>(pair.first),
+					std::make_shared<sqf::value>(sqf::type_str(it->rtype()))
+				}));
+			}
+		}
+		str = std::make_shared<sqf::value>("b");
+		for (auto pair : commandmap::get().all_b())
+		{
+			for (auto it : *pair.second.get())
+			{
+				if (it->desc().length() == 0)
+					continue;
+				outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
+					std::make_shared<sqf::value>(sqf::type_str(it->ltype())),
+					std::make_shared<sqf::value>(pair.first),
+					std::make_shared<sqf::value>(sqf::type_str(it->rtype()))
+				}));
+			}
+		}
+		return std::make_shared<sqf::value>(outarr);
+	}
 	std::shared_ptr<value> tree___string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto str = right->as_string();
@@ -143,6 +184,7 @@ void sqf::commandmap::initsqfvmcmds(void)
 {
 	add(unary("tree__", sqf::type::STRING, "Returns a string containing the abstract syntax tree for the provided SQF expression.", tree___string));
 	add(nular("cmds__", "Returns an array containing all commands available.", cmds___));
+	add(nular("cmdsimplemented__", "Returns an array containing all commands that are actually implemented.", cmdsimplemented___));
 	add(unary("help__", sqf::type::STRING, "Displays all available information for a single command.", help___string));
 	add(unary("configparse__", sqf::type::STRING, "Parses provided string as config into a new config object.", configparse___string));
 	add(binary(4, "merge__", sqf::type::CONFIG, sqf::type::CONFIG, "Merges contents from the right config into the left config. Duplicate entries will be overriden. Contents will not be copied but referenced.", merge___config_config));
