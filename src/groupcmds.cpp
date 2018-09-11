@@ -67,6 +67,11 @@ namespace
 		auto grp = right->data<groupdata>();
 		return std::make_shared<value>(grp->is_null());
 	}
+	std::shared_ptr<value> side_group(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto grp = right->data<groupdata>();
+		return std::make_shared<value>(grp->side(), SIDE);
+	}
 }
 void sqf::commandmap::initgroupcmds(void)
 {
@@ -91,4 +96,5 @@ void sqf::commandmap::initgroupcmds(void)
 	add(unary("units", type::OBJECT, "Returns an array with all the units in the group of the unit. For a destroyed object an empty array is returned.", units_object));
 	add(unary("deleteGroup", type::GROUP, "Destroys the given group. Group must be empty.", deletegroup_group));
 	add(unary("isNull", type::GROUP, "Checks whether the tested item is Null.", isnull_group));
+	add(unary("side", type::GROUP, "Returns the side of a group.", side_group));
 }

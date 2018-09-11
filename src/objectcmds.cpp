@@ -8,6 +8,7 @@
 #include "arraydata.h"
 #include "configdata.h"
 #include "groupdata.h"
+#include "sidedata.h"
 #include <algorithm>
 #include <cstdlib>
 
@@ -614,6 +615,12 @@ namespace
 		auto obj = right->data<objectdata>();
 		return std::make_shared<value>(obj->is_null());
 	}
+	std::shared_ptr<value> side_object(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto obj = right->data<objectdata>();
+		auto grp = obj->obj()->group();
+		return std::make_shared<value>((!grp.get() || grp->is_null()) ? std::make_shared<sidedata>(sidedata::Civilian) : grp->side(), SIDE);
+	}
 }
 void sqf::commandmap::initobjectcmds(void)
 {
@@ -639,4 +646,5 @@ void sqf::commandmap::initobjectcmds(void)
 	add(binary(4, "distance", type::OBJECT, type::OBJECT, "Returns a distance in meters between two positions.", distance_object_object));
 	add(unary("nearestObjects", type::ARRAY, "Returns a list of nearest objects of the given types to the given position or object, within the specified distance. If more than one object is found they will be ordered by proximity, the closest one will be first in the array.", nearestobjects_array));
 	add(unary("isNull", type::OBJECT, "Checks whether the tested item is Null.", isnull_object));
+	add(unary("side", type::OBJECT, "Returns the side of an object.", side_object));
 }
