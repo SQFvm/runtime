@@ -2177,7 +2177,6 @@ void sqf::commandmap::initunimplemented(void)
 	add(nular("getresolution", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (getresolution)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("timemultiplier", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (timemultiplier)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("safezonew", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (safezonew)." << std::endl; return std::make_shared<value>(); }));
-	add(nular("allunits", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (allunits)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("getmouseposition", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (getmouseposition)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("get3deniconsvisible", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (get3deniconsvisible)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("isstreamfriendlyuienabled", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (isstreamfriendlyuienabled)." << std::endl; return std::make_shared<value>(); }));

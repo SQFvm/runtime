@@ -621,10 +621,22 @@ namespace
 		auto grp = obj->obj()->group();
 		return std::make_shared<value>((!grp.get() || grp->is_null()) ? std::make_shared<sidedata>(sidedata::Civilian) : grp->side(), SIDE);
 	}
+	std::shared_ptr<value> allunits_(virtualmachine* vm)
+	{
+		auto arr = std::make_shared<arraydata>();
+		for (auto it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
+		{
+			if ((*it)->is_vehicle())
+				continue;
+			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(*it), OBJECT));
+		}
+		return std::make_shared<value>(arr, ARRAY);
+	}
 }
 void sqf::commandmap::initobjectcmds(void)
 {
 	//GetVariable & SetVariable & AllVariables are in namespacecmds as simple alias.
+	add(nular("allUnits", "Return a list of all units (all persons except agents) outside and inside vehicles.", allunits_));
 	add(nular("objNull", "A non-existent Object. To compare non-existent objects use isNull or isEqualTo.", objnull_));
 	add(unary("typeOf", sqf::type::OBJECT, "Returns the config class name of given object.", typeof_object));
 	add(unary("createVehicle", type::ARRAY, "Creates an empty object of given classname type.", createvehicle_array));
