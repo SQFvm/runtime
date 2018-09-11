@@ -87,6 +87,47 @@ namespace
 		}
 		return std::make_shared<sqf::value>(outarr);
 	}
+	std::shared_ptr<value> vm___(virtualmachine* vm)
+	{
+		std::vector<std::shared_ptr<sqf::value>> outarr;
+		auto str = std::make_shared<sqf::value>("n");
+		for (auto pair : commandmap::get().all_n())
+		{
+			if (str_ew(pair.first.c_str(), "__") == 0)
+				continue;
+			outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
+				std::make_shared<sqf::value>(pair.first)
+			}));
+		}
+		str = std::make_shared<sqf::value>("u");
+		for (auto pair : commandmap::get().all_u())
+		{
+			if (str_ew(pair.first.c_str(), "__") == 0)
+				continue;
+			for (auto it : *pair.second.get())
+			{
+				outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
+					std::make_shared<sqf::value>(pair.first),
+					std::make_shared<sqf::value>(sqf::type_str(it->rtype()))
+				}));
+			}
+		}
+		str = std::make_shared<sqf::value>("b");
+		for (auto pair : commandmap::get().all_b())
+		{
+			if (str_ew(pair.first.c_str(), "__") == 0)
+				continue;
+			for (auto it : *pair.second.get())
+			{
+				outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
+					std::make_shared<sqf::value>(sqf::type_str(it->ltype())),
+					std::make_shared<sqf::value>(pair.first),
+					std::make_shared<sqf::value>(sqf::type_str(it->rtype()))
+				}));
+			}
+		}
+		return std::make_shared<sqf::value>(outarr);
+	}
 	std::shared_ptr<value> tree___string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto str = right->as_string();
@@ -191,4 +232,5 @@ void sqf::commandmap::initsqfvmcmds(void)
 	add(nular("allObjects__", "Returns an array containing all objects created.", allObjects__));
 	add(unary("prettyprintsqf__", sqf::type::STRING, "Takes provided SQF code and pretty-prints it to output.", prettyprintsqf___string));
 	add(nular("exit__", "Exits the execution immediately. Will not notify debug interface when used.", exit___));
+	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
 }
