@@ -72,8 +72,7 @@ namespace
 	{
 		auto r = std::static_pointer_cast<codedata>(right->data());
 		r->loadinto(vm, vm->stack());
-		vm->stack()->stacks_top()->setvar("_this", std::make_shared<value>());
-		vm->stack()->pushval(left);
+		vm->stack()->stacks_top()->setvar("_this", left);
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> count_array(virtualmachine* vm, std::shared_ptr<value> right)
