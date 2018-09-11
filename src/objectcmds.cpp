@@ -633,7 +633,7 @@ void sqf::commandmap::initobjectcmds(void)
 	add(unary("deleteVehicle", type::OBJECT, "Deletes an object.", deletevehicle_array));
 	add(unary("position", type::OBJECT, "Returns the object position in format PositionAGLS. Z value is height over the surface underneath.", position_object));
 	add(unary("getPos", type::OBJECT, "Returns the object position in format PositionAGLS. Z value is height over the surface underneath.", position_object));
-	add(binary(4, "setPos", type::OBJECT, type::ARRAY, "", setpos_object_array));
+	add(binary(4, "setPos", type::OBJECT, type::ARRAY, "Sets object position.", setpos_object_array));
 	add(unary("velocity", type::OBJECT, "Return velocity (speed vector) of Unit as an array with format [x, y, z].", velocity_object));
 	add(binary(4, "setVelocity", type::OBJECT, type::ARRAY, "Set velocity (speed vector) of a vehicle. Units are in metres per second.", setvelocity_object_array));
 	add(binary(4, "doMove", type::OBJECT, type::ARRAY, "Order the given unit(s) to move to the given position (without radio messages). In SQFVM this command acts like setPos.", domove_object_array));

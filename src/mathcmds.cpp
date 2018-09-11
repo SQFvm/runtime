@@ -359,6 +359,6 @@ void sqf::commandmap::initmathcmds(void)
 	add(unary("vectorMagnitude", type::ARRAY, "Magnitude of a 3D vector.", vectormagnitude_array));
 	add(unary("vectorMagnitudeSqr", type::ARRAY, "Squared magnitude of a 3D vector.", vectormagnitudesqr_array));
 	add(binary(4, "vectorMultiply", type::ARRAY, type::SCALAR, "Multiplies 3D vector by a scalar.", vectormultiply_array_scalar));
-	add(unary("vectorNormalized", type::ARRAY, "", vectornormalized_array));
+	add(unary("vectorNormalized", type::ARRAY, "Returns normalized vector (unit vector, vectorMagnitude = 1) of given vector. If given vector is 0 result is a 0 vector as well.", vectornormalized_array));
 
 }
