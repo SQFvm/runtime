@@ -37,7 +37,7 @@ unsigned int str_swi(const char* lString, const char* rString)
 
 unsigned int str_ew(const char* lString, const char* rString)
 {
-	unsigned int i;
+	unsigned int i, j = 0;
 	unsigned int rlen = strlen(rString);
 	char lc, rc;
 	for (i = 0; lString[i] != '\0'; i++);
@@ -47,17 +47,17 @@ unsigned int str_ew(const char* lString, const char* rString)
 	for (; lString[i] != '\0'; i++)
 	{
 		lc = lString[i];
-		rc = rString[i];
+		rc = rString[j++];
 		if (rc == '\0')
 			return 1;
 		if (lc != rc)
 			return 0;
 	}
-	return 0;
+	return 1;
 }
 unsigned int str_ewi(const char* lString, const char* rString)
 {
-	unsigned int i;
+	unsigned int i, j = 0;
 	unsigned int rlen = strlen(rString);
 	char lc, rc;
 	for (i = 0; lString[i] != '\0'; i++);
@@ -67,13 +67,13 @@ unsigned int str_ewi(const char* lString, const char* rString)
 	for (; lString[i] != '\0'; i++)
 	{
 		lc = tolower(lString[i]);
-		rc = tolower(rString[i]);
+		rc = tolower(rString[j++]);
 		if (rc == '\0')
 			return 1;
 		if (lc != rc)
 			return 0;
 	}
-	return 0;
+	return 1;
 }
 
 const char* str_strwrd(const char* lString, const char* rString, const char* letters)
