@@ -57,7 +57,7 @@ namespace
 #else
 			std::make_shared<value>("NA"),
 #endif
-			std::make_shared<value>("x86")
+			std::make_shared<value>(ENVIRONMENTSTR)
 		};
 		return std::make_shared<value>(vec);
 	}
