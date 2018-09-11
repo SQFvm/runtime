@@ -30,6 +30,7 @@ namespace sqf
 		void initconfigcmds(void);
 		void initgroupcmds(void);
 		void initobjectcmds(void);
+		void initmarkercmds(void);
 
 		std::string tolowerstring(std::string s)
 		{
@@ -50,6 +51,7 @@ namespace sqf
 			initconfigcmds();
 			initgroupcmds();
 			initobjectcmds();
+			initmarkercmds();
 #ifndef _DEBUG
 			initunimplemented();
 #endif // !_DEBUG

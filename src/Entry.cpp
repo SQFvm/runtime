@@ -1,3 +1,4 @@
+#include "Entry.h"
 #include "netserver.h"
 #include "virtualmachine.h"
 #include "commandmap.h"
@@ -21,7 +22,6 @@
 #include <unistd.h>
 #endif
 
-#define VERSION "INDEV"
 
 
 int console_width(void)
@@ -42,7 +42,7 @@ int console_width(void)
 
 int main(int argc, char** argv)
 {
-	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', VERSION " - " __DATE__ " " __TIME__ "\n");
+	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', VERSION_FULL "\n");
 	TCLAP::MultiArg<std::string> loadSqfFileArg("f", "sqf-file", "Loads provided sqf-file from the hdd into the sqf-vm.", false, "PATH");
 	cmd.add(loadSqfFileArg);
 

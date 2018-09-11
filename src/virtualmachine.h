@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include "dlops.h"
+#include "marker.h"
 
 
 namespace sqf
@@ -49,6 +50,8 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> mparsingnamespace;
 		std::shared_ptr<sqf::sqfnamespace> mprofilenamespace;
 
+		std::map<std::string, sqf::marker> mmarkers;
+
 		std::map<int, size_t> mgroupidcounter;
 		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
 		void performexecute(size_t exitAfter = ~0);
@@ -83,6 +86,12 @@ namespace sqf
 
 		bool perform_classname_checks(void) { return mperformclassnamechecks; }
 		void perform_classname_checks(bool f) { mperformclassnamechecks = f; }
+
+		inline marker* get_marker(std::string key) { return mmarkers.find(key) == mmarkers.end() ? nullptr : &mmarkers[key]; }
+		inline void set_marker(std::string key, marker m) { mmarkers[key] = m; }
+		inline void remove_marker(std::string key) { mmarkers.erase(key); }
+		inline std::map<std::string, sqf::marker>::iterator markers_begin(void) { return mmarkers.begin(); }
+		inline std::map<std::string, sqf::marker>::iterator markers_end(void) { return mmarkers.end(); }
 
 		void parse_assembly(std::string);
 		void parse_sqf(std::string, std::stringstream*);

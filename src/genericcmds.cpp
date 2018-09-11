@@ -17,6 +17,7 @@
 #include "callstack_apply.h"
 #include "callstack_foreach.h"
 #include "callstack_count.h"
+#include "Entry.h"
 
 
 #define CALLEXTBUFFSIZE 10240
@@ -43,10 +44,10 @@ namespace
 	std::shared_ptr<value> productversion_(virtualmachine* vm)
 	{
 		auto vec = std::vector<std::shared_ptr<value>>{
-			std::make_shared<value>("SQF-VM"), //product name
+			std::make_shared<value>("SQF-VM " VERSION_FULL), //product name
 			std::make_shared<value>("sqf-vm"),
-			std::make_shared<value>(2),
-			std::make_shared<value>(0),
+			std::make_shared<value>(VERSION_MAJORMINOR),
+			std::make_shared<value>(VERSION_REVISION),
 			std::make_shared<value>("COMMUNITY"),
 			std::make_shared<value>(false),
 #if _WIN32
