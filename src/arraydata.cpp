@@ -117,7 +117,7 @@ bool sqf::arraydata::check_type(virtualmachine * vm, type t, size_t min, size_t 
 	}
 	return errflag;
 }
-bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size_t len)
+bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size_t len) const
 {
 	bool errflag = true;
 	if (size() != len)
