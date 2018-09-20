@@ -18,7 +18,7 @@ std::string sqf::arraydata::tosqf(void) const
 		}
 		else
 		{
-			sstream << ", ";
+			sstream << ',';
 		}
 		sstream << it->tosqf();
 	}
