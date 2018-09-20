@@ -9,6 +9,7 @@ namespace sqf
 	{
 	private:
 		float mvalue;
+		static int decimals;
 	public:
 		scalardata(void) : mvalue(0) {}
 		scalardata(char num) : mvalue((float)num) {}
@@ -18,7 +19,7 @@ namespace sqf
 		scalardata(float num) : mvalue((float)num) {}
 		scalardata(double num) : mvalue((float)num) {}
 		scalardata(size_t num) : mvalue((float)num) {}
-		virtual std::string tosqf(void) const { return std::to_string(mvalue); }
+		virtual std::string tosqf(void) const;
 		operator char(void) const { return (char)mvalue; }
 		operator short(void) const { return (short)mvalue; }
 		operator int(void) const { return (int)mvalue; }
@@ -26,5 +27,7 @@ namespace sqf
 		operator float(void) const { return (float)mvalue; }
 		operator size_t(void) const { return (size_t)mvalue; }
 		virtual bool equals(std::shared_ptr<data> d) const { return mvalue == std::dynamic_pointer_cast<scalardata>(d)->mvalue; }
+
+		static void setdecimals(int val) { decimals = val; }
 	};
 }

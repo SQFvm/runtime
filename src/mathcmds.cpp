@@ -4,9 +4,11 @@
 #include "virtualmachine.h"
 #include "compiletime.h"
 #include "arraydata.h"
+#include "scalardata.h"
 #include <cmath>
 #include <random>
 #include <array>
+#include <iomanip>
 using namespace sqf;
 namespace
 {
@@ -311,6 +313,35 @@ namespace
 		}
 		return std::make_shared<value>(vectorMagnitudeSqr(*l));
 	}
+	std::shared_ptr<value> tofixed_scalar(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto i = right->as_int();
+		if (i > 20)
+		{
+			i = 20;
+		}
+		else if (i < 0)
+		{
+			i = -1;
+		}
+		sqf::scalardata::setdecimals(i);
+		return std::make_shared<value>();
+	}
+	std::shared_ptr<value> tofixed_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto i = right->as_int();
+		if (i > 20)
+		{
+			i = 20;
+		}
+		else if (i <= 0)
+		{
+			i = 0;
+		}
+		std::stringstream sstream;
+		sstream << std::setprecision(i) << left->as_float();
+		return std::make_shared<value>(sstream.str());
+	}
 }
 
 void sqf::commandmap::initmathcmds(void)
@@ -360,5 +391,8 @@ void sqf::commandmap::initmathcmds(void)
 	add(unary("vectorMagnitudeSqr", type::ARRAY, "Squared magnitude of a 3D vector.", vectormagnitudesqr_array));
 	add(binary(4, "vectorMultiply", type::ARRAY, type::SCALAR, "Multiplies 3D vector by a scalar.", vectormultiply_array_scalar));
 	add(unary("vectorNormalized", type::ARRAY, "Returns normalized vector (unit vector, vectorMagnitude = 1) of given vector. If given vector is 0 result is a 0 vector as well.", vectornormalized_array));
+	add(binary(4, "toFixed", type::SCALAR, type::SCALAR, "Converts a number into a string, keeping the specified number of decimals.", tofixed_scalar_scalar));
+	add(unary("toFixed", type::SCALAR, "Returns normalized vector (unit vector, vectorMagnitude = 1) of given vector. If given vector is 0 result is a 0 vector as well.", tofixed_scalar));
+
 
 }
