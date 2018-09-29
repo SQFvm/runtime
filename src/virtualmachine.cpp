@@ -412,7 +412,7 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnod
 		break;
 		case sqf::parse::sqf::sqfasttypes::ASSIGNMENTLOCAL:
 		{
-			vm->out() << "private" << node.children[0].content << " = ";
+			vm->out() << "private " << node.children[0].content << " = ";
 			navigate_pretty_print_sqf(full, vm, node.children[1], depth);
 		}
 		break;
