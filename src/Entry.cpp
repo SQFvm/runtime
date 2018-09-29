@@ -173,7 +173,12 @@ int main(int argc, char** argv)
 		{
 			//Prompt user to type in code.
 			int i = 0;
-			printf("Please enter your SQF code.\nTo get the capabilities, use the `help__` instruction.\nTo run the code, Press [ENTER] twice.\nTo exit, use the `exit__` command.\n");
+			printf("Please enter your SQF code.\n"
+				"To get info about a command, use the `help__` operator.\n"
+				"For a list of all implemented commands, use the `cmds__` operator.\n"
+				"For a list of all SQF-VM internal commands, use the `vm__` operator.\n"
+				"To run the code, Press [ENTER] twice.\n"
+				"To exit, use the `exit__` command.\n");
 			std::string line;
 			std::stringstream sstream;
 			do
