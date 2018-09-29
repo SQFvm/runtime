@@ -1024,7 +1024,7 @@ void sqf::commandmap::initgenericcmds(void)
 	add(binary(4, "select", type::ARRAY, type::SCALAR, "Selects the element at provided index from array. If the index provided equals the array length, nil will be returned.", select_array_scalar));
 	add(unary("selectRandom", type::ARRAY, "Returns a random element from the given array.", selectrandom_array));
 
-	add(binary(4, "select", type::ARRAY, type::BOOL, "Selects the first element if provided boolean is true, second element if it is false.", select_array_bool));
+	add(binary(4, "select", type::ARRAY, type::BOOL, "Selects the first element if provided boolean is false, second element if it is true.", select_array_bool));
 	add(binary(4, "select", type::ARRAY, type::ARRAY, "Selects a range of elements in provided array, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_array_array));
 	add(binary(4, "select", type::ARRAY, type::CODE, "Selects elements from provided array matching provided condition. Current element will be placed in _x variable.", select_array_code));
 	add(binary(4, "resize", type::ARRAY, type::SCALAR, "Changes the size of the given array. The command does not return new array, it resizes the source array to the desired number of elements. If the new size is bigger than the current size, the new places are filled with nils.", resize_array_scalar));
