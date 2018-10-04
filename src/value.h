@@ -62,12 +62,12 @@ namespace sqf
 		///Tries to convert to T, if it fails it returns nullptr
 		template <class T>
 		std::shared_ptr<T> data_try_as() const {
-			static_assert(std::is_base_of_v<sqf::data, T>, "value::data_try_as<T>() can only convert to sqf::data types");
+			static_assert(std::is_base_of<sqf::data, T>::value, "value::data_try_as<T>() can only convert to sqf::data types");
 			return std::dynamic_pointer_cast<T>(mdata);
 		}
 		template<class T>
 		std::shared_ptr<T> data() const {
-			static_assert(std::is_base_of_v<sqf::data, T>, "value::data<T>() can only convert to sqf::data types");
+			static_assert(std::is_base_of<sqf::data, T>::value, "value::data<T>() can only convert to sqf::data types");
 			return std::static_pointer_cast<T>(mdata);
 		}
 		bool equals(std::shared_ptr<sqf::value> v) const { return mtype == v->mtype ? mdata->equals(v->mdata) : false; }
