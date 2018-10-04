@@ -5,6 +5,7 @@
 
 #include "callstack.h"
 #include "string_op.h"
+#include <chrono>
 
 namespace sqf
 {
@@ -17,7 +18,7 @@ namespace sqf
 		std::vector<std::shared_ptr<sqf::callstack>> mstacks;
 		std::vector<std::shared_ptr<sqf::value>> mvalstack;
 		bool misscheduled;
-		long long mwakeupstamp;
+		std::chrono::system_clock::time_point mwakeupstamp;
 		bool misasleep;
 	public:
 		vmstack(void) : misscheduled(false), misasleep(false) {}
@@ -74,7 +75,7 @@ namespace sqf
 		inline bool isscheduled(void) { return misscheduled; }
 		inline bool isasleep(void) { return misasleep; }
 		inline void wakeup(void) { misasleep = false; }
-		inline long long get_wakeupstamp(void) { return mwakeupstamp; }
-		void sleep(long long ms);
+		inline std::chrono::system_clock::time_point get_wakeupstamp(void) { return mwakeupstamp; }
+		void sleep(std::chrono::milliseconds ms);
 	};
 }

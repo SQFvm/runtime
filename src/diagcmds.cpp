@@ -14,7 +14,7 @@ namespace
 	}
 	std::shared_ptr<value> diag_tickTime_(virtualmachine* vm)
 	{
-		auto r = (long)virtualmachine::system_time_ms();
+		long r = std::chrono::duration_cast<std::chrono::milliseconds>(virtualmachine::system_time().time_since_epoch()).count();
 		return std::make_shared<value>(r);
 	}
 }

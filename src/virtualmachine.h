@@ -7,6 +7,7 @@
 #include <map>
 #include <list>
 #include <sstream>
+#include <chrono>
 
 #include "dlops.h"
 #include "marker.h"
@@ -116,6 +117,6 @@ namespace sqf
 		void push_group(std::shared_ptr<sqf::groupdata>);
 		void drop_group(std::shared_ptr<sqf::groupdata>);
 		inline void push_spawn(std::shared_ptr<scriptdata> scrpt) { mspawns.push_back(scrpt); }
-		static long long system_time_ms(void);
+		static std::chrono::system_clock::time_point system_time();
 	};
 }

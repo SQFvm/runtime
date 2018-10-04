@@ -986,9 +986,9 @@ namespace
 			vm->err() << "Cannot suspend in non-scheduled environment." << std::endl;
 			return std::shared_ptr<value>();
 		}
-		auto num = right->as_float();
+		auto duration = std::chrono::duration<float>(right->as_float());
 
-		vm->stack()->sleep(num * 1000);
+		vm->stack()->sleep(std::chrono::duration_cast<std::chrono::milliseconds>(duration));
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> cansuspend_(virtualmachine* vm)
