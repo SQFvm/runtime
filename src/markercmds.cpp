@@ -13,9 +13,9 @@ namespace
 	std::shared_ptr<value> allmapmarkers_(virtualmachine* vm)
 	{
 		auto arr = std::make_shared<arraydata>();
-		for (auto it = vm->markers_begin(); it != vm->markers_end(); it++)
+		for (auto& marker : vm->get_markers())
 		{
-			arr->push_back(std::make_shared<value>(it->first));
+			arr->push_back(std::make_shared<value>(marker.first));
 		}
 		return std::make_shared<value>(arr, ARRAY);
 	}
@@ -25,7 +25,7 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>("");
 		}
 		return marker->get_type_sqf();
@@ -36,7 +36,7 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			auto arr = std::make_shared<arraydata>(2);
 			arr->push_back(std::make_shared<value>(0));
 			arr->push_back(std::make_shared<value>(0));
@@ -50,7 +50,7 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>("");
 		}
 		return marker->get_color_sqf();
@@ -61,7 +61,7 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			auto arr = std::make_shared<arraydata>(3);
 			arr->push_back(std::make_shared<value>(0));
 			arr->push_back(std::make_shared<value>(0));
@@ -76,7 +76,7 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>("");
 		}
 		return marker->get_brush_sqf();
@@ -87,7 +87,7 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>("");
 		}
 		return marker->get_text_sqf();
@@ -98,7 +98,7 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>(0);
 		}
 		return marker->get_direction_sqf();
@@ -109,7 +109,7 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>("");
 		}
 		return marker->get_shape_sqf();
@@ -120,7 +120,7 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>(0);
 		}
 		return marker->get_alpha_sqf();
@@ -167,7 +167,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>();
 		}
 		auto shapename = right->as_string();
@@ -199,7 +199,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>();
 		}
 		auto brushname = right->as_string();
@@ -223,7 +223,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>();
 		}
 		auto arr = right->data<arraydata>();
@@ -240,7 +240,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>();
 		}
 		auto tname = right->as_string();
@@ -264,7 +264,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>();
 		}
 		auto text = right->as_string();
@@ -277,7 +277,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>();
 		}
 		auto dir = right->as_float();
@@ -290,7 +290,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>();
 		}
 		auto colorname = right->as_string();
@@ -314,7 +314,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>();
 		}
 		auto arr = right->data<arraydata>();
@@ -331,7 +331,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name is not existing." << std::endl;
+			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			return std::make_shared<value>();
 		}
 		auto alpha = right->as_float();

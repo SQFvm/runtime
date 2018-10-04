@@ -563,24 +563,17 @@ namespace
 		auto l = left->data<arraydata>();
 		auto r = right->data<arraydata>();
 		std::vector<std::shared_ptr<value>> result;
-		for (int i = 0; i < l->size(); i++)
-		{
-			auto current = l->at(i);
-			bool keep = true;
-			for (int j = 0; j < r->size(); j++)
-			{
-				auto check = r->at(j);
-				if (value_equals_casesensitive(current, check))
-				{
-					keep = false;
-					break;
-				}
-			}
-			if (keep)
-			{
-				result.insert(result.end(), current);
-			}
-		}
+
+		std::copy_if(l->begin(), l->end(), std::back_inserter(result), [&r, &result](std::shared_ptr<value>& current) {
+
+			auto found = std::find_if(r->begin(), r->end(), [&current](std::shared_ptr<value>& check) {
+				return value_equals_casesensitive(current, check);
+			});
+
+			//We only want element in output if it doesn't exist in right arg
+			return found == r->end();
+		});
+
 		return std::make_shared<value>(result);
 	}
 	std::shared_ptr<value> append_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
@@ -595,38 +588,22 @@ namespace
 		auto r = right->data<arraydata>();
 		std::vector<std::shared_ptr<value>> result;
 
-		for (int i = 0; i < l->size(); i++)
-		{
-			bool add = true;
-			auto current = l->at(i);
-			for (int j = 0; j < result.size(); j++)
-			{
-				auto check = result.at(j);
-				if (value_equals_casesensitive(current, check))
-				{
-					add = false;
-					break;
-				}
-			}
+		std::copy_if(l->begin(), l->end(), std::back_inserter(result), [&r, &result](std::shared_ptr<value>& current) {
+		
+			auto found = std::find_if(result.begin(), result.end(), [&current](std::shared_ptr<value>& check) {
+				return value_equals_casesensitive(current, check);
+			});
 
-			if (!add) continue; 
+			//Result already contains the element. Don't add it (remove duplicates)
+			if (found != result.end()) return false;
 
-			add = false;
-			for (int j = 0; j < r->size(); j++)
-			{
-				auto check = r->at(j);
-				if (value_equals_casesensitive(current, check))
-				{
-					add = true;
-					break;
-				}
-			}
+			found = std::find_if(r->begin(), r->end(), [&current](std::shared_ptr<value>& check) {
+				return value_equals_casesensitive(current, check);
+			});
 
-			if (add)
-			{
-				result.insert(result.end(), current);
-			}
-		}
+			//Only add if right argument also contains the element
+			return found != r->end();
+		});
 
 		return std::make_shared<value>(result);
 	}
@@ -645,13 +622,13 @@ namespace
 	std::shared_ptr<value> find_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->data<arraydata>();
-		for (int i = 0; i < l->size(); i++)
-		{
-			if (value_equals_casesensitive(l->at(i), right))
-			{
-				return std::make_shared<value>(i);
-			}
-		}
+		auto found = std::find_if(l->begin(), l->end(), [&right](std::shared_ptr<value>& check) {
+			return value_equals_casesensitive(check, right);
+		});
+
+		if (found != l->end())
+			return std::make_shared<value>(static_cast<int>(std::distance(l->begin(), found)));
+
 		return std::make_shared<value>(-1);
 	}
 	std::shared_ptr<value> selectmax_array(virtualmachine* vm, std::shared_ptr<value> right)

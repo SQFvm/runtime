@@ -62,8 +62,7 @@ namespace sqf
 		bool mallowsleep;
 		bool mperformclassnamechecks;
 	public:
-		inline std::vector<std::shared_ptr<innerobj>>::iterator get_objlist_iterator_begin(void) { return mobjlist.begin(); }
-		inline std::vector<std::shared_ptr<innerobj>>::iterator get_objlist_iterator_end(void) { return mobjlist.end(); }
+		const std::vector<std::shared_ptr<innerobj>>& get_objlist() { return mobjlist; }
 		inline std::shared_ptr<sqf::sqfnamespace> missionnamespace(void) { return mmissionnamespace; }
 		inline std::shared_ptr<sqf::sqfnamespace> uinamespace(void) { return muinamespace; }
 		inline std::shared_ptr<sqf::sqfnamespace> parsingnamespace(void) { return mparsingnamespace; }
@@ -91,8 +90,7 @@ namespace sqf
 		inline marker* get_marker(std::string key) { return mmarkers.find(key) == mmarkers.end() ? nullptr : &mmarkers[key]; }
 		inline void set_marker(std::string key, marker m) { mmarkers[key] = m; }
 		inline void remove_marker(std::string key) { mmarkers.erase(key); }
-		inline std::map<std::string, sqf::marker>::iterator markers_begin(void) { return mmarkers.begin(); }
-		inline std::map<std::string, sqf::marker>::iterator markers_end(void) { return mmarkers.end(); }
+		const std::map<std::string, sqf::marker>& get_markers() { return mmarkers; }
 
 		void parse_assembly(std::string);
 		void parse_sqf(std::string, std::stringstream*);

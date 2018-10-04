@@ -29,8 +29,7 @@ namespace sqf
 		inline void groupid(std::string id) { mgroupid = id; }
 		virtual std::string tosqf(void) const { return mgroupid; }
 
-		inline std::vector<std::shared_ptr<innerobj>>::iterator units_begin(void) { return munits.begin(); }
-		inline std::vector<std::shared_ptr<innerobj>>::iterator units_end(void) { return munits.end(); }
+		const std::vector<std::shared_ptr<innerobj>>& get_units() { return munits; }
 		inline bool is_empty(void) const { return munits.size() == 0; }
 		inline bool is_null(void) const { return misnull; }
 
