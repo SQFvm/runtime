@@ -14,9 +14,9 @@ namespace sqf
 		std::string mfile;
 		std::string msegment;
 	public:
-		size_t line(void) { return mline; }
-		size_t col(void) { return mcol; }
-		std::string file(void) { return mfile; }
+		size_t line() { return mline; }
+		size_t col() { return mcol; }
+		std::string file() { return mfile; }
 		enum insttype
 		{
 			push,
@@ -32,6 +32,6 @@ namespace sqf
 		virtual void execute(virtualmachine*) const = 0;
 		void setdbginf(size_t line, size_t col, std::string file, std::string segment);
 		std::string dbginf(std::string tag) const;
-		virtual insttype thistype(void) const = 0;
+		virtual insttype thistype() const = 0;
 	};
 }

@@ -100,12 +100,12 @@ netserver::~netserver()
 }
 
 
-void netserver::force_close(void) {
+void netserver::force_close() {
 	_die = true;
 	networking_close(_socket);
 	_currentThread.join();
 }
-void netserver::wait_accept(void) {
+void netserver::wait_accept() {
 	while (!_accept) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}

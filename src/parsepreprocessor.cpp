@@ -9,7 +9,7 @@ class macro
 private:
 	std::string mname;
 public:
-	std::string name(void) { return mname; }
+	std::string name() { return mname; }
 };
 class pphelper
 {
@@ -17,8 +17,8 @@ private:
 	std::wostream* merr;
 	std::vector<macro> mmacros;
 public:
-	std::wostream& err(void) { return *merr; }
-	std::vector<macro>& macros(void) { return mmacros; }
+	std::wostream& err() { return *merr; }
+	std::vector<macro>& macros() { return mmacros; }
 };
 
 

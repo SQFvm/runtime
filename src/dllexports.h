@@ -16,5 +16,5 @@ extern "C" {
 	DLLEXPORT_PREFIX void sqfvm_init(unsigned long long);
 	DLLEXPORT_PREFIX void sqfvm_exec(const char*, char*, unsigned int);
 	DLLEXPORT_PREFIX void sqfvm_loadconfig(const char* cfg);
-	DLLEXPORT_PREFIX void sqfvm_uninit(void);
+	DLLEXPORT_PREFIX void sqfvm_uninit();
 }

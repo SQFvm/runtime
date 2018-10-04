@@ -9,7 +9,7 @@ namespace sqf
 		{
 		public:
 			virtual void execute(virtualmachine* vm) const;
-			virtual insttype thistype(void) const { return insttype::endstatement; }
+			virtual insttype thistype() const { return insttype::endstatement; }
 		};
 	}
 }

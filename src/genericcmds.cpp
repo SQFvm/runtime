@@ -63,21 +63,21 @@ namespace
 	}
 	std::shared_ptr<value> call_code(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		auto r = std::static_pointer_cast<codedata>(right->data());
+		auto r = right->data<codedata>();
 		r->loadinto(vm, vm->stack());
 		vm->stack()->stacks_top()->setvar("_this", std::make_shared<value>());
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> call_any_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto r = std::static_pointer_cast<codedata>(right->data());
+		auto r = right->data<codedata>();
 		r->loadinto(vm, vm->stack());
 		vm->stack()->stacks_top()->setvar("_this", left);
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> count_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		auto r = std::static_pointer_cast<arraydata>(right->data());
+		auto r = right->data<arraydata>();
 		return std::make_shared<value>(r->size());
 	}
 	std::shared_ptr<value> count_code_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
@@ -134,7 +134,7 @@ namespace
 			}
 			if (el0->dtype() == type::CODE)
 			{
-				auto code = std::static_pointer_cast<codedata>(el0->data());
+				auto code = el0->data<codedata>();
 				code->loadinto(vm, vm->stack());
 				return std::shared_ptr<value>();
 			}
@@ -152,7 +152,7 @@ namespace
 			}
 			if (el1->dtype() == type::CODE)
 			{
-				auto code = std::static_pointer_cast<codedata>(el1->data());
+				auto code = el1->data<codedata>();
 				code->loadinto(vm, vm->stack());
 				return std::shared_ptr<value>();
 			}
@@ -166,7 +166,7 @@ namespace
 	std::shared_ptr<value> then_if_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto ifcond = left->as_bool();
-		auto code = std::static_pointer_cast<codedata>(right->data());
+		auto code = right->data<codedata>();
 		if (ifcond)
 		{
 			code->loadinto(vm, vm->stack());
@@ -180,7 +180,7 @@ namespace
 	std::shared_ptr<value> exitwith_if_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto ifcond = left->as_bool();
-		auto code = std::static_pointer_cast<codedata>(right->data());
+		auto code = right->data<codedata>();
 		if (ifcond)
 		{
 			auto cs = std::make_shared<callstack_exitwith>(vm->stack()->stacks_top()->getnamespace());
@@ -206,8 +206,8 @@ namespace
 	}
 	std::shared_ptr<value> do_while_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto whilecond = std::static_pointer_cast<codedata>(left->data());
-		auto execcode = std::static_pointer_cast<codedata>(right->data());
+		auto whilecond = left->data<codedata>();
+		auto execcode = right->data<codedata>();
 
 		auto cs = std::make_shared<callstack_while>(vm->stack()->stacks_top()->getnamespace(), whilecond, execcode);
 		vm->stack()->pushcallstack(cs);
@@ -221,29 +221,29 @@ namespace
 	}
 	std::shared_ptr<value> from_for_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
+		auto fordata = left->data<sqf::fordata>();
 		auto index = right->as_double();
 		fordata->from(index);
 		return left;
 	}
 	std::shared_ptr<value> to_for_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
+		auto fordata = left->data<sqf::fordata>();
 		auto index = right->as_double();
 		fordata->to(index);
 		return left;
 	}
 	std::shared_ptr<value> step_for_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
+		auto fordata = left->data<sqf::fordata>();
 		auto index = right->as_double();
 		fordata->step(index);
 		return left;
 	}
 	std::shared_ptr<value> do_for_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto fordata = std::static_pointer_cast<sqf::fordata>(left->data());
-		auto execcode = std::static_pointer_cast<codedata>(right->data());
+		auto fordata = left->data<sqf::fordata>();
+		auto execcode = right->data<codedata>();
 
 		auto cs = std::make_shared<callstack_for>(vm->stack()->stacks_top()->getnamespace(), fordata, execcode);
 		vm->stack()->pushcallstack(cs);
@@ -337,7 +337,7 @@ namespace
 		auto arr = left->as_vector();
 		if (arr.size() == 0)
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
-		auto cond = std::static_pointer_cast<codedata>(right->data());
+		auto cond = right->data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_select>(vm->stack()->stacks_top()->getnamespace(), arr, cond);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
@@ -486,9 +486,9 @@ namespace
 	std::shared_ptr<value> apply_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto arr = left->as_vector();
-		if (arr.size() == 0)
+		if (arr.empty())
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
-		auto cond = std::static_pointer_cast<codedata>(right->data());
+		auto cond = right->data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_apply>(vm->stack()->stacks_top()->getnamespace(), arr, cond);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
@@ -563,24 +563,17 @@ namespace
 		auto l = left->data<arraydata>();
 		auto r = right->data<arraydata>();
 		std::vector<std::shared_ptr<value>> result;
-		for (int i = 0; i < l->size(); i++)
-		{
-			auto current = l->at(i);
-			bool keep = true;
-			for (int j = 0; j < r->size(); j++)
-			{
-				auto check = r->at(j);
-				if (value_equals_casesensitive(current, check))
-				{
-					keep = false;
-					break;
-				}
-			}
-			if (keep)
-			{
-				result.insert(result.end(), current);
-			}
-		}
+
+		std::copy_if(l->begin(), l->end(), std::back_inserter(result), [&r, &result](std::shared_ptr<value>& current) {
+
+			auto found = std::find_if(r->begin(), r->end(), [&current](std::shared_ptr<value>& check) {
+				return value_equals_casesensitive(current, check);
+			});
+
+			//We only want element in output if it doesn't exist in right arg
+			return found == r->end();
+		});
+
 		return std::make_shared<value>(result);
 	}
 	std::shared_ptr<value> append_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
@@ -595,38 +588,22 @@ namespace
 		auto r = right->data<arraydata>();
 		std::vector<std::shared_ptr<value>> result;
 
-		for (int i = 0; i < l->size(); i++)
-		{
-			bool add = true;
-			auto current = l->at(i);
-			for (int j = 0; j < result.size(); j++)
-			{
-				auto check = result.at(j);
-				if (value_equals_casesensitive(current, check))
-				{
-					add = false;
-					break;
-				}
-			}
+		std::copy_if(l->begin(), l->end(), std::back_inserter(result), [&r, &result](std::shared_ptr<value>& current) {
+		
+			auto found = std::find_if(result.begin(), result.end(), [&current](std::shared_ptr<value>& check) {
+				return value_equals_casesensitive(current, check);
+			});
 
-			if (!add) continue; 
+			//Result already contains the element. Don't add it (remove duplicates)
+			if (found != result.end()) return false;
 
-			add = false;
-			for (int j = 0; j < r->size(); j++)
-			{
-				auto check = r->at(j);
-				if (value_equals_casesensitive(current, check))
-				{
-					add = true;
-					break;
-				}
-			}
+			found = std::find_if(r->begin(), r->end(), [&current](std::shared_ptr<value>& check) {
+				return value_equals_casesensitive(current, check);
+			});
 
-			if (add)
-			{
-				result.insert(result.end(), current);
-			}
-		}
+			//Only add if right argument also contains the element
+			return found != r->end();
+		});
 
 		return std::make_shared<value>(result);
 	}
@@ -645,13 +622,13 @@ namespace
 	std::shared_ptr<value> find_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->data<arraydata>();
-		for (int i = 0; i < l->size(); i++)
-		{
-			if (value_equals_casesensitive(l->at(i), right))
-			{
-				return std::make_shared<value>(i);
-			}
-		}
+		auto found = std::find_if(l->begin(), l->end(), [&right](std::shared_ptr<value>& check) {
+			return value_equals_casesensitive(check, right);
+		});
+
+		if (found != l->end())
+			return std::make_shared<value>(static_cast<int>(std::distance(l->begin(), found)));
+
 		return std::make_shared<value>(-1);
 	}
 	std::shared_ptr<value> selectmax_array(virtualmachine* vm, std::shared_ptr<value> right)
@@ -986,9 +963,9 @@ namespace
 			vm->err() << "Cannot suspend in non-scheduled environment." << std::endl;
 			return std::shared_ptr<value>();
 		}
-		auto num = right->as_float();
+		auto duration = std::chrono::duration<float>(right->as_float());
 
-		vm->stack()->sleep(num * 1000);
+		vm->stack()->sleep(std::chrono::duration_cast<std::chrono::milliseconds>(duration));
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> cansuspend_(virtualmachine* vm)
@@ -996,7 +973,7 @@ namespace
 		return std::make_shared<value>(vm->stack()->isscheduled());
 	}
 }
-void sqf::commandmap::initgenericcmds(void)
+void sqf::commandmap::initgenericcmds()
 {
 	add(nular("nil", "Nil value. This value can be used to undefine existing variables.", nil_));
 	add(unary("call", sqf::type::CODE, "Executes given set of compiled instructions.", call_code));

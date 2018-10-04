@@ -19,14 +19,14 @@ namespace sqf
 		bool mexecuted;
 	public:
 		switchdata(std::shared_ptr<value> val) : mvalue(val), mflag(false), mexecuted(false) {}
-		virtual std::string tosqf(void) const;
-		inline void flag(bool f) { mflag = f; }
-		inline bool flag(void) { return mflag; }
-		inline void executed(bool f) { mexecuted = f; }
-		inline bool executed(void) { return mexecuted; }
-		inline std::shared_ptr<value> val(void) { return mvalue; }
-		inline void defaultexec(std::shared_ptr<codedata> exec) { mdefaultexec = exec; }
-		inline std::shared_ptr<codedata> defaultexec(void) { return mdefaultexec; }
+		virtual std::string tosqf() const;
+		void flag(bool f) { mflag = f; }
+		bool flag() { return mflag; }
+		void executed(bool f) { mexecuted = f; }
+		bool executed() { return mexecuted; }
+		std::shared_ptr<value> val() { return mvalue; }
+		void defaultexec(std::shared_ptr<codedata> exec) { mdefaultexec = exec; }
+		std::shared_ptr<codedata> defaultexec() { return mdefaultexec; }
 		virtual bool equals(std::shared_ptr<data> d) const { return mvalue == std::dynamic_pointer_cast<switchdata>(d)->mvalue; }
 	};
 }
