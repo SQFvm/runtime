@@ -57,7 +57,7 @@ std::shared_ptr<sqf::binarycmd> sqf::commandmap::find(std::shared_ptr<std::vecto
 	return std::shared_ptr<binarycmd>();
 }
 
-sqf::commandmap& sqf::commandmap::get(void)
+sqf::commandmap& sqf::commandmap::get()
 {
 	static sqf::commandmap map;
 	return map;

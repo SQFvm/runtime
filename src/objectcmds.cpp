@@ -334,7 +334,6 @@ namespace
 	{
 		auto type = left->as_string();
 		auto arr = right->data<arraydata>();
-		std::string init = "";
 		double skill = 0.5;
 		std::string rank = "PRIVATE";
 
@@ -373,7 +372,7 @@ namespace
 			}
 			else
 			{
-				init = arr->at(2)->as_string();
+				std::string init = arr->at(2)->as_string();
 			}
 		}
 		//skill
@@ -555,55 +554,44 @@ namespace
 		auto outputarr = std::make_shared<arraydata>();
 		if (is2ddistance)
 		{
-			auto position2d = std::array<double, 2>{ position[0], position[1] };
-			for (auto it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
+			std::array<double, 2> position2d{ position[0], position[1] };
+			for (auto& object : vm->get_objlist())
 			{
-				if ((*it)->distance2d(position2d) <= radius)
+				if (object->distance2d(position2d) > radius) continue;
+
+				bool match = filterarr->size() == 0 || !vm->perform_classname_checks();
+				if (!match)
 				{
-					bool match = filterarr->size() == 0 || !vm->perform_classname_checks() ? true : false;
-					if (!match)
-					{
-						for (size_t i = 0; i < filterarr->size(); i++)
-						{
-							auto str = filterarr->at(i)->as_string();
-							if ((*it)->iskindof(str))
-							{
-								match = true;
-								break;
-							}
-						}
-					}
-					if (match)
-					{
-						outputarr->push_back(std::make_shared<value>(std::make_shared<objectdata>(*it), OBJECT));
-					}
+					auto found = std::find_if(filterarr->begin(), filterarr->end(), [&object](std::shared_ptr<value>& value) {
+						return object->iskindof(value->as_string());
+					});
+					match = found != filterarr->end();
 				}
+				if (match)
+				{
+					outputarr->push_back(std::make_shared<value>(std::make_shared<objectdata>(object), OBJECT));
+				}
+				
 			}
 			std::sort(outputarr->begin(), outputarr->end(), nearestobjects_distancesort2d(position2d));
 		}
 		else
 		{
-			for (auto it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
+			for (auto& object : vm->get_objlist())
 			{
-				if ((*it)->distance3d(position) <= radius)
+				if (object->distance3d(position) > radius) continue;
+				
+				bool match = filterarr->size() == 0 || !vm->perform_classname_checks();
+				if (!match)
 				{
-					bool match = filterarr->size() == 0 || !vm->perform_classname_checks() ? true : false;
-					if (!match)
-					{
-						for (size_t i = 0; i < filterarr->size(); i++)
-						{
-							auto str = filterarr->at(i)->as_string();
-							if ((*it)->iskindof(str))
-							{
-								match = true;
-								break;
-							}
-						}
-					}
-					if (match)
-					{
-						outputarr->push_back(std::make_shared<value>(std::make_shared<objectdata>(*it), OBJECT));
-					}
+					auto found = std::find_if(filterarr->begin(), filterarr->end(), [&object](std::shared_ptr<value>& value) {
+						return object->iskindof(value->as_string());
+					});
+					match = found != filterarr->end();
+				}
+				if (match)
+				{
+					outputarr->push_back(std::make_shared<value>(std::make_shared<objectdata>(object), OBJECT));
 				}
 			}
 			std::sort(outputarr->begin(), outputarr->end(), nearestobjects_distancesort3d(position));
@@ -624,16 +612,16 @@ namespace
 	std::shared_ptr<value> allunits_(virtualmachine* vm)
 	{
 		auto arr = std::make_shared<arraydata>();
-		for (auto it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
+		for (auto& object : vm->get_objlist())
 		{
-			if ((*it)->is_vehicle())
+			if (object->is_vehicle())
 				continue;
-			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(*it), OBJECT));
+			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(object), OBJECT));
 		}
 		return std::make_shared<value>(arr, ARRAY);
 	}
 }
-void sqf::commandmap::initobjectcmds(void)
+void sqf::commandmap::initobjectcmds()
 {
 	//GetVariable & SetVariable & AllVariables are in namespacecmds as simple alias.
 	add(nular("allUnits", "Return a list of all units (all persons except agents) outside and inside vehicles.", allunits_));

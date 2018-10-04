@@ -30,9 +30,9 @@ namespace
 	{
 		auto grp = right->data<groupdata>();
 		auto arr = std::make_shared<arraydata>();
-		for (auto it = grp->units_begin(); it != grp->units_end(); it++)
+		for (auto& unit : grp->get_units())
 		{
-			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(*it), OBJECT));
+			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(unit), OBJECT));
 		}
 		return std::make_shared<value>(arr, ARRAY);
 	}
@@ -40,13 +40,11 @@ namespace
 	{
 		auto grp = right->data<objectdata>()->obj()->group();
 		auto arr = std::make_shared<arraydata>();
-		if (grp.get())
-		{
-			for (auto it = grp->units_begin(); it != grp->units_end(); it++)
+		if (grp)
+			for (auto& unit : grp->get_units())
 			{
-				arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(*it), OBJECT));
+				arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(unit), OBJECT));
 			}
-		}
 		return std::make_shared<value>(arr, ARRAY);
 	}
 	std::shared_ptr<value> deletegroup_group(virtualmachine* vm, std::shared_ptr<value> right)
@@ -73,7 +71,7 @@ namespace
 		return std::make_shared<value>(grp->side(), SIDE);
 	}
 }
-void sqf::commandmap::initgroupcmds(void)
+void sqf::commandmap::initgroupcmds()
 {
 	//GetVariable & SetVariable & AllVariables are in namespacecmds as simple alias.
 	add(nular("blufor", "Western side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::West), type::SIDE); }));

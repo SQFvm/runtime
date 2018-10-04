@@ -23,8 +23,8 @@ std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string varname)
 	return std::make_shared<sqf::value>();
 }
 
-void sqf::vmstack::sleep(long long ms)
+void sqf::vmstack::sleep(std::chrono::milliseconds ms)
 {
-	mwakeupstamp = sqf::virtualmachine::system_time_ms() + ms;
+	mwakeupstamp = sqf::virtualmachine::system_time() + ms;
 	misasleep = true;
 }

@@ -24,7 +24,7 @@
 
 
 
-int console_width(void)
+int console_width()
 {
 #if _WIN32
 	CONSOLE_SCREEN_BUFFER_INFO csbi;

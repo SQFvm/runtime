@@ -2,7 +2,7 @@
 #include "value.h"
 #include <sstream>
 
-std::shared_ptr<sqf::value> sqf::configdata::parent_unsafe(void)
+std::shared_ptr<sqf::value> sqf::configdata::parent_unsafe()
 {
 	std::weak_ptr<configdata> lparent = mlogicparent;
 	while (!lparent.expired())
@@ -51,7 +51,7 @@ std::shared_ptr<sqf::value> sqf::configdata::navigate_full_unsafe(std::string ne
 	}
 }
 
-std::string sqf::configdata::tosqf(void) const
+std::string sqf::configdata::tosqf() const
 {
 	std::stringstream sstream;
 	for (size_t i = logicalparentcount(); i != (size_t)~0; i--)
@@ -70,7 +70,7 @@ std::string sqf::configdata::tosqf(void) const
 	return sstream.str();
 }
 
-std::shared_ptr<sqf::value> sqf::configdata::logicparent(void)
+std::shared_ptr<sqf::value> sqf::configdata::logicparent()
 {
 	return mlogicparent.expired() ? configNull() : std::make_shared<sqf::value>(mlogicparent.lock(), type::CONFIG);
 }
@@ -94,13 +94,13 @@ void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 	}
 }
 
-std::shared_ptr<sqf::value> sqf::configdata::configFile(void)
+std::shared_ptr<sqf::value> sqf::configdata::configFile()
 {
 	static std::shared_ptr<sqf::configdata> cdata = std::make_shared<sqf::configdata>();
 	return std::make_shared<sqf::value>(cdata, sqf::type::CONFIG);
 }
 
-std::shared_ptr<sqf::value> sqf::configdata::configNull(void)
+std::shared_ptr<sqf::value> sqf::configdata::configNull()
 {
 	static std::shared_ptr<sqf::configdata> cdata = std::make_shared<sqf::configdata>("");
 	return std::make_shared<sqf::value>(cdata, sqf::type::CONFIG);

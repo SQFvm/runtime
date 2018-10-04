@@ -153,23 +153,23 @@ namespace
 	{
 		return right;
 	}
-	inline double dotProduct(std::array<double, 3> left, std::array<double, 3> right)
+	double dotProduct(std::array<double, 3> left, std::array<double, 3> right)
 	{
 		return left[0] * right[0] + left[1] * right[1] + left[2] * right[2];
 	}
-	inline double vectorMagnitudeSqr(std::array<double, 3> arr)
+	double vectorMagnitudeSqr(std::array<double, 3> arr)
 	{
 		return std::pow(arr[0], 2) + std::pow(arr[1], 2) + std::pow(arr[2], 2);
 	}
-	inline double vectorMagnitude(std::array<double, 3> arr)
+	double vectorMagnitude(std::array<double, 3> arr)
 	{
 		return std::sqrt(vectorMagnitudeSqr(arr));
 	}
-	inline double vectorDistanceSqr(std::array<double, 3> left, std::array<double, 3> right)
+	double vectorDistanceSqr(std::array<double, 3> left, std::array<double, 3> right)
 	{
 		return std::pow(left[0] - right[0], 2) + std::pow(left[1] - right[1], 2) + std::pow(left[2] - right[2], 2);
 	}
-	inline double vectorDistance(std::array<double, 3> left, std::array<double, 3> right)
+	double vectorDistance(std::array<double, 3> left, std::array<double, 3> right)
 	{
 		return std::sqrt(vectorDistanceSqr(left, right));
 	}
@@ -344,7 +344,7 @@ namespace
 	}
 }
 
-void sqf::commandmap::initmathcmds(void)
+void sqf::commandmap::initmathcmds()
 {
 	add(unary("abs", sqf::type::SCALAR, "Absolute value of a real number", abs_scalar));
 	add(binary(7, "atan2", sqf::type::SCALAR, sqf::type::SCALAR, "ArcTangent of x/y. Used to determine the angle of a vector [x,y]. Result in Degrees between -180 and 180. Note that this command can handle y being 0, unlike when using atan, and will return 90", atan2_scalar_scalar));

@@ -106,7 +106,7 @@ namespace
 	}
 }
 
-void sqf::commandmap::initlogiccmds(void)
+void sqf::commandmap::initlogiccmds()
 {
 	add(nular("true", "Always true.", true_));
 	add(nular("false", "Always false.", false_));

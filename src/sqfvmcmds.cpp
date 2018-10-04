@@ -202,10 +202,9 @@ namespace
 	std::shared_ptr<value> allObjects__(virtualmachine* vm)
 	{
 		auto arr = std::make_shared<arraydata>();
-		for (auto it = vm->get_objlist_iterator_begin(); it != vm->get_objlist_iterator_end(); it++)
+		for (auto& object : vm->get_objlist())
 		{
-			auto veh = *it;
-			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(veh), OBJECT));
+			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(object), OBJECT));
 		}
 		return std::make_shared<value>(arr, ARRAY);
 	}
@@ -221,7 +220,7 @@ namespace
 		return std::make_shared<value>();
 	}
 }
-void sqf::commandmap::initsqfvmcmds(void)
+void sqf::commandmap::initsqfvmcmds()
 {
 	add(unary("tree__", sqf::type::STRING, "Returns a string containing the abstract syntax tree for the provided SQF expression.", tree___string));
 	add(nular("cmds__", "Returns an array containing all commands available.", cmds___));

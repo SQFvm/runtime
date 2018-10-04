@@ -49,7 +49,7 @@ public:
 	{
 		close();
 	}
-	std::string path(void) { return mpath; }
+	std::string path() { return mpath; }
 
 	void* resolve(std::string name)
 	{
@@ -79,7 +79,7 @@ public:
 			return true;
 		}
 	}
-	void close(void)
+	void close()
 	{
 		if (0 == handle)
 			return;

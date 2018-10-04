@@ -50,5 +50,5 @@
 
 #define ENVIRONMENTSTR STR(ENVIRONMENT)
 
-int console_width(void);
+int console_width();
 int main(int argc, char** argv);

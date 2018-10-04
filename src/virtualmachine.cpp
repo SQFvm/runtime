@@ -29,8 +29,6 @@
 #include <iostream>
 #include <cwctype>
 #include <sstream>
-#include <ctime>
-#include <sys/timeb.h>
 
 
 sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
@@ -67,7 +65,7 @@ void sqf::virtualmachine::execute()
 			mactivestack = it->stack();
 			if (mallowsleep && mactivestack->isasleep())
 			{
-				if (mactivestack->get_wakeupstamp() <= virtualmachine::system_time_ms())
+				if (mactivestack->get_wakeupstamp() <= virtualmachine::system_time())
 				{
 					mactivestack->wakeup();
 				}
@@ -614,17 +612,9 @@ void sqf::virtualmachine::drop_group(std::shared_ptr<sqf::groupdata> grp)
 		}
 	}
 }
-long long sqf::virtualmachine::system_time_ms(void)
+std::chrono::system_clock::time_point sqf::virtualmachine::system_time()
 {
-#ifdef _WIN32
-	struct _timeb timebuffer;
-	_ftime(&timebuffer);
-	return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
-#else
-	struct timeb timebuffer;
-	ftime(&timebuffer);
-	return (int64_t)(((timebuffer.time * 1000) + timebuffer.millitm));
-#endif
+	return std::chrono::system_clock::now();
 }
 //std::string sqf::virtualmachine::preprocess_file(std::string inputfile)
 //{
