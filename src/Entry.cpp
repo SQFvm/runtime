@@ -164,8 +164,15 @@ int main(int argc, char** argv)
 		dbg = new sqf::debugger((srv = new netserver(serverPort)));
 		vm.dbg(dbg);
 		std::cout << "Waiting for client to connect..." << std::endl;
-		srv->wait_accept();
-		std::cout << "Client connected!" << std::endl;
+		try
+		{
+			srv->wait_accept();
+			std::cout << "Client connected!" << std::endl;
+		}
+		catch (std::runtime_error err)
+		{
+			std::cout << err.what() << std::endl;
+		}
 	}
 	do
 	{

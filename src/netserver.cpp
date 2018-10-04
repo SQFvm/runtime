@@ -75,7 +75,7 @@ bool netserver::send_queue(SOCKET client)
 	return flag;
 }
 
-netserver::netserver(unsigned short port) : _port(port), builder(), _accept(false)
+netserver::netserver(unsigned short port) : _port(port), builder(), _die(false), _accept(false)
 {
 	if (networking_create_server(&_socket))
 	{
@@ -106,7 +106,12 @@ void netserver::force_close(void) {
 	_currentThread.join();
 }
 void netserver::wait_accept(void) {
-	while (!_accept) {
+	while (!_accept)
+	{
+		if (_die)
+		{
+			throw new std::runtime_error("server died");
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 }
