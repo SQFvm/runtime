@@ -53,10 +53,8 @@ bool sqf::innerobj::iskindof(std::string cfgname)
 
 void sqf::innerobj::destroy(sqf::virtualmachine * vm)
 {
-	if (mgroup.get())
-	{
+	if (mgroup)
 		mgroup->drop_unit(shared_from_this());
-	}
 	vm->drop_obj(this);
 }
 

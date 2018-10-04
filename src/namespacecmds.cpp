@@ -14,7 +14,7 @@ namespace
 {
 	std::shared_ptr<value> allvariables_namespace(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		auto r = std::dynamic_pointer_cast<varscope>(right->data());
+		auto r = right->data_try_as<sqfnamespace>();
 		std::vector<std::shared_ptr<value>> arr(r->varmap().size());
 		transform(r->varmap().begin(), r->varmap().end(), arr.begin(), [](auto pair) { return std::make_shared<value>(pair.first); });
 		return std::make_shared<value>(arr);
@@ -26,22 +26,22 @@ namespace
 	}
 	std::shared_ptr<value> do_with_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto l = std::static_pointer_cast<sqfnamespace>(left->data());
-		auto r = std::static_pointer_cast<codedata>(right->data());
+		auto l = left->data<sqfnamespace>();
+		auto r = right->data<codedata>();
 		auto cs = std::make_shared<callstack>(l);
 		r->loadinto(vm, vm->stack());
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> getVariable_namespace_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto l = std::dynamic_pointer_cast<varscope>(left->data());
+		auto l = left->data_try_as<sqfnamespace>();
 		auto r = right->as_string();
 		auto var = l->getvar_empty(r);
 		return var;
 	}
 	std::shared_ptr<value> getVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto l = std::dynamic_pointer_cast<varscope>(left->data());
+		auto l = left->data_try_as<sqfnamespace>();
 		auto r = right->as_vector();
 		if (r.size() != 2)
 		{
@@ -59,7 +59,7 @@ namespace
 	}
 	std::shared_ptr<value> setVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto l = std::dynamic_pointer_cast<varscope>(left->data());
+		auto l = left->data_try_as<sqfnamespace>();
 		auto r = right->as_vector();
 		if (r.size() != 2 && r.size() != 3)
 		{
