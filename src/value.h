@@ -47,15 +47,15 @@ namespace sqf
 		operator std::vector<std::shared_ptr<sqf::value>>() const;
 		operator type() const { return mtype; }
 
-		inline float as_float() const { return *this; }
-		inline double as_double() const { return *this; }
-		inline char as_char() const { return *this; }
-		inline short as_short() const { return *this; }
-		inline int as_int() const { return *this; }
-		inline long as_long() const { return *this; }
-		inline bool as_bool() const { return *this; }
-		inline std::string as_string() const { return *this; }
-		inline std::vector<std::shared_ptr<sqf::value>> as_vector() const { return *this; }
+		float as_float() const { return *this; }
+		double as_double() const { return *this; }
+		char as_char() const { return *this; }
+		short as_short() const { return *this; }
+		int as_int() const { return *this; }
+		long as_long() const { return *this; }
+		bool as_bool() const { return *this; }
+		std::string as_string() const { return *this; }
+		std::vector<std::shared_ptr<sqf::value>> as_vector() const { return *this; }
 		type dtype() const { return *this; }
 		std::shared_ptr<sqf::data> data() const { return mdata; }
 
@@ -72,8 +72,8 @@ namespace sqf
 		}
 		bool equals(std::shared_ptr<sqf::value> v) const { return mtype == v->mtype ? mdata->equals(v->mdata) : false; }
 
-		inline std::string tosqf() { return mdata.get() ? mdata->tosqf() : mtype == type::NOTHING ? std::string("ni") : mtype == type::ANY ? std::string("any") : std::string(); }
-		inline void convert(type type)
+		std::string tosqf() { return mdata.get() ? mdata->tosqf() : mtype == type::NOTHING ? std::string("ni") : mtype == type::ANY ? std::string("any") : std::string(); }
+		void convert(type type)
 		{
 			if (mtype == type)
 				return;

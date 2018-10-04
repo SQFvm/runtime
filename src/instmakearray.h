@@ -13,7 +13,7 @@ namespace sqf
 			makearray(size_t size) { msize = size; }
 			virtual void execute(virtualmachine* vm) const;
 			virtual insttype thistype() const { return insttype::makearray; }
-			inline size_t size() { return msize; }
+			size_t size() { return msize; }
 		};
 	}
 }

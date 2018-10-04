@@ -39,7 +39,7 @@ namespace sqf
 		}
 
 	public:
-		inline void init()
+		void init()
 		{
 			initmathcmds();
 			initnamespacecmds();
@@ -82,7 +82,7 @@ namespace sqf
 
 		static sqf::commandmap& get();
 
-		inline void uninit()
+		void uninit()
 		{
 			get().mnularcmd.clear();
 			get().munarycmd.clear();

@@ -153,23 +153,23 @@ namespace
 	{
 		return right;
 	}
-	inline double dotProduct(std::array<double, 3> left, std::array<double, 3> right)
+	double dotProduct(std::array<double, 3> left, std::array<double, 3> right)
 	{
 		return left[0] * right[0] + left[1] * right[1] + left[2] * right[2];
 	}
-	inline double vectorMagnitudeSqr(std::array<double, 3> arr)
+	double vectorMagnitudeSqr(std::array<double, 3> arr)
 	{
 		return std::pow(arr[0], 2) + std::pow(arr[1], 2) + std::pow(arr[2], 2);
 	}
-	inline double vectorMagnitude(std::array<double, 3> arr)
+	double vectorMagnitude(std::array<double, 3> arr)
 	{
 		return std::sqrt(vectorMagnitudeSqr(arr));
 	}
-	inline double vectorDistanceSqr(std::array<double, 3> left, std::array<double, 3> right)
+	double vectorDistanceSqr(std::array<double, 3> left, std::array<double, 3> right)
 	{
 		return std::pow(left[0] - right[0], 2) + std::pow(left[1] - right[1], 2) + std::pow(left[2] - right[2], 2);
 	}
-	inline double vectorDistance(std::array<double, 3> left, std::array<double, 3> right)
+	double vectorDistance(std::array<double, 3> left, std::array<double, 3> right)
 	{
 		return std::sqrt(vectorDistanceSqr(left, right));
 	}

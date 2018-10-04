@@ -63,46 +63,46 @@ namespace sqf
 		bool mperformclassnamechecks;
 	public:
 		const std::vector<std::shared_ptr<innerobj>>& get_objlist() { return mobjlist; }
-		inline std::shared_ptr<sqf::sqfnamespace> missionnamespace() { return mmissionnamespace; }
-		inline std::shared_ptr<sqf::sqfnamespace> uinamespace() { return muinamespace; }
-		inline std::shared_ptr<sqf::sqfnamespace> parsingnamespace() { return mparsingnamespace; }
-		inline std::shared_ptr<sqf::sqfnamespace> profilenamespace() { return mprofilenamespace; }
-		inline std::stringstream& out() { /* on purpose */((virtualmachine*)this)->moutflag = true; return mout_buff; }
-		inline std::stringstream& err() { /* on purpose */((virtualmachine*)this)->merrflag = true; return merr_buff; }
-		inline std::stringstream& wrn() { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return mwrn_buff; }
-		inline void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
-		inline void out_buffprint() { (*mout) << mout_buff.str(); mout_buff.str(std::string()); }
-		inline void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
-		inline void err_buffprint() { (*merr) << merr_buff.str(); merr_buff.str(std::string()); }
-		inline void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }
-		inline void wrn_buffprint() { (*mwrn) << mwrn_buff.str(); mwrn_buff.str(std::string()); }
+		std::shared_ptr<sqf::sqfnamespace> missionnamespace() { return mmissionnamespace; }
+		std::shared_ptr<sqf::sqfnamespace> uinamespace() { return muinamespace; }
+		std::shared_ptr<sqf::sqfnamespace> parsingnamespace() { return mparsingnamespace; }
+		std::shared_ptr<sqf::sqfnamespace> profilenamespace() { return mprofilenamespace; }
+		std::stringstream& out() { /* on purpose */((virtualmachine*)this)->moutflag = true; return mout_buff; }
+		std::stringstream& err() { /* on purpose */((virtualmachine*)this)->merrflag = true; return merr_buff; }
+		std::stringstream& wrn() { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return mwrn_buff; }
+		void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
+		void out_buffprint() { (*mout) << mout_buff.str(); mout_buff.str(std::string()); }
+		void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
+		void err_buffprint() { (*merr) << merr_buff.str(); merr_buff.str(std::string()); }
+		void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }
+		void wrn_buffprint() { (*mwrn) << mwrn_buff.str(); mwrn_buff.str(std::string()); }
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
 		void execute();
-		inline std::shared_ptr<sqf::vmstack> stack() const { return mactivestack; }
+		std::shared_ptr<sqf::vmstack> stack() const { return mactivestack; }
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
-		inline void exitflag(bool flag) { mexitflag = flag; }
-		inline bool exitflag() { return mexitflag; }
+		void exitflag(bool flag) { mexitflag = flag; }
+		bool exitflag() { return mexitflag; }
 
 		bool perform_classname_checks() { return mperformclassnamechecks; }
 		void perform_classname_checks(bool f) { mperformclassnamechecks = f; }
 
-		inline marker* get_marker(std::string key) { return mmarkers.find(key) == mmarkers.end() ? nullptr : &mmarkers[key]; }
-		inline void set_marker(std::string key, marker m) { mmarkers[key] = m; }
-		inline void remove_marker(std::string key) { mmarkers.erase(key); }
+		marker* get_marker(std::string key) { return mmarkers.find(key) == mmarkers.end() ? nullptr : &mmarkers[key]; }
+		void set_marker(std::string key, marker m) { mmarkers[key] = m; }
+		void remove_marker(std::string key) { mmarkers.erase(key); }
 		const std::map<std::string, sqf::marker>& get_markers() { return mmarkers; }
 
 		void parse_assembly(std::string);
 		void parse_sqf(std::string, std::stringstream*);
-		inline void parse_sqf(std::string code, std::string filepath = "") { parse_sqf(stack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
-		inline void parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { parse_sqf(stack(), str, cs, filepath); }
+		void parse_sqf(std::string code, std::string filepath = "") { parse_sqf(stack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
+		void parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { parse_sqf(stack(), str, cs, filepath); }
 		void parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>, std::string = "");
 		void pretty_print_sqf(std::string code);
 		void parse_config(std::string, std::shared_ptr<configdata>);
 		bool errflag() const { return merrflag; }
 		bool wrnflag() const { return mwrnflag; }
 		std::vector<std::shared_ptr<dlops>>& libraries() { return mlibraries; }
-		inline bool allowsleep() const { return mallowsleep; }
+		bool allowsleep() const { return mallowsleep; }
 		void allowsleep(bool flag) { mallowsleep = flag; }
 
 		debugger* dbg() { return _debugger; }
@@ -114,7 +114,7 @@ namespace sqf
 		std::string get_group_id(std::shared_ptr<sqf::sidedata>);
 		void push_group(std::shared_ptr<sqf::groupdata>);
 		void drop_group(std::shared_ptr<sqf::groupdata>);
-		inline void push_spawn(std::shared_ptr<scriptdata> scrpt) { mspawns.push_back(scrpt); }
+		void push_spawn(std::shared_ptr<scriptdata> scrpt) { mspawns.push_back(scrpt); }
 		static std::chrono::system_clock::time_point system_time();
 	};
 }

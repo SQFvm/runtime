@@ -25,13 +25,13 @@ namespace sqf
 		operator sidedata::eside() const { return mside->side(); }
 		std::shared_ptr<sidedata> side() const { return mside; }
 		virtual bool equals(std::shared_ptr<data> d) const { return this == d.get(); }
-		inline std::string groupid() { return mgroupid; }
-		inline void groupid(std::string id) { mgroupid = id; }
+		std::string groupid() { return mgroupid; }
+		void groupid(std::string id) { mgroupid = id; }
 		virtual std::string tosqf() const { return mgroupid; }
 
 		const std::vector<std::shared_ptr<innerobj>>& get_units() { return munits; }
-		inline bool is_empty() const { return munits.size() == 0; }
-		inline bool is_null() const { return misnull; }
+		bool is_empty() const { return munits.size() == 0; }
+		bool is_null() const { return misnull; }
 
 		static std::shared_ptr<sqf::groupdata> create();
 		static std::shared_ptr<sqf::groupdata> create(sqf::virtualmachine* vm, std::shared_ptr<sqf::sidedata> side);
