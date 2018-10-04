@@ -340,7 +340,7 @@ namespace
 	}
 }
 
-void sqf::commandmap::initmarkercmds(void)
+void sqf::commandmap::initmarkercmds()
 {
 	add(nular("allMapMarkers", "Return all markers.", allmapmarkers_));
 	add(unary("getMarkerType", type::STRING, "Returns the type of a given marker. See CfgMarkers.", getmarkertype_string));

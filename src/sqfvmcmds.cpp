@@ -220,7 +220,7 @@ namespace
 		return std::make_shared<value>();
 	}
 }
-void sqf::commandmap::initsqfvmcmds(void)
+void sqf::commandmap::initsqfvmcmds()
 {
 	add(unary("tree__", sqf::type::STRING, "Returns a string containing the abstract syntax tree for the provided SQF expression.", tree___string));
 	add(nular("cmds__", "Returns an array containing all commands available.", cmds___));

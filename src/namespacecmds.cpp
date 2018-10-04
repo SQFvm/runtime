@@ -77,7 +77,7 @@ namespace
 		return std::make_shared<value>();
 	}
 }
-void sqf::commandmap::initnamespacecmds(void)
+void sqf::commandmap::initnamespacecmds()
 {
 	add(nular("missionNamespace", "Returns the global namespace attached to mission.",
 		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->missionnamespace(), sqf::type::NAMESPACE); }));

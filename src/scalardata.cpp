@@ -4,7 +4,7 @@
 
 int sqf::scalardata::decimals = -1;
 
-std::string sqf::scalardata::tosqf(void) const
+std::string sqf::scalardata::tosqf() const
 {
 	if (decimals == -1)
 	{

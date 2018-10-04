@@ -14,7 +14,7 @@ namespace sqf
 		public:
 			push(std::shared_ptr<value> val) { mvalue = val; }
 			virtual void execute(virtualmachine* vm) const;
-			virtual insttype thistype(void) const { return insttype::push; }
+			virtual insttype thistype() const { return insttype::push; }
 		};
 	}
 }

@@ -25,7 +25,7 @@ namespace sqf
 		std::shared_ptr<value> getvar(std::string key);
 		inline bool containsvar(std::string key) { auto it = mvarmap.find(tolowerstring(key)); return it != mvarmap.end(); }
 		inline void setscopename(std::string newname) { mscopename = newname; }
-		inline std::string getscopename(void) { return mscopename; }
-		inline const std::map<std::string, std::shared_ptr<value>>& varmap(void) const { return mvarmap; }
+		inline std::string getscopename() { return mscopename; }
+		inline const std::map<std::string, std::shared_ptr<value>>& varmap() const { return mvarmap; }
 	};
 }

@@ -12,7 +12,7 @@ extern "C" {
 
 
 
-int networking_init(void)
+int networking_init()
 {
 	static unsigned char flag = 0;
 	if (flag)
@@ -28,7 +28,7 @@ int networking_init(void)
 #endif
 }
 
-int networking_cleanup(void)
+int networking_cleanup()
 {
 #ifdef WIN32
 	return WSACleanup();

@@ -13,7 +13,7 @@ namespace sqf
 		public:
 			assigntolocal(std::string varname) { mvarname = varname; }
 			virtual void execute(virtualmachine*) const;
-			virtual insttype thistype(void) const { return insttype::assigntolocal; }
+			virtual insttype thistype() const { return insttype::assigntolocal; }
 		};
 	}
 }

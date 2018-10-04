@@ -13,7 +13,7 @@ namespace sqf
 		public:
 			assignto(std::string varname) { mvarname = varname; }
 			virtual void execute(virtualmachine*) const;
-			virtual insttype thistype(void) const { return insttype::assignto; }
+			virtual insttype thistype() const { return insttype::assignto; }
 		};
 	}
 }

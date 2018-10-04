@@ -27,7 +27,7 @@ namespace sqf
 				bool(*contains_binary)(std::string, short),
 				short(*precedence)(std::string)
 			) : merr(err), mdbgsegmentcb(dbgsegment), mcontains_nular(contains_nular), mcontains_unary(contains_unary), mcontains_binary(contains_binary), mprecedence(precedence) {}
-			std::ostream& err(void) { return *merr; }
+			std::ostream& err() { return *merr; }
 			std::string dbgsegment(const char* full, size_t off, size_t length) { return mdbgsegmentcb(full, off, length); }
 			bool contains_nular(std::string s) { return mcontains_nular(s); }
 			bool contains_unary(std::string s) { return mcontains_unary(s); }

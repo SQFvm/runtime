@@ -19,18 +19,18 @@ namespace sqf
 		std::unordered_map<std::string, std::shared_ptr<nularcmd>> mnularcmd;
 		std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>> munarycmd;
 		std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>> mbinarycmd;
-		void initmathcmds(void);
-		void initnamespacecmds(void);
-		void initgenericcmds(void);
-		void initdiagcmdss(void);
-		void initsqfvmcmds(void);
-		void initlogiccmds(void);
-		void initstringcmds(void);
-		void initunimplemented(void);
-		void initconfigcmds(void);
-		void initgroupcmds(void);
-		void initobjectcmds(void);
-		void initmarkercmds(void);
+		void initmathcmds();
+		void initnamespacecmds();
+		void initgenericcmds();
+		void initdiagcmdss();
+		void initsqfvmcmds();
+		void initlogiccmds();
+		void initstringcmds();
+		void initunimplemented();
+		void initconfigcmds();
+		void initgroupcmds();
+		void initobjectcmds();
+		void initmarkercmds();
 
 		std::string tolowerstring(std::string s)
 		{
@@ -39,7 +39,7 @@ namespace sqf
 		}
 
 	public:
-		inline void init(void)
+		inline void init()
 		{
 			initmathcmds();
 			initnamespacecmds();
@@ -76,13 +76,13 @@ namespace sqf
 		bool contains_b(std::string name) { return mbinarycmd.find(tolowerstring(name)) != mbinarycmd.end(); }
 
 
-		const std::unordered_map<std::string, std::shared_ptr<nularcmd>>& all_n(void) { return mnularcmd; }
-		const std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>>&  all_u(void) { return munarycmd; }
-		const std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>>&  all_b(void) { return mbinarycmd; }
+		const std::unordered_map<std::string, std::shared_ptr<nularcmd>>& all_n() { return mnularcmd; }
+		const std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>>&  all_u() { return munarycmd; }
+		const std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>>&  all_b() { return mbinarycmd; }
 
-		static sqf::commandmap& get(void);
+		static sqf::commandmap& get();
 
-		inline void uninit(void)
+		inline void uninit()
 		{
 			get().mnularcmd.clear();
 			get().munarycmd.clear();

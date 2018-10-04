@@ -24,7 +24,7 @@ namespace sqf
 	private:
 		eside mside;
 	public:
-		virtual std::string tosqf(void) const
+		virtual std::string tosqf() const
 		{
 			switch (mside)
 			{

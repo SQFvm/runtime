@@ -621,7 +621,7 @@ namespace
 		return std::make_shared<value>(arr, ARRAY);
 	}
 }
-void sqf::commandmap::initobjectcmds(void)
+void sqf::commandmap::initobjectcmds()
 {
 	//GetVariable & SetVariable & AllVariables are in namespacecmds as simple alias.
 	add(nular("allUnits", "Return a list of all units (all persons except agents) outside and inside vehicles.", allunits_));

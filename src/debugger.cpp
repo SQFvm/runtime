@@ -13,14 +13,14 @@
 namespace {
 	class srvmessage {
 	public:
-		virtual std::string serialize(void) = 0;
-		operator std::string(void) { return serialize(); }
+		virtual std::string serialize() = 0;
+		operator std::string() { return serialize(); }
 	};
 	class simplemessage : public srvmessage {
 		std::string _msg;
 	public:
 		simplemessage(std::string msg) : _msg(msg) {}
-		std::string serialize(void) {
+		std::string serialize() {
 			nlohmann::json json = {
 				{ "mode", "message" },
 			{ "data", _msg }
@@ -32,7 +32,7 @@ namespace {
 		std::string _msg;
 	public:
 		errormsg(std::string msg) : _msg(msg) {}
-		std::string serialize(void) {
+		std::string serialize() {
 			nlohmann::json json = {
 				{ "mode", "error" },
 				{ "data", _msg }
@@ -44,7 +44,7 @@ namespace {
 		sqf::debugger::srvstatus _status;
 	public:
 		statusupdate(sqf::debugger::srvstatus status) : _status(status) {}
-		std::string serialize(void) {
+		std::string serialize() {
 			nlohmann::json json;
 			json["mode"] = "status";
 			switch (_status)
@@ -69,7 +69,7 @@ namespace {
 		std::shared_ptr<sqf::vmstack> _stack;
 	public:
 		callstackmsg(std::shared_ptr<sqf::vmstack> stack) : _stack(stack) {}
-		std::string serialize(void) {
+		std::string serialize() {
 			nlohmann::json data;
 			int lvl = 0;
 			for (auto it = _stack->stacks_begin(); it != _stack->stacks_end(); it++)
@@ -116,7 +116,7 @@ namespace {
 		nlohmann::json _data;
 	public:
 		variablemsg(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmstack> stack, nlohmann::json data) : _stack(stack), _data(data), _vm(vm) {}
-		std::string serialize(void) {
+		std::string serialize() {
 			auto data = nlohmann::json::array();
 			for (auto it = _data.begin(); it != _data.end(); it++)
 			{
@@ -176,7 +176,7 @@ namespace {
 		std::string _file;
 	public:
 		positionmsg(size_t line, size_t col, std::string file) : _line(line), _col(col), _file(file) {}
-		std::string serialize(void) {
+		std::string serialize() {
 			nlohmann::json json = { { "mode", "position" }, { "data", { { "line", _line }, { "col", _col }, { "file", _file } } } };
 			return json.dump();
 		}

@@ -14,7 +14,7 @@ namespace sqf
 		public:
 			callnular(std::shared_ptr<sqf::nularcmd> cmd) { mcmd = cmd; }
 			virtual void execute(virtualmachine*) const;
-			virtual insttype thistype(void) const { return insttype::callnular; }
+			virtual insttype thistype() const { return insttype::callnular; }
 		};
 	}
 }

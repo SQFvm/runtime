@@ -35,12 +35,12 @@ public:
 	netserver(unsigned short port);
 	~netserver();
 
-	std::string next_message(void) { _inLock.lock(); auto str = _messageQueueIn.back(); _messageQueueIn.pop(); _inLock.unlock(); return str; }
-	bool has_message(void) { return !_messageQueueIn.empty(); }
-	void request_close(void) { _die = true; }
-	void force_close(void);
-	void wait_accept(void);
-	bool is_accept(void) { return _accept; }
+	std::string next_message() { _inLock.lock(); auto str = _messageQueueIn.back(); _messageQueueIn.pop(); _inLock.unlock(); return str; }
+	bool has_message() { return !_messageQueueIn.empty(); }
+	void request_close() { _die = true; }
+	void force_close();
+	void wait_accept();
+	bool is_accept() { return _accept; }
 
 	void push_message(std::string str) { _outLock.lock(); _messageQueueOut.push(str); _outLock.unlock(); }
 };

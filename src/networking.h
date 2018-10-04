@@ -24,8 +24,8 @@ extern "C" {
 
 	//https://stackoverflow.com/questions/28027937/cross-platform-sockets
 
-	int networking_init(void);
-	int networking_cleanup(void);
+	int networking_init();
+	int networking_cleanup();
 
 
 	int networking_close(SOCKET);

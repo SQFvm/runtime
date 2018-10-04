@@ -63,28 +63,28 @@ namespace sqf
 		bool mperformclassnamechecks;
 	public:
 		const std::vector<std::shared_ptr<innerobj>>& get_objlist() { return mobjlist; }
-		inline std::shared_ptr<sqf::sqfnamespace> missionnamespace(void) { return mmissionnamespace; }
-		inline std::shared_ptr<sqf::sqfnamespace> uinamespace(void) { return muinamespace; }
-		inline std::shared_ptr<sqf::sqfnamespace> parsingnamespace(void) { return mparsingnamespace; }
-		inline std::shared_ptr<sqf::sqfnamespace> profilenamespace(void) { return mprofilenamespace; }
-		inline std::stringstream& out(void) { /* on purpose */((virtualmachine*)this)->moutflag = true; return mout_buff; }
-		inline std::stringstream& err(void) { /* on purpose */((virtualmachine*)this)->merrflag = true; return merr_buff; }
-		inline std::stringstream& wrn(void) { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return mwrn_buff; }
+		inline std::shared_ptr<sqf::sqfnamespace> missionnamespace() { return mmissionnamespace; }
+		inline std::shared_ptr<sqf::sqfnamespace> uinamespace() { return muinamespace; }
+		inline std::shared_ptr<sqf::sqfnamespace> parsingnamespace() { return mparsingnamespace; }
+		inline std::shared_ptr<sqf::sqfnamespace> profilenamespace() { return mprofilenamespace; }
+		inline std::stringstream& out() { /* on purpose */((virtualmachine*)this)->moutflag = true; return mout_buff; }
+		inline std::stringstream& err() { /* on purpose */((virtualmachine*)this)->merrflag = true; return merr_buff; }
+		inline std::stringstream& wrn() { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return mwrn_buff; }
 		inline void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
-		inline void out_buffprint(void) { (*mout) << mout_buff.str(); mout_buff.str(std::string()); }
+		inline void out_buffprint() { (*mout) << mout_buff.str(); mout_buff.str(std::string()); }
 		inline void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
-		inline void err_buffprint(void) { (*merr) << merr_buff.str(); merr_buff.str(std::string()); }
+		inline void err_buffprint() { (*merr) << merr_buff.str(); merr_buff.str(std::string()); }
 		inline void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }
-		inline void wrn_buffprint(void) { (*mwrn) << mwrn_buff.str(); mwrn_buff.str(std::string()); }
+		inline void wrn_buffprint() { (*mwrn) << mwrn_buff.str(); mwrn_buff.str(std::string()); }
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
-		void execute(void);
-		inline std::shared_ptr<sqf::vmstack> stack(void) const { return mactivestack; }
+		void execute();
+		inline std::shared_ptr<sqf::vmstack> stack() const { return mactivestack; }
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
 		inline void exitflag(bool flag) { mexitflag = flag; }
-		inline bool exitflag(void) { return mexitflag; }
+		inline bool exitflag() { return mexitflag; }
 
-		bool perform_classname_checks(void) { return mperformclassnamechecks; }
+		bool perform_classname_checks() { return mperformclassnamechecks; }
 		void perform_classname_checks(bool f) { mperformclassnamechecks = f; }
 
 		inline marker* get_marker(std::string key) { return mmarkers.find(key) == mmarkers.end() ? nullptr : &mmarkers[key]; }
@@ -99,13 +99,13 @@ namespace sqf
 		void parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>, std::string = "");
 		void pretty_print_sqf(std::string code);
 		void parse_config(std::string, std::shared_ptr<configdata>);
-		bool errflag(void) const { return merrflag; }
-		bool wrnflag(void) const { return mwrnflag; }
-		std::vector<std::shared_ptr<dlops>>& libraries(void) { return mlibraries; }
-		inline bool allowsleep(void) const { return mallowsleep; }
+		bool errflag() const { return merrflag; }
+		bool wrnflag() const { return mwrnflag; }
+		std::vector<std::shared_ptr<dlops>>& libraries() { return mlibraries; }
+		inline bool allowsleep() const { return mallowsleep; }
 		void allowsleep(bool flag) { mallowsleep = flag; }
 
-		debugger* dbg(void) { return _debugger; }
+		debugger* dbg() { return _debugger; }
 		void dbg(debugger* debugger) { _debugger = debugger; }
 
 		size_t push_obj(std::shared_ptr<sqf::innerobj> obj);

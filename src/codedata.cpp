@@ -25,7 +25,7 @@ sqf::codedata::codedata(std::shared_ptr<sqf::callstack> cs)
 	}
 }
 
-std::string sqf::codedata::tosqf(void) const
+std::string sqf::codedata::tosqf() const
 {
 	return "{...}";
 	//ToDo: Mark values that belong to other instructions

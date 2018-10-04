@@ -344,7 +344,7 @@ namespace
 	}
 }
 
-void sqf::commandmap::initmathcmds(void)
+void sqf::commandmap::initmathcmds()
 {
 	add(unary("abs", sqf::type::SCALAR, "Absolute value of a real number", abs_scalar));
 	add(binary(7, "atan2", sqf::type::SCALAR, sqf::type::SCALAR, "ArcTangent of x/y. Used to determine the angle of a vector [x,y]. Result in Degrees between -180 and 180. Note that this command can handle y being 0, unlike when using atan, and will return 90", atan2_scalar_scalar));

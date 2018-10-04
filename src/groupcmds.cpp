@@ -71,7 +71,7 @@ namespace
 		return std::make_shared<value>(grp->side(), SIDE);
 	}
 }
-void sqf::commandmap::initgroupcmds(void)
+void sqf::commandmap::initgroupcmds()
 {
 	//GetVariable & SetVariable & AllVariables are in namespacecmds as simple alias.
 	add(nular("blufor", "Western side.", [](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(std::make_shared<sidedata>(sidedata::West), type::SIDE); }));

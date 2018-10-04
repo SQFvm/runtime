@@ -194,7 +194,7 @@ namespace
 		return std::make_shared<value>(res == std::string::npos ? -1 : res);
 	}
 }
-void sqf::commandmap::initstringcmds(void)
+void sqf::commandmap::initstringcmds()
 {
 	add(unary("count", sqf::type::STRING, "Can be used to count: the number of characters in a string.", count_string));
 	add(unary("toLower", sqf::type::STRING, "Converts the supplied string to all lowercase characters.", tolower_string));

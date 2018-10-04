@@ -5,7 +5,7 @@
 #include <sstream>
 #include <algorithm>
 
-std::string sqf::arraydata::tosqf(void) const
+std::string sqf::arraydata::tosqf() const
 {
 	std::stringstream sstream;
 	sstream << '[';
@@ -82,12 +82,12 @@ void sqf::arraydata::delete_at(int position)
 	mvalue.erase(mvalue.begin() + position);
 }
 
-std::array<double, 3> sqf::arraydata::as_vec3(void) const
+std::array<double, 3> sqf::arraydata::as_vec3() const
 {
 	return std::array<double, 3> {at(0)->as_double(), at(1)->as_double(), at(2)->as_double()};
 }
 
-std::array<double, 2> sqf::arraydata::as_vec2(void) const
+std::array<double, 2> sqf::arraydata::as_vec2() const
 {
 	return std::array<double, 2> {at(0)->as_double(), at(1)->as_double()};
 }

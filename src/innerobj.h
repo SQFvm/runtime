@@ -23,20 +23,20 @@ namespace sqf
 		bool misvehicle;
 		innerobj(std::string classname, bool isvehicle) : mclassname(classname), misvehicle(isvehicle) {}
 	public:
-		virtual std::string tosqf(void) const;
+		virtual std::string tosqf() const;
 
-		inline std::array<double, 3> pos(void) const { return { mposx, mposy, mposz }; }
-		inline double posx(void) const { return mposx; }
-		inline double posy(void) const { return mposy; }
-		inline double posz(void) const { return mposz; }
-		inline std::array<double, 3> vel(void) const { return { mvelx, mvely, mvelz }; }
-		inline double velx(void) const { return mvelx; }
-		inline double vely(void) const { return mvely; }
-		inline double velz(void) const { return mvelz; }
-		inline std::string classname(void) const { return mclassname; }
-		inline size_t netid(void) const { return mnetid; }
-		inline bool is_vehicle(void) const { return misvehicle; }
-		inline std::shared_ptr<groupdata> group(void) const { return mgroup; }
+		inline std::array<double, 3> pos() const { return { mposx, mposy, mposz }; }
+		inline double posx() const { return mposx; }
+		inline double posy() const { return mposy; }
+		inline double posz() const { return mposz; }
+		inline std::array<double, 3> vel() const { return { mvelx, mvely, mvelz }; }
+		inline double velx() const { return mvelx; }
+		inline double vely() const { return mvely; }
+		inline double velz() const { return mvelz; }
+		inline std::string classname() const { return mclassname; }
+		inline size_t netid() const { return mnetid; }
+		inline bool is_vehicle() const { return misvehicle; }
+		inline std::shared_ptr<groupdata> group() const { return mgroup; }
 
 		inline double distance3dsqr(std::shared_ptr<innerobj> obj) const { return distance3dsqr(obj->pos()); }
 		inline double distance3dsqr(const innerobj* obj) const { return distance3dsqr(obj->pos()); }

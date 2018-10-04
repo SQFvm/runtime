@@ -15,7 +15,7 @@ namespace sqf
 		public:
 			callunary(std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>> cmds) { mcmds = cmds; }
 			virtual void execute(virtualmachine*) const;
-			virtual insttype thistype(void) const { return insttype::callunary; }
+			virtual insttype thistype() const { return insttype::callunary; }
 		};
 	}
 }

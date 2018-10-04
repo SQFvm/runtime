@@ -6,7 +6,7 @@ sqf::scriptdata::scriptdata()
 	mthisstack = std::make_shared<sqf::vmstack>(true);
 }
 
-bool sqf::scriptdata::hasfinished(void)
+bool sqf::scriptdata::hasfinished()
 {
 	return mthisstack->isempty();
 }

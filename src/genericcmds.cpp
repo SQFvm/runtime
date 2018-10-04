@@ -973,7 +973,7 @@ namespace
 		return std::make_shared<value>(vm->stack()->isscheduled());
 	}
 }
-void sqf::commandmap::initgenericcmds(void)
+void sqf::commandmap::initgenericcmds()
 {
 	add(nular("nil", "Nil value. This value can be used to undefine existing variables.", nil_));
 	add(unary("call", sqf::type::CODE, "Executes given set of compiled instructions.", call_code));

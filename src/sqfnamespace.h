@@ -13,8 +13,8 @@ namespace sqf
 		std::string mname;
 	public:
 		inline sqfnamespace(std::string name) { mname = name; }
-		inline virtual std::string tosqf(void) const { return mname; }
-		inline std::string get_name(void) { return mname; }
+		inline virtual std::string tosqf() const { return mname; }
+		inline std::string get_name() { return mname; }
 		virtual bool equals(std::shared_ptr<data> d) const { return this == d.get(); }
 	};
 }

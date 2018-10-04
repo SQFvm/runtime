@@ -7,7 +7,7 @@
 #include "string_op.h"
 #include <sstream>
 
-std::string sqf::innerobj::tosqf(void) const
+std::string sqf::innerobj::tosqf() const
 {
 	std::stringstream sstream;
 	sstream << (const void*)this << "# " << this->mnetid << ": " << mclassname;

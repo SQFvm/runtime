@@ -43,7 +43,7 @@ extern "C" {
 		sqfvm_virtualmachine->parse_config(cfg, sqf::configdata::configFile()->data<sqf::configdata>());
 	}
 
-	DLLEXPORT_PREFIX void sqfvm_uninit(void)
+	DLLEXPORT_PREFIX void sqfvm_uninit()
 	{
 		sqf::commandmap::get().uninit();
 		sqfvm_virtualmachine = std::shared_ptr<sqf::virtualmachine>();

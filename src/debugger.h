@@ -15,8 +15,8 @@ namespace sqf {
 			std::string _file;
 		public:
 			breakpoint(int line, std::string file) : _line(line), _file(file) {}
-			inline int line(void) { return _line; }
-			inline std::string file(void) { return _file; }
+			inline int line() { return _line; }
+			inline std::string file() { return _file; }
 		};
 		enum srvstatus {
 			NA,
@@ -46,8 +46,8 @@ namespace sqf {
 		bool stop(virtualmachine* vm);
 		void position(size_t line, size_t col, std::string file);
 		void message(std::string);
-		inline srvstatus status(void) { return _status; }
-		inline srvcontrol controlstatus(void) { return _control; }
+		inline srvstatus status() { return _status; }
+		inline srvcontrol controlstatus() { return _control; }
 		inline void status(srvstatus status) { _status = status; }
 	};
 }

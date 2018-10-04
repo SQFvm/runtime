@@ -20,9 +20,9 @@ namespace sqf
 		callstack(std::shared_ptr<sqf::sqfnamespace>);
 		inline void pushinst(std::shared_ptr<sqf::instruction> value) { mstack.push(value); }
 		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) { if (mstack.empty()) return std::shared_ptr<sqf::instruction>(); auto ret = mstack.front(); mstack.pop(); return ret; }
-		std::shared_ptr<sqf::instruction> peekinst(void) { if (mstack.empty()) return std::shared_ptr<sqf::instruction>(); auto front = mstack.front(); return front; }
-		inline std::shared_ptr<sqf::sqfnamespace> getnamespace(void) const { return mwith; }
-		inline size_t inststacksize(void) const { return mstack.size(); }
+		std::shared_ptr<sqf::instruction> peekinst() { if (mstack.empty()) return std::shared_ptr<sqf::instruction>(); auto front = mstack.front(); return front; }
+		inline std::shared_ptr<sqf::sqfnamespace> getnamespace() const { return mwith; }
+		inline size_t inststacksize() const { return mstack.size(); }
 		inline void setnamespace(std::shared_ptr<sqf::sqfnamespace> ns) { mwith = ns; }
 	};
 }

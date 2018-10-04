@@ -25,11 +25,11 @@ namespace sqf
 		virtual std::shared_ptr<value> execute(virtualmachine*, std::shared_ptr<value> left, std::shared_ptr<value> right) const = 0;
 		inline bool matches(type ltype, type rtype) { return (mltype == ltype || mltype == type::ANY) && (mrtype == rtype || mrtype == type::ANY); }
 		inline bool matches(std::string name, type ltype, type rtype) { return matches(ltype, rtype) && str_cmpi(mname.c_str(), -1, name.c_str(), -1); }
-		std::string desc(void) { return mdesc; }
-		std::string name(void) { return mname; }
-		type ltype(void) { return mltype; }
-		type rtype(void) { return mrtype; }
-		short precedence(void) { return mprecedence; }
+		std::string desc() { return mdesc; }
+		std::string name() { return mname; }
+		type ltype() { return mltype; }
+		type rtype() { return mrtype; }
+		short precedence() { return mprecedence; }
 
 	};
 

@@ -104,7 +104,7 @@ namespace
 		return std::make_shared<sqf::value>(cd->is_null());
 	}
 }
-void sqf::commandmap::initconfigcmds(void)
+void sqf::commandmap::initconfigcmds()
 {
 	add(nular("configNull", "A non-existing Config.", confignull__));
 	add(nular("configFile", "Return root of config entries hierarchy.", configfile__));
