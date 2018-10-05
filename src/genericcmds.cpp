@@ -776,9 +776,8 @@ namespace
 		}
 		std::vector<std::string> argstringvec;
 
-		for (size_t i = 0; i < arr->size(); i++)
+		for (const auto& at : *arr) 
 		{
-			auto& at = arr->at(i);
 			switch (at->dtype())
 			{
 			case type::BOOL:
@@ -794,9 +793,9 @@ namespace
 		}
 		std::vector<const char*> argvec;
 		argvec.reserve(argstringvec.size());
-		for (size_t i = 0; i < argstringvec.size(); i++)
+		for (auto& it : argstringvec)
 		{
-			argvec.push_back(argstringvec[i].c_str());
+			argvec.push_back(it.c_str());
 		}
 
 		try

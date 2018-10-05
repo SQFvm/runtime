@@ -258,9 +258,9 @@ namespace
 		{
 			return std::shared_ptr<value>();
 		}
-		for (size_t i = 0; i < arr->size(); i++)
+		for (const auto& i : *arr)
 		{
-			setpos_object_array(vm, arr->at(i), right);
+			setpos_object_array(vm, i, right);
 		}
 		return std::make_shared<value>();
 	}

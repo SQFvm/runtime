@@ -118,10 +118,10 @@ namespace {
 		variablemsg(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmstack> stack, nlohmann::json data) : _stack(stack), _vm(vm), _data(data) {}
 		std::string serialize() override {
 			auto data = nlohmann::json::array();
-			for (auto it = _data.begin(); it != _data.end(); ++it)
+			for (auto& it : _data) 
 			{
-				std::string name = it->at("name");
-				auto scope = it->at("scope");
+				std::string name = it.at("name");
+				auto scope = it.at("scope");
 				if (scope.is_number())
 				{
 					int numscope = scope;
