@@ -34,7 +34,7 @@ std::shared_ptr<sqf::value> sqf::configdata::navigate_unsafe(std::string nextnod
 std::shared_ptr<sqf::value> sqf::configdata::navigate_full_unsafe(std::string nextnode)
 {
 	auto it = navigate_unsafe(nextnode);
-	if (it.get())
+	if (it)
 	{
 		return it;
 	}
@@ -43,8 +43,8 @@ std::shared_ptr<sqf::value> sqf::configdata::navigate_full_unsafe(std::string ne
 		std::shared_ptr<sqf::value> p;
 		while ((p = parent_unsafe()).get())
 		{
-			auto it = navigate_full_unsafe(nextnode);
-			if (it.get())
+			it = navigate_full_unsafe(nextnode);
+			if (it)
 				return it;
 		}
 		return std::shared_ptr<sqf::value>();
