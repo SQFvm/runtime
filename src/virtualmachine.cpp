@@ -54,13 +54,13 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 void sqf::virtualmachine::execute()
 {
 	mexitflag = false;
-	while (!mexitflag && mspawns.size() != 0 || !mmainstack->isempty() || (_debugger && _debugger->stop(this)))
+	while (!mexitflag && (!mspawns.empty() || !mmainstack->isempty() || (_debugger && _debugger->stop(this))))
 	{
 		if (_debugger) { _debugger->status(sqf::debugger::RUNNING); }
 		mactivestack = mmainstack;
 		performexecute();
 		while (!mmainstack->isempty()) { mmainstack->dropcallstack(); }
-		for (auto it : mspawns)
+		for (auto& it : mspawns)
 		{
 			mactivestack = it->stack();
 			if (mallowsleep && mactivestack->isasleep())
