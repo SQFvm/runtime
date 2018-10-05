@@ -110,7 +110,7 @@ void sqf::codedata::loadinto(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmst
 
 void sqf::codedata::loadinto(std::shared_ptr<sqf::vmstack> stack, std::shared_ptr<sqf::callstack> cs)
 {
-	for (auto it = minsts.rbegin(); it != minsts.rend(); it++)
+	for (auto it = minsts.rbegin(); it != minsts.rend(); ++it)
 	{
 		cs->pushinst(*it);
 	}

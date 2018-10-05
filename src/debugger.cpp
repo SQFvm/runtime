@@ -72,7 +72,7 @@ namespace {
 		std::string serialize() override {
 			nlohmann::json data;
 			int lvl = 0;
-			for (auto it = _stack->stacks_begin(); it != _stack->stacks_end(); it++)
+			for (auto it = _stack->stacks_begin(); it != _stack->stacks_end(); ++it)
 			{
 				nlohmann::json jcs;
 				auto cs = *it;
@@ -118,7 +118,7 @@ namespace {
 		variablemsg(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmstack> stack, nlohmann::json data) : _stack(stack), _vm(vm), _data(data) {}
 		std::string serialize() override {
 			auto data = nlohmann::json::array();
-			for (auto it = _data.begin(); it != _data.end(); it++)
+			for (auto it = _data.begin(); it != _data.end(); ++it)
 			{
 				std::string name = it->at("name");
 				auto scope = it->at("scope");
@@ -132,7 +132,7 @@ namespace {
 					else
 					{
 						std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator s;
-						for (s = _stack->stacks_begin(); s != _stack->stacks_end() && numscope != 0; s++, numscope++);
+						for (s = _stack->stacks_begin(); s != _stack->stacks_end() && numscope != 0; ++s, numscope++);
 						if (s == _stack->stacks_end())
 						{
 							data.push_back(nlohmann::json{ { "name", name },{ "value", "nil" } });
