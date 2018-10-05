@@ -21,10 +21,10 @@ namespace sqf
 		std::shared_ptr<sqf::value> navigate_unsafe(std::string nextnode);
 		std::shared_ptr<sqf::value> navigate_full_unsafe(std::string nextnode);
 	public:
-		configdata(std::string name) : mname(name), misnull(true) {}
+		configdata(std::string name) : mname(std::move(name)), misnull(true) {}
 		configdata() : mname("bin\\config.bin"), misnull(false) {}
-		configdata(std::weak_ptr<configdata> logicparent, std::string name) : mname(name), mlogicparent(logicparent), misnull(false) {}
-		configdata(std::weak_ptr<configdata> logicparent, std::string name, std::string parentname) : mname(name), mparentname(parentname), mlogicparent(logicparent), misnull(false) {}
+		configdata(std::weak_ptr<configdata> logicparent, std::string name) : mname(std::move(name)), mlogicparent(std::move(logicparent)), misnull(false) {}
+		configdata(std::weak_ptr<configdata> logicparent, std::string name, std::string parentname) : mname(std::move(name)), mparentname(std::move(parentname)), mlogicparent(std::move(logicparent)), misnull(false) {}
 
 		std::shared_ptr<sqf::value> cfgvalue() const { return mvalue; }
 		void cfgvalue(std::shared_ptr<sqf::value> val) { mvalue = val; }

@@ -17,7 +17,7 @@ namespace sqf
 		std::shared_ptr<sidedata> mside;
 		std::string mgroupid;
 		bool misnull;
-		groupdata(std::shared_ptr<sidedata> side) : mside(side), misnull(false) { }
+		groupdata(std::shared_ptr<sidedata> side) : mside(std::move(side)), misnull(false) { }
 		groupdata() { }
 	public:
 

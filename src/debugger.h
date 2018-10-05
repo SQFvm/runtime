@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <utility>
 #include <vector>
 
 class netserver;
@@ -14,7 +15,7 @@ namespace sqf {
 			int _line;
 			std::string _file;
 		public:
-			breakpoint(int line, std::string file) : _line(line), _file(file) {}
+			breakpoint(int line, std::string file) : _line(line), _file(std::move(file)) {}
 			int line() { return _line; }
 			std::string file() { return _file; }
 		};

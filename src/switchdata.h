@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "data.h"
@@ -18,7 +19,7 @@ namespace sqf
 		bool mflag;
 		bool mexecuted;
 	public:
-		switchdata(std::shared_ptr<value> val) : mvalue(val), mflag(false), mexecuted(false) {}
+		switchdata(std::shared_ptr<value> val) : mvalue(std::move(val)), mflag(false), mexecuted(false) {}
 		std::string tosqf() const override;
 		void flag(bool f) { mflag = f; }
 		bool flag() const { return mflag; }

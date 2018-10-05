@@ -15,7 +15,7 @@ namespace sqf
 		size_t mCurIndex;
 		int mCount;
 	public:
-		callstack_count(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<codedata> exec, std::shared_ptr<arraydata> arr) : callstack(ns), marr(arr), mexec(exec), mCurIndex(0), mCount(0) { }
+		callstack_count(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<codedata> exec, std::shared_ptr<arraydata> arr) : callstack(ns), marr(std::move(arr)), mexec(std::move(exec)), mCurIndex(0), mCount(0) { }
 		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 	};
 }

@@ -19,7 +19,7 @@ namespace {
 	class simplemessage : public srvmessage {
 		std::string _msg;
 	public:
-		simplemessage(std::string msg) : _msg(msg) {}
+		simplemessage(std::string msg) : _msg(std::move(msg)) {}
 		std::string serialize() override {
 			nlohmann::json json = {
 				{ "mode", "message" },
@@ -31,7 +31,7 @@ namespace {
 	class errormsg : public srvmessage {
 		std::string _msg;
 	public:
-		errormsg(std::string msg) : _msg(msg) {}
+		errormsg(std::string msg) : _msg(std::move(msg)) {}
 		std::string serialize() override {
 			nlohmann::json json = {
 				{ "mode", "error" },
@@ -68,7 +68,7 @@ namespace {
 	class callstackmsg : public srvmessage {
 		std::shared_ptr<sqf::vmstack> _stack;
 	public:
-		callstackmsg(std::shared_ptr<sqf::vmstack> stack) : _stack(stack) {}
+		callstackmsg(std::shared_ptr<sqf::vmstack> stack) : _stack(std::move(stack)) {}
 		std::string serialize() override {
 			nlohmann::json data;
 			int lvl = 0;
@@ -115,7 +115,7 @@ namespace {
 		sqf::virtualmachine * _vm;
 		nlohmann::json _data;
 	public:
-		variablemsg(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmstack> stack, nlohmann::json data) : _stack(stack), _vm(vm), _data(data) {}
+		variablemsg(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmstack> stack, nlohmann::json data) : _stack(std::move(stack)), _vm(vm), _data(std::move(data)) {}
 		std::string serialize() override {
 			auto data = nlohmann::json::array();
 			for (auto& it : _data) 
@@ -175,7 +175,7 @@ namespace {
 		size_t _col;
 		std::string _file;
 	public:
-		positionmsg(size_t line, size_t col, std::string file) : _line(line), _col(col), _file(file) {}
+		positionmsg(size_t line, size_t col, std::string file) : _line(line), _col(col), _file(std::move(file)) {}
 		std::string serialize() override {
 			nlohmann::json json = { { "mode", "position" }, { "data", { { "line", _line }, { "col", _col }, { "file", _file } } } };
 			return json.dump();
