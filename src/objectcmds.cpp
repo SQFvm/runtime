@@ -89,8 +89,8 @@ namespace
 			}
 		}
 		auto veh = innerobj::create(vm, type, true);
-		veh->posx(position->at(0)->as_double() + ((std::rand() % (int)(radius * 2)) - radius));
-		veh->posy(position->at(1)->as_double() + ((std::rand() % (int)(radius * 2)) - radius));
+		veh->posx(position->at(0)->as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
+		veh->posy(position->at(1)->as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
 		veh->posz(position->at(2)->as_double());
 		return std::make_shared<value>(std::make_shared<objectdata>(veh), OBJECT);
 	}
@@ -325,8 +325,8 @@ namespace
 		}
 		auto veh = innerobj::create(vm, type, false);
 		grp->add_unit(veh);
-		veh->posx(position->at(0)->as_double() + ((std::rand() % (int)(radius * 2)) - radius));
-		veh->posy(position->at(1)->as_double() + ((std::rand() % (int)(radius * 2)) - radius));
+		veh->posx(position->at(0)->as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
+		veh->posy(position->at(1)->as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
 		veh->posz(position->at(2)->as_double());
 		return std::make_shared<value>(std::make_shared<objectdata>(veh), OBJECT);
 	}

@@ -572,7 +572,7 @@ namespace
 		else
 		{
 			std::string text = std::string(code + curoff, code + curoff + textlen);
-			auto inst = std::make_shared<sqf::inst::makearray>((size_t)std::stoul(text));
+			auto inst = std::make_shared<sqf::inst::makearray>(static_cast<size_t>(std::stoul(text)));
 			inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("makeArray")));
 			vm->stack()->pushinst(vm, inst);
 			curoff += textlen;

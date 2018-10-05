@@ -260,14 +260,14 @@ namespace
 	std::shared_ptr<value> select_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto arr = left->as_vector();
-		auto index = right->as_int();
+		auto index = right->as_long();
 
-		if ((int)arr.size() <= index || index < 0)
+		if (arr.size() <= index || index < 0)
 		{
 			vm->err() << "Index out of range." << std::endl;
 			return std::make_shared<value>();
 		}
-		if ((int)arr.size() == index)
+		if (arr.size() == index)
 		{
 			vm->wrn() << "Index equals range. Returning nil." << std::endl;
 			return std::make_shared<value>();
@@ -303,13 +303,13 @@ namespace
 			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		int start = arr[0]->as_int();
+		int start = arr[0]->as_long();
 		if (start < 0)
 		{
 			vm->wrn() << "Start index is smaller then 0. Returning empty array." << std::endl;
 			return std::make_shared<value>("");
 		}
-		if (start > (int)vec.size())
+		if (start > vec.size())
 		{
 			vm->wrn() << "Start index is larger then string length. Returning empty array." << std::endl;
 			return std::make_shared<value>("");
@@ -328,7 +328,7 @@ namespace
 				return std::make_shared<value>("");
 			}
 
-			return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, start + length > (int)vec.size() ? vec.end() : vec.begin() + start + length));
+			return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, start + length > static_cast<int>(vec.size()) ? vec.end() : vec.begin() + start + length));
 		}
 		return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, vec.end()));
 	}
@@ -522,9 +522,9 @@ namespace
 			return std::shared_ptr<value>();
 		}
 
-		auto index = params[0]->as_int();
+		auto index = params[0]->as_long();
 		auto val = params[1];
-		if ((int)arr->size() <= index)
+		if (arr->size() <= index)
 		{
 			arr->resize(index + 1);
 		}
@@ -711,7 +711,7 @@ namespace
 		void* sym = nullptr;
 		if (dl->try_resolve("RVExtensionVersion", &sym))
 		{
-			((RVExtensionVersion)sym)(buffer, CALLEXTVERSIONBUFFSIZE);
+			static_cast<RVExtensionVersion>(sym)(buffer, CALLEXTVERSIONBUFFSIZE);
 			if (buffer[CALLEXTVERSIONBUFFSIZE - 1] != '\0')
 			{
 				vm->wrn() << "Library '" << name << "' is not terminating RVExtensionVersion output buffer with a '\\0'!" << std::endl;
@@ -731,9 +731,9 @@ namespace
 		{
 			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
 #if defined(_WIN32) & !defined(_WIN64)
-			auto method = (RVExtension)dl->resolve("_RVExtension@12");
+			auto method = static_cast<RVExtension>(dl->resolve("_RVExtension@12"));
 #else
-			auto method = (RVExtension)dl->resolve("RVExtension");
+			auto method = static_cast<RVExtension>(dl->resolve("RVExtension"));
 #endif
 			method(buffer, CALLEXTBUFFSIZE, right->as_string().c_str());
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
@@ -804,11 +804,11 @@ namespace
 		{
 			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
 #if defined(_WIN32) & !defined(_WIN64)
-			auto method = (RVExtensionArgs)dl->resolve("_RVExtensionArgs@20");
+			auto method = static_cast<RVExtensionArgs>(dl->resolve("_RVExtensionArgs@20"));
 #else
-			auto method = (RVExtensionArgs)dl->resolve("RVExtensionArgs");
+			auto method = static_cast<RVExtensionArgs>(dl->resolve("RVExtensionArgs"));
 #endif
-			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0)->as_string().c_str(), argvec.data(), (int)argvec.size());
+			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0)->as_string().c_str(), argvec.data(), static_cast<int>(argvec.size()));
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
 				vm->wrn() << "Library '" << left->as_string() << "' is not terminating RVExtensionArgs output buffer with a '\\0'!" << std::endl;

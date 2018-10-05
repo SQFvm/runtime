@@ -53,9 +53,9 @@ bool sqf::arraydata::equals(std::shared_ptr<data> d) const
 	return true;
 }
 
-void sqf::arraydata::resize(int newsize)
+void sqf::arraydata::resize(size_t newsize)
 {
-	auto cursize = (int)mvalue.size();
+	auto cursize = mvalue.size();
 	mvalue.resize(newsize);
 	if (newsize > cursize)
 	{

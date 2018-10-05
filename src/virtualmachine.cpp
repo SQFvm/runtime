@@ -464,7 +464,7 @@ void sqf::virtualmachine::pretty_print_sqf(std::string code)
 
 void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode node)
 {
-	auto kind = (sqf::parse::config::configasttypes::configasttypes)node.kind;
+	auto kind = static_cast<sqf::parse::config::configasttypes::configasttypes>(node.kind);
 	switch (kind)
 	{
 	case sqf::parse::config::configasttypes::CONFIGNODE:

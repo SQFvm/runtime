@@ -67,9 +67,9 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> uinamespace() { return muinamespace; }
 		std::shared_ptr<sqf::sqfnamespace> parsingnamespace() { return mparsingnamespace; }
 		std::shared_ptr<sqf::sqfnamespace> profilenamespace() { return mprofilenamespace; }
-		std::stringstream& out() { /* on purpose */((virtualmachine*)this)->moutflag = true; return mout_buff; }
-		std::stringstream& err() { /* on purpose */((virtualmachine*)this)->merrflag = true; return merr_buff; }
-		std::stringstream& wrn() { /* on purpose */((virtualmachine*)this)->mwrnflag = true; return mwrn_buff; }
+		std::stringstream& out() { /* on purpose */static_cast<virtualmachine*>(this)->moutflag = true; return mout_buff; }
+		std::stringstream& err() { /* on purpose */static_cast<virtualmachine*>(this)->merrflag = true; return merr_buff; }
+		std::stringstream& wrn() { /* on purpose */static_cast<virtualmachine*>(this)->mwrnflag = true; return mwrn_buff; }
 		void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
 		void out_buffprint() { (*mout) << mout_buff.str(); mout_buff.str(std::string()); }
 		void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }

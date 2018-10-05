@@ -16,11 +16,11 @@ sqf::codedata::codedata(std::shared_ptr<sqf::callstack> cs)
 {
 	std::shared_ptr<sqf::instruction> inst;
 	minsts = std::vector<std::shared_ptr<sqf::instruction>>(cs->inststacksize());
-	for (size_t i = cs->inststacksize() - 1; i != (size_t)~0; i--)
+	for (size_t i = cs->inststacksize() - 1; i != static_cast<size_t>(~0); i--)
 	{
 		//only valid for sqf::callstack!
 		//all others might crash here
-		inst = cs->popinst(0);
+		inst = cs->popinst(nullptr);
 		minsts[i] = inst;
 	}
 }

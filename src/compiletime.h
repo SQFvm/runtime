@@ -21,6 +21,6 @@ public:
 	}
 	static constexpr double rand_lim(int rnd, double limit)
 	{
-		return (((double)rnd) / RAND_MAX) * limit;
+		return (static_cast<double>(rnd) / RAND_MAX) * limit;
 	}
 };
