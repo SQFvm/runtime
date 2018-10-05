@@ -887,15 +887,13 @@ namespace
 				if (fels.size() >= 3 && fels.at(2)->data<arraydata>()->size() != 0)
 				{
 					auto tmp = fels.at(2)->data<arraydata>();
-					flag = false;
-					for (j = 0; j < tmp->size(); j++)
-					{
-						if (el->dtype() == tmp->at(j)->dtype())
-						{
-							flag = true;
-							break;
-						}
-					}
+
+					auto found = std::find_if(tmp->begin(), tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
+						return type == val->as_int();
+					});
+
+					flag = found != tmp->end();
+
 					if (!flag)
 					{
 						vm->wrn() << "Element " << i << " is not matching provided expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
@@ -909,16 +907,12 @@ namespace
 					if (fels.at(2)->dtype() == sqf::ARRAY)
 					{
 						auto tmp = fels.at(2)->data<arraydata>();
-						auto len = el->data<arraydata>()->size();
-						flag = false;
-						for (j = 0; j < tmp->size(); j++)
-						{
-							if (el->dtype() == tmp->at(j)->as_int())
-							{
-								flag = true;
-								break;
-							}
-						}
+
+						auto found = std::find_if(tmp->begin(),tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
+							return type == val->as_int();
+						});
+
+						flag = found != tmp->end();
 					}
 					else if (el->data<arraydata>()->size() != fels.at(3)->as_int())
 					{
