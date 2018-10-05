@@ -701,7 +701,7 @@ namespace
 		static char buffer[CALLEXTVERSIONBUFFSIZE + 1] = { 0 };
 		for (auto it : vm->libraries())
 		{
-			if (!it->path().compare(name))
+			if (it->path() == name)
 			{
 				return it;
 			}

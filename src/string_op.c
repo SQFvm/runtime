@@ -1,6 +1,5 @@
-#include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
+#include <cstring>
+#include <cctype>
 #include "string_op.h"
 
 

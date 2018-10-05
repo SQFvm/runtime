@@ -143,22 +143,22 @@ namespace {
 						}
 					}
 				}
-				else if (scope.get<std::string>().compare("missionNamespace"))
+				else if (scope.get<std::string>() == "missionNamespace")
 				{
 					auto ns = _vm->missionnamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
-				else if (scope.get<std::string>().compare("uiNamespace"))
+				else if (scope.get<std::string>() =="uiNamespace")
 				{
 					auto ns = _vm->uinamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
-				else if (scope.get<std::string>().compare("profileNamespace"))
+				else if (scope.get<std::string>() =="profileNamespace")
 				{
 					auto ns = _vm->profilenamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
-				else if (scope.get<std::string>().compare("parsingNamespace"))
+				else if (scope.get<std::string>() =="parsingNamespace")
 				{
 					auto ns = _vm->parsingnamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
@@ -233,38 +233,38 @@ void sqf::debugger::check(virtualmachine * vm)
 			auto msg = _server->next_message();
 			auto json = nlohmann::json::parse(msg);
 			std::string mode = json["mode"];
-			if (!mode.compare("get-callstack"))
+			if (mode == "get-callstack")
 			{
 				_server->push_message(callstackmsg(vm->stack()));
 			}
-			else if (!mode.compare("control"))
+			else if (mode == "control")
 			{
 				std::string status = json["data"]["status"];
-				if (!status.compare("run")) { _control = RUN; }
-				else if (!status.compare("stop")) { _control = STOP; }
-				else if (!status.compare("pause")) { if (_control != PAUSE) { breakmode(vm); } }
-				else if (!status.compare("resume")) { _control = RESUME; }
-				else if (!status.compare("quit")) { _control = QUIT; }
+				if (status == "run") { _control = RUN; }
+				else if (status == "stop") { _control = STOP; }
+				else if (status == "pause") { if (_control != PAUSE) { breakmode(vm); } }
+				else if (status == "resum") { _control = RESUME; }
+				else if (status == "quit") { _control = QUIT; }
 				else { _server->push_message(errormsg("Received invalid status. Accepted: [run, stop, pause, resume, quit]")); }
 			}
-			else if (!mode.compare("get-status"))
+			else if (mode == "get-status")
 			{
 				auto data = json["data"];
 				_server->push_message(statusupdate(_status));
 			}
-			else if (!mode.compare("get-variables"))
+			else if (mode == "get-variables")
 			{
 				auto data = json["data"];
 				_server->push_message(variablemsg(vm, vm->stack(), data));
 			}
-			else if (!mode.compare("parse-sqf"))
+			else if (mode == "parse-sqf")
 			{
 				auto data = json["data"];
 				std::string sqf = data["sqf"];
 				std::string file = data["file"];
 				vm->parse_sqf(sqf, file);
 			}
-			else if (!mode.compare("load-sqf"))
+			else if (mode == "load-sqf")
 			{
 				auto data = json["data"];
 				std::string path = data["path"];
@@ -272,7 +272,7 @@ void sqf::debugger::check(virtualmachine * vm)
 				auto sqf = load_file(path);
 				vm->parse_sqf(sqf, name);
 			}
-			else if (!mode.compare("set-breakpoint"))
+			else if (mode == "set-breakpoint")
 			{
 				auto data = json["data"];
 				if (!data.at("line").is_number())
