@@ -115,7 +115,7 @@ namespace {
 		sqf::virtualmachine * _vm;
 		nlohmann::json _data;
 	public:
-		variablemsg(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmstack> stack, nlohmann::json data) : _stack(stack), _data(data), _vm(vm) {}
+		variablemsg(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmstack> stack, nlohmann::json data) : _stack(stack), _vm(vm), _data(data) {}
 		std::string serialize() {
 			auto data = nlohmann::json::array();
 			for (auto it = _data.begin(); it != _data.end(); it++)
