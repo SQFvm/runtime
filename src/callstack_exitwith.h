@@ -8,6 +8,6 @@ namespace sqf
 	{
 	public:
 		callstack_exitwith(std::shared_ptr<sqf::sqfnamespace> ns) : callstack(ns) {}
-		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
+		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 	};
 }

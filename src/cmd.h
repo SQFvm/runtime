@@ -40,7 +40,7 @@ namespace sqf
 		nularcb mfnc;
 	public:
 		nularcmd(std::string name, std::string description, nularcb fnc) : cmd(4, name, type::NA, type::NA, description) { mfnc = fnc; }
-		virtual std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const { return mfnc(vm); }
+		std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const override { return mfnc(vm); }
 	};
 	class unarycmd : public cmd
 	{
@@ -48,7 +48,7 @@ namespace sqf
 		unarycb mfnc;
 	public:
 		unarycmd(std::string name, type rtype, std::string description, unarycb fnc) : cmd(4, name, type::NA, rtype, description) { mfnc = fnc; }
-		virtual std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const { return mfnc(vm, right); }
+		std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const override { return mfnc(vm, right); }
 	};
 	class binarycmd : public cmd
 	{
@@ -56,7 +56,7 @@ namespace sqf
 		binarycb mfnc;
 	public:
 		binarycmd(short precedence, std::string name, type ltype, type rtype, std::string description, binarycb fnc) : cmd(precedence, name, ltype, rtype, description) { mfnc = fnc; }
-		virtual std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const { return mfnc(vm, left, right); }
+		std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const override { return mfnc(vm, left, right); }
 	};
 
 	static std::shared_ptr<nularcmd> nular(std::string name, std::string description, nularcb fnc) { return std::make_shared<nularcmd>(name, description, fnc); }

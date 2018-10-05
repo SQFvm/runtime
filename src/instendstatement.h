@@ -8,8 +8,8 @@ namespace sqf
 		class endstatement : public instruction
 		{
 		public:
-			virtual void execute(virtualmachine* vm) const;
-			virtual insttype thistype() const { return insttype::endstatement; }
+			void execute(virtualmachine* vm) const override;
+			insttype thistype() const override { return insttype::endstatement; }
 		};
 	}
 }

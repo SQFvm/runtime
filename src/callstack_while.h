@@ -13,6 +13,6 @@ namespace sqf
 		bool mdoexec;
 	public:
 		callstack_while(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<codedata> whilecond, std::shared_ptr<codedata> exec) : callstack(ns), mwhilecond(whilecond), mexec(exec), mdoexec(false) {}
-		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
+		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 	};
 }

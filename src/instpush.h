@@ -13,8 +13,8 @@ namespace sqf
 			std::shared_ptr<value> mvalue;
 		public:
 			push(std::shared_ptr<value> val) { mvalue = val; }
-			virtual void execute(virtualmachine* vm) const;
-			virtual insttype thistype() const { return insttype::push; }
+			void execute(virtualmachine* vm) const override;
+			insttype thistype() const override { return insttype::push; }
 		};
 	}
 }

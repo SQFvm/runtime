@@ -13,8 +13,8 @@ namespace sqf
 			std::shared_ptr<sqf::nularcmd> mcmd;
 		public:
 			callnular(std::shared_ptr<sqf::nularcmd> cmd) { mcmd = cmd; }
-			virtual void execute(virtualmachine*) const;
-			virtual insttype thistype() const { return insttype::callnular; }
+			void execute(virtualmachine*) const override;
+			insttype thistype() const override { return insttype::callnular; }
 		};
 	}
 }

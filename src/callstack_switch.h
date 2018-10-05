@@ -11,6 +11,6 @@ namespace sqf
 		std::shared_ptr<switchdata> mswtch;
 	public:
 		callstack_switch(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<switchdata> swtch) : callstack(ns), mswtch(swtch) {}
-		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
+		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 	};
 }

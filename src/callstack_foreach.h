@@ -15,6 +15,6 @@ namespace sqf
 		size_t mCurIndex;
 	public:
 		callstack_foreach(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<codedata> exec, std::shared_ptr<arraydata> arr) : callstack(ns), marr(arr), mexec(exec), mCurIndex(0) {}
-		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
+		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 	};
 }

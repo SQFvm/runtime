@@ -24,14 +24,14 @@ namespace sqf
 		arraydata() : mvalue(std::vector<std::shared_ptr<value>>()) {}
 		arraydata(size_t size) : mvalue(std::vector<std::shared_ptr<value>>(size)) {}
 		arraydata(std::vector<std::shared_ptr<value>> v) : mvalue(std::vector<std::shared_ptr<value>>(v)) {}
-		virtual std::string tosqf() const;
+		std::string tosqf() const override;
 		std::shared_ptr<value>& operator[](int index) { return mvalue.at(index); }
 		std::shared_ptr<value> operator[](int index) const { return index < 0 || index >= static_cast<int>(mvalue.size()) ? std::make_shared<value>() : mvalue[index]; }
 		const std::shared_ptr<value>& at(int index) { return mvalue.at(index); }
 		std::shared_ptr<value> at(int index) const { return mvalue.at(index); }
 		size_t size() const { return mvalue.size(); }
 		operator std::vector<std::shared_ptr<value>>() const { return mvalue; }
-		virtual bool equals(std::shared_ptr<data> d) const;
+		bool equals(std::shared_ptr<data> d) const override;
 
 		std::vector<std::shared_ptr<value>>::iterator begin() { return mvalue.begin(); }
 		std::vector<std::shared_ptr<value>>::iterator end() { return mvalue.end(); }

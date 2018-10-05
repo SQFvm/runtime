@@ -12,8 +12,8 @@ namespace sqf
 			std::string mvarname;
 		public:
 			getvariable(std::string varname) { mvarname = varname; }
-			virtual void execute(virtualmachine*) const;
-			virtual insttype thistype() const { return insttype::getvariable; }
+			void execute(virtualmachine*) const override;
+			insttype thistype() const override { return insttype::getvariable; }
 		};
 	}
 }

@@ -24,10 +24,10 @@ namespace sqf
 		operator std::shared_ptr<sidedata>() const { return mside; }
 		operator sidedata::eside() const { return mside->side(); }
 		std::shared_ptr<sidedata> side() const { return mside; }
-		virtual bool equals(std::shared_ptr<data> d) const { return this == d.get(); }
+		bool equals(std::shared_ptr<data> d) const override { return this == d.get(); }
 		std::string groupid() { return mgroupid; }
 		void groupid(std::string id) { mgroupid = id; }
-		virtual std::string tosqf() const { return mgroupid; }
+		std::string tosqf() const override { return mgroupid; }
 
 		const std::vector<std::shared_ptr<innerobj>>& get_units() { return munits; }
 		bool is_empty() const { return munits.size() == 0; }

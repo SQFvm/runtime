@@ -11,9 +11,9 @@ namespace sqf
 			size_t msize;
 		public:
 			makearray(size_t size) { msize = size; }
-			virtual void execute(virtualmachine* vm) const;
-			virtual insttype thistype() const { return insttype::makearray; }
-			size_t size() { return msize; }
+			void execute(virtualmachine* vm) const override;
+			insttype thistype() const override { return insttype::makearray; }
+			size_t size() const { return msize; }
 		};
 	}
 }

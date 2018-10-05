@@ -30,8 +30,8 @@ namespace sqf
 		void cfgvalue(std::shared_ptr<sqf::value> val) { mvalue = val; }
 		std::string name() const { return mname; }
 
-		virtual std::string tosqf() const;
-		virtual bool equals(std::shared_ptr<data> d) const { return d.get() == this; }
+		std::string tosqf() const override;
+		bool equals(std::shared_ptr<data> d) const override { return d.get() == this; }
 		size_t logicalparentcount() const { if (auto sptr = mlogicparent.lock()) { return sptr->logicalparentcount() + 1; } return 0; }
 		std::shared_ptr<sqf::value> parent() { auto val = parent_unsafe(); return val.get() ? val : configNull(); }
 		std::shared_ptr<sqf::value> navigate(std::string nextnode) { auto val = navigate_full_unsafe(nextnode); return val.get() ? val : configNull(); }
