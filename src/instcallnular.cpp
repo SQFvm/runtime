@@ -7,6 +7,6 @@
 void sqf::inst::callnular::execute(virtualmachine* vm) const
 {
 	auto val = mcmd->execute(vm, std::shared_ptr<value>(), std::shared_ptr<value>());
-	if (val.get())
+	if (val)
 		vm->stack()->pushval(val);
 }

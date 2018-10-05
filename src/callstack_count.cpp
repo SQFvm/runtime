@@ -8,7 +8,7 @@
 std::shared_ptr<sqf::instruction> sqf::callstack_count::popinst(sqf::virtualmachine * vm)
 {
 	auto ret = sqf::callstack::popinst(vm);
-	if (ret.get())
+	if (ret)
 		return ret;
 	if (mCurIndex > 0)
 	{

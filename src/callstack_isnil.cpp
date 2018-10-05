@@ -13,7 +13,7 @@ sqf::callstack_isnil::callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf
 std::shared_ptr<sqf::instruction> sqf::callstack_isnil::popinst(sqf::virtualmachine * vm)
 {
 	auto ret = sqf::callstack::popinst(vm);
-	if (ret.get())
+	if (ret)
 		return ret;
 	bool success;
 	auto val = vm->stack()->popval(success);

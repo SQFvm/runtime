@@ -15,7 +15,7 @@ sqf::callstack_for::callstack_for(std::shared_ptr<sqf::sqfnamespace> ns, std::sh
 std::shared_ptr<sqf::instruction> sqf::callstack_for::popinst(sqf::virtualmachine * vm)
 {
 	auto ret = sqf::callstack::popinst(vm);
-	if (ret.get())
+	if (ret)
 		return ret;
 	auto val = getvar(mfordata->variable());
 	if (   val->dtype() == type::SCALAR

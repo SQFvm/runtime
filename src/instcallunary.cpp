@@ -15,10 +15,10 @@ void sqf::inst::callunary::execute(virtualmachine* vm) const
 		return;
 	}
 	auto cmd = sqf::commandmap::find(mcmds, right->dtype()); 
-	if (cmd.get())
+	if (cmd)
 	{
 		auto val = cmd->execute(vm, std::shared_ptr<value>(), right);
-		if (val.get())
+		if (val)
 			vm->stack()->pushval(val);
 	}
 	else
