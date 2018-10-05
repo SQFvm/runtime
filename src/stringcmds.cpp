@@ -83,7 +83,7 @@ namespace
 		auto format = r[0]->as_string();
 		std::stringstream sstream;
 		size_t off = 0;
-		size_t newoff = 0;
+		size_t newoff;
 		while ((newoff = format.find(L'%', off)) != std::string::npos)
 		{
 			sstream << format.substr(off, newoff - off);
