@@ -450,7 +450,7 @@ namespace
 		}
 	}
 	//CALLNULAR = "callNular" command
-	bool callnular_start(const char *code, size_t off) { return str_cmpi(code + off, compiletime::strlen("callNular"), "callNular", compiletime::strlen("callNular")) == 0 || str_cmpi(code + off, compiletime::strlen("callNular"), "callNular", compiletime::strlen("callNular")) == 0; }
+	bool callnular_start(const char *code, size_t off) { return str_cmpi(code + off, compiletime::strlen("callNular"), "callNular", compiletime::strlen("callNular")) == 0; }
 	void callnular(sqf::virtualmachine* vm, const char *code, size_t &line, size_t &col, size_t &curoff)
 	{
 		size_t identstart = curoff;
