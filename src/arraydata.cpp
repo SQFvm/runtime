@@ -10,7 +10,7 @@ std::string sqf::arraydata::tosqf() const
 	std::stringstream sstream;
 	sstream << '[';
 	bool first = true;
-	for (auto it : mvalue)
+	for (auto& it : mvalue)
 	{
 		if (first)
 		{
@@ -29,28 +29,17 @@ std::string sqf::arraydata::tosqf() const
 bool sqf::arraydata::equals(std::shared_ptr<data> d) const
 {
 	auto data = std::dynamic_pointer_cast<arraydata>(d);
+	if (!data) return false;
 	if (mvalue.size() != data->size())
 	{
 		return false;
 	}
-	for (size_t i = 0; i < mvalue.size(); i++)
-	{
-		if (mvalue[i]->dtype() == type::STRING && mvalue[i]->dtype() == data->at(i)->dtype())
-		{
-			if (mvalue[i]->as_string() != data->at(i)->as_string())
-			{
-				return false;
-			}
-		} 
-		else
-		{
-			if (!mvalue[i]->equals(data->at(i)))
-			{
-				return false;
-			}
-		}
-	}
-	return true;
+
+	return std::equal(mvalue.begin(),mvalue.end(),data->begin(),data->end(), [](const std::shared_ptr<value>& left, const std::shared_ptr<value>& right) {
+		if (left->dtype() == type::STRING && left->dtype() == right->dtype())
+			return left->as_string() == right->as_string();
+		return left->equals(right);
+	});
 }
 
 void sqf::arraydata::resize(size_t newsize)
