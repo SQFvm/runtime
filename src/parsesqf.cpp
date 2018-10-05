@@ -301,7 +301,7 @@ namespace sqf
 				}
 				else
 				{
-					for (auto child : thisnode.children)
+					for (auto& child : thisnode.children)
 					{
 						root.children.push_back(child);
 					}
@@ -356,7 +356,7 @@ namespace sqf
 				}
 				else
 				{
-					for (auto child : thisnode.children)
+					for (auto& child : thisnode.children)
 					{
 						root.children.push_back(child);
 					}
@@ -411,7 +411,7 @@ namespace sqf
 				}
 				else
 				{
-					for (auto child : thisnode.children)
+					for (auto& child : thisnode.children)
 					{
 						root.children.push_back(child);
 					}
@@ -466,7 +466,7 @@ namespace sqf
 				}
 				else
 				{
-					for (auto child : thisnode.children)
+					for (auto& child : thisnode.children)
 					{
 						root.children.push_back(child);
 					}
@@ -521,7 +521,7 @@ namespace sqf
 				}
 				else
 				{
-					for (auto child : thisnode.children)
+					for (auto& child : thisnode.children)
 					{
 						root.children.push_back(child);
 					}
@@ -576,7 +576,7 @@ namespace sqf
 				}
 				else
 				{
-					for (auto child : thisnode.children)
+					for (auto& child : thisnode.children)
 					{
 						root.children.push_back(child);
 					}
@@ -631,7 +631,7 @@ namespace sqf
 				}
 				else
 				{
-					for (auto child : thisnode.children)
+					for (auto& child : thisnode.children)
 					{
 						root.children.push_back(child);
 					}
@@ -686,7 +686,7 @@ namespace sqf
 				}
 				else
 				{
-					for (auto child : thisnode.children)
+					for (auto& child : thisnode.children)
 					{
 						root.children.push_back(child);
 					}
@@ -741,7 +741,7 @@ namespace sqf
 				}
 				else
 				{
-					for (auto child : thisnode.children)
+					for (auto& child : thisnode.children)
 					{
 						root.children.push_back(child);
 					}
@@ -796,7 +796,7 @@ namespace sqf
 				}
 				else
 				{
-					for (auto child : thisnode.children)
+					for (auto& child : thisnode.children)
 					{
 						root.children.push_back(child);
 					}

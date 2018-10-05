@@ -267,7 +267,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		case sqf::parse::sqf::sqfasttypes::CODE:
 		{
 			auto cs = std::make_shared<sqf::callstack>(vm->missionnamespace());
-			for (auto subnode : node.children)
+			for (auto& subnode : node.children)
 			{
 				navigate_sqf(full, vm, cs, subnode);
 			}
@@ -278,7 +278,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		break;
 		case sqf::parse::sqf::sqfasttypes::ARRAY:
 		{
-			for (auto subnode : node.children)
+			for (auto& subnode : node.children)
 			{
 				navigate_sqf(full, vm, stack, subnode);
 			}
@@ -373,7 +373,7 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnod
 		{
 			vm->out() << "{" << std::endl;
 			depth++;
-			for (auto subnode : node.children)
+			for (auto& subnode : node.children)
 			{
 				vm->out() << std::string(depth * 4, ' ');
 				navigate_pretty_print_sqf(full, vm, subnode, depth);
@@ -387,7 +387,7 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnod
 		{
 			vm->out() << "[";
 			bool flag = false;
-			for (auto subnode : node.children)
+			for (auto& subnode : node.children)
 			{
 				if (flag)
 				{
@@ -416,7 +416,7 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnod
 		break;
 		default:
 		{
-			for (auto subnode : node.children)
+			for (auto& subnode : node.children)
 			{
 				vm->out() << std::string(depth, '\t');
 				navigate_pretty_print_sqf(full, vm, subnode, depth);
@@ -492,7 +492,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 	case sqf::parse::config::configasttypes::VALUENODE:
 	{
 		std::shared_ptr<sqf::configdata> curnode = std::make_shared<sqf::configdata>(parent, node.content);
-		for (auto subnode : node.children)
+		for (auto& subnode : node.children)
 		{
 			navigate_config(full, vm, curnode, subnode);
 		}
@@ -513,7 +513,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 	case sqf::parse::config::configasttypes::ARRAY:
 	{
 		std::vector<std::shared_ptr<sqf::value>> values;
-		for (auto subnode : node.children)
+		for (auto& subnode : node.children)
 		{
 			navigate_config(full, vm, parent, subnode);
 			values.push_back(parent->cfgvalue());
@@ -524,7 +524,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 		break;
 	default:
 	{
-		for (auto subnode : node.children)
+		for (auto& subnode : node.children)
 		{
 			navigate_config(full, vm, parent, subnode);
 		}

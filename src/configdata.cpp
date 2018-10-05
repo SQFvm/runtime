@@ -77,7 +77,7 @@ std::shared_ptr<sqf::value> sqf::configdata::logicparent()
 
 void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 {
-	for (auto val : innervector())
+	for (auto& val : innervector())
 	{
 		if (val->dtype() != sqf::type::CONFIG)
 			continue;

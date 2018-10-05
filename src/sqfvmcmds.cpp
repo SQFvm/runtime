@@ -24,7 +24,7 @@ namespace
 		str = std::make_shared<sqf::value>("u");
 		for (auto pair : commandmap::get().all_u())
 		{
-			for (auto it : *pair.second.get())
+			for (auto& it : *pair.second.get())
 			{
 				outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
 					std::make_shared<sqf::value>(pair.first),
@@ -35,7 +35,7 @@ namespace
 		str = std::make_shared<sqf::value>("b");
 		for (auto pair : commandmap::get().all_b())
 		{
-			for (auto it : *pair.second.get())
+			for (auto& it : *pair.second.get())
 			{
 				outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
 					std::make_shared<sqf::value>(sqf::type_str(it->ltype())),
@@ -50,7 +50,7 @@ namespace
 	{
 		std::vector<std::shared_ptr<sqf::value>> outarr;
 		auto str = std::make_shared<sqf::value>("n");
-		for (auto pair : commandmap::get().all_n())
+		for (auto& pair : commandmap::get().all_n())
 		{
 			if (pair.second->desc().length() == 0)
 				continue;
@@ -59,9 +59,9 @@ namespace
 			}));
 		}
 		str = std::make_shared<sqf::value>("u");
-		for (auto pair : commandmap::get().all_u())
+		for (auto& pair : commandmap::get().all_u())
 		{
-			for (auto it : *pair.second.get())
+			for (auto& it : *pair.second.get())
 			{
 				if (it->desc().length() == 0)
 					continue;
@@ -72,9 +72,9 @@ namespace
 			}
 		}
 		str = std::make_shared<sqf::value>("b");
-		for (auto pair : commandmap::get().all_b())
+		for (auto& pair : commandmap::get().all_b())
 		{
-			for (auto it : *pair.second.get())
+			for (auto& it : *pair.second.get())
 			{
 				if (it->desc().length() == 0)
 					continue;
@@ -91,7 +91,7 @@ namespace
 	{
 		std::vector<std::shared_ptr<sqf::value>> outarr;
 		auto str = std::make_shared<sqf::value>("n");
-		for (auto pair : commandmap::get().all_n())
+		for (auto& pair : commandmap::get().all_n())
 		{
 			if (str_ew(pair.first.c_str(), "__") == 0)
 				continue;
@@ -100,11 +100,11 @@ namespace
 			}));
 		}
 		str = std::make_shared<sqf::value>("u");
-		for (auto pair : commandmap::get().all_u())
+		for (auto& pair : commandmap::get().all_u())
 		{
 			if (str_ew(pair.first.c_str(), "__") == 0)
 				continue;
-			for (auto it : *pair.second.get())
+			for (auto& it : *pair.second.get())
 			{
 				outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
 					std::make_shared<sqf::value>(pair.first),
@@ -113,11 +113,11 @@ namespace
 			}
 		}
 		str = std::make_shared<sqf::value>("b");
-		for (auto pair : commandmap::get().all_b())
+		for (auto& pair : commandmap::get().all_b())
 		{
 			if (str_ew(pair.first.c_str(), "__") == 0)
 				continue;
-			for (auto it : *pair.second.get())
+			for (auto& it : *pair.second.get())
 			{
 				outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
 					std::make_shared<sqf::value>(sqf::type_str(it->ltype())),
@@ -140,7 +140,7 @@ namespace
 		std::stringstream sstream;
 		auto str = right->as_string();
 		bool wasfound = false;
-		for (auto pair : commandmap::get().all_n())
+		for (auto& pair : commandmap::get().all_n())
 		{
 			if (str_cmpi(pair.first.c_str(), pair.first.length(), str.c_str(), str.length()) != 0)
 				continue;
@@ -151,12 +151,12 @@ namespace
 				vm->out() << "NULAR '" << pair.first << "'\t<" << cmd->name() << ">\t" << cmd->desc() << std::endl;
 			wasfound = true;
 		}
-		for (auto pair : commandmap::get().all_u())
+		for (auto& pair : commandmap::get().all_u())
 		{
 			if (str_cmpi(pair.first.c_str(), pair.first.length(), str.c_str(), str.length()) != 0)
 				continue;
 			auto cmds = pair.second;
-			for (auto cmd : *cmds)
+			for (auto& cmd : *cmds)
 			{
 				if (!cmd->desc().empty())
 					vm->out() << "UNARY '" << pair.first << "'\t<" << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">\t" << cmd->desc() << std::endl;
@@ -165,12 +165,12 @@ namespace
 				wasfound = true;
 			}
 		}
-		for (auto pair : commandmap::get().all_b())
+		for (auto& pair : commandmap::get().all_b())
 		{
 			if (str_cmpi(pair.first.c_str(), pair.first.length(), str.c_str(), str.length()) != 0)
 				continue;
 			auto cmds = pair.second;
-			for (auto cmd : *cmds)
+			for (auto& cmd : *cmds)
 			{
 				if (!cmd->desc().empty())
 					vm->out() << "BINARY '" << pair.first << "'\t<" << sqf::type_str(cmd->ltype()) << " " << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">\t" << cmd->desc() << std::endl;
