@@ -295,11 +295,11 @@ void sqf::debugger::check(virtualmachine * vm)
 				_server->push_message(errormsg(sstream.str()));
 			}
 		}
-		catch (nlohmann::json::parse_error err)
+		catch (const nlohmann::json::parse_error& err)
 		{
 			_server->push_message(errormsg(err.what()));
 		}
-		catch (std::exception err)
+		catch (const std::exception& err)
 		{
 			_server->push_message(errormsg(err.what()));
 		}

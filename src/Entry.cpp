@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 			vm.pretty_print_sqf(str);
 			vm.out_buffprint();
 		}
-		catch (std::runtime_error ex)
+		catch (const std::runtime_error& ex)
 		{
 			errflag = true;
 			std::cout << "Failed to load file " << ex.what() << std::endl;
@@ -125,7 +125,7 @@ int main(int argc, char** argv)
 			auto str = load_file(f);
 			vm.parse_sqf(str, f);
 		}
-		catch (std::runtime_error ex)
+		catch (const std::runtime_error& ex)
 		{
 			errflag = true;
 			std::cout << "Failed to load file " << ex.what() << std::endl;
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
 			auto str = load_file(f);
 			vm.parse_config(str, sqf::configdata::configFile()->data<sqf::configdata>());
 		}
-		catch (std::runtime_error ex)
+		catch (const std::runtime_error& ex)
 		{
 			errflag = true;
 			std::cout << "Failed to load file " << ex.what() << std::endl;
@@ -169,7 +169,7 @@ int main(int argc, char** argv)
 			srv->wait_accept();
 			std::cout << "Client connected!" << std::endl;
 		}
-		catch (std::runtime_error err)
+		catch (const std::runtime_error& err)
 		{
 			std::cout << err.what() << std::endl;
 		}
@@ -193,7 +193,7 @@ int main(int argc, char** argv)
 				printf("%d:\t", i++);
 				std::getline(std::cin, line);
 				sstream << line << std::endl;
-			} while (line.size() != 0);
+			} while (!line.empty());
 
 			std::cout << std::endl;
 			vm.parse_sqf(sstream.str());

@@ -16,13 +16,13 @@ void netserver::THREAD_METHOD(netserver* srv)
 				{
 					srv->_inLock.lock();
 					try { srv->poll_queue(sclient); }
-					catch (std::runtime_error err) {}
+					catch (const std::runtime_error& err) {}
 					srv->_inLock.unlock();
 				}
 
 				srv->_outLock.lock();
 				try { flag = srv->send_queue(sclient); }
-				catch (std::runtime_error err) { flag = false; }
+				catch (const std::runtime_error& err) { flag = false; }
 				srv->_outLock.unlock();
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
@@ -34,7 +34,7 @@ void netserver::THREAD_METHOD(netserver* srv)
 					srv->_messageQueueOut.pop();
 				}
 			}
-			catch (std::runtime_error err) {}
+			catch (const std::runtime_error& err) {}
 			srv->_outLock.unlock();
 			networking_close(sclient);
 			srv->_accept = false;
@@ -79,17 +79,17 @@ netserver::netserver(unsigned short port) : _port(port), _die(false), _accept(fa
 {
 	if (networking_create_server(&_socket))
 	{
-		throw new std::runtime_error("Coult not create server-socket.");
+		throw std::runtime_error("Coult not create server-socket.");
 	}
 	if (networking_server_bind(&_socket, port))
 	{
 		networking_close(_socket);
-		throw new std::runtime_error("Coult not bind to provided port.");
+		throw std::runtime_error("Coult not bind to provided port.");
 	}
 	if (networking_server_listen(&_socket, 3))
 	{
 		networking_close(_socket);
-		throw new std::runtime_error("Coult not bind to provided port.");
+		throw std::runtime_error("Coult not bind to provided port.");
 	}
 	_currentThread = std::thread([this]() { THREAD_METHOD(this); });
 	//_currentThread.detach();
@@ -110,7 +110,7 @@ void netserver::wait_accept() {
 	{
 		if (_die)
 		{
-			throw new std::runtime_error("server died");
+			throw std::runtime_error("server died");
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}

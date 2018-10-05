@@ -742,7 +742,7 @@ namespace
 			}
 			return std::make_shared<value>(buffer);
 		}
-		catch (std::runtime_error ex)
+		catch (const std::runtime_error& ex)
 		{
 			vm->wrn() << "Could not complete command execution due to error with library '" << left->as_string() << "' (RVExtension):" << ex.what() << std::endl;
 			return std::make_shared<value>("");
@@ -814,7 +814,7 @@ namespace
 			}
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(buffer), std::make_shared<value>(res), std::make_shared<value>(0) });
 		}
-		catch (std::runtime_error ex)
+		catch (const std::runtime_error& ex)
 		{
 			vm->wrn() << "Could not complete command execution due to error with library '" << left->as_string() << "' (RVExtensionArgs):" << ex.what() << std::endl;
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(501) });
