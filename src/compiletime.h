@@ -4,9 +4,9 @@
 
 class compiletime
 {
-private:
-	compiletime();
 public:
+	compiletime() = delete;
+
 	static unsigned int constexpr strlen(const char* str)
 	{
 		return str[0] ? 1 + strlen(str + 1) : 0;
