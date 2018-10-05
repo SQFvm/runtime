@@ -75,7 +75,7 @@ bool netserver::send_queue(SOCKET client)
 	return flag;
 }
 
-netserver::netserver(unsigned short port) : _port(port), builder(), _die(false), _accept(false)
+netserver::netserver(unsigned short port) : _port(port), _die(false), _accept(false)
 {
 	if (networking_create_server(&_socket))
 	{
