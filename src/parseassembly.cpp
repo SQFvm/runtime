@@ -145,7 +145,7 @@ namespace
 	}
 	void skip(const char *code, size_t &line, size_t &col, size_t &curoff)
 	{
-		while (1)
+		while (true)
 		{
 			switch (code[curoff])
 			{

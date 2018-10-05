@@ -19,7 +19,7 @@ namespace sqf
 			//ToDo: Add preprocessor
 			void skip(const char *code, size_t &curoff)
 			{
-				while (1)
+				while (true)
 				{
 					switch (code[curoff])
 					{
@@ -33,7 +33,7 @@ namespace sqf
 			}
 			void skip(const char *code, size_t &line, size_t &col, size_t &curoff)
 			{
-				while (1)
+				while (true)
 				{
 					switch (code[curoff])
 					{
@@ -1102,7 +1102,7 @@ namespace sqf
 					size_t i = curoff;
 					bool numhaddot = false;
 					unsigned short numhadexp = 0;
-					while (1)
+					while (true)
 					{
 						if (code[i] >= '0' && code[i] <= '9')
 						{

@@ -67,21 +67,14 @@ public:
 	}
 	bool try_resolve(std::string name, void** outptr)
 	{
-		if (0 == handle)
-			return 0;
-		*outptr = DLOPS_LIB_SYM(handle, name.c_str());
-		if (0 == *outptr)
-		{
+		if (nullptr == handle)
 			return false;
-		}
-		else
-		{
-			return true;
-		}
+		*outptr = DLOPS_LIB_SYM(handle, name.c_str());
+		return *outptr;
 	}
 	void close()
 	{
-		if (0 == handle)
+		if (nullptr == handle)
 			return;
 #if defined(__linux__)
 		if (DLOPS_LIB_CLOSE(handle))
