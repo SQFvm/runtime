@@ -27,8 +27,8 @@ namespace sqf
 		virtual std::string tosqf() const;
 		std::shared_ptr<value>& operator[](int index) { return mvalue.at(index); }
 		std::shared_ptr<value> operator[](int index) const { return index < 0 || index >= static_cast<int>(mvalue.size()) ? std::make_shared<value>() : mvalue[index]; }
-		std::shared_ptr<value>& at(int index) { return mvalue.at(index); }
-		const std::shared_ptr<value> at(int index) const { return mvalue.at(index); }
+		const std::shared_ptr<value>& at(int index) { return mvalue.at(index); }
+		std::shared_ptr<value> at(int index) const { return mvalue.at(index); }
 		size_t size() const { return mvalue.size(); }
 		operator std::vector<std::shared_ptr<value>>() const { return mvalue; }
 		virtual bool equals(std::shared_ptr<data> d) const;
