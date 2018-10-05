@@ -17,7 +17,6 @@ std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string varname)
 		if (it->get()->containsvar(varname))
 		{
 			return it->get()->getvar(varname);
-			break;
 		}
 	}
 	return std::make_shared<sqf::value>();

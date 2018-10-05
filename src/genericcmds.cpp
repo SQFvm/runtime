@@ -756,7 +756,6 @@ namespace
 		{
 			vm->wrn() << "Expected 2 elements in array, got " << rvec->size() << ". Returning error code PARAMS_ERROR_TOO_MANY_ARGS(201)." << std::endl;
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(201) });
-			return std::shared_ptr<value>();
 		}
 		if (rvec->at(0)->dtype() != type::STRING)
 		{
