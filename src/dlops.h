@@ -39,7 +39,7 @@ public:
 	dlops(std::string path)
 	{
 		handle = DLOPS_LIB_OPEN(path.c_str());
-		if (0 == handle)
+		if (nullptr == handle)
 		{
 			throw std::runtime_error(DLOPS_LIB_GETLASTERROR());
 		}
@@ -53,10 +53,10 @@ public:
 
 	void* resolve(std::string name)
 	{
-		if (0 == handle)
-			return 0;
+		if (nullptr == handle)
+			return nullptr;
 		auto res = DLOPS_LIB_SYM(handle, name.c_str());
-		if (0 == res)
+		if (nullptr == res)
 		{
 			throw std::runtime_error(DLOPS_LIB_GETLASTERROR());
 		}

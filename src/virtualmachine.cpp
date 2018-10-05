@@ -245,7 +245,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		break;
 		case sqf::parse::sqf::sqfasttypes::HEXNUMBER:
 		{
-			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stol(node.content, 0, 16)));
+			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stol(node.content, nullptr, 16)));
 			inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 			stack->pushinst(inst);
 		}
@@ -505,7 +505,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 		parent->cfgvalue(std::make_shared<sqf::value>(std::stod(node.content)));
 		break;
 	case sqf::parse::config::configasttypes::HEXNUMBER:
-		parent->cfgvalue(std::make_shared<sqf::value>(std::stol(node.content, 0, 16)));
+		parent->cfgvalue(std::make_shared<sqf::value>(std::stol(node.content, nullptr, 16)));
 		break;
 	case sqf::parse::config::configasttypes::LOCALIZATION:
 		parent->cfgvalue(std::make_shared<sqf::value>(node.content));
