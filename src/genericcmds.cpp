@@ -13,6 +13,7 @@
 #include "callstack_select.h"
 #include "callstack_isnil.h"
 #include "callstack_exitwith.h"
+#include "callstack_findif.h"
 #include "callstack_switch.h"
 #include "callstack_apply.h"
 #include "callstack_foreach.h"
@@ -373,6 +374,17 @@ namespace
 			newindex = -1;
 		}
 		return std::make_shared<value>(newindex);
+	}
+	std::shared_ptr<value> findif_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto arr = left->data<arraydata>();
+		int newindex = (int)arr->size();
+		if (arr->size() == 0)
+			return std::make_shared<value>(-1);
+		auto cond = right->data<codedata>();
+		auto cs = std::make_shared<sqf::callstack_findif>(vm->stack()->stacks_top()->getnamespace(), cond, arr);
+		vm->stack()->pushcallstack(cs);
+		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> reverse_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
@@ -1022,6 +1034,7 @@ void sqf::commandmap::initgenericcmds()
 	add(binary(4, "resize", type::ARRAY, type::SCALAR, "Changes the size of the given array. The command does not return new array, it resizes the source array to the desired number of elements. If the new size is bigger than the current size, the new places are filled with nils.", resize_array_scalar));
 	add(binary(4, "pushBack", type::ARRAY, type::ANY, "Insert an element to the back of the given array. This command modifies the original array. Returns the index of the newly added element.", pushback_array_any));
 	add(binary(4, "pushBackUnique", type::ARRAY, type::ANY, "Adds element to the back of the given array but only if it is unique to the array. The index of the added element is returned upon success, otherwise -1. This command modifies the original array.", pushbackunique_array_any));
+	add(binary(4, "findIf", type::ARRAY, type::CODE, "Searches for an element within array for which the code evaluates to true. Returns the 0 based index on success or -1 if not found. Code on the right side of the command is evaluated for each element of the array, processed element can be referenced in code as _x.", findif_array_code));
 	add(unary("reverse", type::ARRAY, "Reverses given array by reference. Modifies the original array.", reverse_array));
 	add(unary("private", type::STRING, "Sets a variable to the innermost scope.", private_string));
 	add(unary("private", type::ARRAY, "Sets a bunch of variables to the innermost scope.", private_array));
