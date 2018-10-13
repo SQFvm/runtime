@@ -50,8 +50,18 @@ namespace sqf
 			size_t endchr(const char* code, size_t off) { return code[off] == ';' || code[off] == ',' ? 1 : 0; }
 			//identifier = [_a-zA-Z][_a-zA-Z0-9]*;
 			size_t identifier(const char* code, size_t off) { size_t i = off; if (!((code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '_')) return 0; for (i = off + 1; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++); return i - off; }
-			//identifier = [_a-zA-Z0-9]+;
-			size_t assidentifier(const char* code, size_t off) { size_t i = off; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++); return i - off; }
+			//identifier = [_a-zA-Z][_a-zA-Z0-9]+;
+			size_t assidentifier(const char* code, size_t off)
+			{
+				size_t i = off;
+				if (!((code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '_'))
+				{
+					return 0;
+				}
+
+				for (i++; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++);
+				return i - off;
+			}
 			//operator_ = [+-*/%^]|&&|\|\||==|[!<>][=]?|[a-zA-Z_]+;
 			size_t operator_(const char* code, size_t off) {
 				if (code[off] == '+' || code[off] == '-' || code[off] == '*' || code[off] == '/' || code[off] == '%' || code[off] == '^' || code[off] == ':') return 1;
@@ -147,7 +157,7 @@ namespace sqf
 				{
 					curoff += len;
 					skip(code, curoff);
-					return code[curoff] == '=';
+					return code[curoff] == '=' && code[curoff + 1] != '=';
 				}
 				else
 				{
