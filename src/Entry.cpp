@@ -79,7 +79,6 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> prettyPrintArg("", "pretty-print", "Loads provided file from disk and pretty-prints it onto console.", false, "PATH");
 	cmd.add(prettyPrintArg);
 
-
 	cmd.parse(argc, argv);
 
 	std::vector<std::string> sqfFiles = loadSqfFileArg.getValue();
@@ -185,7 +184,8 @@ int main(int argc, char** argv)
 				"For a list of all implemented commands, use the `cmds__` operator.\n"
 				"For a list of all SQF-VM internal commands, use the `vm__` operator.\n"
 				"To run the code, Press [ENTER] twice.\n"
-				"To exit, use the `exit__` command.\n");
+				"To exit, use the `exit__` command.\n"
+				"If you enjoy this tool, consider donating: https://paypal.me/X39\n");
 			std::string line;
 			std::stringstream sstream;
 			do
