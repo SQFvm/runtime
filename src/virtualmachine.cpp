@@ -114,7 +114,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			merr_buff.str(std::string());
 			merrflag = false;
 			//Only for non-scheduled (and thus the mainstack)
-			if (mactivestack->isscheduled())
+			if (!mactivestack->isscheduled())
 			{
 				break;
 			}
