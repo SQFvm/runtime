@@ -14,8 +14,8 @@ namespace sqf
 			std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> mcmds;
 		public:
 			callbinary(std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> cmds) { mcmds = cmds; }
-			virtual void execute(virtualmachine*) const;
-			virtual insttype thistype() const { return insttype::callbinary; }
+			void execute(virtualmachine*) const override;
+			insttype thistype() const override { return insttype::callbinary; }
 		};
 	}
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "data.h"
@@ -18,15 +19,15 @@ namespace sqf
 		bool mflag;
 		bool mexecuted;
 	public:
-		switchdata(std::shared_ptr<value> val) : mvalue(val), mflag(false), mexecuted(false) {}
-		virtual std::string tosqf() const;
+		switchdata(std::shared_ptr<value> val) : mvalue(std::move(val)), mflag(false), mexecuted(false) {}
+		std::string tosqf() const override;
 		void flag(bool f) { mflag = f; }
-		bool flag() { return mflag; }
+		bool flag() const { return mflag; }
 		void executed(bool f) { mexecuted = f; }
 		bool executed() { return mexecuted; }
 		std::shared_ptr<value> val() { return mvalue; }
 		void defaultexec(std::shared_ptr<codedata> exec) { mdefaultexec = exec; }
 		std::shared_ptr<codedata> defaultexec() { return mdefaultexec; }
-		virtual bool equals(std::shared_ptr<data> d) const { return mvalue == std::dynamic_pointer_cast<switchdata>(d)->mvalue; }
+		bool equals(std::shared_ptr<data> d) const override { return mvalue == std::dynamic_pointer_cast<switchdata>(d)->mvalue; }
 	};
 }

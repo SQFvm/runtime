@@ -4,7 +4,7 @@
 std::shared_ptr<sqf::unarycmd> sqf::commandmap::get(std::string str, type rtype)
 {
 	auto listsptr = munarycmd[tolowerstring(str)];
-	if (listsptr.get())
+	if (listsptr)
 	{
 		for (auto it : *listsptr)
 		{
@@ -20,7 +20,7 @@ std::shared_ptr<sqf::unarycmd> sqf::commandmap::get(std::string str, type rtype)
 std::shared_ptr<sqf::binarycmd> sqf::commandmap::get(std::string str, type ltype, type rtype)
 {
 	auto listsptr = mbinarycmd[tolowerstring(str)];
-	if (listsptr.get())
+	if (listsptr)
 	{
 		for (auto it : *listsptr)
 		{

@@ -83,7 +83,7 @@ namespace
 		auto format = r[0]->as_string();
 		std::stringstream sstream;
 		size_t off = 0;
-		size_t newoff = 0;
+		size_t newoff;
 		while ((newoff = format.find(L'%', off)) != std::string::npos)
 		{
 			sstream << format.substr(off, newoff - off);
@@ -101,7 +101,7 @@ namespace
 				{
 					vm->wrn() << "Invalid placeholder index " << num << " provided at string index " << newoff << '.' << std::endl;
 				}
-				else if(num >= (int)r.size())
+				else if(num >= static_cast<int>(r.size()))
 				{
 					vm->wrn() << "Placeholder index " << num << " provided at string index " << newoff << " is out of range." << std::endl;
 				}
@@ -122,7 +122,7 @@ namespace
 		auto arr = std::vector<std::shared_ptr<value>>(r.size());
 		for (size_t i = 0; i < r.size(); i++)
 		{
-			arr[i] = std::make_shared<value>((int)(r[i]));
+			arr[i] = std::make_shared<value>(static_cast<int>(r[i]));
 		}
 		return std::make_shared<value>(arr);
 	}
@@ -135,7 +135,7 @@ namespace
 			auto& val = r[i];
 			if (val->dtype() == SCALAR)
 			{
-				sstream << (char)val->as_int();
+				sstream << static_cast<char>(val->as_int());
 			}
 			else
 			{

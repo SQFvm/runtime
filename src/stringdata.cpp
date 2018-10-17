@@ -37,9 +37,8 @@ std::string sqf::stringdata::parse_from_sqf(std::string s)
 std::string sqf::stringdata::parse_to_sqf(std::string s)
 {
 	size_t count = 2;
-	for (size_t i = 0; i < s.length(); i++)
+	for (char c : s)
 	{
-		char c = s[i];
 		if (c == '"')
 			count++;
 	}
@@ -48,9 +47,8 @@ std::string sqf::stringdata::parse_to_sqf(std::string s)
 	size_t index = 1;
 	arr[0] = '"';
 	arr[size - 1] = '"';
-	for (size_t i = 0; i < s.length(); i++)
+	for (char c : s)
 	{
-		char c = s[i];
 		arr[index] = c;
 		index++;
 		if (c == '"')

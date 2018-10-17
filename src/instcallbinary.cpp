@@ -21,14 +21,14 @@ void sqf::inst::callbinary::execute(virtualmachine* vm) const
 		return;
 	}
 	auto cmd = sqf::commandmap::find(mcmds, left->dtype(), right->dtype());
-	if (cmd.get())
+	if (cmd)
 	{
 		if (left->dtype() == sqf::type::NOTHING)
 		{
 			vm->wrn() << dbginf("ASS") << "callBinary could not receive a value for left arg." << std::endl;
 		}
 		auto val = cmd->execute(vm, left, right);
-		if (val.get())
+		if (val)
 			vm->stack()->pushval(val);
 	}
 	else

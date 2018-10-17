@@ -12,12 +12,11 @@ void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instructio
 
 std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string varname)
 {
-	for (auto it = stacks_begin(); it != stacks_end(); it++)
+	for (auto it = stacks_begin(); it != stacks_end(); ++it)
 	{
 		if (it->get()->containsvar(varname))
 		{
 			return it->get()->getvar(varname);
-			break;
 		}
 	}
 	return std::make_shared<sqf::value>();

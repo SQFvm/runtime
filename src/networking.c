@@ -39,7 +39,7 @@ int networking_cleanup()
 int networking_close(SOCKET sock)
 {
 
-	int status = 0;
+	int status;
 
 #ifdef WIN32
 	status = shutdown(sock, SD_BOTH);

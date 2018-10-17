@@ -4,9 +4,9 @@
 
 class compiletime
 {
-private:
-	compiletime();
 public:
+	compiletime() = delete;
+
 	static unsigned int constexpr strlen(const char* str)
 	{
 		return str[0] ? 1 + strlen(str + 1) : 0;
@@ -21,6 +21,6 @@ public:
 	}
 	static constexpr double rand_lim(int rnd, double limit)
 	{
-		return (((double)rnd) / RAND_MAX) * limit;
+		return (static_cast<double>(rnd) / RAND_MAX) * limit;
 	}
 };

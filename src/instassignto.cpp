@@ -15,7 +15,7 @@ void sqf::inst::assignto::execute(virtualmachine* vm) const
 	}
 	if (mvarname[0] == '_')
 	{
-		for (auto it = vm->stack()->stacks_begin(); it != vm->stack()->stacks_end(); it++)
+		for (auto it = vm->stack()->stacks_begin(); it != vm->stack()->stacks_end(); ++it)
 		{
 			if (it->get()->containsvar(mvarname))
 			{

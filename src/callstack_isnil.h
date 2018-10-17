@@ -9,6 +9,6 @@ namespace sqf
 	{
 	public:
 		callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf::virtualmachine * vm, std::shared_ptr<codedata> exec);
-		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
+		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 	};
 }

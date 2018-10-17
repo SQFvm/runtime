@@ -21,7 +21,7 @@ namespace sqf
 		std::shared_ptr<groupdata> mgroup;
 
 		bool misvehicle;
-		innerobj(std::string classname, bool isvehicle) : mclassname(classname), misvehicle(isvehicle) {}
+		innerobj(std::string classname, bool isvehicle) : mclassname(std::move(classname)), misvehicle(isvehicle) {}
 	public:
 		virtual std::string tosqf() const;
 

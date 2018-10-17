@@ -21,17 +21,17 @@ namespace sqf
 		std::shared_ptr<sqf::value> navigate_unsafe(std::string nextnode);
 		std::shared_ptr<sqf::value> navigate_full_unsafe(std::string nextnode);
 	public:
-		configdata(std::string name) : mname(name), misnull(true) {}
+		configdata(std::string name) : mname(std::move(name)), misnull(true) {}
 		configdata() : mname("bin\\config.bin"), misnull(false) {}
-		configdata(std::weak_ptr<configdata> logicparent, std::string name) : mname(name), mlogicparent(logicparent), misnull(false) {}
-		configdata(std::weak_ptr<configdata> logicparent, std::string name, std::string parentname) : mname(name), mparentname(parentname), mlogicparent(logicparent), misnull(false) {}
+		configdata(std::weak_ptr<configdata> logicparent, std::string name) : mname(std::move(name)), mlogicparent(std::move(logicparent)), misnull(false) {}
+		configdata(std::weak_ptr<configdata> logicparent, std::string name, std::string parentname) : mname(std::move(name)), mparentname(std::move(parentname)), mlogicparent(std::move(logicparent)), misnull(false) {}
 
 		std::shared_ptr<sqf::value> cfgvalue() const { return mvalue; }
 		void cfgvalue(std::shared_ptr<sqf::value> val) { mvalue = val; }
 		std::string name() const { return mname; }
 
-		virtual std::string tosqf() const;
-		virtual bool equals(std::shared_ptr<data> d) const { return d.get() == this; }
+		std::string tosqf() const override;
+		bool equals(std::shared_ptr<data> d) const override { return d.get() == this; }
 		size_t logicalparentcount() const { if (auto sptr = mlogicparent.lock()) { return sptr->logicalparentcount() + 1; } return 0; }
 		std::shared_ptr<sqf::value> parent() { auto val = parent_unsafe(); return val.get() ? val : configNull(); }
 		std::shared_ptr<sqf::value> navigate(std::string nextnode) { auto val = navigate_full_unsafe(nextnode); return val.get() ? val : configNull(); }

@@ -14,19 +14,19 @@ std::shared_ptr<sqf::data> sqf::convert(std::shared_ptr<sqf::data> val, type typ
 	switch (type)
 	{
 	case sqf::SCALAR:
-		return std::make_shared<scalardata>(strtod(stringval.c_str(), 0));
+		return std::make_shared<scalardata>(strtod(stringval.c_str(), nullptr));
 	case sqf::BOOL:
-		if (str_cmpi(stringval.c_str(), (int)stringval.length(), "true", 4) == 0)
+		if (str_cmpi(stringval.c_str(), static_cast<int>(stringval.length()), "true", 4) == 0)
 		{
 			return std::make_shared<booldata>(true);
 		}
-		else if (str_cmpi(stringval.c_str(), (int)stringval.length(), "false", 5) == 0)
+		else if (str_cmpi(stringval.c_str(), static_cast<int>(stringval.length()), "false", 5) == 0)
 		{
 			return std::make_shared<booldata>(false);
 		}
 		else
 		{
-			return std::make_shared<booldata>(strtod(stringval.c_str(), 0) > 0);
+			return std::make_shared<booldata>(strtod(stringval.c_str(), nullptr) > 0);
 		}
 	case sqf::STRING:
 		return std::make_shared<stringdata>(stringifiedval);

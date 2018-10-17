@@ -24,8 +24,7 @@ namespace sqf
 	private:
 		eside mside;
 	public:
-		virtual std::string tosqf() const
-		{
+		std::string tosqf() const override {
 			switch (mside)
 			{
 			case sqf::sidedata::Empty:
@@ -53,7 +52,7 @@ namespace sqf
 		sidedata(eside side) : mside(side) {}
 		operator eside() const { return mside; }
 		eside side() const { return mside; }
-		virtual bool equals(std::shared_ptr<data> d) const { return mside == std::dynamic_pointer_cast<sidedata>(d)->mside; }
+		bool equals(std::shared_ptr<data> d) const override { return mside == std::dynamic_pointer_cast<sidedata>(d)->mside; }
 
 		bool is_friendly_to(eside other) { return is_friendly_to(this->mside, other); }
 		void set_friendly_to(eside other, bool flag) { set_friendly_to(this->mside, other, flag); }

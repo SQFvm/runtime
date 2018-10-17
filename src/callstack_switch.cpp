@@ -6,7 +6,7 @@
 std::shared_ptr<sqf::instruction> sqf::callstack_switch::popinst(sqf::virtualmachine * vm)
 {
 	auto ret = sqf::callstack::popinst(vm);
-	if (ret.get())
+	if (ret)
 		return ret;
 	if (!mswtch->executed() && mswtch->defaultexec().get())
 	{

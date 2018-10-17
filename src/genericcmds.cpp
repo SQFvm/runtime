@@ -261,14 +261,14 @@ namespace
 	std::shared_ptr<value> select_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto arr = left->as_vector();
-		auto index = right->as_int();
+		auto index = right->as_long();
 
-		if ((int)arr.size() <= index || index < 0)
+		if (arr.size() <= index || index < 0)
 		{
 			vm->err() << "Index out of range." << std::endl;
 			return std::make_shared<value>();
 		}
-		if ((int)arr.size() == index)
+		if (arr.size() == index)
 		{
 			vm->wrn() << "Index equals range. Returning nil." << std::endl;
 			return std::make_shared<value>();
@@ -304,13 +304,13 @@ namespace
 			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		int start = arr[0]->as_int();
+		int start = arr[0]->as_long();
 		if (start < 0)
 		{
 			vm->wrn() << "Start index is smaller then 0. Returning empty array." << std::endl;
 			return std::make_shared<value>("");
 		}
-		if (start > (int)vec.size())
+		if (start > vec.size())
 		{
 			vm->wrn() << "Start index is larger then string length. Returning empty array." << std::endl;
 			return std::make_shared<value>("");
@@ -329,7 +329,7 @@ namespace
 				return std::make_shared<value>("");
 			}
 
-			return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, start + length > (int)vec.size() ? vec.end() : vec.begin() + start + length));
+			return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, start + length > static_cast<int>(vec.size()) ? vec.end() : vec.begin() + start + length));
 		}
 		return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, vec.end()));
 	}
@@ -413,7 +413,7 @@ namespace
 		{
 			return std::shared_ptr<value>();
 		}
-		for (auto it : arr)
+		for (auto& it : arr)
 		{
 			auto str = it->as_string();
 			vm->stack()->stacks_top()->setvar(str, std::make_shared<value>());
@@ -549,9 +549,9 @@ namespace
 			return std::shared_ptr<value>();
 		}
 
-		auto index = params[0]->as_int();
+		auto index = params[0]->as_long();
 		auto val = params[1];
-		if ((int)arr->size() <= index)
+		if (arr->size() <= index)
 		{
 			arr->resize(index + 1);
 		}
@@ -728,7 +728,7 @@ namespace
 		static char buffer[CALLEXTVERSIONBUFFSIZE + 1] = { 0 };
 		for (auto it : vm->libraries())
 		{
-			if (!it->path().compare(name))
+			if (it->path() == name)
 			{
 				return it;
 			}
@@ -738,7 +738,7 @@ namespace
 		void* sym = nullptr;
 		if (dl->try_resolve("RVExtensionVersion", &sym))
 		{
-			((RVExtensionVersion)sym)(buffer, CALLEXTVERSIONBUFFSIZE);
+			reinterpret_cast<RVExtensionVersion>(sym)(buffer, CALLEXTVERSIONBUFFSIZE);
 			if (buffer[CALLEXTVERSIONBUFFSIZE - 1] != '\0')
 			{
 				vm->wrn() << "Library '" << name << "' is not terminating RVExtensionVersion output buffer with a '\\0'!" << std::endl;
@@ -758,9 +758,9 @@ namespace
 		{
 			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
 #if defined(_WIN32) & !defined(_WIN64)
-			auto method = (RVExtension)dl->resolve("_RVExtension@12");
+			auto method = reinterpret_cast<RVExtension>(dl->resolve("_RVExtension@12"));
 #else
-			auto method = (RVExtension)dl->resolve("RVExtension");
+			auto method = reinterpret_cast<RVExtension>(dl->resolve("RVExtension"));
 #endif
 			method(buffer, CALLEXTBUFFSIZE, right->as_string().c_str());
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
@@ -769,7 +769,7 @@ namespace
 			}
 			return std::make_shared<value>(buffer);
 		}
-		catch (std::runtime_error ex)
+		catch (const std::runtime_error& ex)
 		{
 			vm->wrn() << "Could not complete command execution due to error with library '" << left->as_string() << "' (RVExtension):" << ex.what() << std::endl;
 			return std::make_shared<value>("");
@@ -783,7 +783,6 @@ namespace
 		{
 			vm->wrn() << "Expected 2 elements in array, got " << rvec->size() << ". Returning error code PARAMS_ERROR_TOO_MANY_ARGS(201)." << std::endl;
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(201) });
-			return std::shared_ptr<value>();
 		}
 		if (rvec->at(0)->dtype() != type::STRING)
 		{
@@ -804,9 +803,8 @@ namespace
 		}
 		std::vector<std::string> argstringvec;
 
-		for (size_t i = 0; i < arr->size(); i++)
+		for (const auto& at : *arr) 
 		{
-			auto& at = arr->at(i);
 			switch (at->dtype())
 			{
 			case type::BOOL:
@@ -822,27 +820,27 @@ namespace
 		}
 		std::vector<const char*> argvec;
 		argvec.reserve(argstringvec.size());
-		for (size_t i = 0; i < argstringvec.size(); i++)
+		for (auto& it : argstringvec)
 		{
-			argvec.push_back(argstringvec[i].c_str());
+			argvec.push_back(it.c_str());
 		}
 
 		try
 		{
 			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
 #if defined(_WIN32) & !defined(_WIN64)
-			auto method = (RVExtensionArgs)dl->resolve("_RVExtensionArgs@20");
+			auto method = reinterpret_cast<RVExtensionArgs>(dl->resolve("_RVExtensionArgs@20"));
 #else
-			auto method = (RVExtensionArgs)dl->resolve("RVExtensionArgs");
+			auto method = reinterpret_cast<RVExtensionArgs>(dl->resolve("RVExtensionArgs"));
 #endif
-			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0)->as_string().c_str(), argvec.data(), (int)argvec.size());
+			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0)->as_string().c_str(), argvec.data(), static_cast<int>(argvec.size()));
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
 				vm->wrn() << "Library '" << left->as_string() << "' is not terminating RVExtensionArgs output buffer with a '\\0'!" << std::endl;
 			}
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(buffer), std::make_shared<value>(res), std::make_shared<value>(0) });
 		}
-		catch (std::runtime_error ex)
+		catch (const std::runtime_error& ex)
 		{
 			vm->wrn() << "Could not complete command execution due to error with library '" << left->as_string() << "' (RVExtensionArgs):" << ex.what() << std::endl;
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(501) });
@@ -914,15 +912,13 @@ namespace
 				if (fels.size() >= 3 && fels.at(2)->data<arraydata>()->size() != 0)
 				{
 					auto tmp = fels.at(2)->data<arraydata>();
-					flag = false;
-					for (j = 0; j < tmp->size(); j++)
-					{
-						if (el->dtype() == tmp->at(j)->dtype())
-						{
-							flag = true;
-							break;
-						}
-					}
+
+					auto found = std::find_if(tmp->begin(), tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
+						return type == val->as_int();
+					});
+
+					flag = found != tmp->end();
+
 					if (!flag)
 					{
 						vm->wrn() << "Element " << i << " is not matching provided expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
@@ -936,16 +932,12 @@ namespace
 					if (fels.at(2)->dtype() == sqf::ARRAY)
 					{
 						auto tmp = fels.at(2)->data<arraydata>();
-						auto len = el->data<arraydata>()->size();
-						flag = false;
-						for (j = 0; j < tmp->size(); j++)
-						{
-							if (el->dtype() == tmp->at(j)->as_int())
-							{
-								flag = true;
-								break;
-							}
-						}
+
+						auto found = std::find_if(tmp->begin(),tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
+							return type == val->as_int();
+						});
+
+						flag = found != tmp->end();
 					}
 					else if (el->data<arraydata>()->size() != fels.at(3)->as_int())
 					{

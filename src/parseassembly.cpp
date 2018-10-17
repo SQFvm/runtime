@@ -145,7 +145,7 @@ namespace
 	}
 	void skip(const char *code, size_t &line, size_t &col, size_t &curoff)
 	{
-		while (1)
+		while (true)
 		{
 			switch (code[curoff])
 			{
@@ -450,7 +450,7 @@ namespace
 		}
 	}
 	//CALLNULAR = "callNular" command
-	bool callnular_start(const char *code, size_t off) { return str_cmpi(code + off, compiletime::strlen("callNular"), "callNular", compiletime::strlen("callNular")) == 0 || str_cmpi(code + off, compiletime::strlen("callNular"), "callNular", compiletime::strlen("callNular")) == 0; }
+	bool callnular_start(const char *code, size_t off) { return str_cmpi(code + off, compiletime::strlen("callNular"), "callNular", compiletime::strlen("callNular")) == 0; }
 	void callnular(sqf::virtualmachine* vm, const char *code, size_t &line, size_t &col, size_t &curoff)
 	{
 		size_t identstart = curoff;
@@ -572,7 +572,7 @@ namespace
 		else
 		{
 			std::string text = std::string(code + curoff, code + curoff + textlen);
-			auto inst = std::make_shared<sqf::inst::makearray>((size_t)std::stoul(text));
+			auto inst = std::make_shared<sqf::inst::makearray>(static_cast<size_t>(std::stoul(text)));
 			inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("makeArray")));
 			vm->stack()->pushinst(vm, inst);
 			curoff += textlen;

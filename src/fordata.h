@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <utility>
 #include "data.h"
 
 namespace sqf
@@ -13,8 +14,8 @@ namespace sqf
 		double mto;
 		double mstep;
 	public:
-		fordata(std::string var) : mvar(var), mfrom(0), mto(0), mstep(1) {}
-		virtual std::string tosqf() const { return "ForType <invisible>"; }
+		fordata(std::string var) : mvar(std::move(var)), mfrom(0), mto(0), mstep(1) {}
+		std::string tosqf() const override { return "ForType <invisible>"; }
 		std::string variable() const { return mvar; }
 		double from() const { return mfrom; }
 		double to() const { return mto; }
@@ -22,6 +23,6 @@ namespace sqf
 		void from(double d) { mfrom = d; }
 		void to(double d) { mto = d; }
 		void step(double d) { mstep = d; }
-		virtual bool equals(std::shared_ptr<data> d) const { return false; }
+		bool equals(std::shared_ptr<data> d) const override { return false; }
 	};
 }

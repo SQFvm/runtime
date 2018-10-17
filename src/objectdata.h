@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <utility>
 #include "data.h"
 
 namespace sqf
@@ -12,10 +13,10 @@ namespace sqf
 		std::weak_ptr<innerobj> mobj;
 	public:
 		objectdata() {}
-		objectdata(std::weak_ptr<innerobj> obj) : mobj(obj) {}
-		virtual std::string tosqf() const;
+		objectdata(std::weak_ptr<innerobj> obj) : mobj(std::move(obj)) {}
+		std::string tosqf() const override;
 		bool is_null() const { return mobj.expired(); }
 		std::shared_ptr<innerobj> obj() const { if (mobj.expired()) return std::shared_ptr<innerobj>(); auto sptr = mobj.lock(); return sptr; }
-		virtual bool equals(std::shared_ptr<data> d) const { return obj().get() == std::dynamic_pointer_cast<objectdata>(d)->obj().get(); }
+		bool equals(std::shared_ptr<data> d) const override { return obj().get() == std::dynamic_pointer_cast<objectdata>(d)->obj().get(); }
 	};
 }

@@ -19,11 +19,11 @@ namespace {
 	class simplemessage : public srvmessage {
 		std::string _msg;
 	public:
-		simplemessage(std::string msg) : _msg(msg) {}
-		std::string serialize() {
+		simplemessage(std::string msg) : _msg(std::move(msg)) {}
+		std::string serialize() override {
 			nlohmann::json json = {
 				{ "mode", "message" },
-			{ "data", _msg }
+				{ "data", _msg }
 			};
 			return json.dump();
 		}
@@ -31,8 +31,8 @@ namespace {
 	class errormsg : public srvmessage {
 		std::string _msg;
 	public:
-		errormsg(std::string msg) : _msg(msg) {}
-		std::string serialize() {
+		errormsg(std::string msg) : _msg(std::move(msg)) {}
+		std::string serialize() override {
 			nlohmann::json json = {
 				{ "mode", "error" },
 				{ "data", _msg }
@@ -44,7 +44,7 @@ namespace {
 		sqf::debugger::srvstatus _status;
 	public:
 		statusupdate(sqf::debugger::srvstatus status) : _status(status) {}
-		std::string serialize() {
+		std::string serialize() override {
 			nlohmann::json json;
 			json["mode"] = "status";
 			switch (_status)
@@ -68,11 +68,11 @@ namespace {
 	class callstackmsg : public srvmessage {
 		std::shared_ptr<sqf::vmstack> _stack;
 	public:
-		callstackmsg(std::shared_ptr<sqf::vmstack> stack) : _stack(stack) {}
-		std::string serialize() {
+		callstackmsg(std::shared_ptr<sqf::vmstack> stack) : _stack(std::move(stack)) {}
+		std::string serialize() override {
 			nlohmann::json data;
 			int lvl = 0;
-			for (auto it = _stack->stacks_begin(); it != _stack->stacks_end(); it++)
+			for (auto it = _stack->stacks_begin(); it != _stack->stacks_end(); ++it)
 			{
 				nlohmann::json jcs;
 				auto cs = *it;
@@ -115,13 +115,13 @@ namespace {
 		sqf::virtualmachine * _vm;
 		nlohmann::json _data;
 	public:
-		variablemsg(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmstack> stack, nlohmann::json data) : _stack(stack), _data(data), _vm(vm) {}
-		std::string serialize() {
+		variablemsg(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmstack> stack, nlohmann::json data) : _stack(std::move(stack)), _vm(vm), _data(std::move(data)) {}
+		std::string serialize() override {
 			auto data = nlohmann::json::array();
-			for (auto it = _data.begin(); it != _data.end(); it++)
+			for (auto& it : _data) 
 			{
-				std::string name = it->at("name");
-				auto scope = it->at("scope");
+				std::string name = it.at("name");
+				auto scope = it.at("scope");
 				if (scope.is_number())
 				{
 					int numscope = scope;
@@ -132,7 +132,7 @@ namespace {
 					else
 					{
 						std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator s;
-						for (s = _stack->stacks_begin(); s != _stack->stacks_end() && numscope != 0; s++, numscope++);
+						for (s = _stack->stacks_begin(); s != _stack->stacks_end() && numscope != 0; ++s, numscope++);
 						if (s == _stack->stacks_end())
 						{
 							data.push_back(nlohmann::json{ { "name", name },{ "value", "nil" } });
@@ -143,22 +143,22 @@ namespace {
 						}
 					}
 				}
-				else if (scope.get<std::string>().compare("missionNamespace"))
+				else if (scope.get<std::string>() == "missionNamespace")
 				{
 					auto ns = _vm->missionnamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
-				else if (scope.get<std::string>().compare("uiNamespace"))
+				else if (scope.get<std::string>() =="uiNamespace")
 				{
 					auto ns = _vm->uinamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
-				else if (scope.get<std::string>().compare("profileNamespace"))
+				else if (scope.get<std::string>() =="profileNamespace")
 				{
 					auto ns = _vm->profilenamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
 				}
-				else if (scope.get<std::string>().compare("parsingNamespace"))
+				else if (scope.get<std::string>() =="parsingNamespace")
 				{
 					auto ns = _vm->parsingnamespace();
 					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
@@ -175,8 +175,8 @@ namespace {
 		size_t _col;
 		std::string _file;
 	public:
-		positionmsg(size_t line, size_t col, std::string file) : _line(line), _col(col), _file(file) {}
-		std::string serialize() {
+		positionmsg(size_t line, size_t col, std::string file) : _line(line), _col(col), _file(std::move(file)) {}
+		std::string serialize() override {
 			nlohmann::json json = { { "mode", "position" }, { "data", { { "line", _line }, { "col", _col }, { "file", _file } } } };
 			return json.dump();
 		}
@@ -233,38 +233,38 @@ void sqf::debugger::check(virtualmachine * vm)
 			auto msg = _server->next_message();
 			auto json = nlohmann::json::parse(msg);
 			std::string mode = json["mode"];
-			if (!mode.compare("get-callstack"))
+			if (mode == "get-callstack")
 			{
 				_server->push_message(callstackmsg(vm->stack()));
 			}
-			else if (!mode.compare("control"))
+			else if (mode == "control")
 			{
 				std::string status = json["data"]["status"];
-				if (!status.compare("run")) { _control = RUN; }
-				else if (!status.compare("stop")) { _control = STOP; }
-				else if (!status.compare("pause")) { if (_control != PAUSE) { breakmode(vm); } }
-				else if (!status.compare("resume")) { _control = RESUME; }
-				else if (!status.compare("quit")) { _control = QUIT; }
+				if (status == "run") { _control = RUN; }
+				else if (status == "stop") { _control = STOP; }
+				else if (status == "pause") { if (_control != PAUSE) { breakmode(vm); } }
+				else if (status == "resum") { _control = RESUME; }
+				else if (status == "quit") { _control = QUIT; }
 				else { _server->push_message(errormsg("Received invalid status. Accepted: [run, stop, pause, resume, quit]")); }
 			}
-			else if (!mode.compare("get-status"))
+			else if (mode == "get-status")
 			{
 				auto data = json["data"];
 				_server->push_message(statusupdate(_status));
 			}
-			else if (!mode.compare("get-variables"))
+			else if (mode == "get-variables")
 			{
 				auto data = json["data"];
 				_server->push_message(variablemsg(vm, vm->stack(), data));
 			}
-			else if (!mode.compare("parse-sqf"))
+			else if (mode == "parse-sqf")
 			{
 				auto data = json["data"];
 				std::string sqf = data["sqf"];
 				std::string file = data["file"];
 				vm->parse_sqf(sqf, file);
 			}
-			else if (!mode.compare("load-sqf"))
+			else if (mode == "load-sqf")
 			{
 				auto data = json["data"];
 				std::string path = data["path"];
@@ -272,7 +272,7 @@ void sqf::debugger::check(virtualmachine * vm)
 				auto sqf = load_file(path);
 				vm->parse_sqf(sqf, name);
 			}
-			else if (!mode.compare("set-breakpoint"))
+			else if (mode == "set-breakpoint")
 			{
 				auto data = json["data"];
 				if (!data.at("line").is_number())
@@ -295,11 +295,11 @@ void sqf::debugger::check(virtualmachine * vm)
 				_server->push_message(errormsg(sstream.str()));
 			}
 		}
-		catch (nlohmann::json::parse_error err)
+		catch (const nlohmann::json::parse_error& err)
 		{
 			_server->push_message(errormsg(err.what()));
 		}
-		catch (std::exception err)
+		catch (const std::exception& err)
 		{
 			_server->push_message(errormsg(err.what()));
 		}

@@ -14,7 +14,7 @@ namespace sqf
 		std::shared_ptr<codedata> mexec;
 		size_t mCurIndex;
 	public:
-		callstack_foreach(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<codedata> exec, std::shared_ptr<arraydata> arr) : callstack(ns), mexec(exec), marr(arr), mCurIndex(0) {}
-		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
+		callstack_foreach(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<codedata> exec, std::shared_ptr<arraydata> arr) : callstack(ns), marr(std::move(arr)), mexec(std::move(exec)), mCurIndex(0) {}
+		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 	};
 }
