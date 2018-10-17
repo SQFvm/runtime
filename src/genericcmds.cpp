@@ -711,7 +711,7 @@ namespace
 		void* sym = nullptr;
 		if (dl->try_resolve("RVExtensionVersion", &sym))
 		{
-			static_cast<RVExtensionVersion>(sym)(buffer, CALLEXTVERSIONBUFFSIZE);
+			reinterpret_cast<RVExtensionVersion>(sym)(buffer, CALLEXTVERSIONBUFFSIZE);
 			if (buffer[CALLEXTVERSIONBUFFSIZE - 1] != '\0')
 			{
 				vm->wrn() << "Library '" << name << "' is not terminating RVExtensionVersion output buffer with a '\\0'!" << std::endl;
@@ -731,9 +731,9 @@ namespace
 		{
 			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
 #if defined(_WIN32) & !defined(_WIN64)
-			auto method = static_cast<RVExtension>(dl->resolve("_RVExtension@12"));
+			auto method = reinterpret_cast<RVExtension>(dl->resolve("_RVExtension@12"));
 #else
-			auto method = static_cast<RVExtension>(dl->resolve("RVExtension"));
+			auto method = reinterpret_cast<RVExtension>(dl->resolve("RVExtension"));
 #endif
 			method(buffer, CALLEXTBUFFSIZE, right->as_string().c_str());
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
@@ -802,9 +802,9 @@ namespace
 		{
 			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
 #if defined(_WIN32) & !defined(_WIN64)
-			auto method = static_cast<RVExtensionArgs>(dl->resolve("_RVExtensionArgs@20"));
+			auto method = reinterpret_cast<RVExtensionArgs>(dl->resolve("_RVExtensionArgs@20"));
 #else
-			auto method = static_cast<RVExtensionArgs>(dl->resolve("RVExtensionArgs"));
+			auto method = reinterpret_cast<RVExtensionArgs>(dl->resolve("RVExtensionArgs"));
 #endif
 			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0)->as_string().c_str(), argvec.data(), static_cast<int>(argvec.size()));
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
