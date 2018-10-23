@@ -19,6 +19,7 @@
 #include "callstack_foreach.h"
 #include "callstack_count.h"
 #include "Entry.h"
+#include "fileio.h"
 
 
 #define CALLEXTBUFFSIZE 10240
@@ -991,6 +992,19 @@ namespace
 	{
 		return std::make_shared<value>(vm->stack()->isscheduled());
 	}
+	std::shared_ptr<value> loadfile_string(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto res = vm->get_filesystem().try_get_physical_path(right->as_string());
+		if (!res.has_value())
+		{
+			vm->wrn() << "File '" << right->as_string() << "' Not Found." << std::endl;
+			return std::make_shared<value>("");
+		}
+		else
+		{
+			return std::make_shared<value>(load_file(res.value()));
+		}
+	}
 }
 void sqf::commandmap::initgenericcmds()
 {
@@ -1066,4 +1080,6 @@ void sqf::commandmap::initgenericcmds()
 	add(binary(4, "params", type::ARRAY, type::ARRAY, "Parses input argument into array of private variables.", params_array_array));
 	add(unary("sleep", type::SCALAR, "Suspends code execution for given time in seconds. The delay given is the minimal delay expected.", sleep_scalar));
 	add(nular("canSuspend", "Returns true if sleep, uiSleep or waitUntil commands can be used in current scope.", cansuspend_));
+	add(unary("loadFile", type::STRING, "", loadfile_string));
+
 }
