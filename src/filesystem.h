@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <optional>
 
 namespace sqf
 {
@@ -32,10 +33,10 @@ namespace sqf
 		// to be received.
 		std::string get_physical_path(std::string virt)
 		{
-			std::string s;
-			if (try_get_physical_path(virt, s))
+			auto val = try_get_physical_path(virt);
+			if (val.has_value())
 			{
-				return s;
+				return val.value();
 			}
 			else
 			{
@@ -45,7 +46,7 @@ namespace sqf
 		// Attempts to receive a physical path from provided virtual path.
 		// Will return true if the path was received successfully.
 		// Returns false (and does not modifies second param) if not.
-		bool try_get_physical_path(std::string virt, std::string& out);
+		std::optional<std::string> try_get_physical_path(std::string virt);
 		// Adds a physical path to the allowed list.
 		void add_allowed_physical(std::string phys);
 		// Adds a mapping of a virtual path to a physical one.

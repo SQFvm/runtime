@@ -3,11 +3,11 @@
 #include <algorithm>
 
 
-bool sqf::filesystem::try_get_physical_path(std::string virt, std::string & out)
+std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string virt)
 {
 	std::string virtMapping;
 	virt = sanitize(virt);
-	for (auto& vpath : m_virtualpaths)
+	for (const auto& vpath : m_virtualpaths)
 	{
 		if (virt.find(vpath) == 0)
 		{
@@ -15,18 +15,18 @@ bool sqf::filesystem::try_get_physical_path(std::string virt, std::string & out)
 			virt = virt.substr(vpath.length());
 		}
 	}
-	if (virtMapping.length == 0)
+	if (virtMapping.empty())
 	{
 		// Path not found.
-		return false;
+		return {};
 	}
 	std::string physPath = m_virtualphysicalmap[virtMapping];
-	size_t index = virt.find('/');
-	while (index != std::string::npos)
-	{
+	size_t index;
+	while ((index = virt.find('/')) != std::string::npos)
+	{	
 		std::string tmp = virt.substr(0, index);
 		virt = virt.substr(index, 0);
-		if (tmp.compare("..") == 0)
+		if (tmp == "..")
 		{
 			physPath = up(physPath);
 		}
@@ -37,10 +37,9 @@ bool sqf::filesystem::try_get_physical_path(std::string virt, std::string & out)
 	}
 	if (std::find_if(m_physicalboundaries.begin(), m_physicalboundaries.end(), [physPath](std::string it) -> bool { return physPath.find(it) == 0; }) == m_physicalboundaries.end())
 	{
-		return false;
+		return {};
 	}
-	out = physPath;
-	return true;
+	return physPath;
 }
 
 void sqf::filesystem::add_allowed_physical(std::string phys)
@@ -61,15 +60,29 @@ std::string sqf::filesystem::sanitize(std::string input)
 	std::stringstream sstream;
 	size_t i;
 	sstream << '//';
+	bool wasSlash = false;
 	for (size_t i = input[0] == '/' || input[0] == '\\' ? 1 : 0; i < input.length - 1; i++)
 	{
 		char c = input[i];
 		switch (c)
 		{
 			case '\\':
-				sstream << '/';
+			case '/':
+				if (!wasSlash)
+				{
+					sstream << '/';
+					wasSlash = true;
+				}
 				break;
+			case '.':
+				wasSlash = false;
+				if (input[i + 1] == '/' || input[i + 1] == '\\')
+				{
+					i += 2;
+					break;
+				}
 			default:
+				wasSlash = false;
 				sstream << c;
 				break;
 		}
