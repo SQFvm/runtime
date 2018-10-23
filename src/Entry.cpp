@@ -40,6 +40,23 @@ int console_width()
 #endif
 }
 
+
+std::string get_executable_path()
+{
+#if defined(_WIN32) || defined(_WIN64)
+	char buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+	return std::string(buffer).substr(0, pos);
+#elif defined(__GNUC__)
+	char result[PATH_MAX];
+	ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+	return std::string(result, (count > 0) ? count : 0);
+#else
+#error "NO IMPLEMENTATION AVAILABLE"
+#endif
+}
+
 int main(int argc, char** argv)
 {
 	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', VERSION_FULL "\n");
@@ -79,6 +96,12 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> prettyPrintArg("", "pretty-print", "Loads provided file from disk and pretty-prints it onto console.", false, "PATH");
 	cmd.add(prettyPrintArg);
 
+	TCLAP::MultiArg<std::string> fileSystemPathArg("", "filesystem-path", "Adds provided base-path to the list of allowed locations one can be inside of. Should be absolute paths!", false, "PATH");
+	cmd.add(fileSystemPathArg);
+
+	TCLAP::SwitchArg noAutoaddFilesystemArg("", "no-autoadd-filesystem", "Prevents automatically adding the workspace to the path of allowed locations.", false);
+	cmd.add(noAutoaddFilesystemArg);
+
 	cmd.parse(argc, argv);
 
 	std::vector<std::string> sqfFiles = loadSqfFileArg.getValue();
@@ -92,6 +115,8 @@ int main(int argc, char** argv)
 	bool noPrint = noPrintArg.getValue();
 	bool noExecutePrint = noExecutePrintArg.getValue();
 	bool disableClassnameCheck = disableClassnameCheckArg.getValue();
+	bool noAutoaddFilesystem = noAutoaddFilesystemArg.getValue();
+
 
 	sqf::virtualmachine vm;
 	sqf::commandmap::get().init();
@@ -100,6 +125,16 @@ int main(int argc, char** argv)
 	sqf::debugger* dbg = nullptr;
 
 	vm.perform_classname_checks(disableClassnameCheck);
+
+	if (!noAutoaddFilesystem)
+	{
+		vm.get_filesystem().add_allowed_physical(get_executable_path());
+	}
+
+	for (auto& f : fileSystemPathArg.getValue())
+	{
+		vm.get_filesystem().add_allowed_physical(f);
+	}
 
 	for (auto& f : prettyPrintArg.getValue())
 	{

@@ -51,6 +51,5 @@ namespace sqf
 		void add_allowed_physical(std::string phys);
 		// Adds a mapping of a virtual path to a physical one.
 		void add_mapping(std::string virt, std::string phys);
-
 	};
 }
