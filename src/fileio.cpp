@@ -94,3 +94,10 @@ int get_bom_skip(const std::vector<char>& buff)
 	}
 	return 0;
 }
+
+
+bool file_exists(const std::string& filename)
+{
+	std::ifstream infile(filename);
+	return infile.good();
+}

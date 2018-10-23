@@ -27,6 +27,7 @@ namespace sqf
 			return input.substr(0, index);
 		}
 		static std::string down(std::string input, std::string navigator);
+		static std::string navigate(std::string input, std::string navigator);
 	public:
 		// Attempts to receive a physical path from provided virtual path.
 		// Will throw a runtime_error if the requested path is not allowed
