@@ -68,10 +68,10 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> loadConfigFileArg("F", "config-file", "Loads provided config-file from the hdd into the sqf-vm.", false, "PATH");
 	cmd.add(loadConfigFileArg);
 
-	TCLAP::MultiArg<std::string> loadSqfRawArg("r", "sqf-code", "Loads provided sqf-code directly into the sqf-vm. (executed after files)", false, "CODE");
+	TCLAP::MultiArg<std::string> loadSqfRawArg("r", "sqf-code", "Loads provided sqf-code directly into the sqf-vm. (executed after files). Input is not getting preprocessed!", false, "CODE");
 	cmd.add(loadSqfRawArg);
 
-	TCLAP::MultiArg<std::string> loadConfigRawArg("R", "config-code", "Loads provided config-code directly into the sqf-vm. (executed after files)", false, "CODE");
+	TCLAP::MultiArg<std::string> loadConfigRawArg("R", "config-code", "Loads provided config-code directly into the sqf-vm. (executed after files). Input is not getting preprocessed!", false, "CODE");
 	cmd.add(loadConfigRawArg);
 
 	TCLAP::SwitchArg noPromptArg("a", "no-prompt", "Disables the prompt which expects you to type in sqf-code.", false);
@@ -159,7 +159,16 @@ int main(int argc, char** argv)
 		try
 		{
 			auto str = load_file(f);
-			vm.parse_sqf(str, f);
+			bool err = false;
+			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, f);
+			if (err)
+			{
+				vm.err_buffprint();
+			}
+			else
+			{
+				vm.parse_sqf(str, f);
+			}
 		}
 		catch (const std::runtime_error& ex)
 		{
@@ -174,7 +183,16 @@ int main(int argc, char** argv)
 		try
 		{
 			auto str = load_file(f);
-			vm.parse_config(str, sqf::configdata::configFile()->data<sqf::configdata>());
+			bool err = false;
+			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, f);
+			if (err)
+			{
+				vm.err_buffprint();
+			}
+			else
+			{
+				vm.parse_config(ppedStr, sqf::configdata::configFile()->data<sqf::configdata>());
+			}
 		}
 		catch (const std::runtime_error& ex)
 		{
