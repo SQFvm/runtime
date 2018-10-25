@@ -359,7 +359,9 @@ std::string parse_file(sqf::virtualmachine* vm, std::string input, size_t off, b
 					}
 					sstream << "#file " << virtpath << std::endl;
 					sstream << "#line 0" << std::endl;
-					sstream << res;
+					sstream << res << std::endl;
+					sstream << "#file " << filename << std::endl;
+					sstream << "#line " << line << std::endl;
 				}
 				else if (word == "DEFINE")
 				{ // #define TEST(A, B, C) A #B##C
