@@ -104,12 +104,16 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg noAutoaddFilesystemArg("", "no-autoadd-filesystem", "Prevents automatically adding the workspace to the path of allowed locations.", false);
 	cmd.add(noAutoaddFilesystemArg);
 
+	TCLAP::MultiArg<std::string> loadArg("", "load", "Adds provided path to the allowed locations list.", false, "PATH");
+	cmd.add(loadArg);
+
 	cmd.parse(argc, argv);
 
 	std::vector<std::string> sqfFiles = loadSqfFileArg.getValue();
 	std::vector<std::string> configFiles = loadConfigFileArg.getValue();
 	std::vector<std::string> sqfRaw = loadSqfRawArg.getValue();
 	std::vector<std::string> configRaw = loadConfigRawArg.getValue();
+	std::vector<std::string> load = loadConfigRawArg.getValue();
 	bool noPrompt = noPromptArg.getValue();
 	bool startServer = useDebuggingServer.getValue();
 	int maxinstructions = maxInstructionsArg.getValue();
@@ -131,6 +135,10 @@ int main(int argc, char** argv)
 	if (!noAutoaddFilesystem)
 	{
 		vm.get_filesystem().add_allowed_physical(get_executable_path());
+	}
+	for (auto& f : load)
+	{
+		vm.get_filesystem().add_allowed_physical(f);
 	}
 
 	for (auto& f : fileSystemPathArg.getValue())
