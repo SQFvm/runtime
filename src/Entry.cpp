@@ -6,6 +6,7 @@
 #include "vmstack.h"
 #include "configdata.h"
 #include "fileio.h"
+#include "parsepreprocessor.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -59,6 +60,7 @@ std::string get_executable_path()
 
 int main(int argc, char** argv)
 {
+
 	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', VERSION_FULL "\n");
 	TCLAP::MultiArg<std::string> loadSqfFileArg("f", "sqf-file", "Loads provided sqf-file from the hdd into the sqf-vm.", false, "PATH");
 	cmd.add(loadSqfFileArg);
@@ -231,7 +233,18 @@ int main(int argc, char** argv)
 			} while (!line.empty());
 
 			std::cout << std::endl;
-			vm.parse_sqf(sstream.str());
+
+			auto input = sstream.str();
+			bool err = false;
+			auto inputAfterPP = sqf::parse::preprocessor::parse(&vm, input, err, "__commandlinefeed.sqf");
+			if (err)
+			{
+				vm.err_buffprint();
+			}
+			else
+			{
+				vm.parse_sqf(inputAfterPP, "__commandlinefeed.sqf");
+			}
 		}
 
 
