@@ -18,6 +18,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
+#include <limits.h>
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <unistd.h>
