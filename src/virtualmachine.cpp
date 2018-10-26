@@ -443,7 +443,7 @@ void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 	}
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, filename.c_str());
+	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, filename);
 
 	if (!errflag)
 	{

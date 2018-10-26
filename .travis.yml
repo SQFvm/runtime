@@ -9,19 +9,20 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-6
+            - g++-7
       env:
-        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     - os: linux
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-6.0
+            - llvm-toolchain-trusty-7
           packages:
-            - clang-6.0
+            - clang-7
+            - libstdc++-7-dev
       env:
-        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+        - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
     - os: osx
       osx_image: xcode9.4
 

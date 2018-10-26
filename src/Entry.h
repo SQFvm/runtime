@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 #ifndef CONCAT_
 #define CONCAT_(L, R) L ## R
 #endif // !CONCAT_
@@ -52,3 +54,5 @@
 
 int console_width();
 int main(int argc, char** argv);
+
+std::string get_executable_path();

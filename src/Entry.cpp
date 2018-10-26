@@ -6,6 +6,7 @@
 #include "vmstack.h"
 #include "configdata.h"
 #include "fileio.h"
+#include "parsepreprocessor.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -17,6 +18,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
+#include <limits.h>
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -40,8 +42,26 @@ int console_width()
 #endif
 }
 
+
+std::string get_executable_path()
+{
+#if defined(_WIN32) || defined(_WIN64)
+	char buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+	return std::string(buffer).substr(0, pos);
+#elif defined(__GNUC__)
+	char result[PATH_MAX];
+	ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+	return std::string(result, (count > 0) ? count : 0);
+#else
+#error "NO IMPLEMENTATION AVAILABLE"
+#endif
+}
+
 int main(int argc, char** argv)
 {
+
 	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', VERSION_FULL "\n");
 	TCLAP::MultiArg<std::string> loadSqfFileArg("f", "sqf-file", "Loads provided sqf-file from the hdd into the sqf-vm.", false, "PATH");
 	cmd.add(loadSqfFileArg);
@@ -49,10 +69,10 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> loadConfigFileArg("F", "config-file", "Loads provided config-file from the hdd into the sqf-vm.", false, "PATH");
 	cmd.add(loadConfigFileArg);
 
-	TCLAP::MultiArg<std::string> loadSqfRawArg("r", "sqf-code", "Loads provided sqf-code directly into the sqf-vm. (executed after files)", false, "CODE");
+	TCLAP::MultiArg<std::string> loadSqfRawArg("r", "sqf-code", "Loads provided sqf-code directly into the sqf-vm. (executed after files). Input is not getting preprocessed!", false, "CODE");
 	cmd.add(loadSqfRawArg);
 
-	TCLAP::MultiArg<std::string> loadConfigRawArg("R", "config-code", "Loads provided config-code directly into the sqf-vm. (executed after files)", false, "CODE");
+	TCLAP::MultiArg<std::string> loadConfigRawArg("R", "config-code", "Loads provided config-code directly into the sqf-vm. (executed after files). Input is not getting preprocessed!", false, "CODE");
 	cmd.add(loadConfigRawArg);
 
 	TCLAP::SwitchArg noPromptArg("a", "no-prompt", "Disables the prompt which expects you to type in sqf-code.", false);
@@ -79,12 +99,22 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> prettyPrintArg("", "pretty-print", "Loads provided file from disk and pretty-prints it onto console.", false, "PATH");
 	cmd.add(prettyPrintArg);
 
+	TCLAP::MultiArg<std::string> fileSystemPathArg("", "filesystem-path", "Adds provided base-path to the list of allowed locations one can be inside of. Should be absolute paths!", false, "PATH");
+	cmd.add(fileSystemPathArg);
+
+	TCLAP::SwitchArg noAutoaddFilesystemArg("", "no-autoadd-filesystem", "Prevents automatically adding the workspace to the path of allowed locations.", false);
+	cmd.add(noAutoaddFilesystemArg);
+
+	TCLAP::MultiArg<std::string> loadArg("", "load", "Adds provided path to the allowed locations list.", false, "PATH");
+	cmd.add(loadArg);
+
 	cmd.parse(argc, argv);
 
 	std::vector<std::string> sqfFiles = loadSqfFileArg.getValue();
 	std::vector<std::string> configFiles = loadConfigFileArg.getValue();
 	std::vector<std::string> sqfRaw = loadSqfRawArg.getValue();
 	std::vector<std::string> configRaw = loadConfigRawArg.getValue();
+	std::vector<std::string> load = loadConfigRawArg.getValue();
 	bool noPrompt = noPromptArg.getValue();
 	bool startServer = useDebuggingServer.getValue();
 	int maxinstructions = maxInstructionsArg.getValue();
@@ -92,6 +122,8 @@ int main(int argc, char** argv)
 	bool noPrint = noPrintArg.getValue();
 	bool noExecutePrint = noExecutePrintArg.getValue();
 	bool disableClassnameCheck = disableClassnameCheckArg.getValue();
+	bool noAutoaddFilesystem = noAutoaddFilesystemArg.getValue();
+
 
 	sqf::virtualmachine vm;
 	sqf::commandmap::get().init();
@@ -100,6 +132,20 @@ int main(int argc, char** argv)
 	sqf::debugger* dbg = nullptr;
 
 	vm.perform_classname_checks(disableClassnameCheck);
+
+	if (!noAutoaddFilesystem)
+	{
+		vm.get_filesystem().add_allowed_physical(get_executable_path());
+	}
+	for (auto& f : load)
+	{
+		vm.get_filesystem().add_allowed_physical(f);
+	}
+
+	for (auto& f : fileSystemPathArg.getValue())
+	{
+		vm.get_filesystem().add_allowed_physical(f);
+	}
 
 	for (auto& f : prettyPrintArg.getValue())
 	{
@@ -122,7 +168,16 @@ int main(int argc, char** argv)
 		try
 		{
 			auto str = load_file(f);
-			vm.parse_sqf(str, f);
+			bool err = false;
+			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, f);
+			if (err)
+			{
+				vm.err_buffprint();
+			}
+			else
+			{
+				vm.parse_sqf(str, f);
+			}
 		}
 		catch (const std::runtime_error& ex)
 		{
@@ -137,7 +192,16 @@ int main(int argc, char** argv)
 		try
 		{
 			auto str = load_file(f);
-			vm.parse_config(str, sqf::configdata::configFile()->data<sqf::configdata>());
+			bool err = false;
+			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, f);
+			if (err)
+			{
+				vm.err_buffprint();
+			}
+			else
+			{
+				vm.parse_config(ppedStr, sqf::configdata::configFile()->data<sqf::configdata>());
+			}
 		}
 		catch (const std::runtime_error& ex)
 		{
@@ -196,7 +260,18 @@ int main(int argc, char** argv)
 			} while (!line.empty());
 
 			std::cout << std::endl;
-			vm.parse_sqf(sstream.str());
+
+			auto input = sstream.str();
+			bool err = false;
+			auto inputAfterPP = sqf::parse::preprocessor::parse(&vm, input, err, "__commandlinefeed.sqf");
+			if (err)
+			{
+				vm.err_buffprint();
+			}
+			else
+			{
+				vm.parse_sqf(inputAfterPP, "__commandlinefeed.sqf");
+			}
 		}
 
 

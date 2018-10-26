@@ -11,6 +11,7 @@
 
 #include "dlops.h"
 #include "marker.h"
+#include "filesystem.h"
 
 
 namespace sqf
@@ -61,6 +62,7 @@ namespace sqf
 		bool mexitflag;
 		bool mallowsleep;
 		bool mperformclassnamechecks;
+		sqf::filesystem m_filesystem;
 	public:
 		const std::vector<std::shared_ptr<innerobj>>& get_objlist() { return mobjlist; }
 		std::shared_ptr<sqf::sqfnamespace> missionnamespace() { return mmissionnamespace; }
@@ -107,6 +109,7 @@ namespace sqf
 
 		debugger* dbg() { return _debugger; }
 		void dbg(debugger* debugger) { _debugger = debugger; }
+		filesystem& get_filesystem() { return m_filesystem; }
 
 		size_t push_obj(std::shared_ptr<sqf::innerobj> obj);
 		void drop_obj(const sqf::innerobj * obj);
