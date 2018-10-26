@@ -35,6 +35,7 @@ namespace sqf
 		size_t logicalparentcount() const { if (auto sptr = mlogicparent.lock()) { return sptr->logicalparentcount() + 1; } return 0; }
 		std::shared_ptr<sqf::value> parent() { auto val = parent_unsafe(); return val.get() ? val : configNull(); }
 		std::shared_ptr<sqf::value> navigate(std::string nextnode) { auto val = navigate_full_unsafe(nextnode); return val.get() ? val : configNull(); }
+		bool is_kind_of(std::string s);
 
 		bool is_null() { return misnull; }
 		bool haslogicparent() { return !mlogicparent.expired(); }

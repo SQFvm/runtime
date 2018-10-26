@@ -70,6 +70,24 @@ std::string sqf::configdata::tosqf() const
 	return sstream.str();
 }
 
+bool sqf::configdata::is_kind_of(std::string s)
+{
+	if (str_cmpi(mname.c_str(), -1, s.c_str(), -1) == 0)
+	{
+		return true;
+	}
+	auto node = this->parent()->data<configdata>();
+	while (!node->is_null())
+	{
+		if (str_cmpi(node->name().c_str(), -1, s.c_str(), -1) == 0)
+		{
+			return true;
+		}
+		node = node->parent()->data<configdata>();
+	}
+	return false;
+}
+
 std::shared_ptr<sqf::value> sqf::configdata::logicparent()
 {
 	return mlogicparent.expired() ? configNull() : std::make_shared<sqf::value>(mlogicparent.lock(), type::CONFIG);

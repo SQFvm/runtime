@@ -620,6 +620,80 @@ namespace
 		}
 		return std::make_shared<value>(arr, ARRAY);
 	}
+	bool iskindof__helper(virtualmachine* vm, std::string left, std::string base, std::shared_ptr<sqf::configdata> config)
+	{
+		auto node = config->navigate(left)->data<configdata>();
+		while (!node->is_null())
+		{
+			if (str_cmpi(node->name().c_str(), -1, base.c_str(), -1) == 0)
+			{
+				return true;
+			}
+			node = node->parent()->data<configdata>();
+		}
+		return false;
+	}
+	std::shared_ptr<value> iskindof_object_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto obj = right->data<objectdata>();
+		if (obj->is_null())
+		{
+			vm->err() << "Left value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		auto str = left->as_string();
+		return std::make_shared<value>(obj->obj()->iskindof(str));
+	}
+	std::shared_ptr<value> iskindof_string_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto confname = left->as_string();
+		auto configbin = configdata::configFile()->data<configdata>();
+		auto cfgVehicles = configbin->navigate("CfgVehicles")->data<configdata>();
+		if (cfgVehicles->is_null())
+		{
+			return false;
+		}
+		auto node = cfgVehicles->navigate(confname)->data<configdata>();
+		if (!node->is_null())
+		{
+			return std::make_shared<value>(node->is_kind_of(right->as_string()));
+		}
+		auto cfgAmmo = configbin->navigate("CfgAmmo")->data<configdata>();
+		node = cfgAmmo->navigate(confname)->data<configdata>();
+		if (!node->is_null())
+		{
+			return std::make_shared<value>(node->is_kind_of(right->as_string()));
+		}
+		auto cfgNonAiVehicles = configbin->navigate("CfgNonAiVehicles")->data<configdata>();
+		node = cfgNonAiVehicles->navigate(confname)->data<configdata>();
+		if (!node->is_null())
+		{
+			return std::make_shared<value>(node->is_kind_of(right->as_string()));
+		}
+		return std::make_shared<value>(false);
+	}
+	std::shared_ptr<value> iskindof_string_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto classname = left->as_string();
+		auto arr = right->data<arraydata>();
+		if (!arr->check_type(vm, std::array<sqf::type, 2>{ STRING, CONFIG }))
+		{
+			return std::make_shared<value>();
+		}
+		auto basename = arr->at(0)->as_string();
+		auto conf = arr->at(1)->data<configdata>();
+		auto node = conf->navigate(classname)->data<configdata>();
+		if (node->is_null())
+		{
+			//ToDo: Check if isKindOf really does not errors here
+			vm->wrn() << "Class '" << classname << "' was not found in " << conf->name() << "." << std::endl;
+			return std::make_shared<value>(false);
+		}
+		else
+		{
+			return std::make_shared<value>(node->is_kind_of(basename));
+		}
+	}
 }
 void sqf::commandmap::initobjectcmds()
 {
@@ -647,4 +721,7 @@ void sqf::commandmap::initobjectcmds()
 	add(unary("nearestObjects", type::ARRAY, "Returns a list of nearest objects of the given types to the given position or object, within the specified distance. If more than one object is found they will be ordered by proximity, the closest one will be first in the array.", nearestobjects_array));
 	add(unary("isNull", type::OBJECT, "Checks whether the tested item is Null.", isnull_object));
 	add(unary("side", type::OBJECT, "Returns the side of an object.", side_object));
+	add(binary(4, "isKindOf", type::OBJECT, type::STRING, "Checks whether the object is (a subtype) of the given type.", iskindof_object_string));
+	add(binary(4, "isKindOf", type::STRING, type::STRING, "Checks whether the object is (a subtype) of the given type. Checks CfgVehicles, CfgAmmo and CfgNonAiVehicles.", iskindof_string_string));
+	add(binary(4, "isKindOf", type::STRING, type::ARRAY, "Checks whether the object is (a subtype) of the given type.", iskindof_string_array));
 }

@@ -40,15 +40,7 @@ bool sqf::innerobj::iskindof(std::string cfgname)
 		return false;
 	}
 	auto node = cfgVehicles->navigate(this->classname())->data<configdata>();
-	while (!node->is_null())
-	{
-		if (str_cmpi(node->name().c_str(), -1, cfgname.c_str(), -1) == 0)
-		{
-			return true;
-		}
-		node = node->parent()->data<configdata>();
-	}
-	return false;
+	return node->is_kind_of(cfgname);
 }
 
 void sqf::innerobj::destroy(sqf::virtualmachine * vm)
