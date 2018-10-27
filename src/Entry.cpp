@@ -179,7 +179,7 @@ int main(int argc, char** argv)
 			}
 			auto str = load_file(sanitized);
 			bool err = false;
-			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, f);
+			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
 			if (err)
 			{
 				vm.err_buffprint();
@@ -212,7 +212,7 @@ int main(int argc, char** argv)
 			}
 			auto str = load_file(sanitized);
 			bool err = false;
-			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, f);
+			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
 			if (err)
 			{
 				vm.err_buffprint();
