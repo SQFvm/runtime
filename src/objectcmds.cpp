@@ -398,7 +398,7 @@ namespace
 			}
 			else
 			{
-				rank = arr->at(4)->as_double();
+				rank = arr->at(4)->as_string();
 			}
 		}
 		if (vm->perform_classname_checks())
