@@ -70,7 +70,7 @@ std::string sqf::filesystem::sanitize(std::string input)
 	{
 		sstream << "/";
 	}
-	bool wasSlash = false;
+	bool wasSlash = true;
 	for (i = input[0] == '/' || input[0] == '\\' ? 1 : 0; i < input.length() - 1; i++)
 	{
 		char c = input[i];
