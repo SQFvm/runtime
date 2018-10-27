@@ -12,6 +12,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <tclap/CmdLine.h>
+#include <algorithm>
 
 #include "dllexports.h"
 #include "debugger.h"
@@ -59,14 +60,16 @@ std::string get_executable_path()
 #endif
 }
 
+bool isInLoadFileCliMode = false;
+
 int main(int argc, char** argv)
 {
-
+	auto executable_path = sqf::filesystem::sanitize(get_executable_path());
 	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', VERSION_FULL "\n");
-	TCLAP::MultiArg<std::string> loadSqfFileArg("f", "sqf-file", "Loads provided sqf-file from the hdd into the sqf-vm.", false, "PATH");
+	TCLAP::MultiArg<std::string> loadSqfFileArg("f", "sqf-file", "Loads provided sqf-file from the hdd into the sqf-vm. Supports relative directory using './path' and absolut pathing.", false, "PATH");
 	cmd.add(loadSqfFileArg);
 
-	TCLAP::MultiArg<std::string> loadConfigFileArg("F", "config-file", "Loads provided config-file from the hdd into the sqf-vm.", false, "PATH");
+	TCLAP::MultiArg<std::string> loadConfigFileArg("F", "config-file", "Loads provided config-file from the hdd into the sqf-vm. Supports relative directory using './path' and absolut pathing.", false, "PATH");
 	cmd.add(loadConfigFileArg);
 
 	TCLAP::MultiArg<std::string> loadSqfRawArg("r", "sqf-code", "Loads provided sqf-code directly into the sqf-vm. (executed after files). Input is not getting preprocessed!", false, "CODE");
@@ -108,7 +111,84 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> virtualArg("v", "virtual", "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. Supports relative directory using './path' and absolut pathing for physical path.", false, "PATH|VIRTUAL");
 	cmd.add(virtualArg);
 
+	TCLAP::ValueArg<std::string> cliFileArg("", "cli-file", "Allows to provide a file from which to load arguments from. If passed, all other arguments will be ignored! Supports relative directory using './path' and absolut pathing. Each argument needs to be separated by line-feed.", false, "", "PATH");
+	cmd.add(cliFileArg);
+
 	cmd.parse(argc, argv);
+
+	// ALWAYS needs to be parsed first!
+	if (!cliFileArg.getValue().empty())
+	{
+		if (isInLoadFileCliMode)
+		{
+			std::cout << "'" << cliFileArg.getName() << "' is not allowed inside of the actual file!." << std::endl;
+			return -1;
+		}
+		isInLoadFileCliMode = true;
+		auto f = cliFileArg.getValue();
+		auto sanitized = sqf::filesystem::sanitize(f);
+		if (sanitized.empty())
+		{
+			std::cout << "'" << f << "' is no valid file path after sanitize." << std::endl;
+			return -1;
+		}
+		if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
+		{
+			sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+		}
+		auto str = load_file(sanitized);
+		std::vector<char*> args;
+		args.push_back(argv[0]); // ToDo: Catch those moments when argv[0] is not set by the OS
+		size_t index = 0, last_index = 0;
+
+		try
+		{
+			bool dobreak = false;
+			while (!dobreak)
+			{
+				if ((index = str.find('\n', last_index)) == std::string::npos)
+				{
+					index = str.length();
+					dobreak = true;
+				}
+				auto line = str.substr(last_index, index - last_index);
+				line.erase(std::find_if(line.rbegin(), line.rend(), [](char c) -> bool {
+					return c != '\r';
+				}).base(), line.end());
+				last_index = index + 1;
+				if ((index = line.find(' ')) != std::string::npos)
+				{
+					auto arg = line.substr(index + 1);
+					line = line.substr(0, index);
+					auto args_cstr = new char[arg.length() + 1];
+					std::strcpy(args_cstr, arg.c_str());
+					auto line_cstr = new char[line.length() + 1];
+					std::strcpy(line_cstr, line.c_str());
+					args.push_back(line_cstr);
+					args.push_back(args_cstr);
+				}
+				else
+				{
+					auto line_cstr = new char[line.length() + 1];
+					std::strcpy(line_cstr, line.c_str());
+					args.push_back(line_cstr);
+				}
+			}
+
+			main((int)args.size(), args.data());
+
+			for (char* cstr : args)
+			{
+				delete[] cstr;
+			}
+			return 0;
+		}
+		catch (std::runtime_error err)
+		{
+			std::cout << err.what() << std::endl;
+			return -1;
+		}
+	}
 
 	std::vector<std::string> sqfFiles = loadSqfFileArg.getValue();
 	std::vector<std::string> configFiles = loadConfigFileArg.getValue();
@@ -131,8 +211,8 @@ int main(int argc, char** argv)
 	sqf::debugger* dbg = nullptr;
 
 	vm.perform_classname_checks(disableClassnameCheck);
-	auto executable_path = sqf::filesystem::sanitize(get_executable_path());
 
+	// Prepare Virtual-File-System
 	if (!noLoadExecDir)
 	{
 		vm.get_filesystem().add_allowed_physical(executable_path);
@@ -174,6 +254,8 @@ int main(int argc, char** argv)
 		vm.get_filesystem().add_mapping(virtSanitized, physSanitized);
 	}
 
+
+	// Execute all possible Pretty-Print requests
 	for (auto& f : prettyPrintArg.getValue())
 	{
 		try
