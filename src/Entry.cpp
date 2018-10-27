@@ -168,7 +168,16 @@ int main(int argc, char** argv)
 	{
 		try
 		{
-			auto str = load_file(f);
+			auto sanitized = sqf::filesystem::sanitize(f);
+			if (sanitized.empty())
+			{
+				continue;
+			}
+			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
+			{
+				sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+			}
+			auto str = load_file(sanitized);
 			bool err = false;
 			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, f);
 			if (err)
@@ -192,7 +201,16 @@ int main(int argc, char** argv)
 	{
 		try
 		{
-			auto str = load_file(f);
+			auto sanitized = sqf::filesystem::sanitize(f);
+			if (sanitized.empty())
+			{
+				continue;
+			}
+			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
+			{
+				sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+			}
+			auto str = load_file(sanitized);
 			bool err = false;
 			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, f);
 			if (err)
