@@ -111,7 +111,6 @@ int main(int argc, char** argv)
 	std::vector<std::string> configFiles = loadConfigFileArg.getValue();
 	std::vector<std::string> sqfRaw = loadSqfRawArg.getValue();
 	std::vector<std::string> configRaw = loadConfigRawArg.getValue();
-	std::vector<std::string> load = loadConfigRawArg.getValue();
 	bool noPrompt = noPromptArg.getValue();
 	bool startServer = useDebuggingServer.getValue();
 	int maxinstructions = maxInstructionsArg.getValue();
@@ -129,13 +128,13 @@ int main(int argc, char** argv)
 	sqf::debugger* dbg = nullptr;
 
 	vm.perform_classname_checks(disableClassnameCheck);
-	auto executable_path = get_executable_path();
+	auto executable_path = sqf::filesystem::sanitize(get_executable_path());
 
 	if (!noLoadExecDir)
 	{
 		vm.get_filesystem().add_allowed_physical(executable_path);
 	}
-	for (auto& f : load)
+	for (auto& f : loadArg.getValue())
 	{
 		auto sanitized = sqf::filesystem::sanitize(f);
 		if (sanitized.empty())
