@@ -105,6 +105,9 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. Supports relative directory using './path' and absolut pathing.", false, "PATH");
 	cmd.add(loadArg);
 
+	TCLAP::MultiArg<std::string> virtualArg("v", "virtual", "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. Supports relative directory using './path' and absolut pathing for physical path.", false, "PATH|VIRTUAL");
+	cmd.add(virtualArg);
+
 	cmd.parse(argc, argv);
 
 	std::vector<std::string> sqfFiles = loadSqfFileArg.getValue();
@@ -146,6 +149,29 @@ int main(int argc, char** argv)
 			sanitized = sqf::filesystem::navigate(executable_path, sanitized);
 		}
 		vm.get_filesystem().add_allowed_physical(sanitized);
+	}
+	for (auto& f : virtualArg.getValue())
+	{
+		auto split_index = f.find('|');
+		if (split_index == -1)
+		{
+			errflag = true;
+			std::cout << "Failed find splitter '|' for mapping '" << f << "'." << std::endl;
+			continue;
+		}
+		auto phys = f.substr(0, split_index);
+		auto virt = f.substr(split_index + 1);
+		auto physSanitized = sqf::filesystem::sanitize(f.substr(0, split_index));
+		auto virtSanitized = sqf::filesystem::sanitize(f.substr(split_index + 1));
+		if (physSanitized.empty() || virtSanitized.empty())
+		{
+			continue;
+		}
+		if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
+		{
+			physSanitized = sqf::filesystem::navigate(executable_path, physSanitized);
+		}
+		vm.get_filesystem().add_mapping(virtSanitized, physSanitized);
 	}
 
 	for (auto& f : prettyPrintArg.getValue())
