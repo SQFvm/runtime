@@ -166,9 +166,9 @@ int main(int argc, char** argv)
 	//Load all sqf-files provided via arg.
 	for (auto& f : sqfFiles)
 	{
+		auto sanitized = sqf::filesystem::sanitize(f);
 		try
 		{
-			auto sanitized = sqf::filesystem::sanitize(f);
 			if (sanitized.empty())
 			{
 				continue;
@@ -192,16 +192,16 @@ int main(int argc, char** argv)
 		catch (const std::runtime_error& ex)
 		{
 			errflag = true;
-			std::cout << "Failed to load file " << ex.what() << std::endl;
+			std::cout << "Failed to load file '" << sanitized << "': " << ex.what() << std::endl;
 		}
 	}
 
 	//Load & merge all config-files provided via arg.
 	for (auto& f : configFiles)
 	{
+		auto sanitized = sqf::filesystem::sanitize(f);
 		try
 		{
-			auto sanitized = sqf::filesystem::sanitize(f);
 			if (sanitized.empty())
 			{
 				continue;
@@ -225,7 +225,7 @@ int main(int argc, char** argv)
 		catch (const std::runtime_error& ex)
 		{
 			errflag = true;
-			std::cout << "Failed to load file " << ex.what() << std::endl;
+			std::cout << "Failed to load file '" << sanitized << "': " << ex.what() << std::endl;
 		}
 	}
 	//Load all sqf-code provided via arg.
