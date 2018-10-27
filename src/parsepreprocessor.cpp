@@ -210,6 +210,7 @@ std::string rest_of_line(std::string input, size_t& off, size_t& line)
 {
 	size_t from = off;
 	auto was_escaped = false;
+	std::stringstream sstream;
 	for (char c = input[off]; off < input.length(); off++, c = input[off])
 	{
 		if (c == '\n')
@@ -224,14 +225,18 @@ std::string rest_of_line(std::string input, size_t& off, size_t& line)
 		{
 			was_escaped = true;
 		}
+		else if (was_escaped && c != '\n')
+		{
+			sstream << '\\' << c;
+			was_escaped = false;
+		}
 		else
 		{
 			was_escaped = false;
+			sstream << c;
 		}
 	}
-	auto output = input.substr(from, off - from);
-	output.erase(std::remove_if(output.begin(), output.end(), [](char c) -> bool { return c == '\\' || c == '\n' || c == '\r'; }), output.end());
-	return output;
+	return sstream.str();
 }
 std::string parse_file(sqf::virtualmachine* vm, std::string input, size_t off, bool& errflag, std::string filename, std::vector<macro>& macrolist, size_t& line, size_t& col, size_t maxindex)
 {
@@ -348,9 +353,19 @@ std::string parse_file(sqf::virtualmachine* vm, std::string input, size_t off, b
 					restofline.erase(std::find_if(restofline.rbegin(), restofline.rend(), [](char c) -> bool {
 						return c == '"';
 					}).base(), restofline.end());
-					auto virtpath = restofline.substr(1, restofline.length() - 2);
-					auto path = vm->get_filesystem().get_physical_path(virtpath);
-					auto filecontents = load_file(path);
+					std::string filecontents, virtpath, path;
+					try
+					{
+						virtpath = restofline.substr(1, restofline.length() - 2);
+						path = vm->get_filesystem().get_physical_path(virtpath);
+						filecontents = load_file(path);
+					}
+					catch (const std::runtime_error& ex)
+					{
+						errflag = true;
+						vm->err() << "Failed to include '" << rest_of_line << "':" << ex.what() << std::endl;
+						return "";
+					}
 					size_t line = 0;
 					size_t col = 0;
 					auto res = parse_file(vm, filecontents, 0, errflag, virtpath, macrolist, line, col);
