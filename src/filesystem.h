@@ -15,19 +15,6 @@ namespace sqf
 		std::map<std::string, std::string> m_virtualphysicalmap;
 		std::vector<std::string> m_physicalboundaries;
 		std::vector<std::string> m_virtualpaths;
-
-		static std::string sanitize(std::string input);
-		static std::string up(std::string input)
-		{
-			size_t index = input.rfind('/');
-			if (index == std::string::npos)
-			{
-				return std::string();
-			}
-			return input.substr(0, index);
-		}
-		static std::string down(std::string input, std::string navigator);
-		static std::string navigate(std::string input, std::string navigator);
 	public:
 		// Attempts to receive a physical path from provided virtual path.
 		// Will throw a runtime_error if the requested path is not allowed
@@ -52,5 +39,18 @@ namespace sqf
 		void add_allowed_physical(std::string phys);
 		// Adds a mapping of a virtual path to a physical one.
 		void add_mapping(std::string virt, std::string phys);
+
+		static std::string sanitize(std::string input);
+		static std::string up(std::string input)
+		{
+			size_t index = input.rfind('/');
+			if (index == std::string::npos)
+			{
+				return std::string();
+			}
+			return input.substr(0, index);
+		}
+		static std::string down(std::string input, std::string navigator);
+		static std::string navigate(std::string input, std::string navigator);
 	};
 }
