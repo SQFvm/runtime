@@ -5,6 +5,14 @@
 #include <stdexcept>
 #include <optional>
 
+#if defined(_WIN32) || defined(_WIN64)
+#define FSDELIMITER '\\'
+#define FSDELIMITER_STR "\\"
+#else
+#define FSDELIMITER '/'
+#define FSDELIMITER_STR "/"
+#endif
+
 namespace sqf
 {
 	class filesystem
@@ -43,7 +51,7 @@ namespace sqf
 		static std::string sanitize(std::string input);
 		static std::string up(std::string input)
 		{
-			size_t index = input.rfind('/');
+			size_t index = input.rfind(FSDELIMITER);
 			if (index == std::string::npos)
 			{
 				return std::string();

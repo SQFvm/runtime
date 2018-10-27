@@ -68,7 +68,7 @@ std::string sqf::filesystem::sanitize(std::string input)
 	size_t i;
 	if (!(input.length() > 2 && input[1] == ':'))
 	{
-		sstream << "/";
+		sstream << FSDELIMITER;
 	}
 	bool wasSlash = true;
 	for (i = input[0] == '/' || input[0] == '\\' ? 1 : 0; i < input.length() - 1; i++)
@@ -80,7 +80,7 @@ std::string sqf::filesystem::sanitize(std::string input)
 			case '/':
 				if (!wasSlash)
 				{
-					sstream << '/';
+					sstream << FSDELIMITER;
 					wasSlash = true;
 				}
 				break;
@@ -107,14 +107,14 @@ std::string sqf::filesystem::sanitize(std::string input)
 std::string sqf::filesystem::down(std::string input, std::string navigator)
 {
 	std::stringstream sstream;
-	sstream << input << "/" << navigator;
+	sstream << input << FSDELIMITER << navigator;
 	return sstream.str();
 }
 
 std::string sqf::filesystem::navigate(std::string input, std::string navigator)
 {
 	size_t index = 0;
-	while ((index = navigator.find('/', 1)) != std::string::npos)
+	while ((index = navigator.find(FSDELIMITER, 1)) != std::string::npos)
 	{
 		std::string tmp = navigator.substr(1, index - 1);
 		if (tmp.empty())
