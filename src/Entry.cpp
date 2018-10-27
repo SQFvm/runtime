@@ -177,9 +177,12 @@ int main(int argc, char** argv)
 
 			main((int)args.size(), args.data());
 
-			for (char* cstr : args)
+			if (args.size() > 1)
 			{
-				delete[] cstr;
+				for (auto it = args.begin() + 1; it != args.end(); it++)
+				{
+					delete[] * it;
+				}
 			}
 			return 0;
 		}
@@ -294,7 +297,7 @@ int main(int argc, char** argv)
 			}
 			else
 			{
-				vm.parse_sqf(str, f);
+				vm.parse_sqf(ppedStr, f);
 			}
 		}
 		catch (const std::runtime_error& ex)
@@ -335,6 +338,16 @@ int main(int argc, char** argv)
 			errflag = true;
 			std::cout << "Failed to load file '" << sanitized << "': " << ex.what() << std::endl;
 		}
+	}
+	if (errflag)
+	{
+		if (!noPrompt)
+		{
+			std::string line;
+			std::cout << std::endl << "Press [ENTER] to continue...";
+			std::getline(std::cin, line);
+		}
+		return -1;
 	}
 	//Load all sqf-code provided via arg.
 	for (auto& raw : sqfRaw)
@@ -390,14 +403,14 @@ int main(int argc, char** argv)
 
 			auto input = sstream.str();
 			bool err = false;
-			auto inputAfterPP = sqf::parse::preprocessor::parse(&vm, input, err, "__commandlinefeed.sqf");
+			auto inputAfterPP = sqf::parse::preprocessor::parse(&vm, input, err, sqf::filesystem::navigate(executable_path, "__commandlinefeed.sqf"));
 			if (err)
 			{
 				vm.err_buffprint();
 			}
 			else
 			{
-				vm.parse_sqf(inputAfterPP, "__commandlinefeed.sqf");
+				vm.parse_sqf(inputAfterPP, sqf::filesystem::navigate(executable_path, "__commandlinefeed.sqf"));
 			}
 		}
 
@@ -447,4 +460,5 @@ int main(int argc, char** argv)
 	}
 
 	sqf::commandmap::get().uninit();
+	return 0;
 }
