@@ -99,13 +99,10 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> prettyPrintArg("", "pretty-print", "Loads provided file from disk and pretty-prints it onto console.", false, "PATH");
 	cmd.add(prettyPrintArg);
 
-	TCLAP::MultiArg<std::string> fileSystemPathArg("", "filesystem-path", "Adds provided base-path to the list of allowed locations one can be inside of. Should be absolute paths!", false, "PATH");
-	cmd.add(fileSystemPathArg);
+	TCLAP::SwitchArg noLoadExecDirArg("", "no-load-execdir", "Prevents automatically adding the workspace to the path of allowed locations.", false);
+	cmd.add(noLoadExecDirArg);
 
-	TCLAP::SwitchArg noAutoaddFilesystemArg("", "no-autoadd-filesystem", "Prevents automatically adding the workspace to the path of allowed locations.", false);
-	cmd.add(noAutoaddFilesystemArg);
-
-	TCLAP::MultiArg<std::string> loadArg("", "load", "Adds provided path to the allowed locations list.", false, "PATH");
+	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. Supports relative directory using './path' and absolut pathing.", false, "PATH");
 	cmd.add(loadArg);
 
 	cmd.parse(argc, argv);
@@ -122,7 +119,7 @@ int main(int argc, char** argv)
 	bool noPrint = noPrintArg.getValue();
 	bool noExecutePrint = noExecutePrintArg.getValue();
 	bool disableClassnameCheck = disableClassnameCheckArg.getValue();
-	bool noAutoaddFilesystem = noAutoaddFilesystemArg.getValue();
+	bool noLoadExecDir = noLoadExecDirArg.getValue();
 
 
 	sqf::virtualmachine vm;
@@ -132,19 +129,24 @@ int main(int argc, char** argv)
 	sqf::debugger* dbg = nullptr;
 
 	vm.perform_classname_checks(disableClassnameCheck);
+	auto executable_path = get_executable_path();
 
-	if (!noAutoaddFilesystem)
+	if (!noLoadExecDir)
 	{
-		vm.get_filesystem().add_allowed_physical(get_executable_path());
+		vm.get_filesystem().add_allowed_physical(executable_path);
 	}
 	for (auto& f : load)
 	{
-		vm.get_filesystem().add_allowed_physical(f);
-	}
-
-	for (auto& f : fileSystemPathArg.getValue())
-	{
-		vm.get_filesystem().add_allowed_physical(f);
+		auto sanitized = sqf::filesystem::sanitize(f);
+		if (sanitized.empty())
+		{
+			continue;
+		}
+		if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
+		{
+			sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+		}
+		vm.get_filesystem().add_allowed_physical(sanitized);
 	}
 
 	for (auto& f : prettyPrintArg.getValue())
