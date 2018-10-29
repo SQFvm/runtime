@@ -321,6 +321,9 @@ namespace sqf
 				}
 				else
 				{
+					size_t tmp_line = line;
+					size_t tmp_col = col;
+					size_t tmp_off = curoff;
 					if (STRING_start(code, curoff))
 					{
 						STRING(h, thisnode, code, line, col, curoff, file, errflag);
@@ -333,12 +336,24 @@ namespace sqf
 					{
 						LOCALIZATION(h, thisnode, code, line, col, curoff, file, errflag);
 					}
-					else
+					skip(code, line, col, file, curoff);
+					if (code[curoff] != ';')
 					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected STRING or NUMBER or LOCALIZATION." << std::endl;
-						errflag = true;
+						thisnode.children.pop_back();
+						while (code[curoff] != ';' && code[curoff] != '\0')
+						{
+							curoff++;
+						}
+						auto magicstringnode = astnode();
+						magicstringnode.kind = configasttypes::STRING;
+						magicstringnode.col = tmp_col;
+						magicstringnode.line = tmp_line;
+						magicstringnode.file = file;
+						auto fullstring = std::string("\"").append(code + tmp_off, code + curoff).append("\"");
+						magicstringnode.content = fullstring;
+						magicstringnode.length = curoff - tmp_off;
+						magicstringnode.offset = tmp_off;
+						thisnode.children.push_back(magicstringnode);
 					}
 				}
 
