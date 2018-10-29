@@ -377,6 +377,7 @@ int main(int argc, char** argv)
 			std::cout << err.what() << std::endl;
 		}
 	}
+	vm.execute();
 	do
 	{
 		if (!noPrompt)
