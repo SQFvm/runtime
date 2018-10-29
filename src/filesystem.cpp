@@ -4,7 +4,7 @@
 #include <algorithm>
 
 
-std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string virt)
+std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string virt, std::string current)
 {
 	std::string virtMapping;
 	std::string physPath;
@@ -19,19 +19,33 @@ std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string vi
 	}
 	if (virtMapping.empty())
 	{
-		// Path not found.
-		auto res = std::find_if(m_physicalboundaries.begin(), m_physicalboundaries.end(), [virt](std::string it) -> bool
+		auto res = std::find_if(m_virtualpaths.begin(), m_virtualpaths.end(), [current](std::string it) -> bool
 		{
-			it = navigate(it, virt);
-			return file_exists(it);
+			return current.find(it) != std::string::npos;
 		});
-		if (res == m_physicalboundaries.end())
+		if (res == m_virtualpaths.end())
 		{
-			return {};
+			auto res2 = std::find_if(m_physicalboundaries.begin(), m_physicalboundaries.end(), [virt, current](std::string it) -> bool
+			{
+				if (!current.empty() && current.find(it) == std::string::npos)
+				{
+					return false;
+				}
+				it = navigate(it, virt);
+				return file_exists(it);
+			});
+			if (res2 == m_physicalboundaries.end())
+			{
+				return {};
+			}
+			else
+			{
+				physPath = *res2;
+			}
 		}
 		else
 		{
-			physPath = *res;
+			physPath = m_virtualphysicalmap[*res];
 		}
 	}
 	else
@@ -57,6 +71,7 @@ void sqf::filesystem::add_mapping(std::string virt, std::string phys)
 	virt = sanitize(virt);
 	phys = sanitize(phys);
 	m_physicalboundaries.push_back(phys);
+	m_virtualpaths.push_back(virt);
 	m_virtualphysicalmap[virt] = phys;
 }
 

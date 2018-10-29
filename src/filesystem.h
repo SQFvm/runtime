@@ -27,9 +27,9 @@ namespace sqf
 		// Attempts to receive a physical path from provided virtual path.
 		// Will throw a runtime_error if the requested path is not allowed
 		// to be received.
-		std::string get_physical_path(std::string virt)
+		std::string get_physical_path(std::string virt, std::string current = "")
 		{
-			auto val = try_get_physical_path(virt);
+			auto val = try_get_physical_path(virt, current);
 			if (val.has_value())
 			{
 				return val.value();
@@ -42,7 +42,7 @@ namespace sqf
 		// Attempts to receive a physical path from provided virtual path.
 		// Will return true if the path was received successfully.
 		// Returns false (and does not modifies second param) if not.
-		std::optional<std::string> try_get_physical_path(std::string virt);
+		std::optional<std::string> try_get_physical_path(std::string virt, std::string current = "");
 		// Adds a physical path to the allowed list.
 		void add_allowed_physical(std::string phys);
 		// Adds a mapping of a virtual path to a physical one.
