@@ -535,7 +535,7 @@ void sqf::virtualmachine::parse_config(std::string code, std::shared_ptr<configd
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
-	auto node = sqf::parse::config::parse_config(code.c_str(), h, errflag);
+	auto node = sqf::parse::config::parse_config(code, h, errflag);
 //#if defined(_DEBUG)
 //	static bool isinitial = true;
 //	if (isinitial)

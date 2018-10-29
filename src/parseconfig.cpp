@@ -40,9 +40,8 @@ namespace sqf
 					}
 				}
 			}
-			void skip(const char *code, size_t &line, size_t &col, size_t &curoff)
+			void skip(const char *code, size_t &line, size_t &col, std::string& file, size_t &curoff)
 			{
-				short commentmode = 0;
 				while (true)
 				{
 					switch (code[curoff])
@@ -50,27 +49,30 @@ namespace sqf
 						case ' ': curoff++; col++; continue;
 						case '\t': curoff++; col++; continue;
 						case '\r': curoff++; col++; continue;
-						case '\n': curoff++; line++; col = 0; if (commentmode == 2) { commentmode = 0; } continue;
-						case '/': if (code[curoff + 1] == '*') { commentmode = 1; curoff += 2; col += 2; continue; }
-								  else if (code[curoff + 1] == '/') { commentmode = 2; curoff += 2; col += 2; continue; }
-						default: {
-							if (commentmode == 1)
+						case '\n': curoff++; line++; col = 0; continue;
+						case '#':
+							if ((code[curoff + 1] == 'f' && code[curoff + 2] == 'i' && code[curoff + 3] == 'l' && code[curoff + 4] == 'e') ||
+								(code[curoff + 1] == 'F' && code[curoff + 2] == 'I' && code[curoff + 3] == 'L' && code[curoff + 4] == 'E'))
 							{
-								if ((code[curoff] == '*' && code[curoff + 1] == '/') || code[curoff] == '\0')
-								{
-									commentmode = false;
-									curoff += 2;
-								}
-								else
-								{
-									curoff++;
-								}
+								curoff += 4;
+								size_t start = curoff + 1;
+								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
+
+								auto str = std::string(code + start, code + curoff);
+								file = str;
+								break;
 							}
-							else
+							else if ((code[curoff + 1] == 'l' && code[curoff + 2] == 'i' && code[curoff + 3] == 'n' && code[curoff + 4] == 'e') ||
+								(code[curoff + 1] == 'L' && code[curoff + 2] == 'I' && code[curoff + 3] == 'N' && code[curoff + 4] == 'E'))
 							{
-								return;
+								curoff += 4;
+								size_t start = curoff + 1;
+								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
+								auto str = std::string(code + start, code + curoff);
+								line = (size_t)std::stoul(str.c_str());
+								break;
 							}
-						} break;
+						default: return;
 					}
 				}
 			}
@@ -94,17 +96,17 @@ namespace sqf
 
 			//NODELIST = { NODE ';' { ';' } };
 			bool NODELIST_start(const char* code, size_t curoff) { return true; }
-			void NODELIST(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag)
+			void NODELIST(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{
 				//auto thisnode = astnode();
 				//thisnode.offset = curoff;
 				//thisnode.kind = configasttypes::NODELIST;
-				skip(code, line, col, curoff);
+				skip(code, line, col, file, curoff);
 				//Iterate over statements as long as it is an instruction start.
 				while (NODE_start(code, curoff))
 				{
 					NODE(h, root, code, line, col, curoff, file, errflag);
-					skip(code, line, col, curoff);
+					skip(code, line, col, file, curoff);
 					//Make sure at least one endchr is available unless no statement follows
 					if (!endchr(code, curoff) && NODE_start(code, curoff))
 					{
@@ -121,7 +123,7 @@ namespace sqf
 						{
 							curoff += endchrlen;
 							col += endchrlen;
-							skip(code, line, col, curoff);
+							skip(code, line, col, file, curoff);
 						}
 					}
 				}
@@ -130,7 +132,7 @@ namespace sqf
 			}
 			//NODE = CONFIGNODE | VALUENODE;
 			bool NODE_start(const char* code, size_t curoff) { return CONFIGNODE_start(code, curoff) || VALUENODE_start(code, curoff); }
-			void NODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag)
+			void NODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{
 				//auto thisnode = astnode();
 				//thisnode.offset = curoff;
@@ -155,7 +157,7 @@ namespace sqf
 			}
 			//CONFIGNODE = 'class' ident [ ':' ident ] '{' NODELIST '}'
 			bool CONFIGNODE_start(const char* code, size_t curoff) { return str_cmpi(code + curoff, compiletime::strlen("class"), "class", compiletime::strlen("class")) == 0; }
-			void CONFIGNODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag)
+			void CONFIGNODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{
 				size_t len;
 				auto thisnode = astnode();
@@ -164,7 +166,7 @@ namespace sqf
 
 				curoff += compiletime::strlen("class");
 				col += compiletime::strlen("class");
-				skip(code, line, col, curoff);
+				skip(code, line, col, file, curoff);
 				std::string ident;
 				if ((len = identifier(code, curoff)) > 0)
 				{
@@ -182,12 +184,12 @@ namespace sqf
 					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected identifier." << std::endl;
 					errflag = true;
 				}
-				skip(code, line, col, curoff);
+				skip(code, line, col, file, curoff);
 				if (code[curoff] == ':')
 				{
 					curoff++;
 					col++;
-					skip(code, line, col, curoff);
+					skip(code, line, col, file, curoff);
 					if ((len = identifier(code, curoff)) > 0)
 					{
 						ident = std::string(code + curoff, code + curoff + len);
@@ -209,13 +211,13 @@ namespace sqf
 						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected identifier." << std::endl;
 						errflag = true;
 					}
-					skip(code, line, col, curoff);
+					skip(code, line, col, file, curoff);
 				}
 				if (code[curoff] == '{')
 				{
 					curoff++;
 					col++;
-					skip(code, line, col, curoff);
+					skip(code, line, col, file, curoff);
 				}
 				else
 				{
@@ -243,7 +245,7 @@ namespace sqf
 			}
 			//VALUENODE = ident ('=' (STRING | NUMBER | LOCALIZATION) | '[' ']' '=' ARRAY);
 			bool VALUENODE_start(const char* code, size_t curoff) { return identifier(code, curoff) > 0; }
-			void VALUENODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag)
+			void VALUENODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{
 				size_t len;
 				bool isarr = false;
@@ -259,7 +261,7 @@ namespace sqf
 					thisnode.file = file;
 					curoff += len;
 					col += len;
-					skip(code, line, col, curoff);
+					skip(code, line, col, file, curoff);
 				}
 				else
 				{
@@ -274,12 +276,12 @@ namespace sqf
 					isarr = true;
 					curoff++;
 					col++;
-					skip(code, line, col, curoff);
+					skip(code, line, col, file, curoff);
 					if (code[curoff] == ']')
 					{
 						curoff++;
 						col++;
-						skip(code, line, col, curoff);
+						skip(code, line, col, file, curoff);
 					}
 					else
 					{
@@ -293,7 +295,7 @@ namespace sqf
 				{
 					curoff++;
 					col++;
-					skip(code, line, col, curoff);
+					skip(code, line, col, file, curoff);
 				}
 				else
 				{
@@ -345,7 +347,7 @@ namespace sqf
 			}
 			//STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
 			bool STRING_start(const char* code, size_t curoff) { return code[curoff] == '"' ||code[curoff] == '\''; }
-			void STRING(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag)
+			void STRING(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{
 				auto thisnode = astnode();
 				thisnode.kind = configasttypes::STRING;
@@ -384,7 +386,7 @@ namespace sqf
 			}
 			//NUMBER = "0x" hexadecimal | [ '-' ]scalar;
 			bool NUMBER_start(const char* code, size_t curoff) { return code[curoff] == '-' || (code[curoff] >= '0' && code[curoff] <= '9'); }
-			void NUMBER(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag)
+			void NUMBER(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{
 				auto thisnode = astnode();
 				thisnode.kind = configasttypes::NUMBER;
@@ -454,7 +456,7 @@ namespace sqf
 			}
 			//LOCALIZATION = '$' ident;
 			bool LOCALIZATION_start(const char* code, size_t curoff) { return code[curoff] == '$'; }
-			void LOCALIZATION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag)
+			void LOCALIZATION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{
 				auto thisnode = astnode();
 				thisnode.kind = configasttypes::LOCALIZATION;
@@ -475,7 +477,7 @@ namespace sqf
 			}
 			//ARRAY = '{' [ VALUE { ',' VALUE } ] '}'
 			bool ARRAY_start(const char* code, size_t curoff) { return code[curoff] == '{'; }
-			void ARRAY(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag)
+			void ARRAY(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{
 				auto thisnode = astnode();
 				thisnode.kind = configasttypes::ARRAY;
@@ -485,21 +487,21 @@ namespace sqf
 				thisnode.file = file;
 				curoff++;
 				col++;
-				skip(code, line, col, curoff);
+				skip(code, line, col, file, curoff);
 				if (VALUE_start(code, curoff))
 				{
 					VALUE(h, thisnode, code, line, col, curoff, file, errflag);
-					skip(code, line, col, curoff);
+					skip(code, line, col, file, curoff);
 					while (code[curoff] == ',')
 					{
 						col++;
 						curoff++;
-						skip(code, line, col, curoff);
+						skip(code, line, col, file, curoff);
 
 						if (VALUE_start(code, curoff))
 						{
 							VALUE(h, thisnode, code, line, col, curoff, file, errflag);
-							skip(code, line, col, curoff);
+							skip(code, line, col, file, curoff);
 						}
 						else
 						{
@@ -528,7 +530,7 @@ namespace sqf
 			}
 			//VALUE = STRING | NUMBER | LOCALIZATION | ARRAY;
 			bool VALUE_start(const char* code, size_t curoff) { return STRING_start(code, curoff) || NUMBER_start(code, curoff) || LOCALIZATION_start(code, curoff) || ARRAY_start(code, curoff); }
-			void VALUE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const char* file, bool &errflag)
+			void VALUE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{
 				//auto thisnode = astnode();
 				//thisnode.offset = curoff;
@@ -561,9 +563,9 @@ namespace sqf
 			}
 
 
-			astnode parse_config(const char* codein, helper& h, bool &errflag)
+			astnode parse_config(std::string codein, helper& h, bool &errflag)
 			{
-				const char *code = codein;
+				const char *code = codein.c_str();
 				size_t line = 0;
 				size_t col = 0;
 				size_t curoff = 0;
