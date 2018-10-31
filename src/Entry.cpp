@@ -11,6 +11,7 @@
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
+#include <cstring>
 #include <tclap/CmdLine.h>
 #include <algorithm>
 
