@@ -15,7 +15,7 @@ namespace sqf
 		scriptdata();
 		std::shared_ptr<sqf::vmstack> stack() { return mthisstack; }
 		bool hasfinished();
-		std::string tosqf() const override { return "SCRIPT"; }
+		std::string tosqf() const override;
 		bool equals(std::shared_ptr<data> d) const override { return this == d.get(); }
 	};
 }
