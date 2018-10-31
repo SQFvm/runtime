@@ -848,6 +848,125 @@ namespace
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(501) });
 		}
 	}
+	std::shared_ptr<value> param_any_array(virtualmachine* vm, std::shared_ptr<value> src, std::shared_ptr<value> trgt)
+	{
+		std::shared_ptr<sqf::arraydata> elements;
+		if (src->dtype())
+		{
+			elements = src->data<sqf::arraydata>();
+		}
+		else
+		{
+			elements = std::make_shared<arraydata>();
+			elements->push_back(src);
+		}
+		auto fels = trgt->as_vector();
+		size_t i = 0, j;
+		bool flag;
+		
+		if(fels.size() != 0)
+		{
+			//validation step
+			if (fels.size() >= 1 && fels.at(0)->dtype() != sqf::SCALAR)
+			{
+				vm->err() << "Param element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
+				return std::shared_ptr<value>();
+			}
+			else
+			{
+				i = fels.at(0)->as_int();
+			}
+			if (fels.size() >= 3 && fels.at(2)->dtype() != sqf::ARRAY)
+			{
+				vm->err() << "Param element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
+				return std::shared_ptr<value>();
+			}
+			if (fels.size() >= 4 && (fels.at(3)->dtype() != sqf::ARRAY && fels.at(3)->dtype() != sqf::SCALAR))
+			{
+				vm->err() << "Param element " << i << " is required to have its fourth element to be of type " << type_str(ARRAY) << " or " << type_str(SCALAR) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
+				return std::shared_ptr<value>();
+			}
+			else if (fels.size() >= 4 && fels.at(3)->dtype() == sqf::ARRAY)
+			{
+				auto tmp = fels.at(3)->data<arraydata>();
+				flag = false;
+				for (j = 0; j < tmp->size(); j++)
+				{
+					if (tmp->at(j)->dtype() != sqf::SCALAR)
+					{
+						vm->err() << "Param element " << i << " and its inner " << j << ". element was expected to be of type " << type_str(SCALAR) << ". Got " << sqf::type_str(tmp->at(j)->dtype()) << '.' << std::endl;
+						flag = true;
+						continue;
+					}
+				}
+				if (flag)
+				{
+					return std::shared_ptr<value>();
+				}
+			}
+
+			if (i < elements->size())
+			{
+				auto el = elements->at(i);
+				if (fels.size() >= 3 && fels.at(2)->data<arraydata>()->size() != 0)
+				{
+					auto tmp = fels.at(2)->data<arraydata>();
+
+					auto found = std::find_if(tmp->begin(), tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
+						return type == val->dtype();
+					});
+
+					flag = found != tmp->end();
+
+					if (!flag)
+					{
+						vm->wrn() << "Element " << i << " is not matching provided expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
+						return fels.at(1);
+					}
+				}
+				if (fels.size() >= 4 && el->dtype() == sqf::ARRAY)
+				{
+					flag = true;
+					if (fels.at(2)->dtype() == sqf::ARRAY)
+					{
+						auto tmp = fels.at(2)->data<arraydata>();
+
+						auto found = std::find_if(tmp->begin(), tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
+							return type == val->dtype();
+						});
+
+						flag = found != tmp->end();
+					}
+					else if (el->data<arraydata>()->size() != fels.at(3)->as_int())
+					{
+						flag = false;
+					}
+					if (!flag)
+					{
+						vm->wrn() << "Element " << i << " is not matching expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
+						return fels.at(1);
+					}
+				}
+				return el;
+			}
+			else
+			{
+				return fels.size() == 2 ? fels.at(1) : std::make_shared<sqf::value>();
+			}
+		}
+		return std::make_shared<sqf::value>();
+	}
+	std::shared_ptr<value> param_array(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto _this = vm->stack()->getlocalvar("_this");
+		if (_this->dtype() != ARRAY)
+		{
+			auto arr = std::make_shared<arraydata>();
+			arr->push_back(_this);
+			_this = std::make_shared<value>(arr, ARRAY);
+		}
+		return param_any_array(vm, _this, right);
+	}
 	std::shared_ptr<value> params_array_array(virtualmachine* vm, std::shared_ptr<value> src, std::shared_ptr<value> trgt)
 	{
 		auto elements = src->data<sqf::arraydata>();
@@ -884,7 +1003,7 @@ namespace
 				vm->err() << "Params element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
 				continue;
 			}
-			if (fels.size() >= 4 && (fels.at(3)->dtype() != sqf::ARRAY || fels.at(3)->dtype() != sqf::SCALAR))
+			if (fels.size() >= 4 && (fels.at(3)->dtype() != sqf::ARRAY && fels.at(3)->dtype() != sqf::SCALAR))
 			{
 				vm->err() << "Params element " << i << " is required to have its fourth element to be of type " << type_str(ARRAY) << " or " << type_str(SCALAR) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
 				continue;
@@ -916,7 +1035,7 @@ namespace
 					auto tmp = fels.at(2)->data<arraydata>();
 
 					auto found = std::find_if(tmp->begin(), tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
-						return type == val->as_int();
+						return type == val->dtype();
 					});
 
 					flag = found != tmp->end();
@@ -924,8 +1043,7 @@ namespace
 					if (!flag)
 					{
 						vm->wrn() << "Element " << i << " is not matching provided expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
-						vm->stack()->stacks_top()->setvar(fels.at(0)->as_string(), fels.at(1));
-						continue;
+						return fels.at(1);
 					}
 				}
 				if (fels.size() >= 4 && el->dtype() == sqf::ARRAY)
@@ -936,7 +1054,7 @@ namespace
 						auto tmp = fels.at(2)->data<arraydata>();
 
 						auto found = std::find_if(tmp->begin(),tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
-							return type == val->as_int();
+							return type == val->dtype();
 						});
 
 						flag = found != tmp->end();
@@ -948,8 +1066,7 @@ namespace
 					if (!flag)
 					{
 						vm->wrn() << "Element " << i << " is not matching expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
-						vm->stack()->stacks_top()->setvar(fels.at(0)->as_string(), fels.at(1));
-						continue;
+						return fels.at(1);
 					}
 				}
 				vm->stack()->stacks_top()->setvar(fels.at(0)->as_string(), el);
@@ -1109,6 +1226,8 @@ void sqf::commandmap::initgenericcmds()
 
 	add(unary("params", type::ARRAY, "Parses arguments inside of _this into array of private variables.", params_array));
 	add(binary(4, "params", type::ARRAY, type::ARRAY, "Parses input argument into array of private variables.", params_array_array));
+	add(unary("param", type::ARRAY, "Extracts a single value with given index from _this.", param_array));
+	add(binary(4, "param", type::ANY, type::ARRAY, "Extracts a single value with given index from input argument.", param_any_array));
 	add(unary("sleep", type::SCALAR, "Suspends code execution for given time in seconds. The delay given is the minimal delay expected.", sleep_scalar));
 	add(nular("canSuspend", "Returns true if sleep, uiSleep or waitUntil commands can be used in current scope.", cansuspend_));
 	add(unary("loadFile", type::STRING, "", loadfile_string));
