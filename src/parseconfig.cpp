@@ -324,22 +324,29 @@ namespace sqf
 					size_t tmp_line = line;
 					size_t tmp_col = col;
 					size_t tmp_off = curoff;
+					bool was_handled = false;
 					if (STRING_start(code, curoff))
 					{
+						was_handled = true;
 						STRING(h, thisnode, code, line, col, curoff, file, errflag);
 					}
 					else if (NUMBER_start(code, curoff))
 					{
+						was_handled = true;
 						NUMBER(h, thisnode, code, line, col, curoff, file, errflag);
 					}
 					else if (LOCALIZATION_start(code, curoff))
 					{
+						was_handled = true;
 						LOCALIZATION(h, thisnode, code, line, col, curoff, file, errflag);
 					}
 					skip(code, line, col, file, curoff);
 					if (code[curoff] != ';')
 					{
-						thisnode.children.pop_back();
+						if (was_handled)
+						{
+							thisnode.children.pop_back();
+						}
 						while (code[curoff] != ';' && code[curoff] != '\0')
 						{
 							curoff++;

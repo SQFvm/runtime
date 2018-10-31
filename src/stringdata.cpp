@@ -18,7 +18,7 @@ std::string sqf::stringdata::parse_from_sqf(std::string s)
 			count++;
 		}
 	}
-	size_t size = s.length() - count - 2;
+	size_t size = s.length() - (count / 2) - 2;
 	size_t index = 0;
 	auto arr = std::make_unique<char[]>(size);
 	for (size_t i = 1; i < s.length() - 1; i++)
@@ -27,6 +27,10 @@ std::string sqf::stringdata::parse_from_sqf(std::string s)
 		if (c == start && s[i + 1] == start)
 		{
 			i++;
+		}
+		if (index >= size)
+		{
+			throw new std::runtime_error(std::string("STRING PARSE ERROR! PLEASE REPORT INPUT STRING: ").append(s));
 		}
 		arr[index] = c;
 		index++;
@@ -53,6 +57,10 @@ std::string sqf::stringdata::parse_to_sqf(std::string s)
 		index++;
 		if (c == '"')
 		{
+			if (index >= size)
+			{
+				throw new std::runtime_error(std::string("STRING PARSE ERROR! PLEASE REPORT INPUT STRING: ").append(s));
+			}
 			arr[index] = c;
 			index++;
 		}

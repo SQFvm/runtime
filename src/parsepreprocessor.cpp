@@ -214,12 +214,92 @@ namespace {
 	std::string parse_macro(helper& h, finfo& fileinfo);
 	std::string parse_file(helper& h, finfo& fileinfo);
 
+	void replace_helper_step1(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, bool& stringify_required, std::string& actual_content, std::stringstream& sstream, size_t& word_start, size_t off = ~0)
+	{
+		if (word_start != off)
+		{
+			auto word = actual_content.substr(word_start, off - word_start);
+			auto res = std::find_if(
+				m.args.begin(),
+				m.args.end(),
+				[word](std::string s) { return word == s; }
+			);
+			if (res != m.args.end())
+			{
+				size_t index = res - m.args.begin();
+				if (stringify_required)
+				{
+					sstream << '"' << params[index] << '"';
+					stringify_required = false;
+				}
+				else
+				{
+					sstream << params[index];
+				}
+			}
+			else
+			{
+				if (stringify_required)
+				{
+					sstream << '#' << word;
+					stringify_required = false;
+				}
+				else
+				{
+					sstream << word;
+				}
+			}
+		}
+		word_start = off + 1;
+	}
+	void replace_helper_step3(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, bool& stringify_required, std::string& actual_content, std::stringstream& sstream, size_t& word_start, size_t& off)
+	{
+		if (word_start != off)
+		{
+			auto word = actual_content.substr(word_start, off - word_start);
+			auto res = h.contains_macro(word);
+			if (res.has_value())
+			{
+				finfo handlefinfo;
+				handlefinfo.off = off;
+				handlefinfo.line = m.line;
+				handlefinfo.col = off;
+				handlefinfo.path = m.filepath;
+				handlefinfo.content = actual_content;
+				auto handled = handle_macro(h, handlefinfo, res.value());
+				if (stringify_required)
+				{
+					stringify_required = false;
+					sstream << '"' << handled << '"';
+				}
+				else
+				{
+					sstream << handled;
+				}
+				off = handlefinfo.off - 1;
+			}
+			else
+			{
+				if (stringify_required)
+				{
+					stringify_required = false;
+					sstream << '"' << word << '"';
+				}
+				else
+				{
+					sstream << word;
+				}
+			}
+		}
+		word_start = off + 1;
+	}
 	std::string replace(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string> params)
 	{
 		std::stringstream sstream;
 		std::string actual_content = m.content;
 		bool stringify_required = false;
 		bool concat_required = false;
+		bool inside_string = false;
 		// 1. Replace & scan for replace/concat hash
 		{
 			size_t word_start = 0;
@@ -242,66 +322,47 @@ namespace {
 					case '3': case '4': case '5': case '6': case '7':
 					case '8': case '9': case '_':
 						break;
-					default:
-						if (word_start != off)
+					case '#':
+						replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
+						if ((off + 1 < actual_content.length() ? actual_content[off + 1] : '\0') == '#')
 						{
-							auto word = actual_content.substr(word_start, off - word_start);
-							auto res = std::find_if(
-								m.args.begin(),
-								m.args.end(),
-								[word](std::string s) { return word == s; }
-							);
-							if (res != m.args.end())
-							{
-								size_t index = res - m.args.begin();
-								sstream << params[index];
-							}
-							else
-							{
-								sstream << word;
-							}
+							off++;
+							word_start ++;
+							sstream << "##";
 						}
-						word_start = off + 1;
-						sstream << c;
-						if (c == '#') // Required to be done AFTER actual replace check
+						else
 						{
-							if (off + 1 < actual_content.length() && actual_content[off + 1] == '#')
-							{
-								concat_required = true;
-								sstream << c;
-								off++;
-								word_start++;
-							}
-							else
-							{
-								stringify_required = true;
-							}
+							stringify_required = true;
 						}
 						break;
+					case '"':
+						if (inside_string)
+						{
+							inside_string = true;
+						}
+						else
+						{
+							inside_string = false;
+							auto word = actual_content.substr(word_start, off - word_start);
+							sstream << word << c;
+							word_start = off + 1;
+						}
+						break;
+					default:
+						if (inside_string)
+						{
+							break;
+						}
+						replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
+						sstream << c;
 				}
 			}
 
-			if (word_start != actual_content.length())
-			{
-				auto word = actual_content.substr(word_start);
-				auto res = std::find_if(
-					m.args.begin(),
-					m.args.end(),
-					[word](std::string s) { return word == s; }
-				);
-				if (res != m.args.end())
-				{
-					size_t index = res - m.args.begin();
-					sstream << params[index];
-				}
-				else
-				{
-					sstream << word;
-				}
-			}
+			replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, actual_content.length());
 			actual_content = sstream.str();
 			sstream.str("");
 		}
+		/*
 		// 2. Stringify
 		if (stringify_required)
 		{
@@ -341,9 +402,12 @@ namespace {
 			actual_content = sstream.str();
 			sstream.str("");
 		}
+		*/
 		// 3. Execute nested macros
 		{
 			size_t word_start = 0;
+			bool is_inside_string = false;
+			stringify_required = false;
 			for (size_t off = 0; off < actual_content.length(); off++)
 			{
 				char c = actual_content[off];
@@ -364,64 +428,57 @@ namespace {
 					case '8': case '9': case '_':
 						break;
 					case '#':
-						if (off + 1 < actual_content.length() && actual_content[off + 1] == '#')
+						replace_helper_step3(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
+						if ((off + 1 < actual_content.length() ? actual_content[off + 1] : '\0') == '#')
 						{
+							off++;
+							word_start ++;
+							sstream << "##";
 							concat_required = true;
 						}
 						else
 						{
 							stringify_required = true;
+							word_start++;
 						}
-					default:
-						if (word_start != off)
+						break;
+					case '"':
+						if (inside_string)
 						{
+							inside_string = true;
+						}
+						else
+						{
+							inside_string = false;
 							auto word = actual_content.substr(word_start, off - word_start);
-							auto res = h.contains_macro(word);
-							if (res.has_value())
+							if (stringify_required)
 							{
-								finfo handlefinfo;
-								handlefinfo.off = off;
-								handlefinfo.line = m.line;
-								handlefinfo.col = off;
-								handlefinfo.path = m.filepath;
-								handlefinfo.content = actual_content;
-								auto handled = handle_macro(h, handlefinfo, res.value());
-								sstream << handled;
-								off = handlefinfo.off - 1;
-								word_start = off + 1;
-								break;
+								sstream << c << word << c << c;
+								stringify_required = false;
 							}
 							else
 							{
-								sstream << word;
+								sstream << word << c;
 							}
+							word_start = off + 1;
+							break;
 						}
-						word_start = off + 1;
-						sstream << c;
+					default:
+						if (inside_string)
+						{
+							break;
+						}
+						size_t offold = off;
+						replace_helper_step3(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
+						if (off == offold)
+						{
+							sstream << c;
+						}
 						break;
 				}
 			}
-
-			if (word_start != actual_content.length())
-			{
-				auto word = actual_content.substr(word_start);
-				auto res = h.contains_macro(word);
-				if (res.has_value())
-				{
-					finfo handlefinfo;
-					handlefinfo.off = actual_content.length();
-					handlefinfo.line = m.line;
-					handlefinfo.col = actual_content.length();
-					handlefinfo.path = m.filepath;
-					handlefinfo.content = actual_content;
-					auto handled = handle_macro(h, handlefinfo, res.value());
-					sstream << handled;
-				}
-				else
-				{
-					sstream << word;
-				}
-			}
+			size_t len = actual_content.length();
+			replace_helper_step3(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, len);
 			actual_content = sstream.str();
 			sstream.str("");
 		}
