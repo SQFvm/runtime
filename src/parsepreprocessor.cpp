@@ -323,6 +323,10 @@ namespace {
 					case '8': case '9': case '_':
 						break;
 					case '#':
+						if (inside_string)
+						{
+							break;
+						}
 						replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
 						if ((off + 1 < actual_content.length() ? actual_content[off + 1] : '\0') == '#')
 						{
@@ -336,7 +340,7 @@ namespace {
 						}
 						break;
 					case '"':
-						if (inside_string)
+						if (!inside_string)
 						{
 							inside_string = true;
 						}
@@ -359,6 +363,11 @@ namespace {
 			}
 
 			replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, actual_content.length());
+			if (stringify_required)
+			{
+				stringify_required = false;
+				sstream << '#';
+			}
 			actual_content = sstream.str();
 			sstream.str("");
 		}
@@ -428,6 +437,10 @@ namespace {
 					case '8': case '9': case '_':
 						break;
 					case '#':
+						if (inside_string)
+						{
+							break;
+						}
 						replace_helper_step3(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
 						if ((off + 1 < actual_content.length() ? actual_content[off + 1] : '\0') == '#')
 						{
@@ -443,7 +456,7 @@ namespace {
 						}
 						break;
 					case '"':
-						if (inside_string)
+						if (!inside_string)
 						{
 							inside_string = true;
 						}
@@ -479,6 +492,11 @@ namespace {
 			}
 			size_t len = actual_content.length();
 			replace_helper_step3(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, len);
+			if (stringify_required)
+			{
+				stringify_required = false;
+				sstream << '#';
+			}
 			actual_content = sstream.str();
 			sstream.str("");
 		}
