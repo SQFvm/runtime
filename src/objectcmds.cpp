@@ -651,7 +651,7 @@ namespace
 		auto cfgVehicles = configbin->navigate("CfgVehicles")->data<configdata>();
 		if (cfgVehicles->is_null())
 		{
-			return false;
+			return std::make_shared<value>(false);
 		}
 		auto node = cfgVehicles->navigate(confname)->data<configdata>();
 		if (!node->is_null())
