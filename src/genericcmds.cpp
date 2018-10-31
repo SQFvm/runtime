@@ -1022,6 +1022,12 @@ namespace
 			return std::make_shared<value>(parsedcontents);
 		}
 	}
+	std::shared_ptr<value> scriptname_string(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto str = right->as_string();
+		vm->active_vmstack()->script_name(str);
+		return std::make_shared<value>();
+	}
 }
 void sqf::commandmap::initgenericcmds()
 {
@@ -1100,5 +1106,7 @@ void sqf::commandmap::initgenericcmds()
 	add(unary("loadFile", type::STRING, "", loadfile_string));
 	add(unary("preprocessFileLineNumbers", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
 	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
+	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
+	add(unary("scriptName", type::STRING, "Assign a user friendly name to the VM script this command is executed from. Once name is assigned, it cannot be changed.", scriptname_string));
 
 }

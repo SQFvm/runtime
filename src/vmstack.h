@@ -20,10 +20,13 @@ namespace sqf
 		bool misscheduled;
 		std::chrono::system_clock::time_point mwakeupstamp;
 		bool misasleep;
+		std::string mscriptname;
 	public:
 		vmstack() : misscheduled(false), misasleep(false) {}
 		vmstack(bool isscheduled) : misscheduled(isscheduled), misasleep(false) {}
 		void pushinst(sqf::virtualmachine* vm, std::shared_ptr<instruction> inst);
+		std::string script_name() { return mscriptname; }
+		void script_name(std::string val) { if (mscriptname.empty()) { mscriptname = val; } }
 		std::shared_ptr<instruction> popinst(sqf::virtualmachine* vm)
 		{
 			if (mstacks.empty())

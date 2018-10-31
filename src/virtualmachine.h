@@ -64,6 +64,7 @@ namespace sqf
 		bool mperformclassnamechecks;
 		sqf::filesystem m_filesystem;
 	public:
+		std::shared_ptr<sqf::vmstack> active_vmstack() { return mactivestack; }
 		const std::vector<std::shared_ptr<innerobj>>& get_objlist() { return mobjlist; }
 		std::shared_ptr<sqf::sqfnamespace> missionnamespace() { return mmissionnamespace; }
 		std::shared_ptr<sqf::sqfnamespace> uinamespace() { return muinamespace; }
