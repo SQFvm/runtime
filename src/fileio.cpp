@@ -34,6 +34,8 @@ std::vector<char> readFile(const std::string & filename)
 
 int get_bom_skip(const std::vector<char>& buff)
 {
+	if (buff.size() == 0)
+		return 0;
 	if (buff[0] == (char)0xEF && buff[1] == (char)0xBB && buff[2] == (char)0xBF)
 	{
 		//UTF-8
