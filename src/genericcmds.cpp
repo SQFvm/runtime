@@ -1028,6 +1028,14 @@ namespace
 		vm->active_vmstack()->script_name(str);
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> in_any_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto arr = right->data<arraydata>();
+		auto res = std::find_if(arr->begin(), arr->end(), [left](std::shared_ptr<value> it) -> bool {
+			return it->equals(it);
+		});
+		return std::make_shared<value>(res != arr->end());
+	}
 }
 void sqf::commandmap::initgenericcmds()
 {
@@ -1108,5 +1116,6 @@ void sqf::commandmap::initgenericcmds()
 	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
 	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
 	add(unary("scriptName", type::STRING, "Assign a user friendly name to the VM script this command is executed from. Once name is assigned, it cannot be changed.", scriptname_string));
+	add(binary(4, "in", type::ANY, type::ARRAY, "Checks whether provided unit is inside of a vehicle. String values will be compared casesensitive.", in_any_array));
 
 }
