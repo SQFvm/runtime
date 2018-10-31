@@ -111,6 +111,13 @@ namespace sqf
 				//thisnode.offset = curoff;
 				//thisnode.kind = sqfasttypes::SQF;
 				skip(code, line, col, file, curoff);
+				size_t endchrlen;
+				while ((endchrlen = endchr(code, curoff)) > 0)
+				{
+					curoff += endchrlen;
+					col += endchrlen;
+					skip(code, line, col, file, curoff);
+				}
 				//Iterate over statements as long as it is an instruction start.
 				while (STATEMENT_start(h, code, curoff))
 				{
@@ -130,7 +137,6 @@ namespace sqf
 					}
 					else
 					{
-						size_t endchrlen;
 						//Add endchr up until no semicolon is left
 						while ((endchrlen = endchr(code, curoff)) > 0)
 						{
