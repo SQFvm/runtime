@@ -109,6 +109,9 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. Supports relative directory using './path' and absolut pathing.", false, "PATH");
 	cmd.add(loadArg);
 
+	TCLAP::MultiArg<std::string> preprocessFileArg("E", "preprocess-file", "Runs the preprocessor on provided file and prints it to stdout. Supports relative directory using './path' and absolut pathing.", false, "PATH");
+	cmd.add(preprocessFileArg);
+
 	TCLAP::MultiArg<std::string> virtualArg("v", "virtual", "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. Supports relative directory using './path' and absolut pathing for physical path.", false, "PATH|VIRTUAL");
 	cmd.add(virtualArg);
 
@@ -275,6 +278,42 @@ int main(int argc, char** argv)
 		}
 	}
 
+	// Preprocess the files
+	for (auto& f : preprocessFileArg.getValue())
+	{
+		auto sanitized = sqf::filesystem::sanitize(f);
+		try
+		{
+			if (sanitized.empty())
+			{
+				continue;
+			}
+			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
+			{
+				sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+			}
+			auto str = load_file(sanitized);
+			bool err = false;
+			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
+			if (err)
+			{
+				vm.err_buffprint();
+				vm.err_clear();
+			}
+			else
+			{
+				vm.out() << ppedStr;
+				vm.out_buffprint();
+				vm.out_clear();
+			}
+		}
+		catch (const std::runtime_error& ex)
+		{
+			errflag = true;
+			std::cout << "Failed to load file " << ex.what() << std::endl;
+		}
+	}
+
 	//Load all sqf-files provided via arg.
 	for (auto& f : sqfFiles)
 	{
@@ -295,6 +334,7 @@ int main(int argc, char** argv)
 			if (err)
 			{
 				vm.err_buffprint();
+				vm.err_clear();
 			}
 			else
 			{
@@ -328,6 +368,7 @@ int main(int argc, char** argv)
 			if (err)
 			{
 				vm.err_buffprint();
+				vm.err_clear();
 			}
 			else
 			{
