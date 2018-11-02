@@ -75,10 +75,13 @@ namespace sqf
 		std::stringstream& wrn() { /* on purpose */static_cast<virtualmachine*>(this)->mwrnflag = true; return mwrn_buff; }
 		void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
 		void out_buffprint() { (*mout) << mout_buff.str(); mout_buff.str(std::string()); }
+		void out_clear() { mout_buff.str(""); moutflag = false; }
 		void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
 		void err_buffprint() { (*merr) << merr_buff.str(); merr_buff.str(std::string()); }
+		void err_clear() { merr_buff.str(""); merrflag = false; }
 		void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }
 		void wrn_buffprint() { (*mwrn) << mwrn_buff.str(); mwrn_buff.str(std::string()); }
+		void wrn_clear() { mwrn_buff.str(""); mwrnflag = false; }
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
 		void execute();

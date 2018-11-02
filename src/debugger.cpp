@@ -8,6 +8,7 @@
 #include "value.h"
 #include "instruction.h"
 #include "fileio.h"
+#include "parsepreprocessor.h"
 #include <sstream>
 
 namespace {
@@ -256,6 +257,62 @@ void sqf::debugger::check(virtualmachine * vm)
 			{
 				auto data = json["data"];
 				_server->push_message(variablemsg(vm, vm->stack(), data));
+			}
+			else if (mode == "preprocess")
+			{
+				auto data = json["data"];
+				auto res = data.find("path");
+				if (res != data.end())
+				{
+					std::string path = *res;
+					path = vm->get_filesystem().sanitize(path);
+					auto phys = vm->get_filesystem().try_get_physical_path(path);
+					if (phys.has_value())
+					{
+						auto filecontents = load_file(phys.value());
+						bool errflag = false;
+						auto ppres = sqf::parse::preprocessor::parse(vm, filecontents, errflag, path);
+						if (errflag)
+						{
+							auto err = vm->err().str();
+							vm->err_clear();
+							_server->push_message(errormsg(err));
+						}
+						else
+						{
+							nlohmann::json json = {
+								{ "mode", "message" },
+							{ "data", ppres }
+							};
+							_server->push_message(json.dump());
+						}
+					}
+					else
+					{
+						_server->push_message(errormsg("Path not found."));
+					}
+				}
+				else
+				{
+					std::string content = data["content"];
+					auto filecontents = load_file(content);
+					bool errflag = false;
+					auto ppres = sqf::parse::preprocessor::parse(vm, filecontents, errflag, "__debugger.sqf");
+					if (errflag)
+					{
+						auto err = vm->err().str();
+						vm->err_clear();
+						_server->push_message(errormsg(err));
+					}
+					else
+					{
+						nlohmann::json json = {
+							{ "mode", "message" },
+						{ "data", ppres }
+						};
+						_server->push_message(json.dump());
+					}
+				}
 			}
 			else if (mode == "parse-sqf")
 			{

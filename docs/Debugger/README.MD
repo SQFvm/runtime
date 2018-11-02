@@ -6,6 +6,7 @@
 * [set-breakpoint](set-breakpoint.md)
 * [parse-sqf](parse-sqf.md)
 * [load-sqf](load-sqf.md)
+* [do-preprocess](do-preprocess.md)
 
 # Server-Modes
 * [callstack](get-callstack.md)
@@ -14,3 +15,4 @@
 * [status](get-status.md)
 * [variables](get-variables.md)
 * [position](position.md)
+* [preprocess](do-preprocess.md)

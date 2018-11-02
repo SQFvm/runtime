@@ -696,7 +696,7 @@ namespace {
 			sstream << "#line 0" << std::endl;
 			sstream << parse_file(h, otherfinfo) << std::endl;
 			sstream << "#file " << fileinfo.path << std::endl;
-			sstream << "#line " << fileinfo.line << std::endl;
+			sstream << "#line " << fileinfo.line - 1 << std::endl;
 			return sstream.str();
 		}
 		else if (inst == "DEFINE")
