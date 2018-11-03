@@ -18,11 +18,12 @@ namespace sqf
 		double mvelx;
 		double mvely;
 		double mvelz;
+		double mdamage;
 		std::string mclassname;
 		std::shared_ptr<groupdata> mgroup;
 
 		bool misvehicle;
-		innerobj(std::string classname, bool isvehicle) : mclassname(std::move(classname)), misvehicle(isvehicle) {}
+		innerobj(std::string classname, bool isvehicle) : mdamage(0), mclassname(std::move(classname)), misvehicle(isvehicle) {}
 	public:
 		virtual std::string tosqf() const;
 
@@ -52,6 +53,11 @@ namespace sqf
 		double distance2d(std::shared_ptr<innerobj> obj) const { return distance2d(std::array<double, 2> { obj->mposx, obj->mposy }); }
 		double distance2d(const innerobj* obj) const { return distance2d(std::array<double, 2> { obj->mposx, obj->mposy }); }
 		double distance2d(std::array<double, 2> otherpos) const;
+
+		double damage() const { return mdamage; }
+		void damage(double val) { mdamage = val < 0 ? 0 : val > 1 ? 1 : val; }
+		void damage_by(double val) { auto newdmg = mdamage += val; damage(newdmg); }
+		bool alive() { return mdamage < 1; }
 
 		void pos(std::array<double, 3> arr) { mposx = arr[0]; mposy = arr[1]; mposz = arr[2]; }
 		void posx(double d) { mposx = d; }

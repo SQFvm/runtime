@@ -698,6 +698,39 @@ namespace
 	{
 		return std::make_shared<value>(std::make_shared<objectdata>(vm->player_obj()), type::OBJECT);
 	}
+
+	std::shared_ptr<value> setdamage_object_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<objectdata>();
+		auto r = right->as_float();
+		if (l->is_null())
+		{
+			vm->err() << "Left value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		l->obj()->damage(r);
+		return std::make_shared<value>();
+	}
+	std::shared_ptr<value> getdamage_object(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		return std::make_shared<value>(r->obj()->damage());
+	}
+	std::shared_ptr<value> alive_object(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		return std::make_shared<value>(r->obj()->alive());
+	}
 }
 void sqf::commandmap::initobjectcmds()
 {
@@ -729,4 +762,8 @@ void sqf::commandmap::initobjectcmds()
 	add(binary(4, "isKindOf", type::STRING, type::STRING, "Checks whether the object is (a subtype) of the given type. Checks CfgVehicles, CfgAmmo and CfgNonAiVehicles.", iskindof_string_string));
 	add(binary(4, "isKindOf", type::STRING, type::ARRAY, "Checks whether the object is (a subtype) of the given type.", iskindof_string_array));
 	add(nular("player", "", player_));
+	add(binary(4, "setDamage", type::OBJECT, type::SCALAR, "Damage / repair object. Damage 0 means fully functional, damage 1 means completely destroyed / dead.", setdamage_object_scalar));
+	add(unary("getDammage", type::OBJECT, "Return the damage value of an object.", getdamage_object));
+	add(unary("damage", type::OBJECT, "Return the damage value of an object.", getdamage_object));
+	add(unary("alive", type::OBJECT, "Check if given vehicle/person/building is alive (i.e. not dead or destroyed). alive objNull returns false.", alive_object));
 }
