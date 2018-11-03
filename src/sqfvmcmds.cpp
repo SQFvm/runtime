@@ -6,6 +6,7 @@
 #include "arraydata.h"
 #include "innerobj.h"
 #include "objectdata.h"
+#include "parsepreprocessor.h"
 #include <sstream>
 
 using namespace sqf;
@@ -224,6 +225,20 @@ namespace
 		vm->player_obj(innerobj::create(vm, "CAManBase", false));
 		return std::make_shared<value>(std::make_shared<objectdata>(vm->player_obj()), type::OBJECT);
 	}
+	std::shared_ptr<value> preprocess___string(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto content = right->as_string();
+		bool errflag = false;
+		auto ppres = sqf::parse::preprocessor::parse(vm, content, errflag, "__preprocess__.sqf");
+		if (errflag)
+		{
+			return std::make_shared<value>();
+		}
+		else
+		{
+			return std::make_shared<value>(ppres);
+		}
+	}
 }
 void sqf::commandmap::initsqfvmcmds()
 {
@@ -238,4 +253,5 @@ void sqf::commandmap::initsqfvmcmds()
 	add(nular("exit__", "Exits the execution immediately. Will not notify debug interface when used.", exit___));
 	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
 	add(nular("respawn__", "'Respawns' the player object.", respawn___));
+	add(unary("preprocess__", sqf::type::STRING, "Runs the PreProcessor on provided string.", preprocess___string));
 }
