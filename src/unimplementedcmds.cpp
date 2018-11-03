@@ -1984,7 +1984,6 @@ void sqf::commandmap::initunimplemented()
 	add(nular("getelevationoffset", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (getelevationoffset)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("current3denoperation", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (current3denoperation)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("getterraingrid", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (getterraingrid)." << std::endl; return std::make_shared<value>(); }));
-	add(nular("player", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (player)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("exit", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (exit)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("mapanimclear", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (mapanimclear)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("halt", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (halt)." << std::endl; return std::make_shared<value>(); }));

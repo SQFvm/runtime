@@ -219,6 +219,11 @@ namespace
 		vm->exitflag(true);
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> respawn___(virtualmachine* vm)
+	{
+		vm->player_obj(innerobj::create(vm, "CAManBase", false));
+		return std::make_shared<value>(std::make_shared<objectdata>(vm->player_obj()), type::OBJECT);
+	}
 }
 void sqf::commandmap::initsqfvmcmds()
 {
@@ -232,4 +237,5 @@ void sqf::commandmap::initsqfvmcmds()
 	add(unary("prettyprintsqf__", sqf::type::STRING, "Takes provided SQF code and pretty-prints it to output.", prettyprintsqf___string));
 	add(nular("exit__", "Exits the execution immediately. Will not notify debug interface when used.", exit___));
 	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
+	add(nular("respawn__", "'Respawns' the player object.", respawn___));
 }

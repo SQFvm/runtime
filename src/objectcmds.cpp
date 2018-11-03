@@ -694,6 +694,10 @@ namespace
 			return std::make_shared<value>(node->is_kind_of(basename));
 		}
 	}
+	std::shared_ptr<value> player_(virtualmachine* vm)
+	{
+		return std::make_shared<value>(std::make_shared<objectdata>(vm->player_obj()), type::OBJECT);
+	}
 }
 void sqf::commandmap::initobjectcmds()
 {
@@ -724,4 +728,5 @@ void sqf::commandmap::initobjectcmds()
 	add(binary(4, "isKindOf", type::OBJECT, type::STRING, "Checks whether the object is (a subtype) of the given type.", iskindof_object_string));
 	add(binary(4, "isKindOf", type::STRING, type::STRING, "Checks whether the object is (a subtype) of the given type. Checks CfgVehicles, CfgAmmo and CfgNonAiVehicles.", iskindof_string_string));
 	add(binary(4, "isKindOf", type::STRING, type::ARRAY, "Checks whether the object is (a subtype) of the given type.", iskindof_string_array));
+	add(nular("player", "", player_));
 }

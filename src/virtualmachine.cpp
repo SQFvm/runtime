@@ -50,6 +50,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mperformclassnamechecks = true;
 	mexitflag = false;
 	mallowsleep = true;
+	mplayer_obj = innerobj::create(this, "CAManBase", false);
 }
 void sqf::virtualmachine::execute()
 {

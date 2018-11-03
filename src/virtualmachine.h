@@ -46,6 +46,7 @@ namespace sqf
 		bool mwrnflag;
 		std::vector<size_t> mfreeobjids;
 		std::vector<std::shared_ptr<innerobj>> mobjlist;
+		std::shared_ptr<innerobj> mplayer_obj;
 
 		std::shared_ptr<sqf::sqfnamespace> mmissionnamespace;
 		std::shared_ptr<sqf::sqfnamespace> muinamespace;
@@ -64,6 +65,12 @@ namespace sqf
 		bool mperformclassnamechecks;
 		sqf::filesystem m_filesystem;
 	public:
+		virtualmachine() : virtualmachine(0) {};
+		virtualmachine(unsigned long long maxinst);
+
+
+		std::shared_ptr<innerobj> player_obj() { return mplayer_obj; }
+		void player_obj(std::shared_ptr<innerobj> val) { mplayer_obj = val; }
 		std::shared_ptr<sqf::vmstack> active_vmstack() { return mactivestack; }
 		const std::vector<std::shared_ptr<innerobj>>& get_objlist() { return mobjlist; }
 		std::shared_ptr<sqf::sqfnamespace> missionnamespace() { return mmissionnamespace; }
@@ -82,8 +89,6 @@ namespace sqf
 		void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }
 		void wrn_buffprint() { (*mwrn) << mwrn_buff.str(); mwrn_buff.str(std::string()); }
 		void wrn_clear() { mwrn_buff.str(""); mwrnflag = false; }
-		virtualmachine() : virtualmachine(0) {};
-		virtualmachine(unsigned long long maxinst);
 		void execute();
 		std::shared_ptr<sqf::vmstack> stack() const { return mactivestack; }
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
