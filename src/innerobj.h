@@ -1,4 +1,5 @@
 #pragma once
+#include "varscope.h"
 #include <string>
 #include <memory>
 #include <array>
@@ -7,7 +8,7 @@ namespace sqf
 {
 	class virtualmachine;
 	class groupdata;
-	class innerobj : public std::enable_shared_from_this<innerobj>
+	class innerobj : public std::enable_shared_from_this<innerobj>, public varscope
 	{
 	private:
 		size_t mnetid;

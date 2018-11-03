@@ -6,6 +6,9 @@
 #include "sqfnamespace.h"
 #include "codedata.h"
 #include "callstack.h"
+#include "objectdata.h"
+#include "innerobj.h"
+#include "arraydata.h"
 #include <algorithm>
 
 
@@ -14,7 +17,21 @@ namespace
 {
 	std::shared_ptr<value> allvariables_namespace(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		auto r = right->data_try_as<sqfnamespace>();
+		std::shared_ptr<varscope> r;
+		if (right->dtype() == OBJECT)
+		{
+			auto obj = right->data<objectdata>();
+			if (obj->is_null())
+			{
+				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
+				return std::make_shared<value>(std::make_shared<arraydata>(), ARRAY);
+			}
+			r = std::dynamic_pointer_cast<varscope>(obj->obj());
+		}
+		else
+		{
+			r = std::dynamic_pointer_cast<varscope>(right->data());
+		}
 		std::vector<std::shared_ptr<value>> arr(r->varmap().size());
 		transform(r->varmap().begin(), r->varmap().end(), arr.begin(), [](auto pair) { return std::make_shared<value>(pair.first); });
 		return std::make_shared<value>(arr);
@@ -34,14 +51,42 @@ namespace
 	}
 	std::shared_ptr<value> getVariable_namespace_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto l = left->data_try_as<sqfnamespace>();
+		std::shared_ptr<varscope> l;
+		if (left->dtype() == OBJECT)
+		{
+			auto obj = left->data<objectdata>();
+			if (obj->is_null())
+			{
+				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
+				return std::make_shared<value>(std::make_shared<arraydata>(), ARRAY);
+			}
+			l = std::dynamic_pointer_cast<varscope>(obj->obj());
+		}
+		else
+		{
+			l = std::dynamic_pointer_cast<varscope>(left->data());
+		}
 		auto r = right->as_string();
 		auto var = l->getvar_empty(r);
 		return var;
 	}
 	std::shared_ptr<value> getVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto l = left->data_try_as<sqfnamespace>();
+		std::shared_ptr<varscope> l;
+		if (left->dtype() == OBJECT)
+		{
+			auto obj = left->data<objectdata>();
+			if (obj->is_null())
+			{
+				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
+				return std::make_shared<value>(std::make_shared<arraydata>(), ARRAY);
+			}
+			l = std::dynamic_pointer_cast<varscope>(obj->obj());
+		}
+		else
+		{
+			l = std::dynamic_pointer_cast<varscope>(left->data());
+		}
 		auto r = right->as_vector();
 		if (r.size() != 2)
 		{
@@ -59,7 +104,21 @@ namespace
 	}
 	std::shared_ptr<value> setVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto l = left->data_try_as<sqfnamespace>();
+		std::shared_ptr<varscope> l;
+		if (left->dtype() == OBJECT)
+		{
+			auto obj = left->data<objectdata>();
+			if (obj->is_null())
+			{
+				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
+				return std::make_shared<value>(std::make_shared<arraydata>(), ARRAY);
+			}
+			l = std::dynamic_pointer_cast<varscope>(obj->obj());
+		}
+		else
+		{
+			l = std::dynamic_pointer_cast<varscope>(left->data());
+		}
 		auto r = right->as_vector();
 		if (r.size() != 2 && r.size() != 3)
 		{
