@@ -1,7 +1,7 @@
-#include "commandmap.h"
-#include "value.h"
-#include "cmd.h"
-#include "virtualmachine.h"
+#include "../commandmap.h"
+#include "../value.h"
+#include "../cmd.h"
+#include "../virtualmachine.h"
 
 using namespace sqf;
 void sqf::commandmap::initunimplemented()
@@ -18,7 +18,7 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "menusetdata", type::ANY, type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (menusetdata)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, "setwaypointtype", type::ANY, type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (setwaypointtype)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, "lbsetcolor", type::ANY, type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (lbsetcolor)." << std::endl; return std::make_shared<value>(); }));
-	add(binary(4, "lbsetcolorright", type::ANY, type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (lbsetcolorright)." << std::endl; return std::make_shared<value>(); }));""
+	add(binary(4, "lbsetcolorright", type::ANY, type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (lbsetcolorright)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, "say3d", type::ANY, type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (say3d)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, "forceflagtexture", type::ANY, type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (forceflagtexture)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, "addvehicle", type::ANY, type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (addvehicle)." << std::endl; return std::make_shared<value>(); }));

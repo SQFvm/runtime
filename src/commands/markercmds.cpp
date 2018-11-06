@@ -1,10 +1,10 @@
-#include "cmd.h"
-#include "commandmap.h"
-#include "value.h"
-#include "virtualmachine.h"
-#include "arraydata.h"
-#include "configdata.h"
-#include "marker.h"
+#include "../cmd.h"
+#include "../commandmap.h"
+#include "../value.h"
+#include "../virtualmachine.h"
+#include "../arraydata.h"
+#include "../configdata.h"
+#include "../marker.h"
 #include <string>
 
 using namespace sqf;

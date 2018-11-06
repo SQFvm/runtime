@@ -1,7 +1,7 @@
-#include "commandmap.h"
-#include "value.h"
-#include "cmd.h"
-#include "virtualmachine.h"
+#include "../commandmap.h"
+#include "../value.h"
+#include "../cmd.h"
+#include "../virtualmachine.h"
 
 using namespace sqf;
 namespace

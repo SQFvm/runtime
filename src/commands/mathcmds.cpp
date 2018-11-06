@@ -1,14 +1,15 @@
-#include "commandmap.h"
-#include "value.h"
-#include "cmd.h"
-#include "virtualmachine.h"
-#include "compiletime.h"
-#include "arraydata.h"
-#include "scalardata.h"
+#include "../commandmap.h"
+#include "../value.h"
+#include "../cmd.h"
+#include "../virtualmachine.h"
+#include "../compiletime.h"
+#include "../arraydata.h"
+#include "../scalardata.h"
 #include <cmath>
 #include <random>
 #include <array>
 #include <iomanip>
+
 using namespace sqf;
 namespace
 {

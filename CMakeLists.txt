@@ -13,7 +13,10 @@ set(RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output)
 include_directories("${PROJECT_SOURCE_DIR}/include/json/include")
 include_directories("${PROJECT_SOURCE_DIR}/include/tclap-1.2.2/include")
 
-file(GLOB vm_src "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c")
+file(GLOB vm_src 
+    "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c"
+    "${PROJECT_SOURCE_DIR}/src/commands/*.h" "${PROJECT_SOURCE_DIR}/src/commands/*.cpp" "${PROJECT_SOURCE_DIR}/src/commands/*.c"
+)
 
 find_package(Threads)
 add_executable(sqfvm ${vm_src})

@@ -1,12 +1,12 @@
-#include "commandmap.h"
-#include "value.h"
-#include "cmd.h"
-#include "virtualmachine.h"
-#include "configdata.h"
-#include "arraydata.h"
-#include "innerobj.h"
-#include "objectdata.h"
-#include "parsepreprocessor.h"
+#include "../commandmap.h"
+#include "../value.h"
+#include "../cmd.h"
+#include "../virtualmachine.h"
+#include "../configdata.h"
+#include "../arraydata.h"
+#include "../innerobj.h"
+#include "../objectdata.h"
+#include "../parsepreprocessor.h"
 #include <sstream>
 
 using namespace sqf;
