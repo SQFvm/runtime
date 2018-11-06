@@ -82,14 +82,11 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg noPromptArg("a", "no-prompt", "Disables the prompt which expects you to type in sqf-code.", false);
 	cmd.add(noPromptArg);
 
-	TCLAP::SwitchArg useDebuggingServer("s", "start-server", "Causes the sqf-vm to start a network server allowing for automated control.", false);
-	cmd.add(useDebuggingServer);
+	TCLAP::ValueArg<int> debuggerArg("d", "debugger", "Causes the sqf-vm to start a network server that allows to attach a single debugger to it.", false, 0, "PORT");
+	cmd.add(debuggerArg);
 
 	TCLAP::ValueArg<int> maxInstructionsArg("m", "max-instructions", "Sets the maximum ammount of instructions to execute before a hard exit may occur. Setting this to 0 will disable the limit.", false, 0, "NUMBER");
 	cmd.add(maxInstructionsArg);
-
-	TCLAP::ValueArg<int> serverPortArg("p", "server-port", "Sets the port of the server. Defaults to 9090.", false, 9090, "NUMBER");
-	cmd.add(serverPortArg);
 
 	TCLAP::SwitchArg noPrintArg("n", "no-print", "Prevents the value stack to be printed out at the very end.", false);
 	cmd.add(noPrintArg);
@@ -202,13 +199,13 @@ int main(int argc, char** argv)
 	std::vector<std::string> sqfRaw = loadSqfRawArg.getValue();
 	std::vector<std::string> configRaw = loadConfigRawArg.getValue();
 	bool noPrompt = noPromptArg.getValue();
-	bool startServer = useDebuggingServer.getValue();
 	int maxinstructions = maxInstructionsArg.getValue();
-	int serverPort = serverPortArg.getValue();
 	bool noPrint = noPrintArg.getValue();
 	bool noExecutePrint = noExecutePrintArg.getValue();
 	bool disableClassnameCheck = disableClassnameCheckArg.getValue();
 	bool noLoadExecDir = noLoadExecDirArg.getValue();
+
+	bool debugger_port = debuggerArg.getValue();
 
 
 	sqf::virtualmachine vm;
@@ -403,10 +400,10 @@ int main(int argc, char** argv)
 		vm.parse_config(raw, sqf::configdata::configFile()->data<sqf::configdata>());
 	}
 
-	if (startServer)
+	if (debugger_port > 0)
 	{
 		networking_init();
-		dbg = new sqf::debugger((srv = new netserver(serverPort)));
+		dbg = new sqf::debugger((srv = new netserver(debugger_port)));
 		vm.dbg(dbg);
 		std::cout << "Waiting for client to connect..." << std::endl;
 		try
@@ -487,7 +484,7 @@ int main(int argc, char** argv)
 
 	sqf::commandmap::get().uninit();
 
-	if (startServer)
+	if (debugger_port > 0)
 	{
 		networking_cleanup();
 		if (dbg)
