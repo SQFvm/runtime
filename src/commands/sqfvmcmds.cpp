@@ -266,5 +266,5 @@ void sqf::commandmap::initsqfvmcmds()
 	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
 	add(nular("respawn__", "'Respawns' the player object.", respawn___));
 	add(unary("preprocess__", sqf::type::STRING, "Runs the PreProcessor on provided string.", preprocess___string));
-	add(binary(4, "except__", sqf::type::CODE, sqf::type::CODE, "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn!", except___code_code));
+	add(binary(4, "except__", sqf::type::CODE, sqf::type::CODE, "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'.", except___code_code));
 }
