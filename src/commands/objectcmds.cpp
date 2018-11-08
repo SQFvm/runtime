@@ -788,6 +788,16 @@ namespace
 			return std::make_shared<value>(parent, ARRAY);
 		}
 	}
+	std::shared_ptr<value> objectparent_object(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		return std::make_shared<value>(r->obj()->parent_object(), ARRAY);
+	}
 }
 void sqf::commandmap::initobjectcmds()
 {
@@ -825,4 +835,5 @@ void sqf::commandmap::initobjectcmds()
 	add(unary("alive", type::OBJECT, "Check if given vehicle/person/building is alive (i.e. not dead or destroyed). alive objNull returns false.", alive_object));
 	add(unary("crew", type::OBJECT, "Returns the crew (both dead and alive) of the given vehicle.", crew_object));
 	add(unary("vehicle", type::OBJECT, "Vehicle in which given unit is mounted. If none, unit is returned.", vehicle_object));
+	add(unary("objectParent", type::OBJECT, "Returns parent of an object if the object is proxy, otherwise objNull.", objectparent_object));
 }
