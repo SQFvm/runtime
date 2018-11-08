@@ -16,6 +16,8 @@ namespace sqf
 	private:
 		std::queue<std::shared_ptr<sqf::instruction>> mstack;
 		std::shared_ptr<sqf::sqfnamespace> mwith;
+	protected:
+		void clear_stack() { while (!mstack.empty()) { mstack.pop(); } }
 	public:
 		callstack(std::shared_ptr<sqf::sqfnamespace>);
 		void pushinst(std::shared_ptr<sqf::instruction> value) { mstack.push(value); }
@@ -24,5 +26,7 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> getnamespace() const { return mwith; }
 		size_t inststacksize() const { return mstack.size(); }
 		void setnamespace(std::shared_ptr<sqf::sqfnamespace> ns) { mwith = ns; }
+
+		virtual bool recover() { return false; }
 	};
 }
