@@ -105,6 +105,10 @@ namespace
 				{
 					vm->wrn() << "Placeholder index " << num << " provided at string index " << newoff << " is out of range." << std::endl;
 				}
+				else if (r[num]->dtype() == STRING)
+				{
+					sstream << r[num]->as_string();
+				}
 				else
 				{
 					sstream << r[num]->tosqf();
