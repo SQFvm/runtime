@@ -846,6 +846,44 @@ namespace
 		}
 		return std::make_shared<value>(obj->gunner(), OBJECT);
 	}
+	std::shared_ptr<value> in_object_object(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto l = left->data<objectdata>();
+		if (l->is_null())
+		{
+			vm->err() << "Left value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		if (l->obj()->is_vehicle())
+		{
+			vm->wrn() << "Right value provided is a vehicle object." << std::endl;
+			return std::make_shared<value>(false);
+		}
+		auto r = right->data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		if (!r->obj()->is_vehicle())
+		{
+			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			return std::make_shared<value>(false);
+		}
+		auto veh = r->obj();
+		auto unit = l->obj();
+		if (veh->driver() == unit || veh->commander() == unit || veh->gunner() == veh)
+		{
+			return std::make_shared<value>(true);
+		}
+		else
+		{
+			auto res = std::find_if(veh->soldiers_begin(), veh->soldiers_end(), [unit](std::shared_ptr<objectdata> data) -> bool {
+				return data == unit;
+			});
+			return std::make_shared<value>(res != veh->soldiers_end());
+		}
+	}
 }
 void sqf::commandmap::initobjectcmds()
 {
@@ -887,4 +925,6 @@ void sqf::commandmap::initobjectcmds()
 	add(unary("driver", type::OBJECT, "Returns the driver of a vehicle. If provided object is a unit, the unit is returned.", driver_object));
 	add(unary("commander", type::OBJECT, "Returns the primary observer. If provided object is a unit, the unit is returned.", commander_object));
 	add(unary("gunner", type::OBJECT, "Returns the gunner of a vehicle. If provided object is a unit, the unit is returned.", gunner_object));
+	add(binary(4, "in", type::OBJECT, type::OBJECT, "Checks whether unit is in vehicle.", in_object_object));
+
 }
