@@ -785,7 +785,7 @@ namespace
 		}
 		else
 		{
-			return std::make_shared<value>(parent, ARRAY);
+			return std::make_shared<value>(parent, OBJECT);
 		}
 	}
 	std::shared_ptr<value> objectparent_object(virtualmachine* vm, std::shared_ptr<value> right)
@@ -796,7 +796,55 @@ namespace
 			vm->err() << "Right value provided is NULL object." << std::endl;
 			return std::shared_ptr<value>();
 		}
-		return std::make_shared<value>(r->obj()->parent_object(), ARRAY);
+		return std::make_shared<value>(r->obj()->parent_object(), OBJECT);
+	}
+	std::shared_ptr<value> driver_object(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		auto obj = r->obj();
+		if (!obj->is_vehicle())
+		{
+			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			return right;
+		}
+		return std::make_shared<value>(obj->driver(), OBJECT);
+	}
+	std::shared_ptr<value> commander_object(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		auto obj = r->obj();
+		if (!obj->is_vehicle())
+		{
+			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			return right;
+		}
+		return std::make_shared<value>(obj->commander(), OBJECT);
+	}
+	std::shared_ptr<value> gunner_object(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		auto obj = r->obj();
+		if (!obj->is_vehicle())
+		{
+			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			return right;
+		}
+		return std::make_shared<value>(obj->gunner(), OBJECT);
 	}
 }
 void sqf::commandmap::initobjectcmds()
@@ -836,4 +884,7 @@ void sqf::commandmap::initobjectcmds()
 	add(unary("crew", type::OBJECT, "Returns the crew (both dead and alive) of the given vehicle.", crew_object));
 	add(unary("vehicle", type::OBJECT, "Vehicle in which given unit is mounted. If none, unit is returned.", vehicle_object));
 	add(unary("objectParent", type::OBJECT, "Returns parent of an object if the object is proxy, otherwise objNull.", objectparent_object));
+	add(unary("driver", type::OBJECT, "Returns the driver of a vehicle. If provided object is a unit, the unit is returned.", driver_object));
+	add(unary("commander", type::OBJECT, "Returns the primary observer. If provided object is a unit, the unit is returned.", commander_object));
+	add(unary("gunner", type::OBJECT, "Returns the gunner of a vehicle. If provided object is a unit, the unit is returned.", gunner_object));
 }
