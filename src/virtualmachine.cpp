@@ -22,6 +22,7 @@
 #include "groupdata.h"
 #include "scriptdata.h"
 #include "debugger.h"
+#include "callstack_sqftry.h"
 #include "sqfnamespace.h"
 #include "innerobj.h"
 //#include "parsepp_handler.h"
@@ -112,13 +113,33 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				_debugger->position(inst->line(), inst->col(), inst->file());
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
 			}
-			merr_buff.str(std::string());
 			merrflag = false;
-			//Only for non-scheduled (and thus the mainstack)
-			if (!mactivestack->isscheduled())
+
+			// Try to find a callstack_sqftry
+			auto res = std::find_if(mactivestack->stacks_begin(), mactivestack->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
+				return cs->recover();
+			});
+			if (res == mactivestack->stacks_end())
 			{
-				break;
+				merr_buff.str(std::string());
+				//Only for non-scheduled (and thus the mainstack)
+				if (!mactivestack->isscheduled())
+				{
+					break;
+				}
 			}
+			else
+			{
+				while (mactivestack->stacks_top() != *res)
+				{
+					mactivestack->dropcallstack();
+				}
+				auto sqftry = std::dynamic_pointer_cast<sqf::callstack_sqftry>(*res);
+				sqftry->except(merr_buff.str());
+				merr_buff.str(std::string());
+			}
+
+
 		}
 		if (mwrnflag)
 		{
