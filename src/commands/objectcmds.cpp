@@ -779,7 +779,7 @@ namespace
 			return right;
 		}
 		auto parent = obj->parent_object();
-		if (parent->is_null())
+		if (parent->is_null() || !parent->obj()->is_vehicle())
 		{
 			return right;
 		}
