@@ -3,11 +3,15 @@
 #include <string>
 #include <memory>
 #include <array>
+#include <vector>
+#include <algorithm>
 
 namespace sqf
 {
 	class virtualmachine;
 	class groupdata;
+	class value;
+	class objectdata;
 	class innerobj : public std::enable_shared_from_this<innerobj>, public varscope
 	{
 	private:
@@ -21,9 +25,20 @@ namespace sqf
 		double mdamage;
 		std::string mclassname;
 		std::shared_ptr<groupdata> mgroup;
-
 		bool misvehicle;
-		innerobj(std::string classname, bool isvehicle) : mdamage(0), mclassname(std::move(classname)), misvehicle(isvehicle) {}
+
+		bool mhasDriver;
+		bool mhasGunner;
+		bool mhasCommander;
+		size_t mtransportSoldier;
+
+		std::shared_ptr<objectdata> mparent_object;
+		std::shared_ptr<objectdata> mdriver;
+		std::shared_ptr<objectdata> mgunner;
+		std::shared_ptr<objectdata> mcommander;
+		std::vector<std::shared_ptr<sqf::objectdata>> msoldiers;
+
+		innerobj(std::string classname, bool isvehicle);
 	public:
 		virtual std::string tosqf() const;
 
@@ -69,9 +84,41 @@ namespace sqf
 		void velz(double d) { mvelz = d; }
 		void group(std::shared_ptr<groupdata> g) { mgroup = g; }
 
+		std::shared_ptr<sqf::objectdata> parent_object() const { return mparent_object; }
+
+		std::shared_ptr<sqf::objectdata> driver() const { return mdriver; }
+		std::shared_ptr<sqf::objectdata> gunner() const { return mgunner; }
+		std::shared_ptr<sqf::objectdata> commander() const { return mcommander; }
+		std::vector<std::shared_ptr<sqf::objectdata>>::iterator soldiers_begin() { return msoldiers.begin(); }
+		std::vector<std::shared_ptr<sqf::objectdata>>::iterator soldiers_end() { return msoldiers.end(); }
+
+		void driver(std::shared_ptr<sqf::objectdata> val);
+		void gunner(std::shared_ptr<sqf::objectdata> val);
+		void commander(std::shared_ptr<sqf::objectdata> val);
+		void clear_driver();
+		void clear_gunner();
+		void clear_commander();
+		// Attempts to add provided value to the soldiers list.
+		// Will return true if it succeeded, false if the value provided
+		// was null, not an object, not a unit, already inside the vehicle or no slots
+		// are left to occupy.
+		bool soldiers_push_back(std::shared_ptr<sqf::value> val);
+		// Attempts to add provided objectdata to the soldiers list.
+		// Will return true if it succeeded, false if the value provided
+		// was null, not a unit, already inside the vehicle or no slots are left to occupy.
+		bool soldiers_push_back(std::shared_ptr<sqf::objectdata> val);
+		void soldiers_pop_back();
+		void soldiers_erase(std::shared_ptr<sqf::objectdata> obj);
+
 		bool iskindof(std::string cfgname);
 
 		void destroy(sqf::virtualmachine*);
+
+		// Attempts to read the vehicle config entry for this
+		// and sets some local variables according to the config.
+		// Returns TRUE on success. FALSE will be returned, if
+		// the config class for the vehicle could not be received.
+		bool update_values_from_configbin();
 
 		static std::shared_ptr<sqf::innerobj> create(sqf::virtualmachine* vm, std::string classname, bool isvehicle);
 	};

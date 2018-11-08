@@ -93,6 +93,34 @@ std::shared_ptr<sqf::value> sqf::configdata::logicparent()
 	return mlogicparent.expired() ? configNull() : std::make_shared<sqf::value>(mlogicparent.lock(), type::CONFIG);
 }
 
+bool sqf::configdata::cfgvalue(std::string key, bool def)
+{
+	auto node = navigate(key)->data<configdata>();
+	if (node->is_null() || (node->cfgvalue()->dtype() != type::BOOL && node->cfgvalue()->dtype() != type::SCALAR))
+	{
+		return def;
+	}
+	return node->cfgvalue()->as_bool();
+}
+float sqf::configdata::cfgvalue(std::string key, float def)
+{
+	auto node = navigate(key)->data<configdata>();
+	if (node->is_null() || node->cfgvalue()->dtype() != type::SCALAR)
+	{
+		return def;
+	}
+	return node->cfgvalue()->as_float();
+}
+std::string sqf::configdata::cfgvalue(std::string key, std::string def)
+{
+	auto node = navigate(key)->data<configdata>();
+	if (node->is_null() || node->cfgvalue()->dtype() != type::SCALAR)
+	{
+		return def;
+	}
+	return node->cfgvalue()->as_string();
+}
+
 void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 {
 	for (auto& val : innervector())

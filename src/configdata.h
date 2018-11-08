@@ -41,6 +41,11 @@ namespace sqf
 		bool haslogicparent() { return !mlogicparent.expired(); }
 		std::shared_ptr<sqf::value> logicparent();
 
+		bool cfgvalue(std::string key, bool def);
+		float cfgvalue(std::string key, int def) { return cfgvalue(key, (float)def); }
+		float cfgvalue(std::string key, float def);
+		std::string cfgvalue(std::string key, std::string def);
+
 		void mergeinto(std::shared_ptr<configdata>);
 
 		static std::shared_ptr<sqf::value> configFile();
