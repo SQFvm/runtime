@@ -91,6 +91,7 @@ namespace sqf
 		std::shared_ptr<sqf::objectdata> commander() const { return mcommander; }
 		std::vector<std::shared_ptr<sqf::objectdata>>::iterator soldiers_begin() { return msoldiers.begin(); }
 		std::vector<std::shared_ptr<sqf::objectdata>>::iterator soldiers_end() { return msoldiers.end(); }
+		const std::vector<std::shared_ptr<sqf::objectdata>>& soldiers() const { return msoldiers; }
 
 		void driver(std::shared_ptr<sqf::objectdata> val);
 		void gunner(std::shared_ptr<sqf::objectdata> val);

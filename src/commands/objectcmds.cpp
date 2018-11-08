@@ -731,6 +731,39 @@ namespace
 		}
 		return std::make_shared<value>(r->obj()->alive());
 	}
+	std::shared_ptr<value> crew_object(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto r = right->data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return std::shared_ptr<value>();
+		}
+		auto arr = std::make_shared<arraydata>();
+		auto obj = r->obj();
+		if (!obj->is_vehicle())
+		{
+			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			return std::make_shared<value>(arr, ARRAY);
+		}
+		if (!obj->driver()->is_null())
+		{
+			arr->push_back(std::make_shared<value>(obj->driver(), OBJECT));
+		}
+		if (!obj->gunner()->is_null())
+		{
+			arr->push_back(std::make_shared<value>(obj->gunner(), OBJECT));
+		}
+		if (!obj->commander()->is_null())
+		{
+			arr->push_back(std::make_shared<value>(obj->commander(), OBJECT));
+		}
+		for (auto& it : obj->soldiers())
+		{
+			arr->push_back(std::make_shared<value>(it, OBJECT));
+		}
+		return std::make_shared<value>(arr, ARRAY);
+	}
 }
 void sqf::commandmap::initobjectcmds()
 {
@@ -766,4 +799,6 @@ void sqf::commandmap::initobjectcmds()
 	add(unary("getDammage", type::OBJECT, "Return the damage value of an object.", getdamage_object));
 	add(unary("damage", type::OBJECT, "Return the damage value of an object.", getdamage_object));
 	add(unary("alive", type::OBJECT, "Check if given vehicle/person/building is alive (i.e. not dead or destroyed). alive objNull returns false.", alive_object));
+	add(unary("crew", type::OBJECT, "Returns the crew (both dead and alive) of the given vehicle.", crew_object));
+
 }
