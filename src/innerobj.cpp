@@ -119,6 +119,7 @@ bool sqf::innerobj::soldiers_push_back(std::shared_ptr<sqf::objectdata> val)
 	}
 	val->obj()->mparent_object = std::make_shared<objectdata>(this->shared_from_this());
 	msoldiers.push_back(val);
+	return true;
 }
 void sqf::innerobj::soldiers_pop_back()
 {
