@@ -205,7 +205,7 @@ int main(int argc, char** argv)
 	bool disableClassnameCheck = disableClassnameCheckArg.getValue();
 	bool noLoadExecDir = noLoadExecDirArg.getValue();
 
-	bool debugger_port = debuggerArg.getValue();
+	auto debugger_port = debuggerArg.getValue();
 
 
 	sqf::virtualmachine vm;
