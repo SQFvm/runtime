@@ -847,6 +847,7 @@ namespace {
 			}
 			h.inside_ppif = false;
 			h.allowwrite = true;
+			return "\n";
 		}
 		else
 		{

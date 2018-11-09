@@ -2,7 +2,6 @@
 #include "value.h"
 #include "virtualmachine.h"
 #include "codedata.h"
-#include <memory>
 
 std::shared_ptr<sqf::instruction> sqf::callstack_sqftry::popinst(sqf::virtualmachine * vm)
 {
