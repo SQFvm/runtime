@@ -133,3 +133,50 @@ bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size
 	}
 	return errflag;
 }
+bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size_t len, size_t optionalstart) const
+{
+	bool errflag = true;
+	if (size() != len && size() < optionalstart)
+	{
+		vm->err() << "Array was expected to have at least " << optionalstart << " elements with a maximum of " << len << " and the type combination { ";
+		for (size_t i = 0; i < len; i++)
+		{
+			if (i > 0)
+			{
+				vm->err() << ", ";
+			}
+			vm->err() << type_str(arr[i]);
+		}
+		vm->err() << " }. Got " << size() << '.' << std::endl;
+		return false;
+	}
+	for (size_t i = 0; i < size(); i++)
+	{
+		if (at(i)->dtype() != arr[i])
+		{
+			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(arr[i]) << ". Got " << type_str(at(i)->dtype()) << '.' << std::endl;
+			errflag = false;
+		}
+	}
+	return errflag;
+}
+
+
+bool sqf::arraydata::get(size_t index, bool defval)
+{
+	if (size() <= index || at(index)->dtype() != BOOL)
+		return defval;
+	return at(index)->as_bool();
+}
+float sqf::arraydata::get(size_t index, float defval)
+{
+	if (size() <= index || at(index)->dtype() != SCALAR)
+		return defval;
+	return at(index)->as_float();
+}
+std::string sqf::arraydata::get(size_t index, std::string defval)
+{
+	if (size() <= index || at(index)->dtype() != STRING)
+		return defval;
+	return at(index)->as_string();
+}

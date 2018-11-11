@@ -26,6 +26,8 @@ namespace sqf
 		configdata(std::weak_ptr<configdata> logicparent, std::string name) : mname(std::move(name)), mlogicparent(std::move(logicparent)), misnull(false) {}
 		configdata(std::weak_ptr<configdata> logicparent, std::string name, std::string parentname) : mname(std::move(name)), mparentname(std::move(parentname)), mlogicparent(std::move(logicparent)), misnull(false) {}
 
+		std::string actual_parent() { return mparentname; }
+
 		std::shared_ptr<sqf::value> cfgvalue() const { return mvalue; }
 		void cfgvalue(std::shared_ptr<sqf::value> val) { mvalue = val; }
 		std::string name() const { return mname; }

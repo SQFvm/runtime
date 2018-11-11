@@ -3,6 +3,9 @@
 #include "../cmd.h"
 #include "../virtualmachine.h"
 #include "../value.h"
+#include "../codedata.h"
+#include "../callstack_configclasses.h"
+#include "../callstack_configproperties.h"
 #include <algorithm>
 
 
@@ -103,6 +106,35 @@ namespace
 		auto cd = right->data<configdata>();
 		return std::make_shared<sqf::value>(cd->is_null());
 	}
+	std::shared_ptr<value> configclasses_code_config(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto condition = left->data<codedata>();
+		auto config = right->data<configdata>();
+
+		auto cs = std::make_shared<sqf::callstack_configclasses>(vm->stack()->stacks_top()->getnamespace(), config, condition);
+		vm->stack()->pushcallstack(cs);
+		return std::shared_ptr<value>();
+	}
+	std::shared_ptr<value> configproperties_array(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto arr = right->data<arraydata>();
+		if (!arr->check_type(vm, std::array<sqf::type, 3>{ CONFIG, STRING, type::BOOL }, 1))
+		{
+			return std::shared_ptr<value>();
+		}
+		auto config = arr->at(0)->data<configdata>();
+		auto exp = arr->get(1, "true");
+		auto include_inherited = arr->get(2, true);
+
+
+		auto condition_stack = std::make_shared<callstack>(vm->stack()->stacks_top()->getnamespace());
+		vm->parse_sqf(exp, condition_stack);
+		auto condition = std::make_shared<codedata>(condition_stack);
+
+		auto cs = std::make_shared<sqf::callstack_configproperties>(vm->stack()->stacks_top()->getnamespace(), config, condition, include_inherited);
+		vm->stack()->pushcallstack(cs);
+		return std::shared_ptr<value>();
+	}
 }
 void sqf::commandmap::initconfigcmds()
 {
@@ -123,4 +155,6 @@ void sqf::commandmap::initconfigcmds()
 	add(unary("getText", type::CONFIG, "Extract text from config entry.", gettext_config));
 	add(unary("getArray", type::CONFIG, "Extract array from config entry.", getarray_config));
 	add(unary("isNull", type::CONFIG, "Checks whether the tested item is Null.", isnull_config));
+	add(binary(4, "configclasses", type::CODE, type::CONFIG, "Returns an array of config entries which meet criteria in condition code. Command iterates through all available config sub classes of the given config class. Current looked at config is stored in _x variable (similar to alternative count command implementation). Condition has to return true in order for the looked at config to be added to the resulting array. Slightly faster than configProperties, but doesn't account for config properties or inherited entries.", configclasses_code_config));
+	add(unary("configproperties", type::ARRAY, "Returns an array of config entries which meet criteria in condition code. Command iterates through available classes and config properties for given config entry. If 3rd param is true the search also includes inherited properties. Current looked at config is stored in _x variable (similar to alternative count command implementation). Condition has to return true in order for the looked at property to be added to the resulting array. A bit slower than configClasses but allows to access inherited entires.", configproperties_array));
 }
