@@ -29,7 +29,8 @@ namespace sqf
 			mcurindex(0),
 			mdata(data),
 			mcond(std::move(cond)),
-			minclude_inherited(include_inherited)
+			minclude_inherited(include_inherited),
+			mend(false)
 		{}
 		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 	};
