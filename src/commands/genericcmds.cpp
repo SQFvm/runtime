@@ -756,9 +756,15 @@ namespace
 	std::shared_ptr<value> callextension_string_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		static char buffer[CALLEXTBUFFSIZE + 1] = { 0 };
+		auto libname = left->as_string();
+		if (libname.find('/') != -1 || libname.find('\\') != -1)
+		{
+			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
+			return std::make_shared<value>("");
+		}
 		try
 		{
-			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
+			auto dl = helpermethod_callextension_loadlibrary(vm, libname);
 #if defined(_WIN32) & !defined(_WIN64)
 			auto method = reinterpret_cast<RVExtension>(dl->resolve("_RVExtension@12"));
 #else
@@ -767,19 +773,25 @@ namespace
 			method(buffer, CALLEXTBUFFSIZE, right->as_string().c_str());
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
-				vm->wrn() << "Library '" << left->as_string() << "' is not terminating RVExtension output buffer with a '\\0'!" << std::endl;
+				vm->wrn() << "Library '" << libname << "' is not terminating RVExtension output buffer with a '\\0'!" << std::endl;
 			}
 			return std::make_shared<value>(buffer);
 		}
 		catch (const std::runtime_error& ex)
 		{
-			vm->wrn() << "Could not complete command execution due to error with library '" << left->as_string() << "' (RVExtension):" << ex.what() << std::endl;
+			vm->wrn() << "Could not complete command execution due to error with library '" << libname << "' (RVExtension): " << ex.what() << std::endl;
 			return std::make_shared<value>("");
 		}
 	}
 	std::shared_ptr<value> callextension_string_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		static char buffer[CALLEXTBUFFSIZE + 1] = { 0 };
+		auto libname = left->as_string();
+		if (libname.find('/') != -1 || libname.find('\\') != -1)
+		{
+			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
+			return std::make_shared<value>("");
+		}
 		auto rvec = right->data<arraydata>();
 		if (rvec->size() < 2)
 		{
@@ -800,7 +812,7 @@ namespace
 		auto arr = rvec->at(1)->data<arraydata>();
 		if (arr->size() > RVARGSLIMIT)
 		{
-			vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_SIZE(101) error with '" << left->as_string() << "' (RVExtensionArgs)" << std::endl;
+			vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_SIZE(101) error with '" << libname << "' (RVExtensionArgs)" << std::endl;
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(101) });
 		}
 		std::vector<std::string> argstringvec;
@@ -816,7 +828,7 @@ namespace
 				argstringvec.push_back(at->as_string());
 				break;
 			default:
-				vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_TYPE(102) error with '" << left->as_string() << "' (RVExtensionArgs)" << std::endl;
+				vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_TYPE(102) error with '" << libname << "' (RVExtensionArgs)" << std::endl;
 				return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(102) });
 			}
 		}
@@ -829,7 +841,7 @@ namespace
 
 		try
 		{
-			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
+			auto dl = helpermethod_callextension_loadlibrary(vm, libname);
 #if defined(_WIN32) & !defined(_WIN64)
 			auto method = reinterpret_cast<RVExtensionArgs>(dl->resolve("_RVExtensionArgs@20"));
 #else
@@ -838,13 +850,13 @@ namespace
 			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0)->as_string().c_str(), argvec.data(), static_cast<int>(argvec.size()));
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
-				vm->wrn() << "Library '" << left->as_string() << "' is not terminating RVExtensionArgs output buffer with a '\\0'!" << std::endl;
+				vm->wrn() << "Library '" << libname << "' is not terminating RVExtensionArgs output buffer with a '\\0'!" << std::endl;
 			}
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(buffer), std::make_shared<value>(res), std::make_shared<value>(0) });
 		}
 		catch (const std::runtime_error& ex)
 		{
-			vm->wrn() << "Could not complete command execution due to error with library '" << left->as_string() << "' (RVExtensionArgs):" << ex.what() << std::endl;
+			vm->wrn() << "Could not complete command execution due to error with library '" << libname << "' (RVExtensionArgs): " << ex.what() << std::endl;
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(501) });
 		}
 	}
