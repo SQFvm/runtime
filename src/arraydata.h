@@ -21,6 +21,7 @@ namespace sqf
 		bool check_type(virtualmachine*, const sqf::type*, size_t, size_t) const;
 	protected:
 		std::vector<std::shared_ptr<value>>& innervector() { return mvalue; }
+		const std::vector<std::shared_ptr<value>>& innervector() const { return mvalue; }
 	public:
 		arraydata() : mvalue(std::vector<std::shared_ptr<value>>()) {}
 		arraydata(size_t size) : mvalue(std::vector<std::shared_ptr<value>>(size)) {}

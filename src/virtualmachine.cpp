@@ -521,16 +521,16 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 		parent->push_back(std::make_shared<sqf::value>(curnode, sqf::type::CONFIG));
 	} break;
 	case sqf::parse::config::configasttypes::STRING:
-		parent->cfgvalue(std::make_shared<sqf::value>(node.content));
+		parent->set_cfgvalue(std::make_shared<sqf::value>(node.content));
 		break;
 	case sqf::parse::config::configasttypes::NUMBER:
-		parent->cfgvalue(std::make_shared<sqf::value>(std::stod(node.content)));
+		parent->set_cfgvalue(std::make_shared<sqf::value>(std::stod(node.content)));
 		break;
 	case sqf::parse::config::configasttypes::HEXNUMBER:
-		parent->cfgvalue(std::make_shared<sqf::value>(std::stol(node.content, nullptr, 16)));
+		parent->set_cfgvalue(std::make_shared<sqf::value>(std::stol(node.content, nullptr, 16)));
 		break;
 	case sqf::parse::config::configasttypes::LOCALIZATION:
-		parent->cfgvalue(std::make_shared<sqf::value>(node.content));
+		parent->set_cfgvalue(std::make_shared<sqf::value>(node.content));
 		break;
 	case sqf::parse::config::configasttypes::ARRAY:
 	{
@@ -540,7 +540,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 			navigate_config(full, vm, parent, subnode);
 			values.push_back(parent->cfgvalue());
 		}
-		parent->cfgvalue(std::make_shared<sqf::value>(values));
+		parent->set_cfgvalue(std::make_shared<sqf::value>(values));
 	} break;
 	case sqf::parse::config::configasttypes::VALUE:
 		break;
