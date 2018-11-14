@@ -47,7 +47,7 @@ std::shared_ptr<sqf::value> sqf::configdata::navigate_full_unsafe(std::string_vi
 		std::shared_ptr<sqf::value> p;
 		while ((p = inherited_parent_unsafe()).get())
 		{
-			it = navigate_full_unsafe(nextnode);
+			it = p->data<configdata>()->navigate_full_unsafe(nextnode);
 			if (it)
 				return it;
 		}
