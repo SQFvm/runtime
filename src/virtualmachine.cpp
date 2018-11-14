@@ -348,7 +348,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		}
 	}
 }
-void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnode node, size_t depth)
+void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnode& node, size_t depth)
 {
 	switch (node.kind)
 	{
@@ -484,7 +484,7 @@ void sqf::virtualmachine::pretty_print_sqf(std::string code)
 	}
 }
 
-void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode node)
+void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode& node)
 {
 	auto kind = static_cast<sqf::parse::config::configasttypes::configasttypes>(node.kind);
 	switch (kind)
