@@ -629,7 +629,7 @@ namespace
 			{
 				return true;
 			}
-			node = node->parent()->data<configdata>();
+			node = node->inherited_parent()->data<configdata>();
 		}
 		return false;
 	}

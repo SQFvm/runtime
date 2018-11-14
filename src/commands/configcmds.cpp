@@ -52,9 +52,9 @@ namespace
 		auto cd = right->data<configdata>();
 		std::vector<std::shared_ptr<value>> parents;
 		parents.push_back(right);
-		while (cd->haslogicparent())
+		while (cd->has_logical_parent())
 		{
-			right = cd->logicparent();
+			right = cd->logical_parent();
 			cd = right->data<configdata>();
 			parents.push_back(right);
 		}
@@ -64,7 +64,7 @@ namespace
 	std::shared_ptr<value> inheritsfrom_config(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cd = right->data<configdata>();
-		return cd->logicparent();
+		return cd->logical_parent();
 	}
 	std::shared_ptr<value> isnumber_config(virtualmachine* vm, std::shared_ptr<value> right)
 	{

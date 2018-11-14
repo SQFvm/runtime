@@ -41,9 +41,9 @@ std::shared_ptr<sqf::instruction> sqf::callstack_configproperties::popinst(sqf::
 
 		if (mdata->size() <= mcurindex)
 		{
-			if (!mdata->actual_parent().empty())
+			if (!mdata->inherited_parent_name().empty())
 			{
-				mdata = mdata->parent()->data<configdata>();
+				mdata = mdata->inherited_parent()->data<configdata>();
 				mcurindex = 0;
 				return popinst(vm);
 			}
