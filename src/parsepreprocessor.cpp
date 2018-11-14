@@ -50,6 +50,7 @@ namespace {
 	private:
 		size_t last_col;
 		bool is_in_string;
+		bool is_in_block_comment;
 		// Handles correct progression of line, col and off
 		char _next()
 		{
@@ -72,8 +73,13 @@ namespace {
 					return c;
 			}
 		}
-		bool is_in_block_comment = false;
 	public:
+		finfo()
+		{
+			last_col = 0;
+			is_in_string = false;
+			is_in_block_comment = false;
+		}
 		std::string content;
 		size_t off = 0;
 		size_t line = 0;
@@ -122,7 +128,7 @@ namespace {
 			}
 			if (c == '"')
 			{
-				is_in_string != is_in_string;
+				is_in_string = !is_in_string;
 			}
 			return c;
 		}
