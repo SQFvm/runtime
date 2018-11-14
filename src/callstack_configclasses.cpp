@@ -14,13 +14,13 @@ std::shared_ptr<sqf::instruction> sqf::callstack_configclasses::popinst(sqf::vir
 
 	if (mcurindex == 0 && mdata->size() > 0)
 	{
-		auto val = mdata->at(mcurindex);
-		while (val->data<configdata>()->cfgvalue().get() != nullptr && mdata->size() > mcurindex)
+		std::shared_ptr<value> val;
+		do
 		{
-			mcurindex++;
 			val = mdata->at(mcurindex);
-		}
-		if (mdata->size() > mcurindex)
+			mcurindex++;
+		} while (val->data<configdata>()->cfgvalue().get() != nullptr && mdata->size() > mcurindex);
+		if (mdata->size() >= mcurindex)
 		{
 			setvar("_x", val);
 			auto sptr = std::shared_ptr<callstack_configclasses>(this, [](callstack_configclasses*) {});
@@ -51,12 +51,12 @@ std::shared_ptr<sqf::instruction> sqf::callstack_configclasses::popinst(sqf::vir
 			mend = true;
 			return sqf::callstack::popinst(vm);
 		}
-		while (val->data<configdata>()->cfgvalue().get() != nullptr && mdata->size() > mcurindex)
+		do
 		{
-			mcurindex++;
 			val = mdata->at(mcurindex);
-		}
-		if (mdata->size() > mcurindex)
+			mcurindex++;
+		} while (val->data<configdata>()->cfgvalue().get() != nullptr && mdata->size() > mcurindex);
+		if (mdata->size() >= mcurindex)
 		{
 			setvar("_x", val);
 		}

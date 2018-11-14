@@ -23,7 +23,8 @@ namespace sqf
 		: callstack(ns),
 			mcurindex(0),
 			mdata(data),
-			mcond(std::move(cond))
+			mcond(std::move(cond)),
+			mend(false)
 		{}
 		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 	};
