@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <sstream>
 
 #if defined(__linux__) || defined(__APPLE__) || defined(__unix__)
 #include <dlfcn.h>
@@ -41,7 +42,9 @@ public:
 		handle = DLOPS_LIB_OPEN(path.c_str());
 		if (nullptr == handle)
 		{
-			throw std::runtime_error(DLOPS_LIB_GETLASTERROR());
+			std::stringstream sstream;
+			sstream << "Loading Library failed with error code '" << DLOPS_LIB_GETLASTERROR() << "'";
+			throw std::runtime_error(sstream.str());
 		}
 		mpath = path;
 	}
@@ -58,7 +61,9 @@ public:
 		auto res = DLOPS_LIB_SYM(handle, name.c_str());
 		if (nullptr == res)
 		{
-			throw std::runtime_error(DLOPS_LIB_GETLASTERROR());
+			std::stringstream sstream;
+			sstream << "Receiving symbol failed with error code '" << DLOPS_LIB_GETLASTERROR() << "'";
+			throw std::runtime_error(sstream.str());
 		}
 		else
 		{
@@ -84,7 +89,9 @@ public:
 		if (DLOPS_LIB_CLOSE(handle))
 #endif
 		{
-			throw std::runtime_error(DLOPS_LIB_GETLASTERROR());
+			std::stringstream sstream;
+			sstream << "Closing library failed with error code '" << DLOPS_LIB_GETLASTERROR() << "'";
+			throw std::runtime_error(sstream.str());
 		}
 	}
 };
