@@ -156,6 +156,8 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg noLoadExecDirArg("", "no-load-execdir", "Prevents automatically adding the workspace to the path of allowed locations.", false);
 	cmd.add(noLoadExecDirArg);
 
+	cmd.getArgList().reverse();
+
 	cmd.parse(argc, argv);
 
 	// ALWAYS needs to be parsed first!
