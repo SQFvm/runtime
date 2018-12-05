@@ -872,14 +872,14 @@ namespace
 		}
 		auto veh = r->obj();
 		auto unit = l->obj();
-		if (veh->driver() == unit || veh->commander() == unit || veh->gunner() == veh)
+		if (veh->driver()->obj() == unit || veh->commander()->obj() == unit || veh->gunner()->obj() == veh)
 		{
 			return std::make_shared<value>(true);
 		}
 		else
 		{
 			auto res = std::find_if(veh->soldiers_begin(), veh->soldiers_end(), [unit](std::shared_ptr<objectdata> data) -> bool {
-				return data == unit;
+				return data->obj() == unit;
 			});
 			return std::make_shared<value>(res != veh->soldiers_end());
 		}
