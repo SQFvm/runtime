@@ -128,7 +128,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected either ';' or ','." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected either ';' or ','." << std::endl;
 						if (!file.empty())
 						{
 							h.err() << "In file: " << file << std::endl;
@@ -168,7 +168,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "No viable alternative for STATEMENT." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No viable alternative for STATEMENT." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -231,7 +231,7 @@ namespace sqf
 
 				if (assignlocal && ident[0] != '_')
 				{
-					h.err() << h.dbgsegment(code, curoff, len) << "[ERR][" << line << "|C" << col << "]\t" << "Private variables need to be prefixed with an underscore '_'." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, len) << "[ERR][L" << line << "|C" << col << "]\t" << "Private variables need to be prefixed with an underscore '_'." << std::endl;
 					errflag = true;
 				}
 				curoff += len;
@@ -255,7 +255,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -317,7 +317,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -346,7 +346,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						if (!file.empty())
 						{
 							h.err() << "In file: " << file << std::endl;
@@ -380,7 +380,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -409,7 +409,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						if (!file.empty())
 						{
 							h.err() << "In file: " << file << std::endl;
@@ -443,7 +443,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -472,7 +472,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						if (!file.empty())
 						{
 							h.err() << "In file: " << file << std::endl;
@@ -506,7 +506,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -535,7 +535,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						if (!file.empty())
 						{
 							h.err() << "In file: " << file << std::endl;
@@ -569,7 +569,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -598,7 +598,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						if (!file.empty())
 						{
 							h.err() << "In file: " << file << std::endl;
@@ -632,7 +632,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -661,7 +661,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						if (!file.empty())
 						{
 							h.err() << "In file: " << file << std::endl;
@@ -695,7 +695,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -724,7 +724,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						if (!file.empty())
 						{
 							h.err() << "In file: " << file << std::endl;
@@ -758,7 +758,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -787,7 +787,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						if (!file.empty())
 						{
 							h.err() << "In file: " << file << std::endl;
@@ -821,7 +821,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -850,7 +850,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						if (!file.empty())
 						{
 							h.err() << "In file: " << file << std::endl;
@@ -884,7 +884,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -913,7 +913,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl;
 						if (!file.empty())
 						{
 							h.err() << "In file: " << file << std::endl;
@@ -984,7 +984,7 @@ namespace sqf
 				//		{
 				//			size_t i;
 				//			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-				//			h.err() << h.dbgsegment(code, curnode.offset, curnode.length) << "[ERR][" << curnode.line << "|C" << curnode.col << "]\t" /<< /"Expected binary operator." << std::endl;
+				//			h.err() << h.dbgsegment(code, curnode.offset, curnode.length) << "[ERR][L" << curnode.line << "|C" << curnode.col << "]\t" /<< /"Expected binary operator." << std::endl;
 				//			errflag = true;
 				//		}
 				//		thisnode.children.push_back(curnode);
@@ -1003,7 +1003,7 @@ namespace sqf
 				//{
 				//	size_t i;
 				//	for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-				//	h.err() << h.dbgsegment(code, curnode.children.back().offset, curnode.children.back().length) << "[ERR][" << curnode.line << "|C" << //curnode.col << "]\t" << "Missing RARG for binary operator." << std::endl;
+				//	h.err() << h.dbgsegment(code, curnode.children.back().offset, curnode.children.back().length) << "[ERR][L" << curnode.line << "|C" << //curnode.col << "]\t" << "Missing RARG for binary operator." << std::endl;
 				//	errflag = true;
 				//}
 				//else if (curnode.children.size() != 0)
@@ -1065,7 +1065,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -1082,7 +1082,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected ')'." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected ')'." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -1135,7 +1135,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "No viable alternative for PRIMARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No viable alternative for PRIMARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -1198,7 +1198,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected start of PRIMARYEXPRESSION." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of PRIMARYEXPRESSION." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -1365,7 +1365,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected SQF start." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected SQF start." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -1382,7 +1382,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected '}'." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected '}'." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -1424,7 +1424,7 @@ namespace sqf
 						{
 							size_t i;
 							for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-							h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected BINARYEXPRESSION start." << std::endl;
+							h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected BINARYEXPRESSION start." << std::endl;
 							if (!file.empty())
 							{
 								h.err() << "In file: " << file << std::endl;
@@ -1442,7 +1442,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected ']'." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected ']'." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;
@@ -1470,7 +1470,7 @@ namespace sqf
 				if (!errflag && codein[curoff] != '\0') {
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Reached EOF before finishing parsing." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Reached EOF before finishing parsing." << std::endl;
 					if (!file.empty())
 					{
 						h.err() << "In file: " << file << std::endl;

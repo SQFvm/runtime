@@ -112,7 +112,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected either ';' or ','." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected either ';' or ','." << std::endl;
 						errflag = true;
 					}
 					else
@@ -149,7 +149,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "No viable alternative for NODE." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No viable alternative for NODE." << std::endl;
 					errflag = true;
 				}
 				//thisnode.length = curoff - thisnode.offset;
@@ -181,7 +181,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected identifier." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected identifier." << std::endl;
 					errflag = true;
 				}
 				skip(code, line, col, file, curoff);
@@ -208,7 +208,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected identifier." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected identifier." << std::endl;
 						errflag = true;
 					}
 					skip(code, line, col, file, curoff);
@@ -223,7 +223,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected '{'." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected '{'." << std::endl;
 					errflag = true;
 				}
 				NODELIST(h, thisnode, code, line, col, curoff, file, errflag);
@@ -236,7 +236,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected '}'." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected '}'." << std::endl;
 					errflag = true;
 				}
 
@@ -267,7 +267,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected identifier." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected identifier." << std::endl;
 					errflag = true;
 				}
 
@@ -287,7 +287,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected ']'." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected ']'." << std::endl;
 						errflag = true;
 					}
 				}
@@ -301,7 +301,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected '='." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected '='." << std::endl;
 					errflag = true;
 				}
 				
@@ -315,7 +315,7 @@ namespace sqf
 					{
 						size_t i;
 						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected ARRAY." << std::endl;
+						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected ARRAY." << std::endl;
 						errflag = true;
 					}
 				}
@@ -529,7 +529,7 @@ namespace sqf
 						{
 							size_t i;
 							for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-							h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected VALUE start." << std::endl;
+							h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected VALUE start." << std::endl;
 							errflag = true;
 						}
 					}
@@ -543,7 +543,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected '}'." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected '}'." << std::endl;
 					errflag = true;
 				}
 				thisnode.length = curoff - thisnode.offset;
@@ -577,7 +577,7 @@ namespace sqf
 				{
 					size_t i;
 					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "No viable alternative for VALUE." << std::endl;
+					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No viable alternative for VALUE." << std::endl;
 					errflag = true;
 				}
 				//thisnode.length = curoff - thisnode.offset;
@@ -596,6 +596,12 @@ namespace sqf
 				node.offset = 0;
 				node.content = codein;
 				NODELIST(h, node, code, line, col, curoff, "", errflag);
+				skip(code, line, col, std::string(), curoff);
+				if (curoff != codein.length())
+				{
+					h.err() << h.dbgsegment(code, curoff, 1) << "[ERR][L" << line << "|C" << col << "]\t" << "Parsing config is done but not at EOF." << std::endl;
+					errflag = true;
+				}
 				node.length = curoff;
 				return node;
 			}

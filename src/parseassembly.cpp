@@ -183,7 +183,7 @@ namespace
 			{
 				size_t i;
 				for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-				vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected Semicolon." << std::endl;
+				vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected Semicolon." << std::endl;
 			}
 			else
 			{
@@ -218,7 +218,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "No viable alternative for INSTRUCTIONS." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No viable alternative for INSTRUCTIONS." << std::endl;
 		}
 	}
 	//ARG = CALLUNARY | CALLBINARY | ASSIGNTOLOCAL | ASSIGNTO | CALLNULAR | GETVARIABLE | MAKEARRAY
@@ -257,7 +257,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "No viable alternative for CALLUNARY." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No viable alternative for CALLUNARY." << std::endl;
 		}
 	}
 	//ENDSTATEMENT = "endStatement"
@@ -277,7 +277,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected 'endStatement'." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected 'endStatement'." << std::endl;
 		}
 	}
 	//CALLUNARY = "callUnary" command
@@ -297,7 +297,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected 'callUnary'." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected 'callUnary'." << std::endl;
 		}
 
 		size_t cmdlen;
@@ -305,7 +305,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected command." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected command." << std::endl;
 		}
 		else
 		{
@@ -313,7 +313,7 @@ namespace
 			auto cmdrange = sqf::commandmap::get().getrange_u(cmdname);
 			if (cmdrange->size() == 0)
 			{
-				vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, cmdlen) << "[ERR][" << line << "|C" << col << "]\t" << "Command is unknown." << std::endl;
+				vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, cmdlen) << "[ERR][L" << line << "|C" << col << "]\t" << "Command is unknown." << std::endl;
 			}
 			else
 			{
@@ -343,7 +343,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected 'callBinary'." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected 'callBinary'." << std::endl;
 		}
 
 		size_t cmdlen;
@@ -351,7 +351,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected command." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected command." << std::endl;
 		}
 		else
 		{
@@ -359,7 +359,7 @@ namespace
 			auto cmdrange = sqf::commandmap::get().getrange_b(cmdname);
 			if (cmdrange->size() == 0)
 			{
-				vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, cmdlen) << "[ERR][" << line << "|C" << col << "]\t" << "Command is unknown." << std::endl;
+				vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, cmdlen) << "[ERR][L" << line << "|C" << col << "]\t" << "Command is unknown." << std::endl;
 			}
 			else
 			{
@@ -389,7 +389,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected 'assignTo'." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected 'assignTo'." << std::endl;
 		}
 
 		size_t textlen;
@@ -397,7 +397,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "No text provided." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No text provided." << std::endl;
 		}
 		else
 		{
@@ -427,7 +427,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected 'assignToLocal'." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected 'assignToLocal'." << std::endl;
 		}
 
 		size_t textlen;
@@ -435,7 +435,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "No text provided." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No text provided." << std::endl;
 		}
 		else
 		{
@@ -475,7 +475,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected 'callNular'." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected 'callNular'." << std::endl;
 		}
 
 		size_t cmdlen;
@@ -483,7 +483,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected command." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected command." << std::endl;
 		}
 		else
 		{
@@ -491,7 +491,7 @@ namespace
 			auto cmd = sqf::commandmap::get().get(cmdname);
 			if (!cmd.get())
 			{
-				vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, cmdlen) << "[ERR][" << line << "|C" << col << "]\t" << "Command is unknown." << std::endl;
+				vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, cmdlen) << "[ERR][L" << line << "|C" << col << "]\t" << "Command is unknown." << std::endl;
 			}
 			else
 			{
@@ -521,7 +521,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected 'getVariable'." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected 'getVariable'." << std::endl;
 		}
 
 		size_t textlen;
@@ -529,7 +529,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "No text provided." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No text provided." << std::endl;
 		}
 		else
 		{
@@ -559,7 +559,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected 'makeArray'." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected 'makeArray'." << std::endl;
 		}
 
 		size_t textlen;
@@ -567,7 +567,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "No text provided." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No text provided." << std::endl;
 		}
 		else
 		{
@@ -598,7 +598,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "Expected 'push'." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected 'push'." << std::endl;
 		}
 
 		size_t typelen;
@@ -606,7 +606,7 @@ namespace
 		{
 			size_t i;
 			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][" << line << "|C" << col << "]\t" << "No type provided." << std::endl;
+			vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No type provided." << std::endl;
 		}
 		else
 		{
