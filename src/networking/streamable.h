@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <iostream>
 #include <fstream>
 #include <array>
 #include <sstream>
@@ -12,6 +11,7 @@ namespace sqf
 {
 	namespace networking
 	{
+		template<class Stream>
 		class streamable
 		{
 		public:
@@ -29,12 +29,12 @@ namespace sqf
 				} byteordertest = { 0x0102 };
 				return byteordertest.c[0] == 0x01 ? big_edian : little_edian;
 			}
-			std::iostream& m_stream;
+			Stream& m_stream;
 			byteorder m_localbyteorder;
 			byteorder m_expectedbyteorder;
 		public:
-			streamable(std::iostream& stream) : m_stream(stream), m_localbyteorder(test_byteorder()), m_expectedbyteorder(big_edian) {}
-			streamable(std::iostream& stream, byteorder expected) : m_stream(stream), m_localbyteorder(test_byteorder()), m_expectedbyteorder(expected) {}
+			streamable(Stream& stream) : m_stream(stream), m_localbyteorder(test_byteorder()), m_expectedbyteorder(big_edian) {}
+			streamable(Stream& stream, byteorder expected) : m_stream(stream), m_localbyteorder(test_byteorder()), m_expectedbyteorder(expected) {}
 			template<typename T, size_t bytes>
 			typename std::enable_if<std::is_integral<T>::value, T>::type read_bytes()
 			{

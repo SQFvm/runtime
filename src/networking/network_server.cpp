@@ -36,7 +36,7 @@ bool sqf::networking::network_server::client::send_queue()
 	return flag;
 }
 
-sqf::networking::network_server::client::client(network_server* srv, SOCKET socket, SOCKETADDR sockaddr) : m_die(false), m_socket(socket), m_sockaddr(sockaddr), m_alive(false)
+sqf::networking::network_server::client::client(network_server* srv, SOCKET socket, SOCKETADDR sockaddr) : m_die(false), m_socket(socket), m_sockaddr(sockaddr), m_builder(std::stringstream::out|std::stringstream::in|std::stringstream::binary), m_alive(false)
 {
 	m_thread = std::thread([srv, this]() { THREAD_CLIENT_HANDLE(srv, this); });
 }
