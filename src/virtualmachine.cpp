@@ -37,6 +37,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mout = &std::cout;
 	mwrn = &std::cerr;
 	merr = &std::cerr;
+	mhaltflag = false;
 	minstcount = 0;
 	mmaxinst = maxinst;
 	mmainstack = std::make_shared<vmstack>();
@@ -138,9 +139,8 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				sqftry->except(merr_buff.str());
 				merr_buff.str(std::string());
 			}
-
-
 		}
+		
 		if (mwrnflag)
 		{
 			(*mwrn) << inst->dbginf("WRN") << mwrn_buff.str();
@@ -161,6 +161,11 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			moutflag = false;
 		}
 		if (_debugger) {
+			if (mhaltflag)
+			{
+				mhaltflag = false;
+				_debugger->breakmode(this);
+			}
 			_debugger->check(this);
 			if (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)
 			{

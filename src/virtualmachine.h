@@ -44,6 +44,7 @@ namespace sqf
 		bool moutflag;
 		bool merrflag;
 		bool mwrnflag;
+		bool mhaltflag;
 		std::vector<size_t> mfreeobjids;
 		std::vector<std::shared_ptr<innerobj>> mobjlist;
 		std::shared_ptr<innerobj> mplayer_obj;
@@ -112,6 +113,7 @@ namespace sqf
 		void parse_config(std::string, std::shared_ptr<configdata>);
 		bool errflag() const { return merrflag; }
 		bool wrnflag() const { return mwrnflag; }
+		void halt() { mhaltflag = true; }
 		std::vector<std::shared_ptr<dlops>>& libraries() { return mlibraries; }
 		bool allowsleep() const { return mallowsleep; }
 		void allowsleep(bool flag) { mallowsleep = flag; }

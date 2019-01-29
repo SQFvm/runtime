@@ -1370,7 +1370,6 @@ void sqf::commandmap::initunimplemented()
 	add(unary("captive", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (captive)." << std::endl; return std::make_shared<value>(); })); /* OBJECT */
 	add(unary("isweapondeployed", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (isweapondeployed)." << std::endl; return std::make_shared<value>(); })); /* OBJECT */
 	add(unary("menushortcut", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (menushortcut)." << std::endl; return std::make_shared<value>(); })); /* ARRAY */
-	add(unary("assert", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (assert)." << std::endl; return std::make_shared<value>(); })); /* BOOL */
 	add(unary("keyimage", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (keyimage)." << std::endl; return std::make_shared<value>(); })); /* SCALAR */
 	add(unary("removeallweapons", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (removeallweapons)." << std::endl; return std::make_shared<value>(); })); /* OBJECT */
 	add(unary("titleobj", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (titleobj)." << std::endl; return std::make_shared<value>(); })); /* ARRAY */
@@ -1974,7 +1973,6 @@ void sqf::commandmap::initunimplemented()
 	add(nular("getterraingrid", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (getterraingrid)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("exit", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (exit)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("mapanimclear", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (mapanimclear)." << std::endl; return std::make_shared<value>(); }));
-	add(nular("halt", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (halt)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("missiondifficulty", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (missiondifficulty)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("nextweatherchange", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (nextweatherchange)." << std::endl; return std::make_shared<value>(); }));
 	add(nular("allsites", "", [](virtualmachine* vm) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (allsites)." << std::endl; return std::make_shared<value>(); }));
