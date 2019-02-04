@@ -340,7 +340,7 @@ namespace
 			i = 0;
 		}
 		std::stringstream sstream;
-		sstream << std::setprecision(i) << left->as_float();
+		sstream << std::fixed << std::setprecision(i) << left->as_float();
 		return std::make_shared<value>(sstream.str());
 	}
 }
