@@ -22,8 +22,8 @@ std::shared_ptr<sqf::instruction> sqf::callstack_for::popinst(sqf::virtualmachin
 	auto val = getvar(mfordata->variable());
 	if (   val->dtype() == type::SCALAR
 		&& mfordata->step() > 0 
-		   ? val->as_double() < mfordata->to()
-		   : val->as_double() > mfordata->to()
+		   ? val->as_double() <= mfordata->to()
+		   : val->as_double() >= mfordata->to()
 		|| (mfordata->to() == val->as_double() && mfordata->from() == mfordata->to())
 		)
 	{
