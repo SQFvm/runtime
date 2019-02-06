@@ -92,7 +92,7 @@ namespace sqf
 					return 1;
 				}
 				size_t i;
-				for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '_'; i++);
+				for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++);
 				return i - off;
 			}
 			//hexadecimal = [0-9a-fA-F]+;
