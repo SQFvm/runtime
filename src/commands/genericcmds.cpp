@@ -359,7 +359,11 @@ namespace
 	{
 		auto arr = left->data<arraydata>();
 		auto newindex = arr->size();
-		arr->push_back(right);
+		if (!arr->push_back(right))
+		{
+			vm->err() << "Array recursion detected." << std::endl;
+			return std::shared_ptr<value>();
+		}
 		return std::make_shared<value>(newindex);
 	}
 	std::shared_ptr<value> pushbackunique_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
@@ -369,7 +373,11 @@ namespace
 		auto found = std::find_if(arr->begin(), arr->end(), [right](const std::shared_ptr<value>& val) { return val->equals(right); });
 		if (found == arr->end())
 		{
-			arr->push_back(right);
+			if (!arr->push_back(right))
+			{
+				vm->err() << "Array recursion detected." << std::endl;
+				return std::shared_ptr<value>();
+			}
 		}
 		else
 		{
@@ -557,7 +565,14 @@ namespace
 		{
 			arr->resize(index + 1);
 		}
+		auto oldval = arr->operator[](index);
 		arr->operator[](index) = val;
+		if (!arr->recursion_test())
+		{
+			arr->operator[](index) = oldval;
+			vm->err() << "Array recursion detected." << std::endl;
+			return std::shared_ptr<value>();
+		}
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> plus_array(virtualmachine* vm, std::shared_ptr<value> right)

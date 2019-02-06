@@ -161,6 +161,27 @@ bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size
 	return errflag;
 }
 
+bool sqf::arraydata::recursion_test_helper(std::vector<std::shared_ptr<arraydata>>& visited) const
+{
+	for (auto& it : this->mvalue)
+	{
+		if (it->dtype() == type::ARRAY)
+		{
+			auto arr = it->data<arraydata>();
+			if (std::find(visited.begin(), visited.end(), arr) != visited.end())
+			{
+				return false;
+			}
+			visited.push_back(arr);
+			if (!arr->recursion_test_helper(visited))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 
 bool sqf::arraydata::get(size_t index, bool defval)
 {

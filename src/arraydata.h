@@ -19,10 +19,14 @@ namespace sqf
 		std::vector<std::shared_ptr<value>> mvalue;
 		bool check_type(virtualmachine*, const sqf::type*, size_t) const;
 		bool check_type(virtualmachine*, const sqf::type*, size_t, size_t) const;
+		bool recursion_test_helper(std::vector<std::shared_ptr<arraydata>>& visited) const;
 	protected:
 		std::vector<std::shared_ptr<value>>& innervector() { return mvalue; }
 		const std::vector<std::shared_ptr<value>>& innervector() const { return mvalue; }
 	public:
+		// Returns true, if no recursion is present.
+		// Returns false, if current array state contains a recursion.
+		bool recursion_test() const { return recursion_test_helper(std::vector<std::shared_ptr<arraydata>>()); }
 		arraydata() : mvalue(std::vector<std::shared_ptr<value>>()) {}
 		arraydata(size_t size) : mvalue(std::vector<std::shared_ptr<value>>(size)) {}
 		arraydata(std::vector<std::shared_ptr<value>> v) : mvalue(std::vector<std::shared_ptr<value>>(v)) {}
@@ -38,7 +42,7 @@ namespace sqf
 		std::vector<std::shared_ptr<value>>::iterator begin() { return mvalue.begin(); }
 		std::vector<std::shared_ptr<value>>::iterator end() { return mvalue.end(); }
 
-		void push_back(std::shared_ptr<value> val) { mvalue.push_back(val); }
+		bool push_back(std::shared_ptr<value> val) { mvalue.push_back(val); if (!recursion_test()) { mvalue.pop_back(); return false; } return true; }
 		std::shared_ptr<value> pop_back() { auto back = mvalue.back(); mvalue.pop_back(); return back; }
 		void resize(size_t newsize);
 		void reverse();
