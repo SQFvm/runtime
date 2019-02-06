@@ -161,7 +161,7 @@ bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size
 	return errflag;
 }
 
-bool sqf::arraydata::recursion_test_helper(std::vector<std::shared_ptr<arraydata>>& visited) const
+bool sqf::arraydata::recursion_test_helper(std::vector<std::shared_ptr<arraydata>>& visited)
 {
 	for (auto& it : this->mvalue)
 	{

@@ -19,14 +19,14 @@ namespace sqf
 		std::vector<std::shared_ptr<value>> mvalue;
 		bool check_type(virtualmachine*, const sqf::type*, size_t) const;
 		bool check_type(virtualmachine*, const sqf::type*, size_t, size_t) const;
-		bool recursion_test_helper(std::vector<std::shared_ptr<arraydata>>& visited) const;
+		bool recursion_test_helper(std::vector<std::shared_ptr<arraydata>>& visited);
 	protected:
 		std::vector<std::shared_ptr<value>>& innervector() { return mvalue; }
 		const std::vector<std::shared_ptr<value>>& innervector() const { return mvalue; }
 	public:
 		// Returns true, if no recursion is present.
 		// Returns false, if current array state contains a recursion.
-		bool recursion_test() const { return recursion_test_helper(std::vector<std::shared_ptr<arraydata>>()); }
+		bool recursion_test() { return recursion_test_helper(std::vector<std::shared_ptr<arraydata>>()); }
 		arraydata() : mvalue(std::vector<std::shared_ptr<value>>()) {}
 		arraydata(size_t size) : mvalue(std::vector<std::shared_ptr<value>>(size)) {}
 		arraydata(std::vector<std::shared_ptr<value>> v) : mvalue(std::vector<std::shared_ptr<value>>(v)) {}
