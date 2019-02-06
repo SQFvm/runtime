@@ -1207,6 +1207,7 @@ void sqf::commandmap::initgenericcmds()
 	add(binary(4, "forEach", type::CODE, type::ARRAY, "Executes the given command(s) on every item of an array. The array items are represented by the magic variable _x. The array indices are represented by _forEachIndex.", foreach_code_array));
 
 	add(binary(4, "select", type::ARRAY, type::SCALAR, "Selects the element at provided index from array. If the index provided equals the array length, nil will be returned.", select_array_scalar));
+	add(binary(9, "#", type::ARRAY, type::SCALAR, "Selects the element at provided index from array. If the index provided equals the array length, nil will be returned.", select_array_scalar));
 	add(unary("selectRandom", type::ARRAY, "Returns a random element from the given array.", selectrandom_array));
 
 	add(binary(4, "select", type::ARRAY, type::BOOL, "Selects the first element if provided boolean is false, second element if it is true.", select_array_bool));

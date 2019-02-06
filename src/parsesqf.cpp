@@ -84,7 +84,7 @@ namespace sqf
 			}
 			//operator_ = [+-*/%^]|&&|\|\||==|[!<>][=]?|[a-zA-Z_]+;
 			size_t operator_(const char* code, size_t off) {
-				if (code[off] == '+' || code[off] == '-' || code[off] == '*' || code[off] == '/' || code[off] == '%' || code[off] == '^' || code[off] == ':') return 1;
+				if (code[off] == '+' || code[off] == '-' || code[off] == '*' || code[off] == '/' || code[off] == '%' || code[off] == '^' || code[off] == ':' || code[off] == '#') return 1;
 				if ((code[off] == '|' && code[off + 1] == '|') || (code[off] == '&' && code[off + 1] == '&') || (code[off] == '=' && code[off + 1] == '=') || (code[off] == '>' && code[off + 1] == '>')) return 2;
 				if (code[off] == '<' || code[off] == '>' || code[off] == '!')
 				{
