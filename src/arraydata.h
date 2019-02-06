@@ -26,7 +26,7 @@ namespace sqf
 	public:
 		// Returns true, if no recursion is present.
 		// Returns false, if current array state contains a recursion.
-		bool recursion_test() { return recursion_test_helper(std::vector<std::shared_ptr<arraydata>>()); }
+		bool recursion_test() { std::vector<std::shared_ptr<arraydata>> vec; return recursion_test_helper(vec); }
 		arraydata() : mvalue(std::vector<std::shared_ptr<value>>()) {}
 		arraydata(size_t size) : mvalue(std::vector<std::shared_ptr<value>>(size)) {}
 		arraydata(std::vector<std::shared_ptr<value>> v) : mvalue(std::vector<std::shared_ptr<value>>(v)) {}
