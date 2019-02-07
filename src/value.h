@@ -72,7 +72,7 @@ namespace sqf
 		}
 		bool equals(std::shared_ptr<sqf::value> v) const { return mtype == v->mtype ? mdata->equals(v->mdata) : false; }
 
-		std::string tosqf() { return mdata.get() ? mdata->tosqf() : mtype == type::NOTHING ? std::string("ni") : mtype == type::ANY ? std::string("any") : std::string(); }
+		std::string tosqf() { return mdata.get() ? mdata->tosqf() : mtype == type::NOTHING ? std::string("nil") : mtype == type::ANY ? std::string("any") : std::string(); }
 		void convert(type type)
 		{
 			if (mtype == type)
