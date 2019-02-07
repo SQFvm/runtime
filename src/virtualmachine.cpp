@@ -453,6 +453,12 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnod
 	}
 }
 
+astnode sqf::virtualmachine::parse_sqf_cst(std::string code, std::string filepath)
+{
+	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
+	bool errflag = false;
+	return sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, "");
+}
 void sqf::virtualmachine::parse_sqf(std::string code, std::stringstream* sstream)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
