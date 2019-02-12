@@ -11,42 +11,44 @@ namespace sqf
 	class configdata : public arraydata
 	{
 	private:
-		std::string mname;
-		std::string mparentname;
-		std::weak_ptr<configdata> mlogicparent;
-		std::shared_ptr<value> mvalue;
-		bool misnull;
+		std::string m_name;
+		std::string m_inherited_parent_name;
+		std::weak_ptr<configdata> m_logical_parent;
+		std::shared_ptr<value> m_value;
+		bool m_null;
 
-		std::shared_ptr<sqf::value> parent_unsafe();
-		std::shared_ptr<sqf::value> navigate_unsafe(std::string nextnode);
-		std::shared_ptr<sqf::value> navigate_full_unsafe(std::string nextnode);
+		std::shared_ptr<sqf::value> inherited_parent_unsafe() const;
+		std::shared_ptr<sqf::value> navigate_unsafe(std::string_view nextnode) const;
+		std::shared_ptr<sqf::value> navigate_full_unsafe(std::string_view nextnode) const;
 	public:
-		configdata(std::string name) : mname(std::move(name)), misnull(true) {}
-		configdata() : mname("bin\\config.bin"), misnull(false) {}
-		configdata(std::weak_ptr<configdata> logicparent, std::string name) : mname(std::move(name)), mlogicparent(std::move(logicparent)), misnull(false) {}
-		configdata(std::weak_ptr<configdata> logicparent, std::string name, std::string parentname) : mname(std::move(name)), mparentname(std::move(parentname)), mlogicparent(std::move(logicparent)), misnull(false) {}
+		configdata(std::string name) : m_name(std::move(name)), m_null(true) {}
+		configdata() : m_name("bin\\config.bin"), m_null(false) {}
+		configdata(std::weak_ptr<configdata> logicparent, std::string name) : m_name(std::move(name)), m_logical_parent(std::move(logicparent)), m_null(false) {}
+		configdata(std::weak_ptr<configdata> logicparent, std::string name, std::string parentname) : m_name(std::move(name)), m_inherited_parent_name(std::move(parentname)), m_logical_parent(std::move(logicparent)), m_null(false) {}
 
-		std::shared_ptr<sqf::value> cfgvalue() const { return mvalue; }
-		void cfgvalue(std::shared_ptr<sqf::value> val) { mvalue = val; }
-		std::string name() const { return mname; }
+		std::string name() const { return m_name; }
+		std::string inherited_parent_name() { return m_inherited_parent_name; }
+		std::shared_ptr<sqf::value> inherited_parent() const { auto val = inherited_parent_unsafe(); return val.get() ? val : configNull(); }
+
+		std::shared_ptr<sqf::value> cfgvalue() const { return m_value; }
+		void set_cfgvalue(std::shared_ptr<sqf::value> val) { m_value = std::move(val); }
+		bool is_null() const { return m_null; }
+		bool has_logical_parent() const { return !m_logical_parent.expired(); }
+		std::shared_ptr<sqf::value> logical_parent() const;
+
+		std::shared_ptr<sqf::value> navigate(std::string_view nextnode) const { auto val = navigate_full_unsafe(nextnode); return val.get() ? val : configNull(); }
+		bool is_kind_of(std::string_view s) const;
+		size_t count_logical_parents() const { if (auto sptr = m_logical_parent.lock()) { return sptr->count_logical_parents() + 1; } return 0; }
+
+
+		bool cfgvalue(std::string_view key, bool def) const;
+		float cfgvalue(std::string_view key, int def) const { return cfgvalue(key, static_cast<float>(def)); }
+		float cfgvalue(std::string_view key, float def) const;
+		std::string cfgvalue(std::string_view key, std::string def) const;
 
 		std::string tosqf() const override;
-		bool equals(std::shared_ptr<data> d) const override { return d.get() == this; }
-		size_t logicalparentcount() const { if (auto sptr = mlogicparent.lock()) { return sptr->logicalparentcount() + 1; } return 0; }
-		std::shared_ptr<sqf::value> parent() { auto val = parent_unsafe(); return val.get() ? val : configNull(); }
-		std::shared_ptr<sqf::value> navigate(std::string nextnode) { auto val = navigate_full_unsafe(nextnode); return val.get() ? val : configNull(); }
-		bool is_kind_of(std::string s);
-
-		bool is_null() { return misnull; }
-		bool haslogicparent() { return !mlogicparent.expired(); }
-		std::shared_ptr<sqf::value> logicparent();
-
-		bool cfgvalue(std::string key, bool def);
-		float cfgvalue(std::string key, int def) { return cfgvalue(key, (float)def); }
-		float cfgvalue(std::string key, float def);
-		std::string cfgvalue(std::string key, std::string def);
-
 		void mergeinto(std::shared_ptr<configdata>);
+		bool equals(std::shared_ptr<data> d) const override { return d.get() == this; }
 
 		static std::shared_ptr<sqf::value> configFile();
 		static std::shared_ptr<sqf::value> configNull();

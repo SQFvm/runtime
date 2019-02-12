@@ -7,7 +7,12 @@
 #include "../innerobj.h"
 #include "../objectdata.h"
 #include "../parsepreprocessor.h"
+#include "../vmstack.h"
+#include "../sqfnamespace.h"
+#include "../callstack_sqftry.h"
+#include "../codedata.h"
 #include <sstream>
+#include <array>
 
 using namespace sqf;
 namespace
@@ -239,6 +244,13 @@ namespace
 			return std::make_shared<value>(ppres);
 		}
 	}
+	std::shared_ptr<value> except___code_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto cs = std::make_shared<callstack_sqftry>(vm->stack()->stacks_top()->getnamespace(), right->data<codedata>());
+		vm->stack()->pushcallstack(cs);
+		left->data<codedata>()->loadinto(vm->stack(), cs);
+		return std::shared_ptr<value>();
+	}
 }
 void sqf::commandmap::initsqfvmcmds()
 {
@@ -254,4 +266,5 @@ void sqf::commandmap::initsqfvmcmds()
 	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
 	add(nular("respawn__", "'Respawns' the player object.", respawn___));
 	add(unary("preprocess__", sqf::type::STRING, "Runs the PreProcessor on provided string.", preprocess___string));
+	add(binary(4, "except__", sqf::type::CODE, sqf::type::CODE, "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'.", except___code_code));
 }

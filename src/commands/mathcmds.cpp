@@ -340,7 +340,7 @@ namespace
 			i = 0;
 		}
 		std::stringstream sstream;
-		sstream << std::setprecision(i) << left->as_float();
+		sstream << std::fixed << std::setprecision(i) << left->as_float();
 		return std::make_shared<value>(sstream.str());
 	}
 }
@@ -392,8 +392,8 @@ void sqf::commandmap::initmathcmds()
 	add(unary("vectorMagnitudeSqr", type::ARRAY, "Squared magnitude of a 3D vector.", vectormagnitudesqr_array));
 	add(binary(4, "vectorMultiply", type::ARRAY, type::SCALAR, "Multiplies 3D vector by a scalar.", vectormultiply_array_scalar));
 	add(unary("vectorNormalized", type::ARRAY, "Returns normalized vector (unit vector, vectorMagnitude = 1) of given vector. If given vector is 0 result is a 0 vector as well.", vectornormalized_array));
-	add(binary(4, "toFixed", type::SCALAR, type::SCALAR, "Converts a number into a string, keeping the specified number of decimals.", tofixed_scalar_scalar));
-	add(unary("toFixed", type::SCALAR, "Returns normalized vector (unit vector, vectorMagnitude = 1) of given vector. If given vector is 0 result is a 0 vector as well.", tofixed_scalar));
+	add(binary(4, "toFixed", type::SCALAR, type::SCALAR, "Converts a number into a string, keeping the specified number of decimals. Range from 0 to 20.", tofixed_scalar_scalar));
+	add(unary("toFixed", type::SCALAR, "Sets how many decimals should be displayed during to string conversion. -1 resets to default. Range from 0 to 20.", tofixed_scalar));
 
 
 }

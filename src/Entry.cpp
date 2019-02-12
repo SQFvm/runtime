@@ -14,6 +14,7 @@
 #include <cstring>
 #include <tclap/CmdLine.h>
 #include <algorithm>
+#include <string_view>
 
 #include "dllexports.h"
 #include "debugger.h"
@@ -24,6 +25,12 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <unistd.h>
+#endif
+
+#ifdef _WIN32
+#define RELPATHHINT "Supports absolut and relative pathing using '.\path\to\file' or 'C:\path\to\file'."
+#else
+#define RELPATHHINT "Supports absolut and relative pathing using './path/to/file' or '/path/to/file'."
 #endif
 
 
@@ -63,24 +70,65 @@ std::string get_executable_path()
 
 bool isInLoadFileCliMode = false;
 
+std::string arg_file_actual_path(std::string executable_path, std::string f)
+{
+	auto sanitized = sqf::filesystem::sanitize(f);
+	if (sanitized.empty())
+	{
+		return "";
+	}
+	if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
+	{
+		sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+	}
+	return sanitized;
+}
+std::string extension(std::string input)
+{
+	auto last_index = input.find_last_of('.');
+	if (last_index == std::string::npos)
+	{
+		return "";
+	}
+	return input.substr(last_index + 1);
+}
+
 int main(int argc, char** argv)
 {
 	auto executable_path = sqf::filesystem::sanitize(get_executable_path());
 	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', VERSION_FULL "\n");
-	TCLAP::MultiArg<std::string> loadSqfFileArg("f", "sqf-file", "Loads provided sqf-file from the hdd into the sqf-vm. Supports relative directory using './path' and absolut pathing.", false, "PATH");
-	cmd.add(loadSqfFileArg);
 
-	TCLAP::MultiArg<std::string> loadConfigFileArg("F", "config-file", "Loads provided config-file from the hdd into the sqf-vm. Supports relative directory using './path' and absolut pathing.", false, "PATH");
-	cmd.add(loadConfigFileArg);
+	TCLAP::ValueArg<std::string> cliFileArg("", "cli-file", "Allows to provide a file from which to load arguments from. If passed, all other arguments will be ignored! Each argument needs to be separated by line-feed. " RELPATHHINT, false, "", "PATH");
+	cmd.add(cliFileArg);
 
-	TCLAP::MultiArg<std::string> loadSqfRawArg("r", "sqf-code", "Loads provided sqf-code directly into the sqf-vm. (executed after files). Input is not getting preprocessed!", false, "CODE");
-	cmd.add(loadSqfRawArg);
 
-	TCLAP::MultiArg<std::string> loadConfigRawArg("R", "config-code", "Loads provided config-code directly into the sqf-vm. (executed after files). Input is not getting preprocessed!", false, "CODE");
-	cmd.add(loadConfigRawArg);
+	TCLAP::MultiArg<std::string> inputArg("i", "input", "Loads provided file from disk. File-Type is determined using default file extensions (sqf, cpp, hpp, pbo). " RELPATHHINT, false, "PATH");
+	cmd.add(inputArg);
 
-	TCLAP::SwitchArg noPromptArg("a", "no-prompt", "Disables the prompt which expects you to type in sqf-code.", false);
-	cmd.add(noPromptArg);
+	TCLAP::MultiArg<std::string> inputSqfArg("", "input-sqf", "Loads provided SQF file from disk. Will be executed before files, added using '--input'. " RELPATHHINT, false, "PATH");
+	cmd.add(inputSqfArg);
+
+	TCLAP::MultiArg<std::string> inputConfigArg("", "input-config", "Loads provided config file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT, false, "PATH");
+	cmd.add(inputConfigArg);
+
+	TCLAP::MultiArg<std::string> inputPboArg("", "input-pbo", "Loads provided PBO file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT, false, "PATH");
+	cmd.add(inputPboArg);
+
+	TCLAP::MultiArg<std::string> sqfArg("", "sqf", "Loads provided sqf-code directly into the VM. Input is not getting preprocessed!", false, "CODE");
+	cmd.add(sqfArg);
+
+	TCLAP::MultiArg<std::string> configArg("", "config", "Loads provided config-code directly into the VM. Input is not getting preprocessed!", false, "CODE");
+	cmd.add(configArg);
+
+	TCLAP::MultiArg<std::string> prettyPrintArg("", "pretty-print", "Loads provided file from disk and pretty-prints it onto console.", false, "PATH");
+	cmd.add(prettyPrintArg);
+
+	TCLAP::MultiArg<std::string> preprocessFileArg("E", "preprocess-file", "Runs the preprocessor on provided file and prints it to stdout. " RELPATHHINT, false, "PATH");
+	cmd.add(preprocessFileArg);
+
+
+	TCLAP::SwitchArg automatedArg("a", "automated", "Disables all possible prompts.", false);
+	cmd.add(automatedArg);
 
 	TCLAP::ValueArg<int> debuggerArg("d", "debugger", "Causes the sqf-vm to start a network server that allows to attach a single debugger to it.", false, 0, "PORT");
 	cmd.add(debuggerArg);
@@ -88,32 +136,27 @@ int main(int argc, char** argv)
 	TCLAP::ValueArg<int> maxInstructionsArg("m", "max-instructions", "Sets the maximum ammount of instructions to execute before a hard exit may occur. Setting this to 0 will disable the limit.", false, 0, "NUMBER");
 	cmd.add(maxInstructionsArg);
 
-	TCLAP::SwitchArg noPrintArg("n", "no-print", "Prevents the value stack to be printed out at the very end.", false);
-	cmd.add(noPrintArg);
-
-	TCLAP::SwitchArg noExecutePrintArg("N", "no-execute-print", "Prevents the `Execute` and two horizontal lines to be printed.", false);
-	cmd.add(noExecutePrintArg);
-
-	TCLAP::SwitchArg disableClassnameCheckArg("c", "enable-classname-check", "Enables the config checking for eg. createVehicle.", false);
+	TCLAP::SwitchArg disableClassnameCheckArg("c", "check-classnames", "Enables the config checking for eg. createVehicle.", false);
 	cmd.add(disableClassnameCheckArg);
 
-	TCLAP::MultiArg<std::string> prettyPrintArg("", "pretty-print", "Loads provided file from disk and pretty-prints it onto console.", false, "PATH");
-	cmd.add(prettyPrintArg);
+
+	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. " RELPATHHINT, false, "PATH");
+	cmd.add(loadArg);
+
+	TCLAP::MultiArg<std::string> virtualArg("v", "virtual", "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. " RELPATHHINT, false, "PATH|VIRTUAL");
+	cmd.add(virtualArg);
+
+
+	TCLAP::SwitchArg noWorkPrintArg("", "no-work-print", "Disables the printing of all values which are on the work stack.", false);
+	cmd.add(noWorkPrintArg);
+
+	TCLAP::SwitchArg noExecutePrintArg("", "no-execute-print", "Disables the `Executing...` and two horizontal lines hint printing.", false);
+	cmd.add(noExecutePrintArg);
 
 	TCLAP::SwitchArg noLoadExecDirArg("", "no-load-execdir", "Prevents automatically adding the workspace to the path of allowed locations.", false);
 	cmd.add(noLoadExecDirArg);
 
-	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. Supports relative directory using './path' and absolut pathing.", false, "PATH");
-	cmd.add(loadArg);
-
-	TCLAP::MultiArg<std::string> preprocessFileArg("E", "preprocess-file", "Runs the preprocessor on provided file and prints it to stdout. Supports relative directory using './path' and absolut pathing.", false, "PATH");
-	cmd.add(preprocessFileArg);
-
-	TCLAP::MultiArg<std::string> virtualArg("v", "virtual", "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. Supports relative directory using './path' and absolut pathing for physical path.", false, "PATH|VIRTUAL");
-	cmd.add(virtualArg);
-
-	TCLAP::ValueArg<std::string> cliFileArg("", "cli-file", "Allows to provide a file from which to load arguments from. If passed, all other arguments will be ignored! Supports relative directory using './path' and absolut pathing. Each argument needs to be separated by line-feed.", false, "", "PATH");
-	cmd.add(cliFileArg);
+	cmd.getArgList().reverse();
 
 	cmd.parse(argc, argv);
 
@@ -194,23 +237,42 @@ int main(int argc, char** argv)
 		}
 	}
 
-	std::vector<std::string> sqfFiles = loadSqfFileArg.getValue();
-	std::vector<std::string> configFiles = loadConfigFileArg.getValue();
-	std::vector<std::string> sqfRaw = loadSqfRawArg.getValue();
-	std::vector<std::string> configRaw = loadConfigRawArg.getValue();
-	bool noPrompt = noPromptArg.getValue();
+	std::vector<std::string> sqf_files = inputSqfArg.getValue();
+	std::vector<std::string> config_files = inputConfigArg.getValue();
+	std::vector<std::string> pbo_files = inputPboArg.getValue();
+	bool errflag = false;
+	bool automated = automatedArg.getValue();
+	for (auto& f : inputArg.getValue())
+	{
+		auto ext = extension(f);
+		if (ext == "sqf")
+		{
+			sqf_files.push_back(f);
+		}
+		else if (ext == "cpp" || ext == "hpp" || ext == "ext")
+		{
+			config_files.push_back(f);
+		}
+		else if (ext == "pbo")
+		{
+			pbo_files.push_back(f);
+		}
+		else
+		{
+			errflag = true;
+			std::cerr << "The file extension '" << ext << "' is not understandible. Consider using '--input-sqf' for example, to explicitly add your file." << std::endl;
+		}
+	}
+
 	int maxinstructions = maxInstructionsArg.getValue();
-	bool noPrint = noPrintArg.getValue();
-	bool noExecutePrint = noExecutePrintArg.getValue();
 	bool disableClassnameCheck = disableClassnameCheckArg.getValue();
 	bool noLoadExecDir = noLoadExecDirArg.getValue();
 
-	bool debugger_port = debuggerArg.getValue();
+	auto debugger_port = debuggerArg.getValue();
 
 
 	sqf::virtualmachine vm;
 	sqf::commandmap::get().init();
-	bool errflag = false;
 	netserver* srv = nullptr;
 	sqf::debugger* dbg = nullptr;
 
@@ -240,7 +302,7 @@ int main(int argc, char** argv)
 		if (split_index == -1)
 		{
 			errflag = true;
-			std::cout << "Failed find splitter '|' for mapping '" << f << "'." << std::endl;
+			std::cerr << "Failed find splitter '|' for mapping '" << f << "'." << std::endl;
 			continue;
 		}
 		auto phys = f.substr(0, split_index);
@@ -257,7 +319,16 @@ int main(int argc, char** argv)
 		}
 		vm.get_filesystem().add_mapping(virtSanitized, physSanitized);
 	}
-
+	if (errflag)
+	{
+		if (!automated)
+		{
+			std::string line;
+			std::cout << std::endl << "Press [ENTER] to continue...";
+			std::getline(std::cin, line);
+		}
+		return -1;
+	}
 
 	// Execute all possible Pretty-Print requests
 	for (auto& f : prettyPrintArg.getValue())
@@ -271,7 +342,7 @@ int main(int argc, char** argv)
 		catch (const std::runtime_error& ex)
 		{
 			errflag = true;
-			std::cout << "Failed to load file " << ex.what() << std::endl;
+			std::cerr << "Failed to load file " << ex.what() << std::endl;
 		}
 	}
 
@@ -312,7 +383,7 @@ int main(int argc, char** argv)
 	}
 
 	//Load all sqf-files provided via arg.
-	for (auto& f : sqfFiles)
+	for (auto& f : sqf_files)
 	{
 		auto sanitized = sqf::filesystem::sanitize(f);
 		try
@@ -346,7 +417,7 @@ int main(int argc, char** argv)
 	}
 
 	//Load & merge all config-files provided via arg.
-	for (auto& f : configFiles)
+	for (auto& f : config_files)
 	{
 		auto sanitized = sqf::filesystem::sanitize(f);
 		try
@@ -380,7 +451,7 @@ int main(int argc, char** argv)
 	}
 	if (errflag)
 	{
-		if (!noPrompt)
+		if (!automated)
 		{
 			std::string line;
 			std::cout << std::endl << "Press [ENTER] to continue...";
@@ -389,13 +460,13 @@ int main(int argc, char** argv)
 		return -1;
 	}
 	//Load all sqf-code provided via arg.
-	for (auto& raw : sqfRaw)
+	for (auto& raw : sqfArg.getValue())
 	{
 		vm.parse_sqf(raw);
 	}
 
 	//Load & merge all config-code provided via arg.
-	for (auto& raw : configRaw)
+	for (auto& raw : configArg.getValue())
 	{
 		vm.parse_config(raw, sqf::configdata::configFile()->data<sqf::configdata>());
 	}
@@ -419,7 +490,7 @@ int main(int argc, char** argv)
 	vm.execute();
 	do
 	{
-		if (!noPrompt)
+		if (!automated)
 		{
 			//Prompt user to type in code.
 			int i = 0;
@@ -455,7 +526,7 @@ int main(int argc, char** argv)
 		}
 
 
-		if (noExecutePrint)
+		if (noExecutePrintArg.getValue())
 		{
 			vm.execute();
 		}
@@ -466,7 +537,7 @@ int main(int argc, char** argv)
 			vm.execute();
 			std::cout << std::string(console_width(), '-') << std::endl;
 		}
-		if (!noPrint)
+		if (!noWorkPrintArg.getValue())
 		{
 			std::shared_ptr<sqf::value> val;
 			bool success;
@@ -480,7 +551,7 @@ int main(int argc, char** argv)
 			std::wcout << std::endl;
 		}
 
-	} while (!noPrompt && !vm.exitflag());
+	} while (!automated && !vm.exitflag());
 
 	sqf::commandmap::get().uninit();
 

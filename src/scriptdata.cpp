@@ -19,6 +19,6 @@ std::string sqf::scriptdata::tosqf() const
 	}
 	else
 	{
-		this->mthisstack->script_name();
+		return this->mthisstack->script_name();
 	}
 }

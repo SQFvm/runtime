@@ -18,9 +18,15 @@ namespace sqf
 	private:
 		std::vector<std::shared_ptr<value>> mvalue;
 		bool check_type(virtualmachine*, const sqf::type*, size_t) const;
+		bool check_type(virtualmachine*, const sqf::type*, size_t, size_t) const;
+		bool recursion_test_helper(std::vector<std::shared_ptr<arraydata>>& visited);
 	protected:
 		std::vector<std::shared_ptr<value>>& innervector() { return mvalue; }
+		const std::vector<std::shared_ptr<value>>& innervector() const { return mvalue; }
 	public:
+		// Returns true, if no recursion is present.
+		// Returns false, if current array state contains a recursion.
+		bool recursion_test() { std::vector<std::shared_ptr<arraydata>> vec; return recursion_test_helper(vec); }
 		arraydata() : mvalue(std::vector<std::shared_ptr<value>>()) {}
 		arraydata(size_t size) : mvalue(std::vector<std::shared_ptr<value>>(size)) {}
 		arraydata(std::vector<std::shared_ptr<value>> v) : mvalue(std::vector<std::shared_ptr<value>>(v)) {}
@@ -36,7 +42,7 @@ namespace sqf
 		std::vector<std::shared_ptr<value>>::iterator begin() { return mvalue.begin(); }
 		std::vector<std::shared_ptr<value>>::iterator end() { return mvalue.end(); }
 
-		void push_back(std::shared_ptr<value> val) { mvalue.push_back(val); }
+		bool push_back(std::shared_ptr<value> val) { mvalue.push_back(val); if (!recursion_test()) { mvalue.pop_back(); return false; } return true; }
 		std::shared_ptr<value> pop_back() { auto back = mvalue.back(); mvalue.pop_back(); return back; }
 		void resize(size_t newsize);
 		void reverse();
@@ -46,10 +52,18 @@ namespace sqf
 		std::array<double, 2> as_vec2() const;
 		operator std::array<double, 3>() const { return as_vec3(); }
 
+		bool get(size_t index, bool defval);
+		float get(size_t index, float defval);
+		std::string get(size_t index, std::string defval);
+		int get(size_t index, int defval) { return (int)get(index, (float)defval); }
+		std::string get(size_t index, const char* defval) { return get(index, std::string(defval)); }
+
 		bool check_type(virtualmachine* vm, type t, size_t len) const { return check_type(vm, t, len, len); }
 		bool check_type(virtualmachine*, type, size_t min, size_t max) const;
 		template<size_t size>
 		bool check_type(virtualmachine* vm, std::array<sqf::type, size> arr) const { return check_type(vm, arr.data(), size); }
+		template<size_t size>
+		bool check_type(virtualmachine* vm, std::array<sqf::type, size> arr, size_t optionalstart) const { return check_type(vm, arr.data(), size, optionalstart); }
 
 		static double distance3dsqr(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { return distance3d(l->as_vec3(), r->as_vec3()); }
 		static double distance3dsqr(const arraydata* l, const arraydata* r) { return distance3d(l->as_vec3(), r->as_vec3()); }

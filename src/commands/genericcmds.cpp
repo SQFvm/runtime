@@ -359,7 +359,11 @@ namespace
 	{
 		auto arr = left->data<arraydata>();
 		auto newindex = arr->size();
-		arr->push_back(right);
+		if (!arr->push_back(right))
+		{
+			vm->err() << "Array recursion detected." << std::endl;
+			return std::shared_ptr<value>();
+		}
 		return std::make_shared<value>(newindex);
 	}
 	std::shared_ptr<value> pushbackunique_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
@@ -369,7 +373,11 @@ namespace
 		auto found = std::find_if(arr->begin(), arr->end(), [right](const std::shared_ptr<value>& val) { return val->equals(right); });
 		if (found == arr->end())
 		{
-			arr->push_back(right);
+			if (!arr->push_back(right))
+			{
+				vm->err() << "Array recursion detected." << std::endl;
+				return std::shared_ptr<value>();
+			}
 		}
 		else
 		{
@@ -557,7 +565,14 @@ namespace
 		{
 			arr->resize(index + 1);
 		}
+		auto oldval = arr->operator[](index);
 		arr->operator[](index) = val;
+		if (!arr->recursion_test())
+		{
+			arr->operator[](index) = oldval;
+			vm->err() << "Array recursion detected." << std::endl;
+			return std::shared_ptr<value>();
+		}
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> plus_array(virtualmachine* vm, std::shared_ptr<value> right)
@@ -756,9 +771,15 @@ namespace
 	std::shared_ptr<value> callextension_string_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		static char buffer[CALLEXTBUFFSIZE + 1] = { 0 };
+		auto libname = left->as_string();
+		if (libname.find('/') != -1 || libname.find('\\') != -1)
+		{
+			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
+			return std::make_shared<value>("");
+		}
 		try
 		{
-			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
+			auto dl = helpermethod_callextension_loadlibrary(vm, libname);
 #if defined(_WIN32) & !defined(_WIN64)
 			auto method = reinterpret_cast<RVExtension>(dl->resolve("_RVExtension@12"));
 #else
@@ -767,19 +788,25 @@ namespace
 			method(buffer, CALLEXTBUFFSIZE, right->as_string().c_str());
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
-				vm->wrn() << "Library '" << left->as_string() << "' is not terminating RVExtension output buffer with a '\\0'!" << std::endl;
+				vm->wrn() << "Library '" << libname << "' is not terminating RVExtension output buffer with a '\\0'!" << std::endl;
 			}
 			return std::make_shared<value>(buffer);
 		}
 		catch (const std::runtime_error& ex)
 		{
-			vm->wrn() << "Could not complete command execution due to error with library '" << left->as_string() << "' (RVExtension):" << ex.what() << std::endl;
+			vm->wrn() << "Could not complete command execution due to error with library '" << libname << "' (RVExtension): " << ex.what() << std::endl;
 			return std::make_shared<value>("");
 		}
 	}
 	std::shared_ptr<value> callextension_string_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		static char buffer[CALLEXTBUFFSIZE + 1] = { 0 };
+		auto libname = left->as_string();
+		if (libname.find('/') != -1 || libname.find('\\') != -1)
+		{
+			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
+			return std::make_shared<value>("");
+		}
 		auto rvec = right->data<arraydata>();
 		if (rvec->size() < 2)
 		{
@@ -800,7 +827,7 @@ namespace
 		auto arr = rvec->at(1)->data<arraydata>();
 		if (arr->size() > RVARGSLIMIT)
 		{
-			vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_SIZE(101) error with '" << left->as_string() << "' (RVExtensionArgs)" << std::endl;
+			vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_SIZE(101) error with '" << libname << "' (RVExtensionArgs)" << std::endl;
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(101) });
 		}
 		std::vector<std::string> argstringvec;
@@ -816,7 +843,7 @@ namespace
 				argstringvec.push_back(at->as_string());
 				break;
 			default:
-				vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_TYPE(102) error with '" << left->as_string() << "' (RVExtensionArgs)" << std::endl;
+				vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_TYPE(102) error with '" << libname << "' (RVExtensionArgs)" << std::endl;
 				return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(102) });
 			}
 		}
@@ -829,7 +856,7 @@ namespace
 
 		try
 		{
-			auto dl = helpermethod_callextension_loadlibrary(vm, left->as_string());
+			auto dl = helpermethod_callextension_loadlibrary(vm, libname);
 #if defined(_WIN32) & !defined(_WIN64)
 			auto method = reinterpret_cast<RVExtensionArgs>(dl->resolve("_RVExtensionArgs@20"));
 #else
@@ -838,13 +865,13 @@ namespace
 			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0)->as_string().c_str(), argvec.data(), static_cast<int>(argvec.size()));
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
-				vm->wrn() << "Library '" << left->as_string() << "' is not terminating RVExtensionArgs output buffer with a '\\0'!" << std::endl;
+				vm->wrn() << "Library '" << libname << "' is not terminating RVExtensionArgs output buffer with a '\\0'!" << std::endl;
 			}
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(buffer), std::make_shared<value>(res), std::make_shared<value>(0) });
 		}
 		catch (const std::runtime_error& ex)
 		{
-			vm->wrn() << "Could not complete command execution due to error with library '" << left->as_string() << "' (RVExtensionArgs):" << ex.what() << std::endl;
+			vm->wrn() << "Could not complete command execution due to error with library '" << libname << "' (RVExtensionArgs): " << ex.what() << std::endl;
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(501) });
 		}
 	}
@@ -1180,6 +1207,7 @@ void sqf::commandmap::initgenericcmds()
 	add(binary(4, "forEach", type::CODE, type::ARRAY, "Executes the given command(s) on every item of an array. The array items are represented by the magic variable _x. The array indices are represented by _forEachIndex.", foreach_code_array));
 
 	add(binary(4, "select", type::ARRAY, type::SCALAR, "Selects the element at provided index from array. If the index provided equals the array length, nil will be returned.", select_array_scalar));
+	add(binary(9, "#", type::ARRAY, type::SCALAR, "Selects the element at provided index from array. If the index provided equals the array length, nil will be returned.", select_array_scalar));
 	add(unary("selectRandom", type::ARRAY, "Returns a random element from the given array.", selectrandom_array));
 
 	add(binary(4, "select", type::ARRAY, type::BOOL, "Selects the first element if provided boolean is false, second element if it is true.", select_array_bool));

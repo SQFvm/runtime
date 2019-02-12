@@ -22,6 +22,7 @@
 #include "groupdata.h"
 #include "scriptdata.h"
 #include "debugger.h"
+#include "callstack_sqftry.h"
 #include "sqfnamespace.h"
 #include "innerobj.h"
 //#include "parsepp_handler.h"
@@ -36,6 +37,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mout = &std::cout;
 	mwrn = &std::cerr;
 	merr = &std::cerr;
+	mhaltflag = false;
 	minstcount = 0;
 	mmaxinst = maxinst;
 	mmainstack = std::make_shared<vmstack>();
@@ -112,14 +114,33 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				_debugger->position(inst->line(), inst->col(), inst->file());
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
 			}
-			merr_buff.str(std::string());
 			merrflag = false;
-			//Only for non-scheduled (and thus the mainstack)
-			if (!mactivestack->isscheduled())
+
+			// Try to find a callstack_sqftry
+			auto res = std::find_if(mactivestack->stacks_begin(), mactivestack->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
+				return cs->recover();
+			});
+			if (res == mactivestack->stacks_end())
 			{
-				break;
+				merr_buff.str(std::string());
+				//Only for non-scheduled (and thus the mainstack)
+				if (!mactivestack->isscheduled())
+				{
+					break;
+				}
+			}
+			else
+			{
+				while (mactivestack->stacks_top() != *res)
+				{
+					mactivestack->dropcallstack();
+				}
+				auto sqftry = std::dynamic_pointer_cast<sqf::callstack_sqftry>(*res);
+				sqftry->except(merr_buff.str());
+				merr_buff.str(std::string());
 			}
 		}
+		
 		if (mwrnflag)
 		{
 			(*mwrn) << inst->dbginf("WRN") << mwrn_buff.str();
@@ -140,6 +161,11 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			moutflag = false;
 		}
 		if (_debugger) {
+			if (mhaltflag)
+			{
+				mhaltflag = false;
+				_debugger->breakmode(this);
+			}
 			_debugger->check(this);
 			if (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)
 			{
@@ -327,7 +353,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		}
 	}
 }
-void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnode node, size_t depth)
+void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnode& node, size_t depth)
 {
 	switch (node.kind)
 	{
@@ -427,6 +453,12 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnod
 	}
 }
 
+astnode sqf::virtualmachine::parse_sqf_cst(std::string code, std::string filepath)
+{
+	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
+	bool errflag = false;
+	return sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, "");
+}
 void sqf::virtualmachine::parse_sqf(std::string code, std::stringstream* sstream)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
@@ -463,7 +495,7 @@ void sqf::virtualmachine::pretty_print_sqf(std::string code)
 	}
 }
 
-void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode node)
+void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode& node)
 {
 	auto kind = static_cast<sqf::parse::config::configasttypes::configasttypes>(node.kind);
 	switch (kind)
@@ -500,16 +532,16 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 		parent->push_back(std::make_shared<sqf::value>(curnode, sqf::type::CONFIG));
 	} break;
 	case sqf::parse::config::configasttypes::STRING:
-		parent->cfgvalue(std::make_shared<sqf::value>(node.content));
+		parent->set_cfgvalue(std::make_shared<sqf::value>(node.content));
 		break;
 	case sqf::parse::config::configasttypes::NUMBER:
-		parent->cfgvalue(std::make_shared<sqf::value>(std::stod(node.content)));
+		parent->set_cfgvalue(std::make_shared<sqf::value>(std::stod(node.content)));
 		break;
 	case sqf::parse::config::configasttypes::HEXNUMBER:
-		parent->cfgvalue(std::make_shared<sqf::value>(std::stol(node.content, nullptr, 16)));
+		parent->set_cfgvalue(std::make_shared<sqf::value>(std::stol(node.content, nullptr, 16)));
 		break;
 	case sqf::parse::config::configasttypes::LOCALIZATION:
-		parent->cfgvalue(std::make_shared<sqf::value>(node.content));
+		parent->set_cfgvalue(std::make_shared<sqf::value>(node.content));
 		break;
 	case sqf::parse::config::configasttypes::ARRAY:
 	{
@@ -519,7 +551,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 			navigate_config(full, vm, parent, subnode);
 			values.push_back(parent->cfgvalue());
 		}
-		parent->cfgvalue(std::make_shared<sqf::value>(values));
+		parent->set_cfgvalue(std::make_shared<sqf::value>(values));
 	} break;
 	case sqf::parse::config::configasttypes::VALUE:
 		break;

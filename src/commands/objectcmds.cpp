@@ -629,7 +629,7 @@ namespace
 			{
 				return true;
 			}
-			node = node->parent()->data<configdata>();
+			node = node->inherited_parent()->data<configdata>();
 		}
 		return false;
 	}
@@ -872,14 +872,14 @@ namespace
 		}
 		auto veh = r->obj();
 		auto unit = l->obj();
-		if (veh->driver()->obj() == unit || veh->commander()->obj() == unit || veh->gunner()->obj() == veh)
+		if (veh->driver()->obj().get() == unit.get() || veh->commander()->obj().get() == unit.get() || veh->gunner()->obj().get() == unit.get())
 		{
 			return std::make_shared<value>(true);
 		}
 		else
 		{
 			auto res = std::find_if(veh->soldiers_begin(), veh->soldiers_end(), [unit](std::shared_ptr<objectdata> data) -> bool {
-				return data->obj() == unit;
+				return data->obj().get() == unit.get();
 			});
 			return std::make_shared<value>(res != veh->soldiers_end());
 		}

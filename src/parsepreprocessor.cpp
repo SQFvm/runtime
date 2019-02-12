@@ -49,6 +49,8 @@ namespace {
 	{
 	private:
 		size_t last_col;
+		bool is_in_string;
+		bool is_in_block_comment;
 		// Handles correct progression of line, col and off
 		char _next()
 		{
@@ -71,8 +73,13 @@ namespace {
 					return c;
 			}
 		}
-		bool is_in_block_comment = false;
 	public:
+		finfo()
+		{
+			last_col = 0;
+			is_in_string = false;
+			is_in_block_comment = false;
+		}
 		std::string content;
 		size_t off = 0;
 		size_t line = 0;
@@ -93,7 +100,7 @@ namespace {
 		char next()
 		{
 			char c = _next();
-			if (c == '/' || is_in_block_comment)
+			if (!is_in_string && (c == '/' || is_in_block_comment))
 			{
 				auto pc = peek();
 				if (pc == '*' || is_in_block_comment)
@@ -118,6 +125,10 @@ namespace {
 				{
 					while ((c = _next()) != '\0' && c != '\n');
 				}
+			}
+			if (c == '"')
+			{
+				is_in_string = !is_in_string;
 			}
 			return c;
 		}
@@ -847,6 +858,7 @@ namespace {
 			}
 			h.inside_ppif = false;
 			h.allowwrite = true;
+			return "\n";
 		}
 		else
 		{
@@ -862,10 +874,27 @@ namespace {
 		std::stringstream sstream;
 		std::stringstream wordstream;
 		bool was_new_line = true;
+		bool is_in_string = false;
 		while ((c = fileinfo.next()) != '\0')
 		{
+			if (is_in_string)
+			{
+				if (c == '"')
+				{
+					is_in_string = false;
+				}
+				sstream << c;
+				continue;
+			}
 			switch (c)
 			{
+				case '"':
+				{
+					is_in_string = true;
+					auto word = wordstream.str();
+					wordstream.str("");
+					sstream << word << c;
+				} break;
 				case '\n':
 				{
 					was_new_line = true;
@@ -886,6 +915,10 @@ namespace {
 				}
 				default:
 				{
+					if (c != ' ' && c != '\t')
+					{
+						was_new_line = false;
+					}
 					if (h.allowwrite)
 					{
 						if (wordstream.rdbuf()->in_avail() > 0)
@@ -933,6 +966,7 @@ namespace {
 				case '8': case '9': case '_':
 				{
 					wordstream << c;
+					was_new_line = false;
 				} break;
 			}
 		}

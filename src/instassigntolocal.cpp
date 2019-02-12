@@ -9,7 +9,7 @@ void sqf::inst::assigntolocal::execute(virtualmachine* vm) const
 	auto val = vm->stack()->popval(flag);
 	if (!flag)
 	{
-		vm->err() << dbginf("ASS") << "assignToLocal could not receive a value." << std::endl;
+		vm->err() << "assignToLocal could not receive a value." << std::endl;
 		return;
 	}
 	vm->stack()->stacks_top()->setvar(mvarname, val);
