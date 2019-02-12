@@ -22,6 +22,11 @@ find_package(Threads)
 add_executable(sqfvm ${vm_src})
 target_link_libraries(sqfvm ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(sqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
+
 add_library(libsqfvm SHARED ${vm_src})
 target_include_directories(libsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
 SET_TARGET_PROPERTIES(libsqfvm PROPERTIES PREFIX "")
+
+add_library(slibsqfvm STATIC ${vm_src})
+target_include_directories(slibsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
+SET_TARGET_PROPERTIES(slibsqfvm PROPERTIES PREFIX "")
