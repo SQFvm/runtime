@@ -62,7 +62,9 @@ std::string get_executable_path()
 #elif defined(__GNUC__)
 	char result[PATH_MAX];
 	ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-	return std::string(result, (count > 0) ? count : 0);
+	auto str = std::string(result, (count > 0) ? count : 0);
+	std::string::size_type pos = str.find_last_of("/");
+	return str.substr(0, pos);
 #else
 #error "NO IMPLEMENTATION AVAILABLE"
 #endif
