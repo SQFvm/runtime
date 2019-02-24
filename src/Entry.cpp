@@ -28,7 +28,7 @@
 #endif
 
 #ifdef _WIN32
-#define RELPATHHINT "Supports absolut and relative pathing using '.\path\to\file' or 'C:\path\to\file'."
+#define RELPATHHINT "Supports absolut and relative pathing using '.\\path\\to\\file' or 'C:\\path\\to\\file'."
 #else
 #define RELPATHHINT "Supports absolut and relative pathing using './path/to/file' or '/path/to/file'."
 #endif
