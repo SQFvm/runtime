@@ -20,6 +20,7 @@
 #include "debugger.h"
 #ifdef _WIN32
 #include <windows.h>
+#include <direct.h>
 #else
 #include <limits.h>
 #include <sys/ioctl.h>
@@ -52,17 +53,16 @@ int console_width()
 }
 
 
-std::string get_executable_path()
+std::string get_working_dir()
 {
 #if defined(_WIN32) || defined(_WIN64)
 	char buffer[MAX_PATH];
-	GetModuleFileName(NULL, buffer, MAX_PATH);
-	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-	return std::string(buffer).substr(0, pos);
+	_getcwd(buffer, MAX_PATH);
+	return std::string(buffer);
 #elif defined(__GNUC__)
 	char result[PATH_MAX];
-	ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-	return std::string(result, (count > 0) ? count : 0);
+	getcwd(buffer, PATH_MAX);
+	return std::string(buffer);
 #else
 #error "NO IMPLEMENTATION AVAILABLE"
 #endif
@@ -95,7 +95,7 @@ std::string extension(std::string input)
 
 int main(int argc, char** argv)
 {
-	auto executable_path = sqf::filesystem::sanitize(get_executable_path());
+	auto executable_path = sqf::filesystem::sanitize(get_working_dir());
 	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', VERSION_FULL "\n");
 
 	TCLAP::ValueArg<std::string> cliFileArg("", "cli-file", "Allows to provide a file from which to load arguments from. If passed, all other arguments will be ignored! Each argument needs to be separated by line-feed. " RELPATHHINT, false, "", "PATH");
@@ -180,13 +180,13 @@ int main(int argc, char** argv)
 		{
 			sanitized = sqf::filesystem::navigate(executable_path, sanitized);
 		}
-		auto str = load_file(sanitized);
-		std::vector<char*> args;
-		args.push_back(argv[0]); // ToDo: Catch those moments when argv[0] is not set by the OS
-		size_t index = 0, last_index = 0;
-
 		try
 		{
+			auto str = load_file(sanitized);
+			std::vector<char*> args;
+			args.push_back(argv[0]); // ToDo: Catch those moments when argv[0] is not set by the OS
+			size_t index = 0, last_index = 0;
+
 			bool dobreak = false;
 			while (!dobreak)
 			{
