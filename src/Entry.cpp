@@ -150,6 +150,9 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> virtualArg("v", "virtual", "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. " RELPATHHINT, false, "PATH|VIRTUAL");
 	cmd.add(virtualArg);
 
+	TCLAP::SwitchArg verboseArg("", "verbose", "Enables additional output.", false);
+	cmd.add(verboseArg);
+
 	TCLAP::SwitchArg parseOnlyArg("", "parse-only", "Disables all code execution entirely and performs only the parsing task."
 		"Note that this also will prevent the debugger to start.", false);
 	cmd.add(parseOnlyArg);
@@ -275,6 +278,7 @@ int main(int argc, char** argv)
 	int maxinstructions = maxInstructionsArg.getValue();
 	bool disableClassnameCheck = disableClassnameCheckArg.getValue();
 	bool noLoadExecDir = noLoadExecDirArg.getValue();
+	bool verbose = verboseArg.getValue();
 
 	auto debugger_port = debuggerArg.getValue();
 
@@ -303,6 +307,10 @@ int main(int argc, char** argv)
 			sanitized = sqf::filesystem::navigate(executable_path, sanitized);
 		}
 		vm.get_filesystem().add_allowed_physical(sanitized);
+		if (verbose)
+		{
+			std::cout << "Added '" << sanitized << "' to allowed paths." << std::endl;
+		}
 	}
 	for (auto& f : virtualArg.getValue())
 	{
@@ -326,6 +334,10 @@ int main(int argc, char** argv)
 			physSanitized = sqf::filesystem::navigate(executable_path, physSanitized);
 		}
 		vm.get_filesystem().add_mapping(virtSanitized, physSanitized);
+		if (verbose)
+		{
+			std::cout << "Mapped '" << virtSanitized << "' onto '" << physSanitized << "'." << std::endl;
+		}
 	}
 	if (errflag)
 	{
@@ -343,6 +355,10 @@ int main(int argc, char** argv)
 	{
 		try
 		{
+			if (verbose)
+			{
+				std::cout << "Loading file '" << f << "' to pretty print..." << std::endl;
+			}
 			auto str = load_file(f);
 			vm.pretty_print_sqf(str);
 			vm.out_buffprint();
@@ -368,8 +384,16 @@ int main(int argc, char** argv)
 			{
 				sanitized = sqf::filesystem::navigate(executable_path, sanitized);
 			}
+			if (verbose)
+			{
+				std::cout << "Loading file '" << sanitized << "' for preprocessing ..." << std::endl;
+			}
 			auto str = load_file(sanitized);
 			bool err = false;
+			if (verbose)
+			{
+				std::cout << "Preprocessing file '" << sanitized << std::endl;
+			}
 			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
 			if (err)
 			{
@@ -404,8 +428,16 @@ int main(int argc, char** argv)
 			{
 				sanitized = sqf::filesystem::navigate(executable_path, sanitized);
 			}
+			if (verbose)
+			{
+				std::cout << "Loading file '" << sanitized << "' for sqf processing ..." << std::endl;
+			}
 			auto str = load_file(sanitized);
 			bool err = false;
+			if (verbose)
+			{
+				std::cout << "Preprocessing file '" << sanitized << std::endl;
+			}
 			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
 			if (err)
 			{
@@ -414,6 +446,10 @@ int main(int argc, char** argv)
 			}
 			else
 			{
+				if (verbose)
+				{
+					std::cout << "Parsing file '" << sanitized << std::endl;
+				}
 				vm.parse_sqf(ppedStr, f);
 			}
 		}
@@ -438,6 +474,14 @@ int main(int argc, char** argv)
 			{
 				sanitized = sqf::filesystem::navigate(executable_path, sanitized);
 			}
+			if (verbose)
+			{
+				std::cout << "Loading file '" << sanitized << "' for config processing ..." << std::endl;
+			}
+			if (verbose)
+			{
+				std::cout << "Preprocessing file '" << sanitized << std::endl;
+			}
 			auto str = load_file(sanitized);
 			bool err = false;
 			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
@@ -448,6 +492,10 @@ int main(int argc, char** argv)
 			}
 			else
 			{
+				if (verbose)
+				{
+					std::cout << "Parsing file '" << sanitized << std::endl;
+				}
 				vm.parse_config(ppedStr, sqf::configdata::configFile()->data<sqf::configdata>());
 			}
 		}
