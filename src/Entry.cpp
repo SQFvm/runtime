@@ -150,6 +150,9 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> virtualArg("v", "virtual", "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. " RELPATHHINT, false, "PATH|VIRTUAL");
 	cmd.add(virtualArg);
 
+	TCLAP::SwitchArg parseOnlyArg("", "parse-only", "Disables all code execution entirely and performs only the parsing task."
+		"Note that this also will prevent the debugger to start.", false);
+	cmd.add(parseOnlyArg);
 
 	TCLAP::SwitchArg noWorkPrintArg("", "no-work-print", "Disables the printing of all values which are on the work stack.", false);
 	cmd.add(noWorkPrintArg);
@@ -246,6 +249,7 @@ int main(int argc, char** argv)
 	std::vector<std::string> pbo_files = inputPboArg.getValue();
 	bool errflag = false;
 	bool automated = automatedArg.getValue();
+	bool parseOnly = parseOnlyArg.getValue();
 	for (auto& f : inputArg.getValue())
 	{
 		auto ext = extension(f);
@@ -453,7 +457,7 @@ int main(int argc, char** argv)
 			std::cout << "Failed to load file '" << sanitized << "': " << ex.what() << std::endl;
 		}
 	}
-	if (errflag)
+	if (errflag || parseOnly)
 	{
 		if (!automated)
 		{
@@ -461,6 +465,7 @@ int main(int argc, char** argv)
 			std::cout << std::endl << "Press [ENTER] to continue...";
 			std::getline(std::cin, line);
 		}
+		sqf::commandmap::get().uninit();
 		return -1;
 	}
 	//Load all sqf-code provided via arg.
@@ -556,8 +561,6 @@ int main(int argc, char** argv)
 		}
 
 	} while (!automated && !vm.exitflag());
-
-	sqf::commandmap::get().uninit();
 
 	if (debugger_port > 0)
 	{
