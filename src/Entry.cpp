@@ -140,7 +140,11 @@ int main(int argc, char** argv)
 	cmd.add(disableClassnameCheckArg);
 
 
-	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. " RELPATHHINT, false, "PATH");
+	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. " RELPATHHINT "\n"
+		"An allowed location, is a location SQF-VM will be allowed to load files from."
+		"If you try to load a file from a given directory that is not in the allowed list,"
+		"the file loading WILL fail."
+		"Only the root path of a given folder needs to be added, sub-folders are accessible automatically.", false, "PATH");
 	cmd.add(loadArg);
 
 	TCLAP::MultiArg<std::string> virtualArg("v", "virtual", "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. " RELPATHHINT, false, "PATH|VIRTUAL");
