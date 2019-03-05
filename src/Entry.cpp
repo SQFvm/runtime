@@ -102,16 +102,16 @@ int main(int argc, char** argv)
 	cmd.add(cliFileArg);
 
 
-	TCLAP::MultiArg<std::string> inputArg("i", "input", "Loads provided file from disk. File-Type is determined using default file extensions (sqf, cpp, hpp, pbo). " RELPATHHINT, false, "PATH");
+	TCLAP::MultiArg<std::string> inputArg("i", "input", "Loads provided file from disk. File-Type is determined using default file extensions (sqf, cpp, hpp, pbo). " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(inputArg);
 
-	TCLAP::MultiArg<std::string> inputSqfArg("", "input-sqf", "Loads provided SQF file from disk. Will be executed before files, added using '--input'. " RELPATHHINT, false, "PATH");
+	TCLAP::MultiArg<std::string> inputSqfArg("", "input-sqf", "Loads provided SQF file from disk. Will be executed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(inputSqfArg);
 
-	TCLAP::MultiArg<std::string> inputConfigArg("", "input-config", "Loads provided config file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT, false, "PATH");
+	TCLAP::MultiArg<std::string> inputConfigArg("", "input-config", "Loads provided config file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(inputConfigArg);
 
-	TCLAP::MultiArg<std::string> inputPboArg("", "input-pbo", "Loads provided PBO file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT, false, "PATH");
+	TCLAP::MultiArg<std::string> inputPboArg("", "input-pbo", "Loads provided PBO file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(inputPboArg);
 
 	TCLAP::MultiArg<std::string> sqfArg("", "sqf", "Loads provided sqf-code directly into the VM. Input is not getting preprocessed!", false, "CODE");
@@ -120,10 +120,10 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> configArg("", "config", "Loads provided config-code directly into the VM. Input is not getting preprocessed!", false, "CODE");
 	cmd.add(configArg);
 
-	TCLAP::MultiArg<std::string> prettyPrintArg("", "pretty-print", "Loads provided file from disk and pretty-prints it onto console.", false, "PATH");
+	TCLAP::MultiArg<std::string> prettyPrintArg("", "pretty-print", "Loads provided file from disk and pretty-prints it onto console." "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(prettyPrintArg);
 
-	TCLAP::MultiArg<std::string> preprocessFileArg("E", "preprocess-file", "Runs the preprocessor on provided file and prints it to stdout. " RELPATHHINT, false, "PATH");
+	TCLAP::MultiArg<std::string> preprocessFileArg("E", "preprocess-file", "Runs the preprocessor on provided file and prints it to stdout. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(preprocessFileArg);
 
 
@@ -144,7 +144,8 @@ int main(int argc, char** argv)
 		"An allowed location, is a location SQF-VM will be allowed to load files from."
 		"If you try to load a file from a given directory that is not in the allowed list,"
 		"the file loading WILL fail."
-		"Only the root path of a given folder needs to be added, sub-folders are accessible automatically.", false, "PATH");
+		"Only the root path of a given folder needs to be added, sub-folders are accessible automatically."
+		"!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(loadArg);
 
 	TCLAP::MultiArg<std::string> virtualArg("v", "virtual", "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. " RELPATHHINT, false, "PATH|VIRTUAL");
