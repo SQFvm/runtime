@@ -915,7 +915,7 @@ namespace {
 				}
 				default:
 				{
-					if (c != ' ' && c != '\t')
+					if (c != ' ' && c != '\t' && c != '\n' && c != '\r')
 					{
 						was_new_line = false;
 					}
