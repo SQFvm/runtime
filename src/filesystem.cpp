@@ -27,12 +27,16 @@ std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string vi
 		{
 			auto res2 = std::find_if(m_physicalboundaries.begin(), m_physicalboundaries.end(), [virt, current](std::string it) -> bool
 			{
-				if (!current.empty() && current.find(it) == std::string::npos)
+				auto findRes = current.find(it);
+				if (!current.empty() && findRes == std::string::npos)
 				{
 					return false;
 				}
-				it = navigate(it, virt);
-				return file_exists(it);
+				auto partial = current.substr(it.length());
+				partial = up(partial);
+				partial = navigate(it, partial);
+				partial = navigate(partial, virt);
+				return file_exists(partial);
 			});
 			if (res2 == m_physicalboundaries.end())
 			{
@@ -41,6 +45,11 @@ std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string vi
 			else
 			{
 				physPath = *res2;
+				auto partial = current.substr(physPath.length());
+				partial = up(partial);
+				partial = navigate(physPath, partial);
+				partial = navigate(partial, virt);
+				return partial;
 			}
 		}
 		else
@@ -86,6 +95,10 @@ std::string sqf::filesystem::sanitize(std::string input)
 		sstream << FSDELIMITER;
 	}
 	bool wasSlash = true;
+	if (input.empty())
+	{
+		return input;
+	}
 	for (i = input[0] == '/' || input[0] == '\\' ? 1 : 0; i < input.length() - 1; i++)
 	{
 		char c = input[i];
@@ -100,7 +113,7 @@ std::string sqf::filesystem::sanitize(std::string input)
 				}
 				break;
 			case '.':
-				if (wasSlash && input[i + 1] == '/' || input[i + 1] == '\\')
+				if (wasSlash && (input[i + 1] == '/' || input[i + 1] == '\\'))
 				{
 					i++;
 					break;
@@ -129,6 +142,10 @@ std::string sqf::filesystem::down(std::string input, std::string navigator)
 std::string sqf::filesystem::navigate(std::string input, std::string navigator)
 {
 	size_t index = 0;
+	if (navigator.empty())
+	{
+		return input;
+	}
 	while ((index = navigator.find(FSDELIMITER, 1)) != std::string::npos)
 	{
 		std::string tmp = navigator.substr(1, index - 1);

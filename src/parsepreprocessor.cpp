@@ -103,7 +103,14 @@ namespace {
 			if (!is_in_string && (c == '/' || is_in_block_comment))
 			{
 				auto pc = peek();
-				if (pc == '*' || is_in_block_comment)
+				if (is_in_block_comment && c == '*' && pc == '/')
+				{
+					_next();
+					c = _next();
+					is_in_block_comment = false;
+					return c;
+				}
+				else if (pc == '*' || is_in_block_comment)
 				{
 					is_in_block_comment = true;
 					while ((c = _next()) != '\0')
@@ -915,7 +922,7 @@ namespace {
 				}
 				default:
 				{
-					if (c != ' ' && c != '\t')
+					if (c != ' ' && c != '\t' && c != '\n' && c != '\r')
 					{
 						was_new_line = false;
 					}
