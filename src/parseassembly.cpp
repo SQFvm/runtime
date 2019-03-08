@@ -637,7 +637,7 @@ namespace
 void sqf::virtualmachine::parse_assembly(std::string codein)
 {
 	const char *code = codein.c_str();
-	size_t line = 0;
+	size_t line = 1;
 	size_t col = 0;
 	size_t curoff = 0;
 	assembly(this, code, line, col, curoff);

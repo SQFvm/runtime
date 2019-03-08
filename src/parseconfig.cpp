@@ -588,7 +588,7 @@ namespace sqf
 			astnode parse_config(std::string codein, helper& h, bool &errflag)
 			{
 				const char *code = codein.c_str();
-				size_t line = 0;
+				size_t line = 1;
 				size_t col = 0;
 				size_t curoff = 0;
 				astnode node;

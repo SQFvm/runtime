@@ -1457,7 +1457,7 @@ namespace sqf
 			astnode parse_sqf(const char* codein, helper& h, bool &errflag, std::string file)
 			{
 				const char *code = codein;
-				size_t line = 0;
+				size_t line = 1;
 				size_t col = 0;
 				size_t curoff = 0;
 				astnode node;
