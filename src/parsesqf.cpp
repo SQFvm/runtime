@@ -110,6 +110,7 @@ namespace sqf
 				//auto thisnode = astnode();
 				//thisnode.offset = curoff;
 				//thisnode.kind = sqfasttypes::SQF;
+				//thisnode.file = file;
 				skip(code, line, col, file, curoff);
 				size_t endchrlen;
 				while ((endchrlen = endchr(code, curoff)) > 0)
@@ -156,6 +157,7 @@ namespace sqf
 				//auto thisnode = astnode();
 				//thisnode.offset = curoff;
 				//thisnode.kind = sqfasttypes::STATEMENT;
+				//thisnode.file = file;
 				if (ASSIGNMENT_start(h, code, curoff))
 				{
 					ASSIGNMENT(h, root, code, line, col, curoff, file, errflag);
@@ -305,6 +307,7 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP10;
+				thisnode.file = file;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -369,6 +372,7 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP9;
+				thisnode.file = file;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -432,6 +436,7 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP8;
+				thisnode.file = file;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -495,6 +500,7 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP7;
+				thisnode.file = file;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -558,6 +564,7 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP6;
+				thisnode.file = file;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -621,6 +628,7 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP5;
+				thisnode.file = file;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -684,6 +692,7 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP4;
+				thisnode.file = file;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -747,6 +756,7 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP3;
+				thisnode.file = file;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -810,6 +820,7 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP2;
+				thisnode.file = file;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -873,6 +884,7 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP1;
+				thisnode.file = file;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -937,6 +949,7 @@ namespace sqf
 				//auto thisnode = astnode();
 				//thisnode.offset = curoff;
 				//thisnode.kind = sqfasttypes::BINARYSTATEMENT;
+				//thisnode.file = file;
 				//size_t oplen;
 				//std::string op;
 				////Get all nodes for current expression
@@ -1099,6 +1112,7 @@ namespace sqf
 				//auto thisnode = astnode();
 				//thisnode.kind = sqfasttypes::PRIMARYEXPRESSION;
 				//thisnode.offset = curoff;
+				//thisnode.file = file;
 				if (NUMBER_start(h, code, curoff))
 				{
 					NUMBER(h, root, code, line, col, curoff, file, errflag);
@@ -1464,6 +1478,7 @@ namespace sqf
 				node.kind = sqfasttypes::SQF;
 				node.offset = 0;
 				node.content = codein;
+				node.file = file;
 				SQF(h, node, code, line, col, curoff, file, errflag);
 				node.length = curoff;
 				skip(codein, line, col, file, curoff);
