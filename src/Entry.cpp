@@ -551,7 +551,7 @@ int main(int argc, char** argv)
 		if (!automated)
 		{
 			//Prompt user to type in code.
-			int i = 0;
+			int i = 1;
 			printf("Please enter your SQF code.\n"
 				"To get info about a command, use the `help__` operator.\n"
 				"For a list of all implemented commands, use the `cmds__` operator.\n"
