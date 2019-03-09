@@ -592,11 +592,12 @@ namespace sqf
 				size_t col = 0;
 				size_t curoff = 0;
 				astnode node;
+				std::string file;
 				node.kind = configasttypes::NODELIST;
 				node.offset = 0;
 				node.content = codein;
 				NODELIST(h, node, code, line, col, curoff, "", errflag);
-				skip(code, line, col, std::string(), curoff);
+				skip(code, line, col, file, curoff);
 				if (curoff != codein.length())
 				{
 					h.err() << h.dbgsegment(code, curoff, 1) << "[ERR][L" << line << "|C" << col << "]\t" << "Parsing config is done but not at EOF." << std::endl;
