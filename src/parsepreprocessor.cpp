@@ -102,6 +102,10 @@ namespace {
 			char c = _next();
 			if (!is_in_string && (c == '/' || is_in_block_comment))
 			{
+				if (c == '\n')
+				{
+					return c;
+				}
 				auto pc = peek();
 				if (is_in_block_comment && c == '*' && pc == '/')
 				{
