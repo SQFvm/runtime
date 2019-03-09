@@ -60,7 +60,7 @@ std::string get_working_dir()
 	_getcwd(buffer, MAX_PATH);
 	return std::string(buffer);
 #elif defined(__GNUC__)
-	char result[PATH_MAX];
+	char buffer[PATH_MAX];
 	getcwd(buffer, PATH_MAX);
 	return std::string(buffer);
 #else
