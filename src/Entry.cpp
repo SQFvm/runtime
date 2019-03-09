@@ -479,12 +479,12 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Loading file '" << sanitized << "' for config processing ..." << std::endl;
 			}
+			auto str = load_file(sanitized);
+			bool err = false;
 			if (verbose)
 			{
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
-			auto str = load_file(sanitized);
-			bool err = false;
 			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
 			if (err)
 			{
@@ -508,6 +508,10 @@ int main(int argc, char** argv)
 	}
 	if (errflag || parseOnly)
 	{
+		if (verbose && errflag)
+		{
+			std::cout << "Exiting due to error." << std::endl;
+		}
 		if (!automated)
 		{
 			std::string line;
