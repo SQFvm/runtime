@@ -67,7 +67,7 @@ namespace {
 					col = 0;
 					return c;
 				case '\r':
-					return next();
+					return _next();
 				default:
 					col++;
 					return c;
