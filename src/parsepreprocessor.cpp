@@ -82,7 +82,7 @@ namespace {
 		}
 		std::string content;
 		size_t off = 0;
-		size_t line = 0;
+		size_t line = 1;
 		size_t col = 0;
 		std::string path;
 		// Returns the next character.
