@@ -631,16 +631,7 @@ namespace {
 		{
 			if (fileinfo.peek() != '(')
 			{
-				h.errflag = true;
-				if (fileinfo.path.empty())
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Missing args opening brace on macro." << std::endl;
-				}
-				else
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Missing args opening brace on macro." << std::endl;
-				}
-				return "";
+				return m.name;
 			}
 			fileinfo.next(); // Skip the initial '('
 			size_t rb_counter = 0;
