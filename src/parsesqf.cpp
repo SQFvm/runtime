@@ -1142,7 +1142,7 @@ namespace sqf
 				root.children.push_back(thisnode);
 			}
 			//NUMBER = ("0x" | '$') hexadecimal | scalar;
-			bool NUMBER_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '$' || (code[curoff] >= '0' && code[curoff] <= '9'); }
+			bool NUMBER_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '$' || code[curoff] == '.' || (code[curoff] >= '0' && code[curoff] <= '9'); }
 			void NUMBER(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{
 				auto thisnode = astnode();
