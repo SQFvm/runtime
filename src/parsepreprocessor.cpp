@@ -977,7 +977,8 @@ namespace {
 				{
 					is_in_string = false;
 				}
-				sstream << c;
+                if (h.allowwrite)
+				    sstream << c;
 				continue;
 			}
 			switch (c)
@@ -987,7 +988,8 @@ namespace {
 					is_in_string = true;
 					auto word = wordstream.str();
 					wordstream.str("");
-					sstream << word << c;
+                    if (h.allowwrite)
+					    sstream << word << c;
 				} break;
 				case '\n':
 				{
@@ -1059,7 +1061,8 @@ namespace {
 				case '3': case '4': case '5': case '6': case '7':
 				case '8': case '9': case '_':
 				{
-					wordstream << c;
+                    if (h.allowwrite)
+					    wordstream << c;
 					was_new_line = false;
 				} break;
 			}
