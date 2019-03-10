@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include <filesystem>
+#include <fstream>
 
 std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string virt, std::string current)
 {
@@ -94,6 +95,33 @@ void sqf::filesystem::add_mapping(std::string virt, std::string phys)
 	m_virtualphysicalmap[virt] = phys;
 }
 
+void sqf::filesystem::add_mapping_auto(std::string phys) {
+    const std::filesystem::path ignoreGit(".git");
+    const std::filesystem::path ignoreSvn(".svn");
+
+    //recursively search for pboprefix
+    for (auto i = std::filesystem::recursive_directory_iterator(phys, std::filesystem::directory_options::follow_directory_symlink);
+        i != std::filesystem::recursive_directory_iterator();
+        ++i)
+    {
+        if (i->is_directory() && (i->path().filename() == ignoreGit || i->path().filename() == ignoreSvn))
+        {
+            i.disable_recursion_pending(); //Don't recurse into that directory
+            continue;
+        }
+        if (!i->is_regular_file()) continue;
+
+        if (i->path().filename() == "$PBOPREFIX$")
+        {
+            std::ifstream prefixFile(i->path());
+            std::string prefix;
+            std::getline(prefixFile, prefix);
+            prefixFile.close();
+
+           add_mapping(prefix, i->path().parent_path().string());
+        }
+    }
+}
 
 
 std::string sqf::filesystem::sanitize(std::string input)
