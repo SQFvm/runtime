@@ -299,6 +299,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP10;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -358,6 +359,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP9;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -416,6 +418,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP8;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -474,6 +477,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP7;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -532,6 +536,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP6;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -590,6 +595,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP5;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -648,6 +654,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP4;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -706,6 +713,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP3;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -763,7 +771,8 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP2;
-				thisnode.file = file;
+                thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -822,6 +831,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP1;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
