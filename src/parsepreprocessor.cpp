@@ -117,6 +117,7 @@ namespace {
 				else if (pc == '*' || is_in_block_comment)
 				{
 					is_in_block_comment = true;
+					_next();
 					while ((c = _next()) != '\0')
 					{
 						if (c == '\n')
