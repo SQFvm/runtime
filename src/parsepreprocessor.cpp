@@ -658,9 +658,9 @@ namespace {
 					case '{': cb_counter++; break;
 					case '}': cb_counter--; break;
 					case '(': rb_counter++; break;
+					case '"': in_string = true; break;
 					case ')': if (rb_counter != 0) { rb_counter--; break; }
 							  else { exit = true; /* goto case ',' */ }
-					case '"': in_string = true;
 					case ',':
 						if (rb_counter == 0 && eb_counter == 0 && cb_counter == 0)
 						{
