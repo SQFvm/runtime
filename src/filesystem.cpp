@@ -2,12 +2,22 @@
 #include "fileio.h"
 #include <sstream>
 #include <algorithm>
-
+#include <filesystem>
 
 std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string virt, std::string current)
 {
 	std::string virtMapping;
 	std::string physPath;
+    if (virt.front() != '\\') { //It's a local path
+        auto parentDirectory = std::filesystem::path(current).parent_path(); //Get parent of current file
+        auto wantedFile = parentDirectory / virt;
+
+        if (std::filesystem::exists(wantedFile)) return wantedFile.string();
+    }
+
+
+
+
 	virt = sanitize(virt);
 	for (const auto& vpath : m_virtualpaths)
 	{
