@@ -766,17 +766,24 @@ namespace {
 			m.line = fileinfo.line;
 			m.column = fileinfo.col;
 			auto bracketsIndex = line.find('(');
-			auto spaceIndex = line.find(' ');
+            auto spaceIter = std::find_if(line.begin(), line.end(), [](char ch) {
+                    return !(ch == '_' ||
+                        (ch >= 'a' && ch <= 'z') ||
+                        (ch >= 'A' && ch <= 'Z') ||
+                        (ch >= '0' && ch <= '9'));
+                });
+			auto spaceIndex = spaceIter == line.end() ? std::string::npos : std::distance(line.begin(), spaceIter);
 			if (bracketsIndex == std::string::npos && spaceIndex == std::string::npos)
 			{ // Empty define
 				m.name = line;
 			}
 			else
 			{
-				if (spaceIndex < bracketsIndex || bracketsIndex == std::string::npos) // std::string::npos does not needs to be catched as bracketsIndex always < npos here
+				if (spaceIndex < bracketsIndex || bracketsIndex == std::string::npos) // std::string::npos does not need to be catched as bracketsIndex always < npos here
 				{ // First bracket was found after first space OR is not existing thus we have a simple define with a replace value here
 					m.name = line.substr(0, spaceIndex);
 					m.content = line.substr(spaceIndex + 1);
+					m.content = line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex); //Special magic for #define macro\ 
 				}
 				else
 				{ // We got a define with arguments here
