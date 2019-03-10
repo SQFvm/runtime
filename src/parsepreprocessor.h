@@ -8,7 +8,7 @@ namespace sqf
 	{
 		namespace preprocessor
 		{
-			std::string parse(sqf::virtualmachine* vm, std::string, bool &errflag, std::string filename);
+			std::string parse(sqf::virtualmachine* vm, std::string input, bool &errflag, std::string filename);
 		}
 	}
 }
