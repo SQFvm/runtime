@@ -116,8 +116,11 @@ namespace {
 				}
 				else if (pc == '*' || is_in_block_comment)
 				{
+					if (!is_in_block_comment)
+					{
+						_next();
+					}
 					is_in_block_comment = true;
-					_next();
 					while ((c = _next()) != '\0')
 					{
 						if (c == '\n')
