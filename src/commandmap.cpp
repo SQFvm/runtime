@@ -1,5 +1,6 @@
 #include "commandmap.h"
 #include "cmd.h"
+#include <stdexcept>
 
 std::shared_ptr<sqf::unarycmd> sqf::commandmap::get(std::string str, type rtype)
 {

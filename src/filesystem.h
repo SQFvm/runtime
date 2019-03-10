@@ -47,6 +47,8 @@ namespace sqf
 		void add_allowed_physical(std::string phys);
 		// Adds a mapping of a virtual path to a physical one.
 		void add_mapping(std::string virt, std::string phys);
+        // Recursively scans directory for $PBOPREFIX$ files and adds mappings for them.
+        void add_mapping_auto(std::string phys);
 
 		static std::string sanitize(std::string input);
 		static std::string up(std::string input)

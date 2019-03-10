@@ -110,7 +110,7 @@ namespace
 		if (str_cmpi(str.c_str(), compiletime::strlen("NOTHING"), "NOTHING", compiletime::strlen("NOTHING")) == 0) { return sqf::type::NOTHING; }
 		else if (str_cmpi(str.c_str(), compiletime::strlen("ANY"), "ANY", compiletime::strlen("ANY")) == 0) { return sqf::type::ANY; }
 		else if (str_cmpi(str.c_str(), compiletime::strlen("SCALAR"), "SCALAR", compiletime::strlen("SCALAR")) == 0) { return sqf::type::SCALAR; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("BOO"), "BOO", compiletime::strlen("BOO")) == 0) { return sqf::type::BOOL; }
+		else if (str_cmpi(str.c_str(), compiletime::strlen("BOOL"), "BOOL", compiletime::strlen("BOOL")) == 0) { return sqf::type::BOOL; }
 		else if (str_cmpi(str.c_str(), compiletime::strlen("ARRAY"), "ARRAY", compiletime::strlen("ARRAY")) == 0) { return sqf::type::ARRAY; }
 		else if (str_cmpi(str.c_str(), compiletime::strlen("STRING"), "STRING", compiletime::strlen("STRING")) == 0) { return sqf::type::STRING; }
 		else if (str_cmpi(str.c_str(), compiletime::strlen("NAMESPACE"), "NAMESPACE", compiletime::strlen("NAMESPACE")) == 0) { return sqf::type::NAMESPACE; }

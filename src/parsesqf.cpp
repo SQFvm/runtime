@@ -43,7 +43,7 @@ namespace sqf
 							if ((code[curoff + 1] == 'f' && code[curoff + 2] == 'i' && code[curoff + 3] == 'l' && code[curoff + 4] == 'e') ||
 								(code[curoff + 1] == 'F' && code[curoff + 2] == 'I' && code[curoff + 3] == 'L' && code[curoff + 4] == 'E'))
 							{
-								curoff += 4;
+								curoff += 5;
 								size_t start = curoff + 1;
 								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
 
@@ -54,7 +54,7 @@ namespace sqf
 							else if ((code[curoff + 1] == 'l' && code[curoff + 2] == 'i' && code[curoff + 3] == 'n' && code[curoff + 4] == 'e') ||
 								(code[curoff + 1] == 'L' && code[curoff + 2] == 'I' && code[curoff + 3] == 'N' && code[curoff + 4] == 'E'))
 							{
-								curoff += 4;
+								curoff += 5;
 								size_t start = curoff + 1;
 								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
 								auto str = std::string(code + start, code + curoff);
@@ -299,6 +299,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP10;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -358,6 +359,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP9;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -416,6 +418,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP8;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -474,6 +477,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP7;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -532,6 +536,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP6;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -590,6 +595,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP5;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -648,6 +654,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP4;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -706,6 +713,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP3;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -763,7 +771,8 @@ namespace sqf
 				auto thisnode = astnode();
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP2;
-				thisnode.file = file;
+                thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -822,6 +831,7 @@ namespace sqf
 				thisnode.offset = curoff;
 				thisnode.kind = sqfasttypes::BEXP1;
 				thisnode.file = file;
+                thisnode.line = line;
 				size_t oplen;
 				std::string op;
 				skip(code, line, col, file, curoff);
@@ -1141,7 +1151,7 @@ namespace sqf
 				thisnode.length = curoff - thisnode.offset;
 				root.children.push_back(thisnode);
 			}
-			//NUMBER = ("0x" | '$') hexadecimal | scalar;
+			//NUMBER = ("0x" | '$' | '.') hexadecimal | scalar;
 			bool NUMBER_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '$' || code[curoff] == '.' || (code[curoff] >= '0' && code[curoff] <= '9'); }
 			void NUMBER(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{

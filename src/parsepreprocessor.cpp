@@ -748,7 +748,7 @@ namespace {
 			sstream << "#file " << otherfinfo.path << std::endl;
 			sstream << "#line 0" << std::endl;
 			sstream << parse_file(h, otherfinfo) << std::endl;
-			sstream << "#file " << fileinfo.path << "]\t" << std::endl;
+			sstream << "#file " << fileinfo.path << std::endl;
 			sstream << "#line " << fileinfo.line - 1 << std::endl;
 			return sstream.str();
 		}
@@ -763,17 +763,24 @@ namespace {
 			m.line = fileinfo.line;
 			m.column = fileinfo.col;
 			auto bracketsIndex = line.find('(');
-			auto spaceIndex = line.find(' ');
+            auto spaceIter = std::find_if(line.begin(), line.end(), [](char ch) {
+                    return !(ch == '_' ||
+                        (ch >= 'a' && ch <= 'z') ||
+                        (ch >= 'A' && ch <= 'Z') ||
+                        (ch >= '0' && ch <= '9'));
+                });
+			auto spaceIndex = spaceIter == line.end() ? std::string::npos : std::distance(line.begin(), spaceIter);
 			if (bracketsIndex == std::string::npos && spaceIndex == std::string::npos)
 			{ // Empty define
 				m.name = line;
 			}
 			else
 			{
-				if (spaceIndex < bracketsIndex || bracketsIndex == std::string::npos) // std::string::npos does not needs to be catched as bracketsIndex always < npos here
+				if (spaceIndex < bracketsIndex || bracketsIndex == std::string::npos) // std::string::npos does not need to be catched as bracketsIndex always < npos here
 				{ // First bracket was found after first space OR is not existing thus we have a simple define with a replace value here
 					m.name = line.substr(0, spaceIndex);
-					m.content = line.substr(spaceIndex + 1);
+                    if (m.name == "DEBUG_MODE_FULL") __debugbreak();
+					m.content = line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex); //Special magic for #define macro\ 
 				}
 				else
 				{ // We got a define with arguments here
@@ -967,7 +974,8 @@ namespace {
 				{
 					is_in_string = false;
 				}
-				sstream << c;
+                if (h.allowwrite)
+				    sstream << c;
 				continue;
 			}
 			switch (c)
@@ -977,7 +985,8 @@ namespace {
 					is_in_string = true;
 					auto word = wordstream.str();
 					wordstream.str("");
-					sstream << word << c;
+                    if (h.allowwrite)
+					    sstream << word << c;
 				} break;
 				case '\n':
 				{
@@ -1049,7 +1058,8 @@ namespace {
 				case '3': case '4': case '5': case '6': case '7':
 				case '8': case '9': case '_':
 				{
-					wordstream << c;
+                    if (h.allowwrite)
+					    wordstream << c;
 					was_new_line = false;
 				} break;
 			}

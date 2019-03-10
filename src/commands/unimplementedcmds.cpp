@@ -1955,7 +1955,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("lockeddriver", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (lockeddriver)." << std::endl; return std::make_shared<value>(); })); /* OBJECT */
 	add(unary("ctrlsetfocus", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (ctrlsetfocus)." << std::endl; return std::make_shared<value>(); })); /* CONTROL */
 	add(unary("unitaddons", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (unitaddons)." << std::endl; return std::make_shared<value>(); })); /* STRING */
-
+	add(unary("parsesimplearray", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (parsesimplearray)." << std::endl; return std::make_shared<value>(); })); /* STRING */
 
 
 

@@ -366,7 +366,7 @@ void sqf::commandmap::initmathcmds()
 	add(binary(6, "min", sqf::type::SCALAR, sqf::type::SCALAR, "The smaller of a, b", min_scalar_scalar));
 	add(binary(6, "max", sqf::type::SCALAR, sqf::type::SCALAR, "The greater of a, b.", max_scalar_scalar));
 	add(unary("floor", sqf::type::SCALAR, "Returns the next lowest integer in relation to x.", floor_scalar));
-	add(unary("cei", sqf::type::SCALAR, "The ceil value of x.", ceil_scalar));
+	add(unary("ceil", sqf::type::SCALAR, "The ceil value of x.", ceil_scalar));
 	add(unary("asin", sqf::type::SCALAR, "Arcsine of a number, result in Degrees.", asin_scalar));
 	add(unary("atan", sqf::type::SCALAR, "ArcTangent of a number, result in Degrees.", atan_scalar));
 	add(unary("atg", sqf::type::SCALAR, "Equivalent to atan.", atan_scalar));
