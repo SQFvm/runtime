@@ -640,8 +640,17 @@ namespace {
 			size_t lastargstart = fileinfo.off;
 			bool exit = false;
 			char c;
+			bool in_string = false;
 			while (!exit && (c = fileinfo.next()) != '\0')
 			{
+				if (in_string)
+				{
+					if (c == '"')
+					{
+						in_string = false;
+					}
+					continue;
+				}
 				switch (c)
 				{
 					case '[': eb_counter++; break;
@@ -651,6 +660,7 @@ namespace {
 					case '(': rb_counter++; break;
 					case ')': if (rb_counter != 0) { rb_counter--; break; }
 							  else { exit = true; /* goto case ',' */ }
+					case '"': in_string = true;
 					case ',':
 						if (rb_counter == 0 && eb_counter == 0 && cb_counter == 0)
 						{
