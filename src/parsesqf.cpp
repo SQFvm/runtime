@@ -1192,13 +1192,13 @@ namespace sqf
 							numhaddot = true;
 							continue;
 						}
-						else if ((numhadexp == 0 && code[i] == 'e') || code[i] == 'E')
+						else if (numhadexp == 0 && (code[i] == 'e' || code[i] == 'E'))
 						{
 							i++;
 							numhadexp++;
 							continue;
 						}
-						else if ((numhadexp == 1 && code[i] == '+') || code[i] == '-')
+						else if (numhadexp == 1 && (code[i] == '+' || code[i] == '-'))
 						{
 							i++;
 							numhadexp++;
