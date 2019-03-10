@@ -751,7 +751,7 @@ namespace {
 			sstream << "#file " << otherfinfo.path << std::endl;
 			sstream << "#line 0" << std::endl;
 			sstream << parse_file(h, otherfinfo) << std::endl;
-			sstream << "#file " << fileinfo.path << "]\t" << std::endl;
+			sstream << "#file " << fileinfo.path << std::endl;
 			sstream << "#line " << fileinfo.line - 1 << std::endl;
 			return sstream.str();
 		}

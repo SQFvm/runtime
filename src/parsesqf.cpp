@@ -43,7 +43,7 @@ namespace sqf
 							if ((code[curoff + 1] == 'f' && code[curoff + 2] == 'i' && code[curoff + 3] == 'l' && code[curoff + 4] == 'e') ||
 								(code[curoff + 1] == 'F' && code[curoff + 2] == 'I' && code[curoff + 3] == 'L' && code[curoff + 4] == 'E'))
 							{
-								curoff += 4;
+								curoff += 5;
 								size_t start = curoff + 1;
 								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
 
@@ -54,7 +54,7 @@ namespace sqf
 							else if ((code[curoff + 1] == 'l' && code[curoff + 2] == 'i' && code[curoff + 3] == 'n' && code[curoff + 4] == 'e') ||
 								(code[curoff + 1] == 'L' && code[curoff + 2] == 'I' && code[curoff + 3] == 'N' && code[curoff + 4] == 'E'))
 							{
-								curoff += 4;
+								curoff += 5;
 								size_t start = curoff + 1;
 								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
 								auto str = std::string(code + start, code + curoff);
