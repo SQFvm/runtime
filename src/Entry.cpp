@@ -519,7 +519,7 @@ int main(int argc, char** argv)
 			std::getline(std::cin, line);
 		}
 		sqf::commandmap::get().uninit();
-		return -1;
+		return errflag ? -1 : 0;
 	}
 	//Load all sqf-code provided via arg.
 	for (auto& raw : sqfArg.getValue())
