@@ -336,6 +336,7 @@ namespace {
 		bool stringify_required = false;
 		bool concat_required = false;
 		bool inside_string = false;
+		size_t last_stringify_required = -2;
 		// 1. Replace & scan for replace/concat hash
 		{
 			size_t word_start = 0;
@@ -364,15 +365,27 @@ namespace {
 							break;
 						}
 						replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
-						if ((off + 1 < actual_content.length() ? actual_content[off + 1] : '\0') == '#')
+						
 						{
-							off++;
-							word_start++;
-							sstream << "##";
-						}
-						else
-						{
-							stringify_required = true;
+							auto peek1 = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
+							auto peek2 = off + 2 < actual_content.length() ? actual_content[off + 2] : '\0';
+							if (peek1 == '#' && peek2 == '#')
+							{
+								off++;
+								sstream << "#";
+								word_start++;
+							}
+							if (peek1 == '#')
+							{
+								off++;
+								word_start++;
+								sstream << "##";
+							}
+							else
+							{
+								last_stringify_required = off;
+								stringify_required = true;
+							}
 						}
 						break;
 					case '"':
@@ -393,6 +406,11 @@ namespace {
 						{
 							break;
 						}
+						if (stringify_required && off - 1 == last_stringify_required)
+						{
+							stringify_required = false;
+							word_start--;
+						}
 						replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
 						sstream << c;
 				}
@@ -407,47 +425,6 @@ namespace {
 			actual_content = sstream.str();
 			sstream.str("");
 		}
-		/*
-		// 2. Stringify
-		if (stringify_required)
-		{
-		bool is_stringify = false;
-		for (size_t off = 0; off < actual_content.length(); off++)
-		{
-		char c = actual_content[off];
-		char c_la = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
-		switch (c)
-		{
-		case '#':
-		if (c_la != '#')
-		{
-		is_stringify = true;
-		sstream << '"';
-		}
-		else
-		{
-		off++;
-		}
-		break;
-		case ' ': case '\t':
-		if (is_stringify)
-		{
-		is_stringify = false;
-		sstream << '"';
-		}
-		default:
-		sstream << c;
-		break;
-		}
-		}
-		if (is_stringify)
-		{
-		sstream << '"';
-		}
-		actual_content = sstream.str();
-		sstream.str("");
-		}
-		*/
 		// 3. Execute nested macros
 		{
 			size_t word_start = 0;
@@ -478,17 +455,27 @@ namespace {
 							break;
 						}
 						replace_helper_step3(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
-						if ((off + 1 < actual_content.length() ? actual_content[off + 1] : '\0') == '#')
 						{
-							off++;
-							word_start++;
-							sstream << "##";
-							concat_required = true;
-						}
-						else
-						{
-							stringify_required = true;
-							word_start++;
+							auto peek1 = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
+							auto peek2 = off + 2 < actual_content.length() ? actual_content[off + 2] : '\0';
+							if (peek1 == '#' && peek2 == '#')
+							{
+								off++;
+								sstream << "#";
+								word_start++;
+							}
+							if (peek1 == '#')
+							{
+								off++;
+								word_start++;
+								sstream << "##";
+								concat_required = true;
+							}
+							else
+							{
+								stringify_required = true;
+								word_start++;
+							}
 						}
 						break;
 					case '"':
@@ -542,11 +529,16 @@ namespace {
 			for (size_t off = 0; off < actual_content.length(); off++)
 			{
 				char c = actual_content[off];
-				char c_la = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
+				char c_la1 = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
+				char c_la2 = off + 2 < actual_content.length() ? actual_content[off + 2] : '\0';
 				switch (c)
 				{
 					case '#':
-						if (c_la == '#')
+						if (c_la1 == '#' && c_la2 == '#')
+						{
+							sstream << c;
+						}
+						else if (c_la1 == '#')
 						{
 							off++;
 						}
