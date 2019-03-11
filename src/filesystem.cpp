@@ -8,14 +8,9 @@
 void sqf::filesystem::addPathMappingInternal(std::filesystem::path virt, std::filesystem::path phy) {
     std::vector<std::string> virtElements;
 
-    while (virt.has_parent_path()) {
-        virtElements.emplace_back(virt.filename().string());
-        virt = virt.parent_path();
+    for (auto& el : virt) { //Split path into elements
+        virtElements.emplace_back(el.string());
     }
-    virtElements.emplace_back(virt.filename().string()); //last element
-
-    std::reverse(virtElements.begin(), virtElements.end());
-
 
     auto found = m_virtualphysicalmapNew.find(virtElements[0]);
     auto curIter = m_virtualphysicalmapNew.end();
@@ -40,14 +35,12 @@ void sqf::filesystem::addPathMappingInternal(std::filesystem::path virt, std::fi
 std::optional<std::filesystem::path> sqf::filesystem::resolvePath(std::filesystem::path virt) {
     std::vector<std::string> virtElements;
 
-    while (virt.has_parent_path()) {
-        if (virt.filename().string().empty()) break; //don't resolve starting \\ 
-        virtElements.emplace_back(virt.filename().string());
-        virt = virt.parent_path();
+    for (auto& el : virt) { //Split path into elements
+        virtElements.emplace_back(el.string());
     }
 
-    std::reverse(virtElements.begin(), virtElements.end());
-
+    if (virtElements.front() == "\\") //We already know it's a global path. We don't want starting backslash
+        virtElements.erase(virtElements.begin());
 
     std::vector<std::map<std::string, pathElement>::iterator> pathStack; //In case we need to walk back upwards
 
@@ -58,7 +51,7 @@ std::optional<std::filesystem::path> sqf::filesystem::resolvePath(std::filesyste
             first = false; //this is ugly. But comparing iterators doesn't work
             curIter = m_virtualphysicalmapNew.find(it);
             if (curIter == m_virtualphysicalmapNew.end())
-                break; //not found
+                return {}; //if we didn't find the starting element, we won't find any other
             pathStack.emplace_back(curIter);
             continue;
         }
