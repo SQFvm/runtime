@@ -100,11 +100,14 @@ std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string vi
         }
 
         if (std::filesystem::exists(wantedFile)) return wantedFile.string();
+        return {}; //file doesn't exist
     } else { //global path
         auto resolved = resolvePath(virt);
         if (resolved) {
             if (std::filesystem::exists(*resolved)) return resolved->string();
+            return {}; //file doesn't exist
         }
+        return {}; //can't resolve file
     }
 }
 
