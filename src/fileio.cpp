@@ -4,11 +4,30 @@
 #include <fstream>
 #include <stdexcept>
 
+#ifdef LOADFILE_CACHE
+#include <unordered_map>
+
+std::unordered_map<std::string, std::string> fileCache;
+
 std::string load_file(const std::string & filename)
 {
-	auto vec = readFile(filename);
-	return std::string(vec.begin() + get_bom_skip(vec), vec.end());
+    auto found = fileCache.find(filename);
+    if (found != fileCache.end()) return found->second;
+    auto vec = readFile(filename);
+    std::string ret(vec.begin() + get_bom_skip(vec), vec.end());
+    fileCache[filename] = ret;
+    return ret;
 }
+
+#else
+
+std::string load_file(const std::string& filename)
+{
+    auto vec = readFile(filename);
+    return std::string(vec.begin() + get_bom_skip(vec), vec.end());
+}
+
+#endif
 
 std::vector<char> readFile(const std::string & filename)
 {

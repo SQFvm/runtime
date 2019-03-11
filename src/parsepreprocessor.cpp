@@ -175,7 +175,8 @@ namespace {
 			bool exit = false;
 			if (catchEscapedNewLine)
 			{
-				std::stringstream sstream;
+				std::string outputString;
+                outputString.reserve(64);
 				while (!exit && (c = next()) != '\0')
 				{
 					switch (c)
@@ -193,14 +194,15 @@ namespace {
 						default:
 							if (escaped)
 							{
-								sstream << '\\';
+                                outputString.push_back('\\');
 								escaped = false;
 							}
-							sstream << c;
+                            outputString.push_back(c);
 							break;
 					}
 				}
-				return sstream.str();
+                outputString.shrink_to_fit();
+				return outputString;
 			}
 			else
 			{
@@ -671,7 +673,7 @@ namespace {
 								finfo copy = fileinfo;
 								copy.off = lastargstart;
 								auto handled_param = handle_arg(h, copy, fileinfo.off);
-								params.push_back(handled_param);
+								params.emplace_back(std::move(handled_param));
 							}
 							fileinfo.next();
 							lastargstart = fileinfo.off;
@@ -680,7 +682,7 @@ namespace {
 				}
 			}
 		}
-		return replace(h, fileinfo, m, params);
+		return replace(h, fileinfo, m, std::move(params));
 	}
 
 	std::string parse_macro(helper& h, finfo& fileinfo)
@@ -716,7 +718,7 @@ namespace {
 			try
 			{
 				otherfinfo.path = h.vm->get_filesystem().get_physical_path(line, fileinfo.path);
-				auto path = otherfinfo.path;
+				const auto& path = otherfinfo.path;
 				auto res = std::find_if(h.path_tree.begin(), h.path_tree.end(), [path](std::string& parent) -> bool { return parent == path; });
 				if (res != h.path_tree.end())
 				{
@@ -735,8 +737,8 @@ namespace {
 					}
 					return "";
 				}
-				h.path_tree.push_back(path);
-				otherfinfo.content = load_file(path);
+                otherfinfo.content = load_file(path);
+				h.path_tree.emplace_back(path);
 			}
 			catch (const std::runtime_error& ex)
 			{
@@ -812,14 +814,14 @@ namespace {
 						arg.erase(std::find_if(arg.rbegin(), arg.rend(), [](char c) -> bool {
 							return c != '\t' && c != ' ';
 						}).base(), arg.end());
-						m.args.push_back(arg);
+						m.args.emplace_back(std::move(arg));
 						arg_start_index = arg_index + 1;
 					}
 					m.name = line.substr(0, bracketsIndex);
 					m.content = line.length() <= bracketsEndIndex + 2 ? "" : line.substr(bracketsEndIndex + 2);
 				}
 			}
-			h.macros.push_back(m);
+			h.macros.emplace_back(std::move(m));
 			return "\n";
 		}
 		else if (inst == "UNDEF")
