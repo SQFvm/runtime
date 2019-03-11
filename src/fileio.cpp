@@ -4,18 +4,25 @@
 #include <fstream>
 #include <stdexcept>
 
+
 #ifdef LOADFILE_CACHE
 #include <unordered_map>
+#include <mutex>
 
 std::unordered_map<std::string, std::string> fileCache;
+std::mutex cacheMutex;
 
 std::string load_file(const std::string & filename)
 {
+    std::unique_lock<std::mutex> lock(cacheMutex);
     auto found = fileCache.find(filename);
     if (found != fileCache.end()) return found->second;
+    lock.unlock();
     auto vec = readFile(filename);
     std::string ret(vec.begin() + get_bom_skip(vec), vec.end());
+    lock.lock();
     fileCache[filename] = ret;
+    lock.unlock();
     return ret;
 }
 
