@@ -702,9 +702,16 @@ namespace {
 			line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) -> bool {
 				return c != '"';
 			}));
-            line.erase(std::find_if(line.begin(), line.end(), [](char c) -> bool {
+            auto endIter = std::find_if(line.begin(), line.end(), [](char c) -> bool {
                 return c == '"';
-            }), line.end());
+            });
+            if (std::distance(endIter, line.end()) > 1) {
+                if (fileinfo.path.empty())
+                    h.vm->wrn() << "[WARN][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unexpected data after include path." << std::endl;
+                else
+                    h.vm->wrn() << "[WARN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unexpected data after include path." << std::endl;
+            }
+            line.erase(endIter, line.end());
 			finfo otherfinfo;
 			try
 			{
