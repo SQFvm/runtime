@@ -12,15 +12,15 @@ void sqf::filesystem::addPathMappingInternal(std::filesystem::path virt, std::fi
         virtElements.emplace_back(el.string());
     }
 
-    auto found = m_virtualphysicalmapNew.find(virtElements[0]);
-    auto curIter = m_virtualphysicalmapNew.end();
+    auto found = m_virtualphysicalmap.find(virtElements[0]);
+    auto curIter = m_virtualphysicalmap.end();
     bool first = true;
     for (auto& it : virtElements) {
         if (first) { //first element
             first = false; //this is ugly. But comparing iterators doesn't work
-            curIter = m_virtualphysicalmapNew.find(it);
-            if (curIter == m_virtualphysicalmapNew.end())
-                curIter = m_virtualphysicalmapNew.insert({ it, pathElement{} }).first;
+            curIter = m_virtualphysicalmap.find(it);
+            if (curIter == m_virtualphysicalmap.end())
+                curIter = m_virtualphysicalmap.insert({ it, pathElement{} }).first;
             continue;
         }
         auto& curEl = curIter->second;
@@ -44,13 +44,13 @@ std::optional<std::filesystem::path> sqf::filesystem::resolvePath(std::filesyste
 
     std::vector<std::map<std::string, pathElement>::iterator> pathStack; //In case we need to walk back upwards
 
-    auto curIter = m_virtualphysicalmapNew.end();
+    auto curIter = m_virtualphysicalmap.end();
     bool first = true;
     for (auto& it : virtElements) {
         if (first) { //first element
             first = false; //this is ugly. But comparing iterators doesn't work
-            curIter = m_virtualphysicalmapNew.find(it);
-            if (curIter == m_virtualphysicalmapNew.end())
+            curIter = m_virtualphysicalmap.find(it);
+            if (curIter == m_virtualphysicalmap.end())
                 return {}; //if we didn't find the starting element, we won't find any other
             pathStack.emplace_back(curIter);
             continue;
@@ -85,7 +85,6 @@ std::optional<std::filesystem::path> sqf::filesystem::resolvePath(std::filesyste
 std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string virt, std::string current)
 {
 	std::string virtMapping;
-	std::string physPath;
     if (virt.front() != '\\') { //It's a local path
         auto parentDirectory = std::filesystem::path(current).parent_path(); //Get parent of current file
         auto wantedFile = parentDirectory / virt;
@@ -99,67 +98,33 @@ std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string vi
     }
 
 	virt = sanitize(virt);
-	for (const auto& vpath : m_virtualpaths)
-	{
-		if (virt.find(vpath) == 0)
-		{
-			virtMapping = vpath;
-			virt = virt.substr(vpath.length());
-		}
-	}
-	if (virtMapping.empty())
-	{
-        
 
-
-		auto res = std::find_if(m_virtualpaths.begin(), m_virtualpaths.end(), [current](std::string it) -> bool
-		{
-			return current.find(it) != std::string::npos;
-		});
-		if (res == m_virtualpaths.end())
-		{
-			auto res2 = std::find_if(m_physicalboundaries.begin(), m_physicalboundaries.end(), [virt, current](std::string it) -> bool
-			{
-				auto findRes = current.find(it);
-				if (!current.empty() && findRes == std::string::npos)
-				{
-					return false;
-				}
-				auto partial = current.substr(it.length());
-				partial = up(partial);
-				partial = navigate(it, partial);
-				partial = navigate(partial, virt);
-				return file_exists(partial);
-			});
-			if (res2 == m_physicalboundaries.end())
-			{
-				return {};
-			}
-			else
-			{
-				physPath = *res2;
-				auto partial = current.substr(physPath.length());
-				partial = up(partial);
-				partial = navigate(physPath, partial);
-				partial = navigate(partial, virt);
-				return partial;
-			}
-		}
-		else
-		{
-			physPath = m_virtualphysicalmap[*res];
-		}
-	}
-	else
+	auto res2 = std::find_if(m_physicalboundaries.begin(), m_physicalboundaries.end(), [virt, current](std::string it) -> bool
 	{
-		physPath = m_virtualphysicalmap[virtMapping];
-	}
-	physPath = navigate(physPath, virt);
-	if (std::find_if(m_physicalboundaries.begin(), m_physicalboundaries.end(), [physPath](std::string it) -> bool { return physPath.find(it) == 0; }) == m_physicalboundaries.end())
+		auto findRes = current.find(it);
+		if (!current.empty() && findRes == std::string::npos)
+		{
+			return false;
+		}
+		auto partial = current.substr(it.length());
+		partial = up(partial);
+		partial = navigate(it, partial);
+		partial = navigate(partial, virt);
+		return file_exists(partial);
+	});
+	if (res2 == m_physicalboundaries.end())
 	{
 		return {};
 	}
-	return physPath;
+	else
+	{
+		std::string physPath = *res2;
+		auto partial = current.substr(physPath.length());
+		partial = up(partial);
+		partial = navigate(physPath, partial);
+		partial = navigate(partial, virt);
+		return partial;
+	}
 }
 
 void sqf::filesystem::add_allowed_physical(std::string phys)

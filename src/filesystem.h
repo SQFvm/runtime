@@ -31,8 +31,7 @@ namespace sqf
 
 		// Left -> Virtual
 		// Right -> Physical
-        std::map<std::string, pathElement> m_virtualphysicalmapNew;
-        std::map<std::string, std::string> m_virtualphysicalmap;
+        std::map<std::string, pathElement> m_virtualphysicalmap;
 		std::vector<std::string> m_physicalboundaries;
 		std::vector<std::string> m_virtualpaths;
 	public:
