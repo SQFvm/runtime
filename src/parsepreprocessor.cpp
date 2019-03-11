@@ -702,9 +702,9 @@ namespace {
 			line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) -> bool {
 				return c != '"';
 			}));
-			line.erase(std::find_if(line.rbegin(), line.rend(), [](char c) -> bool {
-				return c != '"';
-			}).base(), line.end());
+            line.erase(std::find_if(line.begin(), line.end(), [](char c) -> bool {
+                return c == '"';
+            }), line.end());
 			finfo otherfinfo;
 			try
 			{
