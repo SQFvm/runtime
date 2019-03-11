@@ -16,8 +16,8 @@ std::vector<char> readFile(const std::string & filename)
 
 	if (!file.is_open())
 	{
-		std::stringstream sstream("Could not open file '");
-		sstream << filename << "'.";
+        std::stringstream sstream;
+		sstream << "Could not open file '" << filename << "'.";
 		throw std::runtime_error(sstream.str());
 	}
 

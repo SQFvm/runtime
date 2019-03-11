@@ -5,6 +5,90 @@
 #include <filesystem>
 #include <fstream>
 
+void sqf::filesystem::addPathMappingInternal(std::filesystem::path virt, std::filesystem::path phy) {
+    std::vector<std::string> virtElements;
+
+    while (virt.has_parent_path()) {
+        virtElements.emplace_back(virt.filename().string());
+        virt = virt.parent_path();
+    }
+    virtElements.emplace_back(virt.filename().string()); //last element
+
+    std::reverse(virtElements.begin(), virtElements.end());
+
+
+    auto found = m_virtualphysicalmapNew.find(virtElements[0]);
+    auto curIter = m_virtualphysicalmapNew.end();
+    bool first = true;
+    for (auto& it : virtElements) {
+        if (first) { //first element
+            first = false; //this is ugly. But comparing iterators doesn't work
+            curIter = m_virtualphysicalmapNew.find(it);
+            if (curIter == m_virtualphysicalmapNew.end())
+                curIter = m_virtualphysicalmapNew.insert({ it, pathElement{} }).first;
+            continue;
+        }
+        auto& curEl = curIter->second;
+        curIter = curEl.subPaths.find(it);
+        if (curIter == curEl.subPaths.end())
+            curIter = curEl.subPaths.insert({ it, pathElement{} }).first;
+    }
+
+    curIter->second.physicalPath = phy;
+}
+
+std::optional<std::filesystem::path> sqf::filesystem::resolvePath(std::filesystem::path virt) {
+    std::vector<std::string> virtElements;
+
+    while (virt.has_parent_path()) {
+        if (virt.filename().string().empty()) break; //don't resolve starting \\ 
+        virtElements.emplace_back(virt.filename().string());
+        virt = virt.parent_path();
+    }
+
+    std::reverse(virtElements.begin(), virtElements.end());
+
+
+    std::vector<std::map<std::string, pathElement>::iterator> pathStack; //In case we need to walk back upwards
+
+    auto curIter = m_virtualphysicalmapNew.end();
+    bool first = true;
+    for (auto& it : virtElements) {
+        if (first) { //first element
+            first = false; //this is ugly. But comparing iterators doesn't work
+            curIter = m_virtualphysicalmapNew.find(it);
+            if (curIter == m_virtualphysicalmapNew.end())
+                break; //not found
+            pathStack.emplace_back(curIter);
+            continue;
+        }
+        auto& curEl = curIter->second;
+        curIter = curEl.subPaths.find(it);
+        if (curIter == curEl.subPaths.end())
+            break; //not found
+        pathStack.emplace_back(curIter);
+    }
+
+    virtElements.erase(virtElements.begin(), virtElements.begin() + pathStack.size()); //Remove elements we resolved to get a list of leftovers
+
+
+    //walk up stack until we find a phys path.
+
+    while (!pathStack.back()->second.physicalPath) {
+        virtElements.emplace_back(pathStack.back()->first);
+        pathStack.pop_back();
+        if (pathStack.empty())
+            return {}; //whole stack didn't have physical path
+    }
+
+    //build full path to file
+    auto curPath = *pathStack.back()->second.physicalPath;
+    for (auto& it : virtElements)
+        curPath = curPath / it;
+
+    return curPath;
+}
+
 std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string virt, std::string current)
 {
 	std::string virtMapping;
@@ -14,10 +98,12 @@ std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string vi
         auto wantedFile = parentDirectory / virt;
 
         if (std::filesystem::exists(wantedFile)) return wantedFile.string();
+    } else { //global path
+        auto resolved = resolvePath(virt); //#TODO only if starting with \\ 
+        if (resolved) {
+            return resolved->string();
+        }
     }
-
-
-
 
 	virt = sanitize(virt);
 	for (const auto& vpath : m_virtualpaths)
@@ -30,6 +116,9 @@ std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string vi
 	}
 	if (virtMapping.empty())
 	{
+        
+
+
 		auto res = std::find_if(m_virtualpaths.begin(), m_virtualpaths.end(), [current](std::string it) -> bool
 		{
 			return current.find(it) != std::string::npos;
@@ -113,11 +202,12 @@ void sqf::filesystem::add_mapping_auto(std::string phys) {
 
         if (i->path().filename() == "$PBOPREFIX$")
         {
+            
             std::ifstream prefixFile(i->path());
             std::string prefix;
             std::getline(prefixFile, prefix);
             prefixFile.close();
-
+            addPathMappingInternal(prefix, i->path().parent_path());
            add_mapping(prefix, i->path().parent_path().string());
         }
     }
