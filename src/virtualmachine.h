@@ -79,18 +79,18 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> uinamespace() { return muinamespace; }
 		std::shared_ptr<sqf::sqfnamespace> parsingnamespace() { return mparsingnamespace; }
 		std::shared_ptr<sqf::sqfnamespace> profilenamespace() { return mprofilenamespace; }
-		std::stringstream& out() { /* on purpose */static_cast<virtualmachine*>(this)->moutflag = true; return mout_buff; }
-		std::stringstream& err() { /* on purpose */static_cast<virtualmachine*>(this)->merrflag = true; return merr_buff; }
-		std::stringstream& wrn() { /* on purpose */static_cast<virtualmachine*>(this)->mwrnflag = true; return mwrn_buff; }
+		std::stringstream& out() { moutflag = true; return mout_buff; }
+		std::stringstream& err() { merrflag = true; return merr_buff; }
+		std::stringstream& wrn() { mwrnflag = true; return mwrn_buff; }
 		void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
-		void out_buffprint() { (*mout) << mout_buff.str(); mout_buff.str(std::string()); }
-		void out_clear() { mout_buff.str(""); moutflag = false; }
+        void out_buffprint() { if (!moutflag) return; (*mout) << mout_buff.str(); out_clear(); }
+		void out_clear() { mout_buff.str({}); moutflag = false; }
 		void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
-		void err_buffprint() { (*merr) << merr_buff.str(); merr_buff.str(std::string()); }
-		void err_clear() { merr_buff.str(""); merrflag = false; }
+		void err_buffprint() { if (!merrflag) return; (*merr) << merr_buff.str(); err_clear(); }
+		void err_clear() { merr_buff.str({}); merrflag = false; }
 		void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }
-		void wrn_buffprint() { (*mwrn) << mwrn_buff.str(); mwrn_buff.str(std::string()); }
-		void wrn_clear() { mwrn_buff.str(""); mwrnflag = false; }
+		void wrn_buffprint() { if (!mwrnflag) return; (*mwrn) << mwrn_buff.str(); wrn_clear(); }
+		void wrn_clear() { mwrn_buff.str({}); mwrnflag = false; }
 		void execute();
 		std::shared_ptr<sqf::vmstack> stack() const { return mactivestack; }
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
