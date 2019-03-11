@@ -223,7 +223,7 @@ namespace sqf
 				varnode.col = col;
 				varnode.line = line;
 				varnode.file = file;
-				thisnode.children.push_back(varnode);
+				thisnode.children.emplace_back(std::move(varnode));
 
 				if (assignlocal && ident[0] != '_')
 				{
@@ -256,7 +256,7 @@ namespace sqf
 					errflag = true;
 				}
 				thisnode.length = curoff - thisnode.offset;
-				root.children.push_back(thisnode);
+				root.children.emplace_back(std::move(thisnode));
 			}
 			//BINARYEXPRESSION = BEXP1;
 			//BEXP1 = BEXP2 [ boperator BEXP10 ];
@@ -269,11 +269,12 @@ namespace sqf
 			//BEXP8 = BEXP9 [ boperator BEXP10 ];
 			//BEXP9 = BEXP10 [ boperator BEXP10 ];
 			//BEXP10 = PRIMARYEXPRESSION [ boperator BEXP10 ];
-			void bexp_orderfix(astnode& root, astnode& thisnode, short plevel)
+			void bexp_orderfix(astnode& root, astnode thisnode, short plevel)
 			{
-				auto othernode = thisnode.children.back();
-				if (othernode.children.size() == 3 && othernode.kind == plevel)
+				auto& othernodeRef = thisnode.children.back();
+				if (othernodeRef.children.size() == 3 && othernodeRef.kind == plevel)
 				{
+                    auto othernode = thisnode.children.back();
 					astnode* ptr = &othernode.children.front();
 					astnode* lptr = &othernode;
 					while (ptr->children.size() == 3 && ptr->kind == plevel)
@@ -289,7 +290,7 @@ namespace sqf
 				}
 				else
 				{
-					root.children.push_back(thisnode);
+					root.children.emplace_back(std::move(thisnode));
 				}
 			}
 			bool bexp10_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
@@ -327,7 +328,7 @@ namespace sqf
 					node.line = line;
 					node.length = oplen;
 					node.file = file;
-					thisnode.children.push_back(node);
+                    thisnode.children.emplace_back(std::move(node));
 					curoff += oplen;
 					skip(code, line, col, file, curoff);
 					if (bexp10_start(h, code, curoff))
@@ -342,14 +343,12 @@ namespace sqf
 						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
 						errflag = true;
 					}
-					bexp_orderfix(root, thisnode, sqfasttypes::BEXP10);
+					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP10);
 				}
 				else
 				{
-					for (auto& child : thisnode.children)
-					{
-						root.children.push_back(child);
-					}
+                    //We won't need this node anymore. Just move all children to root
+                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
 				}
 			}
 			bool bexp9_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
@@ -386,7 +385,7 @@ namespace sqf
 					node.line = line;
 					node.length = oplen;
 					node.file = file;
-					thisnode.children.push_back(node);
+					thisnode.children.emplace_back(std::move(node));
 					curoff += oplen;
 					skip(code, line, col, file, curoff);
 					if (bexp9_start(h, code, curoff))
@@ -401,14 +400,12 @@ namespace sqf
 						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
 						errflag = true;
 					}
-					bexp_orderfix(root, thisnode, sqfasttypes::BEXP9);
+					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP9);
 				}
 				else
 				{
-					for (auto& child : thisnode.children)
-					{
-						root.children.push_back(child);
-					}
+                    //We won't need this node anymore. Just move all children to root
+                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
 				}
 			}
 			bool bexp8_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
@@ -445,7 +442,7 @@ namespace sqf
 					node.line = line;
 					node.length = oplen;
 					node.file = file;
-					thisnode.children.push_back(node);
+					thisnode.children.emplace_back(std::move(node));
 					curoff += oplen;
 					skip(code, line, col, file, curoff);
 					if (bexp8_start(h, code, curoff))
@@ -460,14 +457,12 @@ namespace sqf
 						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
 						errflag = true;
 					}
-					bexp_orderfix(root, thisnode, sqfasttypes::BEXP8);
+					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP8);
 				}
 				else
 				{
-					for (auto& child : thisnode.children)
-					{
-						root.children.push_back(child);
-					}
+                    //We won't need this node anymore. Just move all children to root
+                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
 				}
 			}
 			bool bexp7_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
@@ -504,7 +499,7 @@ namespace sqf
 					node.line = line;
 					node.length = oplen;
 					node.file = file;
-					thisnode.children.push_back(node);
+					thisnode.children.emplace_back(std::move(node));
 					curoff += oplen;
 					skip(code, line, col, file, curoff);
 					if (bexp7_start(h, code, curoff))
@@ -519,14 +514,12 @@ namespace sqf
 						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
 						errflag = true;
 					}
-					bexp_orderfix(root, thisnode, sqfasttypes::BEXP7);
+					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP7);
 				}
 				else
 				{
-					for (auto& child : thisnode.children)
-					{
-						root.children.push_back(child);
-					}
+                    //We won't need this node anymore. Just move all children to root
+                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
 				}
 			}
 			bool bexp6_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
@@ -563,7 +556,7 @@ namespace sqf
 					node.line = line;
 					node.length = oplen;
 					node.file = file;
-					thisnode.children.push_back(node);
+					thisnode.children.emplace_back(std::move(node));
 					curoff += oplen;
 					skip(code, line, col, file, curoff);
 					if (bexp6_start(h, code, curoff))
@@ -578,14 +571,12 @@ namespace sqf
 						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
 						errflag = true;
 					}
-					bexp_orderfix(root, thisnode, sqfasttypes::BEXP6);
+					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP6);
 				}
 				else
 				{
-					for (auto& child : thisnode.children)
-					{
-						root.children.push_back(child);
-					}
+                    //We won't need this node anymore. Just move all children to root
+                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
 				}
 			}
 			bool bexp5_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
@@ -622,7 +613,7 @@ namespace sqf
 					node.line = line;
 					node.length = oplen;
 					node.file = file;
-					thisnode.children.push_back(node);
+					thisnode.children.emplace_back(std::move(node));
 					curoff += oplen;
 					skip(code, line, col, file, curoff);
 					if (bexp5_start(h, code, curoff))
@@ -637,14 +628,12 @@ namespace sqf
 						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
 						errflag = true;
 					}
-					bexp_orderfix(root, thisnode, sqfasttypes::BEXP5);
+					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP5);
 				}
 				else
 				{
-					for (auto& child : thisnode.children)
-					{
-						root.children.push_back(child);
-					}
+                    //We won't need this node anymore. Just move all children to root
+                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
 				}
 			}
 			bool bexp4_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
@@ -681,7 +670,7 @@ namespace sqf
 					node.line = line;
 					node.length = oplen;
 					node.file = file;
-					thisnode.children.push_back(node);
+					thisnode.children.emplace_back(std::move(node));
 					curoff += oplen;
 					skip(code, line, col, file, curoff);
 					if (bexp4_start(h, code, curoff))
@@ -696,14 +685,12 @@ namespace sqf
 						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
 						errflag = true;
 					}
-					bexp_orderfix(root, thisnode, sqfasttypes::BEXP4);
+					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP4);
 				}
 				else
 				{
-					for (auto& child : thisnode.children)
-					{
-						root.children.push_back(child);
-					}
+                    //We won't need this node anymore. Just move all children to root
+                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
 				}
 			}
 			bool bexp3_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
@@ -740,7 +727,7 @@ namespace sqf
 					node.line = line;
 					node.length = oplen;
 					node.file = file;
-					thisnode.children.push_back(node);
+					thisnode.children.emplace_back(std::move(node));
 					curoff += oplen;
 					skip(code, line, col, file, curoff);
 					if (bexp3_start(h, code, curoff))
@@ -755,14 +742,12 @@ namespace sqf
 						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
 						errflag = true;
 					}
-					bexp_orderfix(root, thisnode, sqfasttypes::BEXP3);
+					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP3);
 				}
 				else
 				{
-					for (auto& child : thisnode.children)
-					{
-						root.children.push_back(child);
-					}
+                    //We won't need this node anymore. Just move all children to root
+                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
 				}
 			}
 			bool bexp2_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
@@ -799,7 +784,7 @@ namespace sqf
 					node.line = line;
 					node.length = oplen;
 					node.file = file;
-					thisnode.children.push_back(node);
+					thisnode.children.emplace_back(std::move(node));
 					curoff += oplen;
 					skip(code, line, col, file, curoff);
 					if (bexp2_start(h, code, curoff))
@@ -814,14 +799,12 @@ namespace sqf
 						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
 						errflag = true;
 					}
-					bexp_orderfix(root, thisnode, sqfasttypes::BEXP2);
+					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP2);
 				}
 				else
 				{
-					for (auto& child : thisnode.children)
-					{
-						root.children.push_back(child);
-					}
+                    //We won't need this node anymore. Just move all children to root
+                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
 				}
 			}
 			bool bexp1_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
@@ -858,7 +841,7 @@ namespace sqf
 					node.line = line;
 					node.length = oplen;
 					node.file = file;
-					thisnode.children.push_back(node);
+					thisnode.children.emplace_back(std::move(node));
 					curoff += oplen;
 					skip(code, line, col, file, curoff);
 					if (bexp1_start(h, code, curoff))
@@ -873,14 +856,12 @@ namespace sqf
 						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
 						errflag = true;
 					}
-					bexp_orderfix(root, thisnode, sqfasttypes::BEXP1);
+					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP1);
 				}
 				else
 				{
-					for (auto& child : thisnode.children)
-					{
-						root.children.push_back(child);
-					}
+                    //We won't need this node anymore. Just move all children to root
+                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
 				}
 			}
 			bool BINARYEXPRESSION_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
@@ -1038,7 +1019,7 @@ namespace sqf
 					errflag = true;
 				}
 				thisnode.length = curoff - thisnode.offset;
-				root.children.push_back(thisnode);
+				root.children.emplace_back(std::move(thisnode));
 			}
 			//PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULAREXPRESSION | VARIABLE | STRING | CODE | BRACKETS | ARRAY;
 			bool PRIMARYEXPRESSION_start(helper &h, const char* code, size_t curoff) { return NUMBER_start(h, code, curoff) || UNARYEXPRESSION_start(h, code, curoff) || NULAREXPRESSION_start(h, code, curoff) || VARIABLE_start(h, code, curoff) || STRING_start(h, code, curoff) || CODE_start(h, code, curoff) || BRACKETS_start(h, code, curoff) || ARRAY_start(h, code, curoff); }
@@ -1107,7 +1088,7 @@ namespace sqf
 				thisnode.line = line;
 				curoff += len;
 				col += len;
-				root.children.push_back(thisnode);
+				root.children.emplace_back(std::move(thisnode));
 			}
 			//UNARYEXPRESSION = operator PRIMARYEXPRESSION;
 			bool UNARYEXPRESSION_start(helper &h, const char* code, size_t curoff) { auto oplen = operator_(code, curoff); return oplen > 0 ? h.contains_unary(std::string(code + curoff, code + curoff + oplen)) : false; }
@@ -1131,7 +1112,7 @@ namespace sqf
 				opnode.col = col;
 				opnode.file = file;
 				opnode.line = line;
-				thisnode.children.push_back(opnode);
+				thisnode.children.emplace_back(std::move(opnode));
 				curoff += len;
 				col += len;
 				skip(code, line, col, file, curoff);
@@ -1149,7 +1130,7 @@ namespace sqf
 					errflag = true;
 				}
 				thisnode.length = curoff - thisnode.offset;
-				root.children.push_back(thisnode);
+				root.children.emplace_back(std::move(thisnode));
 			}
 			//NUMBER = ("0x" | '$' | '.') hexadecimal | scalar;
 			bool NUMBER_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '$' || code[curoff] == '.' || (code[curoff] >= '0' && code[curoff] <= '9'); }
@@ -1227,7 +1208,7 @@ namespace sqf
 					col += i - curoff;
 					curoff = i;
 				}
-				root.children.push_back(thisnode);
+				root.children.emplace_back(std::move(thisnode));
 			}
 			//VARIABLE = identifier;
 			bool VARIABLE_start(helper &h, const char* code, size_t curoff) { auto len = identifier(code, curoff); return len > 0 && !h.contains_binary(std::string(code + curoff, code + curoff + len), 0); }
@@ -1246,7 +1227,7 @@ namespace sqf
 
 				curoff += len;
 				col += len;
-				root.children.push_back(thisnode);
+				root.children.emplace_back(std::move(thisnode));
 			}
 			//STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
 			bool STRING_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '\'' || code[curoff] == '"'; }
@@ -1284,7 +1265,7 @@ namespace sqf
 				thisnode.length = i - curoff;
 				thisnode.offset = curoff;
 				curoff = i;
-				root.children.push_back(thisnode);
+				root.children.emplace_back(std::move(thisnode));
 			}
 			//CODE = "{" SQF "}";
 			bool CODE_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '{'; }
@@ -1327,7 +1308,7 @@ namespace sqf
 					errflag = true;
 				}
 				thisnode.length = curoff - thisnode.offset;
-				root.children.push_back(thisnode);
+				root.children.emplace_back(std::move(thisnode));
 			}
 			//ARRAY = '[' [ BINARYEXPRESSION { ',' BINARYEXPRESSION } ] ']';
 			bool ARRAY_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '['; }
@@ -1382,7 +1363,7 @@ namespace sqf
 				}
 				thisnode.length = curoff - thisnode.offset;
 				thisnode.content = std::string(code + thisnode.offset, code + thisnode.offset + thisnode.length);
-				root.children.push_back(thisnode);
+				root.children.emplace_back(std::move(thisnode));
 			}
 
 			astnode parse_sqf(const char* codein, helper& h, bool &errflag, std::string file)

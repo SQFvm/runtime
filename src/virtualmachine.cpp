@@ -102,7 +102,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			if (_debugger) {
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
 			}
-			merr_buff.str(std::string());
+            err_clear();
 			break;
 		}
 		if (_debugger && _debugger->hitbreakpoint(inst->line(), inst->file())) { _debugger->position(inst->line(), inst->col(), inst->file()); _debugger->breakmode(this); }
@@ -114,7 +114,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				_debugger->position(inst->line(), inst->col(), inst->file());
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
 			}
-			merrflag = false;
+            err_clear();
 
 			// Try to find a callstack_sqftry
 			auto res = std::find_if(mactivestack->stacks_begin(), mactivestack->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
@@ -122,7 +122,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			});
 			if (res == mactivestack->stacks_end())
 			{
-				merr_buff.str(std::string());
+                err_clear();
 				//Only for non-scheduled (and thus the mainstack)
 				if (!mactivestack->isscheduled())
 				{
@@ -137,7 +137,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				}
 				auto sqftry = std::dynamic_pointer_cast<sqf::callstack_sqftry>(*res);
 				sqftry->except(merr_buff.str());
-				merr_buff.str(std::string());
+                err_clear();
 			}
 		}
 		
@@ -151,15 +151,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			mwrn_buff.str(std::string());
 			mwrnflag = false;
 		}
-		if (moutflag)
-		{
-			(*mout) << mout_buff.str();
-			if (_debugger) {
-				_debugger->message(mout_buff.str());
-			}
-			mout_buff.str(std::string());
-			moutflag = false;
-		}
+        out_buffprint();
 		if (_debugger) {
 			if (mhaltflag)
 			{
