@@ -62,16 +62,5 @@ namespace sqf
         void add_mapping_auto(std::string phys);
 
 		static std::string sanitize(std::string input);
-		static std::string up(std::string input)
-		{
-			size_t index = input.rfind(FSDELIMITER);
-			if (index == std::string::npos)
-			{
-				return std::string();
-			}
-			return input.substr(0, index);
-		}
-		static std::string down(std::string input, std::string navigator);
-		static std::string navigate(std::string input, std::string navigator);
 	};
 }
