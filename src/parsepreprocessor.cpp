@@ -788,7 +788,6 @@ namespace {
 				if (spaceIndex < bracketsIndex || bracketsIndex == std::string::npos) // std::string::npos does not need to be catched as bracketsIndex always < npos here
 				{ // First bracket was found after first space OR is not existing thus we have a simple define with a replace value here
 					m.name = line.substr(0, spaceIndex);
-                    if (m.name == "DEBUG_MODE_FULL") __debugbreak();
 					m.content = line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex); //Special magic for #define macro\ 
 				}
 				else
