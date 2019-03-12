@@ -2,6 +2,7 @@
 #include "netserver.h"
 #include "virtualmachine.h"
 #include "commandmap.h"
+#include "cmd.h"
 #include "value.h"
 #include "vmstack.h"
 #include "configdata.h"
@@ -126,6 +127,14 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> preprocessFileArg("E", "preprocess-file", "Runs the preprocessor on provided file and prints it to stdout. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(preprocessFileArg);
 
+	TCLAP::MultiArg<std::string> commandDummyNular("", "command-dummy-nular", "Adds the provided command as dummy.", false, "NAME");
+	cmd.add(commandDummyNular);
+
+	TCLAP::MultiArg<std::string> commandDummyUnary("", "command-dummy-unary", "Adds the provided command as dummy.", false, "NAME");
+	cmd.add(commandDummyUnary);
+
+	TCLAP::MultiArg<std::string> commandDummyBinary("", "command-dummy-binary", "Adds the provided command as dummy. Note that you need to also provide a precedence. Example: 4|commandname", false, "PRECEDENCE|NAME");
+	cmd.add(commandDummyBinary);
 
 	TCLAP::SwitchArg automatedArg("a", "automated", "Disables all possible prompts.", false);
 	cmd.add(automatedArg);
@@ -339,6 +348,33 @@ int main(int argc, char** argv)
 		{
 			std::cout << "Mapped '" << virtSanitized << "' onto '" << physSanitized << "'." << std::endl;
 		}
+	}
+	for (auto& f : commandDummyNular.getValue())
+	{
+		sqf::commandmap::get().add(sqf::nular(f, "DUMMY", [](sqf::virtualmachine* vm) -> std::shared_ptr<sqf::value> {
+			vm->err() << "DUMMY" << std::endl; return std::make_shared<sqf::value>();
+		}));
+	}
+	for (auto& f : commandDummyUnary.getValue())
+	{
+		sqf::commandmap::get().add(sqf::unary(f, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, std::shared_ptr<sqf::value> r) -> std::shared_ptr<sqf::value> {
+			vm->err() << "DUMMY" << std::endl; return std::make_shared<sqf::value>();
+		}));
+	}
+	for (auto& f : commandDummyBinary.getValue())
+	{
+		auto split_index = f.find('|');
+		if (split_index == -1)
+		{
+			errflag = true;
+			std::cerr << "Failed find splitter '|' for precedence '" << f << "'." << std::endl;
+			continue;
+		}
+		auto precedence = f.substr(0, split_index);
+		auto name = f.substr(split_index + 1);
+		sqf::commandmap::get().add(sqf::binary(std::stoi(precedence), name, sqf::type::ANY, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, std::shared_ptr<sqf::value> l, std::shared_ptr<sqf::value> r) -> std::shared_ptr<sqf::value> {
+			vm->err() << "DUMMY" << std::endl; return std::make_shared<sqf::value>();
+		}));
 	}
 	if (errflag)
 	{
