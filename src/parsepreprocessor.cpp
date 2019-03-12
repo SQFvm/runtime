@@ -19,7 +19,7 @@ namespace {
 		std::string filepath;
 		size_t line;
 		size_t column;
-
+		bool hasargs;
 	};
 	class helper
 	{
@@ -629,7 +629,7 @@ namespace {
 	std::string handle_macro(helper& h, finfo& fileinfo, const macro& m)
 	{ // Needs to handle 'NAME(ARG1, ARG2, ARGN)' not more, not less!
 		std::vector<std::string> params;
-		if (!m.args.empty())
+		if (m.hasargs)
 		{
 			if (fileinfo.peek() != '(')
 			{
@@ -789,9 +789,11 @@ namespace {
 				{ // First bracket was found after first space OR is not existing thus we have a simple define with a replace value here
 					m.name = line.substr(0, spaceIndex);
 					m.content = line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex); //Special magic for '#define macro\'
+					m.hasargs = false;
 				}
 				else
 				{ // We got a define with arguments here
+					m.hasargs = true;
 					auto bracketsEndIndex = line.find(')');
 					auto argumentsString = line.substr(bracketsIndex + 1, bracketsEndIndex);
 
@@ -821,6 +823,7 @@ namespace {
 					}
 					m.name = line.substr(0, bracketsIndex);
 					m.content = line.length() <= bracketsEndIndex + 2 ? "" : line.substr(bracketsEndIndex + 2);
+					
 				}
 			}
 			h.macros.emplace_back(std::move(m));
