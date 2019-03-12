@@ -1956,6 +1956,9 @@ void sqf::commandmap::initunimplemented()
 	add(unary("ctrlsetfocus", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (ctrlsetfocus)." << std::endl; return std::make_shared<value>(); })); /* CONTROL */
 	add(unary("unitaddons", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (unitaddons)." << std::endl; return std::make_shared<value>(); })); /* STRING */
 	add(unary("parsesimplearray", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (parsesimplearray)." << std::endl; return std::make_shared<value>(); })); /* STRING */
+	add(unary("getpylonmagazines", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (getpylonmagazines)." << std::endl; return std::make_shared<value>(); })); /* STRING */
+	add(unary("selectrandomweighted", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (selectrandomweighted)." << std::endl; return std::make_shared<value>(); })); /* STRING */
+	add(unary("isdamageallowed", type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (isdamageallowed)." << std::endl; return std::make_shared<value>(); })); /* STRING */
 
 
 

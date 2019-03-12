@@ -24,6 +24,7 @@ find_package(Threads)
 option(SQFVM_BUILD_EXECUTABLE "BUILD EXECUTABLE" ON)
 option(SQFVM_BUILD_LIBRARY "BUILD LIBRARY" ON)
 option(SQFVM_BUILD_STATIC_LIBRARY "BUILD STATIC LIBRARY" ON)
+option(SQFVM_BUILD_STATIC_LIBRARY_NC "BUILD STATIC LIBRARY WITHOUT COMMANDS" ON)
 
 
 if (SQFVM_BUILD_EXECUTABLE)
@@ -47,4 +48,18 @@ if (SQFVM_BUILD_STATIC_LIBRARY)
     add_library(slibsqfvm STATIC ${vm_src})
     target_include_directories(slibsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
     SET_TARGET_PROPERTIES(slibsqfvm PROPERTIES PREFIX "")
+endif ()
+
+if (SQFVM_BUILD_STATIC_LIBRARY_NC)
+
+	file(GLOB vm_src_nc
+		"${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c"
+	)
+
+    list(REMOVE_ITEM vm_src_nc "${PROJECT_SOURCE_DIR}/src/Entry.cpp")
+    list(REMOVE_ITEM vm_src_nc "${PROJECT_SOURCE_DIR}/src/dllexports.cpp")
+
+    add_library(slibsqfvm_nc STATIC ${vm_src_nc})
+    target_include_directories(slibsqfvm_nc PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    SET_TARGET_PROPERTIES(slibsqfvm_nc PROPERTIES PREFIX "")
 endif ()

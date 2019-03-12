@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdexcept>
 #include <optional>
+#include <filesystem>
 
 #if defined(_WIN32) || defined(_WIN64)
 #define FSDELIMITER '\\'
@@ -18,9 +19,19 @@ namespace sqf
 	class filesystem
 	{
 	private:
+
+        struct pathElement {
+            std::map<std::string, pathElement> subPaths;
+            std::optional<std::filesystem::path> physicalPath;
+        };
+	public:
+        void addPathMappingInternal(std::filesystem::path virt, std::filesystem::path phy);
+        std::optional<std::filesystem::path> resolvePath(std::filesystem::path virt);
+
+
 		// Left -> Virtual
 		// Right -> Physical
-		std::map<std::string, std::string> m_virtualphysicalmap;
+        std::map<std::string, pathElement> m_virtualphysicalmap;
 		std::vector<std::string> m_physicalboundaries;
 		std::vector<std::string> m_virtualpaths;
 	public:
@@ -51,16 +62,5 @@ namespace sqf
         void add_mapping_auto(std::string phys);
 
 		static std::string sanitize(std::string input);
-		static std::string up(std::string input)
-		{
-			size_t index = input.rfind(FSDELIMITER);
-			if (index == std::string::npos)
-			{
-				return std::string();
-			}
-			return input.substr(0, index);
-		}
-		static std::string down(std::string input, std::string navigator);
-		static std::string navigate(std::string input, std::string navigator);
 	};
 }
