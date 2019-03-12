@@ -61,6 +61,6 @@ namespace sqf
         // Recursively scans directory for $PBOPREFIX$ files and adds mappings for them.
         void add_mapping_auto(std::string phys);
 
-		static std::string sanitize(std::string input);
+		static std::string sanitize(std::string input) { return input; }
 	};
 }
