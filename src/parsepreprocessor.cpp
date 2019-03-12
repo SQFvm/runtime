@@ -813,8 +813,11 @@ namespace {
 						arg.erase(std::find_if(arg.rbegin(), arg.rend(), [](char c) -> bool {
 							return c != '\t' && c != ' ';
 						}).base(), arg.end());
-						m.args.emplace_back(std::move(arg));
-						arg_start_index = arg_index + 1;
+						if (!arg.empty())
+						{
+							m.args.emplace_back(std::move(arg));
+							arg_start_index = arg_index + 1;
+						}
 					}
 					m.name = line.substr(0, bracketsIndex);
 					m.content = line.length() <= bracketsEndIndex + 2 ? "" : line.substr(bracketsEndIndex + 2);
