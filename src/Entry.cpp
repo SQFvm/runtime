@@ -79,7 +79,7 @@ std::string arg_file_actual_path(std::string executable_path, std::string f)
 	}
 	if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 	{
-		sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+		sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
 	}
 	return sanitized;
 }
@@ -189,7 +189,7 @@ int main(int argc, char** argv)
 		}
 		if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 		{
-			sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+			sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
 		}
 		try
 		{
@@ -305,7 +305,7 @@ int main(int argc, char** argv)
 		}
 		if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 		{
-			sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+			sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
 		}
 		vm.get_filesystem().add_allowed_physical(sanitized);
 		if (verbose)
@@ -332,7 +332,7 @@ int main(int argc, char** argv)
 		}
 		if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 		{
-			physSanitized = sqf::filesystem::navigate(executable_path, physSanitized);
+			physSanitized = (std::filesystem::path(executable_path) / physSanitized).lexically_normal().string();
 		}
 		vm.get_filesystem().add_mapping(virtSanitized, physSanitized);
 		if (verbose)
@@ -383,7 +383,7 @@ int main(int argc, char** argv)
 			}
 			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 			{
-				sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+				sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
 			}
 			if (verbose)
 			{
@@ -427,7 +427,7 @@ int main(int argc, char** argv)
 			}
 			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 			{
-				sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+				sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
 			}
 			if (verbose)
 			{
@@ -473,7 +473,7 @@ int main(int argc, char** argv)
 			}
 			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 			{
-				sanitized = sqf::filesystem::navigate(executable_path, sanitized);
+				sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
 			}
 			if (verbose)
 			{
@@ -576,14 +576,14 @@ int main(int argc, char** argv)
 
 			auto input = sstream.str();
 			bool err = false;
-			auto inputAfterPP = sqf::parse::preprocessor::parse(&vm, input, err, sqf::filesystem::navigate(executable_path, "__commandlinefeed.sqf"));
+			auto inputAfterPP = sqf::parse::preprocessor::parse(&vm, input, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
 			if (err)
 			{
 				vm.err_buffprint();
 			}
 			else
 			{
-				vm.parse_sqf(inputAfterPP, sqf::filesystem::navigate(executable_path, "__commandlinefeed.sqf"));
+				vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
 			}
 		}
 
