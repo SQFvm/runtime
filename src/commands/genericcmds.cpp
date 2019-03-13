@@ -1176,7 +1176,7 @@ namespace
 	{
 		auto arr = right->data<arraydata>();
 		auto res = std::find_if(arr->begin(), arr->end(), [left](std::shared_ptr<value> it) -> bool {
-			return it->equals(it);
+			return it->equals(left);
 		});
 		return std::make_shared<value>(res != arr->end());
 	}
