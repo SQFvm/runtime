@@ -4,6 +4,8 @@
 #include "value.h"
 #include "vmstack.h"
 #include "configdata.h"
+#include "parsepreprocessor.h"
+#include "Entry.h"
 #include <iostream>
 #include <sstream>
 #include <cstring>
@@ -21,19 +23,25 @@ extern "C" {
 		sqfvm_virtualmachine->out(&sstream);
 		sqfvm_virtualmachine->err(&sstream);
 		sqfvm_virtualmachine->wrn(&sstream);
-		sqfvm_virtualmachine->parse_sqf(code);
-		sqfvm_virtualmachine->execute();
-		std::shared_ptr<sqf::value> val;
-		bool success;
-		do {
-			val = sqfvm_virtualmachine->stack()->popval(success);
-			if (success)
+
+		bool err;
+		auto executable_path = get_working_dir();
+		auto inputAfterPP = sqf::parse::preprocessor::parse(sqfvm_virtualmachine.get(), code, err, (std::filesystem::path(executable_path) / "__libraryfeed.sqf").string());
+		if (!err)
+		{
+			sqfvm_virtualmachine->parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__libraryfeed.sqf").string());
+			sqfvm_virtualmachine->execute();
+			auto val = sqfvm_virtualmachine->stack()->last_value();
+			if (val != nullptr)
 			{
 				sstream << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
 			}
-		} while (success);
+			else
+			{
+				sstream << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
+			}
+		}
 		auto str = sstream.str();
-
 		memset(buffer, 0, sizeof(char) * bufferlen);
 		std::strncpy(buffer, str.c_str(), bufferlen);
 	}
