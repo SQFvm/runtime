@@ -26,3 +26,8 @@ void sqf::inst::callunary::execute(virtualmachine* vm) const
 		vm->err() << "Unknown input type combination. RType:" << sqf::type_str(right->dtype()) << '.' << std::endl;
 	}
 }
+
+std::string sqf::inst::callunary::to_string() const
+{
+	return "CALLUNARY " + (*mcmds->begin())->name();
+}

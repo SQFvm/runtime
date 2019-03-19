@@ -31,6 +31,8 @@
 #include <cwctype>
 #include <sstream>
 
+#define DEBUG_VM_ASSEMBLY
+
 
 sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 {
@@ -106,7 +108,35 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			break;
 		}
 		if (_debugger && _debugger->hitbreakpoint(inst->line(), inst->file())) { _debugger->position(inst->line(), inst->col(), inst->file()); _debugger->breakmode(this); }
+#ifdef DEBUG_VM_ASSEMBLY
+		(*mout) << inst->to_string() << std::endl;
+#endif
 		inst->execute(this);
+#ifdef DEBUG_VM_ASSEMBLY
+		bool success;
+		std::vector<std::shared_ptr<sqf::value>> vals;
+		do {
+			auto val = stack()->popval(success);
+			if (success)
+			{
+				vals.push_back(val);
+				if (val != nullptr)
+				{
+					std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+				}
+				else
+				{
+					std::cout << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
+				}
+			}
+		} while (success);
+		while (!vals.empty())
+		{
+			auto it = vals.back();
+			vals.pop_back();
+			stack()->pushval(it);
+		}
+#endif
 		if (merrflag)
 		{
 			(*merr) << inst->dbginf("RNT") << merr_buff.str();

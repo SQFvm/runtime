@@ -10,3 +10,8 @@ void sqf::inst::callnular::execute(virtualmachine* vm) const
 	if (val)
 		vm->stack()->pushval(val);
 }
+
+std::string sqf::inst::callnular::to_string() const
+{
+	return "CALLNULAR " + mcmd->name();
+}

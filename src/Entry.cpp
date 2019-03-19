@@ -643,7 +643,14 @@ int main(int argc, char** argv)
 				val = vm.stack()->popval(success);
 				if (success)
 				{
-					std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+					if (val != nullptr)
+					{
+						std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+					}
+					else
+					{
+						std::cout << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
+					}
 				}
 			} while (success);
 			std::wcout << std::endl;

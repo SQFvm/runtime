@@ -16,6 +16,7 @@ namespace sqf
 			callunary(std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>> cmds) { mcmds = cmds; }
 			void execute(virtualmachine*) const override;
 			insttype thistype() const override { return insttype::callunary; }
+			std::string to_string() const override;
 		};
 	}
 }

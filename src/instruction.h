@@ -33,5 +33,6 @@ namespace sqf
 		void setdbginf(size_t line, size_t col, std::string file, std::string segment);
 		std::string dbginf(std::string tag) const;
 		virtual insttype thistype() const = 0;
+		virtual std::string to_string() const = 0;
 	};
 }
