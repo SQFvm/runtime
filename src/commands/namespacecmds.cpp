@@ -68,7 +68,7 @@ namespace
 		}
 		auto r = right->as_string();
 		auto var = l->getvar_empty(r);
-		return var;
+		return var != nullptr ? var : std::make_shared<value>();
 	}
 	std::shared_ptr<value> getVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -100,7 +100,7 @@ namespace
 		}
 		auto def = r[1];
 		auto var = l->getvar_empty(r[0]->as_string());
-		return var.get() ? var : def;
+		return var != nullptr ? var : def;
 	}
 	std::shared_ptr<value> setVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
