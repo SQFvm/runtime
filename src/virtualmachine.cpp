@@ -286,8 +286,15 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		case sqf::parse::sqf::sqfasttypes::CODE:
 		{
 			auto cs = std::make_shared<sqf::callstack>(vm->missionnamespace());
-			for (auto& subnode : node.children)
+			for (size_t i = 0; i < node.children.size(); i++)
 			{
+				if (i != 0)
+				{
+					auto inst = std::make_shared<sqf::inst::endstatement>();
+					inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+					cs->pushinst(inst);
+				}
+				auto subnode = node.children[i];
 				navigate_sqf(full, vm, cs, subnode);
 			}
 			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(cs));
