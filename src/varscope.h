@@ -21,7 +21,11 @@ namespace sqf
 		varscope() { mscopename = ""; }
 		varscope(std::string name) { mscopename = name; }
 		void setvar(std::string key, std::shared_ptr<value> value) { mvarmap[tolowerstring(key)] = value; }
-		std::shared_ptr<value> getvar_empty(std::string key) { auto it = mvarmap.find(tolowerstring(key)); return it == mvarmap.end() ? std::shared_ptr<value>() : it->second; }
+		std::shared_ptr<value> getvar_empty(std::string key)
+		{
+			auto it = mvarmap.find(tolowerstring(key));
+			return it == mvarmap.end() ? std::shared_ptr<value>() : it->second;
+		}
 		std::shared_ptr<value> getvar(std::string key);
 		bool containsvar(std::string key) { auto it = mvarmap.find(tolowerstring(key)); return it != mvarmap.end(); }
 		void setscopename(std::string newname) { mscopename = newname; }
