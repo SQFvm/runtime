@@ -31,7 +31,7 @@
 #include <cwctype>
 #include <sstream>
 
-#define DEBUG_VM_ASSEMBLY
+//#define DEBUG_VM_ASSEMBLY
 
 
 sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
