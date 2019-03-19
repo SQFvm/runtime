@@ -15,6 +15,7 @@ extern "C" {
 	{
 		sqfvm_virtualmachine = std::make_shared<sqf::virtualmachine>(limit);
 		sqfvm_virtualmachine->allowsleep(false);
+		sqfvm_virtualmachine->get_filesystem().disallow(true);
 		sqf::commandmap::get().init();
 	}
 	DLLEXPORT_PREFIX void sqfvm_exec(const char* code, char* buffer, unsigned int bufferlen)
@@ -26,10 +27,10 @@ extern "C" {
 
 		bool err;
 		auto executable_path = get_working_dir();
-		auto inputAfterPP = sqf::parse::preprocessor::parse(sqfvm_virtualmachine.get(), code, err, (std::filesystem::path(executable_path) / "__libraryfeed.sqf").string());
+		auto inputAfterPP = sqf::parse::preprocessor::parse(sqfvm_virtualmachine.get(), code, err, "__libraryfeed.sqf");
 		if (!err)
 		{
-			sqfvm_virtualmachine->parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__libraryfeed.sqf").string());
+			sqfvm_virtualmachine->parse_sqf(inputAfterPP, "__libraryfeed.sqf");
 			sqfvm_virtualmachine->execute();
 			auto val = sqfvm_virtualmachine->stack()->last_value();
 			if (val != nullptr)

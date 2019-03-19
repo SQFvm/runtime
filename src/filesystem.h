@@ -24,6 +24,7 @@ namespace sqf
             std::map<std::string, pathElement> subPaths;
             std::optional<std::filesystem::path> physicalPath;
         };
+		bool mdisallow;
 	public:
         void addPathMappingInternal(std::filesystem::path virt, std::filesystem::path phy);
         std::optional<std::filesystem::path> resolvePath(std::filesystem::path virt);
@@ -40,6 +41,10 @@ namespace sqf
 		// to be received.
 		std::string get_physical_path(std::string virt, std::string current = "")
 		{
+			if (mdisallow)
+			{
+				throw std::runtime_error("Not Allowed");
+			}
 			auto val = try_get_physical_path(virt, current);
 			if (val.has_value())
 			{
@@ -60,6 +65,10 @@ namespace sqf
 		void add_mapping(std::string virt, std::string phys);
         // Recursively scans directory for $PBOPREFIX$ files and adds mappings for them.
         void add_mapping_auto(std::string phys);
+
+
+		/// Allows to change wether or not the filesystem can be used.
+		void disallow(bool flag) { mdisallow = flag; }
 
 		static std::string sanitize(std::string input) { return input; }
 	};
