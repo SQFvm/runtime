@@ -17,5 +17,6 @@ std::shared_ptr<sqf::instruction> sqf::callstack_isnil::popinst(sqf::virtualmach
 		return ret;
 	bool success;
 	auto val = vm->stack()->popval(success);
+	vm->stack()->dropcallstack();
 	return std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(!success || val->dtype() == sqf::type::NOTHING));
 }
