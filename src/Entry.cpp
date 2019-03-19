@@ -637,22 +637,15 @@ int main(int argc, char** argv)
 		}
 		if (!noWorkPrintArg.getValue())
 		{
-			std::shared_ptr<sqf::value> val;
-			bool success;
-			do {
-				val = vm.stack()->popval(success);
-				if (success)
-				{
-					if (val != nullptr)
-					{
-						std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
-					}
-					else
-					{
-						std::cout << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
-					}
-				}
-			} while (success);
+			auto val = vm.stack()->last_value();
+			if (val != nullptr)
+			{
+				std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+			}
+			else
+			{
+				std::cout << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
+			}
 			std::wcout << std::endl;
 		}
 

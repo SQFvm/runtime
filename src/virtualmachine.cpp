@@ -31,7 +31,12 @@
 #include <cwctype>
 #include <sstream>
 
-//#define DEBUG_VM_ASSEMBLY
+// #define DEBUG_VM_ASSEMBLY
+
+#if !defined(_DEBUG) && defined(DEBUG_VM_ASSEMBLY)
+#undef DEBUG_VM_ASSEMBLY
+#endif // !_RELEASE
+
 
 
 sqf::virtualmachine::virtualmachine(unsigned long long maxinst)

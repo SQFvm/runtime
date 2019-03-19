@@ -20,6 +20,7 @@ namespace sqf
 		std::chrono::system_clock::time_point mwakeupstamp;
 		bool misasleep;
 		std::string mscriptname;
+		std::shared_ptr<sqf::value> mlast_value;
 	public:
 		vmstack() : misscheduled(false), misasleep(false) {}
 		vmstack(bool isscheduled) : misscheduled(isscheduled), misasleep(false) {}
@@ -39,7 +40,11 @@ namespace sqf
 			return ret;
 		}
 		std::shared_ptr<instruction> peekinst() { if (mstacks.empty()) return std::shared_ptr<sqf::instruction>(); return mstacks.back()->peekinst(); }
-		void pushcallstack(std::shared_ptr<sqf::callstack> cs) { mstacks.push_back(cs); }
+		void pushcallstack(std::shared_ptr<sqf::callstack> cs) { mstacks.push_back(cs); mlast_value = std::shared_ptr<sqf::value>(); }
+
+		/// Will only be set when all stacks have been emptied.
+		/// Contains the value returned by the last callstack if available.
+		std::shared_ptr<sqf::value> last_value() { return mlast_value; }
 
 		/// Drops the top-most callstack and puts the last value
 		/// from its value stack onto the lower callstack.
@@ -50,9 +55,16 @@ namespace sqf
 				bool success = false;
 				auto value = mstacks.back()->pop_back_value(success);
 				mstacks.pop_back();
-				if (success && !mstacks.empty())
+				if (success)
 				{
-					mstacks.back()->push_back_value(value);
+					if (mstacks.empty())
+					{
+						mlast_value = value;
+					}
+					else
+					{
+						mstacks.back()->push_back_value(value);
+					}
 				}
 			}
 		}
