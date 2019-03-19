@@ -22,7 +22,7 @@ namespace
 	{
 		auto codedata = right->data<sqf::codedata>();
 		std::vector<std::shared_ptr<sqf::value>> outarr;
-		for (auto& it = codedata->instructions_rbegin(); it != codedata->instructions_rend(); it++)
+		for (auto it = codedata->instructions_rbegin(); it != codedata->instructions_rend(); it++)
 		{
 			outarr.push_back(std::make_shared<sqf::value>((*it)->to_string()));
 		}
