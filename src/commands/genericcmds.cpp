@@ -750,7 +750,11 @@ namespace
 				return it;
 			}
 		}
+		#ifdef _WIN32
 		vm->libraries().push_back(std::make_shared<dlops>(name));
+		#else
+		vm->libraries().push_back(std::make_shared<dlops>(name + ".so"));
+		#endif
 		auto& dl = vm->libraries().back();
 		void* sym = nullptr;
 		if (dl->try_resolve("RVExtensionVersion", &sym))
