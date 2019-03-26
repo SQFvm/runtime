@@ -265,7 +265,7 @@ namespace
 		auto arr = left->as_vector();
 		auto index = right->as_long();
 
-		if (arr.size() <= index || index < 0)
+		if (arr.size() < index || index < 0)
 		{
 			vm->err() << "Index out of range." << std::endl;
 			return std::make_shared<value>();
