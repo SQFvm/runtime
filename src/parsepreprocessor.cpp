@@ -667,8 +667,7 @@ namespace {
 						if (rb_counter == 0 && eb_counter == 0 && cb_counter == 0)
 						{
 							fileinfo.move_back();
-							auto param = fileinfo.content.substr(lastargstart, fileinfo.off - lastargstart);
-							if (!param.empty())
+							if (fileinfo.off - lastargstart > 0)
 							{
 								finfo copy = fileinfo;
 								copy.off = lastargstart;
