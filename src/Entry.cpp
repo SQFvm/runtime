@@ -80,7 +80,7 @@ std::string arg_file_actual_path(std::string executable_path, std::string f)
 	}
 	if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 	{
-		sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
+		sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / sanitized).lexically_normal()).string();
 	}
 	return sanitized;
 }
@@ -205,7 +205,7 @@ int main(int argc, char** argv)
 		}
 		if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 		{
-			sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
+			sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / sanitized).lexically_normal()).string();
 		}
 		try
 		{
@@ -322,7 +322,7 @@ int main(int argc, char** argv)
 		}
 		if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 		{
-			sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
+			sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / sanitized).lexically_normal()).string();
 		}
 		vm.get_filesystem().add_allowed_physical(sanitized);
 		if (verbose)
@@ -427,7 +427,7 @@ int main(int argc, char** argv)
 			}
 			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 			{
-				sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
+				sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / sanitized).lexically_normal()).string();
 			}
 			if (verbose)
 			{
@@ -471,7 +471,7 @@ int main(int argc, char** argv)
 			}
 			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 			{
-				sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
+				sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / sanitized).lexically_normal()).string();
 			}
 			if (verbose)
 			{
@@ -524,7 +524,7 @@ int main(int argc, char** argv)
 			}
 			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
 			{
-				sanitized = (std::filesystem::path(executable_path) / sanitized).lexically_normal().string();
+				sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / sanitized).lexically_normal()).string();
 			}
 			if (verbose)
 			{

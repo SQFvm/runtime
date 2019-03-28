@@ -105,12 +105,20 @@ std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string vi
                 return {}; //boundary violation
         }
 
-        if (std::filesystem::exists(wantedFile)) return wantedFile.string();
+		if (std::filesystem::exists(wantedFile))
+		{
+			auto absolute = std::filesystem::absolute(wantedFile);
+			return absolute.string();
+		}
         return {}; //file doesn't exist
     } else { //global path
         auto resolved = resolvePath(virt);
         if (resolved) {
-            if (std::filesystem::exists(*resolved)) return resolved->string();
+            if (std::filesystem::exists(*resolved))
+			{
+				auto absolute = std::filesystem::absolute(*resolved);
+				return absolute.string();
+			}
             return {}; //file doesn't exist
         }
         return {}; //can't resolve file
@@ -132,31 +140,32 @@ void sqf::filesystem::add_mapping(std::string virt, std::string phys)
     addPathMappingInternal(virt, phys);
 }
 
-void sqf::filesystem::add_mapping_auto(std::string phys) {
-    const std::filesystem::path ignoreGit(".git");
-    const std::filesystem::path ignoreSvn(".svn");
+void sqf::filesystem::add_mapping_auto(std::string phys)
+{
+	const std::filesystem::path ignoreGit(".git");
+	const std::filesystem::path ignoreSvn(".svn");
 
-    //recursively search for pboprefix
-    for (auto i = std::filesystem::recursive_directory_iterator(phys, std::filesystem::directory_options::follow_directory_symlink);
-        i != std::filesystem::recursive_directory_iterator();
-        ++i)
-    {
-        if (i->is_directory() && (i->path().filename() == ignoreGit || i->path().filename() == ignoreSvn))
-        {
-            i.disable_recursion_pending(); //Don't recurse into that directory
-            continue;
-        }
-        if (!i->is_regular_file()) continue;
+	//recursively search for pboprefix
+	for (auto i = std::filesystem::recursive_directory_iterator(phys, std::filesystem::directory_options::follow_directory_symlink);
+		i != std::filesystem::recursive_directory_iterator();
+		++i)
+	{
+		if (i->is_directory() && (i->path().filename() == ignoreGit || i->path().filename() == ignoreSvn))
+		{
+			i.disable_recursion_pending(); //Don't recurse into that directory
+			continue;
+		}
+		if (!i->is_regular_file()) continue;
 
-        if (i->path().filename() == "$PBOPREFIX$")
-        {
-            
-            std::ifstream prefixFile(i->path());
-            std::string prefix;
-            std::getline(prefixFile, prefix);
-            prefixFile.close();
-            addPathMappingInternal(prefix, i->path().parent_path());
-           add_mapping(prefix, i->path().parent_path().string());
-        }
-    }
+		if (i->path().filename() == "$PBOPREFIX$")
+		{
+
+			std::ifstream prefixFile(i->path());
+			std::string prefix;
+			std::getline(prefixFile, prefix);
+			prefixFile.close();
+			addPathMappingInternal(prefix, i->path().parent_path());
+			add_mapping(prefix, i->path().parent_path().string());
+		}
+	}
 }
