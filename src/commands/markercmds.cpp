@@ -5,6 +5,8 @@
 #include "../arraydata.h"
 #include "../configdata.h"
 #include "../marker.h"
+#include "../objectdata.h"
+#include "../innerobj.h"
 #include <string>
 
 using namespace sqf;
@@ -128,25 +130,49 @@ namespace
 	std::shared_ptr<value> createmarker_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto arr = right->data<arraydata>();
-		if (!arr->check_type(vm, std::array<type, 2> { STRING, ARRAY }))
+		std::array<float, 3> pos;
+		std::string name;
+		if (arr->check_type(vm, std::array<type, 2> { STRING, OBJECT}))
+		{
+			name = arr->at(0)->as_string();
+			auto objdata = arr->at(1)->data<sqf::objectdata>();
+			if (objdata->is_null())
+			{
+				vm->wrn() << "Provided object is null." << std::endl;
+				return std::shared_ptr<value>();
+			}
+			auto obj = objdata->obj();
+			auto tmp = obj->pos();
+			pos = std::array<float, 3> { (float)tmp[0], (float)tmp[1], (float)tmp[2]};
+		}
+		else if (arr->check_type(vm, std::array<type, 2> { STRING, ARRAY }))
+		{
+			name = arr->at(0)->as_string();
+			auto tmpArr = arr->at(1)->data<arraydata>();
+			pos = std::array<float, 3>
+			{
+				tmpArr->at(0)->as_float(),
+				tmpArr->at(1)->as_float(),
+				tmpArr->size() > 2 ? tmpArr->at(2)->as_float() : 0
+			};
+			if (!arr->check_type(vm, SCALAR, 2, 3))
+			{
+				return std::shared_ptr<value>();
+			}
+		}
+		else
 		{
 			return std::shared_ptr<value>();
 		}
-		arr = arr->at(1)->data<arraydata>();
-		if (!arr->check_type(vm, SCALAR, 2, 3))
-		{
-			return std::shared_ptr<value>();
-		}
-		auto name = arr->at(0)->as_string();
 		if (vm->get_marker(name))
 		{
 			vm->wrn() << "Provided marker name is already existing." << std::endl;
 			return std::make_shared<value>("");
 		}
 		auto m = marker();
-		m.set_pos(std::array<float, 3>{ arr->at(0)->as_float(), arr->at(1)->as_float(), arr->size() > 2 ? arr->at(2)->as_float() : 0 });
+		m.set_pos(pos);
 		vm->set_marker(name, m);
-		return arr->at(0);
+		return std::make_shared<value>(name);
 	}
 	std::shared_ptr<value> deletemarker_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
