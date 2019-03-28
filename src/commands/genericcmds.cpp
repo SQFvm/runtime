@@ -1184,9 +1184,17 @@ namespace
 		});
 		return std::make_shared<value>(res != arr->end());
 	}
+	std::shared_ptr<value> time_(virtualmachine* vm)
+	{
+		auto curtime = sqf::virtualmachine::system_time().time_since_epoch();
+		auto starttime = vm->get_created_timestamp().time_since_epoch();
+		long r = std::chrono::duration_cast<std::chrono::milliseconds>(starttime - curtime).count();
+		return std::make_shared<value>(r);
+	}
 }
 void sqf::commandmap::initgenericcmds()
 {
+	add(nular("time", "Returns time elapsed since virtualmachine start.", time_));
 	add(nular("nil", "Nil value. This value can be used to undefine existing variables.", nil_));
 	add(unary("call", sqf::type::CODE, "Executes given set of compiled instructions.", call_code));
 	add(binary(4, "call", sqf::type::ANY, sqf::type::CODE, "Executes given set of compiled instructions with an option to pass arguments to the executed Code.", call_any_code));

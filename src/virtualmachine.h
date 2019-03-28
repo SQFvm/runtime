@@ -66,10 +66,12 @@ namespace sqf
 		bool mallowsleep;
 		bool mperformclassnamechecks;
 		sqf::filesystem m_filesystem;
+		std::chrono::system_clock::time_point mcreatedtimestamp;
 	public:
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
 
+		std::chrono::system_clock::time_point get_created_timestamp() { return mcreatedtimestamp; }
 
 		std::shared_ptr<innerobj> player_obj() { return mplayer_obj; }
 		void player_obj(std::shared_ptr<innerobj> val) { mplayer_obj = val; }
