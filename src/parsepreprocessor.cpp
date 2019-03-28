@@ -20,6 +20,11 @@ namespace {
 		size_t line;
 		size_t column;
 		bool hasargs;
+		// Special method pointer that may be filled
+		// to give this macro a special behavior rather
+		// then a content.
+		// Gets only applied if pointer is != nullptr
+		std::string(*callback)(finfo fileinfo, std::vector<std::string> params) = nullptr;
 	};
 	class helper
 	{
@@ -335,6 +340,10 @@ namespace {
 				h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Arg Count Missmatch." << std::endl;
 			}
 			return "";
+		}
+		if (m.callback)
+		{
+			return m.callback(fileinfo, params);
 		}
 		std::stringstream sstream;
 		std::string actual_content = m.content;
@@ -1101,10 +1110,40 @@ namespace {
 	}
 
 }
+std::string line_macro_callback(finfo fileinfo, std::vector<std::string> params)
+{
+	return std::to_string(fileinfo.line);
+}
+std::string file_macro_callback(finfo fileinfo, std::vector<std::string> params)
+{
+	return '"' + fileinfo.path + '"';
+}
 std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string input, bool & errflag, std::string filename)
 {
 	helper h;
 	h.vm = vm;
+	{
+		macro line_macro;
+		line_macro.line = 0;
+		line_macro.column = 0;
+		line_macro.content = "";
+		line_macro.filepath = "";
+		line_macro.hasargs = false;
+		line_macro.name = "__LINE__";
+		line_macro.callback = line_macro_callback;
+		h.macros.push_back(line_macro);
+	}
+	{
+		macro file_macro;
+		file_macro.line = 0;
+		file_macro.column = 0;
+		file_macro.content = "";
+		file_macro.filepath = "";
+		file_macro.hasargs = false;
+		file_macro.name = "__FILE__";
+		file_macro.callback = file_macro_callback;
+		h.macros.push_back(file_macro);
+	}
 	finfo fileinfo;
 	fileinfo.content = input;
 	fileinfo.path = filename;
