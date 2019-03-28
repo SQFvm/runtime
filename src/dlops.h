@@ -62,7 +62,7 @@ public:
 		if (nullptr == res)
 		{
 			std::stringstream sstream;
-			sstream << "Receiving symbol failed with error code '" << DLOPS_LIB_GETLASTERROR() << "'";
+			sstream << "Receiving symbol failed with error '" << DLOPS_LIB_GETLASTERROR() << "'";
 			throw std::runtime_error(sstream.str());
 		}
 		else

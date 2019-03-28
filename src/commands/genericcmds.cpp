@@ -265,7 +265,7 @@ namespace
 		auto arr = left->as_vector();
 		auto index = right->as_long();
 
-		if (arr.size() <= index || index < 0)
+		if (arr.size() < index || index < 0)
 		{
 			vm->err() << "Index out of range." << std::endl;
 			return std::make_shared<value>();
@@ -750,7 +750,11 @@ namespace
 				return it;
 			}
 		}
+		#ifdef _WIN32
 		vm->libraries().push_back(std::make_shared<dlops>(name));
+		#else
+		vm->libraries().push_back(std::make_shared<dlops>(name + ".so"));
+		#endif
 		auto& dl = vm->libraries().back();
 		void* sym = nullptr;
 		if (dl->try_resolve("RVExtensionVersion", &sym))
