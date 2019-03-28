@@ -42,6 +42,10 @@ extern "C" {
 				sstream << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
 			}
 		}
+		else
+		{
+			sqfvm_virtualmachine->err_buffprint();
+		}
 		auto str = sstream.str();
 		memset(buffer, 0, sizeof(char) * bufferlen);
 		std::strncpy(buffer, str.c_str(), bufferlen);
