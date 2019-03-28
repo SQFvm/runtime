@@ -15,7 +15,9 @@ extern "C" {
 	{
 		sqfvm_virtualmachine = std::make_shared<sqf::virtualmachine>(limit);
 		sqfvm_virtualmachine->allowsleep(false);
+#if !defined(FILESYSTEM_DISABLE_DISALLOW)
 		sqfvm_virtualmachine->get_filesystem().disallow(true);
+#endif
 		sqf::commandmap::get().init();
 	}
 	DLLEXPORT_PREFIX void sqfvm_exec(const char* code, char* buffer, unsigned int bufferlen)
