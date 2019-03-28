@@ -157,14 +157,16 @@ int main(int argc, char** argv)
 		"!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(loadArg);
 
-	TCLAP::MultiArg<std::string> virtualArg("v", "virtual", "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. " RELPATHHINT, false, "PATH|VIRTUAL");
+	TCLAP::MultiArg<std::string> virtualArg("v", "virtual", "Creates a mapping for a virtual and a physical path."
+		"Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. " RELPATHHINT, false, "PATH|VIRTUAL");
 	cmd.add(virtualArg);
 
 	TCLAP::SwitchArg verboseArg("", "verbose", "Enables additional output.", false);
 	cmd.add(verboseArg);
 
-	TCLAP::SwitchArg parseOnlyArg("", "parse-only", "Disables all code execution entirely and performs only the parsing task."
-		"Note that this also will prevent the debugger to start.", false);
+	TCLAP::SwitchArg parseOnlyArg("", "parse-only", "Disables all code execution entirely and performs only the parsing & assembly generation tasks. "
+		"Note that this also will prevent the debugger to start. "
+		"To disable assembly generation too, refer to --no-assembly-creation.", false);
 	cmd.add(parseOnlyArg);
 
 	TCLAP::SwitchArg noWorkPrintArg("", "no-work-print", "Disables the printing of all values which are on the work stack.", false);
@@ -175,6 +177,11 @@ int main(int argc, char** argv)
 
 	TCLAP::SwitchArg noLoadExecDirArg("", "no-load-execdir", "Prevents automatically adding the workspace to the path of allowed locations.", false);
 	cmd.add(noLoadExecDirArg);
+
+	TCLAP::SwitchArg noAssemblyCreationArg("", "no-assembly-creation", "Will force to use only the SQF parser. "
+		"Execution of SQF-code will not work with this. "
+		"Useful, if one only wants to perform syntax checks.", false);
+	cmd.add(noAssemblyCreationArg);
 
 	cmd.getArgList().reverse();
 
@@ -262,7 +269,8 @@ int main(int argc, char** argv)
 	std::vector<std::string> pbo_files = inputPboArg.getValue();
 	bool errflag = false;
 	bool automated = automatedArg.getValue();
-	bool parseOnly = parseOnlyArg.getValue();
+	bool noAssemblyCreation = noAssemblyCreationArg.getValue();
+	bool parseOnly = parseOnlyArg.getValue() || noAssemblyCreation;
 	for (auto& f : inputArg.getValue())
 	{
 		auto ext = extension(f);
@@ -487,7 +495,14 @@ int main(int argc, char** argv)
 				{
 					std::cout << "Parsing file '" << sanitized << std::endl;
 				}
-				vm.parse_sqf(ppedStr, f);
+				if (noAssemblyCreation)
+				{
+					vm.parse_sqf_cst(ppedStr, errflag, f);
+				}
+				else
+				{
+					errflag = vm.parse_sqf(ppedStr, f);
+				}
 			}
 		}
 		catch (const std::runtime_error& ex)
@@ -613,13 +628,36 @@ int main(int argc, char** argv)
 			auto input = sstream.str();
 			bool err = false;
 			auto inputAfterPP = sqf::parse::preprocessor::parse(&vm, input, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
-			if (err)
+			if (err || vm.err_hasdata())
 			{
 				vm.err_buffprint();
 			}
 			else
 			{
-				vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+				if (noAssemblyCreation)
+				{
+					vm.parse_sqf_cst(inputAfterPP, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+				}
+				else
+				{
+					err = vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+				}
+				if (vm.out_hasdata())
+				{
+					vm.out_buffprint();
+				}
+				if (vm.wrn_hasdata())
+				{
+					vm.wrn_buffprint();
+				}
+				// Following is not required due to
+				// the other if-else case.
+				// Still written down in case somebody thinks
+				// of "fixing" this issue.
+				// if (vm.err_hasdata())
+				// {
+				//     vm.err_buffprint();
+				// }
 			}
 		}
 

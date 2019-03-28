@@ -85,12 +85,15 @@ namespace sqf
 		void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
         void out_buffprint() { if (!moutflag) return; (*mout) << mout_buff.str(); out_clear(); }
 		void out_clear() { mout_buff.str({}); moutflag = false; }
+		bool out_hasdata() { return moutflag; }
 		void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
 		void err_buffprint() { if (!merrflag) return; (*merr) << merr_buff.str(); err_clear(); }
 		void err_clear() { merr_buff.str({}); merrflag = false; }
+		bool err_hasdata() { return merrflag; }
 		void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }
 		void wrn_buffprint() { if (!mwrnflag) return; (*mwrn) << mwrn_buff.str(); wrn_clear(); }
 		void wrn_clear() { mwrn_buff.str({}); mwrnflag = false; }
+		bool wrn_hasdata() { return mwrnflag; }
 		void execute();
 		std::shared_ptr<sqf::vmstack> stack() const { return mactivestack; }
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
@@ -106,12 +109,50 @@ namespace sqf
 		const std::map<std::string, sqf::marker>& get_markers() { return mmarkers; }
 
 		void parse_assembly(std::string);
-		void parse_sqf(std::string, std::stringstream*);
-		void parse_sqf(std::string code, std::string filepath = "") { parse_sqf(stack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
-		void parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { parse_sqf(stack(), str, cs, filepath); }
-		void parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>, std::string = "");
-        astnode parse_sqf_cst(std::string_view code);
-        astnode parse_sqf_cst(std::string_view code, bool& errorflag);
+		// Parses the provided code and prints the resulting
+		// SQF-tree out into provided std::stringstream pointer
+		void parse_sqf_tree(std::string, std::stringstream*);
+		// Parses the provided code and creates assembly
+		// instructions into a newly created sqf::callstack
+		// that gets pushed onto the default sqf::vmstack receivable using
+		// sqf::virtualmachine::stack(void)
+		//
+		// returns true, if parsing passed.
+		// returns false, if parsing failed.
+		// in case parsing failed, err_hasdata() and err_printbuff()
+		// should be checked and/or printed.
+		// 
+		// In all cases, the corresponding wrn_ and out_ methods
+		// Also should be checked in case they contain additional info.
+		bool parse_sqf(std::string code, std::string filepath = "") { return parse_sqf(stack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
+		// Parses the provided code and creates assembly
+		// instructions into provided sqf::callstack
+		// that gets pushed onto the default sqf::vmstack receivable using
+		// sqf::virtualmachine::stack(void)
+		//
+		// returns true, if parsing passed.
+		// returns false, if parsing failed.
+		// in case parsing failed, err_hasdata() and err_printbuff()
+		// should be checked and/or printed.
+		// 
+		// In all cases, the corresponding wrn_ and out_ methods
+		// Also should be checked in case they contain additional info.
+		bool parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { return parse_sqf(stack(), str, cs, filepath); }
+		// Parses the provided code and creates assembly
+		// instructions into provided sqf::callstack
+		// that gets pushed onto provided sqf::vmstack
+		//
+		// returns true, if parsing passed.
+		// returns false, if parsing failed.
+		// in case parsing failed, err_hasdata() and err_printbuff()
+		// should be checked and/or printed.
+		// 
+		// In all cases, the corresponding wrn_ and out_ methods
+		// Also should be checked in case they contain additional info.
+		bool parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>, std::string = "");
+
+		astnode parse_sqf_cst(std::string_view code, std::string filepath = "") { bool errflag = false; return parse_sqf_cst(code, errflag, filepath); }
+        astnode parse_sqf_cst(std::string_view code, bool& errorflag, std::string filepath = "");
 		void pretty_print_sqf(std::string code);
 		void parse_config(std::string, std::shared_ptr<configdata>);
 		bool errflag() const { return merrflag; }

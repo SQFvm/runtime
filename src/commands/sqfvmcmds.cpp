@@ -149,7 +149,7 @@ namespace
 	{
 		auto str = right->as_string();
 		std::stringstream sstream;
-		vm->parse_sqf(str, &sstream);
+		vm->parse_sqf_tree(str, &sstream);
 		return std::make_shared<value>(sstream.str());
 	}
 	std::shared_ptr<value> help___string(virtualmachine* vm, std::shared_ptr<value> right)

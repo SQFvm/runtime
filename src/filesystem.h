@@ -24,7 +24,7 @@ namespace sqf
             std::map<std::string, pathElement> subPaths;
             std::optional<std::filesystem::path> physicalPath;
         };
-		bool mdisallow;
+		bool mdisallow = false;
 	public:
         void addPathMappingInternal(std::filesystem::path virt, std::filesystem::path phy);
         std::optional<std::filesystem::path> resolvePath(std::filesystem::path virt);

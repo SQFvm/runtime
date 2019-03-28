@@ -1146,7 +1146,7 @@ namespace sqf
 					thisnode.kind = sqfasttypes::HEXNUMBER;
 					size_t i;
 					for (i = curoff + 1; (code[i] >= '0' && code[i] <= '9') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] >= 'a' && code[i] <= 'f'); i++);
-					auto ident = std::string(code + curoff, code + i);
+					auto ident = std::string(code + curoff + 1, code + i);
 					thisnode.content = ident;
 					thisnode.offset = curoff;
 					thisnode.length = i - curoff;
@@ -1207,6 +1207,14 @@ namespace sqf
 					thisnode.length = i - curoff;
 					col += i - curoff;
 					curoff = i;
+				}
+				if (thisnode.content.empty())
+				{
+					errflag = true;
+					size_t i;
+					for (i = thisnode.offset; i < thisnode.offset + 128 && std::iswalnum(code[i]); i++);
+					if (!file.empty()) { h.err() << h.dbgsegment(code, thisnode.offset, i - thisnode.offset) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Empty Number." << std::endl; }
+					else { h.err() << h.dbgsegment(code, thisnode.offset, i - thisnode.offset) << "[ERR][L" << line << "|C" << col << "]\t" << "Empty Number." << std::endl; }
 				}
 				root.children.emplace_back(std::move(thisnode));
 			}
