@@ -650,14 +650,10 @@ int main(int argc, char** argv)
 				{
 					vm.wrn_buffprint();
 				}
-				// Following is not required due to
-				// the other if-else case.
-				// Still written down in case somebody thinks
-				// of "fixing" this issue.
-				// if (vm.err_hasdata())
-				// {
-				//     vm.err_buffprint();
-				// }
+				if (vm.err_hasdata())
+				{
+				    vm.err_buffprint();
+				}
 			}
 		}
 
