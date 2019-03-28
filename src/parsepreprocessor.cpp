@@ -597,7 +597,7 @@ namespace {
 						auto res = h.contains_macro(word);
 						if (res.has_value())
 						{
-							if (!res.value().args.empty())
+							if (res.value().hasargs)
 							{
 								fileinfo.move_back();
 							}
