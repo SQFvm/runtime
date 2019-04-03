@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <optional>
+#include <map>
 #include "compiletime.h"
 #include "parsepreprocessor.h"
 #include "virtualmachine.h"
@@ -15,7 +16,7 @@ namespace {
 	class helper
 	{
 	public:
-		std::vector<macro> macros;
+		std::map<std::string, macro> macros;
 		std::vector<std::string> path_tree;
 		sqf::virtualmachine* vm;
 		bool errflag = false;
@@ -24,17 +25,16 @@ namespace {
 
 		std::optional<macro> contains_macro(std::string mname)
 		{
-			auto res = std::find_if(macros.begin(), macros.end(), [mname](macro& m) -> bool
-			{
-				return m.name == mname;
-			});
+			auto res = macros.find(mname);
 			if (res == macros.end())
 			{
 				return {};
 			}
-			return *res;
+			else
+			{
+				return res->second;
+			}
 		}
-
 	};
 	std::string handle_macro(helper& h, finfo& fileinfo, const macro& m);
 	std::string replace(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string> params);
@@ -629,7 +629,7 @@ namespace {
 					
 				}
 			}
-			h.macros.emplace_back(std::move(m));
+			h.macros[m.name] = std::move(m);
 			return "\n";
 		}
 		else if (inst == "UNDEF")
@@ -918,66 +918,66 @@ std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string
 	helper h;
 	h.vm = vm;
 	{
-		macro line_macro;
-		line_macro.line = 0;
-		line_macro.column = 0;
-		line_macro.content = "";
-		line_macro.filepath = "";
-		line_macro.hasargs = false;
-		line_macro.name = "__LINE__";
-		line_macro.callback = line_macro_callback;
-		h.macros.push_back(line_macro);
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = "";
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "__LINE__";
+		macro.callback = line_macro_callback;
+		h.macros["__LINE__"] = macro;
 	}
 	{
-		macro file_macro;
-		file_macro.line = 0;
-		file_macro.column = 0;
-		file_macro.content = "";
-		file_macro.filepath = "";
-		file_macro.hasargs = false;
-		file_macro.name = "__FILE__";
-		file_macro.callback = file_macro_callback;
-		h.macros.push_back(file_macro);
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = "";
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "__FILE__";
+		macro.callback = file_macro_callback;
+		h.macros["__FILE__"] = macro;
 	}
 	{
-		macro file_macro;
-		file_macro.line = 0;
-		file_macro.column = 0;
-		file_macro.content = VERSION_FULL;
-		file_macro.filepath = "";
-		file_macro.hasargs = false;
-		file_macro.name = "_SQF_VM";
-		h.macros.push_back(file_macro);
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = VERSION_FULL;
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "_SQF_VM";
+		h.macros["_SQF_VM"] = macro;
 	}
 	{
-		macro file_macro;
-		file_macro.line = 0;
-		file_macro.column = 0;
-		file_macro.content = STR(VERSION_MAJOR);
-		file_macro.filepath = "";
-		file_macro.hasargs = false;
-		file_macro.name = "_SQF_VM_MAJOR";
-		h.macros.push_back(file_macro);
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = STR(VERSION_MAJOR);
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "_SQF_VM_MAJOR";
+		h.macros["_SQF_VM_MAJOR"] = macro;
 	}
 	{
-		macro file_macro;
-		file_macro.line = 0;
-		file_macro.column = 0;
-		file_macro.content = STR(VERSION_MINOR);
-		file_macro.filepath = "";
-		file_macro.hasargs = false;
-		file_macro.name = "_SQF_VM_MINOR";
-		h.macros.push_back(file_macro);
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = STR(VERSION_MINOR);
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "_SQF_VM_MINOR";
+		h.macros["_SQF_VM_MINOR"] = macro;
 	}
 	{
-		macro file_macro;
-		file_macro.line = 0;
-		file_macro.column = 0;
-		file_macro.content = STR(VERSION_REVISION);
-		file_macro.filepath = "";
-		file_macro.hasargs = false;
-		file_macro.name = "_SQF_VM_REVISION";
-		h.macros.push_back(file_macro);
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = STR(VERSION_REVISION);
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "_SQF_VM_REVISION";
+		h.macros["_SQF_VM_REVISION"] = macro;
 	}
 	finfo fileinfo;
 	fileinfo.content = input;
