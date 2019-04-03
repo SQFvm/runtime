@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <optional>
-#include <map>
+#include <unordered_map>
 #include "compiletime.h"
 #include "parsepreprocessor.h"
 #include "virtualmachine.h"
@@ -16,7 +16,7 @@ namespace {
 	class helper
 	{
 	public:
-		std::map<std::string, macro> macros;
+		std::unordered_map<std::string, macro> macros;
 		std::vector<std::string> path_tree;
 		sqf::virtualmachine* vm;
 		bool errflag = false;
