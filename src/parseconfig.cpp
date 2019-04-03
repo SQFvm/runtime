@@ -80,18 +80,18 @@ namespace sqf
 			//endchr = [,;];
 			size_t endchr(const char* code, size_t off) { return code[off] == ';' ? 1 : 0; }
 			//identifier = [_a-zA-Z0-9]*;
-			size_t identifier(const char* code, size_t off) { size_t i = off; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++); return i - off; }
+			size_t identifier(const char* code, size_t off) { size_t i = off; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++) {}; return i - off; }
 			//operator_ = [-*+/a-zA-Z><=%_]+;
 			//ToDo: Add clearer non-alphabetical checks (-- should not be detected as SINGLE operator but rather as two operators)
-			size_t operator_(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '+' || code[i] == '-' || code[i] == '*' || code[i] == '/' || code[i] == '>' || code[i] == '<' || code[i] == '=' || code[i] == '%' || code[i] == '_'; i++); return i - off; }
+			size_t operator_(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '+' || code[i] == '-' || code[i] == '*' || code[i] == '/' || code[i] == '>' || code[i] == '<' || code[i] == '=' || code[i] == '%' || code[i] == '_'; i++) {}; return i - off; }
 			//hexadecimal = [0-9a-fA-F]+;
-			size_t hexadecimal(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'f') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] >= '0' && code[i] <= '9'); i++); return i - off; }
+			size_t hexadecimal(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'f') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] >= '0' && code[i] <= '9'); i++) {}; return i - off; }
 			//scalarsub = [0-9]+;
-			size_t numsub(const char* code, size_t off) { size_t i; for (i = off; code[i] >= '0' && code[i] <= '9'; i++); return i - off; }
+			size_t numsub(const char* code, size_t off) { size_t i; for (i = off; code[i] >= '0' && code[i] <= '9'; i++) {}; return i - off; }
 			//scalar = scalarsub(.scalarsub)?;
 			size_t num(const char* code, size_t off) { size_t i = off + numsub(code, off); if (code[off] == '.') i += numsub(code, off); return i - off; }
 			//anytext = (?![ \t\r\n;])+;
-			size_t anytext(const char* code, size_t off) { size_t i; for (i = off; code[i] != ' ' && code[i] != '\t' && code[i] != '\r' && code[i] != '\n' && code[i] != ';'; i++); return i - off; }
+			size_t anytext(const char* code, size_t off) { size_t i; for (i = off; code[i] != ' ' && code[i] != '\t' && code[i] != '\r' && code[i] != '\n' && code[i] != ';'; i++) {}; return i - off; }
 
 
 			//NODELIST = { NODE ';' { ';' } };
