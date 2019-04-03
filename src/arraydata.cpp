@@ -20,7 +20,7 @@ std::string sqf::arraydata::tosqf() const
 		{
 			sstream << ',';
 		}
-		sstream << it->tosqf();
+		sstream << ((it != nullptr) ? it->tosqf() : "nil");
 	}
 	sstream << ']';
 	return sstream.str();

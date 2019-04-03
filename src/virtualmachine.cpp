@@ -25,11 +25,19 @@
 #include "callstack_sqftry.h"
 #include "sqfnamespace.h"
 #include "innerobj.h"
+#include "scalardata.h"
 //#include "parsepp_handler.h"
 
 #include <iostream>
 #include <cwctype>
 #include <sstream>
+
+// #define DEBUG_VM_ASSEMBLY
+
+#if !defined(_DEBUG) && defined(DEBUG_VM_ASSEMBLY)
+#undef DEBUG_VM_ASSEMBLY
+#endif // !_RELEASE
+
 
 
 sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
@@ -53,6 +61,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mexitflag = false;
 	mallowsleep = true;
 	mplayer_obj = innerobj::create(this, "CAManBase", false);
+	mcreatedtimestamp = system_time();
 }
 void sqf::virtualmachine::execute()
 {
@@ -102,11 +111,39 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			if (_debugger) {
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
 			}
-			merr_buff.str(std::string());
+            err_clear();
 			break;
 		}
 		if (_debugger && _debugger->hitbreakpoint(inst->line(), inst->file())) { _debugger->position(inst->line(), inst->col(), inst->file()); _debugger->breakmode(this); }
+#ifdef DEBUG_VM_ASSEMBLY
+		(*mout) << inst->to_string() << std::endl;
+#endif
 		inst->execute(this);
+#ifdef DEBUG_VM_ASSEMBLY
+		bool success;
+		std::vector<std::shared_ptr<sqf::value>> vals;
+		do {
+			auto val = stack()->popval(success);
+			if (success)
+			{
+				vals.push_back(val);
+				if (val != nullptr)
+				{
+					std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+				}
+				else
+				{
+					std::cout << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
+				}
+			}
+		} while (success);
+		while (!vals.empty())
+		{
+			auto it = vals.back();
+			vals.pop_back();
+			stack()->pushval(it);
+		}
+#endif
 		if (merrflag)
 		{
 			(*merr) << inst->dbginf("RNT") << merr_buff.str();
@@ -114,7 +151,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				_debugger->position(inst->line(), inst->col(), inst->file());
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
 			}
-			merrflag = false;
+            err_clear();
 
 			// Try to find a callstack_sqftry
 			auto res = std::find_if(mactivestack->stacks_begin(), mactivestack->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
@@ -122,7 +159,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			});
 			if (res == mactivestack->stacks_end())
 			{
-				merr_buff.str(std::string());
+                err_clear();
 				//Only for non-scheduled (and thus the mainstack)
 				if (!mactivestack->isscheduled())
 				{
@@ -137,7 +174,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				}
 				auto sqftry = std::dynamic_pointer_cast<sqf::callstack_sqftry>(*res);
 				sqftry->except(merr_buff.str());
-				merr_buff.str(std::string());
+                err_clear();
 			}
 		}
 		
@@ -151,15 +188,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			mwrn_buff.str(std::string());
 			mwrnflag = false;
 		}
-		if (moutflag)
-		{
-			(*mout) << mout_buff.str();
-			if (_debugger) {
-				_debugger->message(mout_buff.str());
-			}
-			mout_buff.str(std::string());
-			moutflag = false;
-		}
+        out_buffprint();
 		if (_debugger) {
 			if (mhaltflag)
 			{
@@ -272,16 +301,36 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		break;
 		case sqf::parse::sqf::sqfasttypes::HEXNUMBER:
 		{
-			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stol(node.content, nullptr, 16)));
-			inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
-			stack->pushinst(inst);
+			try
+			{
+				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stol(node.content, nullptr, 16)));
+				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+				stack->pushinst(inst);
+			}
+			catch (std::out_of_range)
+			{
+				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nan("")), sqf::type::NaN));
+				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+				vm->wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
+				stack->pushinst(inst);
+			}
 		}
 		break;
 		case sqf::parse::sqf::sqfasttypes::NUMBER:
 		{
-			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stod(node.content)));
-			inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
-			stack->pushinst(inst);
+			try
+			{
+				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stod(node.content)));
+				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+				stack->pushinst(inst);
+			}
+			catch (std::out_of_range)
+			{
+				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nan("")), sqf::type::NaN));
+				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+				vm->wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
+				stack->pushinst(inst);
+			}
 		}
 		break;
 		case sqf::parse::sqf::sqfasttypes::STRING:
@@ -294,8 +343,15 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		case sqf::parse::sqf::sqfasttypes::CODE:
 		{
 			auto cs = std::make_shared<sqf::callstack>(vm->missionnamespace());
-			for (auto& subnode : node.children)
+			for (size_t i = 0; i < node.children.size(); i++)
 			{
+				if (i != 0)
+				{
+					auto inst = std::make_shared<sqf::inst::endstatement>();
+					inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
+					cs->pushinst(inst);
+				}
+				auto subnode = node.children[i];
 				navigate_sqf(full, vm, cs, subnode);
 			}
 			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(cs));
@@ -453,13 +509,13 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnod
 	}
 }
 
-astnode sqf::virtualmachine::parse_sqf_cst(std::string code, std::string filepath)
+astnode sqf::virtualmachine::parse_sqf_cst(std::string_view code, bool& errorflag, std::string filename)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
-	bool errflag = false;
-	return sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, "");
+	return sqf::parse::sqf::parse_sqf(code.data(), h, errorflag, filename);
 }
-void sqf::virtualmachine::parse_sqf(std::string code, std::stringstream* sstream)
+
+void sqf::virtualmachine::parse_sqf_tree(std::string code, std::stringstream* sstream)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
@@ -467,21 +523,23 @@ void sqf::virtualmachine::parse_sqf(std::string code, std::stringstream* sstream
 	print_navigate_ast(sstream, node, sqf::parse::sqf::astkindname);
 }
 
-void sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::string code, std::shared_ptr<sqf::callstack> cs, std::string filename)
+bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::string code, std::shared_ptr<sqf::callstack> cs, std::string filename)
 {
 	if (!cs.get())
 	{
 		cs = std::make_shared<sqf::callstack>(this->missionnamespace());
 		vmstck->pushcallstack(cs);
 	}
-	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
+	auto h = sqf::parse::helper(&merr_buff, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
 	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, filename);
-
+	this->merrflag = h.err_hasdata();
 	if (!errflag)
 	{
 		navigate_sqf(code.c_str(), this, cs, node);
+		errflag = this->err_hasdata();
 	}
+	return errflag;
 }
 
 void sqf::virtualmachine::pretty_print_sqf(std::string code)

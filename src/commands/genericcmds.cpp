@@ -265,7 +265,7 @@ namespace
 		auto arr = left->as_vector();
 		auto index = right->as_long();
 
-		if (arr.size() <= index || index < 0)
+		if (arr.size() < index || index < 0)
 		{
 			vm->err() << "Index out of range." << std::endl;
 			return std::make_shared<value>();
@@ -750,7 +750,11 @@ namespace
 				return it;
 			}
 		}
+		#ifdef _WIN32
 		vm->libraries().push_back(std::make_shared<dlops>(name));
+		#else
+		vm->libraries().push_back(std::make_shared<dlops>(name + ".so"));
+		#endif
 		auto& dl = vm->libraries().back();
 		void* sym = nullptr;
 		if (dl->try_resolve("RVExtensionVersion", &sym))
@@ -1176,13 +1180,21 @@ namespace
 	{
 		auto arr = right->data<arraydata>();
 		auto res = std::find_if(arr->begin(), arr->end(), [left](std::shared_ptr<value> it) -> bool {
-			return it->equals(it);
+			return it->equals(left);
 		});
 		return std::make_shared<value>(res != arr->end());
+	}
+	std::shared_ptr<value> time_(virtualmachine* vm)
+	{
+		auto curtime = sqf::virtualmachine::system_time().time_since_epoch();
+		auto starttime = vm->get_created_timestamp().time_since_epoch();
+		long r = std::chrono::duration_cast<std::chrono::milliseconds>(starttime - curtime).count();
+		return std::make_shared<value>(r);
 	}
 }
 void sqf::commandmap::initgenericcmds()
 {
+	add(nular("time", "Returns time elapsed since virtualmachine start.", time_));
 	add(nular("nil", "Nil value. This value can be used to undefine existing variables.", nil_));
 	add(unary("call", sqf::type::CODE, "Executes given set of compiled instructions.", call_code));
 	add(binary(4, "call", sqf::type::ANY, sqf::type::CODE, "Executes given set of compiled instructions with an option to pass arguments to the executed Code.", call_any_code));

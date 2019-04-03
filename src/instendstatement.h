@@ -10,6 +10,7 @@ namespace sqf
 		public:
 			void execute(virtualmachine* vm) const override;
 			insttype thistype() const override { return insttype::endstatement; }
+			std::string to_string() const override { return "ENDSTATEMENT"; }
 		};
 	}
 }

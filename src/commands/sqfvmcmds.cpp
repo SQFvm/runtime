@@ -10,6 +10,7 @@
 #include "../vmstack.h"
 #include "../sqfnamespace.h"
 #include "../callstack_sqftry.h"
+#include "../instruction.h"
 #include "../codedata.h"
 #include <sstream>
 #include <array>
@@ -17,6 +18,16 @@
 using namespace sqf;
 namespace
 {
+	std::shared_ptr<value> assembly___code(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto codedata = right->data<sqf::codedata>();
+		std::vector<std::shared_ptr<sqf::value>> outarr;
+		for (auto it = codedata->instructions_rbegin(); it != codedata->instructions_rend(); it++)
+		{
+			outarr.push_back(std::make_shared<sqf::value>((*it)->to_string()));
+		}
+		return std::make_shared<sqf::value>(outarr);
+	}
 	std::shared_ptr<value> cmds___(virtualmachine* vm)
 	{
 		std::vector<std::shared_ptr<sqf::value>> outarr;
@@ -138,7 +149,7 @@ namespace
 	{
 		auto str = right->as_string();
 		std::stringstream sstream;
-		vm->parse_sqf(str, &sstream);
+		vm->parse_sqf_tree(str, &sstream);
 		return std::make_shared<value>(sstream.str());
 	}
 	std::shared_ptr<value> help___string(virtualmachine* vm, std::shared_ptr<value> right)
@@ -266,5 +277,6 @@ void sqf::commandmap::initsqfvmcmds()
 	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
 	add(nular("respawn__", "'Respawns' the player object.", respawn___));
 	add(unary("preprocess__", sqf::type::STRING, "Runs the PreProcessor on provided string.", preprocess___string));
+	add(unary("assembly__", sqf::type::CODE, "returns an array, containing the assembly instructions as string.", assembly___code));
 	add(binary(4, "except__", sqf::type::CODE, sqf::type::CODE, "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'.", except___code_code));
 }

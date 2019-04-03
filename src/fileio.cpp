@@ -4,11 +4,37 @@
 #include <fstream>
 #include <stdexcept>
 
+
+#ifdef LOADFILE_CACHE
+#include <unordered_map>
+#include <mutex>
+
+std::unordered_map<std::string, std::string> fileCache;
+std::mutex cacheMutex;
+
 std::string load_file(const std::string & filename)
 {
-	auto vec = readFile(filename);
-	return std::string(vec.begin() + get_bom_skip(vec), vec.end());
+    std::unique_lock<std::mutex> lock(cacheMutex);
+    auto found = fileCache.find(filename);
+    if (found != fileCache.end()) return found->second;
+    lock.unlock();
+    auto vec = readFile(filename);
+    std::string ret(vec.begin() + get_bom_skip(vec), vec.end());
+    lock.lock();
+    fileCache[filename] = ret;
+    lock.unlock();
+    return ret;
 }
+
+#else
+
+std::string load_file(const std::string& filename)
+{
+    auto vec = readFile(filename);
+    return std::string(vec.begin() + get_bom_skip(vec), vec.end());
+}
+
+#endif
 
 std::vector<char> readFile(const std::string & filename)
 {
@@ -16,8 +42,8 @@ std::vector<char> readFile(const std::string & filename)
 
 	if (!file.is_open())
 	{
-		std::stringstream sstream("Could not open file '");
-		sstream << filename << "'.";
+        std::stringstream sstream;
+		sstream << "Could not open file '" << filename << "'.";
 		throw std::runtime_error(sstream.str());
 	}
 

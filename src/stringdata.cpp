@@ -1,4 +1,5 @@
 #include "stringdata.h"
+#include <stdexcept>
 
 std::string sqf::stringdata::parse_from_sqf(std::string s)
 {

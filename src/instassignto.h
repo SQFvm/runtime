@@ -14,6 +14,7 @@ namespace sqf
 			assignto(std::string varname) { mvarname = varname; }
 			void execute(virtualmachine*) const override;
 			insttype thistype() const override { return insttype::assignto; }
+			std::string to_string() const override { return "ASSIGNTO " + mvarname; }
 		};
 	}
 }

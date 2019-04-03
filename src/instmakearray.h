@@ -14,6 +14,7 @@ namespace sqf
 			void execute(virtualmachine* vm) const override;
 			insttype thistype() const override { return insttype::makearray; }
 			size_t size() const { return msize; }
+			std::string to_string() const override { return std::string("MAKEARRAY ") + std::to_string(msize); }
 		};
 	}
 }

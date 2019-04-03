@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdexcept>
 #include <optional>
+#include <filesystem>
 
 #if defined(_WIN32) || defined(_WIN64)
 #define FSDELIMITER '\\'
@@ -13,14 +14,35 @@
 #define FSDELIMITER_STR "/"
 #endif
 
+// FILESYSTEM_DISABLE_DISALLOW may be used to fully disable
+// the disallow functionality.
+// Note that the disallow functionallity is a workaround for a bug
+
+
+
 namespace sqf
 {
 	class filesystem
 	{
 	private:
+
+        struct pathElement {
+            std::map<std::string, pathElement> subPaths;
+            std::optional<std::filesystem::path> physicalPath;
+        };
+#if !defined(FILESYSTEM_DISABLE_DISALLOW)
+		// ToDo: Fix physical path getting returned when navigating out of
+		// allowed range. Occured on Discord-Bot with libsqfvm on debian-linux.
+		bool mdisallow = false;
+#endif
+	public:
+        void addPathMappingInternal(std::filesystem::path virt, std::filesystem::path phy);
+        std::optional<std::filesystem::path> resolvePath(std::filesystem::path virt);
+
+
 		// Left -> Virtual
 		// Right -> Physical
-		std::map<std::string, std::string> m_virtualphysicalmap;
+        std::map<std::string, pathElement> m_virtualphysicalmap;
 		std::vector<std::string> m_physicalboundaries;
 		std::vector<std::string> m_virtualpaths;
 	public:
@@ -29,6 +51,12 @@ namespace sqf
 		// to be received.
 		std::string get_physical_path(std::string virt, std::string current = "")
 		{
+#if !defined(FILESYSTEM_DISABLE_DISALLOW)
+			if (mdisallow)
+			{
+				throw std::runtime_error("Not Allowed");
+			}
+#endif
 			auto val = try_get_physical_path(virt, current);
 			if (val.has_value())
 			{
@@ -47,18 +75,15 @@ namespace sqf
 		void add_allowed_physical(std::string phys);
 		// Adds a mapping of a virtual path to a physical one.
 		void add_mapping(std::string virt, std::string phys);
+        // Recursively scans directory for $PBOPREFIX$ files and adds mappings for them.
+        void add_mapping_auto(std::string phys);
 
-		static std::string sanitize(std::string input);
-		static std::string up(std::string input)
-		{
-			size_t index = input.rfind(FSDELIMITER);
-			if (index == std::string::npos)
-			{
-				return std::string();
-			}
-			return input.substr(0, index);
-		}
-		static std::string down(std::string input, std::string navigator);
-		static std::string navigate(std::string input, std::string navigator);
+
+#if !defined(FILESYSTEM_DISABLE_DISALLOW)
+		/// Allows to change wether or not the filesystem can be used.
+		void disallow(bool flag) { mdisallow = flag; }
+#endif
+
+		static std::string sanitize(std::string input) { return input; }
 	};
 }

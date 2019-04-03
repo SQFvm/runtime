@@ -3,28 +3,20 @@
 #include <vector>
 #include <string>
 #include <optional>
+#include <unordered_map>
 #include "compiletime.h"
 #include "parsepreprocessor.h"
 #include "virtualmachine.h"
 #include "fileio.h"
+#include "Entry.h"
+
+using namespace sqf::parse::preprocessor;
 
 namespace {
-	class helper;
-	class finfo;
-	class macro {
-	public:
-		std::string name;
-		std::string content;
-		std::vector<std::string> args;
-		std::string filepath;
-		size_t line;
-		size_t column;
-
-	};
 	class helper
 	{
 	public:
-		std::vector<macro> macros;
+		std::unordered_map<std::string, macro> macros;
 		std::vector<std::string> path_tree;
 		sqf::virtualmachine* vm;
 		bool errflag = false;
@@ -33,189 +25,14 @@ namespace {
 
 		std::optional<macro> contains_macro(std::string mname)
 		{
-			auto res = std::find_if(macros.begin(), macros.end(), [mname](macro& m) -> bool
-			{
-				return m.name == mname;
-			});
+			auto res = macros.find(mname);
 			if (res == macros.end())
 			{
 				return {};
 			}
-			return *res;
-		}
-
-	};
-	class finfo
-	{
-	private:
-		size_t last_col;
-		bool is_in_string;
-		bool is_in_block_comment;
-		// Handles correct progression of line, col and off
-		char _next()
-		{
-			if (off >= content.length())
-			{
-				return '\0';
-			}
-			char c = content[off++];
-			switch (c)
-			{
-				case '\n':
-					line++;
-					last_col = col;
-					col = 0;
-					return c;
-				case '\r':
-					return next();
-				default:
-					col++;
-					return c;
-			}
-		}
-	public:
-		finfo()
-		{
-			last_col = 0;
-			is_in_string = false;
-			is_in_block_comment = false;
-		}
-		std::string content;
-		size_t off = 0;
-		size_t line = 0;
-		size_t col = 0;
-		std::string path;
-		// Returns the next character.
-		// Will not take into account to skip eg. comments or simmilar things!
-		char peek(size_t len = 0)
-		{
-			if (off + len >= content.length())
-			{
-				return '\0';
-			}
-			return content[off + len];
-		}
-		// Will return the next character in the file.
-		// Comments will be skipped automatically.
-		char next()
-		{
-			char c = _next();
-			if (!is_in_string && (c == '/' || is_in_block_comment))
-			{
-				auto pc = peek();
-				if (pc == '*' || is_in_block_comment)
-				{
-					is_in_block_comment = true;
-					while ((c = _next()) != '\0')
-					{
-						if (c == '\n')
-						{
-							break;
-						}
-						else if (c == '*' && peek() == '/')
-						{
-							_next();
-							is_in_block_comment = false;
-							c = _next();
-							break;
-						}
-					}
-				}
-				else if (pc == '/')
-				{
-					while ((c = _next()) != '\0' && c != '\n');
-				}
-			}
-			if (c == '"')
-			{
-				is_in_string = !is_in_string;
-			}
-			return c;
-		}
-
-		std::string get_word()
-		{
-			char c;
-			size_t off_start = off;
-			size_t off_end = off;
-			while (
-				(c = next()) != '\0' && (
-				(c >= 'A' && c <= 'Z') ||
-					(c >= 'a' && c <= 'z') ||
-					(c >= '0' && c <= '9') ||
-					c == '_'
-					))
-			{
-				off_end = off;
-			}
-			move_back();
-			return content.substr(off_start, off_end - off_start);
-		}
-
-		std::string get_line(bool catchEscapedNewLine)
-		{
-			char c;
-			size_t off_start = off;
-			bool escaped = false;
-			bool exit = false;
-			if (catchEscapedNewLine)
-			{
-				std::stringstream sstream;
-				while (!exit && (c = next()) != '\0')
-				{
-					switch (c)
-					{
-						case '\\':
-							escaped = true;
-							break;
-						case '\n':
-							if (!escaped)
-							{
-								exit = true;
-							}
-							escaped = false;
-							break;
-						default:
-							if (escaped)
-							{
-								sstream << '\\';
-								escaped = false;
-							}
-							sstream << c;
-							break;
-					}
-				}
-				return sstream.str();
-			}
 			else
 			{
-				while ((c = next()) != '\0' && c != '\n') {}
-			}
-			return content.substr(off_start, off - off_start);
-		}
-		// Moves one character backwards and updates
-		// porgression of line, col and off according
-		// col will only be tracked for one line!
-		// Not supposed to be used more then once!
-		void move_back()
-		{
-			if (off == 0)
-			{
-				return;
-			}
-			char c = content[--off];
-			switch (c)
-			{
-				case '\n':
-					line--;
-					col = last_col;
-					break;
-				case '\r':
-					move_back();
-					break;
-				default:
-					col--;
-					break;
+				return res->second;
 			}
 		}
 	};
@@ -306,11 +123,29 @@ namespace {
 	}
 	std::string replace(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string> params)
 	{
+		if (m.args.size() != params.size())
+		{
+			h.errflag = true;
+			if (fileinfo.path.empty())
+			{
+				h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Arg Count Missmatch." << std::endl;
+			}
+			else
+			{
+				h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Arg Count Missmatch." << std::endl;
+			}
+			return "";
+		}
+		if (m.callback)
+		{
+			return m.callback(fileinfo, params);
+		}
 		std::stringstream sstream;
 		std::string actual_content = m.content;
 		bool stringify_required = false;
 		bool concat_required = false;
 		bool inside_string = false;
+		size_t last_stringify_required = -2;
 		// 1. Replace & scan for replace/concat hash
 		{
 			size_t word_start = 0;
@@ -339,15 +174,27 @@ namespace {
 							break;
 						}
 						replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
-						if ((off + 1 < actual_content.length() ? actual_content[off + 1] : '\0') == '#')
+						
 						{
-							off++;
-							word_start++;
-							sstream << "##";
-						}
-						else
-						{
-							stringify_required = true;
+							auto peek1 = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
+							auto peek2 = off + 2 < actual_content.length() ? actual_content[off + 2] : '\0';
+							if (peek1 == '#' && peek2 == '#')
+							{
+								off++;
+								sstream << "#";
+								word_start++;
+							}
+							if (peek1 == '#')
+							{
+								off++;
+								word_start++;
+								sstream << "##";
+							}
+							else
+							{
+								last_stringify_required = off;
+								stringify_required = true;
+							}
 						}
 						break;
 					case '"':
@@ -368,6 +215,11 @@ namespace {
 						{
 							break;
 						}
+						if (stringify_required && off - 1 == last_stringify_required)
+						{
+							stringify_required = false;
+							word_start--;
+						}
 						replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
 						sstream << c;
 				}
@@ -382,47 +234,6 @@ namespace {
 			actual_content = sstream.str();
 			sstream.str("");
 		}
-		/*
-		// 2. Stringify
-		if (stringify_required)
-		{
-		bool is_stringify = false;
-		for (size_t off = 0; off < actual_content.length(); off++)
-		{
-		char c = actual_content[off];
-		char c_la = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
-		switch (c)
-		{
-		case '#':
-		if (c_la != '#')
-		{
-		is_stringify = true;
-		sstream << '"';
-		}
-		else
-		{
-		off++;
-		}
-		break;
-		case ' ': case '\t':
-		if (is_stringify)
-		{
-		is_stringify = false;
-		sstream << '"';
-		}
-		default:
-		sstream << c;
-		break;
-		}
-		}
-		if (is_stringify)
-		{
-		sstream << '"';
-		}
-		actual_content = sstream.str();
-		sstream.str("");
-		}
-		*/
 		// 3. Execute nested macros
 		{
 			size_t word_start = 0;
@@ -453,17 +264,27 @@ namespace {
 							break;
 						}
 						replace_helper_step3(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
-						if ((off + 1 < actual_content.length() ? actual_content[off + 1] : '\0') == '#')
 						{
-							off++;
-							word_start++;
-							sstream << "##";
-							concat_required = true;
-						}
-						else
-						{
-							stringify_required = true;
-							word_start++;
+							auto peek1 = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
+							auto peek2 = off + 2 < actual_content.length() ? actual_content[off + 2] : '\0';
+							if (peek1 == '#' && peek2 == '#')
+							{
+								off++;
+								sstream << "#";
+								word_start++;
+							}
+							if (peek1 == '#')
+							{
+								off++;
+								word_start++;
+								sstream << "##";
+								concat_required = true;
+							}
+							else
+							{
+								stringify_required = true;
+								word_start++;
+							}
 						}
 						break;
 					case '"':
@@ -517,11 +338,16 @@ namespace {
 			for (size_t off = 0; off < actual_content.length(); off++)
 			{
 				char c = actual_content[off];
-				char c_la = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
+				char c_la1 = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
+				char c_la2 = off + 2 < actual_content.length() ? actual_content[off + 2] : '\0';
 				switch (c)
 				{
 					case '#':
-						if (c_la == '#')
+						if (c_la1 == '#' && c_la2 == '#')
+						{
+							sstream << c;
+						}
+						else if (c_la1 == '#')
 						{
 							off++;
 						}
@@ -575,7 +401,7 @@ namespace {
 						auto res = h.contains_macro(word);
 						if (res.has_value())
 						{
-							if (!res.value().args.empty())
+							if (res.value().hasargs)
 							{
 								fileinfo.move_back();
 							}
@@ -607,13 +433,11 @@ namespace {
 	std::string handle_macro(helper& h, finfo& fileinfo, const macro& m)
 	{ // Needs to handle 'NAME(ARG1, ARG2, ARGN)' not more, not less!
 		std::vector<std::string> params;
-		if (!m.args.empty())
+		if (m.hasargs)
 		{
 			if (fileinfo.peek() != '(')
 			{
-				h.errflag = true;
-				h.vm->err() << "Missing args opening brace on macro." << std::endl;
-				return "";
+				return m.name;
 			}
 			fileinfo.next(); // Skip the initial '('
 			size_t rb_counter = 0;
@@ -622,8 +446,17 @@ namespace {
 			size_t lastargstart = fileinfo.off;
 			bool exit = false;
 			char c;
+			bool in_string = false;
 			while (!exit && (c = fileinfo.next()) != '\0')
 			{
+				if (in_string)
+				{
+					if (c == '"')
+					{
+						in_string = false;
+					}
+					continue;
+				}
 				switch (c)
 				{
 					case '[': eb_counter++; break;
@@ -631,19 +464,19 @@ namespace {
 					case '{': cb_counter++; break;
 					case '}': cb_counter--; break;
 					case '(': rb_counter++; break;
+					case '"': in_string = true; break;
 					case ')': if (rb_counter != 0) { rb_counter--; break; }
 							  else { exit = true; /* goto case ',' */ }
 					case ',':
 						if (rb_counter == 0 && eb_counter == 0 && cb_counter == 0)
 						{
 							fileinfo.move_back();
-							auto param = fileinfo.content.substr(lastargstart, fileinfo.off - lastargstart);
-							if (!param.empty())
+							if (fileinfo.off - lastargstart > 0)
 							{
 								finfo copy = fileinfo;
 								copy.off = lastargstart;
 								auto handled_param = handle_arg(h, copy, fileinfo.off);
-								params.push_back(handled_param);
+								params.emplace_back(std::move(handled_param));
 							}
 							fileinfo.next();
 							lastargstart = fileinfo.off;
@@ -652,7 +485,7 @@ namespace {
 				}
 			}
 		}
-		return replace(h, fileinfo, m, params);
+		return replace(h, fileinfo, m, std::move(params));
 	}
 
 	std::string parse_macro(helper& h, finfo& fileinfo)
@@ -674,32 +507,53 @@ namespace {
 			line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) -> bool {
 				return c != '"';
 			}));
-			line.erase(std::find_if(line.rbegin(), line.rend(), [](char c) -> bool {
-				return c != '"';
-			}).base(), line.end());
+            auto endIter = std::find_if(line.begin(), line.end(), [](char c) -> bool {
+                return c == '"';
+            });
+            if (std::distance(endIter, line.end()) > 1) {
+                if (fileinfo.path.empty())
+                    h.vm->wrn() << "[WARN][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unexpected data after include path." << std::endl;
+                else
+                    h.vm->wrn() << "[WARN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unexpected data after include path." << std::endl;
+            }
+            line.erase(endIter, line.end());
 			finfo otherfinfo;
 			try
 			{
 				otherfinfo.path = h.vm->get_filesystem().get_physical_path(line, fileinfo.path);
-				auto path = otherfinfo.path;
+				const auto& path = otherfinfo.path;
 				auto res = std::find_if(h.path_tree.begin(), h.path_tree.end(), [path](std::string& parent) -> bool { return parent == path; });
 				if (res != h.path_tree.end())
 				{
 					h.errflag = true;
-					h.vm->err() << "Recursive include detected. Include Tree:" << std::endl;
+					if (fileinfo.path.empty())
+					{
+						h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Recursive include detected. Include Tree." << std::endl;
+					}
+					else
+					{
+						h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Recursive include detected. Include Tree." << std::endl;
+					}
 					for (size_t i = 0; i < h.path_tree.size(); i++)
 					{
 						h.vm->err() << i << ". " << h.path_tree[i] << std::endl;
 					}
 					return "";
 				}
-				h.path_tree.push_back(path);
-				otherfinfo.content = load_file(path);
+                otherfinfo.content = load_file(path);
+				h.path_tree.emplace_back(path);
 			}
 			catch (const std::runtime_error& ex)
 			{
 				h.errflag = true;
-				h.vm->err() << "Failed to include '" << line << "' into file '" << fileinfo.path << "':" << ex.what() << std::endl;
+				if (fileinfo.path.empty())
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Failed to include '" << line << "' into file '" << fileinfo.path << "]\t" << "':" << ex.what() << std::endl;
+				}
+				else
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Failed to include '" << line << "' into file '" << fileinfo.path << "]\t" << "':" << ex.what() << std::endl;
+				}
 				return "";
 			}
 			std::stringstream sstream;
@@ -721,20 +575,68 @@ namespace {
 			m.line = fileinfo.line;
 			m.column = fileinfo.col;
 			auto bracketsIndex = line.find('(');
-			auto spaceIndex = line.find(' ');
+            auto spaceIter = std::find_if(line.begin(), line.end(), [](char ch) {
+                    return !(ch == '_' ||
+                        (ch >= 'a' && ch <= 'z') ||
+                        (ch >= 'A' && ch <= 'Z') ||
+                        (ch >= '0' && ch <= '9'));
+                });
+			auto spaceIndex = spaceIter == line.end() ? std::string::npos : std::distance(line.begin(), spaceIter);
 			if (bracketsIndex == std::string::npos && spaceIndex == std::string::npos)
 			{ // Empty define
 				m.name = line;
+				if (h.macros.find(m.name) != h.macros.end())
+				{
+					h.errflag = true;
+					if (fileinfo.path.empty())
+					{
+						h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+					}
+					else
+					{
+						h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+					}
+					return "";
+				}
 			}
 			else
 			{
-				if (spaceIndex < bracketsIndex || bracketsIndex == std::string::npos) // std::string::npos does not needs to be catched as bracketsIndex always < npos here
+				if (spaceIndex < bracketsIndex || bracketsIndex == std::string::npos) // std::string::npos does not need to be catched as bracketsIndex always < npos here
 				{ // First bracket was found after first space OR is not existing thus we have a simple define with a replace value here
 					m.name = line.substr(0, spaceIndex);
-					m.content = line.substr(spaceIndex + 1);
+					if (h.macros.find(m.name) != h.macros.end())
+					{
+						h.errflag = true;
+						if (fileinfo.path.empty())
+						{
+							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+						}
+						else
+						{
+							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+						}
+						return "";
+					}
+					m.content = line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex); //Special magic for '#define macro\'
+					m.hasargs = false;
 				}
 				else
 				{ // We got a define with arguments here
+					m.hasargs = true;
+					m.name = line.substr(0, bracketsIndex);
+					if (h.macros.find(m.name) != h.macros.end())
+					{
+						h.errflag = true;
+						if (fileinfo.path.empty())
+						{
+							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+						}
+						else
+						{
+							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+						}
+						return "";
+					}
 					auto bracketsEndIndex = line.find(')');
 					auto argumentsString = line.substr(bracketsIndex + 1, bracketsEndIndex);
 
@@ -756,14 +658,17 @@ namespace {
 						arg.erase(std::find_if(arg.rbegin(), arg.rend(), [](char c) -> bool {
 							return c != '\t' && c != ' ';
 						}).base(), arg.end());
-						m.args.push_back(arg);
-						arg_start_index = arg_index + 1;
+						if (!arg.empty())
+						{
+							m.args.emplace_back(std::move(arg));
+							arg_start_index = arg_index + 1;
+						}
 					}
-					m.name = line.substr(0, bracketsIndex);
 					m.content = line.length() <= bracketsEndIndex + 2 ? "" : line.substr(bracketsEndIndex + 2);
+					
 				}
 			}
-			h.macros.push_back(m);
+			h.macros[m.name] = std::move(m);
 			return "\n";
 		}
 		else if (inst == "UNDEF")
@@ -772,13 +677,19 @@ namespace {
 			{
 				return "\n";
 			}
-			auto res = std::find_if(h.macros.begin(), h.macros.end(), [line](macro& m) -> bool {
-				return line == m.name;
-			});
+			
+			auto res = h.macros.find(line);
 			if (res == h.macros.end())
 			{
 				h.errflag = true;
-				h.vm->err() << "Macro '" << line << "' not found." << std::endl;
+				if (fileinfo.path.empty())
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << line << "' not found." << std::endl;
+				}
+				else
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << line << "' not found." << std::endl;
+				}
 				return "";
 			}
 			else
@@ -792,16 +703,21 @@ namespace {
 			if (h.inside_ppif)
 			{
 				h.errflag = true;
-				h.vm->err() << "Unexpected IFDEF. Already inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				if (fileinfo.path.empty())
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unexpected IFDEF. Already inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				}
+				else
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unexpected IFDEF. Already inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				}
 				return "";
 			}
 			else
 			{
 				h.inside_ppif = true;
 			}
-			auto res = std::find_if(h.macros.begin(), h.macros.end(), [line](macro& m) -> bool {
-				return line == m.name;
-			});
+			auto res = h.macros.find(line);
 			if (res == h.macros.end())
 			{
 				h.allowwrite = false;
@@ -817,16 +733,21 @@ namespace {
 			if (h.inside_ppif)
 			{
 				h.errflag = true;
-				h.vm->err() << "Unexpected IFNDEF. Already inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				if (fileinfo.path.empty())
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unexpected IFNDEF. Already inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				}
+				else
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unexpected IFNDEF. Already inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				}
 				return "";
 			}
 			else
 			{
 				h.inside_ppif = true;
 			}
-			auto res = std::find_if(h.macros.begin(), h.macros.end(), [line](macro& m) -> bool {
-				return line == m.name;
-			});
+			auto res = h.macros.find(line);
 			if (res == h.macros.end())
 			{
 				h.allowwrite = true;
@@ -842,7 +763,14 @@ namespace {
 			if (!h.inside_ppif)
 			{
 				h.errflag = true;
-				h.vm->err() << "Unexpected ELSE. Not inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				if (fileinfo.path.empty())
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unexpected ELSE. Not inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				}
+				else
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unexpected ELSE. Not inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				}
 				return "";
 			}
 			h.allowwrite = !h.allowwrite;
@@ -853,7 +781,14 @@ namespace {
 			if (!h.inside_ppif)
 			{
 				h.errflag = true;
-				h.vm->err() << "Unexpected ENDIF. Not inside inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				if (fileinfo.path.empty())
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unexpected ENDIF. Not inside inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				}
+				else
+				{
+					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unexpected ENDIF. Not inside inside of a IFDEF or IFNDEF enclosure." << std::endl;
+				}
 				return "";
 			}
 			h.inside_ppif = false;
@@ -863,7 +798,14 @@ namespace {
 		else
 		{
 			h.errflag = true;
-			h.vm->err() << "Unknown PreProcessor instruction '" << inst << "'." << std::endl;
+			if (fileinfo.path.empty())
+			{
+				h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unknown PreProcessor instruction '" << inst << "'." << std::endl;
+			}
+			else
+			{
+				h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unknown PreProcessor instruction '" << inst << "'." << std::endl;
+			}
 			return "";
 		}
 	}
@@ -883,7 +825,8 @@ namespace {
 				{
 					is_in_string = false;
 				}
-				sstream << c;
+                if (h.allowwrite)
+				    sstream << c;
 				continue;
 			}
 			switch (c)
@@ -893,7 +836,8 @@ namespace {
 					is_in_string = true;
 					auto word = wordstream.str();
 					wordstream.str("");
-					sstream << word << c;
+                    if (h.allowwrite)
+					    sstream << word << c;
 				} break;
 				case '\n':
 				{
@@ -915,7 +859,7 @@ namespace {
 				}
 				default:
 				{
-					if (c != ' ' && c != '\t')
+					if (c != ' ' && c != '\t' && c != '\n' && c != '\r')
 					{
 						was_new_line = false;
 					}
@@ -965,7 +909,8 @@ namespace {
 				case '3': case '4': case '5': case '6': case '7':
 				case '8': case '9': case '_':
 				{
-					wordstream << c;
+                    if (h.allowwrite)
+					    wordstream << c;
 					was_new_line = false;
 				} break;
 			}
@@ -994,10 +939,80 @@ namespace {
 	}
 
 }
+std::string line_macro_callback(finfo fileinfo, std::vector<std::string> params)
+{
+	return std::to_string(fileinfo.line);
+}
+std::string file_macro_callback(finfo fileinfo, std::vector<std::string> params)
+{
+	return '"' + fileinfo.path + '"';
+}
 std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string input, bool & errflag, std::string filename)
 {
 	helper h;
 	h.vm = vm;
+	{
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = "";
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "__LINE__";
+		macro.callback = line_macro_callback;
+		h.macros["__LINE__"] = macro;
+	}
+	{
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = "";
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "__FILE__";
+		macro.callback = file_macro_callback;
+		h.macros["__FILE__"] = macro;
+	}
+	{
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = VERSION_FULL;
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "_SQF_VM";
+		h.macros["_SQF_VM"] = macro;
+	}
+	{
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = STR(VERSION_MAJOR);
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "_SQF_VM_MAJOR";
+		h.macros["_SQF_VM_MAJOR"] = macro;
+	}
+	{
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = STR(VERSION_MINOR);
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "_SQF_VM_MINOR";
+		h.macros["_SQF_VM_MINOR"] = macro;
+	}
+	{
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = STR(VERSION_REVISION);
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "_SQF_VM_REVISION";
+		h.macros["_SQF_VM_REVISION"] = macro;
+	}
 	finfo fileinfo;
 	fileinfo.content = input;
 	fileinfo.path = filename;

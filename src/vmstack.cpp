@@ -1,6 +1,7 @@
 #include "vmstack.h"
 #include "value.h"
 #include "virtualmachine.h"
+
 void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instruction> inst)
 {
 	if (mstacks.empty())

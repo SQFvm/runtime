@@ -17,8 +17,8 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 2
-#define VERSION_REVISION 0
-#define VERSION "INDEV"
+#define VERSION_REVISION 2
+#define VERSION "RC1"
 #define VERSION_FULL VERSION " - " __DATE__ " " __TIME__
 #define VERSION_MAJORMINOR CONCAT(VERSION_MAJOR, VERSION_MINOR)
 
@@ -55,4 +55,4 @@
 int console_width();
 int main(int argc, char** argv);
 
-std::string get_executable_path();
+std::string get_working_dir();

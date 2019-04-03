@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <queue>
+#include <vector>
 #include <string>
 #include "varscope.h"
 
@@ -9,6 +10,7 @@ namespace sqf
 	class instruction;
 	class virtualmachine;
 	class sqfnamespace;
+	class value;
 
 
 	class callstack : public varscope
@@ -16,6 +18,7 @@ namespace sqf
 	private:
 		std::queue<std::shared_ptr<sqf::instruction>> mstack;
 		std::shared_ptr<sqf::sqfnamespace> mwith;
+		std::vector<std::shared_ptr<sqf::value>> mvalstack;
 	protected:
 		void clear_stack() { while (!mstack.empty()) { mstack.pop(); } }
 	public:
@@ -28,5 +31,21 @@ namespace sqf
 		void setnamespace(std::shared_ptr<sqf::sqfnamespace> ns) { mwith = ns; }
 
 		virtual bool recover() { return false; }
+
+		void push_back_value(std::shared_ptr<value> val) { mvalstack.push_back(val); }
+		std::shared_ptr<value> pop_back_value(bool &success)
+		{
+			if (mvalstack.empty())
+			{
+				success = false;
+				return std::shared_ptr<value>();
+			}
+			success = true;
+			auto val = mvalstack.back();
+			mvalstack.pop_back();
+			return val;
+		}
+		std::shared_ptr<value> peek_value() { if (mvalstack.empty()) return std::shared_ptr<value>(); return mvalstack.back(); }
+		void drop_values() { mvalstack.clear(); }
 	};
 }
