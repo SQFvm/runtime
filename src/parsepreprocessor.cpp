@@ -717,9 +717,7 @@ namespace {
 			{
 				h.inside_ppif = true;
 			}
-			auto res = std::find_if(h.macros.begin(), h.macros.end(), [line](macro& m) -> bool {
-				return line == m.name;
-			});
+			auto res = h.macros.find(line);
 			if (res == h.macros.end())
 			{
 				h.allowwrite = false;
@@ -749,9 +747,7 @@ namespace {
 			{
 				h.inside_ppif = true;
 			}
-			auto res = std::find_if(h.macros.begin(), h.macros.end(), [line](macro& m) -> bool {
-				return line == m.name;
-			});
+			auto res = h.macros.find(line);
 			if (res == h.macros.end())
 			{
 				h.allowwrite = true;
