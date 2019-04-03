@@ -681,16 +681,15 @@ namespace {
 			auto res = h.macros.find(line);
 			if (res == h.macros.end())
 			{
-				h.errflag = true;
 				if (fileinfo.path.empty())
 				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << line << "' not found." << std::endl;
+					h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << line << "' not found." << std::endl;
 				}
 				else
 				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << line << "' not found." << std::endl;
+					h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << line << "' not found." << std::endl;
 				}
-				return "";
+				return "\n";
 			}
 			else
 			{
