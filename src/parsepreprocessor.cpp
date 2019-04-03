@@ -585,18 +585,58 @@ namespace {
 			if (bracketsIndex == std::string::npos && spaceIndex == std::string::npos)
 			{ // Empty define
 				m.name = line;
+				if (h.macros.find(m.name) != h.macros.end())
+				{
+					h.errflag = true;
+					if (fileinfo.path.empty())
+					{
+						h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+					}
+					else
+					{
+						h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+					}
+					return "";
+				}
 			}
 			else
 			{
 				if (spaceIndex < bracketsIndex || bracketsIndex == std::string::npos) // std::string::npos does not need to be catched as bracketsIndex always < npos here
 				{ // First bracket was found after first space OR is not existing thus we have a simple define with a replace value here
 					m.name = line.substr(0, spaceIndex);
+					if (h.macros.find(m.name) != h.macros.end())
+					{
+						h.errflag = true;
+						if (fileinfo.path.empty())
+						{
+							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+						}
+						else
+						{
+							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+						}
+						return "";
+					}
 					m.content = line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex); //Special magic for '#define macro\'
 					m.hasargs = false;
 				}
 				else
 				{ // We got a define with arguments here
 					m.hasargs = true;
+					m.name = line.substr(0, bracketsIndex);
+					if (h.macros.find(m.name) != h.macros.end())
+					{
+						h.errflag = true;
+						if (fileinfo.path.empty())
+						{
+							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+						}
+						else
+						{
+							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+						}
+						return "";
+					}
 					auto bracketsEndIndex = line.find(')');
 					auto argumentsString = line.substr(bracketsIndex + 1, bracketsEndIndex);
 
@@ -624,7 +664,6 @@ namespace {
 							arg_start_index = arg_index + 1;
 						}
 					}
-					m.name = line.substr(0, bracketsIndex);
 					m.content = line.length() <= bracketsEndIndex + 2 ? "" : line.substr(bracketsEndIndex + 2);
 					
 				}
