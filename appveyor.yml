@@ -26,11 +26,11 @@ init:
 before_build:
 - cmd: |-
     cmake --version
-    cmake -G %generator%
+    cmake -G %generator% -S . -B build
 install:
 - git submodule update --init --recursive
 build:
-  project: c:\projects\vm\sqfvm.sln
+  project: c:\projects\vm\build\sqfvm.sln
   verbosity: minimal
   parallel: true
 only_commits:
