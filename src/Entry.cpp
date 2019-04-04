@@ -19,6 +19,7 @@
 
 #include "dllexports.h"
 #include "debugger.h"
+#include <signal.h>
 #ifdef _WIN32
 #include <windows.h>
 #include <direct.h>
@@ -27,12 +28,28 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <execinfo.h>
 #endif
 
 #ifdef _WIN32
 #define RELPATHHINT "Supports absolut and relative pathing using '.\\path\\to\\file' or 'C:\\path\\to\\file'."
 #else
 #define RELPATHHINT "Supports absolut and relative pathing using './path/to/file' or '/path/to/file'."
+#endif
+
+
+#ifdef WIN32
+// ToDo: Implement StackTrace on error
+#else
+void handle_SIGSEGV(int val)
+{
+	void *arr[20];
+	size_t size;
+	size = backtrace(arr, 20);
+	fprintf(stderr, "Error: signal %d:\n", val);
+	backtrace_symbols_fd(arr, size, STDERR_FILENO);
+	exit(-1);
+}
 #endif
 
 
@@ -96,6 +113,21 @@ std::string extension(std::string input)
 
 int main(int argc, char** argv)
 {
+#ifdef WIN32
+	// ToDo: Implement StackTrace on error
+#else
+	struct sigaction action_SIGINT, action_SIGSEGV;
+
+	memset(&action_SIGINT, 0, sizeof(struct sigaction));
+	action_SIGINT.sa_handler = handle_SIGINT;
+	sigaction(SIGINT, &action_SIGINT, NULL);
+
+	memset(&action_SIGSEGV, 0, sizeof(struct sigaction));
+	action_SIGSEGV.sa_handler = handle_SIGSEGV;
+	sigaction(SIGSEGV, &action_SIGSEGV, NULL);
+#endif
+
+
 	auto executable_path = sqf::filesystem::sanitize(get_working_dir());
 	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', VERSION_FULL "\n");
 
