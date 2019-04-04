@@ -160,11 +160,11 @@ namespace
 	//ident = [a-zA-Z]+;
 	//size_t ident(const char *code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z'); i++); return i - off; }
 	//command = [-+*/%a-zA-Z|&_><=\[\]]+;
-	size_t command(const char *code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '-' || code[i] == '+' || code[i] == '*' || code[i] == '/' || code[i] == '%' || code[i] == '|' || code[i] == '&' || code[i] == '_' || code[i] == '>' || code[i] == '<' || code[i] == '=' || code[i] == '[' || code[i] == ']'; i++); return i - off; }
+	size_t command(const char *code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '-' || code[i] == '+' || code[i] == '*' || code[i] == '/' || code[i] == '%' || code[i] == '|' || code[i] == '&' || code[i] == '_' || code[i] == '>' || code[i] == '<' || code[i] == '=' || code[i] == '[' || code[i] == ']'; i++) {}; return i - off; }
 	//anytext = (?![ \t\r\n;])+;
-	size_t anytext(const char *code, size_t off) { size_t i; for (i = off; code[i] != ' ' && code[i] != '\t' && code[i] != '\r' && code[i] != '\n' && code[i] != ';'; i++); return i - off; }
+	size_t anytext(const char *code, size_t off) { size_t i; for (i = off; code[i] != ' ' && code[i] != '\t' && code[i] != '\r' && code[i] != '\n' && code[i] != ';'; i++) {}; return i - off; }
 	//type = [a-zA-Z]+;
-	size_t type(const char *code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z'); i++); return i - off; }
+	size_t type(const char *code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z'); i++) {}; return i - off; }
 	//integer = [0-9]+;
 	//size_t integer(const char *code, size_t off) { size_t i; for (i = off; (code[i] >= '0' && code[i] <= '9'); i++); return i - off; }
 	//semicolon = ';';

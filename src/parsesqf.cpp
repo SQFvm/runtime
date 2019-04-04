@@ -69,7 +69,7 @@ namespace sqf
 			//endchr = [,;];
 			size_t endchr(const char* code, size_t off) { return code[off] == ';' || code[off] == ',' ? 1 : 0; }
 			//identifier = [_a-zA-Z][_a-zA-Z0-9]*;
-			size_t identifier(const char* code, size_t off) { size_t i = off; if (!((code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '_')) return 0; for (i = off + 1; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++); return i - off; }
+			size_t identifier(const char* code, size_t off) { size_t i = off; if (!((code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '_')) return 0; for (i = off + 1; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++) {}; return i - off; }
 			//identifier = [_a-zA-Z][_a-zA-Z0-9]+;
 			size_t assidentifier(const char* code, size_t off)
 			{
@@ -96,13 +96,13 @@ namespace sqf
 				return i - off;
 			}
 			//hexadecimal = [0-9a-fA-F]+;
-			size_t hexadecimal(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'f') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] >= '0' && code[i] <= '9'); i++); return i - off; }
+			size_t hexadecimal(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'f') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] >= '0' && code[i] <= '9'); i++) {}; return i - off; }
 			//scalarsub = [0-9]+;
-			size_t scalarsub(const char* code, size_t off) { size_t i; for (i = off; code[i] >= '0' && code[i] <= '9'; i++); return i - off; }
+			size_t scalarsub(const char* code, size_t off) { size_t i; for (i = off; code[i] >= '0' && code[i] <= '9'; i++) {}; return i - off; }
 			//scalar = scalarsub(.scalarsub)?;
 			size_t scalar(const char* code, size_t off) { size_t i = off + scalarsub(code, off); if (code[off] == '.') i += scalarsub(code, off); return i - off; }
 			//anytext = (?![ \t\r\n;])+;
-			size_t anytext(const char* code, size_t off) { size_t i; for (i = off; code[i] != ' ' && code[i] != '\t' && code[i] != '\r' && code[i] != '\n' && code[i] != ';'; i++); return i - off; }
+			size_t anytext(const char* code, size_t off) { size_t i; for (i = off; code[i] != ' ' && code[i] != '\t' && code[i] != '\r' && code[i] != '\n' && code[i] != ';'; i++) {}; return i - off; }
 			//SQF = [ STATEMENT { endchr { endchr } STATEMENT } ]
 			bool SQF_start(helper &h, const char* code, size_t curoff) { return true; }
 			void SQF(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
