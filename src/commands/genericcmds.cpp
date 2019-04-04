@@ -19,6 +19,7 @@
 #include "../callstack_foreach.h"
 #include "../callstack_count.h"
 #include "../Entry.h"
+#include "../sqfnamespace.h"
 #include "../fileio.h"
 #include "../parsepreprocessor.h"
 
@@ -434,6 +435,10 @@ namespace
 	{
 		auto varname = right->as_string();
 		auto val = vm->stack()->getlocalvar(varname);
+		if (val->dtype() == sqf::type::NOTHING)
+		{
+			val = vm->stack()->stacks_top()->getnamespace()->getvar(varname);
+		}
 		return std::make_shared<value>(val->dtype() == sqf::type::NOTHING);
 	}
 	std::shared_ptr<value> isnil_code(virtualmachine* vm, std::shared_ptr<value> right)
