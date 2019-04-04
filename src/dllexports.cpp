@@ -35,9 +35,9 @@ extern "C" {
 			sqfvm_virtualmachine->parse_sqf(inputAfterPP, "__libraryfeed.sqf");
 			sqfvm_virtualmachine->execute();
 			auto val = sqfvm_virtualmachine->stack()->last_value();
-			sqfvm_virtualmachine->err_buffprint();
-			sqfvm_virtualmachine->wrn_buffprint();
-			sqfvm_virtualmachine->out_buffprint();
+			sqfvm_virtualmachine->err_buffprint(true);
+			sqfvm_virtualmachine->wrn_buffprint(true);
+			sqfvm_virtualmachine->out_buffprint(true);
 			if (val != nullptr)
 			{
 				sstream << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
@@ -49,9 +49,9 @@ extern "C" {
 		}
 		else
 		{
-			sqfvm_virtualmachine->err_buffprint();
-			sqfvm_virtualmachine->wrn_buffprint();
-			sqfvm_virtualmachine->out_buffprint();
+			sqfvm_virtualmachine->err_buffprint(true);
+			sqfvm_virtualmachine->wrn_buffprint(true);
+			sqfvm_virtualmachine->out_buffprint(true);
 		}
 		auto str = sstream.str();
 		memset(buffer, 0, sizeof(char) * bufferlen);
