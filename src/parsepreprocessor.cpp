@@ -676,7 +676,7 @@ namespace {
 			}
 			
 			auto res = h.macros.find(line);
-			if (res != h.macros.end())
+			if (res == h.macros.end())
 			{
 				if (h.warn_define)
 				{
