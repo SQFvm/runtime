@@ -23,6 +23,10 @@ namespace {
 		bool allowwrite = true;
 		bool inside_ppif = false;
 
+		// Wether or not to warn on non-existing #undef
+		// and already-existing #define
+		bool warn_define = true;
+
 		std::optional<macro> contains_macro(std::string mname)
 		{
 			auto res = macros.find(mname);
@@ -585,18 +589,16 @@ namespace {
 			if (bracketsIndex == std::string::npos && spaceIndex == std::string::npos)
 			{ // Empty define
 				m.name = line;
-				if (h.macros.find(m.name) != h.macros.end())
+				if (h.macros.find(m.name) != h.macros.end() && h.warn_define)
 				{
-					h.errflag = true;
 					if (fileinfo.path.empty())
 					{
-						h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+						h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
 					}
 					else
 					{
-						h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+						h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
 					}
-					return "";
 				}
 			}
 			else
@@ -604,18 +606,16 @@ namespace {
 				if (spaceIndex < bracketsIndex || bracketsIndex == std::string::npos) // std::string::npos does not need to be catched as bracketsIndex always < npos here
 				{ // First bracket was found after first space OR is not existing thus we have a simple define with a replace value here
 					m.name = line.substr(0, spaceIndex);
-					if (h.macros.find(m.name) != h.macros.end())
+					if (h.macros.find(m.name) != h.macros.end() && h.warn_define)
 					{
-						h.errflag = true;
 						if (fileinfo.path.empty())
 						{
-							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+							h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
 						}
 						else
 						{
-							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+							h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
 						}
-						return "";
 					}
 					m.content = line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex); //Special magic for '#define macro\'
 					m.hasargs = false;
@@ -624,18 +624,16 @@ namespace {
 				{ // We got a define with arguments here
 					m.hasargs = true;
 					m.name = line.substr(0, bracketsIndex);
-					if (h.macros.find(m.name) != h.macros.end())
+					if (h.macros.find(m.name) != h.macros.end() && h.warn_define)
 					{
-						h.errflag = true;
 						if (fileinfo.path.empty())
 						{
-							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+							h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
 						}
 						else
 						{
-							h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
+							h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
 						}
-						return "";
 					}
 					auto bracketsEndIndex = line.find(')');
 					auto argumentsString = line.substr(bracketsIndex + 1, bracketsEndIndex);
@@ -679,7 +677,7 @@ namespace {
 			}
 			
 			auto res = h.macros.find(line);
-			if (res == h.macros.end())
+			if (res == h.macros.end() && h.warn_define)
 			{
 				if (fileinfo.path.empty())
 				{
@@ -689,7 +687,6 @@ namespace {
 				{
 					h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << line << "' not found." << std::endl;
 				}
-				return "\n";
 			}
 			else
 			{
@@ -946,10 +943,11 @@ std::string file_macro_callback(finfo fileinfo, std::vector<std::string> params)
 {
 	return '"' + fileinfo.path + '"';
 }
-std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string input, bool & errflag, std::string filename)
+std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string input, bool & errflag, std::string filename, bool warn_define)
 {
 	helper h;
 	h.vm = vm;
+	h.warn_define = warn_define;
 	{
 		macro macro;
 		macro.line = 0;

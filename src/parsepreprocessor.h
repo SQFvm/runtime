@@ -218,7 +218,7 @@ namespace sqf
 			};
 
 
-			std::string parse(sqf::virtualmachine* vm, std::string input, bool &errflag, std::string filename);
+			std::string parse(sqf::virtualmachine* vm, std::string input, bool &errflag, std::string filename, bool warn_define = true);
 		}
 	}
 }

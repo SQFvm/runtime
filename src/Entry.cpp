@@ -148,6 +148,10 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg disableClassnameCheckArg("c", "check-classnames", "Enables the config checking for eg. createVehicle.", false);
 	cmd.add(disableClassnameCheckArg);
 
+	TCLAP::SwitchArg disableMacroWarningsArg("", "disable-macro-warnings", "Disables the warning for duplicate defines and undefines without a corresponding define.\n"
+		"Note that this will only disable theese for CLI related input.", false);
+	cmd.add(disableMacroWarningsArg);
+
 
 	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. " RELPATHHINT "\n"
 		"An allowed location, is a location SQF-VM will be allowed to load files from."
@@ -439,7 +443,7 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
-			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
+			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized, disableMacroWarningsArg.getValue());
 			if (err)
 			{
 				vm.err_buffprint();
@@ -483,7 +487,7 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
-			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
+			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized, disableMacroWarningsArg.getValue());
 			if (err)
 			{
 				vm.err_buffprint();
@@ -536,7 +540,7 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
-			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
+			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized, disableMacroWarningsArg.getValue());
 			if (err)
 			{
 				vm.err_buffprint();
@@ -627,7 +631,13 @@ int main(int argc, char** argv)
 
 			auto input = sstream.str();
 			bool err = false;
-			auto inputAfterPP = sqf::parse::preprocessor::parse(&vm, input, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+			auto inputAfterPP = sqf::parse::preprocessor::parse(
+				&vm,
+				input,
+				err,
+				(std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string(),
+				disableMacroWarningsArg.getValue()
+			);
 			if (err || vm.err_hasdata())
 			{
 				vm.err_buffprint();
