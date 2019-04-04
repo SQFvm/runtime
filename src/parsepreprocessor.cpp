@@ -494,7 +494,6 @@ namespace {
 
 	std::string parse_macro(helper& h, finfo& fileinfo)
 	{
-		char c;
 		bool was_new_line = true;
 		auto inst = fileinfo.get_word();
 		auto line = fileinfo.get_line(true);
@@ -677,7 +676,7 @@ namespace {
 			}
 			
 			auto res = h.macros.find(line);
-			if (res == h.macros.end())
+			if (res != h.macros.end())
 			{
 				if (h.warn_define)
 				{
