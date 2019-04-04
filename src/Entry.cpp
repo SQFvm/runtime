@@ -116,11 +116,7 @@ int main(int argc, char** argv)
 #ifdef WIN32
 	// ToDo: Implement StackTrace on error
 #else
-	struct sigaction action_SIGINT, action_SIGSEGV;
-
-	memset(&action_SIGINT, 0, sizeof(struct sigaction));
-	action_SIGINT.sa_handler = handle_SIGINT;
-	sigaction(SIGINT, &action_SIGINT, NULL);
+	struct sigaction action_SIGSEGV;
 
 	memset(&action_SIGSEGV, 0, sizeof(struct sigaction));
 	action_SIGSEGV.sa_handler = handle_SIGSEGV;
