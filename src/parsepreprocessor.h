@@ -217,8 +217,15 @@ namespace sqf
 				macro() : name(), content(), args(), filepath(), line(0), column(0), hasargs(false), callback(nullptr) {}
 			};
 
+			namespace settings
+			{
+				// Whether or not to warn on non-existing #undef
+				// and already-existing #define
+				extern bool disable_warn_define;
+			};
 
-			std::string parse(sqf::virtualmachine* vm, std::string input, bool &errflag, std::string filename, bool warn_define = true);
+
+			std::string parse(sqf::virtualmachine* vm, std::string input, bool &errflag, std::string filename);
 		}
 	}
 }
