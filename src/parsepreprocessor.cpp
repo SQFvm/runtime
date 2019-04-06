@@ -427,20 +427,13 @@ namespace {
 						auto res = h.contains_macro(word);
 						if (res.has_value())
 						{
-							if (res.value().hasargs)
-							{
-								fileinfo.move_back();
-							}
+							fileinfo.move_back();
 							auto handled = handle_macro(h, fileinfo, res.value());
 							if (h.errflag)
 							{
 								return "";
 							}
 							sstream << handled;
-							if (fileinfo.off != endindex)
-							{
-								sstream << c;
-							}
 						}
 						else
 						{
