@@ -369,12 +369,26 @@ namespace {
 	{
 		size_t word_start = fileinfo.off;
 		bool inside_word = false;
+		bool string_mode = false;
 		std::stringstream sstream;
 		char c;
 		while (fileinfo.off != endindex && (c = fileinfo.next()) != '\0')
 		{
+			if (string_mode)
+			{
+				if (c == '"')
+				{
+					string_mode = false;
+				}
+				sstream << c;
+				continue;
+			}
 			switch (c)
 			{
+				case '"':
+					string_mode = true;
+					sstream << c;
+				break;
 				case 'a': case 'b': case 'c': case 'd': case 'e':
 				case 'f': case 'g': case 'h': case 'i': case 'j':
 				case 'k': case 'l': case 'm': case 'n': case 'o':
