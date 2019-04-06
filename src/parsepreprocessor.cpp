@@ -429,6 +429,10 @@ namespace {
 								return "";
 							}
 							sstream << handled;
+							if (fileinfo.off != endindex)
+							{
+								sstream << c;
+							}
 						}
 						else
 						{
