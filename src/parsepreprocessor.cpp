@@ -12,6 +12,16 @@
 
 using namespace sqf::parse::preprocessor;
 
+namespace sqf {
+    namespace parse {
+        namespace preprocessor {
+            namespace settings {
+                bool disable_warn_define = false;
+            }
+        }
+    }
+}
+
 namespace {
 	class helper
 	{
@@ -23,9 +33,6 @@ namespace {
 		bool allowwrite = true;
 		bool inside_ppif = false;
 
-		// Wether or not to warn on non-existing #undef
-		// and already-existing #define
-		bool warn_define = true;
 
 		std::optional<macro> contains_macro(std::string mname)
 		{
@@ -40,6 +47,7 @@ namespace {
 			}
 		}
 	};
+
 	std::string handle_macro(helper& h, finfo& fileinfo, const macro& m);
 	std::string replace(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string> params);
 	std::string handle_arg(helper& h, finfo& fileinfo, size_t endindex);
@@ -512,7 +520,6 @@ namespace {
 
 	std::string parse_macro(helper& h, finfo& fileinfo)
 	{
-		char c;
 		bool was_new_line = true;
 		auto inst = fileinfo.get_word();
 		auto line = fileinfo.get_line(true);
@@ -607,7 +614,7 @@ namespace {
 			if (bracketsIndex == std::string::npos && spaceIndex == std::string::npos)
 			{ // Empty define
 				m.name = line;
-				if (h.macros.find(m.name) != h.macros.end() && h.warn_define)
+				if (h.macros.find(m.name) != h.macros.end() && !settings::disable_warn_define)
 				{
 					if (fileinfo.path.empty())
 					{
@@ -624,7 +631,7 @@ namespace {
 				if (spaceIndex < bracketsIndex || bracketsIndex == std::string::npos) // std::string::npos does not need to be catched as bracketsIndex always < npos here
 				{ // First bracket was found after first space OR is not existing thus we have a simple define with a replace value here
 					m.name = line.substr(0, spaceIndex);
-					if (h.macros.find(m.name) != h.macros.end() && h.warn_define)
+					if (h.macros.find(m.name) != h.macros.end() && !settings::disable_warn_define)
 					{
 						if (fileinfo.path.empty())
 						{
@@ -642,7 +649,7 @@ namespace {
 				{ // We got a define with arguments here
 					m.hasargs = true;
 					m.name = line.substr(0, bracketsIndex);
-					if (h.macros.find(m.name) != h.macros.end() && h.warn_define)
+					if (h.macros.find(m.name) != h.macros.end() && !settings::disable_warn_define)
 					{
 						if (fileinfo.path.empty())
 						{
@@ -697,7 +704,7 @@ namespace {
 			auto res = h.macros.find(line);
 			if (res == h.macros.end())
 			{
-				if (h.warn_define)
+				if (!settings::disable_warn_define)
 				{
 					if (fileinfo.path.empty())
 					{
@@ -964,11 +971,10 @@ std::string file_macro_callback(finfo fileinfo, std::vector<std::string> params)
 {
 	return '"' + fileinfo.path + '"';
 }
-std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string input, bool & errflag, std::string filename, bool warn_define)
+std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string input, bool & errflag, std::string filename)
 {
 	helper h;
 	h.vm = vm;
-	h.warn_define = warn_define;
 	{
 		macro macro;
 		macro.line = 0;
