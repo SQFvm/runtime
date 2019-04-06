@@ -585,13 +585,22 @@ namespace {
 				}
 				return "";
 			}
-			std::stringstream sstream;
-			sstream << "#file " << otherfinfo.path << std::endl;
-			sstream << "#line 0" << std::endl;
-			sstream << parse_file(h, otherfinfo) << std::endl;
-			sstream << "#file " << fileinfo.path << std::endl;
-			sstream << "#line " << fileinfo.line - 1 << std::endl;
-			return sstream.str();
+			std::string output;
+			auto lineInfo = std::to_string(fileinfo.line - 1);
+			auto parsedFile = parse_file(h, otherfinfo);
+			output.reserve(
+				compiletime::strlen("#file ") + otherfinfo.path.size() + compiletime::strlen("\n") +
+				compiletime::strlen("#line 0\n") +
+				parsedFile.size() + compiletime::strlen("\n") +
+				compiletime::strlen("#file ") + fileinfo.path.size() + compiletime::strlen("\n") +
+				compiletime::strlen("#line ") + lineInfo.size() + compiletime::strlen("\n")
+			);
+			output.append("#file "); output.append(otherfinfo.path); output.append("\n");
+			output.append("#line 0\n");
+			output.append(parsedFile); output.append("\n");
+			output.append("#file "); output.append(fileinfo.path); output.append("\n");
+			output.append("#line "); output.append(lineInfo); output.append("\n");
+			return std::move(output);
 		}
 		else if (inst == "DEFINE")
 		{ // #define TEST(A, B, C) A #B##C
