@@ -439,7 +439,11 @@ namespace {
 							sstream << handled;
 							if (fileinfo.off != endindex)
 							{
-								sstream << c;
+								if (!res.value().hasargs)
+								{
+									fileinfo.move_back();
+								}
+								sstream << fileinfo.next();
 							}
 						}
 						else
