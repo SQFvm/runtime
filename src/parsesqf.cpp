@@ -1098,6 +1098,8 @@ namespace sqf
 				thisnode.kind = sqfasttypes::UNARYEXPRESSION;
 				thisnode.offset = curoff;
 				thisnode.file = file;
+                thisnode.col = col;
+                thisnode.line = line;
 				//size_t dbgstart = curoff;
 				//size_t dbgcol = col;
 				//size_t dbgline = line;
