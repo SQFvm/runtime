@@ -346,6 +346,74 @@ namespace
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
+    std::shared_ptr<value> sort_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+    {
+        auto arr = left->as_vector();
+        auto sort_flag = right->as_bool();
+
+        try
+        {
+            std::sort(arr.begin(), arr.end(), [sort_flag](const auto& a, const auto& b) -> bool {
+
+                if (a->dtype() != b->dtype())
+                    throw std::runtime_error("Array elements are not of same type");
+
+                switch (a->dtype()) 
+                {
+                case sqf::ARRAY: // sort based on elements
+                {
+                    auto a_arr = a->as_vector();
+                    auto b_arr = b->as_vector();
+                    if (a_arr.size() != b_arr.size())
+                        throw std::runtime_error("Sub-arrays are not the same length");
+
+                    for (size_t idx = 0; idx < a_arr.size(); ++idx)
+                    {
+                        const auto& a_elem = a_arr[idx];
+                        const auto& b_elem = b_arr[idx];
+
+                        if (a_elem->dtype() != b_elem->dtype())
+                            throw std::runtime_error("Sub-array elements are not of same type");
+
+                        switch (a_elem->dtype())
+                        {
+                        case sqf::STRING:
+                            if (a_elem->as_string() < b_elem->as_string()) return sort_flag;
+                            if (a_elem->as_string() > b_elem->as_string()) return !sort_flag;
+                            break;
+                        case sqf::SCALAR:
+                            if (a_elem->as_double() < b_elem->as_double()) return sort_flag;
+                            if (a_elem->as_double() > b_elem->as_double()) return !sort_flag;
+                            break;
+                        };
+                    }
+                    return false;
+                }
+                case sqf::STRING:
+                {
+                    if (a->as_string() < b->as_string()) return sort_flag;
+                    if (a->as_string() > b->as_string()) return !sort_flag;
+                    return false;
+                }
+                case sqf::SCALAR:
+                {
+                    if (a->as_double() < b->as_double()) return sort_flag;
+                    if (a->as_double() > b->as_double()) return !sort_flag;
+                    return false;
+                }
+                };
+
+                return false;
+            });
+        }
+        catch (const std::exception& ex)
+        {
+            vm->err() << ex.what() << std::endl;
+        }
+
+        *left = arr;
+        return {};
+    }
 	std::shared_ptr<value> resize_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		if (right->as_int() < 0)
@@ -1234,6 +1302,7 @@ void sqf::commandmap::initgenericcmds()
 	add(binary(4, "pushBack", type::ARRAY, type::ANY, "Insert an element to the back of the given array. This command modifies the original array. Returns the index of the newly added element.", pushback_array_any));
 	add(binary(4, "pushBackUnique", type::ARRAY, type::ANY, "Adds element to the back of the given array but only if it is unique to the array. The index of the added element is returned upon success, otherwise -1. This command modifies the original array.", pushbackunique_array_any));
 	add(binary(4, "findIf", type::ARRAY, type::CODE, "Searches for an element within array for which the code evaluates to true. Returns the 0 based index on success or -1 if not found. Code on the right side of the command is evaluated for each element of the array, processed element can be referenced in code as _x.", findif_array_code));
+    add(binary(4, "sort", type::ARRAY, type::BOOL, "Attempts to sort given array either in ascending (true) or descending (false) order.", sort_array));
 	add(unary("reverse", type::ARRAY, "Reverses given array by reference. Modifies the original array.", reverse_array));
 	add(unary("private", type::STRING, "Sets a variable to the innermost scope.", private_string));
 	add(unary("private", type::ARRAY, "Sets a bunch of variables to the innermost scope.", private_array));
