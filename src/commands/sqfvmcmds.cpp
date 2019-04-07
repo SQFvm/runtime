@@ -262,6 +262,25 @@ namespace
 		left->data<codedata>()->loadinto(vm->stack(), cs);
 		return std::shared_ptr<value>();
 	}
+	std::shared_ptr<value> callstack___(virtualmachine* vm)
+	{
+		auto stackdump = vm->active_vmstack()->dump_callstack_diff({});
+		auto sqfarr = std::make_shared<arraydata>();
+		for (auto& it : stackdump)
+		{
+			std::vector<std::shared_ptr<sqf::value>> vec = {
+					std::make_shared<sqf::value>(it.namespace_used->get_name()),
+					std::make_shared<sqf::value>(it.scope_name),
+					std::make_shared<sqf::value>(it.callstack_name),
+					std::make_shared<sqf::value>(it.line),
+					std::make_shared<sqf::value>(it.column),
+					std::make_shared<sqf::value>(it.file),
+					std::make_shared<sqf::value>(it.dbginf)
+			};
+			sqfarr->push_back(std::make_shared<sqf::value>(std::make_shared<arraydata>(vec), sqf::type::ARRAY));
+		}
+		return std::make_shared<value>(sqfarr, sqf::type::ARRAY);
+	}
 }
 void sqf::commandmap::initsqfvmcmds()
 {
@@ -279,4 +298,5 @@ void sqf::commandmap::initsqfvmcmds()
 	add(unary("preprocess__", sqf::type::STRING, "Runs the PreProcessor on provided string.", preprocess___string));
 	add(unary("assembly__", sqf::type::CODE, "returns an array, containing the assembly instructions as string.", assembly___code));
 	add(binary(4, "except__", sqf::type::CODE, sqf::type::CODE, "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'. A callstack is available in '_callstack'.", except___code_code));
+	add(nular("callstack__", "Returns an array containing the whole callstack.", callstack___));
 }
