@@ -346,6 +346,85 @@ namespace
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
+    std::shared_ptr<value> sort_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+    {
+        auto arr = left->as_vector();
+        auto sort_flag = right->as_bool();
+
+        // No sort required (we don't strictly enforce constraints in this case)
+        if (arr.size() <= 1) return {};
+
+        // Check element types
+        auto type = arr[0]->dtype();
+        if (type != sqf::STRING && type != sqf::SCALAR && type != sqf::ARRAY)
+        {
+            vm->err() << "sort only accepts arrays of elements of type String, Number or Array." << std::endl;
+            return {};
+        }
+        if (!arraydata{arr}.check_type(vm, type, arr.size(), arr.size()))
+            return {};
+
+        // Confirm array element sub arrays are consistent in structure
+        if (type == sqf::ARRAY)
+        {
+            auto subarray = arr[0]->as_vector();
+            std::vector<sqf::type> types;
+            std::transform(subarray.begin(), subarray.end(), std::back_inserter(types), [](const auto& elem) { return elem->dtype(); });
+            for (const auto& elem : arr)
+            {
+                if (!arraydata{ elem->as_vector() }.check_type(vm, types))
+                    return {};
+            }
+        }
+
+        std::sort(arr.begin(), arr.end(), [sort_flag](const auto& a, const auto& b) -> bool {
+
+            switch (a->dtype()) 
+            {
+            case sqf::ARRAY: // sort based on elements
+            {
+                auto a_arr = a->as_vector();
+                auto b_arr = b->as_vector();
+
+                for (size_t idx = 0; idx < a_arr.size(); ++idx)
+                {
+                    const auto& a_elem = a_arr[idx];
+                    const auto& b_elem = b_arr[idx];
+
+                    switch (a_elem->dtype())
+                    {
+                    case sqf::STRING:
+                        if (a_elem->as_string() < b_elem->as_string()) return sort_flag;
+                        if (a_elem->as_string() > b_elem->as_string()) return !sort_flag;
+                        break;
+                    case sqf::SCALAR:
+                        if (a_elem->as_double() < b_elem->as_double()) return sort_flag;
+                        if (a_elem->as_double() > b_elem->as_double()) return !sort_flag;
+                        break;
+                    };
+                }
+                return false;
+            }
+            case sqf::STRING:
+            {
+                if (a->as_string() < b->as_string()) return sort_flag;
+                if (a->as_string() > b->as_string()) return !sort_flag;
+                return false;
+            }
+            case sqf::SCALAR:
+            {
+                if (a->as_double() < b->as_double()) return sort_flag;
+                if (a->as_double() > b->as_double()) return !sort_flag;
+                return false;
+            }
+            };
+
+            return false;
+        });
+
+        *left = arr;
+        return {};
+    }
 	std::shared_ptr<value> resize_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		if (right->as_int() < 0)
@@ -1234,6 +1313,7 @@ void sqf::commandmap::initgenericcmds()
 	add(binary(4, "pushBack", type::ARRAY, type::ANY, "Insert an element to the back of the given array. This command modifies the original array. Returns the index of the newly added element.", pushback_array_any));
 	add(binary(4, "pushBackUnique", type::ARRAY, type::ANY, "Adds element to the back of the given array but only if it is unique to the array. The index of the added element is returned upon success, otherwise -1. This command modifies the original array.", pushbackunique_array_any));
 	add(binary(4, "findIf", type::ARRAY, type::CODE, "Searches for an element within array for which the code evaluates to true. Returns the 0 based index on success or -1 if not found. Code on the right side of the command is evaluated for each element of the array, processed element can be referenced in code as _x.", findif_array_code));
+    add(binary(4, "sort", type::ARRAY, type::BOOL, "Attempts to sort given array either in ascending (true) or descending (false) order.", sort_array));
 	add(unary("reverse", type::ARRAY, "Reverses given array by reference. Modifies the original array.", reverse_array));
 	add(unary("private", type::STRING, "Sets a variable to the innermost scope.", private_string));
 	add(unary("private", type::ARRAY, "Sets a bunch of variables to the innermost scope.", private_array));
