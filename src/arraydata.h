@@ -61,9 +61,10 @@ namespace sqf
 		bool check_type(virtualmachine* vm, type t, size_t len) const { return check_type(vm, t, len, len); }
 		bool check_type(virtualmachine*, type, size_t min, size_t max) const;
 		template<size_t size>
-		bool check_type(virtualmachine* vm, std::array<sqf::type, size> arr) const { return check_type(vm, arr.data(), size); }
+		bool check_type(virtualmachine* vm, const std::array<sqf::type, size>& arr) const { return check_type(vm, arr.data(), size); }
+        bool check_type(virtualmachine* vm, const std::vector<sqf::type>& vec) const { return check_type(vm, vec.data(), vec.size()); }
 		template<size_t size>
-		bool check_type(virtualmachine* vm, std::array<sqf::type, size> arr, size_t optionalstart) const { return check_type(vm, arr.data(), size, optionalstart); }
+        bool check_type(virtualmachine* vm, const std::array<sqf::type, size>& arr, size_t optionalstart) const { return check_type(vm, arr.data(), size, optionalstart); }
 
 		static double distance3dsqr(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { return distance3d(l->as_vec3(), r->as_vec3()); }
 		static double distance3dsqr(const arraydata* l, const arraydata* r) { return distance3d(l->as_vec3(), r->as_vec3()); }

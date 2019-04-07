@@ -351,65 +351,76 @@ namespace
         auto arr = left->as_vector();
         auto sort_flag = right->as_bool();
 
-        try
+        // No sort required (we don't strictly enforce constraints in this case)
+        if (arr.size() <= 1) return {};
+
+        // Check element types
+        auto type = arr[0]->dtype();
+        if (type != sqf::STRING && type != sqf::SCALAR && type != sqf::ARRAY)
         {
-            std::sort(arr.begin(), arr.end(), [sort_flag](const auto& a, const auto& b) -> bool {
+            vm->err() << "sort only accepts arrays of elements of type String, Number or Array." << std::endl;
+            return {};
+        }
+        if (!arraydata{arr}.check_type(vm, type, arr.size(), arr.size()))
+            return {};
 
-                if (a->dtype() != b->dtype())
-                    throw std::runtime_error("Array elements are not of same type");
+        // Confirm array element sub arrays are consistent in structure
+        if (type == sqf::ARRAY)
+        {
+            auto subarray = arr[0]->as_vector();
+            std::vector<sqf::type> types;
+            std::transform(subarray.begin(), subarray.end(), std::back_inserter(types), [](const auto& elem) { return elem->dtype(); });
+            for (const auto& elem : arr)
+            {
+                if (!arraydata{ elem->as_vector() }.check_type(vm, types))
+                    return {};
+            }
+        }
 
-                switch (a->dtype()) 
+        std::sort(arr.begin(), arr.end(), [sort_flag](const auto& a, const auto& b) -> bool {
+
+            switch (a->dtype()) 
+            {
+            case sqf::ARRAY: // sort based on elements
+            {
+                auto a_arr = a->as_vector();
+                auto b_arr = b->as_vector();
+
+                for (size_t idx = 0; idx < a_arr.size(); ++idx)
                 {
-                case sqf::ARRAY: // sort based on elements
-                {
-                    auto a_arr = a->as_vector();
-                    auto b_arr = b->as_vector();
-                    if (a_arr.size() != b_arr.size())
-                        throw std::runtime_error("Sub-arrays are not the same length");
+                    const auto& a_elem = a_arr[idx];
+                    const auto& b_elem = b_arr[idx];
 
-                    for (size_t idx = 0; idx < a_arr.size(); ++idx)
+                    switch (a_elem->dtype())
                     {
-                        const auto& a_elem = a_arr[idx];
-                        const auto& b_elem = b_arr[idx];
-
-                        if (a_elem->dtype() != b_elem->dtype())
-                            throw std::runtime_error("Sub-array elements are not of same type");
-
-                        switch (a_elem->dtype())
-                        {
-                        case sqf::STRING:
-                            if (a_elem->as_string() < b_elem->as_string()) return sort_flag;
-                            if (a_elem->as_string() > b_elem->as_string()) return !sort_flag;
-                            break;
-                        case sqf::SCALAR:
-                            if (a_elem->as_double() < b_elem->as_double()) return sort_flag;
-                            if (a_elem->as_double() > b_elem->as_double()) return !sort_flag;
-                            break;
-                        };
-                    }
-                    return false;
+                    case sqf::STRING:
+                        if (a_elem->as_string() < b_elem->as_string()) return sort_flag;
+                        if (a_elem->as_string() > b_elem->as_string()) return !sort_flag;
+                        break;
+                    case sqf::SCALAR:
+                        if (a_elem->as_double() < b_elem->as_double()) return sort_flag;
+                        if (a_elem->as_double() > b_elem->as_double()) return !sort_flag;
+                        break;
+                    };
                 }
-                case sqf::STRING:
-                {
-                    if (a->as_string() < b->as_string()) return sort_flag;
-                    if (a->as_string() > b->as_string()) return !sort_flag;
-                    return false;
-                }
-                case sqf::SCALAR:
-                {
-                    if (a->as_double() < b->as_double()) return sort_flag;
-                    if (a->as_double() > b->as_double()) return !sort_flag;
-                    return false;
-                }
-                };
-
                 return false;
-            });
-        }
-        catch (const std::exception& ex)
-        {
-            vm->err() << ex.what() << std::endl;
-        }
+            }
+            case sqf::STRING:
+            {
+                if (a->as_string() < b->as_string()) return sort_flag;
+                if (a->as_string() > b->as_string()) return !sort_flag;
+                return false;
+            }
+            case sqf::SCALAR:
+            {
+                if (a->as_double() < b->as_double()) return sort_flag;
+                if (a->as_double() > b->as_double()) return !sort_flag;
+                return false;
+            }
+            };
+
+            return false;
+        });
 
         *left = arr;
         return {};
