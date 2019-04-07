@@ -14,5 +14,7 @@ namespace sqf
 		callstack_switch(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<switchdata> swtch) : callstack(ns), mswtch(
 			                                                                                             std::move(swtch)) {}
 		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
+
+		std::string get_name() override { return "callstack_switch"; }
 	};
 }

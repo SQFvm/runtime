@@ -17,5 +17,7 @@ namespace sqf
 		callstack_apply(std::shared_ptr<sqf::sqfnamespace> ns, std::vector<std::shared_ptr<value>> arr, std::shared_ptr<codedata> apply)
 			: callstack(ns), mcurindex(0), mend(arr.empty()), moutarr(arr.size()), marr(std::move(arr)), mapply(std::move(apply)) { }
 		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
+
+		std::string get_name() override { return "callstack_apply"; }
 	};
 }

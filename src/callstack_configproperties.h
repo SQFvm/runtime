@@ -33,5 +33,7 @@ namespace sqf
 			mend(false)
 		{}
 		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
+
+		std::string get_name() override { return "callstack_configproperties"; }
 	};
 }

@@ -19,18 +19,37 @@ namespace sqf
 		std::queue<std::shared_ptr<sqf::instruction>> mstack;
 		std::shared_ptr<sqf::sqfnamespace> mwith;
 		std::vector<std::shared_ptr<sqf::value>> mvalstack;
+		std::shared_ptr<sqf::instruction> mlast_inst;
 	protected:
 		void clear_stack() { while (!mstack.empty()) { mstack.pop(); } }
+		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm)
+		{
+			if (mstack.empty())
+				return std::shared_ptr<sqf::instruction>();
+			auto ret = mstack.front();
+			mstack.pop();
+			return ret;
+		}
 	public:
 		callstack(std::shared_ptr<sqf::sqfnamespace>);
 		void pushinst(std::shared_ptr<sqf::instruction> value) { mstack.push(value); }
-		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) { if (mstack.empty()) return std::shared_ptr<sqf::instruction>(); auto ret = mstack.front(); mstack.pop(); return ret; }
+
+		// Returns the last poped instruction.
+		std::shared_ptr<sqf::instruction> last_inst() { return mlast_inst; }
+
+		std::shared_ptr<sqf::instruction> pop_inst(sqf::virtualmachine* vm)
+		{
+			auto inst = popinst(vm);
+			mlast_inst = inst;
+			return inst;
+		}
 		std::shared_ptr<sqf::instruction> peekinst() { if (mstack.empty()) return std::shared_ptr<sqf::instruction>(); auto front = mstack.front(); return front; }
 		std::shared_ptr<sqf::sqfnamespace> getnamespace() const { return mwith; }
 		size_t inststacksize() const { return mstack.size(); }
 		void setnamespace(std::shared_ptr<sqf::sqfnamespace> ns) { mwith = ns; }
 
 		virtual bool recover() { return false; }
+		virtual std::string get_name() { return "callstack";  }
 
 		void push_back_value(std::shared_ptr<value> val) { mvalstack.push_back(val); }
 		std::shared_ptr<value> pop_back_value(bool &success)

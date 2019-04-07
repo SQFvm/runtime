@@ -163,17 +163,42 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				//Only for non-scheduled (and thus the mainstack)
 				if (!mactivestack->isscheduled())
 				{
+					this->err() << "Stacktrace:" << std::endl;
+					auto stackdump = mactivestack->dump_callstack_diff({});
+					int i = 1;
+					for (auto& it : stackdump)
+					{
+						this->err() << i++ << ":\tnamespace: " << it.namespace_used->get_name()
+							<< "\tscopename: " << it.scope_name
+							<< "\tcallstack: " << it.callstack_name
+							<< std::endl << it.dbginf << std::endl;
+					}
 					break;
 				}
 			}
 			else
 			{
-				while (mactivestack->stacks_top() != *res)
+				auto sqftry = std::dynamic_pointer_cast<sqf::callstack_sqftry>(*res);
+				auto stackdump = mactivestack->dump_callstack_diff(sqftry);
+				auto sqfarr = std::make_shared<arraydata>();
+				for (auto& it : stackdump)
+				{
+					std::vector<std::shared_ptr<sqf::value>> vec = {
+							std::make_shared<sqf::value>(it.namespace_used->get_name()),
+							std::make_shared<sqf::value>(it.scope_name),
+							std::make_shared<sqf::value>(it.callstack_name),
+							std::make_shared<sqf::value>(it.line),
+							std::make_shared<sqf::value>(it.column),
+							std::make_shared<sqf::value>(it.file),
+							std::make_shared<sqf::value>(it.dbginf)
+						};
+					sqfarr->push_back(std::make_shared<sqf::value>(std::make_shared<arraydata>(vec), sqf::type::ARRAY));
+				}
+				while (mactivestack->stacks_top() != sqftry)
 				{
 					mactivestack->dropcallstack();
 				}
-				auto sqftry = std::dynamic_pointer_cast<sqf::callstack_sqftry>(*res);
-				sqftry->except(merr_buff.str());
+				sqftry->except(merr_buff.str(), sqfarr);
                 err_clear();
 			}
 		}

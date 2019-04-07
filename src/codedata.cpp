@@ -20,7 +20,7 @@ sqf::codedata::codedata(std::shared_ptr<sqf::callstack> cs)
 	{
 		//only valid for sqf::callstack!
 		//all others might crash here
-		inst = cs->popinst(nullptr);
+		inst = cs->pop_inst(nullptr);
 		minsts[i] = inst;
 	}
 }

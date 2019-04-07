@@ -16,5 +16,7 @@ namespace sqf
 	public:
 		callstack_findif(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<codedata> exec, std::shared_ptr<arraydata> arr) : callstack(ns), mexec(exec), marr(arr), mCurIndex(0) { }
 		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm);
+
+		std::string get_name() override { return "callstack_findif"; }
 	};
 }

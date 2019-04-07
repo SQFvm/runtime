@@ -22,6 +22,19 @@ namespace sqf
 		std::string mscriptname;
 		std::shared_ptr<sqf::value> mlast_value;
 	public:
+		struct stackdump
+		{
+			std::shared_ptr<sqf::sqfnamespace> namespace_used;
+			size_t line;
+			size_t column;
+			std::string file;
+			std::string dbginf;
+			std::string callstack_name;
+			std::string scope_name;
+		};
+		// Creates a stackdump from current top-callstack to the target callstack.
+		// If no target is provided, whole callstack will be dumped.
+		std::vector<sqf::vmstack::stackdump> dump_callstack_diff(std::shared_ptr<sqf::callstack> target);
 		vmstack() : misscheduled(false), misasleep(false) {}
 		vmstack(bool isscheduled) : misscheduled(isscheduled), misasleep(false) {}
 		void pushinst(sqf::virtualmachine* vm, std::shared_ptr<instruction> inst);
@@ -31,7 +44,7 @@ namespace sqf
 		{
 			if (mstacks.empty())
 				return std::shared_ptr<sqf::instruction>();
-			auto ret = mstacks.back()->popinst(vm);
+			auto ret = mstacks.back()->pop_inst(vm);
 			if (!ret.get())
 			{
 				dropcallstack();
