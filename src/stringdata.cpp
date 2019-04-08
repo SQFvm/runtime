@@ -1,6 +1,7 @@
 #include "stringdata.h"
 #include <stdexcept>
 #include <vector>
+#include <algorithm>
 
 std::string sqf::stringdata::parse_from_sqf(std::string_view s)
 {
