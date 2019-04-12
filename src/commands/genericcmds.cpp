@@ -1188,7 +1188,7 @@ namespace
 			}
 			else
 			{
-				vm->stack()->stacks_top()->setvar(fels.at(0)->as_string(), fels.size() == 2 ? fels.at(1) : std::make_shared<sqf::value>());
+				vm->stack()->stacks_top()->setvar(fels.at(0)->as_string(), fels.size() >= 2 ? fels.at(1) : std::make_shared<sqf::value>());
 			}
 		}
 		return std::make_shared<sqf::value>();
