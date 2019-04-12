@@ -15,56 +15,157 @@ namespace sqf
 
 	class callstack : public varscope
 	{
-	private:
-		std::queue<std::shared_ptr<sqf::instruction>> mstack;
-		std::shared_ptr<sqf::sqfnamespace> mwith;
-		std::vector<std::shared_ptr<sqf::value>> mvalstack;
-		std::shared_ptr<sqf::instruction> mlast_inst;
-	protected:
-		void clear_stack() { while (!mstack.empty()) { mstack.pop(); } }
-		virtual std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm)
-		{
-			if (mstack.empty())
-				return std::shared_ptr<sqf::instruction>();
-			auto ret = mstack.front();
-			mstack.pop();
-			return ret;
-		}
 	public:
-		callstack(std::shared_ptr<sqf::sqfnamespace>);
-		void pushinst(std::shared_ptr<sqf::instruction> value) { mstack.push(value); }
-
-		// Returns the last poped instruction.
-		std::shared_ptr<sqf::instruction> last_inst() { return mlast_inst; }
-
-		std::shared_ptr<sqf::instruction> pop_inst(sqf::virtualmachine* vm)
+		enum nextinstres
 		{
-			auto inst = popinst(vm);
-			mlast_inst = inst;
-			return inst;
+			NA,
+			done,
+			updated,
+			suspend,
+			exitwith
+		};
+	private:
+		// A std::queue containing the instructions this callstack withholds
+		std::queue<std::shared_ptr<sqf::instruction>> m_instruction_queue;
+
+		// The namespace this callstack is using for eg. resolving global variables
+		std::shared_ptr<sqf::sqfnamespace> m_used_namepsace;
+
+		// Contains the values that currently are hold for eg. other instructions.
+		std::vector<std::shared_ptr<sqf::value>> m_value_stack;
+
+		// The current instruction.
+		std::shared_ptr<sqf::instruction> m_current_instruction;
+		
+		// The current nextinstres
+		nextinstres m_current_nextinstres;
+	protected:
+		// Removes ALL instructions from this callstack
+		void drop_instructions()
+		{
+			while (!m_instruction_queue.empty())
+			{
+				m_instruction_queue.pop();
+			}
 		}
-		std::shared_ptr<sqf::instruction> peekinst() { if (mstack.empty()) return std::shared_ptr<sqf::instruction>(); auto front = mstack.front(); return front; }
-		std::shared_ptr<sqf::sqfnamespace> getnamespace() const { return mwith; }
-		size_t inststacksize() const { return mstack.size(); }
-		void setnamespace(std::shared_ptr<sqf::sqfnamespace> ns) { mwith = ns; }
 
-		virtual bool recover() { return false; }
-		virtual std::string get_name() { return "callstack";  }
+		// Performs the next operation
+		virtual nextinstres do_next(sqf::virtualmachine* vm)
+		{
+			if (m_instruction_queue.empty())
+				return done;
+			current_instruction(m_instruction_queue.front());
+			m_instruction_queue.pop();
+			return updated;
+		}
 
-		void push_back_value(std::shared_ptr<value> val) { mvalstack.push_back(val); }
+		// Sets the current instruction
+		void current_instruction(std::shared_ptr<sqf::instruction> inst)
+		{
+			m_current_instruction = inst;
+		}
+
+	public:
+		// Creates a new callstack with provided namespace
+		callstack(
+			std::shared_ptr<sqf::sqfnamespace> ns
+		) : m_used_namepsace(std::move(ns)),
+			m_current_nextinstres(NA)
+		{
+		}
+
+		std::queue<std::shared_ptr<sqf::instruction>>& instruction_queue() { return m_instruction_queue; }
+
+		// Returns the current instruction
+		std::shared_ptr<sqf::instruction> current_instruction()
+		{
+			return m_current_instruction;
+		}
+
+		// Returns the previos result
+		nextinstres previous_nextresult()
+		{
+			return m_current_nextinstres;
+		}
+
+		// Moves to the next instruction
+		nextinstres next(sqf::virtualmachine* vm)
+		{
+			m_current_nextinstres = do_next(vm);
+			return m_current_nextinstres;
+		}
+
+		// Adds an instruction to the this callstack.
+		void push_back(std::shared_ptr<sqf::instruction> value)
+		{
+			m_instruction_queue.push(value);
+		}
+
+		// Adds a value onto the valuestack
+		void push_back(std::shared_ptr<value> val)
+		{
+			m_value_stack.push_back(std::move(val));
+		}
+
+		// Returns the namespace this callstack is using
+		// for eg. global variables
+		std::shared_ptr<sqf::sqfnamespace> get_namespace() const
+		{
+			return m_used_namepsace;
+		}
+		// Sets the namespace this callstack uses for
+		// eg. global variables
+		void set_namespace(std::shared_ptr<sqf::sqfnamespace> ns)
+		{
+			m_used_namepsace = ns;
+		}
+
+		// Returns the instruction stacksize
+		size_t size_instructions() const
+		{
+			return m_instruction_queue.size();
+		}
+
+		// Wether or not, this callstack supports recovering
+		// from VM errors.
+		virtual bool can_recover()
+		{
+			return false;
+		}
+
+		// The callstack name.
+		virtual std::string get_name()
+		{
+			return "callstack";
+		}
+
+		// Attempts to receive a value from the 
+		// value-stack.
 		std::shared_ptr<value> pop_back_value(bool &success)
 		{
-			if (mvalstack.empty())
+			if (m_value_stack.empty())
 			{
 				success = false;
-				return std::shared_ptr<value>();
+				return {};
 			}
 			success = true;
-			auto val = mvalstack.back();
-			mvalstack.pop_back();
+			auto val = m_value_stack.back();
+			m_value_stack.pop_back();
 			return val;
 		}
-		std::shared_ptr<value> peek_value() { if (mvalstack.empty()) return std::shared_ptr<value>(); return mvalstack.back(); }
-		void drop_values() { mvalstack.clear(); }
+
+		// Returns the top value from the value-stack without
+		// removing it.
+		std::shared_ptr<value> peek_value()
+		{
+			if (m_value_stack.empty())
+				return {};
+			return m_value_stack.back();
+		}
+		// Removes ALL values from the value-stack.
+		void drop_values()
+		{
+			m_value_stack.clear();
+		}
 	};
 }

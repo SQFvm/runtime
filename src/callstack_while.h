@@ -8,13 +8,25 @@ namespace sqf
 	class callstack_while : public callstack
 	{
 	private:
-		std::shared_ptr<codedata> mwhilecond;
-		std::shared_ptr<codedata> mexec;
-		bool mdoexec;
-	public:
-		callstack_while(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<codedata> whilecond, std::shared_ptr<codedata> exec) : callstack(ns), mwhilecond(std::move(whilecond)), mexec(std::move(exec)), mdoexec(false) {}
-		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
+		std::shared_ptr<codedata> m_codedata_condition;
+		std::shared_ptr<codedata> m_codedata_body;
+		bool m_was_condition;
 
-		std::string get_name() override { return "callstack_while"; }
+	protected:
+		::sqf::callstack::nextinstres do_next(sqf::virtualmachine* vm) override;
+
+	public:
+		callstack_while(
+			std::shared_ptr<sqf::sqfnamespace> ns,
+			std::shared_ptr<codedata> whilecond,
+			std::shared_ptr<codedata> exec
+		) : callstack(ns),
+			m_codedata_condition(std::move(whilecond)),
+			m_codedata_body(std::move(exec)),
+			m_was_condition(false)
+		{
+		}
+
+		std::string get_name() override { return "while"; }
 	};
 }

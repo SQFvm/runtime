@@ -5,40 +5,77 @@
 #include "instpush.h"
 
 
-std::shared_ptr<sqf::instruction> sqf::callstack_count::popinst(sqf::virtualmachine * vm)
+::sqf::callstack::nextinstres sqf::callstack_count::do_next(sqf::virtualmachine* vm)
 {
-	auto ret = sqf::callstack::popinst(vm);
-	if (ret)
-		return ret;
-	if (mCurIndex > 0)
+	// If callstack_apply is done, always return done
+	if (previous_nextresult() == done ||
+		m_input_vector.size() == 0)
 	{
+		return done;
+	}
+	// Receive the next "normal" result
+	// and unless it is done, return it
+	auto next = callstack::do_next(vm);
+	if (next != done)
+	{
+		return next;
+	}
+
+	// Check wether or not we hit a dead-end
+	if (m_input_vector.size() == m_current_index)
+	{
+		// Receive the last result from the value stack
 		bool success;
 		auto val = vm->stack()->popval(success);
-		if (success && val->dtype() == sqf::BOOL)
+		if (!success)
+		{
+			vm->err() << "count callstack found no value." << std::endl;
+		}
+		else if (val->dtype() == type::BOOL)
 		{
 			if (val->as_bool())
 			{
-				mCount++;
+				m_count++;
 			}
 		}
 		else
 		{
-			vm->err() << "Missing result for count." << std::endl;
+			vm->err() << "count value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
 		}
+		// set the "is done" flag to true
+		// and update the value stack
+		drop_values();
+		push_back(std::make_shared<value>(m_count));
+		return done;
 	}
-	if (mCurIndex >= marr->size())
+	// Normal mode
+	else if (m_input_vector.size() < m_current_index)
 	{
-		auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(mCount));
-		vm->stack()->dropcallstack();
-		return inst;
-	}
-	else
-	{
-
+		if (m_current_index > 0)
+		{
+			bool success;
+			auto val = vm->stack()->popval(success);
+			if (!success)
+			{
+				vm->err() << "count callstack found no value." << std::endl;
+			}
+			else if (val->dtype() == type::BOOL)
+			{
+				if (val->as_bool())
+				{
+					m_count++;
+				}
+			}
+			else
+			{
+				vm->err() << "count value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+			}
+		}
+		setvar("_x", m_input_vector[m_current_index++]);
 		auto sptr = std::shared_ptr<callstack_count>(this, [](callstack_count*) {});
-		mexec->loadinto(vm->stack(), sptr);
-		sptr->setvar("_x", marr->at(mCurIndex));
-		mCurIndex++;
-		return sqf::callstack::popinst(vm);
+		m_codedata->loadinto(vm->stack(), sptr);
 	}
+
+	// Proceed normal
+	return callstack::do_next(vm);
 }

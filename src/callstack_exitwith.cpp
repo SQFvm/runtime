@@ -1,13 +1,14 @@
 #include "callstack_exitwith.h"
 #include "virtualmachine.h"
 #include "vmstack.h"
-
-std::shared_ptr<sqf::instruction> sqf::callstack_exitwith::popinst(sqf::virtualmachine * vm)
+::sqf::callstack::nextinstres sqf::callstack_exitwith::do_next(sqf::virtualmachine* vm)
 {
-	auto ret = sqf::callstack::popinst(vm);
-	if (!ret.get())
+	// Receive the next "normal" result
+	// and unless it is done, return it
+	auto next = callstack::do_next(vm);
+	if (next != done)
 	{
-		vm->stack()->dropcallstack();
+		return next;
 	}
-	return ret;
+	return exitwith;
 }

@@ -8,12 +8,12 @@ void sqf::inst::getvariable::execute(virtualmachine* vm) const
 {
 	std::shared_ptr<value> val;
 	if (mvarname[0] == '_')
-	{//localvar
+	{ // local variable
 		val = vm->stack()->getlocalvar(mvarname);
 	}
 	else
-	{//globalvar
-		val = vm->stack()->stacks_top()->getnamespace()->getvar(mvarname);
+	{ // global variable
+		val = vm->stack()->stacks_top()->get_namespace()->getvar(mvarname);
 	}
 	vm->stack()->pushval(val);
 }

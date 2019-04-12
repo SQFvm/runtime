@@ -44,15 +44,27 @@ namespace sqf
 		{
 			if (mstacks.empty())
 				return std::shared_ptr<sqf::instruction>();
-			auto ret = mstacks.back()->pop_inst(vm);
-			if (!ret.get())
+			
+			switch (mstacks.back()->previous_nextresult())
 			{
+			case callstack::exitwith:
 				dropcallstack();
+				// fallthrough
+			case callstack::done:
+				dropcallstack();
+				break;
+			}
+
+			if (mstacks.empty())
+				return std::shared_ptr<sqf::instruction>();
+
+			auto res = mstacks.back()->next(vm);
+			if (res == callstack::done || res == callstack::exitwith)
+			{
 				return popinst(vm);
 			}
-			return ret;
+			return mstacks.back()->current_instruction();
 		}
-		std::shared_ptr<instruction> peekinst() { if (mstacks.empty()) return std::shared_ptr<sqf::instruction>(); return mstacks.back()->peekinst(); }
 		void pushcallstack(std::shared_ptr<sqf::callstack> cs) { mstacks.push_back(cs); mlast_value = std::shared_ptr<sqf::value>(); }
 
 		/// Will only be set when all stacks have been emptied.
@@ -76,7 +88,7 @@ namespace sqf
 					}
 					else
 					{
-						mstacks.back()->push_back_value(value);
+						mstacks.back()->push_back(value);
 					}
 				}
 			}
@@ -110,7 +122,7 @@ namespace sqf
 
 		void pushval(std::shared_ptr<value> val)
 		{
-			mstacks.back()->push_back_value(val);
+			mstacks.back()->push_back(val);
 		}
 		std::shared_ptr<value> popval(bool &success)
 		{

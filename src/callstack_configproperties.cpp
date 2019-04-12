@@ -6,68 +6,100 @@
 #include "instpush.h"
 #include "instendstatement.h"
 
-std::shared_ptr<sqf::instruction> sqf::callstack_configproperties::popinst(sqf::virtualmachine * vm)
+::sqf::callstack::nextinstres sqf::callstack_configproperties::do_next(sqf::virtualmachine* vm)
 {
-	auto ret = sqf::callstack::popinst(vm);
-	if (ret.get() || mend)
-		return ret;
-	if (mcurindex == 0 && mdata->size() > 0)
+	// If callstack_configclasses is done, always return done
+	if (previous_nextresult() == done ||
+		m_configdata->size() == 0)
 	{
-		auto field = mdata->at(mcurindex);
-		auto fieldname = field->data<configdata>()->name();
-		mcurindex++;
-		if (std::find(mvisited.begin(), mvisited.end(), fieldname) == mvisited.end())
+		return done;
+	}
+
+	// Receive the next "normal" result
+	// and unless it is done, return it
+	auto next = callstack::do_next(vm);
+	if (next != done)
+	{
+		return next;
+	}
+
+	// Check wether or not we hit a dead-end
+	if (m_configdata->size() == m_current_index && !m_is_done)
+	{
+		// Check if we still can go one level higher
+		if (!m_configdata->inherited_parent_name().empty())
 		{
-			mvisited.push_back(field->data<configdata>()->name());
-			setvar("_x", field);
-		}
-		else
-		{
-			return popinst(vm);
+			m_configdata = m_configdata->inherited_parent()->data<configdata>();
+			m_current_index = 0;
+			return do_next(vm);
 		}
 
-		auto sptr = std::shared_ptr<callstack_configproperties>(this, [](callstack_configproperties*) {});
-		mcond->loadinto(vm->stack(), sptr);
-		return sqf::callstack::popinst(vm);
-	}
-	else
-	{
+		// Receive the last result from the value stack
 		bool success;
 		auto val = vm->stack()->popval(success);
-		if (success && val->dtype() == type::BOOL && val->as_bool())
+		if (!success)
 		{
-			moutarr.push_back(mdata->at(mcurindex - 1));
+			vm->err() << "configProperties callstack found no value." << std::endl;
 		}
-
-		if (mdata->size() <= mcurindex)
+		else if (val->dtype() == type::BOOL)
 		{
-			if (!mdata->inherited_parent_name().empty())
+			if (val->as_bool())
 			{
-				mdata = mdata->inherited_parent()->data<configdata>();
-				mcurindex = 0;
-				return popinst(vm);
+				m_output_vector.push_back(m_configdata->at(m_current_index - 1));
 			}
-			pushinst(std::make_shared<sqf::inst::endstatement>());
-			pushinst(std::make_shared<sqf::inst::push>(std::make_shared<value>(moutarr)));
-			mend = true;
-			return sqf::callstack::popinst(vm);
+		}
+		else
+		{
+			vm->err() << "configProperties value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
 		}
 
-		auto field = mdata->at(mcurindex);
-		auto fieldname = field->data<configdata>()->name();
-		mcurindex++;
-		if (std::find(mvisited.begin(), mvisited.end(), fieldname) == mvisited.end())
+		// set the "is done" flag to true
+		m_is_done = true;
+		// and update the value stack
+		drop_values();
+		push_back(std::make_shared<value>(m_output_vector));
+		return done;
+	}
+	// Normal mode
+	else if (m_configdata->size() > m_current_index)
+	{
+		if (m_current_index > 0)
 		{
-			mvisited.push_back(field->data<configdata>()->name());
+			bool success;
+			auto val = vm->stack()->popval(success);
+			if (!success)
+			{
+				vm->err() << "configProperties callstack found no value." << std::endl;
+			}
+			else if (val->dtype() == type::BOOL)
+			{
+				if (val->as_bool())
+				{
+					m_output_vector.push_back(m_configdata->at(m_current_index - 1));
+				}
+			}
+			else
+			{
+				vm->err() << "configProperties value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+			}
+		}
+
+		auto field = m_configdata->at(m_current_index++);
+		auto fieldname = field->data<configdata>()->name();
+		if (std::find(m_visited.begin(), m_visited.end(), fieldname) == m_visited.end())
+		{
+			m_visited.push_back(field->data<configdata>()->name());
 			setvar("_x", field);
 		}
 		else
 		{
-			return popinst(vm);
+			return callstack::do_next(vm);
 		}
 
 		auto sptr = std::shared_ptr<callstack_configproperties>(this, [](callstack_configproperties*) {});
-		mcond->loadinto(vm->stack(), sptr);
-		return sqf::callstack::popinst(vm);
+		m_code_condition->loadinto(vm->stack(), sptr);
 	}
+
+	// Proceed normal
+	return callstack::do_next(vm);
 }

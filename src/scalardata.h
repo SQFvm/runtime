@@ -15,6 +15,8 @@ namespace sqf
 		scalardata(float num) : mvalue(static_cast<float>(num)) {}
 		std::string tosqf() const override;
 		operator float() const { return static_cast<float>(mvalue); }
+		float as_float() const { return static_cast<float>(mvalue); }
+		void set(float f) { mvalue = f; }
 
 		bool equals(std::shared_ptr<data> d) const override {
 			const auto scalData = std::dynamic_pointer_cast<scalardata>(d);

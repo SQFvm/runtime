@@ -11,10 +11,10 @@ std::vector<sqf::vmstack::stackdump> sqf::vmstack::dump_callstack_diff(std::shar
 	auto start = this->mstacks.rbegin();
 	for (auto it = start; it != this->mstacks.rend(); it++)
 	{
-		auto inst = (*it)->last_inst();
+		auto inst = (*it)->current_instruction();
 
 		stackdump dump;
-		dump.namespace_used = (*it)->getnamespace();
+		dump.namespace_used = (*it)->get_namespace();
 		dump.line = inst->line();
 		dump.column = inst->col();
 		dump.file = inst->file();
@@ -37,7 +37,7 @@ void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instructio
 	{
 		mstacks.push_back(std::make_shared<callstack>(vm->missionnamespace()));
 	}
-	mstacks.back()->pushinst(inst);
+	mstacks.back()->push_back(inst);
 }
 
 std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string varname)

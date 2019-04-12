@@ -4,21 +4,32 @@
 #include "value.h"
 
 
-
-std::shared_ptr<sqf::instruction> sqf::callstack_foreach::popinst(sqf::virtualmachine * vm)
+::sqf::callstack::nextinstres sqf::callstack_foreach::do_next(sqf::virtualmachine* vm)
 {
-	auto ret = sqf::callstack::popinst(vm);
-	if (ret)
-		return ret;
-	if (mCurIndex >= marr->size())
-		return ret;
+	// If callstack_apply is done, always return done
+	if (previous_nextresult() == done)
+	{
+		return done;
+	}
+	// Receive the next "normal" result
+	// and unless it is done, return it
+	auto next = callstack::do_next(vm);
+	if (next != done)
+	{
+		return next;
+	}
+	
+	if (m_current_index >= m_array.size())
+	{
+		return done;
+	}
 
-	bool success;
-	vm->stack()->popval(success);
 	auto sptr = std::shared_ptr<callstack_foreach>(this, [](callstack_foreach*) {});
-	mexec->loadinto(vm->stack(), sptr);
-	sptr->setvar("_x", marr->at(mCurIndex));
-	sptr->setvar("_forEachIndex", std::make_shared<value>(mCurIndex));
-	mCurIndex++;
-	return sqf::callstack::popinst(vm);
+	m_codedata->loadinto(vm->stack(), sptr);
+	sptr->setvar("_x", m_array[m_current_index]);
+	sptr->setvar("_forEachIndex", std::make_shared<value>(m_current_index));
+	m_current_index++;
+
+	// Proceed normal
+	return callstack::do_next(vm);
 }

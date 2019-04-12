@@ -6,10 +6,12 @@ namespace sqf
 {
 	class callstack_exitwith : public callstack
 	{
+	protected:
+		::sqf::callstack::nextinstres do_next(sqf::virtualmachine* vm) override;
+
 	public:
 		callstack_exitwith(std::shared_ptr<sqf::sqfnamespace> ns) : callstack(ns) {}
-		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 
-		std::string get_name() override { return "callstack_exitwith"; }
+		std::string get_name() override { return "exitWith"; }
 	};
 }

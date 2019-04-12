@@ -14,14 +14,13 @@
 
 sqf::codedata::codedata(std::shared_ptr<sqf::callstack> cs)
 {
-	std::shared_ptr<sqf::instruction> inst;
-	minsts = std::vector<std::shared_ptr<sqf::instruction>>(cs->inststacksize());
-	for (size_t i = cs->inststacksize() - 1; i != static_cast<size_t>(~0); i--)
+	minsts = std::vector<std::shared_ptr<sqf::instruction>>(cs->size_instructions());
+	auto queue = cs->instruction_queue();
+	size_t i = 0;
+	while (!queue.empty())
 	{
-		//only valid for sqf::callstack!
-		//all others might crash here
-		inst = cs->pop_inst(nullptr);
-		minsts[i] = inst;
+		minsts[i++] = queue.front();
+		queue.pop();
 	}
 }
 
@@ -110,8 +109,8 @@ void sqf::codedata::loadinto(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmst
 
 void sqf::codedata::loadinto(std::shared_ptr<sqf::vmstack> stack, std::shared_ptr<sqf::callstack> cs)
 {
-	for (auto it = minsts.rbegin(); it != minsts.rend(); ++it)
+	for (auto& it : minsts)
 	{
-		cs->pushinst(*it);
+		cs->push_back(it);
 	}
 }

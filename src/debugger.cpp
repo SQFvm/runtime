@@ -79,9 +79,9 @@ namespace {
 				auto cs = *it;
 				jcs["lvl"] = lvl--;
 				jcs["scopename"] = cs->getscopename();
-				jcs["namespace"] = cs->getnamespace()->get_name();
+				jcs["namespace"] = cs->get_namespace()->get_name();
 				nlohmann::json options;
-				if (cs->inststacksize() <= 0)
+				if (cs->size_instructions() <= 0)
 				{
 					options["line"] = 0;
 					options["column"] = 0;
@@ -90,9 +90,9 @@ namespace {
 				}
 				else
 				{
-					options["line"] = cs->peekinst()->line();
-					options["column"] = cs->peekinst()->col();
-					options["file"] = cs->peekinst()->file();
+					options["line"] = cs->current_instruction()->line();
+					options["column"] = cs->current_instruction()->col();
+					options["file"] = cs->current_instruction()->file();
 					options["available"] = true;
 				}
 				jcs["options"] = options;

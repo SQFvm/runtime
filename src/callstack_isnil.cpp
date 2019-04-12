@@ -9,14 +9,33 @@ sqf::callstack_isnil::callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf
 	auto sptr = std::shared_ptr<callstack_isnil>(this, [](callstack_isnil*) {});
 	exec->loadinto(vm->stack(), sptr);
 }
-
-std::shared_ptr<sqf::instruction> sqf::callstack_isnil::popinst(sqf::virtualmachine * vm)
+::sqf::callstack::nextinstres sqf::callstack_isnil::do_next(sqf::virtualmachine* vm)
 {
-	auto ret = sqf::callstack::popinst(vm);
-	if (ret)
-		return ret;
+	// If callstack_apply is done, always return done
+	if (previous_nextresult() == done)
+	{
+		return done;
+	}
+	// Receive the next "normal" result
+	// and unless it is done, return it
+	auto next = callstack::do_next(vm);
+	if (next != done)
+	{
+		return next;
+	}
+
 	bool success;
 	auto val = vm->stack()->popval(success);
-	vm->stack()->dropcallstack();
-	return std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(!success || val->dtype() == sqf::type::NOTHING));
+	if (success)
+	{
+		// Update the value stack
+		drop_values();
+		push_back(std::make_shared<value>(val->dtype() == sqf::type::NOTHING));
+	}
+	else
+	{
+		drop_values();
+		vm->wrn() << "isNil callstack found no value." << std::endl;
+	}
+	return done;
 }

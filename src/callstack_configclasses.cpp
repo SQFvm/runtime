@@ -5,71 +5,97 @@
 #include "value.h"
 #include "instpush.h"
 #include "instendstatement.h"
-
-std::shared_ptr<sqf::instruction> sqf::callstack_configclasses::popinst(sqf::virtualmachine * vm)
+::sqf::callstack::nextinstres sqf::callstack_configclasses::do_next(sqf::virtualmachine* vm)
 {
-	auto ret = sqf::callstack::popinst(vm);
-	if (ret.get() || mend)
-		return ret;
-
-	if (mcurindex == 0 && mdata->size() > 0)
+	// If callstack_configclasses is done, always return done
+	if (previous_nextresult() == done ||
+		m_configdata->size() == 0)
 	{
-		std::shared_ptr<value> val;
-		do
+		return done;
+	}
+
+	// Receive the next "normal" result
+	// and unless it is done, return it
+	auto next = callstack::do_next(vm);
+	if (next != done)
+	{
+		return next;
+	}
+
+	// Search for the next configdata with an actual value
+	std::shared_ptr<value> val;
+	auto previous_current_index = m_current_index;
+	while (m_configdata->size() > m_current_index)
+	{
+		val = m_configdata->at(m_current_index);
+		m_current_index++;
+		if (val && val->data<configdata>()->cfgvalue().get() != nullptr)
 		{
-			val = mdata->at(mcurindex);
-			mcurindex++;
-		} while (val->data<configdata>()->cfgvalue().get() != nullptr && mdata->size() > mcurindex);
-		if (mdata->size() >= mcurindex)
-		{
-			setvar("_x", val);
-			auto sptr = std::shared_ptr<callstack_configclasses>(this, [](callstack_configclasses*) {});
-			mcond->loadinto(vm->stack(), sptr);
-			return sqf::callstack::popinst(vm);
-		}
-		else
-		{
-			pushinst(std::make_shared<sqf::inst::endstatement>());
-			pushinst(std::make_shared<sqf::inst::push>(std::make_shared<value>(moutarr)));
-			mend = true;
-			return sqf::callstack::popinst(vm);
+			break;
 		}
 	}
-	else
+
+	// Check wether or not we hit a dead-end
+	if (m_configdata->size() == m_current_index && !m_is_done)
 	{
+		// Receive the last result from the value stack
 		bool success;
 		auto val = vm->stack()->popval(success);
-		if (success && val->dtype() == type::BOOL && val->as_bool())
+		if (!success)
 		{
-			moutarr.push_back(mdata->at(mcurindex - 1));
+			if (previous_current_index)
+			{
+				vm->err() << "configClasses callstack found no value." << std::endl;
+			}
 		}
-
-		if (mdata->size() <= mcurindex)
+		else if (val->dtype() == type::BOOL)
 		{
-			pushinst(std::make_shared<sqf::inst::endstatement>());
-			pushinst(std::make_shared<sqf::inst::push>(std::make_shared<value>(moutarr)));
-			mend = true;
-			return sqf::callstack::popinst(vm);
-		}
-		do
-		{
-			val = mdata->at(mcurindex);
-			mcurindex++;
-		} while (val->data<configdata>()->cfgvalue().get() != nullptr && mdata->size() > mcurindex);
-		if (mdata->size() >= mcurindex)
-		{
-			setvar("_x", val);
+			if (val->as_bool())
+			{
+				m_output_vector.push_back(m_configdata->at(m_current_index - 1));
+			}
 		}
 		else
 		{
-			pushinst(std::make_shared<sqf::inst::endstatement>());
-			pushinst(std::make_shared<sqf::inst::push>(std::make_shared<value>(moutarr)));
-			mend = true;
-			return sqf::callstack::popinst(vm);
+			vm->err() << "configClasses value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
 		}
 
-		auto sptr = std::shared_ptr<callstack_configclasses>(this, [](callstack_configclasses*) {});
-		mcond->loadinto(vm->stack(), sptr);
-		return sqf::callstack::popinst(vm);
+		// set the "is done" flag to true
+		m_is_done = true;
+		// and update the value stack
+		drop_values();
+		push_back(std::make_shared<value>(m_output_vector));
+		return done;
 	}
+	// Normal mode
+	else if (m_configdata->size() > m_current_index)
+	{
+		if (m_current_index > 0)
+		{
+			bool success;
+			auto val = vm->stack()->popval(success);
+			if (!success)
+			{
+				vm->err() << "configClasses callstack found no value." << std::endl;
+			}
+			else if (val->dtype() == type::BOOL)
+			{
+				if (val->as_bool())
+				{
+					m_output_vector.push_back(m_configdata->at(m_current_index - 1));
+				}
+			}
+			else
+			{
+				vm->err() << "configClasses value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+			}
+		}
+		setvar("_x", val);
+
+		auto sptr = std::shared_ptr<callstack_configclasses>(this, [](callstack_configclasses*) {});
+		m_code_condition->loadinto(vm->stack(), sptr);
+	}
+
+	// Proceed normal
+	return callstack::do_next(vm);
 }

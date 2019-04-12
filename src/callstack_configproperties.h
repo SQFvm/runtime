@@ -11,13 +11,17 @@ namespace sqf
 	class callstack_configproperties : public callstack
 	{
 	private:
-		size_t mcurindex;
-		bool mend;
-		std::vector<std::shared_ptr<value>> moutarr;
-		std::shared_ptr<codedata> mcond;
-		std::shared_ptr<configdata> mdata;
-		std::vector<std::string> mvisited;
-		bool minclude_inherited;
+		size_t m_current_index;
+		bool m_is_done;
+		std::vector<std::shared_ptr<value>> m_output_vector;
+		std::shared_ptr<codedata> m_code_condition;
+		std::shared_ptr<configdata> m_configdata;
+		std::vector<std::string> m_visited;
+		bool m_include_inherited;
+
+	protected:
+		::sqf::callstack::nextinstres do_next(sqf::virtualmachine* vm) override;
+
 	public:
 		callstack_configproperties(
 			std::shared_ptr<sqf::sqfnamespace> ns,
@@ -26,14 +30,14 @@ namespace sqf
 			bool include_inherited
 		)
 		: callstack(ns),
-			mcurindex(0),
-			mdata(data),
-			mcond(std::move(cond)),
-			minclude_inherited(include_inherited),
-			mend(false)
-		{}
-		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
+			m_current_index(0),
+			m_is_done(false),
+			m_code_condition(std::move(cond)),
+			m_configdata(data),
+			m_include_inherited(include_inherited)
+		{
+		}
 
-		std::string get_name() override { return "callstack_configproperties"; }
+		std::string get_name() override { return "configProperties"; }
 	};
 }

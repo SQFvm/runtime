@@ -4,16 +4,18 @@
 #include "codedata.h"
 #include "arraydata.h"
 
-std::shared_ptr<sqf::instruction> sqf::callstack_sqftry::popinst(sqf::virtualmachine * vm)
+::sqf::callstack::nextinstres sqf::callstack_sqftry::do_next(sqf::virtualmachine* vm)
 {
-	if (mdoExcept)
+	if (m_do_catch && !m_done_catch)
 	{
-		clear_stack();
+		drop_instructions();
+		drop_values();
+		m_done_catch = true;
 		auto sptr = std::shared_ptr<callstack_sqftry>(this, [](callstack_sqftry*) {});
-		mcatchblock->loadinto(vm->stack(), sptr);
-		setvar("_exception", std::make_shared<value>(mmessage));
-		setvar("_callstack", std::make_shared<value>(mstackdump, sqf::type::ARRAY));
-		mdoExcept = false;
+		m_codedata_catch->loadinto(vm->stack(), sptr);
+		setvar("_exception", std::make_shared<value>(m_message));
+		setvar("_callstack", std::make_shared<value>(m_stackdump, sqf::type::ARRAY));
 	}
-	return callstack::popinst(vm);
+	// Proceed normal
+	return callstack::do_next(vm);
 }

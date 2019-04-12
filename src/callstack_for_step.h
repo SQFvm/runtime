@@ -1,34 +1,33 @@
 #pragma once
 #include <memory>
 #include "callstack.h"
-#include "arraydata.h"
 
 namespace sqf
 {
 	class fordata;
 	class codedata;
-	class callstack_findif : public callstack
+	class callstack_for_step : public callstack
 	{
 	private:
-		std::vector<std::shared_ptr<value>> m_input_vector;
+		std::shared_ptr<fordata> m_fordata;
 		std::shared_ptr<codedata> m_codedata;
-		size_t m_current_index;
+		bool m_initialized;
 
 	protected:
 		::sqf::callstack::nextinstres do_next(sqf::virtualmachine* vm) override;
 
 	public:
-		callstack_findif(
+		callstack_for_step(
 			std::shared_ptr<sqf::sqfnamespace> ns,
-			std::shared_ptr<codedata> exec,
-			std::vector<std::shared_ptr<value>> arr
+			std::shared_ptr<fordata> fordata,
+			std::shared_ptr<codedata> exec
 		) : callstack(ns),
+			m_fordata(std::move(fordata)),
 			m_codedata(std::move(exec)),
-			m_input_vector(arr),
-			m_current_index(0)
+			m_initialized(false)
 		{
 		}
 
-		std::string get_name() override { return "findIf"; }
+		std::string get_name() override { return "for_step"; }
 	};
 }

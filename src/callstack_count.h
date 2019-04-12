@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <vector>
 #include "callstack.h"
 #include "arraydata.h"
 
@@ -10,14 +11,28 @@ namespace sqf
 	class callstack_count : public callstack
 	{
 	private:
-		std::shared_ptr<arraydata> marr;
-		std::shared_ptr<codedata> mexec;
-		size_t mCurIndex;
-		int mCount;
-	public:
-		callstack_count(std::shared_ptr<sqf::sqfnamespace> ns, std::shared_ptr<codedata> exec, std::shared_ptr<arraydata> arr) : callstack(ns), marr(std::move(arr)), mexec(std::move(exec)), mCurIndex(0), mCount(0) { }
-		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
+		std::vector<std::shared_ptr<value>> m_input_vector;
+		std::shared_ptr<codedata> m_codedata;
+		size_t m_current_index;
+		int m_count;
 
-		std::string get_name() override { return "callstack_count"; }
+	protected:
+		::sqf::callstack::nextinstres do_next(sqf::virtualmachine* vm) override;
+
+	public:
+		callstack_count(
+			std::shared_ptr<sqf::sqfnamespace> ns,
+			std::shared_ptr<codedata> exec,
+			std::vector<std::shared_ptr<value>> arr
+		)
+			: callstack(ns),
+			m_input_vector(std::move(arr)),
+			m_codedata(std::move(exec)),
+			m_current_index(0),
+			m_count(0)
+		{
+		}
+
+		std::string get_name() override { return "count"; }
 	};
 }

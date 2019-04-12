@@ -7,10 +7,12 @@ namespace sqf
 	class codedata;
 	class callstack_isnil : public callstack
 	{
+	protected:
+		::sqf::callstack::nextinstres do_next(sqf::virtualmachine* vm) override;
+
 	public:
 		callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf::virtualmachine * vm, std::shared_ptr<codedata> exec);
-		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 
-		std::string get_name() override { return "callstack_isnil"; }
+		std::string get_name() override { return "isNil"; }
 	};
 }

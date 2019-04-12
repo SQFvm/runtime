@@ -8,7 +8,7 @@
 #include "../fordata.h"
 #include "../switchdata.h"
 #include "../scriptdata.h"
-#include "../callstack_for.h"
+#include "../callstack_for_step.h"
 #include "../callstack_while.h"
 #include "../callstack_select.h"
 #include "../callstack_isnil.h"
@@ -87,15 +87,15 @@ namespace
 	std::shared_ptr<value> count_code_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->data<codedata>();
-		auto r = right->data<arraydata>();
-		auto cs = std::make_shared<callstack_count>(vm->stack()->stacks_top()->getnamespace(), l, r);
+		auto r = right->as_vector();
+		auto cs = std::make_shared<callstack_count>(vm->stack()->stacks_top()->get_namespace(), l, r);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> compile_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_string();
-		auto cs = std::make_shared<callstack>(vm->stack()->stacks_top()->getnamespace());
+		auto cs = std::make_shared<callstack>(vm->stack()->stacks_top()->get_namespace());
 		vm->parse_sqf(r, cs);
 		return std::make_shared<value>(cs);
 	}
@@ -187,7 +187,7 @@ namespace
 		auto code = right->data<codedata>();
 		if (ifcond)
 		{
-			auto cs = std::make_shared<callstack_exitwith>(vm->stack()->stacks_top()->getnamespace());
+			auto cs = std::make_shared<callstack_exitwith>(vm->stack()->stacks_top()->get_namespace());
 			code->loadinto(vm->stack(), cs);
 			vm->stack()->pushcallstack(cs);
 			return std::shared_ptr<value>();
@@ -213,7 +213,7 @@ namespace
 		auto whilecond = left->data<codedata>();
 		auto execcode = right->data<codedata>();
 
-		auto cs = std::make_shared<callstack_while>(vm->stack()->stacks_top()->getnamespace(), whilecond, execcode);
+		auto cs = std::make_shared<callstack_while>(vm->stack()->stacks_top()->get_namespace(), whilecond, execcode);
 		vm->stack()->pushcallstack(cs);
 
 		return std::shared_ptr<value>();
@@ -249,15 +249,15 @@ namespace
 		auto fordata = left->data<sqf::fordata>();
 		auto execcode = right->data<codedata>();
 
-		auto cs = std::make_shared<callstack_for>(vm->stack()->stacks_top()->getnamespace(), fordata, execcode);
+		auto cs = std::make_shared<callstack_for_step>(vm->stack()->stacks_top()->get_namespace(), fordata, execcode);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> foreach_code_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->data<sqf::codedata>();
-		auto r = right->data<sqf::arraydata>();
-		auto cs = std::make_shared<callstack_foreach>(vm->stack()->stacks_top()->getnamespace(), l, r);
+		auto r = right->as_vector();
+		auto cs = std::make_shared<callstack_foreach>(vm->stack()->stacks_top()->get_namespace(), l, r);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
@@ -342,7 +342,7 @@ namespace
 		if (arr.size() == 0)
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
 		auto cond = right->data<codedata>();
-		auto cs = std::make_shared<sqf::callstack_select>(vm->stack()->stacks_top()->getnamespace(), arr, cond);
+		auto cs = std::make_shared<sqf::callstack_select>(vm->stack()->stacks_top()->get_namespace(), arr, cond);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
@@ -467,12 +467,12 @@ namespace
 	}
 	std::shared_ptr<value> findif_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto arr = left->data<arraydata>();
-		int newindex = (int)arr->size();
-		if (arr->size() == 0)
+		auto arr = left->as_vector();
+		int newindex = (int)arr.size();
+		if (arr.size() == 0)
 			return std::make_shared<value>(-1);
 		auto cond = right->data<codedata>();
-		auto cs = std::make_shared<sqf::callstack_findif>(vm->stack()->stacks_top()->getnamespace(), cond, arr);
+		auto cs = std::make_shared<sqf::callstack_findif>(vm->stack()->stacks_top()->get_namespace(), cond, arr);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
@@ -516,14 +516,14 @@ namespace
 		auto val = vm->stack()->getlocalvar(varname);
 		if (val->dtype() == sqf::type::NOTHING)
 		{
-			val = vm->stack()->stacks_top()->getnamespace()->getvar(varname);
+			val = vm->stack()->stacks_top()->get_namespace()->getvar(varname);
 		}
 		return std::make_shared<value>(val->dtype() == sqf::type::NOTHING);
 	}
 	std::shared_ptr<value> isnil_code(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cdata = right->data<codedata>();
-		auto cs = std::make_shared<callstack_isnil>(vm->stack()->stacks_top()->getnamespace(), vm, cdata);
+		auto cs = std::make_shared<callstack_isnil>(vm->stack()->stacks_top()->get_namespace(), vm, cdata);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
@@ -554,7 +554,7 @@ namespace
 	std::shared_ptr<value> do_switch_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto r = right->data<codedata>();
-		auto cs = std::make_shared<callstack_switch>(vm->stack()->stacks_top()->getnamespace(), left->data<switchdata>());
+		auto cs = std::make_shared<callstack_switch>(vm->stack()->stacks_top()->get_namespace(), left->data<switchdata>());
 		vm->stack()->pushcallstack(cs);
 		r->loadinto(vm->stack(), cs);
 		cs->setvar(MAGIC_SWITCH, left);
@@ -610,7 +610,7 @@ namespace
 		if (arr.empty())
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
 		auto cond = right->data<codedata>();
-		auto cs = std::make_shared<sqf::callstack_apply>(vm->stack()->stacks_top()->getnamespace(), arr, cond);
+		auto cs = std::make_shared<sqf::callstack_apply>(vm->stack()->stacks_top()->get_namespace(), arr, cond);
 		vm->stack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}

@@ -3,17 +3,28 @@
 #include "codedata.h"
 #include "virtualmachine.h"
 
-std::shared_ptr<sqf::instruction> sqf::callstack_switch::popinst(sqf::virtualmachine * vm)
+::sqf::callstack::nextinstres sqf::callstack_switch::do_next(sqf::virtualmachine* vm)
 {
-	auto ret = sqf::callstack::popinst(vm);
-	if (ret)
-		return ret;
-	if (!mswtch->executed() && mswtch->defaultexec().get())
+	// If callstack_apply is done, always return done
+	if (previous_nextresult() == done)
+	{
+		return done;
+	}
+	// Receive the next "normal" result
+	// and unless it is done, return it
+	auto next = callstack::do_next(vm);
+	if (next != done)
+	{
+		return next;
+	}
+
+	if (!m_switchdata->executed() && m_switchdata->defaultexec().get())
 	{
 		auto sptr = std::shared_ptr<callstack_switch>(this, [](callstack_switch*) {});
-		mswtch->defaultexec()->loadinto(vm->stack(), sptr);
-		mswtch->defaultexec(std::shared_ptr<codedata>());
-		return sqf::callstack::popinst(vm);
+		m_switchdata->defaultexec()->loadinto(vm->stack(), sptr);
+		m_switchdata->defaultexec(std::shared_ptr<codedata>());
+		return callstack::do_next(vm);
 	}
-	return ret;
+
+	return done;
 }

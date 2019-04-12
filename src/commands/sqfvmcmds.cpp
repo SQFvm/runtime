@@ -257,7 +257,7 @@ namespace
 	}
 	std::shared_ptr<value> except___code_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto cs = std::make_shared<callstack_sqftry>(vm->stack()->stacks_top()->getnamespace(), right->data<codedata>());
+		auto cs = std::make_shared<callstack_sqftry>(vm->stack()->stacks_top()->get_namespace(), right->data<codedata>());
 		vm->stack()->pushcallstack(cs);
 		left->data<codedata>()->loadinto(vm->stack(), cs);
 		return std::shared_ptr<value>();

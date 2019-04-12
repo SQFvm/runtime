@@ -9,11 +9,15 @@ namespace sqf
 	class callstack_configclasses : public callstack
 	{
 	private:
-		size_t mcurindex;
-		bool mend;
-		std::vector<std::shared_ptr<value>> moutarr;
-		std::shared_ptr<codedata> mcond;
-		std::shared_ptr<configdata> mdata;
+		size_t m_current_index;
+		bool m_is_done;
+		std::vector<std::shared_ptr<value>> m_output_vector;
+		std::shared_ptr<codedata> m_code_condition;
+		std::shared_ptr<configdata> m_configdata;
+
+	protected:
+		nextinstres do_next(sqf::virtualmachine* vm) override;
+
 	public:
 		callstack_configclasses(
 			std::shared_ptr<sqf::sqfnamespace> ns,
@@ -21,13 +25,12 @@ namespace sqf
 			std::shared_ptr<codedata> cond
 		)
 		: callstack(ns),
-			mcurindex(0),
-			mdata(data),
-			mcond(std::move(cond)),
-			mend(false)
+			m_current_index(0),
+			m_is_done(false),
+			m_code_condition(std::move(cond)),
+			m_configdata(data)
 		{}
-		std::shared_ptr<sqf::instruction> popinst(sqf::virtualmachine* vm) override;
 
-		std::string get_name() override { return "callstack_configclasses"; }
+		std::string get_name() override { return "configClasses"; }
 	};
 }

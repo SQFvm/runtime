@@ -27,6 +27,6 @@ void sqf::inst::assignto::execute(virtualmachine* vm) const
 	}
 	else
 	{
-		vm->stack()->stacks_top()->getnamespace()->setvar(mvarname, val);
+		vm->stack()->stacks_top()->get_namespace()->setvar(mvarname, val);
 	}
 }

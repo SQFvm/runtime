@@ -680,18 +680,6 @@ int main(int argc, char** argv)
 				{
 					err = vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
 				}
-				if (vm.out_hasdata())
-				{
-					vm.out_buffprint();
-				}
-				if (vm.wrn_hasdata())
-				{
-					vm.wrn_buffprint();
-				}
-				if (vm.err_hasdata())
-				{
-					vm.err_buffprint();
-				}
 			}
 		}
 
