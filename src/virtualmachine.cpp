@@ -31,6 +31,7 @@
 #include <iostream>
 #include <cwctype>
 #include <sstream>
+#include <algorithm>
 
 // #define DEBUG_VM_ASSEMBLY
 
@@ -257,7 +258,9 @@ std::string sqf::virtualmachine::dbgsegment(const char* full, size_t off, size_t
 			}
 		}
 	}
-	sstream << std::string(full + i, full + i + len) << std::endl
+	auto txt = std::string(full + i, full + i + len);
+	std::replace(txt.begin(), txt.end(), '\t', ' ');
+	sstream << txt << std::endl
 		<< std::string(off - i, ' ') << std::string(length == 0 ? 1 : length, '^') << std::endl;
 	return sstream.str();
 }
