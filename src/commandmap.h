@@ -52,9 +52,7 @@ namespace sqf
 			initgroupcmds();
 			initobjectcmds();
 			initmarkercmds();
-#ifndef _DEBUG
 			initunimplemented();
-#endif // !_DEBUG
 		}
 
 		commandmap() {}
