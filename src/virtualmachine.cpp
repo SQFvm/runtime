@@ -32,7 +32,7 @@
 #include <cwctype>
 #include <sstream>
 
-#define DEBUG_VM_ASSEMBLY
+// #define DEBUG_VM_ASSEMBLY
 
 #if !defined(_DEBUG) && defined(DEBUG_VM_ASSEMBLY)
 #undef DEBUG_VM_ASSEMBLY

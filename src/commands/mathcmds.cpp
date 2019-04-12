@@ -95,12 +95,12 @@ namespace
 	}
 	std::shared_ptr<value> floor_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		auto r = right->as_long();
-		return std::make_shared<value>(r);
+		auto r = right->as_double();
+		return std::make_shared<value>(std::floor(r));
 	}
 	std::shared_ptr<value> ceil_scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		auto r = right->as_long();
+		auto r = right->as_double();
 		return std::make_shared<value>(std::ceil(r));
 	}
 	std::shared_ptr<value> asin_scalar(virtualmachine* vm, std::shared_ptr<value> right)

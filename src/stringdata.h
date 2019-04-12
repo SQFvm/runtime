@@ -18,8 +18,8 @@ namespace sqf
 		operator const char*() const { return mvalue.c_str(); }
 		operator std::string() const { return mvalue; }
 
-		static std::string parse_from_sqf(std::string);
-		static std::string parse_to_sqf(std::string);
+		static std::string parse_from_sqf(std::string_view);
+		static std::string parse_to_sqf(std::string_view);
 		size_t length() { return mvalue.size(); }
 		bool equals(std::shared_ptr<data> d) const override { return 0 == str_cmpi(mvalue.c_str(), -1, std::dynamic_pointer_cast<stringdata>(d)->mvalue.c_str(), -1); }
 	};
