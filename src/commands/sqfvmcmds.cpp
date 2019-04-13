@@ -321,6 +321,10 @@ namespace
 		}
 		return std::make_shared<sqf::value>(std::make_shared<arraydata>(files), sqf::type::ARRAY);
 	}
+	std::shared_ptr<value> pwd___(virtualmachine* vm)
+	{
+		return std::make_shared<sqf::value>(vm->active_vmstack()->stacks_top()->current_instruction()->file());
+	}
 }
 void sqf::commandmap::initsqfvmcmds()
 {
@@ -340,4 +344,5 @@ void sqf::commandmap::initsqfvmcmds()
 	add(binary(4, "except__", sqf::type::CODE, sqf::type::CODE, "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'. A callstack is available in '_callstack'.", except___code_code));
 	add(nular("callstack__", "Returns an array containing the whole callstack.", callstack___));
 	add(unary("allFiles__", sqf::type::ARRAY, "Returns all files available in currently loaded paths with the given file extensions.", allfiles___));
+	add(nular("pwd__", "Current path determined by current instruction", pwd___));
 }
