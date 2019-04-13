@@ -82,6 +82,7 @@ namespace sqf
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 		/// Allows to change wether or not the filesystem can be used.
 		void disallow(bool flag) { mdisallow = flag; }
+		bool disallow() { return mdisallow; }
 #endif
 
 		static std::string sanitize(std::string input) { return input; }

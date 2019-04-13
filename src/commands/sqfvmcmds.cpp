@@ -12,6 +12,7 @@
 #include "../callstack_sqftry.h"
 #include "../instruction.h"
 #include "../codedata.h"
+#include "filesystem.h"
 #include <sstream>
 #include <array>
 
@@ -281,6 +282,45 @@ namespace
 		}
 		return std::make_shared<value>(sqfarr, sqf::type::ARRAY);
 	}
+	std::shared_ptr<value> allfiles___(virtualmachine* vm, std::shared_ptr<sqf::value> right)
+	{
+#if !defined(FILESYSTEM_DISABLE_DISALLOW)
+		if (vm->get_filesystem().disallow())
+		{
+			vm->wrn() << "FILE SYSTEM IS DISABLED" << std::endl;
+			return std::make_shared<sqf::value>(std::make_shared<arraydata>(), sqf::type::ARRAY);
+		}
+#endif
+		auto arr = right->data<arraydata>();
+		if (!arr->check_type(vm, sqf::type::STRING, 0, arr->size()))
+		{
+			return {};
+		}
+		auto files = std::vector<std::shared_ptr<sqf::value>>();
+		//recursively search for pboprefix
+		for (auto phys : vm->get_filesystem().m_physicalboundaries)
+		{
+			for (auto i = std::filesystem::recursive_directory_iterator(phys, std::filesystem::directory_options::follow_directory_symlink);
+				i != std::filesystem::recursive_directory_iterator();
+				++i)
+			{
+				bool skip = false;
+				for (auto ext = arr->begin(); ext != arr->end(); ext++)
+				{
+					if (i->is_directory() || i->path().extension().compare((*ext)->as_string()))
+					{
+						skip = true;
+						break;
+					}
+				}
+				if (!skip)
+				{
+					files.push_back(std::make_shared<sqf::value>(i->path().string()));
+				}
+			}
+		}
+		return std::make_shared<sqf::value>(std::make_shared<arraydata>(files), sqf::type::ARRAY);
+	}
 }
 void sqf::commandmap::initsqfvmcmds()
 {
@@ -299,4 +339,5 @@ void sqf::commandmap::initsqfvmcmds()
 	add(unary("assembly__", sqf::type::CODE, "returns an array, containing the assembly instructions as string.", assembly___code));
 	add(binary(4, "except__", sqf::type::CODE, sqf::type::CODE, "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'. A callstack is available in '_callstack'.", except___code_code));
 	add(nular("callstack__", "Returns an array containing the whole callstack.", callstack___));
+	add(unary("allFiles__", sqf::type::ARRAY, "Returns all files available in currently loaded paths with the given file extensions.", allfiles___));
 }
