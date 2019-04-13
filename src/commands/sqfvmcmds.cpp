@@ -325,6 +325,12 @@ namespace
 	{
 		return std::make_shared<sqf::value>(vm->active_vmstack()->stacks_top()->current_instruction()->file());
 	}
+	std::shared_ptr<value> currentDirectory___(virtualmachine* vm)
+	{
+		auto path = std::filesystem::path(vm->active_vmstack()->stacks_top()->current_instruction()->file());
+		
+		return std::make_shared<sqf::value>(path.parent_path().string());
+	}
 }
 void sqf::commandmap::initsqfvmcmds()
 {
@@ -345,4 +351,5 @@ void sqf::commandmap::initsqfvmcmds()
 	add(nular("callstack__", "Returns an array containing the whole callstack.", callstack___));
 	add(unary("allFiles__", sqf::type::ARRAY, "Returns all files available in currently loaded paths with the given file extensions.", allfiles___));
 	add(nular("pwd__", "Current path determined by current instruction", pwd___));
+	add(nular("currentDirectory__", "Current directory determined by current instruction", currentDirectory___));
 }
