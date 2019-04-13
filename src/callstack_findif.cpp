@@ -36,7 +36,7 @@
 			{
 				// Update the value stack
 				drop_values();
-				push_back(std::make_shared<value>(m_current_index));
+				push_back(std::make_shared<value>(m_current_index - 1));
 				return done;
 			}
 		}
@@ -66,7 +66,7 @@
 				{
 					// Update the value stack
 					drop_values();
-					push_back(std::make_shared<value>(m_current_index));
+					push_back(std::make_shared<value>(m_current_index - 1));
 					return done;
 				}
 			}
