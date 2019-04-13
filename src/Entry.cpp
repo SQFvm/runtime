@@ -595,6 +595,9 @@ int main(int argc, char** argv)
 		{
 			std::cout << "Exiting due to error." << std::endl;
 		}
+		vm.err_buffprint();
+		vm.wrn_buffprint();
+		vm.out_buffprint();
 		if (!automated)
 		{
 			std::string line;

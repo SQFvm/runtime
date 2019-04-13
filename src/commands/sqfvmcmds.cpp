@@ -323,13 +323,14 @@ namespace
 	}
 	std::shared_ptr<value> pwd___(virtualmachine* vm)
 	{
-		return std::make_shared<sqf::value>(vm->active_vmstack()->stacks_top()->current_instruction()->file());
+		auto path = std::filesystem::path(vm->active_vmstack()->stacks_top()->current_instruction()->file());
+		return std::make_shared<sqf::value>(std::filesystem::absolute(path).string());
 	}
 	std::shared_ptr<value> currentDirectory___(virtualmachine* vm)
 	{
 		auto path = std::filesystem::path(vm->active_vmstack()->stacks_top()->current_instruction()->file());
 		
-		return std::make_shared<sqf::value>(path.parent_path().string());
+		return std::make_shared<sqf::value>(std::filesystem::absolute(path.parent_path()).string());
 	}
 }
 void sqf::commandmap::initsqfvmcmds()
