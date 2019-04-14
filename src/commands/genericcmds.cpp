@@ -264,7 +264,7 @@ namespace
 	std::shared_ptr<value> select_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto arr = left->as_vector();
-		auto index = right->as_long();
+		auto index = (int)std::round(right->as_float());
 
 		if (arr.size() < index || index < 0)
 		{
