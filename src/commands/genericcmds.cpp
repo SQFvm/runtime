@@ -336,7 +336,11 @@ namespace
 
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, start + length > static_cast<int>(vec.size()) ? vec.end() : vec.begin() + start + length));
 		}
-		return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, vec.end()));
+		else
+		{
+			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
+		}
+		
 	}
 	std::shared_ptr<value> select_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
