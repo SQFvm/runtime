@@ -13,7 +13,7 @@ test_fnc_testPassed = {
 
 test_fnc_testFailed = {
     params ["_name", "_index", "_reason"];
-    systemChat format ["Test !FAILED! '%1' - %2: %3.", _name, _index + 1, _reason];
+    systemChat format ["Test !FAILED! '%1' - %2: %3.", _name, _index + 1, trim__ _reason];
     testsFailed = testsFailed + 1;
 };
 
@@ -24,7 +24,7 @@ test_fnc_exceptWrapper = {
     }
     except__
     {
-        private _msg = format ["Exception occurred: %1",  _exception];
+        private _msg = format ["Exception occurred: %1",  trim__ _exception];
         [_args select 0, _args select 2, _msg] call test_fnc_testFailed;
     }
 };
@@ -79,27 +79,6 @@ private _currentDirectoryLength = count _currentDirectory;
 
 diag_log "Loading tests from:";
 diag_log format ["    %1", _currentDirectory];
-
-diag_log "Test-Suite requires following commands to work:";
-diag_log "   - ARRAY select SCALAR";
-diag_log "   - SCALAR + SCALAR";
-diag_log "   - call CODE";
-diag_log "   - if BOOL";
-diag_log "   - IF then CODE";
-diag_log "   - IF then ARRAY";
-diag_log "   - ANY isEqualTo ANY";
-diag_log "   - ANY isEqualType ANY";
-diag_log "   - format ARRAY";
-diag_log "   - diag_log ANY";
-diag_log "   - typeName ANY";
-diag_log "   - switch ANY";
-diag_log "   - SWITCH do CODE";
-diag_log "   - case ANY";
-diag_log "   - SWITCH : CODE";
-diag_log "   - default CODE";
-diag_log "   - compile STRING";
-diag_log "   - preprocessFileLineNumbers STRING";
-diag_log "   - forEach ARRAY";
 
 {
     if !(_x isEqualTo pwd__) then {
