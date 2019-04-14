@@ -6,7 +6,7 @@
 using namespace sqf;
 void sqf::commandmap::initunimplemented()
 {
-#ifndef _DEBUG
+#ifdef _DEBUG
 	add(binary(4, "lnbsetcurselrow", type::ANY, type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (lnbsetcurselrow)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, "removemenuitem", type::ANY, type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (removemenuitem)." << std::endl; return std::make_shared<value>(); }));
 	add(binary(4, "curatorcoef", type::ANY, type::ANY, "", [](virtualmachine* vm, std::shared_ptr<value> l, std::shared_ptr<value> r) -> std::shared_ptr<value> { vm->err() << "NOT IMPLEMENTED (curatorcoef)." << std::endl; return std::make_shared<value>(); }));
