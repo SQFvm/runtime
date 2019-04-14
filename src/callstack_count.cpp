@@ -32,7 +32,7 @@
         auto val = vm->stack()->popval(success);
         if (!success)
         {
-            vm->err() << "count callstack found no value." << std::endl;
+            vm->wrn() << "count callstack found no value." << std::endl;
         }
         else if (val->dtype() == type::BOOL)
         {
@@ -41,6 +41,10 @@
                 m_count++;
             }
         }
+		else if (val->dtype() == type::NOTHING)
+		{
+			vm->wrn() << "count value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+		}
         else
         {
             vm->err() << "count value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
@@ -65,5 +69,5 @@
 	}
 
 	// Proceed normal
-	return callstack::do_next(vm);
+	return do_next(vm);
 }

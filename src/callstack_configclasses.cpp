@@ -97,5 +97,5 @@
 	}
 
 	// Proceed normal
-	return callstack::do_next(vm);
+	return do_next(vm);
 }

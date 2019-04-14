@@ -50,5 +50,5 @@
 		auto sptr = std::shared_ptr<callstack_while>(this, [](callstack_while*) {});
 		m_codedata_condition->loadinto(vm->stack(), sptr);
 	}
-	return callstack::do_next(vm);
+	return do_next(vm);
 }

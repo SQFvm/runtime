@@ -37,6 +37,10 @@
 				m_output_vector.push_back(m_input_vector[m_current_index - 1]);
 			}
 		}
+		else if (val->dtype() == type::NOTHING)
+		{
+			vm->wrn() << "select value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+		}
 		else
 		{
 			vm->err() << "select value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
@@ -66,6 +70,10 @@
 					m_output_vector.push_back(m_input_vector[m_current_index - 1]);
 				}
 			}
+			else if (val->dtype() == type::NOTHING)
+			{
+				vm->wrn() << "select value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+			}
 			else
 			{
 				vm->err() << "select value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
@@ -77,5 +85,5 @@
 	}
 
 	// Proceed normal
-	return callstack::do_next(vm);
+	return do_next(vm);
 }

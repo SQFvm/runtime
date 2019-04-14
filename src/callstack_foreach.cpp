@@ -31,5 +31,5 @@
 	m_current_index++;
 
 	// Proceed normal
-	return callstack::do_next(vm);
+	return do_next(vm);
 }

@@ -17,6 +17,7 @@
     ["assertEqual",     { "" select [1] }, ""],                                 // STRING select ARRAY
     ["assertEqual",     { "" select [0, 10] }, ""],                             // STRING select ARRAY
     ["assertEqual",     { [1, 2, 3, 4, 5] select [0] }, []],                    // ARRAY select ARRAY
+    ["assertEqual",     { [1, 2, 3, 4, 5] select [1] }, []],                    // ARRAY select ARRAY
     ["assertEqual",     { [1, 2, 3, 4, 5] select [0.6, 3] }, [2, 3, 4]],        // ARRAY select ARRAY
     ["assertEqual",     { [1, 2, 3, 4, 5] select [0, 3] }, [1, 2, 3]],          // ARRAY select ARRAY
     ["assertEqual",     { [1, 2, 3, 4, 5] select [1, 2] }, [2, 3]],             // ARRAY select ARRAY
