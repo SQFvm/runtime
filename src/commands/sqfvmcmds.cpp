@@ -15,6 +15,9 @@
 #include "filesystem.h"
 #include <sstream>
 #include <array>
+#include <algorithm> 
+#include <cctype>
+#include <locale>
 
 using namespace sqf;
 namespace
@@ -332,6 +335,17 @@ namespace
 		
 		return std::make_shared<sqf::value>(std::filesystem::absolute(path.parent_path()).string());
 	}
+	std::shared_ptr<value> trim___(virtualmachine* vm, std::shared_ptr<sqf::value> right)
+	{
+		auto str = right->as_string();
+		str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](int ch) {
+			return !std::isspace(ch);
+			}));
+		str.erase(std::find_if(str.rbegin(), str.rend(), [](int ch) {
+			return !std::isspace(ch);
+			}).base(), str.end());
+		return std::make_shared<sqf::value>(str);
+	}
 }
 void sqf::commandmap::initsqfvmcmds()
 {
@@ -351,6 +365,7 @@ void sqf::commandmap::initsqfvmcmds()
 	add(binary(4, "except__", sqf::type::CODE, sqf::type::CODE, "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'. A callstack is available in '_callstack'.", except___code_code));
 	add(nular("callstack__", "Returns an array containing the whole callstack.", callstack___));
 	add(unary("allFiles__", sqf::type::ARRAY, "Returns all files available in currently loaded paths with the given file extensions.", allfiles___));
-	add(nular("pwd__", "Current path determined by current instruction", pwd___));
-	add(nular("currentDirectory__", "Current directory determined by current instruction", currentDirectory___));
+	add(nular("pwd__", "Current path determined by current instruction.", pwd___));
+	add(nular("currentDirectory__", "Current directory determined by current instruction.", currentDirectory___));
+	add(unary("trim__", sqf::type::STRING, "Trims provided strings start and end.", trim___));
 }
