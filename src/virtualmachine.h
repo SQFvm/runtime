@@ -42,9 +42,10 @@ namespace sqf
 		std::stringstream mout_buff;
 		std::stringstream merr_buff;
 		std::stringstream mwrn_buff;
-		bool moutflag;
-		bool merrflag;
-		bool mwrnflag;
+		bool moutflag = false;
+		bool merrflag = false;
+		bool mwrnflag = false;
+		bool mwrnenabled = true;
 		bool mhaltflag;
 		std::vector<size_t> mfreeobjids;
 		std::vector<std::shared_ptr<innerobj>> mobjlist;
@@ -81,21 +82,56 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> uinamespace() { return muinamespace; }
 		std::shared_ptr<sqf::sqfnamespace> parsingnamespace() { return mparsingnamespace; }
 		std::shared_ptr<sqf::sqfnamespace> profilenamespace() { return mprofilenamespace; }
+
+
+
 		std::stringstream& out() { moutflag = true; return mout_buff; }
-		std::stringstream& err() { merrflag = true; return merr_buff; }
-		std::stringstream& wrn() { mwrnflag = true; return mwrn_buff; }
 		void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
-        void out_buffprint(bool force = false) { if (!moutflag && !force) return; (*mout) << mout_buff.str(); out_clear(); }
+		void out_buffprint(bool force = false)
+		{
+			if (!moutflag && !force)
+				return;
+			(*mout) << mout_buff.str();
+			out_clear();
+		}
 		void out_clear() { mout_buff.str({}); moutflag = false; }
 		bool out_hasdata() { return moutflag; }
+
+		std::stringstream& err() { merrflag = true; return merr_buff; }
 		void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
-		void err_buffprint(bool force = false) { if (!merrflag && !force) return; (*merr) << merr_buff.str(); err_clear(); }
+		void err_buffprint(bool force = false)
+		{
+			if (!merrflag && !force)
+				return;
+			(*merr) << merr_buff.str();
+			err_clear();
+		}
 		void err_clear() { merr_buff.str({}); merrflag = false; }
 		bool err_hasdata() { return merrflag; }
+
+		std::stringstream& wrn()
+		{
+			mwrnflag = true;
+			return mwrn_buff;
+		}
 		void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }
-		void wrn_buffprint(bool force = false) { if (!mwrnflag && !force) return; (*mwrn) << mwrn_buff.str(); wrn_clear(); }
+		void wrn_buffprint(bool force = false)
+		{
+			if (!mwrnflag && !force)
+				return;
+			if (mwrnenabled)
+			{
+				(*mwrn) << mwrn_buff.str();
+			}
+			wrn_clear();
+		}
 		void wrn_clear() { mwrn_buff.str({}); mwrnflag = false; }
 		bool wrn_hasdata() { return mwrnflag; }
+		bool wrn_enabled() { return mwrnenabled; }
+		void wrn_enabled(bool flag) { mwrnenabled = flag; }
+
+
+
 		void execute();
 		std::shared_ptr<sqf::vmstack> stack() const { return mactivestack; }
 		static std::string dbgsegment(const char* full, size_t off, size_t length);

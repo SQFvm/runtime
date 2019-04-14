@@ -66,6 +66,10 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 }
 void sqf::virtualmachine::execute()
 {
+	out_buffprint();
+	wrn_buffprint();
+	err_buffprint();
+
 	mexitflag = false;
 	while (!mexitflag && (!mspawns.empty() || !mmainstack->isempty() || (_debugger && _debugger->stop(this))))
 	{
@@ -207,7 +211,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			}
 		}
 		
-		if (mwrnflag)
+		if (mwrnflag && !mwrnflag)
 		{
 			(*mwrn) << inst->dbginf("WRN") << mwrn_buff.str();
 			if (_debugger) {

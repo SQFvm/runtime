@@ -179,6 +179,9 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg disableMacroWarningsArg("", "disable-macro-warnings", "Disables the warning for duplicate defines and undefines without a corresponding define.\n", false);
 	cmd.add(disableMacroWarningsArg);
 
+	TCLAP::SwitchArg disableRuntimeWarningsArg("", "disable-runtime-warnings", "Disables the runtime warning messages raised by SQF-VM.\n", false);
+	cmd.add(disableRuntimeWarningsArg);
+
 
 	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. " RELPATHHINT "\n"
 		"An allowed location, is a location SQF-VM will be allowed to load files from."
@@ -339,6 +342,7 @@ int main(int argc, char** argv)
 	sqf::debugger* dbg = nullptr;
 
 	vm.perform_classname_checks(disableClassnameCheck);
+	vm.wrn_enabled(!disableRuntimeWarningsArg.getValue());
 
 	// Prepare Virtual-File-System
 	if (!noLoadExecDir)
@@ -636,7 +640,6 @@ int main(int argc, char** argv)
 			std::cout << err.what() << std::endl;
 		}
 	}
-	vm.execute();
 	do
 	{
 		if (!automated)
