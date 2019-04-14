@@ -23,9 +23,20 @@ namespace sqf
 		void loadinto(std::shared_ptr<sqf::vmstack>, std::shared_ptr<sqf::callstack>);
 		bool equals(std::shared_ptr<data> d) const override { return minsts == std::dynamic_pointer_cast<codedata>(d)->minsts; }
 
+		std::vector<std::shared_ptr<sqf::instruction>>& instructions() { return minsts; }
+		const std::vector<std::shared_ptr<sqf::instruction>>& instructions() const { return minsts; }
+
 		std::vector<std::shared_ptr<sqf::instruction>>::iterator instructions_begin() { return minsts.begin(); }
+		std::vector<std::shared_ptr<sqf::instruction>>::const_iterator instructions_begin() const { return minsts.begin(); }
+
 		std::vector<std::shared_ptr<sqf::instruction>>::iterator instructions_end() { return minsts.end(); }
+		std::vector<std::shared_ptr<sqf::instruction>>::const_iterator instructions_end() const { return minsts.end(); }
+
 		std::vector<std::shared_ptr<sqf::instruction>>::reverse_iterator instructions_rbegin() { return minsts.rbegin(); }
+		std::vector<std::shared_ptr<sqf::instruction>>::const_reverse_iterator instructions_rbegin() const { return minsts.rbegin(); }
+
 		std::vector<std::shared_ptr<sqf::instruction>>::reverse_iterator instructions_rend() { return minsts.rend(); }
+		std::vector<std::shared_ptr<sqf::instruction>>::const_reverse_iterator instructions_rend() const { return minsts.rend(); }
+
 	};
 }

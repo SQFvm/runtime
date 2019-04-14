@@ -15,6 +15,7 @@ namespace sqf
 			void execute(virtualmachine*) const override;
 			insttype thistype() const override { return insttype::assigntolocal; }
 			std::string to_string() const override { return "ASSIGNTOLOCAL " + mvarname; }
+			std::string variable_name() { return mvarname; }
 		};
 	}
 }

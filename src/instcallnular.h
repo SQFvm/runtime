@@ -16,6 +16,7 @@ namespace sqf
 			void execute(virtualmachine*) const override;
 			insttype thistype() const override { return insttype::callnular; }
 			std::string to_string() const override;
+			std::shared_ptr<sqf::nularcmd> command() { return mcmd; }
 		};
 	}
 }
