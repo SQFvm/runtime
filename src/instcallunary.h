@@ -17,6 +17,7 @@ namespace sqf
 			void execute(virtualmachine*) const override;
 			insttype thistype() const override { return insttype::callunary; }
 			std::string to_string() const override;
+			std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>> commands() { return mcmds; }
 		};
 	}
 }
