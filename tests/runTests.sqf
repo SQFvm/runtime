@@ -23,38 +23,64 @@ testsIndex = 0;
 testsPassed = 0;
 testsFailed = 0;
 fatalError = false;
-test_fnc_assertTrue = {
-    private _name = _this select 0;
-    private _test = _this select 1;
+
+test_fnc_testPassed = {
+    params ["_index", "_name"];
+    systemChat format ["Test %1 - '%2' Passed.", _index, _name];
+    testsPassed = testsPassed + 1;
+};
+
+test_fnc_testFailed = {
+    params ["_index", "_name", "_reason"];
+    systemChat format ["Test %1 - '%2' Failed: %3.", _index, _name, _reason];
+    testsFailed = testsFailed + 1;
+};
+
+test_fnc_exceptWrapper = {
+    params ["_args", "_code"];
     testsIndex = testsIndex + 1;
     private _index = testsIndex;
     {
-        private _ret = call _test;
-        if (_ret isEqualTo true) then
-        {
-            systemChat format ["Test %1 - '%2' Passed.", _index, _name];
-            testsPassed = testsPassed + 1;
-        }
-        else
-        {
-            if (_ret isEqualType false) then
-            {
-                systemChat format ["Test %1 - '%2' Failed.", _index, _name];
-                testsFailed = testsFailed + 1;
-            }
-            else
-            {
-                systemChat format ["Test %1 - '%2' Failed due to wrong return value. Expected BOOL, got %3 (%4).", _index, _name, typeName _ret, _ret];
-                testsFailed = testsFailed + 1;
-            }
-        }
+        ([_index] + _args) call _code
     }
     except__
     {
-        systemChat format ["Test %1 - '%2' Failed: %3", _index, _name, _exception];
-        testsFailed = testsFailed + 1;
+        [_index, _args select 0, _exception] call test_fnc_testFailed;
     }
 };
+
+test_fnc_assertEqual = {
+    [_this, {
+        params ["_index", "_name", "_test", "_compare"];
+        private _ret = call _test;
+        if (_ret isEqualTo _compare) then
+        {
+            [_index, _name] call test_fnc_testPassed;
+        }
+        else
+        {
+            private _msg = format ["Wrong return value. Expected %1 (type %2), got %3 (type %4).",  _compare, typeName _compare, _ret, typeName _ret];
+            [_index, _name, _msg] call test_fnc_testFailed;
+        }
+    }] call test_fnc_exceptWrapper;
+};
+
+test_fnc_assertIsNil = {
+        [_this, {
+        params ["_index", "_name", "_test", "_compare"];
+        private _ret = call _test;
+        if (isNil "_ret") then
+        {
+            [_index, _name] call test_fnc_testPassed;
+        }
+        else
+        {
+            private _msg = format ["Wrong return value. Expected nil, got %1 (type %2).",  _ret, typeName _ret];
+            [_index, _name, _msg] call test_fnc_testFailed;
+        }
+    }] call test_fnc_exceptWrapper;
+};
+
 test_fnc_assertException = {
     private _name = _this select 0;
     private _test = _this select 1;
@@ -62,15 +88,15 @@ test_fnc_assertException = {
     private _index = testsIndex;
     {
         private _ret = call _test;
-        systemChat format ["Test %1 - '%2' Failed: Never reached except. Returned: %3", _index, _name, _ret];
-        testsFailed = testsFailed + 1;
+        private _msg = format ["Never reached except. Returned: %1", _ret];
+        [_index, _name, _msg] call test_fnc_testFailed;
     }
     except__
     {
-        systemChat format ["Test %1 - '%2' Passed with: %3", _index, _name, _exception];
-        testsPassed = testsPassed + 1;
+        [_index, _name] call test_fnc_testPassed;
     }
 };
+
 private _currentDirectory = currentDirectory__;
 private _currentDirectoryLength = count _currentDirectory;
 {
@@ -80,7 +106,7 @@ private _currentDirectoryLength = count _currentDirectory;
             {
                 {
                     private _name = _x select [_currentDirectoryLength];
-                    private  _tests = call compile preprocessFileLineNumbers _x;
+                    private _tests = call compile preprocessFileLineNumbers _x;
                     if !(_tests isEqualType []) then
                     {
                         throw format ["Invalid type. Expected ARRAY; Got %1", typeName _tests];
@@ -92,7 +118,9 @@ private _currentDirectoryLength = count _currentDirectory;
                         {
                             switch (_mode) do
                             {
-                                case "assertTrue": { [_name, _test] call test_fnc_assertTrue };
+                                case "assertTrue": { [_name, _test, true] call test_fnc_assertEqual };
+                                case "assertFalse": { [_name, _test, false] call test_fnc_assertEqual };
+                                case "assertEqual": { [_name, _test, _x select 2] call test_fnc_assertEqual };
                                 case "assertException": { [_name, _test] call test_fnc_assertException };
                                 default { throw format ["Unknown Test-Type %1 in %2", _mode, _name]; }
                             }
