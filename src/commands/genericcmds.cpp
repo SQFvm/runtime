@@ -313,12 +313,12 @@ namespace
 		if (start < 0)
 		{
 			vm->wrn() << "Start index is smaller then 0. Returning empty array." << std::endl;
-			return std::make_shared<value>("");
+			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
 		}
 		if (start > vec.size())
 		{
 			vm->wrn() << "Start index is larger then string length. Returning empty array." << std::endl;
-			return std::make_shared<value>("");
+			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
 		}
 		if (arr.size() >= 2)
 		{
@@ -338,7 +338,7 @@ namespace
 		}
 		else
 		{
-			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
+			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
 		}
 		
 	}
