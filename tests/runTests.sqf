@@ -88,12 +88,26 @@ private _currentDirectoryLength = count _currentDirectory;
                     {
                         private _mode = _x select 0;
                         private _test = _x select 1;
-                        switch (_mode) do
+                        if (_mode isEqualType "") then
                         {
-                            case "assertTrue": { [_name, _test] call test_fnc_assertTrue };
-                            case "assertException": { [_name, _test] call test_fnc_assertException };
-                            default { throw format ["Unknown Test-Type %1 in %2", _mode, _name]; }
+                            switch (_mode) do
+                            {
+                                case "assertTrue": { [_name, _test] call test_fnc_assertTrue };
+                                case "assertException": { [_name, _test] call test_fnc_assertException };
+                                default { throw format ["Unknown Test-Type %1 in %2", _mode, _name]; }
+                            }
                         }
+                        else
+                        {
+                            if (_mode isEqualType {}) then
+                            {
+                                [_name, _test] call _mode;
+                            }
+                            else
+                            {
+                                throw format ["Test-Type was expected to be either STRING or CODE but was %1", typeName _mode];
+                            };
+                        };
                     } forEach _tests;
                 }
                 except__
@@ -107,7 +121,7 @@ private _currentDirectoryLength = count _currentDirectory;
 } forEach allFiles__ [".sqf"];
 diag_log _currentDirectory;
 systemChat format ["%1 out of %2 tests passed.", testsPassed, testsIndex];
-systemChat format ["%1 out of %2 tests failed.", testsFailed, testsIndex];
-if (fatalError) then {
-    diag_log "fatalError was set.";
+if (fatalError) then
+{
+    diag_log "fatalError occured during testing.";
 };
