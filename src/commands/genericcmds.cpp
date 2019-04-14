@@ -290,7 +290,9 @@ namespace
 		else if (flag && arr.size() < 2)
 		{
 			vm->wrn() << "Array should have at least two elements." << std::endl;
+			return std::make_shared<sqf::value>();
 		}
+
 		return flag ? arr[1] : arr[0];
 	}
 	std::shared_ptr<value> select_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
