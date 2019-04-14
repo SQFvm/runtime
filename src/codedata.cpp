@@ -36,7 +36,7 @@ std::string rebuild_from_assembly_recursive(const sqf::codedata* data, int& inde
 		case sqf::instruction::push:
 		{
 			auto instpush = std::static_pointer_cast<sqf::inst::push>(inst);
-			return instpush->value()->tosqf();
+			return instpush->get_value()->tosqf();
 		} break;
 		case sqf::instruction::assignto:
 		{
