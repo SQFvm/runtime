@@ -39,7 +39,7 @@ namespace
 			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		int start = arr[0]->as_int();
+		int start = (int)std::round(arr[0]->as_float());
 		if (start < 0)
 		{
 			vm->wrn() << "Start index is smaller then 0. Returning empty string." << std::endl;
@@ -57,7 +57,7 @@ namespace
 				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
 				return std::make_shared<value>();
 			}
-			int length = arr[1]->as_int();
+			int length = (int)std::round(arr[1]->as_float());
 			if (length < 0)
 			{
 				vm->wrn() << "Length is smaller then 0. Returning empty string." << std::endl;
