@@ -29,7 +29,7 @@
     if (m_current_index > 0)
     {
         bool success;
-        auto val = vm->stack()->popval(success);
+        auto val = vm->active_vmstack()->popval(success);
         if (!success)
         {
             vm->wrn() << "count callstack found no value." << std::endl;
@@ -65,7 +65,7 @@
 	{
 		setvar("_x", m_input_vector[m_current_index++]);
 		auto sptr = std::shared_ptr<callstack_count>(this, [](callstack_count*) {});
-		m_codedata->loadinto(vm->stack(), sptr);
+		m_codedata->loadinto(vm->active_vmstack(), sptr);
 	}
 
 	// Proceed normal

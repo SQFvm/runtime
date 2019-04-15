@@ -25,7 +25,7 @@
 	{
 		// Receive the last result from the value stack
 		bool success;
-		auto val = vm->stack()->popval(success);
+		auto val = vm->active_vmstack()->popval(success);
 		if (!success)
 		{
 			vm->err() << "select callstack found no value." << std::endl;
@@ -58,7 +58,7 @@
 		if (m_current_index > 0)
 		{
 			bool success;
-			auto val = vm->stack()->popval(success);
+			auto val = vm->active_vmstack()->popval(success);
 			if (!success)
 			{
 				vm->err() << "select callstack found no value." << std::endl;
@@ -81,7 +81,7 @@
 		}
 		setvar("_x", m_input_vector[m_current_index++]);
 		auto sptr = std::shared_ptr<callstack_select>(this, [](callstack_select*) {});
-		m_codedata->loadinto(vm->stack(), sptr);
+		m_codedata->loadinto(vm->active_vmstack(), sptr);
 	}
 
 	// Proceed normal

@@ -25,7 +25,7 @@
 	}
 
 	auto sptr = std::shared_ptr<callstack_foreach>(this, [](callstack_foreach*) {});
-	m_codedata->loadinto(vm->stack(), sptr);
+	m_codedata->loadinto(vm->active_vmstack(), sptr);
 	sptr->setvar("_x", m_array[m_current_index]);
 	sptr->setvar("_forEachIndex", std::make_shared<value>(m_current_index));
 	m_current_index++;

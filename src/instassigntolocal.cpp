@@ -6,11 +6,11 @@
 void sqf::inst::assigntolocal::execute(virtualmachine* vm) const
 {
 	bool flag;
-	auto val = vm->stack()->popval(flag);
+	auto val = vm->active_vmstack()->popval(flag);
 	if (!flag)
 	{
 		vm->err() << "assignToLocal could not receive a value." << std::endl;
 		return;
 	}
-	vm->stack()->stacks_top()->setvar(mvarname, val);
+	vm->active_vmstack()->stacks_top()->setvar(mvarname, val);
 }

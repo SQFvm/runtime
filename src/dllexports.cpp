@@ -34,7 +34,7 @@ extern "C" {
 		{
 			sqfvm_virtualmachine->parse_sqf(inputAfterPP, "__libraryfeed.sqf");
 			sqfvm_virtualmachine->execute();
-			auto val = sqfvm_virtualmachine->stack()->last_value();
+			auto val = sqfvm_virtualmachine->active_vmstack()->last_value();
 			sqfvm_virtualmachine->err_buffprint(true);
 			sqfvm_virtualmachine->wrn_buffprint(true);
 			sqfvm_virtualmachine->out_buffprint(true);

@@ -33,8 +33,8 @@ namespace sqf
 	private:
 		unsigned long long minstcount;
 		unsigned long long mmaxinst;
-		std::shared_ptr<sqf::vmstack> mmainstack;
-		std::shared_ptr<sqf::vmstack> mactivestack;
+		std::shared_ptr<sqf::vmstack> m_main_vmstack;
+		std::shared_ptr<sqf::vmstack> m_active_vmstack;
 		std::list<std::shared_ptr<scriptdata>> mspawns;
 		std::basic_ostream<char, std::char_traits<char>>* mout;
 		std::basic_ostream<char, std::char_traits<char>>* merr;
@@ -64,8 +64,9 @@ namespace sqf
 		std::vector<std::shared_ptr<dlops>> mlibraries;
 		debugger* _debugger;
 		bool mexitflag;
+		int m_exitcode = 0;
 		bool mallowsleep;
-		bool mperformclassnamechecks;
+		bool m_perform_classname_checks;
 		sqf::filesystem m_filesystem;
 		std::chrono::system_clock::time_point mcreatedtimestamp;
 	public:
@@ -76,7 +77,8 @@ namespace sqf
 
 		std::shared_ptr<innerobj> player_obj() { return mplayer_obj; }
 		void player_obj(std::shared_ptr<innerobj> val) { mplayer_obj = val; }
-		std::shared_ptr<sqf::vmstack> active_vmstack() { return mactivestack; }
+		std::shared_ptr<sqf::vmstack> active_vmstack() { return m_active_vmstack; }
+		std::shared_ptr<sqf::vmstack> active_vmstack() const { return m_active_vmstack; }
 		const std::vector<std::shared_ptr<innerobj>>& get_objlist() { return mobjlist; }
 		std::shared_ptr<sqf::sqfnamespace> missionnamespace() { return mmissionnamespace; }
 		std::shared_ptr<sqf::sqfnamespace> uinamespace() { return muinamespace; }
@@ -133,13 +135,14 @@ namespace sqf
 
 
 		void execute();
-		std::shared_ptr<sqf::vmstack> stack() const { return mactivestack; }
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
 		void exitflag(bool flag) { mexitflag = flag; }
+		void exitflag(bool flag, int exitcode) { mexitflag = flag; m_exitcode = exitcode; }
 		bool exitflag() { return mexitflag; }
+		int exitcode() { return m_exitcode; }
 
-		bool perform_classname_checks() { return mperformclassnamechecks; }
-		void perform_classname_checks(bool f) { mperformclassnamechecks = f; }
+		bool perform_classname_checks() { return m_perform_classname_checks; }
+		void perform_classname_checks(bool f) { m_perform_classname_checks = f; }
 
 		marker* get_marker(std::string key) { return mmarkers.find(key) == mmarkers.end() ? nullptr : &mmarkers[key]; }
 		void set_marker(std::string key, marker m) { mmarkers[key] = m; }
@@ -162,7 +165,7 @@ namespace sqf
 		// 
 		// In all cases, the corresponding wrn_ and out_ methods
 		// Also should be checked in case they contain additional info.
-		bool parse_sqf(std::string code, std::string filepath = "") { return parse_sqf(stack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
+		bool parse_sqf(std::string code, std::string filepath = "") { return parse_sqf(active_vmstack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
 		// Parses the provided code and creates assembly
 		// instructions into provided sqf::callstack
 		// that gets pushed onto the default sqf::vmstack receivable using
@@ -175,7 +178,7 @@ namespace sqf
 		// 
 		// In all cases, the corresponding wrn_ and out_ methods
 		// Also should be checked in case they contain additional info.
-		bool parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { return parse_sqf(stack(), str, cs, filepath); }
+		bool parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { return parse_sqf(active_vmstack(), str, cs, filepath); }
 		// Parses the provided code and creates assembly
 		// instructions into provided sqf::callstack
 		// that gets pushed onto provided sqf::vmstack

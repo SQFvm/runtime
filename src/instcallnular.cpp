@@ -8,7 +8,7 @@ void sqf::inst::callnular::execute(virtualmachine* vm) const
 {
 	auto val = mcmd->execute(vm, std::shared_ptr<value>(), std::shared_ptr<value>());
 	if (val)
-		vm->stack()->pushval(val);
+		vm->active_vmstack()->pushval(val);
 }
 
 std::string sqf::inst::callnular::to_string() const

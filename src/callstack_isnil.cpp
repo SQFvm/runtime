@@ -7,7 +7,7 @@
 sqf::callstack_isnil::callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf::virtualmachine * vm, std::shared_ptr<codedata> exec) : callstack(ns)
 {
 	auto sptr = std::shared_ptr<callstack_isnil>(this, [](callstack_isnil*) {});
-	exec->loadinto(vm->stack(), sptr);
+	exec->loadinto(vm->active_vmstack(), sptr);
 }
 ::sqf::callstack::nextinstres sqf::callstack_isnil::do_next(sqf::virtualmachine* vm)
 {
@@ -25,7 +25,7 @@ sqf::callstack_isnil::callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf
 	}
 
 	bool success;
-	auto val = vm->stack()->popval(success);
+	auto val = vm->active_vmstack()->popval(success);
 	if (success)
 	{
 		// Update the value stack
