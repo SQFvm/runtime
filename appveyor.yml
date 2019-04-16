@@ -8,13 +8,11 @@ image:
 configuration:
 - Release
 platform:
+- Win32
 - x64
 skip_tags: true
 matrix:
   fast_finish: true
-
-# Disabling Win32 build
-# - Win32
 
 # skip unsupported combinations
 init:
