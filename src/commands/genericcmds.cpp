@@ -22,6 +22,7 @@
 #include "../sqfnamespace.h"
 #include "../fileio.h"
 #include "../parsepreprocessor.h"
+#include <cmath>
 
 
 #define CALLEXTBUFFSIZE 10240

@@ -4,6 +4,7 @@
 #include "../virtualmachine.h"
 #include <algorithm>
 #include <sstream>
+#include <cmath>
 
 using namespace sqf;
 namespace
