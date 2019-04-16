@@ -12,7 +12,7 @@
 		drop_values();
 		m_done_catch = true;
 		auto sptr = std::shared_ptr<callstack_sqftry>(this, [](callstack_sqftry*) {});
-		m_codedata_catch->loadinto(vm->stack(), sptr);
+		m_codedata_catch->loadinto(vm->active_vmstack(), sptr);
 		setvar("_exception", std::make_shared<value>(m_message));
 		setvar("_callstack", std::make_shared<value>(m_stackdump, sqf::type::ARRAY));
 	}

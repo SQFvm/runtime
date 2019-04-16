@@ -21,7 +21,7 @@
 	if (!m_switchdata->executed() && m_switchdata->defaultexec().get())
 	{
 		auto sptr = std::shared_ptr<callstack_switch>(this, [](callstack_switch*) {});
-		m_switchdata->defaultexec()->loadinto(vm->stack(), sptr);
+		m_switchdata->defaultexec()->loadinto(vm->active_vmstack(), sptr);
 		m_switchdata->defaultexec(std::shared_ptr<codedata>());
 		return callstack::do_next(vm);
 	}

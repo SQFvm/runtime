@@ -8,13 +8,13 @@
 void sqf::inst::callbinary::execute(virtualmachine* vm) const
 {
 	bool flag;
-	auto right = vm->stack()->popval(flag);
+	auto right = vm->active_vmstack()->popval(flag);
 	if (!flag || right == nullptr || right->dtype() == sqf::type::NOTHING)
 	{
 		vm->err() << "callBinary could not receive a value for right arg." << std::endl;
 		return;
 	}
-	auto left = vm->stack()->popval(flag);
+	auto left = vm->active_vmstack()->popval(flag);
 	if (!flag || left == nullptr || left->dtype() == sqf::type::NOTHING)
 	{
 		vm->err() << "callBinary could not receive a value for left arg." << std::endl;
@@ -25,7 +25,7 @@ void sqf::inst::callbinary::execute(virtualmachine* vm) const
 	{
 		auto val = cmd->execute(vm, left, right);
 		if (val)
-			vm->stack()->pushval(val);
+			vm->active_vmstack()->pushval(val);
 	}
 	else
 	{

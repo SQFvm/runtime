@@ -46,7 +46,7 @@ namespace
 		auto l = left->data<sqfnamespace>();
 		auto r = right->data<codedata>();
 		auto cs = std::make_shared<callstack>(l);
-		r->loadinto(vm, vm->stack());
+		r->loadinto(vm, vm->active_vmstack());
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> getVariable_namespace_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)

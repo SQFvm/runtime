@@ -25,7 +25,7 @@ namespace
 		if (l)
 		{
 			auto r = right->data<codedata>();
-			r->loadinto(vm, vm->stack());
+			r->loadinto(vm, vm->active_vmstack());
 			return std::shared_ptr<value>();
 		}
 		else
@@ -43,7 +43,7 @@ namespace
 		else
 		{
 			auto r = right->data<codedata>();
-			r->loadinto(vm, vm->stack());
+			r->loadinto(vm, vm->active_vmstack());
 			return std::shared_ptr<value>();
 		}
 	}

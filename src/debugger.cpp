@@ -236,7 +236,7 @@ void sqf::debugger::check(virtualmachine * vm)
 			std::string mode = json["mode"];
 			if (mode == "get-callstack")
 			{
-				_server->push_message(callstackmsg(vm->stack()));
+				_server->push_message(callstackmsg(vm->active_vmstack()));
 			}
 			else if (mode == "control")
 			{
@@ -256,7 +256,7 @@ void sqf::debugger::check(virtualmachine * vm)
 			else if (mode == "get-variables")
 			{
 				auto data = json["data"];
-				_server->push_message(variablemsg(vm, vm->stack(), data));
+				_server->push_message(variablemsg(vm, vm->active_vmstack(), data));
 			}
 			else if (mode == "preprocess")
 			{

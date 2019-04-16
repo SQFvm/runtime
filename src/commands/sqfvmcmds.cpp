@@ -240,6 +240,11 @@ namespace
 		vm->exitflag(true);
 		return std::make_shared<value>();
 	}
+	std::shared_ptr<value> exit___scalar(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		vm->exitflag(true, (int)std::round(right->as_float()));
+		return std::make_shared<value>();
+	}
 	std::shared_ptr<value> respawn___(virtualmachine* vm)
 	{
 		vm->player_obj(innerobj::create(vm, "CAManBase", false));
@@ -261,9 +266,9 @@ namespace
 	}
 	std::shared_ptr<value> except___code_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto cs = std::make_shared<callstack_sqftry>(vm->stack()->stacks_top()->get_namespace(), right->data<codedata>());
-		vm->stack()->pushcallstack(cs);
-		left->data<codedata>()->loadinto(vm->stack(), cs);
+		auto cs = std::make_shared<callstack_sqftry>(vm->active_vmstack()->stacks_top()->get_namespace(), right->data<codedata>());
+		vm->active_vmstack()->pushcallstack(cs);
+		left->data<codedata>()->loadinto(vm->active_vmstack(), cs);
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> callstack___(virtualmachine* vm)
@@ -357,7 +362,8 @@ void sqf::commandmap::initsqfvmcmds()
 	add(binary(4, "merge__", sqf::type::CONFIG, sqf::type::CONFIG, "Merges contents from the right config into the left config. Duplicate entries will be overriden. Contents will not be copied but referenced.", merge___config_config));
 	add(nular("allObjects__", "Returns an array containing all objects created.", allObjects__));
 	add(unary("prettyprintsqf__", sqf::type::STRING, "Takes provided SQF code and pretty-prints it to output.", prettyprintsqf___string));
-	add(nular("exit__", "Exits the execution immediately. Will not notify debug interface when used.", exit___));
+	add(nular("exit__", "Exits the VM execution immediately. Will not notify debug interface when used.", exit___));
+	add(unary("exit__", sqf::type::SCALAR, "Exits the VM execution immediately. Will not notify debug interface when used. Allows to pass an exit code to the VM.", exit___scalar));
 	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
 	add(nular("respawn__", "'Respawns' the player object.", respawn___));
 	add(unary("preprocess__", sqf::type::STRING, "Runs the PreProcessor on provided string.", preprocess___string));

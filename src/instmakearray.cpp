@@ -12,12 +12,12 @@ void sqf::inst::makearray::execute(virtualmachine* vm) const
 	for (size_t i = msize - 1; i != (size_t)~0; i--)
 	{
 		bool flag;
-		vec[i] = vm->stack()->popval(flag);
+		vec[i] = vm->active_vmstack()->popval(flag);
 		if (!flag)
 		{
 			vm->err() << "Missing elements on value stack. Expected " << msize << ", got " << msize - i << std::endl;
 			break;
 		}
 	}
-	vm->stack()->pushval(std::make_shared<value>(vec));
+	vm->active_vmstack()->pushval(std::make_shared<value>(vec));
 }

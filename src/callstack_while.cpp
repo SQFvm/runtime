@@ -25,7 +25,7 @@
 
 		// Receive the last result from the value stack
 		bool success;
-		auto val = vm->stack()->popval(success);
+		auto val = vm->active_vmstack()->popval(success);
 		if (!success)
 		{
 			vm->err() << "while callstack found no value." << std::endl;
@@ -35,7 +35,7 @@
 			if (val->as_bool())
 			{
 				auto sptr = std::shared_ptr<callstack_while>(this, [](callstack_while*) {});
-				m_codedata_body->loadinto(vm->stack(), sptr);
+				m_codedata_body->loadinto(vm->active_vmstack(), sptr);
 			}
 		}
 		else
@@ -48,7 +48,7 @@
 		drop_values();
 		m_was_condition = true;
 		auto sptr = std::shared_ptr<callstack_while>(this, [](callstack_while*) {});
-		m_codedata_condition->loadinto(vm->stack(), sptr);
+		m_codedata_condition->loadinto(vm->active_vmstack(), sptr);
 	}
 	return do_next(vm);
 }

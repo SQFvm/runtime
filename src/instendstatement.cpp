@@ -4,8 +4,8 @@
 
 void sqf::inst::endstatement::execute(virtualmachine* vm) const
 {
-	if (!vm->stack()->isempty())
+	if (!vm->active_vmstack()->isempty())
 	{
-		vm->stack()->stacks_top()->drop_values();
+		vm->active_vmstack()->stacks_top()->drop_values();
 	}
 }

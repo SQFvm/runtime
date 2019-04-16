@@ -49,8 +49,8 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mhaltflag = false;
 	minstcount = 0;
 	mmaxinst = maxinst;
-	mmainstack = std::make_shared<vmstack>();
-	mactivestack = mmainstack;
+	m_main_vmstack = std::make_shared<vmstack>();
+	m_active_vmstack = m_main_vmstack;
 	merrflag = false;
 	mwrnflag = false;
 	_debugger = nullptr;
@@ -58,7 +58,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	muinamespace = std::make_shared< sqf::sqfnamespace>("uiNamespace");
 	mparsingnamespace = std::make_shared<sqf::sqfnamespace>("parsingNamespace");
 	mprofilenamespace = std::make_shared<sqf::sqfnamespace>("profileNamespace");
-	mperformclassnamechecks = true;
+	m_perform_classname_checks = true;
 	mexitflag = false;
 	mallowsleep = true;
 	mplayer_obj = innerobj::create(this, "CAManBase", false);
@@ -71,20 +71,20 @@ void sqf::virtualmachine::execute()
 	err_buffprint();
 
 	mexitflag = false;
-	while (!mexitflag && (!mspawns.empty() || !mmainstack->isempty() || (_debugger && _debugger->stop(this))))
+	while (!mexitflag && (!mspawns.empty() || !m_main_vmstack->isempty() || (_debugger && _debugger->stop(this))))
 	{
 		if (_debugger) { _debugger->status(sqf::debugger::RUNNING); }
-		mactivestack = mmainstack;
+		m_active_vmstack = m_main_vmstack;
 		performexecute();
-		while (!mmainstack->isempty()) { mmainstack->dropcallstack(); }
+		while (!m_main_vmstack->isempty()) { m_main_vmstack->dropcallstack(); }
 		for (auto& it : mspawns)
 		{
-			mactivestack = it->stack();
-			if (mallowsleep && mactivestack->isasleep())
+			m_active_vmstack = it->stack();
+			if (mallowsleep && m_active_vmstack->isasleep())
 			{
-				if (mactivestack->get_wakeupstamp() <= virtualmachine::system_time())
+				if (m_active_vmstack->get_wakeupstamp() <= virtualmachine::system_time())
 				{
-					mactivestack->wakeup();
+					m_active_vmstack->wakeup();
 				}
 				else
 				{
@@ -97,7 +97,7 @@ void sqf::virtualmachine::execute()
 		if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { mspawns.clear(); }
 		mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished(); });
 	}
-	mactivestack = mmainstack;
+	m_active_vmstack = m_main_vmstack;
 
 	out_buffprint();
 	wrn_buffprint();
@@ -106,7 +106,7 @@ void sqf::virtualmachine::execute()
 void sqf::virtualmachine::performexecute(size_t exitAfter)
 {
 	std::shared_ptr<sqf::instruction> inst;
-	while (!mexitflag && exitAfter != 0 && !mactivestack->isasleep() && (inst = mactivestack->popinst(this)).get())
+	while (!mexitflag && exitAfter != 0 && !m_active_vmstack->isasleep() && (inst = m_active_vmstack->popinst(this)).get())
 	{
 		minstcount++;
 		if (exitAfter > 0)
@@ -161,18 +161,18 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			}
 
 			// Try to find a callstack_sqftry
-			auto res = std::find_if(mactivestack->stacks_begin(), mactivestack->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
+			auto res = std::find_if(m_active_vmstack->stacks_begin(), m_active_vmstack->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
 				return cs->can_recover();
 			});
-			if (res == mactivestack->stacks_end())
+			if (res == m_active_vmstack->stacks_end())
 			{
 				(*merr) << inst->dbginf("RNT") << merr_buff.str();
                 err_clear();
 				//Only for non-scheduled (and thus the mainstack)
-				if (!mactivestack->isscheduled())
+				if (!m_active_vmstack->isscheduled())
 				{
 					this->err() << "Stacktrace:" << std::endl;
-					auto stackdump = mactivestack->dump_callstack_diff({});
+					auto stackdump = m_active_vmstack->dump_callstack_diff({});
 					int i = 1;
 					for (auto& it : stackdump)
 					{
@@ -187,7 +187,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			else
 			{
 				auto sqftry = std::dynamic_pointer_cast<sqf::callstack_sqftry>(*res);
-				auto stackdump = mactivestack->dump_callstack_diff(sqftry);
+				auto stackdump = m_active_vmstack->dump_callstack_diff(sqftry);
 				auto sqfarr = std::make_shared<arraydata>();
 				for (auto& it : stackdump)
 				{
@@ -202,9 +202,9 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 						};
 					sqfarr->push_back(std::make_shared<sqf::value>(std::make_shared<arraydata>(vec), sqf::type::ARRAY));
 				}
-				while (mactivestack->stacks_top() != sqftry)
+				while (m_active_vmstack->stacks_top() != sqftry)
 				{
-					mactivestack->dropcallstack();
+					m_active_vmstack->dropcallstack();
 				}
 				sqftry->except(merr_buff.str(), sqfarr);
                 err_clear();

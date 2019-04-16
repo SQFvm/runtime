@@ -40,7 +40,7 @@
 	{
 		// Receive the last result from the value stack
 		bool success;
-		auto val = vm->stack()->popval(success);
+		auto val = vm->active_vmstack()->popval(success);
 		if (!success)
 		{
 			if (previous_current_index)
@@ -73,7 +73,7 @@
 		if (m_current_index > 0)
 		{
 			bool success;
-			auto val = vm->stack()->popval(success);
+			auto val = vm->active_vmstack()->popval(success);
 			if (!success)
 			{
 				vm->err() << "configClasses callstack found no value." << std::endl;
@@ -93,7 +93,7 @@
 		setvar("_x", val);
 
 		auto sptr = std::shared_ptr<callstack_configclasses>(this, [](callstack_configclasses*) {});
-		m_code_condition->loadinto(vm->stack(), sptr);
+		m_code_condition->loadinto(vm->active_vmstack(), sptr);
 	}
 
 	// Proceed normal

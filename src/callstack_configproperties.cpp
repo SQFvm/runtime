@@ -36,7 +36,7 @@
 
 		// Receive the last result from the value stack
 		bool success;
-		auto val = vm->stack()->popval(success);
+		auto val = vm->active_vmstack()->popval(success);
 		if (!success)
 		{
 			vm->err() << "configProperties callstack found no value." << std::endl;
@@ -66,7 +66,7 @@
 		if (m_current_index > 0)
 		{
 			bool success;
-			auto val = vm->stack()->popval(success);
+			auto val = vm->active_vmstack()->popval(success);
 			if (!success)
 			{
 				vm->err() << "configProperties callstack found no value." << std::endl;
@@ -97,7 +97,7 @@
 		}
 
 		auto sptr = std::shared_ptr<callstack_configproperties>(this, [](callstack_configproperties*) {});
-		m_code_condition->loadinto(vm->stack(), sptr);
+		m_code_condition->loadinto(vm->active_vmstack(), sptr);
 	}
 
 	// Proceed normal

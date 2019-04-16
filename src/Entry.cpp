@@ -703,7 +703,7 @@ int main(int argc, char** argv)
 		}
 		if (!noWorkPrintArg.getValue())
 		{
-			auto val = vm.stack()->last_value();
+			auto val = vm.active_vmstack()->last_value();
 			if (val != nullptr)
 			{
 				std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
@@ -733,5 +733,5 @@ int main(int argc, char** argv)
 	}
 
 	sqf::commandmap::get().uninit();
-	return 0;
+	return vm.exitcode();
 }

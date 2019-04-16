@@ -47,7 +47,7 @@
 
 		// Load the code
 		auto sptr = std::shared_ptr<callstack_for_step>(this, [](callstack_for_step*) {});
-		m_codedata->loadinto(vm->stack(), sptr);
+		m_codedata->loadinto(vm->active_vmstack(), sptr);
 	}
 	else
 	{
@@ -63,7 +63,7 @@
 
 		// Load the code
 		auto sptr = std::shared_ptr<callstack_for_step>(this, [](callstack_for_step*) {});
-		m_codedata->loadinto(vm->stack(), sptr);
+		m_codedata->loadinto(vm->active_vmstack(), sptr);
 	}
 
 	// Proceed normal
