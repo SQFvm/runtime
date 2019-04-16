@@ -39,4 +39,6 @@ only_commits:
     - appveyor.yml
     - src/
 test_script:
-- cmd: build\Release\sqfvm.exe -a --load . -i tests/runTests.sqf --disable-runtime-warnings
+- cmd: |-
+    cd c:\projects\vm
+    .\build\Release\sqfvm.exe -a --disable-runtime-warnings --load . -i c:\projects\vm\tests\runTests.sqf
