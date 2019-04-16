@@ -29,6 +29,7 @@
 		if (!success)
 		{
 			vm->err() << "while callstack found no value." << std::endl;
+			return done;
 		}
 		else if (val->dtype() == type::BOOL)
 		{
@@ -37,10 +38,15 @@
 				auto sptr = std::shared_ptr<callstack_while>(this, [](callstack_while*) {});
 				m_codedata_body->loadinto(vm->active_vmstack(), sptr);
 			}
+			else
+			{
+				return done;
+			}
 		}
 		else
 		{
 			vm->err() << "while callstack expected condition value to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+			return done;
 		}
 	}
 	else
