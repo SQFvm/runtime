@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <vector>
+#include <cmath>
 #include "type.h"
 
 namespace sqf

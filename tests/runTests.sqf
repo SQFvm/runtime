@@ -135,9 +135,11 @@ diag_log format ["%1 out of %2 tests passed.", testsPassed, testsIndex];
 if (fatalError) then
 {
     diag_log "FATALERROR occured during testing.";
+    exit__ -1;
 }
-else
+else 
 {
     diag_log "";
     diag_log (["FAILED", "SUCCESS"] select (testsPassed == testsIndex));
+    exit__ (testsIndex - testsPassed);
 };
