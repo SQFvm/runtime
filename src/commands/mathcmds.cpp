@@ -29,7 +29,10 @@ namespace
 	{
 		auto r = (right->as_double());
 		if (r == 0)
+		{
+			vm->wrn() << "Zero Divisor" << std::endl;
 			return std::make_shared<value>(0);
+		}
 		return std::make_shared<value>((left->as_double()) / r);
 	}
 	std::shared_ptr<value> abs_scalar(virtualmachine* vm, std::shared_ptr<value> right)
