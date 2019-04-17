@@ -163,7 +163,7 @@ namespace
 		bool wasfound = false;
 		for (auto& pair : commandmap::get().all_n())
 		{
-			if (str_cmpi(pair.first.c_str(), pair.first.length(), str.c_str(), str.length()) != 0)
+			if (str_cmpi(pair.first.c_str(), static_cast<int>(pair.first.length()), str.c_str(), static_cast<int>(str.length())) != 0)
 				continue;
 			auto cmd = pair.second;
 			if (cmd->desc().empty())
@@ -174,7 +174,7 @@ namespace
 		}
 		for (auto& pair : commandmap::get().all_u())
 		{
-			if (str_cmpi(pair.first.c_str(), pair.first.length(), str.c_str(), str.length()) != 0)
+			if (str_cmpi(pair.first.c_str(), static_cast<int>(pair.first.length()), str.c_str(), static_cast<int>(str.length())) != 0)
 				continue;
 			auto cmds = pair.second;
 			for (auto& cmd : *cmds)
@@ -188,7 +188,7 @@ namespace
 		}
 		for (auto& pair : commandmap::get().all_b())
 		{
-			if (str_cmpi(pair.first.c_str(), pair.first.length(), str.c_str(), str.length()) != 0)
+			if (str_cmpi(pair.first.c_str(), static_cast<int>(pair.first.length()), str.c_str(), static_cast<int>(str.length())) != 0)
 				continue;
 			auto cmds = pair.second;
 			for (auto& cmd : *cmds)

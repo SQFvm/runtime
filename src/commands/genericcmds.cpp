@@ -649,7 +649,7 @@ namespace
 			return std::shared_ptr<value>();
 		}
 
-		auto index = params[0]->as_long();
+		auto index = params[0]->as_int();
 		auto val = params[1];
 		if (arr->size() <= index)
 		{
@@ -1278,7 +1278,8 @@ namespace
 	{
 		auto curtime = sqf::virtualmachine::system_time().time_since_epoch();
 		auto starttime = vm->get_created_timestamp().time_since_epoch();
-		long r = std::chrono::duration_cast<std::chrono::milliseconds>(starttime - curtime).count();
+		// Time is since beginning of game so long is fine.
+		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(starttime - curtime).count());
 		return std::make_shared<value>(r);
 	}
 }

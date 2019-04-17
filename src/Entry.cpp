@@ -58,7 +58,7 @@ int console_width()
 {
 #if _WIN32
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	int columns, rows;
+	int columns;
 
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
 	columns = csbi.srWindow.Right - csbi.srWindow.Left;

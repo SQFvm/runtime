@@ -344,7 +344,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 			}
 			catch (std::out_of_range)
 			{
-				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nan("")), sqf::type::NaN));
+				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nanf("")), sqf::type::NaN));
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 				vm->wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
 				stack->push_back(inst);
@@ -361,7 +361,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 			}
 			catch (std::out_of_range)
 			{
-				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nan("")), sqf::type::NaN));
+				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nanf("")), sqf::type::NaN));
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 				vm->wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
 				stack->push_back(inst);
@@ -714,7 +714,7 @@ std::shared_ptr<sqf::innerobj> sqf::virtualmachine::get_obj_netid(size_t netid)
 std::string sqf::virtualmachine::get_group_id(std::shared_ptr<sqf::sidedata> side)
 {
 	int sidenum = side->side();
-	int id = mgroupidcounter[sidenum]++;
+	size_t id = mgroupidcounter[sidenum]++;
 	std::stringstream sstream;
 	sstream << side->tosqf() << " ALPHA " << id;
 	return sstream.str();

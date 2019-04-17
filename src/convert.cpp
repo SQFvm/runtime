@@ -14,7 +14,7 @@ std::shared_ptr<sqf::data> sqf::convert(std::shared_ptr<sqf::data> val, type typ
 	switch (type)
 	{
 	case sqf::SCALAR:
-		return std::make_shared<scalardata>(strtod(stringval.c_str(), nullptr));
+		return std::make_shared<scalardata>(static_cast<float>(strtod(stringval.c_str(), nullptr)));
 	case sqf::BOOL:
 		if (str_cmpi(stringval.c_str(), static_cast<int>(stringval.length()), "true", 4) == 0)
 		{
