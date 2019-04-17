@@ -38,3 +38,8 @@ only_commits:
     - CMakeLists.txt
     - appveyor.yml
     - src/
+    - tests/
+test_script:
+- cmd: |-
+    cd c:\projects\vm
+    .\build\Release\sqfvm.exe -a --no-execute-print --disable-runtime-warnings --load . -i tests\runTests.sqf
