@@ -19,9 +19,14 @@ namespace sqf
 		enum nextinstres
 		{
 			NA,
+			// Tells that there is no work left to do and nothing has changed
 			done,
+			// Tells that there may be work left to do and m_current_instruction
+			// got changed. (can be changed by calling current_instruction(...))
 			updated,
+			// Unused
 			suspend,
+			// Same as done, but also will drop the callstack above 
 			exitwith
 		};
 	private:

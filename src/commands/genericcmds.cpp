@@ -22,6 +22,7 @@
 #include "../sqfnamespace.h"
 #include "../fileio.h"
 #include "../parsepreprocessor.h"
+#include <cmath>
 
 
 #define CALLEXTBUFFSIZE 10240
@@ -1256,7 +1257,7 @@ namespace
 		{
 			auto filecontents = load_file(res.value());
 			bool errflag = false;
-			auto parsedcontents = sqf::parse::preprocessor::parse(vm, filecontents, errflag, right->as_string());
+			auto parsedcontents = sqf::parse::preprocessor::parse(vm, filecontents, errflag, res.value());
 			return std::make_shared<value>(parsedcontents);
 		}
 	}

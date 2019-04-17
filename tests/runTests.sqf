@@ -7,7 +7,7 @@ fatalError = false;
 
 test_fnc_testPassed = {
     params ["_name", "_desc", "_index"];
-    systemChat format ["Test  Passed  '%1' - %2  %3", _name, _index + 1, trim__ _desc];
+    systemChat format ["Test  Passed  '%1' - %2", _name, _index + 1];
     testsPassed = testsPassed + 1;
 };
 
