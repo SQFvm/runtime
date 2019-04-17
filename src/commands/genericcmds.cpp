@@ -267,7 +267,7 @@ namespace
 		auto arr = left->as_vector();
 		auto index = (int)std::round(right->as_float());
 
-		if (arr.size() < index || index < 0)
+		if (static_cast<int>(arr.size()) < index || index < 0)
 		{
 			vm->err() << "Index out of range." << std::endl;
 			return std::make_shared<value>();
@@ -316,7 +316,7 @@ namespace
 			vm->wrn() << "Start index is smaller then 0. Returning empty array." << std::endl;
 			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
 		}
-		if (start > vec.size())
+		if (start > static_cast<int>(vec.size()))
 		{
 			vm->wrn() << "Start index is larger then string length. Returning empty array." << std::endl;
 			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
@@ -657,7 +657,7 @@ namespace
 			return std::shared_ptr<value>();
 		}
 		auto val = params[1];
-		if (arr->size() <= index)
+		if (static_cast<int>(arr->size()) <= index)
 		{
 			arr->resize(index + 1);
 		}
@@ -751,7 +751,7 @@ namespace
 	{
 		auto l = left->data<arraydata>();
 		auto index = right->as_int();
-		if (index < 0 || index >= l->size())
+		if (index < 0 || index >= static_cast<int>(l->size()))
 		{
 			vm->err() << "Array index out of bounds." << std::endl;
 			return std::make_shared<value>();

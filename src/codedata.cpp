@@ -87,7 +87,7 @@ std::string rebuild_from_assembly_recursive(const sqf::codedata* data, int& inde
 			auto instmakearray = std::static_pointer_cast<sqf::inst::makearray>(inst);
 			std::stringstream sstream;
 			sstream << "[";
-			for (auto i = 0; i < instmakearray->size(); i++)
+			for (size_t i = 0; i < instmakearray->size(); i++)
 			{
 				if (i > 0)
 				{
