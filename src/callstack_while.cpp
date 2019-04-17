@@ -40,12 +40,14 @@
 			}
 			else
 			{
+				push_back(std::make_shared<sqf::value>());
 				return done;
 			}
 		}
 		else
 		{
 			vm->err() << "while callstack expected condition value to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+			push_back(std::make_shared<sqf::value>());
 			return done;
 		}
 	}
