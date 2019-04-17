@@ -15,7 +15,8 @@ namespace
 	}
 	std::shared_ptr<value> diag_tickTime_(virtualmachine* vm)
 	{
-		long r = std::chrono::duration_cast<std::chrono::milliseconds>(virtualmachine::system_time().time_since_epoch()).count();
+		// Easily fits in a long
+		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(virtualmachine::system_time().time_since_epoch()).count());
 		return std::make_shared<value>(r);
 	}
 	std::shared_ptr<value> assert_bool(virtualmachine* vm, std::shared_ptr<value> right)

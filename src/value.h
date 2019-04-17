@@ -70,7 +70,7 @@ namespace sqf
 			static_assert(std::is_base_of<sqf::data, T>::value, "value::data<T>() can only convert to sqf::data types");
 			return std::static_pointer_cast<T>(mdata);
 		}
-		bool equals(std::shared_ptr<sqf::value> v) const { return mtype == v->mtype ? mdata->equals(v->mdata) : false; }
+		bool equals(std::shared_ptr<sqf::value> v) const { return v && mtype == v->mtype && mdata && v->mdata && mdata->equals(v->mdata); }
 
 		std::string tosqf()
 		{

@@ -27,7 +27,7 @@
 	auto previous_current_index = m_current_index;
 	while (m_configdata->size() > m_current_index)
 	{
-		val = m_configdata->at(m_current_index);
+		val = m_configdata->at(static_cast<int>(m_current_index));
 		m_current_index++;
 		if (val && val->data<configdata>()->cfgvalue().get() != nullptr)
 		{
@@ -52,7 +52,7 @@
 		{
 			if (val->as_bool())
 			{
-				m_output_vector.push_back(m_configdata->at(m_current_index - 1));
+				m_output_vector.push_back(m_configdata->at(static_cast<int>(m_current_index - 1)));
 			}
 		}
 		else
@@ -82,7 +82,7 @@
 			{
 				if (val->as_bool())
 				{
-					m_output_vector.push_back(m_configdata->at(m_current_index - 1));
+					m_output_vector.push_back(m_configdata->at(static_cast<int>(m_current_index - 1)));
 				}
 			}
 			else

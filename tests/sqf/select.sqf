@@ -5,6 +5,7 @@
     ["assertIsNil",     { [1, 2, 3] select 3 }],                                // ARRAY select SCALAR
     ["assertIsNil",     { [] select 0 }],                                       // ARRAY select SCALAR
     ["assertException", { [] select 1 }],                                       // ARRAY select SCALAR
+    ["assertException", { [] select -1 }],                                      // ARRAY select SCALAR
     ["assertEqual",     { [1, 2] select true }, 2],                             // ARRAY select BOOL
     ["assertEqual",     { [1, 2] select false }, 1],                            // ARRAY select BOOL
     ["assertIsNil",     { [1] select true }],                                   // ARRAY select BOOL
