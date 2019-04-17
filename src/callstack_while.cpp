@@ -28,8 +28,7 @@
 		auto val = vm->active_vmstack()->popval(success);
 		if (!success)
 		{
-			vm->wrn() << "while callstack found no value." << std::endl;
-			push_back(std::make_shared<sqf::value>());
+			vm->err() << "while callstack found no value." << std::endl;
 			return done;
 		}
 		else if (val->dtype() == type::BOOL)
@@ -64,5 +63,5 @@
 		auto sptr = std::shared_ptr<callstack_while>(this, [](callstack_while*) {});
 		m_codedata_condition->loadinto(vm->active_vmstack(), sptr);
 	}
-	return callstack::do_next(vm);
+	return do_next(vm);
 }
