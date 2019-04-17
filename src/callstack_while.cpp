@@ -28,7 +28,8 @@
 		auto val = vm->active_vmstack()->popval(success);
 		if (!success)
 		{
-			vm->err() << "while callstack found no value." << std::endl;
+			vm->wrn() << "while callstack found no value." << std::endl;
+			push_back(std::make_shared<sqf::value>());
 			return done;
 		}
 		else if (val->dtype() == type::BOOL)
@@ -44,10 +45,15 @@
 				return done;
 			}
 		}
+		else if (val->dtype() == type::NOTHING)
+		{
+			vm->wrn() << "while value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+			push_back(std::make_shared<sqf::value>());
+			return done;
+		}
 		else
 		{
-			vm->err() << "while callstack expected condition value to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
-			push_back(std::make_shared<sqf::value>());
+			vm->err() << "while value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
 			return done;
 		}
 	}
