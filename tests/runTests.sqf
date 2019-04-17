@@ -80,12 +80,8 @@ private _currentDirectoryLength = count _currentDirectory;
 diag_log "Loading tests from:";
 diag_log format ["    %1", _currentDirectory];
 
-{
-    diag_log _x;
-    diag_log pwd__;
-    if(true) exitWith {};
-    
-    if !(_x isEqualTo pwd__) then {
+{  
+    if !(_x == pwd__) then {
         if (count _x > _currentDirectoryLength) then {
             if (_x select [0, _currentDirectoryLength] == _currentDirectory) then
             {
