@@ -651,16 +651,21 @@ namespace
 		}
 
 		auto index = params[0]->as_int();
+		if (index < 0)
+		{
+			vm->err() << "Index position 0 was expected to be greater than or equal to 0 but was " << index << "." << std::endl;
+			return std::shared_ptr<value>();
+		}
 		auto val = params[1];
 		if (arr->size() <= index)
 		{
 			arr->resize(index + 1);
 		}
-		auto oldval = arr->operator[](index);
-		arr->operator[](index) = val;
+		auto oldval = (*arr)[index];
+		(*arr)[index] = val;
 		if (!arr->recursion_test())
 		{
-			arr->operator[](index) = oldval;
+			(*arr)[index] = oldval;
 			vm->err() << "Array recursion detected." << std::endl;
 			return std::shared_ptr<value>();
 		}

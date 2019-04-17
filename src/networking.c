@@ -75,7 +75,7 @@ int networking_create_client(const char* ip, const char* port, SOCKET* outSocket
 		return 2;
 	}
 
-	res = connect(*outSocket, ptr->ai_addr, ptr->ai_addrlen);
+	res = connect(*outSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
 	if (res)
 	{
 		freeaddrinfo(ptr);
@@ -113,7 +113,7 @@ int networking_poll(SOCKET* s, int timeoutms)
 	WSAPOLLFD poll_set[1];
 	poll_set[0].fd = *s;
 	poll_set[0].events = POLLRDBAND | POLLRDNORM;
-	return WSAPoll(&poll_set, 1, timeoutms) > 0;
+	return WSAPoll((LPWSAPOLLFD)&poll_set, 1, timeoutms) > 0;
 #else
 	struct pollfd poll_set[1];
 	poll_set[0].fd = *s;

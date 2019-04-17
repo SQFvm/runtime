@@ -16,13 +16,13 @@ void netserver::THREAD_METHOD(netserver* srv)
 				{
 					srv->_inLock.lock();
 					try { srv->poll_queue(sclient); }
-					catch (const std::runtime_error& err) {}
+					catch (const std::runtime_error& /*err*/) {}
 					srv->_inLock.unlock();
 				}
 
 				srv->_outLock.lock();
 				try { flag = srv->send_queue(sclient); }
-				catch (const std::runtime_error& err) { flag = false; }
+				catch (const std::runtime_error& /*err*/) { flag = false; }
 				srv->_outLock.unlock();
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
@@ -34,7 +34,7 @@ void netserver::THREAD_METHOD(netserver* srv)
 					srv->_messageQueueOut.pop();
 				}
 			}
-			catch (const std::runtime_error& err) {}
+			catch (const std::runtime_error& /*err*/) {}
 			srv->_outLock.unlock();
 			networking_close(sclient);
 			srv->_accept = false;
@@ -69,7 +69,7 @@ bool netserver::send_queue(SOCKET client)
 	{
 		auto msg = _messageQueueOut.front();
 		_messageQueueOut.pop();
-		int res = send(client, msg.c_str(), msg.length() + 1, 0);
+		int res = send(client, msg.c_str(), static_cast<int>(msg.length()) + 1, 0);
 		flag = res >= 0;
 	}
 	return flag;

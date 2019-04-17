@@ -31,9 +31,9 @@ namespace sqf
 		arraydata(size_t size) : mvalue(std::vector<std::shared_ptr<value>>(size)) {}
 		arraydata(std::vector<std::shared_ptr<value>> v) : mvalue(std::vector<std::shared_ptr<value>>(v)) {}
 		std::string tosqf() const override;
-		std::shared_ptr<value>& operator[](size_t index) { return mvalue.at(index); }
-		std::shared_ptr<value> operator[](size_t index) const { return index >= static_cast<int>(mvalue.size()) ? std::make_shared<value>() : mvalue[index]; }
-		const std::shared_ptr<value>& at(size_t index) { return mvalue.at(index); }
+		std::shared_ptr<value>& operator[](size_t index) { return at(index); }
+		std::shared_ptr<value> operator[](size_t index) const { return at(index); }
+		std::shared_ptr<value>& at(size_t index) { return mvalue.at(index); }
 		std::shared_ptr<value> at(size_t index) const { return mvalue.at(index); }
 		size_t size() const { return mvalue.size(); }
 		operator std::vector<std::shared_ptr<value>>() const { return mvalue; }

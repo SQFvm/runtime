@@ -195,7 +195,7 @@ namespace
 	{
 		auto l = left->as_string();
 		auto r = right->as_string();
-		int res = l.find(r);
+		size_t res = l.find(r);
 		return std::make_shared<value>(res == std::string::npos ? -1 : res);
 	}
 }

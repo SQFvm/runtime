@@ -111,7 +111,7 @@ std::string rebuild_from_assembly_recursive(const sqf::codedata* data, int& inde
 
 std::string sqf::codedata::tosqf() const
 {
-	int index = this->minsts.size() - 1;
+	int index = static_cast<int>(this->minsts.size()) - 1;
 	std::vector<std::string> results;
 	std::stringstream sstream;
 	sstream << "{ ";
