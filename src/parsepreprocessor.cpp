@@ -593,8 +593,6 @@ namespace {
 			auto lineInfo = std::to_string(fileinfo.line - 1);
 			auto parsedFile = parse_file(h, otherfinfo);
 			output.reserve(
-				compiletime::strlen("#file ") + otherfinfo.path.size() + compiletime::strlen("\n") +
-				compiletime::strlen("#line 0\n") +
 				parsedFile.size() + compiletime::strlen("\n") +
 				compiletime::strlen("#file ") + fileinfo.path.size() + compiletime::strlen("\n") +
 				compiletime::strlen("#line ") + lineInfo.size() + compiletime::strlen("\n")
@@ -852,6 +850,7 @@ namespace {
 		char c;
 		std::stringstream sstream;
 		std::stringstream wordstream;
+		sstream << "#file " << fileinfo.path << std::endl << "#line 0\n" << std::endl;
 		bool was_new_line = true;
 		bool is_in_string = false;
 		while ((c = fileinfo.next()) != '\0')
