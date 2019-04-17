@@ -17,6 +17,7 @@
 #include <array>
 #include <algorithm> 
 #include <cctype>
+#include <cmath>
 #include <locale>
 
 using namespace sqf;
