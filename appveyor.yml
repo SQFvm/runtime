@@ -38,6 +38,7 @@ only_commits:
     - CMakeLists.txt
     - appveyor.yml
     - src/
+    - tests/
 test_script:
 - cmd: |-
     cd c:\projects\vm
