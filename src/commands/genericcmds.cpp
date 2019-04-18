@@ -491,7 +491,10 @@ namespace
 	std::shared_ptr<value> private_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto str = right->as_string();
-		vm->active_vmstack()->stacks_top()->set_variable(str, std::make_shared<value>());
+		if (!vm->active_vmstack()->stacks_top()->has_variable(str))
+		{
+			vm->active_vmstack()->stacks_top()->set_variable(str, std::make_shared<value>());
+		}
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> private_array(virtualmachine* vm, std::shared_ptr<value> right)
@@ -513,7 +516,10 @@ namespace
 		for (auto& it : arr)
 		{
 			auto str = it->as_string();
-			vm->active_vmstack()->stacks_top()->set_variable(str, std::make_shared<value>());
+			if (!vm->active_vmstack()->stacks_top()->has_variable(str))
+			{
+				vm->active_vmstack()->stacks_top()->set_variable(str, std::make_shared<value>());
+			}
 		}
 		return std::make_shared<value>();
 	}
