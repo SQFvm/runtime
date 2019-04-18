@@ -43,7 +43,7 @@ namespace sqf {
 		void breakmode(virtualmachine* vm);
 		void check(virtualmachine* vm);
 		bool hitbreakpoint(size_t line, std::string file);
-		void error(virtualmachine* vm, int line, int col, std::string file, std::string msg);
+		void error(virtualmachine* vm, size_t line, size_t col, std::string file, std::string msg);
 		bool stop(virtualmachine* vm);
 		void position(size_t line, size_t col, std::string file);
 		void message(std::string);

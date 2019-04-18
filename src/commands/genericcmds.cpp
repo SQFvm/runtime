@@ -267,7 +267,7 @@ namespace
 		auto arr = left->as_vector();
 		auto index = (int)std::round(right->as_float());
 
-		if (arr.size() < index || index < 0)
+		if (static_cast<int>(arr.size()) < index || index < 0)
 		{
 			vm->err() << "Index out of range." << std::endl;
 			return std::make_shared<value>();
@@ -316,7 +316,7 @@ namespace
 			vm->wrn() << "Start index is smaller then 0. Returning empty array." << std::endl;
 			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
 		}
-		if (start > vec.size())
+		if (start > static_cast<int>(vec.size()))
 		{
 			vm->wrn() << "Start index is larger then string length. Returning empty array." << std::endl;
 			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
@@ -656,17 +656,22 @@ namespace
 			return std::shared_ptr<value>();
 		}
 
-		auto index = params[0]->as_long();
+		auto index = params[0]->as_int();
+		if (index < 0)
+		{
+			vm->err() << "Index position 0 was expected to be greater than or equal to 0 but was " << index << "." << std::endl;
+			return std::shared_ptr<value>();
+		}
 		auto val = params[1];
-		if (arr->size() <= index)
+		if (static_cast<int>(arr->size()) <= index)
 		{
 			arr->resize(index + 1);
 		}
-		auto oldval = arr->operator[](index);
-		arr->operator[](index) = val;
+		auto oldval = (*arr)[index];
+		(*arr)[index] = val;
 		if (!arr->recursion_test())
 		{
-			arr->operator[](index) = oldval;
+			(*arr)[index] = oldval;
 			vm->err() << "Array recursion detected." << std::endl;
 			return std::shared_ptr<value>();
 		}
@@ -752,7 +757,7 @@ namespace
 	{
 		auto l = left->data<arraydata>();
 		auto index = right->as_int();
-		if (index < 0 || index >= l->size())
+		if (index < 0 || index >= static_cast<int>(l->size()))
 		{
 			vm->err() << "Array index out of bounds." << std::endl;
 			return std::make_shared<value>();
@@ -1285,7 +1290,8 @@ namespace
 	{
 		auto curtime = sqf::virtualmachine::system_time().time_since_epoch();
 		auto starttime = vm->get_created_timestamp().time_since_epoch();
-		long r = std::chrono::duration_cast<std::chrono::milliseconds>(starttime - curtime).count();
+		// Time is since beginning of game so long is fine.
+		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(starttime - curtime).count());
 		return std::make_shared<value>(r);
 	}
 }

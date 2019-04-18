@@ -23,6 +23,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <direct.h>
+#include <string.h>
 #else
 #include <limits.h>
 #include <sys/ioctl.h>
@@ -37,6 +38,21 @@
 #define RELPATHHINT "Supports absolut and relative pathing using './path/to/file' or '/path/to/file'."
 #endif
 
+void strcpy_safe(char* const dest, size_t len, const char* const src)
+{
+#ifdef WIN32
+	strcpy_s(dest, len, src);
+#else
+	std::strcpy(dest, src);
+#endif
+}
+
+char* const copy_str(const std::string& str)
+{
+	auto dest = new char[str.length() + 1];
+	strcpy_safe(dest, str.length() + 1, str.c_str());
+	return dest;
+}
 
 #ifdef WIN32
 // ToDo: Implement StackTrace on error
@@ -58,7 +74,7 @@ int console_width()
 {
 #if _WIN32
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	int columns, rows;
+	int columns;
 
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
 	columns = csbi.srWindow.Right - csbi.srWindow.Left;
@@ -265,18 +281,12 @@ int main(int argc, char** argv)
 				{
 					auto arg = line.substr(index + 1);
 					line = line.substr(0, index);
-					auto args_cstr = new char[arg.length() + 1];
-					std::strcpy(args_cstr, arg.c_str());
-					auto line_cstr = new char[line.length() + 1];
-					std::strcpy(line_cstr, line.c_str());
-					args.push_back(line_cstr);
-					args.push_back(args_cstr);
+					args.push_back(copy_str(arg));
+					args.push_back(copy_str(line));
 				}
 				else
 				{
-					auto line_cstr = new char[line.length() + 1];
-					std::strcpy(line_cstr, line.c_str());
-					args.push_back(line_cstr);
+					args.push_back(copy_str(line));
 				}
 			}
 

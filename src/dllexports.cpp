@@ -55,7 +55,11 @@ extern "C" {
 		}
 		auto str = sstream.str();
 		memset(buffer, 0, sizeof(char) * bufferlen);
+#ifdef _WIN32
+		strncpy_s(buffer, str.length() + 1, str.c_str(), bufferlen);
+#else
 		std::strncpy(buffer, str.c_str(), bufferlen);
+#endif
 	}
 
 	DLLEXPORT_PREFIX void sqfvm_loadconfig(const char* cfg)

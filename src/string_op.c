@@ -38,7 +38,7 @@ unsigned int str_swi(const char* lString, const char* rString)
 unsigned int str_ew(const char* lString, const char* rString)
 {
 	unsigned int i, j = 0;
-	unsigned int rlen = strlen(rString);
+	unsigned int rlen = (unsigned int)strlen(rString);
 	char lc, rc;
 	for (i = 0; lString[i] != '\0'; i++);
 	if (i < rlen)
@@ -58,7 +58,7 @@ unsigned int str_ew(const char* lString, const char* rString)
 unsigned int str_ewi(const char* lString, const char* rString)
 {
 	unsigned int i, j = 0;
-	unsigned int rlen = strlen(rString);
+	unsigned int rlen = (unsigned int)strlen(rString);
 	char lc, rc;
 	for (i = 0; lString[i] != '\0'; i++);
 	if (i < rlen)
@@ -189,9 +189,9 @@ unsigned int str_repchr(char* str, char toFind, char toReplace, int length)
 	unsigned int i, j = 0;
 	if (length == -1)
 	{
-		length = strlen(str);
+		length = (int)strlen(str);
 	}
-	for (i = 0; i < length; i++)
+	for (i = 0; i < (unsigned int)length; i++)
 	{
 		if (str[i] == toFind)
 		{

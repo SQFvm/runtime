@@ -52,6 +52,10 @@
 
 #define ENVIRONMENTSTR STR(ENVIRONMENT)
 
+
+void strcpy_safe(char* const dest, size_t len, const char* const src);
+char* const copy_str(const std::string& str);
+
 int console_width();
 int main(int argc, char** argv);
 

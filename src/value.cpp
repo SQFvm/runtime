@@ -27,31 +27,31 @@ sqf::value::value(char c)
 sqf::value::value(float num)
 {
 	mtype = type::SCALAR;
-	mdata = std::make_shared<scalardata>(num);
+	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(double num)
 {
 	mtype = type::SCALAR;
-	mdata = std::make_shared<scalardata>(num);
+	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(short num)
 {
 	mtype = type::SCALAR;
-	mdata = std::make_shared<scalardata>(num);
+	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(int num)
 {
 	mtype = type::SCALAR;
-	mdata = std::make_shared<scalardata>(num);
+	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(long num)
 {
 	mtype = type::SCALAR;
-	mdata = std::make_shared<scalardata>(num);
+	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(bool flag)
@@ -63,7 +63,7 @@ sqf::value::value(bool flag)
 sqf::value::value(size_t num)
 {
 	mtype = type::SCALAR;
-	mdata = std::make_shared<scalardata>(num);
+	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(std::shared_ptr<sqf::callstack> cs)
@@ -105,7 +105,7 @@ sqf::value::operator short() const
 	{
 		data = sqf::convert(data, SCALAR);
 	}
-	return *(std::dynamic_pointer_cast<scalardata>(data).get());
+	return static_cast<short>(*(std::dynamic_pointer_cast<scalardata>(data).get()));
 }
 
 sqf::value::operator int() const
@@ -115,7 +115,7 @@ sqf::value::operator int() const
 	{
 		data = sqf::convert(data, SCALAR);
 	}
-	return *(std::dynamic_pointer_cast<scalardata>(data).get());
+	return static_cast<int>(*(std::dynamic_pointer_cast<scalardata>(data).get()));
 }
 
 sqf::value::operator long() const
@@ -125,7 +125,7 @@ sqf::value::operator long() const
 	{
 		data = sqf::convert(data, SCALAR);
 	}
-	return *(std::dynamic_pointer_cast<scalardata>(data).get());
+	return static_cast<long>(*(std::dynamic_pointer_cast<scalardata>(data).get()));
 }
 
 sqf::value::operator char() const
@@ -135,7 +135,7 @@ sqf::value::operator char() const
 	{
 		data = sqf::convert(data, SCALAR);
 	}
-	return *(std::dynamic_pointer_cast<scalardata>(data).get());
+	return static_cast<char>(*(std::dynamic_pointer_cast<scalardata>(data).get()));
 }
 
 sqf::value::operator bool() const
@@ -145,7 +145,7 @@ sqf::value::operator bool() const
 	{
 		data = sqf::convert(data, SCALAR);
 	}
-	return *(std::dynamic_pointer_cast<booldata>(data).get());
+	return static_cast<bool>(*(std::dynamic_pointer_cast<booldata>(data).get()));
 }
 sqf::value::operator std::string() const
 {

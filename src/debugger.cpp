@@ -363,7 +363,7 @@ void sqf::debugger::check(virtualmachine * vm)
 	}
 }
 
-void sqf::debugger::error(virtualmachine * vm, int line, int col, std::string file, std::string msg)
+void sqf::debugger::error(virtualmachine * vm, size_t line, size_t col, std::string file, std::string msg)
 {
 	_status = HALT;
 	_server->push_message(errormsg(msg));
