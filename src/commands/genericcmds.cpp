@@ -762,8 +762,9 @@ namespace
 			vm->wrn() << "Array index out of bounds." << std::endl;
 			return std::make_shared<value>();
 		}
+		auto val = l->at(index);
 		l->delete_at(index);
-		return std::make_shared<value>();
+		return val;
 	}
 	std::shared_ptr<value> find_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
