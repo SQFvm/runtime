@@ -90,7 +90,7 @@
 				vm->err() << "configClasses value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
 			}
 		}
-		setvar("_x", val);
+		set_variable("_x", val);
 
 		auto sptr = std::shared_ptr<callstack_configclasses>(this, [](callstack_configclasses*) {});
 		m_code_condition->loadinto(vm->active_vmstack(), sptr);

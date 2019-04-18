@@ -17,16 +17,16 @@ void sqf::inst::assignto::execute(virtualmachine* vm) const
 	{
 		for (auto it = vm->active_vmstack()->stacks_begin(); it != vm->active_vmstack()->stacks_end(); ++it)
 		{
-			if (it->get()->containsvar(mvarname))
+			if (it->get()->has_variable(mvarname))
 			{
-				it->get()->setvar(mvarname, val);
+				it->get()->set_variable(mvarname, val);
 				return;
 			}
 		}
-		vm->active_vmstack()->stacks_top()->setvar(mvarname, val);
+		vm->active_vmstack()->stacks_top()->set_variable(mvarname, val);
 	}
 	else
 	{
-		vm->active_vmstack()->stacks_top()->get_namespace()->setvar(mvarname, val);
+		vm->active_vmstack()->stacks_top()->get_namespace()->set_variable(mvarname, val);
 	}
 }

@@ -78,7 +78,7 @@ namespace {
 				nlohmann::json jcs;
 				auto cs = *it;
 				jcs["lvl"] = lvl--;
-				jcs["scopename"] = cs->getscopename();
+				jcs["scopename"] = cs->get_scopename();
 				jcs["namespace"] = cs->get_namespace()->get_name();
 				nlohmann::json options;
 				if (cs->size_instructions() <= 0)
@@ -97,7 +97,7 @@ namespace {
 				}
 				jcs["options"] = options;
 				auto variables = nlohmann::json::array();
-				for (auto pair : cs->varmap())
+				for (auto pair : cs->get_variable_map())
 				{
 					variables.push_back(nlohmann::json{ { "name", pair.first },{ "value", pair.second->as_string() } });
 				}
@@ -140,29 +140,29 @@ namespace {
 						}
 						else
 						{
-							data.push_back(nlohmann::json{ { "name", name },{ "value", (*s)->getvar(name)->as_string() } });
+							data.push_back(nlohmann::json{ { "name", name },{ "value", (*s)->get_variable(name)->as_string() } });
 						}
 					}
 				}
 				else if (scope.get<std::string>() == "missionNamespace")
 				{
 					auto ns = _vm->missionnamespace();
-					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name)->as_string() } });
 				}
 				else if (scope.get<std::string>() =="uiNamespace")
 				{
 					auto ns = _vm->uinamespace();
-					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name)->as_string() } });
 				}
 				else if (scope.get<std::string>() =="profileNamespace")
 				{
 					auto ns = _vm->profilenamespace();
-					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name)->as_string() } });
 				}
 				else if (scope.get<std::string>() =="parsingNamespace")
 				{
 					auto ns = _vm->parsingnamespace();
-					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->getvar(name)->as_string() } });
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name)->as_string() } });
 				}
 			}
 			return nlohmann::json{

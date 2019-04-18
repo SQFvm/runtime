@@ -70,14 +70,14 @@ namespace
 	{
 		auto r = right->data<codedata>();
 		r->loadinto(vm, vm->active_vmstack());
-		vm->active_vmstack()->stacks_top()->setvar("_this", std::make_shared<value>());
+		vm->active_vmstack()->stacks_top()->set_variable("_this", std::make_shared<value>());
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> call_any_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto r = right->data<codedata>();
 		r->loadinto(vm, vm->active_vmstack());
-		vm->active_vmstack()->stacks_top()->setvar("_this", left);
+		vm->active_vmstack()->stacks_top()->set_variable("_this", left);
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> count_array(virtualmachine* vm, std::shared_ptr<value> right)
@@ -491,7 +491,7 @@ namespace
 	std::shared_ptr<value> private_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto str = right->as_string();
-		vm->active_vmstack()->stacks_top()->setvar(str, std::make_shared<value>());
+		vm->active_vmstack()->stacks_top()->set_variable(str, std::make_shared<value>());
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> private_array(virtualmachine* vm, std::shared_ptr<value> right)
@@ -513,7 +513,7 @@ namespace
 		for (auto& it : arr)
 		{
 			auto str = it->as_string();
-			vm->active_vmstack()->stacks_top()->setvar(str, std::make_shared<value>());
+			vm->active_vmstack()->stacks_top()->set_variable(str, std::make_shared<value>());
 		}
 		return std::make_shared<value>();
 	}
@@ -523,7 +523,7 @@ namespace
 		auto val = vm->active_vmstack()->getlocalvar(varname);
 		if (val->dtype() == sqf::type::NOTHING)
 		{
-			val = vm->active_vmstack()->stacks_top()->get_namespace()->getvar(varname);
+			val = vm->active_vmstack()->stacks_top()->get_namespace()->get_variable(varname);
 		}
 		return std::make_shared<value>(val->dtype() == sqf::type::NOTHING);
 	}
@@ -564,7 +564,7 @@ namespace
 		auto cs = std::make_shared<callstack_switch>(vm->active_vmstack()->stacks_top()->get_namespace(), left->data<switchdata>());
 		vm->active_vmstack()->pushcallstack(cs);
 		r->loadinto(vm->active_vmstack(), cs);
-		cs->setvar(MAGIC_SWITCH, left);
+		cs->set_variable(MAGIC_SWITCH, left);
 		return std::shared_ptr<value>();
 	}
 	std::shared_ptr<value> case_any(virtualmachine* vm, std::shared_ptr<value> right)
@@ -627,7 +627,7 @@ namespace
 		auto script = std::make_shared<scriptdata>();
 		code->loadinto(vm, script->stack());
 		vm->push_spawn(script);
-		script->stack()->stacks_top()->setvar("_this", left);
+		script->stack()->stacks_top()->set_variable("_this", left);
 		return std::make_shared<value>(script, sqf::type::SCRIPT);
 	}
 	std::shared_ptr<value> scriptdone_script(virtualmachine* vm, std::shared_ptr<value> right)
@@ -1191,11 +1191,11 @@ namespace
 						return fels.at(1);
 					}
 				}
-				vm->active_vmstack()->stacks_top()->setvar(fels.at(0)->as_string(), el);
+				vm->active_vmstack()->stacks_top()->set_variable(fels.at(0)->as_string(), el);
 			}
 			else
 			{
-				vm->active_vmstack()->stacks_top()->setvar(fels.at(0)->as_string(), fels.size() >= 2 ? fels.at(1) : std::make_shared<sqf::value>());
+				vm->active_vmstack()->stacks_top()->set_variable(fels.at(0)->as_string(), fels.size() >= 2 ? fels.at(1) : std::make_shared<sqf::value>());
 			}
 		}
 		return std::make_shared<sqf::value>();

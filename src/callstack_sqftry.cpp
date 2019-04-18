@@ -13,8 +13,8 @@
 		m_done_catch = true;
 		auto sptr = std::shared_ptr<callstack_sqftry>(this, [](callstack_sqftry*) {});
 		m_codedata_catch->loadinto(vm->active_vmstack(), sptr);
-		setvar("_exception", std::make_shared<value>(m_message));
-		setvar("_callstack", std::make_shared<value>(m_stackdump, sqf::type::ARRAY));
+		set_variable("_exception", std::make_shared<value>(m_message));
+		set_variable("_callstack", std::make_shared<value>(m_stackdump, sqf::type::ARRAY));
 	}
 	// Proceed normal
 	return callstack::do_next(vm);

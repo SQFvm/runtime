@@ -58,7 +58,7 @@
 				m_output_vector[m_current_index - 1] = val;
 			}
 		}
-		setvar("_x", m_input_vector[m_current_index++]);
+		set_variable("_x", m_input_vector[m_current_index++]);
 		auto sptr = std::shared_ptr<callstack_apply>(this, [](callstack_apply*) {});
 		m_codedata->loadinto(vm->active_vmstack(), sptr);
 	}

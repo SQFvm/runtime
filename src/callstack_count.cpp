@@ -63,7 +63,7 @@
 	// Normal mode
 	else if (m_input_vector.size() > m_current_index)
 	{
-		setvar("_x", m_input_vector[m_current_index++]);
+		set_variable("_x", m_input_vector[m_current_index++]);
 		auto sptr = std::shared_ptr<callstack_count>(this, [](callstack_count*) {});
 		m_codedata->loadinto(vm->active_vmstack(), sptr);
 	}

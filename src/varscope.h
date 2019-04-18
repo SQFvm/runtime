@@ -10,26 +10,31 @@ namespace sqf
 	class varscope
 	{
 	private:
-		std::map<std::string, std::shared_ptr<value>> mvarmap;
-		std::string mscopename;
-		std::string tolowerstring(std::string s)
+		std::map<std::string, std::shared_ptr<value>> m_variable_map;
+		std::string m_scopename;
+		std::string to_lower_string(std::string s)
 		{
 			std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 			return s;
 		}
 	public:
-		varscope() { mscopename = ""; }
-		varscope(std::string name) { mscopename = name; }
-		void setvar(std::string key, std::shared_ptr<value> value) { mvarmap[tolowerstring(key)] = value; }
-		std::shared_ptr<value> getvar_empty(std::string key)
+		varscope() { m_scopename = ""; }
+		varscope(std::string name) { m_scopename = name; }
+		void set_variable(std::string key, std::shared_ptr<value> value) { m_variable_map[to_lower_string(key)] = value; }
+		std::shared_ptr<value> get_variable_empty(std::string key)
 		{
-			auto it = mvarmap.find(tolowerstring(key));
-			return it == mvarmap.end() ? std::shared_ptr<value>() : it->second;
+			auto it = m_variable_map.find(to_lower_string(key));
+			return it == m_variable_map.end() ? std::shared_ptr<value>() : it->second;
 		}
-		std::shared_ptr<value> getvar(std::string key);
-		bool containsvar(std::string key) { auto it = mvarmap.find(tolowerstring(key)); return it != mvarmap.end(); }
-		void setscopename(std::string newname) { mscopename = newname; }
-		std::string getscopename() { return mscopename; }
-		const std::map<std::string, std::shared_ptr<value>>& varmap() const { return mvarmap; }
+		std::shared_ptr<value> get_variable(std::string key);
+
+		// Alias for has_variable(std::string key)
+		bool contains_variable(std::string key) { return has_variable(key); }
+
+		bool has_variable(std::string key) { auto it = m_variable_map.find(to_lower_string(key)); return it != m_variable_map.end(); }
+
+		void set_scopename(std::string newname) { m_scopename = newname; }
+		std::string get_scopename() { return m_scopename; }
+		const std::map<std::string, std::shared_ptr<value>>& get_variable_map() const { return m_variable_map; }
 	};
 }

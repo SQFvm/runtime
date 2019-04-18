@@ -99,7 +99,7 @@ namespace sqf
 			for (i = (int)mstacks.size() - 1; i >= 0; i--)
 			{
 				auto stack = mstacks[i];
-				if (str_cmpi(stack->getscopename().c_str(), -1, name.c_str(), -1) == 0)
+				if (str_cmpi(stack->get_scopename().c_str(), -1, name.c_str(), -1) == 0)
 				{
 					i = (int)mstacks.size() - i;
 					if (include)

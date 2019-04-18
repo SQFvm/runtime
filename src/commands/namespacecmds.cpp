@@ -32,8 +32,8 @@ namespace
 		{
 			r = std::dynamic_pointer_cast<varscope>(right->data());
 		}
-		std::vector<std::shared_ptr<value>> arr(r->varmap().size());
-		transform(r->varmap().begin(), r->varmap().end(), arr.begin(), [](auto pair) { return std::make_shared<value>(pair.first); });
+		std::vector<std::shared_ptr<value>> arr(r->get_variable_map().size());
+		transform(r->get_variable_map().begin(), r->get_variable_map().end(), arr.begin(), [](auto pair) { return std::make_shared<value>(pair.first); });
 		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> with_namespace(virtualmachine* vm, std::shared_ptr<value> right)
@@ -67,7 +67,7 @@ namespace
 			l = std::dynamic_pointer_cast<varscope>(left->data());
 		}
 		auto r = right->as_string();
-		auto var = l->getvar_empty(r);
+		auto var = l->get_variable_empty(r);
 		return var != nullptr ? var : std::make_shared<value>();
 	}
 	std::shared_ptr<value> getVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
@@ -99,7 +99,7 @@ namespace
 			return std::shared_ptr<value>();
 		}
 		auto def = r[1];
-		auto var = l->getvar_empty(r[0]->as_string());
+		auto var = l->get_variable_empty(r[0]->as_string());
 		return var != nullptr ? var : def;
 	}
 	std::shared_ptr<value> setVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
@@ -132,7 +132,7 @@ namespace
 			return std::shared_ptr<value>();
 		}
 		auto val = r[1];
-		l->setvar(r[0]->as_string(), val);
+		l->set_variable(r[0]->as_string(), val);
 		return std::make_shared<value>();
 	}
 }

@@ -12,5 +12,5 @@ void sqf::inst::assigntolocal::execute(virtualmachine* vm) const
 		vm->err() << "assignToLocal could not receive a value." << std::endl;
 		return;
 	}
-	vm->active_vmstack()->stacks_top()->setvar(mvarname, val);
+	vm->active_vmstack()->stacks_top()->set_variable(mvarname, val);
 }

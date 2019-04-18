@@ -89,7 +89,7 @@
 		if (std::find(m_visited.begin(), m_visited.end(), fieldname) == m_visited.end())
 		{
 			m_visited.push_back(field->data<configdata>()->name());
-			setvar("_x", field);
+			set_variable("_x", field);
 		}
 		else
 		{

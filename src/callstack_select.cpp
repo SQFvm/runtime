@@ -79,7 +79,7 @@
 				vm->err() << "select value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
 			}
 		}
-		setvar("_x", m_input_vector[m_current_index++]);
+		set_variable("_x", m_input_vector[m_current_index++]);
 		auto sptr = std::shared_ptr<callstack_select>(this, [](callstack_select*) {});
 		m_codedata->loadinto(vm->active_vmstack(), sptr);
 	}

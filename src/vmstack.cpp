@@ -20,7 +20,7 @@ std::vector<sqf::vmstack::stackdump> sqf::vmstack::dump_callstack_diff(std::shar
 		dump.file = inst->file();
 		dump.dbginf = inst->dbginf("STT");
 		dump.callstack_name = (*it)->get_name();
-		dump.scope_name = (*it)->getscopename();
+		dump.scope_name = (*it)->get_scopename();
 		vec.push_back(dump);
 
 		if ((*it) == target)
@@ -44,9 +44,9 @@ std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string varname)
 {
 	for (auto it = stacks_begin(); it != stacks_end(); ++it)
 	{
-		if (it->get()->containsvar(varname))
+		if (it->get()->has_variable(varname))
 		{
-			return it->get()->getvar(varname);
+			return it->get()->get_variable(varname);
 		}
 	}
 	return std::make_shared<sqf::value>();
