@@ -6,130 +6,141 @@ testsFailed = 0;
 fatalError = false;
 
 test_fnc_testPassed = {
-    params ["_name", "_desc", "_index"];
-    systemChat format ["Test  Passed  '%1' - %2", _name, _index + 1];
+    params ["___name___", "___desc___", "___index___"];
+    systemChat format ["Test  Passed  '%1' - %2", ___name___, ___index___ + 1];
     testsPassed = testsPassed + 1;
 };
 
 test_fnc_testFailed = {
-    params ["_name", "_desc", "_index", "_reason"];
-    systemChat format ["Test !FAILED! '%1' - %2  %3", _name, _index + 1, trim__ _desc];
-    systemChat format ["    Reason: %1", trim__ _reason];
+    params ["___name___", "___desc___", "___index___", "___reason___"];
+    systemChat format ["Test !FAILED! '%1' - %2  %3", ___name___, ___index___ + 1, trim__ ___desc___];
+    systemChat format ["    Reason: %1", trim__ ___reason___];
     testsFailed = testsFailed + 1;
 };
 
 test_fnc_exceptWrapper = {
-    params ["_args", "_code"];
+    params ["___args___", "___code___"];
     {
-        _args call _code
+        ___args___ call ___code___
     }
     except__
     {
-        private _msg = format ["Exception occurred: %1",  trim__ _exception];
-        [_args select 0, _args select 2, _args select 3, _msg] call test_fnc_testFailed;
+        private ___msg___ = format ["Exception occurred: %1",  trim__ _exception];
+        [___args___ select 0, ___args___ select 2, ___args___ select 3, ___msg___] call test_fnc_testFailed;
     }
 };
 
 test_fnc_assertEqual = {
     [_this, {
-        params ["_name", "_test", "_desc", "_index", "_compare"];
-        private _ret = call _test;
-        if (_ret isEqualTo _compare) then
+        params ["___name___", "___test___", "___desc___", "___index___", "___compare___"];
+        private ___ret___ = call ___test___;
+        if (___ret___ isEqualTo ___compare___) then
         {
-            [_name, _desc, _index] call test_fnc_testPassed;
+            [___name___, ___desc___, ___index___] call test_fnc_testPassed;
         }
         else
         {
-            private _msg = format ["Wrong return value. Expected %1 (type %2), got %3 (type %4).",  _compare, typeName _compare, _ret, typeName _ret];
-            [_name, _desc, _index, _msg] call test_fnc_testFailed;
+            private ___msg___ = format [
+                "Wrong return value. Expected %1 (type %2), got %3 (type %4).",
+                ___compare___,
+                typeName ___compare___,
+                ___ret___,
+                typeName ___ret___
+            ];
+            [___name___, ___desc___, ___index___, ___msg___] call test_fnc_testFailed;
         }
     }] call test_fnc_exceptWrapper;
 };
 
 test_fnc_assertIsNil = {
     [_this, {
-        params ["_name", "_test", "_desc", "_index", "_compare"];
-        private _ret = call _test;
-        if (isNil "_ret") then
+        params ["___name___", "___test___", "___desc___", "___index___", "___compare___"];
+        private ___ret___ = call ___test___;
+        if (isNil "___ret___") then
         {
-            [_name, _desc, _index] call test_fnc_testPassed;
+            [___name___, ___desc___, ___index___] call test_fnc_testPassed;
         }
         else
         {
-            private _msg = format ["Wrong return value. Expected nil, got %1 (type %2).",  _ret, typeName _ret];
-            [_name, _desc, _index, _msg] call test_fnc_testFailed;
+            private ___msg___ = format ["Wrong return value. Expected nil, got %1 (type %2).",  ___ret___, typeName ___ret___];
+            [___name___, ___desc___, ___index___, ___msg___] call test_fnc_testFailed;
         }
     }] call test_fnc_exceptWrapper;
 };
 
 test_fnc_assertException = {
-    params ["_name", "_test", "_desc", "_index"];
+    params ["___name___", "___test___", "___desc___", "___index___"];
     {
-        private _ret = call _test;
-        private _msg = format ["Never reached except. Returned: %1", _ret];
-        [_name, _desc, _index, _msg] call test_fnc_testFailed;
+        private ___ret___ = call ___test___;
+        private ___msg___ = format ["Never reached except. Returned: %1", ___ret___];
+        [___name___, ___desc___, ___index___, ___msg___] call test_fnc_testFailed;
     }
     except__
     {
-        [_name, _desc, _index] call test_fnc_testPassed;
+        [___name___, ___desc___, ___index___] call test_fnc_testPassed;
     }
 };
 
-private _currentDirectory = currentDirectory__;
-private _currentDirectoryLength = count _currentDirectory;
+private ___currentDirectory___ = currentDirectory__;
+private ___currentDirectoryLength___ = count ___currentDirectory___;
 
 diag_log "Loading tests from:";
-diag_log format ["    %1", _currentDirectory];
+diag_log format ["    %1", ___currentDirectory___];
 
 {  
     if !(_x == pwd__) then {
-        if (count _x > _currentDirectoryLength) then {
-            if (_x select [0, _currentDirectoryLength] == _currentDirectory) then
+        if (count _x > ___currentDirectoryLength___) then {
+            if (_x select [0, ___currentDirectoryLength___] == ___currentDirectory___) then
             {
                 {
-                    private _name = _x select [_currentDirectoryLength];
-                    private _tests = call compile preprocessFileLineNumbers _x;
-                    if !(_tests isEqualType []) then
+                    private ___name___ = _x select [___currentDirectoryLength___];
+                    private ___tests___ = call compile preprocessFileLineNumbers _x;
+                    if !(___tests___ isEqualType []) then
                     {
-                        throw format ["Invalid type. Expected ARRAY; Got %1", typeName _tests];
+                        throw format ["Invalid type. Expected ARRAY; Got %1", typeName ___tests___];
+                        fatalError = true;
                     };
                     {
-                        private _mode = _x select 0;
-                        private _test = _x select 1;
-                        private _desc = if(_test isEqualType []) then { _test select 0 } else { str(_test) };
-                        private _code = if(_test isEqualType []) then { _test select 1 } else { _test };
+                        private ___mode___ = _x select 0;
+                        private ___test___ = _x select 1;
+                        private ___desc___ = if(___test___ isEqualType []) then { ___test___ select 0 } else { str(___test___) };
+                        private ___code___ = if(___test___ isEqualType []) then { ___test___ select 1 } else { ___test___ };
 
-                        private _res = false;
-                        if (_mode isEqualType "") then
+                        private ___res___ = false;
+                        if (___mode___ isEqualType "") then
                         {
                             
-                            switch (_mode) do
+                            switch (___mode___) do
                             {
-                                case "assertTrue": { [_name, _code, _desc, _forEachIndex, true] call test_fnc_assertEqual };
-                                case "assertFalse": { [_name, _code, _desc, _forEachIndex, false] call test_fnc_assertEqual };
-                                case "assertEqual": { [_name, _code, _desc, _forEachIndex, _x select 2] call test_fnc_assertEqual };
-                                case "assertIsNil": { [_name, _code, _desc, _forEachIndex] call test_fnc_assertIsNil };
-                                case "assertException": { [_name, _code, _desc, _forEachIndex] call test_fnc_assertException };
-                                default { throw format ["Unknown Test-Type %1 in %2-%3 (%4)", _mode, _name, _forEachIndex + 1, _desc]; }
+                                case "assertTrue": { [___name___, ___code___, ___desc___, _forEachIndex, true] call test_fnc_assertEqual };
+                                case "assertFalse": { [___name___, ___code___, ___desc___, _forEachIndex, false] call test_fnc_assertEqual };
+                                case "assertEqual": { [___name___, ___code___, ___desc___, _forEachIndex, _x select 2] call test_fnc_assertEqual };
+                                case "assertIsNil": { [___name___, ___code___, ___desc___, _forEachIndex] call test_fnc_assertIsNil };
+                                case "assertException": { [___name___, ___code___, ___desc___, _forEachIndex] call test_fnc_assertException };
+                                default {
+                                    throw format ["Unknown Test-Type %1 in %2-%3 (%4)", ___mode___, ___name___, _forEachIndex + 1, ___desc___];
+                                    fatalError = true;
+                                }
                             }
                         }
                         else
                         {
-                            if (_mode isEqualType {}) then
+                            if (___mode___ isEqualType {}) then
                             {
-                                _res = [_name, _test, _forEachIndex, _x] call _mode;
+                                ___res___ = [___name___, ___test___, _forEachIndex, _x] call ___mode___;
                             }
                             else
                             {
-                                throw format ["Test-Type was expected to be either STRING or CODE but was %1", typeName _mode];
+                                throw format ["Test-Type was expected to be either STRING or CODE but was %1", typeName ___mode___];
+                                fatalError = true;
                             };
                         };
                         testsIndex = testsIndex + 1;
-                    } forEach _tests;
+                    } forEach ___tests___;
                 }
                 except__
                 {
-                    diag_log format ["Exception during test execution of %1: %2", _name, _exception];
+                    diag_log format ["Exception during test execution of %1: %2", ___name___, _exception];
                     fatalError = true;
                 };
             };
