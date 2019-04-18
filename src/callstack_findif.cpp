@@ -8,7 +8,7 @@
 {
 	// If callstack_apply is done, always return done
 	if (previous_nextresult() == done ||
-		m_input_vector.size() == 0)
+		m_input_array->size() == 0)
 	{
 		return done;
 	}
@@ -46,7 +46,7 @@
     }
 
 	// Check whether or not we hit a dead-end
-	if (m_input_vector.size() == m_current_index)
+	if (m_input_array->size() == m_current_index)
 	{
 		// Update the value stack
 		drop_values();
@@ -54,9 +54,9 @@
 		return done;
 	}
 	// Normal mode
-	else if (m_input_vector.size() > m_current_index)
+	else if (m_input_array->size() > m_current_index)
 	{
-		set_variable("_x", m_input_vector[m_current_index++]);
+		set_variable("_x", (*m_input_array)[m_current_index++]);
 		auto sptr = std::shared_ptr<callstack_findif>(this, [](callstack_findif*) {});
 		m_codedata->loadinto(vm->active_vmstack(), sptr);
 	}

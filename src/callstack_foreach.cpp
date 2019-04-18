@@ -19,14 +19,16 @@
 		return next;
 	}
 	
-	if (m_current_index >= m_array.size())
+	if (m_current_index >= m_array->size())
 	{
 		return done;
 	}
 
+	drop_values();
+	drop_variables();
 	auto sptr = std::shared_ptr<callstack_foreach>(this, [](callstack_foreach*) {});
 	m_codedata->loadinto(vm->active_vmstack(), sptr);
-	sptr->set_variable("_x", m_array[m_current_index]);
+	sptr->set_variable("_x", (*m_array)[m_current_index]);
 	sptr->set_variable("_forEachIndex", std::make_shared<value>(m_current_index));
 	m_current_index++;
 

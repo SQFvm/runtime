@@ -34,7 +34,11 @@ namespace sqf
 		bool has_variable(std::string key) { auto it = m_variable_map.find(to_lower_string(key)); return it != m_variable_map.end(); }
 
 		void set_scopename(std::string newname) { m_scopename = newname; }
+
 		std::string get_scopename() { return m_scopename; }
+
 		const std::map<std::string, std::shared_ptr<value>>& get_variable_map() const { return m_variable_map; }
+
+		void drop_variables() { m_variable_map.clear(); }
 	};
 }

@@ -6,7 +6,7 @@
 
 ::sqf::callstack::nextinstres sqf::callstack_count::do_next(sqf::virtualmachine* vm)
 {
-    if (m_input_vector.size() == 0)
+    if (m_input_vector->size() == 0)
     {
         push_back(std::make_shared<value>(m_count));
         return done;
@@ -52,7 +52,7 @@
     }
 
 	// Check wether or not we hit a dead-end
-	if (m_input_vector.size() == m_current_index)
+	if (m_input_vector->size() == m_current_index)
 	{
 		// set the "is done" flag to true
 		// and update the value stack
@@ -61,9 +61,9 @@
 		return done;
 	}
 	// Normal mode
-	else if (m_input_vector.size() > m_current_index)
+	else if (m_input_vector->size() > m_current_index)
 	{
-		set_variable("_x", m_input_vector[m_current_index++]);
+		set_variable("_x", (*m_input_vector)[m_current_index++]);
 		auto sptr = std::shared_ptr<callstack_count>(this, [](callstack_count*) {});
 		m_codedata->loadinto(vm->active_vmstack(), sptr);
 	}

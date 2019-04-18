@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "callstack.h"
+#include "arraydata.h"
 
 namespace sqf
 {
@@ -10,7 +11,7 @@ namespace sqf
 	private:
 		size_t m_current_index;
 		bool m_is_done;
-		std::vector<std::shared_ptr<value>> m_input_vector;
+		std::shared_ptr<arraydata> m_input_array;
 		std::vector<std::shared_ptr<value>> m_output_vector;
 		std::shared_ptr<codedata> m_codedata;
 
@@ -20,12 +21,12 @@ namespace sqf
 	public:
 		callstack_select(
 			std::shared_ptr<sqf::sqfnamespace> ns,
-			std::vector<std::shared_ptr<value>> arr,
+			std::shared_ptr<arraydata> arr,
 			std::shared_ptr<codedata> cond
 		) : callstack(ns),
 			m_current_index(0),
-			m_is_done(arr.empty()),
-			m_input_vector(std::move(arr)),
+			m_is_done(arr->empty()),
+			m_input_array(arr),
 			m_output_vector(),
 			m_codedata(std::move(cond))
 		{

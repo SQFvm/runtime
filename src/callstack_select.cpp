@@ -21,7 +21,7 @@
 	}
 
 	// Check wether or not we hit a dead-end
-	if (m_input_vector.size() == m_current_index && !m_is_done)
+	if (m_input_array->size() == m_current_index && !m_is_done)
 	{
 		// Receive the last result from the value stack
 		bool success;
@@ -34,7 +34,7 @@
 		{
 			if (val->as_bool())
 			{
-				m_output_vector.push_back(m_input_vector[m_current_index - 1]);
+				m_output_vector.push_back((*m_input_array)[m_current_index - 1]);
 			}
 		}
 		else if (val->dtype() == type::NOTHING)
@@ -53,7 +53,7 @@
 		return done;
 	}
 	// Normal mode
-	else if (m_input_vector.size() > m_current_index)
+	else if (m_input_array->size() > m_current_index)
 	{
 		if (m_current_index > 0)
 		{
@@ -67,7 +67,7 @@
 			{
 				if (val->as_bool())
 				{
-					m_output_vector.push_back(m_input_vector[m_current_index - 1]);
+					m_output_vector.push_back((*m_input_array)[m_current_index - 1]);
 				}
 			}
 			else if (val->dtype() == type::NOTHING)
@@ -79,7 +79,7 @@
 				vm->err() << "select value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
 			}
 		}
-		set_variable("_x", m_input_vector[m_current_index++]);
+		set_variable("_x", (*m_input_array)[m_current_index++]);
 		auto sptr = std::shared_ptr<callstack_select>(this, [](callstack_select*) {});
 		m_codedata->loadinto(vm->active_vmstack(), sptr);
 	}

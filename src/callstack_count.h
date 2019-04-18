@@ -11,7 +11,7 @@ namespace sqf
 	class callstack_count : public callstack
 	{
 	private:
-		std::vector<std::shared_ptr<value>> m_input_vector;
+		std::shared_ptr<arraydata> m_input_vector;
 		std::shared_ptr<codedata> m_codedata;
 		size_t m_current_index;
 		int m_count;
@@ -23,7 +23,7 @@ namespace sqf
 		callstack_count(
 			std::shared_ptr<sqf::sqfnamespace> ns,
 			std::shared_ptr<codedata> exec,
-			std::vector<std::shared_ptr<value>> arr
+			std::shared_ptr<arraydata> arr
 		)
 			: callstack(ns),
 			m_input_vector(std::move(arr)),

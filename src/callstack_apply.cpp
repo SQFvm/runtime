@@ -9,7 +9,7 @@
 {
 	// If callstack_apply is done, always return done
 	if (previous_nextresult() == done ||
-		m_input_vector.size() == 0)
+		m_input_array->size() == 0)
 	{
 		return done;
 	}
@@ -22,7 +22,7 @@
 	}
 
 	// Check wether or not we hit a dead-end
-	if (m_input_vector.size() == m_current_index && !m_is_done)
+	if (m_input_array->size() == m_current_index && !m_is_done)
 	{
 		// Receive the last result from the value stack
 		bool success;
@@ -43,7 +43,7 @@
 		return done;
 	}
 	// Normal mode
-	else if (m_input_vector.size() > m_current_index)
+	else if (m_input_array->size() > m_current_index)
 	{
 		if (m_current_index > 0)
 		{
@@ -58,7 +58,7 @@
 				m_output_vector[m_current_index - 1] = val;
 			}
 		}
-		set_variable("_x", m_input_vector[m_current_index++]);
+		set_variable("_x", (*m_input_array)[m_current_index++]);
 		auto sptr = std::shared_ptr<callstack_apply>(this, [](callstack_apply*) {});
 		m_codedata->loadinto(vm->active_vmstack(), sptr);
 	}

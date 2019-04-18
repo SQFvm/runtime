@@ -38,6 +38,7 @@ namespace sqf
 		size_t size() const { return mvalue.size(); }
 		operator std::vector<std::shared_ptr<value>>() const { return mvalue; }
 		bool equals(std::shared_ptr<data> d) const override;
+		bool empty() const { return mvalue.empty(); }
 
 		std::vector<std::shared_ptr<value>>::iterator begin() { return mvalue.begin(); }
 		std::vector<std::shared_ptr<value>>::iterator end() { return mvalue.end(); }

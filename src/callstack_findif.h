@@ -10,7 +10,7 @@ namespace sqf
 	class callstack_findif : public callstack
 	{
 	private:
-		std::vector<std::shared_ptr<value>> m_input_vector;
+		std::shared_ptr<arraydata> m_input_array;
 		std::shared_ptr<codedata> m_codedata;
 		size_t m_current_index;
 
@@ -21,10 +21,10 @@ namespace sqf
 		callstack_findif(
 			std::shared_ptr<sqf::sqfnamespace> ns,
 			std::shared_ptr<codedata> exec,
-			std::vector<std::shared_ptr<value>> arr
+			std::shared_ptr<arraydata> arr
 		) : callstack(ns),
 			m_codedata(std::move(exec)),
-			m_input_vector(arr),
+			m_input_array(arr),
 			m_current_index(0)
 		{
 		}

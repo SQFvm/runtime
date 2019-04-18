@@ -10,7 +10,7 @@ namespace sqf
 	class callstack_foreach : public callstack
 	{
 	private:
-		std::vector<std::shared_ptr<sqf::value>> m_array;
+		std::shared_ptr<arraydata> m_array;
 		std::shared_ptr<codedata> m_codedata;
 		size_t m_current_index;
 
@@ -21,7 +21,7 @@ namespace sqf
 		callstack_foreach(
 			std::shared_ptr<sqf::sqfnamespace> ns,
 			std::shared_ptr<codedata> exec,
-			std::vector<std::shared_ptr<sqf::value>> arr
+			std::shared_ptr<arraydata> arr
 		) :
 			callstack(ns),
 			m_array(std::move(arr)),

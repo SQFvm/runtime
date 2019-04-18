@@ -89,7 +89,7 @@ namespace
 	std::shared_ptr<value> count_code_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->data<codedata>();
-		auto r = right->as_vector();
+		auto r = right->data<arraydata>();
 		auto cs = std::make_shared<callstack_count>(vm->active_vmstack()->stacks_top()->get_namespace(), l, r);
 		vm->active_vmstack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
@@ -258,7 +258,7 @@ namespace
 	std::shared_ptr<value> foreach_code_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto l = left->data<sqf::codedata>();
-		auto r = right->as_vector();
+		auto r = right->data<arraydata>();
 		auto cs = std::make_shared<callstack_foreach>(vm->active_vmstack()->stacks_top()->get_namespace(), l, r);
 		vm->active_vmstack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
@@ -346,8 +346,8 @@ namespace
 	}
 	std::shared_ptr<value> select_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto arr = left->as_vector();
-		if (arr.size() == 0)
+		auto arr = left->data<arraydata>();
+		if (arr->empty())
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
 		auto cond = right->data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_select>(vm->active_vmstack()->stacks_top()->get_namespace(), arr, cond);
@@ -475,9 +475,8 @@ namespace
 	}
 	std::shared_ptr<value> findif_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto arr = left->as_vector();
-		int newindex = (int)arr.size();
-		if (arr.size() == 0)
+		auto arr = left->data<arraydata>();
+		if (arr->empty())
 			return std::make_shared<value>(-1);
 		auto cond = right->data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_findif>(vm->active_vmstack()->stacks_top()->get_namespace(), cond, arr);
@@ -620,8 +619,8 @@ namespace
 	}
 	std::shared_ptr<value> apply_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
-		auto arr = left->as_vector();
-		if (arr.empty())
+		auto arr = left->data<arraydata>();
+		if (arr->empty())
 			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
 		auto cond = right->data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_apply>(vm->active_vmstack()->stacks_top()->get_namespace(), arr, cond);
@@ -760,7 +759,7 @@ namespace
 		auto index = right->as_int();
 		if (index < 0 || index >= static_cast<int>(l->size()))
 		{
-			vm->err() << "Array index out of bounds." << std::endl;
+			vm->wrn() << "Array index out of bounds." << std::endl;
 			return std::make_shared<value>();
 		}
 		l->delete_at(index);
