@@ -15,10 +15,20 @@ std::vector<sqf::vmstack::stackdump> sqf::vmstack::dump_callstack_diff(std::shar
 
 		stackdump dump;
 		dump.namespace_used = (*it)->get_namespace();
-		dump.line = inst->line();
-		dump.column = inst->col();
-		dump.file = inst->file();
-		dump.dbginf = inst->dbginf("STT");
+		if (inst)
+		{
+			dump.dbginf = inst->dbginf("STT");
+			dump.line = inst->line();
+			dump.column = inst->col();
+			dump.file = inst->file();
+		}
+		else
+		{
+			dump.dbginf = "NA";
+			dump.line = -1;
+			dump.column = -1;
+			dump.file = -1;
+		}
 		dump.callstack_name = (*it)->get_name();
 		dump.scope_name = (*it)->get_scopename();
 		vec.push_back(dump);

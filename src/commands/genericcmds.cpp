@@ -17,6 +17,7 @@
 #include "../callstack_switch.h"
 #include "../callstack_apply.h"
 #include "../callstack_foreach.h"
+#include "../callstack_catch.h"
 #include "../callstack_count.h"
 #include "../Entry.h"
 #include "../sqfnamespace.h"
@@ -1294,6 +1295,36 @@ namespace
 		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(starttime - curtime).count());
 		return std::make_shared<value>(r);
 	}
+	std::shared_ptr<value> throw_any(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		auto res = std::find_if(vm->active_vmstack()->stacks_begin(), vm->active_vmstack()->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
+			return cs->get_name() == callstack_catch::name();
+		});
+		if (res == vm->active_vmstack()->stacks_end())
+		{
+			vm->err() << right->tosqf() << std::endl;
+		}
+		else
+		{
+			while (vm->active_vmstack()->stacks_top() != *res)
+			{
+				vm->active_vmstack()->dropcallstack();
+			}
+			std::static_pointer_cast<sqf::callstack_catch>(*res)->except(right);
+		}
+		return {};
+	}
+	std::shared_ptr<value> try_code(virtualmachine* vm, std::shared_ptr<value> right)
+	{
+		return std::make_shared<value>(right->data<codedata>(), type::EXCEPTION);
+	}
+	std::shared_ptr<value> catch_exception_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	{
+		auto cs = std::make_shared<callstack_catch>(vm->active_vmstack()->stacks_top()->get_namespace(), right->data<codedata>());
+		vm->active_vmstack()->pushcallstack(cs);
+		left->data<codedata>()->loadinto(vm->active_vmstack(), cs);
+		return std::shared_ptr<value>();
+	}
 }
 void sqf::commandmap::initgenericcmds()
 {
@@ -1380,5 +1411,7 @@ void sqf::commandmap::initgenericcmds()
 	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
 	add(unary("scriptName", type::STRING, "Assign a user friendly name to the VM script this command is executed from. Once name is assigned, it cannot be changed.", scriptname_string));
 	add(binary(4, "in", type::ANY, type::ARRAY, "Checks whether provided unit is inside of a vehicle. String values will be compared casesensitive.", in_any_array));
-
+	add(unary("throw", type::ANY, "Throws an exception. The exception is processed by first catch block. This command will terminate further execution of the code.", throw_any));
+	add(unary("try", type::CODE, "Defines a try-catch structure. This sets up an exception handling block.", try_code));
+	add(binary(4, "catch", type::EXCEPTION, type::CODE, "Processes code when an exception is thrown in a try block. The exception caught can be found in the _exception variable.", catch_exception_code));
 }
