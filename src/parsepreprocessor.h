@@ -222,6 +222,7 @@ namespace sqf
 				// Whether or not to warn on non-existing #undef
 				// and already-existing #define
 				extern bool disable_warn_define;
+				extern std::vector<macro> predefined_macros;
 			};
 
 

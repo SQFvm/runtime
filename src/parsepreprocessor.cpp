@@ -17,6 +17,7 @@ namespace sqf {
         namespace preprocessor {
             namespace settings {
                 bool disable_warn_define = false;
+				std::vector<macro> predefined_macros = std::vector<macro>();
             }
         }
     }
