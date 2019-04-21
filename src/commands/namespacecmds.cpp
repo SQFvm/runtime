@@ -43,7 +43,7 @@ namespace
 	}
 	value do_with_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left.data<sqfnamespace>();
+		auto l = left.data<sqfwith>();
 		auto r = right.data<codedata>();
 		auto cs = std::make_shared<callstack>(l);
 		r->loadinto(vm, vm->active_vmstack());
