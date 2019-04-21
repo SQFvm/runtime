@@ -32,6 +32,7 @@
 #include <cwctype>
 #include <sstream>
 #include <algorithm>
+#include <utility>
 
 // #define DEBUG_VM_ASSEMBLY
 
@@ -268,15 +269,15 @@ std::string sqf::virtualmachine::dbgsegment(const char* full, size_t off, size_t
 		<< std::string(off - i, ' ') << std::string(length == 0 ? 1 : length, '^') << std::endl;
 	return sstream.str();
 }
-bool contains_nular(std::string ident)
+bool contains_nular(std::string_view ident)
 {
 	return sqf::commandmap::get().contains_n(ident);
 }
-bool contains_unary(std::string ident)
+bool contains_unary(std::string_view ident)
 {
 	return sqf::commandmap::get().contains_u(ident);
 }
-bool contains_binary(std::string ident, short p)
+bool contains_binary(std::string_view ident, short p)
 {
 	auto flag = sqf::commandmap::get().contains_b(ident);
 	if (flag && p > 0)
@@ -286,7 +287,7 @@ bool contains_binary(std::string ident, short p)
 	}
 	return flag;
 }
-short precedence(std::string s)
+short precedence(std::string_view s)
 {
 	auto srange = sqf::commandmap::get().getrange_b(s);
 	if (!srange.get() || srange->empty())
@@ -342,7 +343,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 				stack->push_back(inst);
 			}
-			catch (std::out_of_range)
+			catch (std::out_of_range&)
 			{
 				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nanf("")), sqf::type::NaN));
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
@@ -359,7 +360,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 				stack->push_back(inst);
 			}
-			catch (std::out_of_range)
+			catch (std::out_of_range&)
 			{
 				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nanf("")), sqf::type::NaN));
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
@@ -547,18 +548,18 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnod
 astnode sqf::virtualmachine::parse_sqf_cst(std::string_view code, bool& errorflag, std::string filename)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
-	return sqf::parse::sqf::parse_sqf(code.data(), h, errorflag, filename);
+	return sqf::parse::sqf::parse_sqf(code.data(), h, errorflag, std::move(filename));
 }
 
-void sqf::virtualmachine::parse_sqf_tree(std::string code, std::stringstream* sstream)
+void sqf::virtualmachine::parse_sqf_tree(std::string_view code, std::stringstream* sstream)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, "");
+	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, "");
 	print_navigate_ast(sstream, node, sqf::parse::sqf::astkindname);
 }
 
-bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::string code, std::shared_ptr<sqf::callstack> cs, std::string filename)
+bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::string_view code, std::shared_ptr<sqf::callstack> cs, std::string filename)
 {
 	if (!cs.get())
 	{
@@ -567,24 +568,24 @@ bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 	}
 	auto h = sqf::parse::helper(&merr_buff, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, filename);
+	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, std::move(filename));
 	this->merrflag = h.err_hasdata();
 	if (!errflag)
 	{
-		navigate_sqf(code.c_str(), this, cs, node);
+		navigate_sqf(code.data(), this, cs, node);
 		errflag = this->err_hasdata();
 	}
 	return errflag;
 }
 
-void sqf::virtualmachine::pretty_print_sqf(std::string code)
+void sqf::virtualmachine::pretty_print_sqf(std::string_view code)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.c_str(), h, errflag, "");
+	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, "");
 	if (!errflag)
 	{
-		navigate_pretty_print_sqf(code.c_str(), this, node, 0);
+		navigate_pretty_print_sqf(code.data(), this, node, 0);
 	}
 }
 
@@ -596,7 +597,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 	case sqf::parse::config::configasttypes::CONFIGNODE:
 	{
 		std::shared_ptr<sqf::configdata> curnode;
-		if (node.children.size() > 0 && node.children.front().kind == sqf::parse::config::configasttypes::CONFIGNODE_PARENTIDENT)
+		if (!node.children.empty() && node.children.front().kind == sqf::parse::config::configasttypes::CONFIGNODE_PARENTIDENT)
 		{
 			curnode = std::make_shared<sqf::configdata>(parent, node.content, node.children.front().content);
 			for (size_t i = 1; i < node.children.size(); i++)
@@ -657,7 +658,8 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 	}
 	}
 }
-void sqf::virtualmachine::parse_config(std::string code, std::shared_ptr<configdata> parent)
+
+void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<configdata> parent)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
@@ -675,13 +677,13 @@ void sqf::virtualmachine::parse_config(std::string code, std::shared_ptr<configd
 
 	if (!errflag)
 	{
-		navigate_config(code.c_str(), this, parent, node);
+		navigate_config(code.data(), this, std::move(parent), node);
 	}
 }
 
 size_t sqf::virtualmachine::push_obj(std::shared_ptr<sqf::innerobj> obj)
 {
-	if (mfreeobjids.size() != 0)
+	if (!mfreeobjids.empty())
 	{
 		auto id = mfreeobjids.back();
 		mfreeobjids.pop_back();

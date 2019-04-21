@@ -8,7 +8,7 @@
 {
 	// If callstack_apply is done, always return done
 	if (previous_nextresult() == done ||
-		m_input_array->size() == 0)
+        m_input_array->empty())
 	{
 		return done;
 	}

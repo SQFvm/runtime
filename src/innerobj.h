@@ -111,7 +111,7 @@ namespace sqf
 		void soldiers_pop_back();
 		void soldiers_erase(std::shared_ptr<sqf::objectdata> obj);
 
-		bool iskindof(std::string cfgname);
+		bool iskindof(std::string_view cfgname) const;
 
 		void destroy(sqf::virtualmachine*);
 

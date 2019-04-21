@@ -12,12 +12,12 @@ namespace sqf {
 	public:
 		class breakpoint
 		{
-			int _line;
+            size_t _line;
 			std::string _file;
 		public:
 			breakpoint(int line, std::string file) : _line(line), _file(std::move(file)) {}
-			int line() { return _line; }
-			std::string file() { return _file; }
+			size_t line() const { return _line; }
+			const std::string& file() const { return _file; }
 		};
 		enum srvstatus {
 			NA,

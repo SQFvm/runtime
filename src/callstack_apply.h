@@ -23,7 +23,7 @@ namespace sqf
 			std::shared_ptr<sqf::sqfnamespace> ns,
 			std::shared_ptr<arraydata> arr,
 			std::shared_ptr<codedata> apply
-		) : callstack(ns),
+		) : callstack(std::move(ns)),
 			m_current_index(0),
 			m_output_vector(arr->size()),
 			m_input_array(std::move(arr)),

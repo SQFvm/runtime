@@ -30,7 +30,7 @@ namespace
 	{
 		auto str = left->as_string();
 		auto arr = right->as_vector();
-		if (arr.size() < 1)
+		if (arr.empty())
 		{
 			vm->err() << "Array was expected to have at least a single element." << std::endl;
 			return std::make_shared<value>();
@@ -40,13 +40,13 @@ namespace
 			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		int start = (int)std::round(arr[0]->as_float());
+		int start = static_cast<int>(std::round(arr[0]->as_float()));
 		if (start < 0)
 		{
 			vm->wrn() << "Start index is smaller then 0. Returning empty string." << std::endl;
 			return std::make_shared<value>("");
 		}
-		if (start >(int)str.length())
+		if (start > static_cast<int>(str.length()))
 		{
 			vm->wrn() << "Start index is larger then string length. Returning empty string." << std::endl;
 			return std::make_shared<value>("");
@@ -58,7 +58,7 @@ namespace
 				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
 				return std::make_shared<value>();
 			}
-			int length = (int)std::round(arr[1]->as_float());
+			int length = static_cast<int>(std::round(arr[1]->as_float()));
 			if (length < 0)
 			{
 				vm->wrn() << "Length is smaller then 0. Returning empty string." << std::endl;
@@ -71,7 +71,7 @@ namespace
 	std::shared_ptr<value> format_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->as_vector();
-		if (r.size() == 0)
+		if (r.empty())
 		{
 			vm->wrn() << "Empty array passed." << std::endl;
 			return std::make_shared<value>("");
@@ -155,7 +155,7 @@ namespace
 		auto r = right->as_string();
 		std::stringstream sstream;
 		bool separator = false;
-		for (auto it : l)
+		for (auto& it : l)
 		{
 			if (separator)
 			{

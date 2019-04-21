@@ -27,7 +27,7 @@ std::vector<sqf::vmstack::stackdump> sqf::vmstack::dump_callstack_diff(std::shar
 			dump.dbginf = "NA";
 			dump.line = -1;
 			dump.column = -1;
-			dump.file = -1;
+			dump.file = "";
 		}
 		dump.callstack_name = (*it)->get_name();
 		dump.scope_name = (*it)->get_scopename();
@@ -47,10 +47,10 @@ void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instructio
 	{
 		mstacks.push_back(std::make_shared<callstack>(vm->missionnamespace()));
 	}
-	mstacks.back()->push_back(inst);
+	mstacks.back()->push_back(std::move(inst));
 }
 
-std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string varname)
+std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string_view varname)
 {
 	for (auto it = stacks_begin(); it != stacks_end(); ++it)
 	{

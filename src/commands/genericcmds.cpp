@@ -266,7 +266,7 @@ namespace
 	std::shared_ptr<value> select_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto arr = left->as_vector();
-		auto index = (int)std::round(right->as_float());
+		auto index = static_cast<int>(std::round(right->as_float()));
 
 		if (static_cast<int>(arr.size()) < index || index < 0)
 		{
@@ -311,7 +311,7 @@ namespace
 			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		int start = (int)std::round(arr[0]->as_float());
+		int start = static_cast<int>(std::round(arr[0]->as_float()));
 		if (start < 0)
 		{
 			vm->wrn() << "Start index is smaller then 0. Returning empty array." << std::endl;
@@ -329,7 +329,7 @@ namespace
 				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
 				return std::make_shared<value>();
 			}
-			int length = (int)std::round(arr[1]->as_float());
+			int length = static_cast<int>(std::round(arr[1]->as_float()));
 			if (length < 0)
 			{
 				vm->wrn() << "Length is smaller then 0. Returning empty array." << std::endl;
@@ -457,7 +457,7 @@ namespace
 	std::shared_ptr<value> pushbackunique_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
 		auto arr = left->data<arraydata>();
-		int newindex = (int)arr->size();
+		int newindex = static_cast<int>(arr->size());
 		auto found = std::find_if(arr->begin(), arr->end(), [right](const std::shared_ptr<value>& val) { return val->equals(right); });
 		if (found == arr->end())
 		{
@@ -710,7 +710,7 @@ namespace
 		auto r = right->data<arraydata>();
 		std::vector<std::shared_ptr<value>> result;
 
-		std::copy_if(l->begin(), l->end(), std::back_inserter(result), [&r, &result](std::shared_ptr<value>& current) {
+		std::copy_if(l->begin(), l->end(), std::back_inserter(result), [&r](std::shared_ptr<value>& current) {
 
 			auto found = std::find_if(r->begin(), r->end(), [&current](std::shared_ptr<value>& check) {
 				return value_equals_casesensitive(current, check);
@@ -879,7 +879,7 @@ namespace
 	{
 		static char buffer[CALLEXTBUFFSIZE + 1] = { 0 };
 		auto libname = left->as_string();
-		if (libname.find('/') != -1 || libname.find('\\') != -1)
+		if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
 		{
 			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
 			return std::make_shared<value>("");
@@ -909,7 +909,7 @@ namespace
 	{
 		static char buffer[CALLEXTBUFFSIZE + 1] = { 0 };
 		auto libname = left->as_string();
-		if (libname.find('/') != -1 || libname.find('\\') != -1)
+		if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
 		{
 			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
 			return std::make_shared<value>("");
@@ -995,7 +995,7 @@ namespace
 			elements->push_back(src);
 		}
 		auto fels = trgt->as_vector();
-		size_t i = 0, j;
+		size_t i = 0;
 		bool flag;
 		
 		if(fels.size() != 0)
@@ -1024,7 +1024,7 @@ namespace
 			{
 				auto tmp = fels.at(3)->data<arraydata>();
 				flag = false;
-				for (j = 0; j < tmp->size(); j++)
+				for (size_t j = 0; j < tmp->size(); j++)
 				{
 					if (tmp->at(j)->dtype() != sqf::SCALAR)
 					{
@@ -1105,9 +1105,8 @@ namespace
 	{
 		auto elements = src->data<sqf::arraydata>();
 		auto format = trgt->data<sqf::arraydata>();
-		size_t i, j;
-		bool flag;
-		for (i = 0; i < format->size(); i++)
+        bool flag;
+		for (size_t i = 0; i < format->size(); i++)
 		{
 			auto fel = format->at(i);
 			std::vector<std::shared_ptr<sqf::value>> fels;
@@ -1120,7 +1119,7 @@ namespace
 				fels = { fel };
 			}
 			//validation step
-			if (fels.size() < 1 || fels.at(0)->dtype() != sqf::STRING)
+			if (fels.empty() || fels.at(0)->dtype() != sqf::STRING)
 			{
 				if (fel->dtype() == sqf::ARRAY)
 				{
@@ -1146,7 +1145,7 @@ namespace
 			{
 				auto tmp = fels.at(3)->data<arraydata>();
 				flag = false;
-				for (j = 0; j < tmp->size(); j++)
+				for (size_t j = 0; j < tmp->size(); j++)
 				{
 					if (tmp->at(j)->dtype() != sqf::SCALAR)
 					{

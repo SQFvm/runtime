@@ -82,7 +82,7 @@ std::optional<std::filesystem::path> sqf::filesystem::resolvePath(std::filesyste
     return curPath;
 }
 
-std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string virt, std::string current)
+std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string_view virt, std::string_view current)
 {
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 	if (mdisallow)
@@ -125,22 +125,22 @@ std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string vi
     }
 }
 
-void sqf::filesystem::add_allowed_physical(std::string phys)
+void sqf::filesystem::add_allowed_physical(std::string_view phys)
 {
-	phys = sanitize(phys);
-	m_physicalboundaries.push_back(phys);
+	auto san_phys = sanitize(phys);
+	m_physicalboundaries.push_back(san_phys);
 }
 
-void sqf::filesystem::add_mapping(std::string virt, std::string phys)
+void sqf::filesystem::add_mapping(std::string_view virt, std::string_view phys)
 {
-	virt = sanitize(virt);
-	phys = sanitize(phys);
-	m_physicalboundaries.push_back(phys);
-	m_virtualpaths.push_back(virt);
-    addPathMappingInternal(virt, phys);
+	auto san_virt = sanitize(virt);
+	auto san_phys = sanitize(phys);
+	m_physicalboundaries.push_back(san_phys);
+	m_virtualpaths.push_back(san_virt);
+    addPathMappingInternal(san_virt, san_phys);
 }
 
-void sqf::filesystem::add_mapping_auto(std::string phys)
+void sqf::filesystem::add_mapping_auto(std::string_view phys)
 {
 	const std::filesystem::path ignoreGit(".git");
 	const std::filesystem::path ignoreSvn(".svn");

@@ -1,4 +1,6 @@
 #include <cwctype>
+#include <string_view>
+using namespace std::string_view_literals;
 
 #include "virtualmachine.h"
 #include "compiletime.h"
@@ -54,7 +56,7 @@ makeArray <size>
 
 namespace
 {
-	sqf::type parsetype(std::string);
+	sqf::type parsetype(std::string_view);
 	void skip(const char*, size_t&, size_t&, size_t&);
 	//ident = [a-zA-Z]+;
 	//size_t ident(const char*, size_t);
@@ -105,43 +107,57 @@ namespace
 	void push(sqf::virtualmachine*, const char*, size_t&, size_t&, size_t&);
 
 
-	sqf::type parsetype(std::string str)
+	sqf::type parsetype(std::string_view str)
 	{
-		if (str_cmpi(str.c_str(), compiletime::strlen("NOTHING"), "NOTHING", compiletime::strlen("NOTHING")) == 0) { return sqf::type::NOTHING; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("ANY"), "ANY", compiletime::strlen("ANY")) == 0) { return sqf::type::ANY; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("SCALAR"), "SCALAR", compiletime::strlen("SCALAR")) == 0) { return sqf::type::SCALAR; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("BOOL"), "BOOL", compiletime::strlen("BOOL")) == 0) { return sqf::type::BOOL; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("ARRAY"), "ARRAY", compiletime::strlen("ARRAY")) == 0) { return sqf::type::ARRAY; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("STRING"), "STRING", compiletime::strlen("STRING")) == 0) { return sqf::type::STRING; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("NAMESPACE"), "NAMESPACE", compiletime::strlen("NAMESPACE")) == 0) { return sqf::type::NAMESPACE; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("NaN"), "NaN", compiletime::strlen("NaN")) == 0) { return sqf::type::NaN; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("IF"), "IF", compiletime::strlen("IF")) == 0) { return sqf::type::IF; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("WHILE"), "WHILE", compiletime::strlen("WHILE")) == 0) { return sqf::type::WHILE; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("FOR"), "FOR", compiletime::strlen("FOR")) == 0) { return sqf::type::FOR; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("SWITCH"), "SWITCH", compiletime::strlen("SWITCH")) == 0) { return sqf::type::SWITCH; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("EXCEPTION"), "EXCEPTION", compiletime::strlen("EXCEPTION")) == 0) { return sqf::type::EXCEPTION; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("WITH"), "WITH", compiletime::strlen("WITH")) == 0) { return sqf::type::WITH; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("CODE"), "CODE", compiletime::strlen("CODE")) == 0) { return sqf::type::CODE; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("OBJECT"), "OBJECT", compiletime::strlen("OBJECT")) == 0) { return sqf::type::OBJECT; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("VECTOR"), "VECTOR", compiletime::strlen("VECTOR")) == 0) { return sqf::type::VECTOR; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("TRANS"), "TRANS", compiletime::strlen("TRANS")) == 0) { return sqf::type::TRANS; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("ORIENT"), "ORIENT", compiletime::strlen("ORIENT")) == 0) { return sqf::type::ORIENT; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("SIDE"), "SIDE", compiletime::strlen("SIDE")) == 0) { return sqf::type::SIDE; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("GROUP"), "GROUP", compiletime::strlen("GROUP")) == 0) { return sqf::type::GROUP; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("TEXT"), "TEXT", compiletime::strlen("TEXT")) == 0) { return sqf::type::TEXT; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("SCRIPT"), "SCRIPT", compiletime::strlen("SCRIPT")) == 0) { return sqf::type::SCRIPT; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("TARGET"), "TARGET", compiletime::strlen("TARGET")) == 0) { return sqf::type::TARGET; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("JCLASS"), "JCLASS", compiletime::strlen("JCLASS")) == 0) { return sqf::type::JCLASS; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("CONFIG"), "CONFIG", compiletime::strlen("CONFIG")) == 0) { return sqf::type::CONFIG; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("DISPLAY"), "DISPLAY", compiletime::strlen("DISPLAY")) == 0) { return sqf::type::DISPLAY; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("CONTRO"), "CONTRO", compiletime::strlen("CONTRO")) == 0) { return sqf::type::CONTROL; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("NetObject"), "NetObject", compiletime::strlen("NetObject")) == 0) { return sqf::type::NetObject; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("SUBGROUP"), "SUBGROUP", compiletime::strlen("SUBGROUP")) == 0) { return sqf::type::SUBGROUP; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("TEAM_MEMBER"), "TEAM_MEMBER", compiletime::strlen("TEAM_MEMBER")) == 0) { return sqf::type::TEAM_MEMBER; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("TASK"), "TASK", compiletime::strlen("TASK")) == 0) { return sqf::type::TASK; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("DIARY_RECORD"), "DIARY_RECORD", compiletime::strlen("DIARY_RECORD")) == 0) { return sqf::type::DIARY_RECORD; }
-		else if (str_cmpi(str.c_str(), compiletime::strlen("LOCATION"), "LOCATION", compiletime::strlen("LOCATION")) == 0) { return sqf::type::LOCATION; }
-		else { return sqf::type::NA; }
+        constexpr auto toupper = [](std::string_view val) -> std::string
+        {
+            std::string ret(val);
+            std::transform(ret.begin(), ret.end(), ret.begin(), ::toupper);
+            return ret;
+        };
+
+
+        static std::unordered_map<std::string, sqf::type> typeMap{
+            {toupper("NOTHING"sv), sqf::type::NOTHING},
+            {toupper("ANY"sv), sqf::type::ANY},
+            {toupper("SCALAR"sv), sqf::type::SCALAR},
+            {toupper("BOOL"sv), sqf::type::BOOL},
+            {toupper("ARRAY"sv), sqf::type::ARRAY},
+            {toupper("STRING"sv), sqf::type::STRING},
+            {toupper("NAMESPACE"sv), sqf::type::NAMESPACE},
+            {toupper("NaN"sv), sqf::type::NaN},
+            {toupper("IF"sv), sqf::type::IF},
+            {toupper("WHILE"sv), sqf::type::WHILE},
+            {toupper("FOR"sv), sqf::type::FOR},
+            {toupper("SWITCH"sv), sqf::type::SWITCH},
+            {toupper("EXCEPTION"sv), sqf::type::EXCEPTION},
+            {toupper("WITH"sv), sqf::type::WITH},
+            {toupper("CODE"sv), sqf::type::CODE},
+            {toupper("OBJECT"sv), sqf::type::OBJECT},
+            {toupper("VECTOR"sv), sqf::type::VECTOR},
+            {toupper("TRANS"sv), sqf::type::TRANS}, //#TODO remove, invalid type
+            {toupper("ORIENT"sv), sqf::type::ORIENT}, //#TODO remove, invalid type
+            {toupper("SIDE"sv), sqf::type::SIDE},
+            {toupper("GROUP"sv), sqf::type::GROUP},
+            {toupper("TEXT"sv), sqf::type::TEXT},
+            {toupper("SCRIPT"sv), sqf::type::SCRIPT},
+            {toupper("TARGET"sv), sqf::type::TARGET},
+            {toupper("JCLASS"sv), sqf::type::JCLASS},
+            {toupper("CONFIG"sv), sqf::type::CONFIG},
+            {toupper("DISPLAY"sv), sqf::type::DISPLAY},
+            {toupper("CONTROL"sv), sqf::type::CONTROL},
+            {toupper("NetObject"sv), sqf::type::NetObject},
+            {toupper("SUBGROUP"sv), sqf::type::SUBGROUP},
+            {toupper("TEAM_MEMBER"sv), sqf::type::TEAM_MEMBER},
+            {toupper("TASK"sv), sqf::type::TASK},
+            {toupper("DIARY_RECORD"sv), sqf::type::DIARY_RECORD},
+            {toupper("LOCATION"sv), sqf::type::LOCATION}
+        };
+
+        auto found = typeMap.find(toupper(str));
+        if (found == typeMap.end())
+            return sqf::type::NA;
+        return found->second;
 	}
 	void skip(const char *code, size_t &line, size_t &col, size_t &curoff)
 	{
@@ -311,7 +327,7 @@ namespace
 		{
 			std::string cmdname = std::string(code + curoff, code + curoff + cmdlen);
 			auto cmdrange = sqf::commandmap::get().getrange_u(cmdname);
-			if (cmdrange->size() == 0)
+			if (cmdrange->empty())
 			{
 				vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, cmdlen) << "[ERR][L" << line << "|C" << col << "]\t" << "Command is unknown." << std::endl;
 			}
@@ -357,7 +373,7 @@ namespace
 		{
 			std::string cmdname = std::string(code + curoff, code + curoff + cmdlen);
 			auto cmdrange = sqf::commandmap::get().getrange_b(cmdname);
-			if (cmdrange->size() == 0)
+			if (cmdrange->empty())
 			{
 				vm->err() << sqf::virtualmachine::dbgsegment(code, curoff, cmdlen) << "[ERR][L" << line << "|C" << col << "]\t" << "Command is unknown." << std::endl;
 			}
@@ -634,9 +650,9 @@ namespace
 	}	
 }
 
-void sqf::virtualmachine::parse_assembly(std::string codein)
+void sqf::virtualmachine::parse_assembly(std::string_view codein)
 {
-	const char *code = codein.c_str();
+	const char *code = codein.data();
 	size_t line = 1;
 	size_t col = 0;
 	size_t curoff = 0;

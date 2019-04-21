@@ -97,7 +97,7 @@ namespace {
 				}
 				jcs["options"] = options;
 				auto variables = nlohmann::json::array();
-				for (auto pair : cs->get_variable_map())
+				for (auto& pair : cs->get_variable_map())
 				{
 					variables.push_back(nlohmann::json{ { "name", pair.first },{ "value", pair.second->as_string() } });
 				}
@@ -186,7 +186,7 @@ namespace {
 
 void sqf::debugger::position(size_t line, size_t col, std::string file)
 {
-	_server->push_message(positionmsg(line, col, file));
+	_server->push_message(positionmsg(line, col, std::move(file)));
 }
 void sqf::debugger::message(std::string s)
 {
@@ -217,7 +217,7 @@ bool sqf::debugger::hitbreakpoint(size_t line, std::string file)
 {
 	for (auto& bp : _breakpoints)
 	{
-		if (bp.line() == line && bp.file().compare(file) == 0)
+		if (bp.line() == line && bp.file() == file)
 		{
 			return true;
 		}
@@ -342,7 +342,7 @@ void sqf::debugger::check(virtualmachine * vm)
 				}
 				else
 				{
-					_breakpoints.push_back(breakpoint(data["line"], data["file"]));
+					_breakpoints.emplace_back(data["line"], data["file"]);
 				}
 			}
 			else

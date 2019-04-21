@@ -14,9 +14,9 @@ namespace sqf
 		std::string mfile;
 		std::string msegment;
 	public:
-		size_t line() { return mline; }
-		size_t col() { return mcol; }
-		std::string file() { return mfile; }
+		size_t line() const { return mline; }
+		size_t col() const { return mcol; }
+		const std::string& file() const { return mfile; }
 		enum insttype
 		{
 			push,

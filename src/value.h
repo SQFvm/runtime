@@ -15,6 +15,8 @@ namespace sqf
 	class data;
 	class value
 	{
+	public:
+        using ref = const std::shared_ptr<value>&;
 	private:
 		std::shared_ptr<sqf::data> mdata;
 		type mtype;
@@ -33,7 +35,7 @@ namespace sqf
 		value(size_t);
 		value(std::shared_ptr<callstack>);
 		value();
-		value(std::shared_ptr<sqf::data> d, type t) { mdata = d; mtype = t; }
+		value(std::shared_ptr<sqf::data> d, type t) { mdata = std::move(d); mtype = t; }
 		value(type t) { mtype = t; }
 
 		operator float() const;
@@ -72,8 +74,8 @@ namespace sqf
 		}
 		bool equals(std::shared_ptr<sqf::value> v) const { return v && mtype == v->mtype && mdata && v->mdata && mdata->equals(v->mdata); }
 
-		std::string tosqf()
-		{
+		std::string tosqf() const
+	    {
 			if (mdata)
 			{
 				return mdata->tosqf();

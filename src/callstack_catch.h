@@ -26,14 +26,14 @@ namespace sqf
 		callstack_catch(
 			std::shared_ptr<sqf::sqfnamespace> ns,
 			std::shared_ptr<codedata> catchblock)
-			: callstack(ns),
-			m_codedata_catch(catchblock),
+			: callstack(std::move(ns)),
+			m_codedata_catch(std::move(catchblock)),
 			m_do_catch(false),
 			m_done_catch(false)
 		{
 		}
 
-		void except(std::shared_ptr<sqf::value> message) { m_message = message; m_do_catch = true; }
+		void except(std::shared_ptr<sqf::value> message) { m_message = std::move(message); m_do_catch = true; }
 		bool can_recover() override { return true; }
 
 		std::string get_name() override { return name(); }

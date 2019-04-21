@@ -5,6 +5,7 @@
 #include "string_op.h"
 #include <algorithm>
 #include <cwctype>
+#include <utility>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -58,7 +59,7 @@ namespace sqf
 								size_t start = curoff + 1;
 								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
 								auto str = std::string(code + start, code + curoff);
-								line = (size_t)std::stoul(str.c_str());
+								line = static_cast<size_t>(std::stoul(str));
 								break;
 							}
 						default: return;
@@ -149,7 +150,8 @@ namespace sqf
 			}
 			//STATEMENT = ASSIGNMENT | BINARYEXPRESSION;
 			bool STATEMENT_start(helper &h, const char* code, size_t curoff) { return ASSIGNMENT_start(h, code, curoff) | BINARYEXPRESSION_start(h, code, curoff); }
-			void STATEMENT(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
+			void STATEMENT(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff,
+                           const std::string& file, bool &errflag)
 			{
 				//auto thisnode = astnode();
 				//thisnode.offset = curoff;
@@ -867,7 +869,7 @@ namespace sqf
 			bool BINARYEXPRESSION_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
 			void BINARYEXPRESSION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
 			{
-				bexp1(h, root, code, line, col, curoff, file, errflag);
+				bexp1(h, root, code, line, col, curoff, std::move(file), errflag);
 				//auto thisnode = astnode();
 				//thisnode.offset = curoff;
 				//thisnode.kind = sqfasttypes::BINARYSTATEMENT;
@@ -1023,7 +1025,8 @@ namespace sqf
 			}
 			//PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULAREXPRESSION | VARIABLE | STRING | CODE | BRACKETS | ARRAY;
 			bool PRIMARYEXPRESSION_start(helper &h, const char* code, size_t curoff) { return NUMBER_start(h, code, curoff) || UNARYEXPRESSION_start(h, code, curoff) || NULAREXPRESSION_start(h, code, curoff) || VARIABLE_start(h, code, curoff) || STRING_start(h, code, curoff) || CODE_start(h, code, curoff) || BRACKETS_start(h, code, curoff) || ARRAY_start(h, code, curoff); }
-			void PRIMARYEXPRESSION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
+			void PRIMARYEXPRESSION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff,
+                                   const std::string& file, bool &errflag)
 			{
 				//auto thisnode = astnode();
 				//thisnode.kind = sqfasttypes::PRIMARYEXPRESSION;
@@ -1078,7 +1081,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.kind = sqfasttypes::NULAROP;
-				thisnode.file = file;
+				thisnode.file = std::move(file);
 				auto len = operator_(code, curoff);
 				auto ident = std::string(code + curoff, code + curoff + len);
 				thisnode.content = ident;
@@ -1136,7 +1139,8 @@ namespace sqf
 			}
 			//NUMBER = ("0x" | '$' | '.') hexadecimal | scalar;
 			bool NUMBER_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '$' || code[curoff] == '.' || (code[curoff] >= '0' && code[curoff] <= '9'); }
-			void NUMBER(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
+			void NUMBER(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, 
+                        const std::string &file, bool &errflag)
 			{
 				auto thisnode = astnode();
 				thisnode.kind = sqfasttypes::NUMBER;
@@ -1226,7 +1230,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.kind = sqfasttypes::VARIABLE;
-				thisnode.file = file;
+				thisnode.file = std::move(file);
 				auto len = identifier(code, curoff);
 				auto ident = std::string(code + curoff, code + curoff + len);
 				thisnode.content = ident;
@@ -1247,7 +1251,7 @@ namespace sqf
 				thisnode.kind = sqfasttypes::STRING;
 				thisnode.col = col;
 				thisnode.line = line;
-				thisnode.file = file;
+				thisnode.file = std::move(file);
 				size_t i;
 				auto startchr = code[curoff];
 				col++;

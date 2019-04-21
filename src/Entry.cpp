@@ -19,11 +19,11 @@
 
 #include "dllexports.h"
 #include "debugger.h"
-#include <signal.h>
+#include <csignal>
 #ifdef _WIN32
 #include <windows.h>
 #include <direct.h>
-#include <string.h>
+#include <cstring>
 #else
 #include <limits.h>
 #include <sys/ioctl.h>
@@ -290,7 +290,7 @@ int main(int argc, char** argv)
 				}
 			}
 
-			main((int)args.size(), args.data());
+			main(static_cast<int>(args.size()), args.data());
 
 			if (args.size() > 1)
 			{
@@ -301,7 +301,7 @@ int main(int argc, char** argv)
 			}
 			return 0;
 		}
-		catch (std::runtime_error err)
+		catch (std::runtime_error& err)
 		{
 			std::cout << err.what() << std::endl;
 			return -1;
@@ -379,7 +379,7 @@ int main(int argc, char** argv)
 	for (auto& f : virtualArg.getValue())
 	{
 		auto split_index = f.find('|');
-		if (split_index == -1)
+		if (split_index == std::string::npos)
 		{
 			errflag = true;
 			std::cerr << "Failed find splitter '|' for mapping '" << f << "'." << std::endl;
@@ -418,7 +418,7 @@ int main(int argc, char** argv)
 	for (auto& f : commandDummyBinary.getValue())
 	{
 		auto split_index = f.find('|');
-		if (split_index == -1)
+		if (split_index == std::string::npos)
 		{
 			errflag = true;
 			std::cerr << "Failed find splitter '|' for precedence '" << f << "'." << std::endl;

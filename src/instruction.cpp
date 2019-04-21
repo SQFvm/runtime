@@ -5,8 +5,8 @@ void sqf::instruction::setdbginf(size_t line, size_t col, std::string file, std:
 {
 	mline = line;
 	mcol = col;
-	mfile = file;
-	msegment = segment;
+	mfile = std::move(file);
+	msegment = std::move(file);
 }
 
 std::string sqf::instruction::dbginf(std::string tag) const

@@ -37,14 +37,14 @@ namespace
 	{
 		std::vector<std::shared_ptr<sqf::value>> outarr;
 		auto str = std::make_shared<sqf::value>("n");
-		for (auto pair : commandmap::get().all_n())
+		for (auto& pair : commandmap::get().all_n())
 		{
 			outarr.push_back(std::make_shared<sqf::value>(std::vector<std::shared_ptr<sqf::value>> { str,
 				std::make_shared<sqf::value>(pair.first)
 			}));
 		}
 		str = std::make_shared<sqf::value>("u");
-		for (auto pair : commandmap::get().all_u())
+		for (auto& pair : commandmap::get().all_u())
 		{
 			for (auto& it : *pair.second.get())
 			{
@@ -55,7 +55,7 @@ namespace
 			}
 		}
 		str = std::make_shared<sqf::value>("b");
-		for (auto pair : commandmap::get().all_b())
+		for (auto& pair : commandmap::get().all_b())
 		{
 			for (auto& it : *pair.second.get())
 			{
@@ -243,7 +243,7 @@ namespace
 	}
 	std::shared_ptr<value> exit___scalar(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		vm->exitflag(true, (int)std::round(right->as_float()));
+		vm->exitflag(true, static_cast<int>(std::round(right->as_float())));
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> respawn___(virtualmachine* vm)
@@ -314,9 +314,8 @@ namespace
 				++i)
 			{
 				bool skip = false;
-				for (auto ext = arr->begin(); ext != arr->end(); ext++)
-				{
-					if (i->is_directory() || i->path().extension().compare((*ext)->as_string()))
+				for (auto& ext : *arr) {
+					if (i->is_directory() || i->path().extension().compare(ext->as_string()))
 					{
 						skip = true;
 						break;

@@ -9,7 +9,7 @@
 {
 	// If callstack_configclasses is done, always return done
 	if (previous_nextresult() == done ||
-		m_configdata->size() == 0)
+        m_configdata->empty())
 	{
 		return done;
 	}
@@ -29,7 +29,7 @@
 	{
 		val = m_configdata->at(static_cast<int>(m_current_index));
 		m_current_index++;
-		if (val && val->data<configdata>()->cfgvalue().get() != nullptr)
+		if (val && val->data<configdata>()->cfgvalue())
 		{
 			break;
 		}
