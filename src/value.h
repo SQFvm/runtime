@@ -16,7 +16,7 @@ namespace sqf
 	class value
 	{
 	public:
-        using ref = const std::shared_ptr<value>&;
+        using cref = const value&;
 	private:
 		std::shared_ptr<sqf::data> mdata;
 	public:
@@ -70,7 +70,7 @@ namespace sqf
 			static_assert(std::is_base_of<sqf::data, T>::value, "value::data<T>() can only convert to sqf::data types");
 			return std::static_pointer_cast<T>(mdata);
 		}
-		bool equals(std::shared_ptr<sqf::value> v) const { return v && mdata && v->mdata && mdata->type() == v->mdata->type() && mdata->equals(v->mdata); }
+		bool equals(value::cref v) const { return v && mdata && v.mdata && mdata->type() == v.mdata->type() && mdata->equals(v.mdata); }
 
 		std::string tosqf() const
 	    {

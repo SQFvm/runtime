@@ -411,7 +411,7 @@ int main(int argc, char** argv)
 	}
 	for (auto& f : commandDummyUnary.getValue())
 	{
-		sqf::commandmap::get().add(sqf::unary(f, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, std::shared_ptr<sqf::value> r) -> std::shared_ptr<sqf::value> {
+		sqf::commandmap::get().add(sqf::unary(f, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref r) -> std::shared_ptr<sqf::value> {
 			vm->err() << "DUMMY" << std::endl; return std::make_shared<sqf::value>();
 		}));
 	}
@@ -426,7 +426,7 @@ int main(int argc, char** argv)
 		}
 		auto precedence = f.substr(0, split_index);
 		auto name = f.substr(split_index + 1);
-		sqf::commandmap::get().add(sqf::binary(std::stoi(precedence), name, sqf::type::ANY, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, std::shared_ptr<sqf::value> l, std::shared_ptr<sqf::value> r) -> std::shared_ptr<sqf::value> {
+		sqf::commandmap::get().add(sqf::binary(std::stoi(precedence), name, sqf::type::ANY, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref l, sqf::value::cref r) -> std::shared_ptr<sqf::value> {
 			vm->err() << "DUMMY" << std::endl; return std::make_shared<sqf::value>();
 		}));
 	}

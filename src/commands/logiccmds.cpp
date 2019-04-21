@@ -7,24 +7,24 @@
 using namespace sqf;
 namespace
 {
-	std::shared_ptr<value> and_bool_bool(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> and_bool_bool(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->as_bool();
-		auto r = right->as_bool();
+		auto l = left.as_bool();
+		auto r = right.as_bool();
 		return std::make_shared<value>(l && r);
 	}
-	std::shared_ptr<value> or_bool_bool(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> or_bool_bool(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->as_bool();
-		auto r = right->as_bool();
+		auto l = left.as_bool();
+		auto r = right.as_bool();
 		return std::make_shared<value>(l || r);
 	}
-	std::shared_ptr<value> and_bool_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> and_bool_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->as_bool();
+		auto l = left.as_bool();
 		if (l)
 		{
-			auto r = right->data<codedata>();
+			auto r = right.data<codedata>();
 			r->loadinto(vm, vm->active_vmstack());
 			return std::shared_ptr<value>();
 		}
@@ -33,67 +33,67 @@ namespace
 			return std::make_shared<value>(false);
 		}
 	}
-	std::shared_ptr<value> or_bool_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> or_bool_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->as_bool();
+		auto l = left.as_bool();
 		if (l)
 		{
 			return std::make_shared<value>(true);
 		}
 		else
 		{
-			auto r = right->data<codedata>();
+			auto r = right.data<codedata>();
 			r->loadinto(vm, vm->active_vmstack());
 			return std::shared_ptr<value>();
 		}
 	}
 
-	std::shared_ptr<value> greaterthen_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> greaterthen_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->as_double();
-		auto r = right->as_double();
+		auto l = left.as_double();
+		auto r = right.as_double();
 		return std::make_shared<value>(l > r);
 	}
-	std::shared_ptr<value> greaterthenorequal_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> greaterthenorequal_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->as_double();
-		auto r = right->as_double();
+		auto l = left.as_double();
+		auto r = right.as_double();
 		return std::make_shared<value>(l >= r);
 	}
-	std::shared_ptr<value> lessthen_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+    std::shared_ptr<value> lessthen_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->as_double();
-		auto r = right->as_double();
+		auto l = left.as_double();
+		auto r = right.as_double();
 		return std::make_shared<value>(l < r);
 	}
-	std::shared_ptr<value> lessthenorequal_scalar_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+    std::shared_ptr<value> lessthenorequal_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->as_double();
-		auto r = right->as_double();
+		auto l = left.as_double();
+		auto r = right.as_double();
 		return std::make_shared<value>(l <= r);
 	}
-	std::shared_ptr<value> equals_any_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> equals_any_any(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		return std::make_shared<value>(left->equals(right));
+		return std::make_shared<value>(left.equals(right));
 	}
-	std::shared_ptr<value> notequals_any_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> notequals_any_any(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		return std::make_shared<value>(!left->equals(right));
+		return std::make_shared<value>(!left.equals(right));
 	}
-	std::shared_ptr<value> isequalto_any_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> isequalto_any_any(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		if (left->dtype() == type::STRING && left->dtype() == right->dtype())
+		if (left.dtype() == type::STRING && left.dtype() == right.dtype())
 		{
-			return std::make_shared<value>(left->as_string() == right->as_string());
+			return std::make_shared<value>(left.as_string() == right.as_string());
 		}
 		else
 		{
-			return std::make_shared<value>(left->equals(right));
+			return std::make_shared<value>(left.equals(right));
 		}
 	}
-	std::shared_ptr<value> isequaltype_any_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> isequaltype_any_any(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		return std::make_shared<value>(left->dtype() == right->dtype());
+		return std::make_shared<value>(left.dtype() == right.dtype());
 	}
 
 	std::shared_ptr<value> true_(virtualmachine* vm)

@@ -7,9 +7,9 @@
 using namespace sqf;
 namespace
 {
-	std::shared_ptr<value> diag_log_any(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> diag_log_any(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->as_string();
+		auto r = right.as_string();
 		vm->out() << "[DIAG]\t" << r << std::endl;
 		return std::make_shared<value>();
 	}
@@ -19,9 +19,9 @@ namespace
 		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(virtualmachine::system_time().time_since_epoch()).count());
 		return std::make_shared<value>(r);
 	}
-	std::shared_ptr<value> assert_bool(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> assert_bool(virtualmachine* vm, value::cref right)
 	{
-		if (!right->as_bool())
+		if (!right.as_bool())
 		{
 			vm->err() << "Assert failed." << std::endl;
 			if (vm->dbg())
@@ -29,7 +29,7 @@ namespace
 				vm->halt();
 			}
 		}
-		return right;
+		return std::make_shared<value>(right);
 	}
 	std::shared_ptr<value> halt_(virtualmachine* vm)
 	{

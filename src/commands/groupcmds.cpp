@@ -16,19 +16,19 @@ namespace
 	{
 		return std::make_shared<value>(groupdata::create());
 	}
-	std::shared_ptr<value> creategroup_side(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> creategroup_side(virtualmachine* vm, value::cref right)
 	{
-		auto side = right->data<sidedata>();
+		auto side = right.data<sidedata>();
 		return std::make_shared<value>(groupdata::create(vm, side));
 	}
-	std::shared_ptr<value> groupid_group(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> groupid_group(virtualmachine* vm, value::cref right)
 	{
-		auto grp = right->data<groupdata>();
+		auto grp = right.data<groupdata>();
 		return std::make_shared<value>(grp->groupid());
 	}
-	std::shared_ptr<value> units_group(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> units_group(virtualmachine* vm, value::cref right)
 	{
-		auto grp = right->data<groupdata>();
+		auto grp = right.data<groupdata>();
 		auto arr = std::make_shared<arraydata>();
 		for (auto& unit : grp->get_units())
 		{
@@ -36,9 +36,9 @@ namespace
 		}
 		return std::make_shared<value>(arr);
 	}
-	std::shared_ptr<value> units_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> units_object(virtualmachine* vm, value::cref right)
 	{
-		auto grp = right->data<objectdata>()->obj()->group();
+		auto grp = right.data<objectdata>()->obj()->group();
 		auto arr = std::make_shared<arraydata>();
 		if (grp)
 			for (auto& unit : grp->get_units())
@@ -47,9 +47,9 @@ namespace
 			}
 		return std::make_shared<value>(arr);
 	}
-	std::shared_ptr<value> deletegroup_group(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> deletegroup_group(virtualmachine* vm, value::cref right)
 	{
-		auto grp = right->data<groupdata>();
+		auto grp = right.data<groupdata>();
 		if (grp->is_empty())
 		{
 			vm->drop_group(grp);
@@ -60,14 +60,14 @@ namespace
 		}
 		return std::make_shared<value>();
 	}
-	std::shared_ptr<value> isnull_group(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> isnull_group(virtualmachine* vm, value::cref right)
 	{
-		auto grp = right->data<groupdata>();
+		auto grp = right.data<groupdata>();
 		return std::make_shared<value>(grp->is_null());
 	}
-	std::shared_ptr<value> side_group(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> side_group(virtualmachine* vm, value::cref right)
 	{
-		auto grp = right->data<groupdata>();
+		auto grp = right.data<groupdata>();
 		return std::make_shared<value>(grp->side());
 	}
 }

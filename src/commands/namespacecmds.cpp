@@ -15,12 +15,12 @@
 using namespace sqf;
 namespace
 {
-	std::shared_ptr<value> allvariables_namespace(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> allvariables_namespace(virtualmachine* vm, value::cref right)
 	{
 		std::shared_ptr<varscope> r;
-		if (right->dtype() == OBJECT)
+		if (right.dtype() == OBJECT)
 		{
-			auto obj = right->data<objectdata>();
+			auto obj = right.data<objectdata>();
 			if (obj->is_null())
 			{
 				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
@@ -30,31 +30,31 @@ namespace
 		}
 		else
 		{
-			r = std::dynamic_pointer_cast<varscope>(right->data());
+			r = std::dynamic_pointer_cast<varscope>(right.data());
 		}
 		std::vector<std::shared_ptr<value>> arr(r->get_variable_map().size());
 		transform(r->get_variable_map().begin(), r->get_variable_map().end(), arr.begin(), [](auto pair) { return std::make_shared<value>(pair.first); });
 		return std::make_shared<value>(arr);
 	}
-	std::shared_ptr<value> with_namespace(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> with_namespace(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<sqfnamespace>();
+		auto r = right.data<sqfnamespace>();
 		return std::make_shared<value>(std::make_shared<sqfwith>(r));
 	}
-	std::shared_ptr<value> do_with_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> do_with_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<sqfnamespace>();
-		auto r = right->data<codedata>();
+		auto l = left.data<sqfnamespace>();
+		auto r = right.data<codedata>();
 		auto cs = std::make_shared<callstack>(l);
 		r->loadinto(vm, vm->active_vmstack());
 		return std::shared_ptr<value>();
 	}
-	std::shared_ptr<value> getVariable_namespace_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> getVariable_namespace_string(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		std::shared_ptr<varscope> l;
-		if (left->dtype() == OBJECT)
+		if (left.dtype() == OBJECT)
 		{
-			auto obj = left->data<objectdata>();
+			auto obj = left.data<objectdata>();
 			if (obj->is_null())
 			{
 				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
@@ -64,18 +64,18 @@ namespace
 		}
 		else
 		{
-			l = std::dynamic_pointer_cast<varscope>(left->data());
+			l = std::dynamic_pointer_cast<varscope>(left.data());
 		}
-		auto r = right->as_string();
+		auto r = right.as_string();
 		auto var = l->get_variable_empty(r);
 		return var != nullptr ? var : std::make_shared<value>();
 	}
-	std::shared_ptr<value> getVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> getVariable_namespace_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		std::shared_ptr<varscope> l;
-		if (left->dtype() == OBJECT)
+		if (left.dtype() == OBJECT)
 		{
-			auto obj = left->data<objectdata>();
+			auto obj = left.data<objectdata>();
 			if (obj->is_null())
 			{
 				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
@@ -85,9 +85,9 @@ namespace
 		}
 		else
 		{
-			l = std::dynamic_pointer_cast<varscope>(left->data());
+			l = std::dynamic_pointer_cast<varscope>(left.data());
 		}
-		auto r = right->as_vector();
+		auto r = right.as_vector();
 		if (r.size() != 2)
 		{
 			vm->err() << "Expected 2 elements in array, got " << r.size() << ". Returning NIL." << std::endl;
@@ -102,12 +102,12 @@ namespace
 		auto var = l->get_variable_empty(r[0]->as_string());
 		return var != nullptr ? var : def;
 	}
-	std::shared_ptr<value> setVariable_namespace_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> setVariable_namespace_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		std::shared_ptr<varscope> l;
-		if (left->dtype() == OBJECT)
+		if (left.dtype() == OBJECT)
 		{
-			auto obj = left->data<objectdata>();
+			auto obj = left.data<objectdata>();
 			if (obj->is_null())
 			{
 				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
@@ -117,9 +117,9 @@ namespace
 		}
 		else
 		{
-			l = std::dynamic_pointer_cast<varscope>(left->data());
+			l = std::dynamic_pointer_cast<varscope>(left.data());
 		}
-		auto r = right->as_vector();
+		auto r = right.as_vector();
 		if (r.size() != 2 && r.size() != 3)
 		{
 			vm->err() << "Expected 2 elements in array, got " << r.size() << ". Returning NIL." << std::endl;

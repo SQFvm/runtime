@@ -12,10 +12,10 @@
 using namespace sqf;
 namespace
 {
-	std::shared_ptr<value> greaterthengreaterthen_config_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> greaterthengreaterthen_config_string(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto cd = left->data<configdata>();
-		auto navnode = right->as_string();
+		auto cd = left.data<configdata>();
+		auto navnode = right.as_string();
 		return cd->navigate(navnode);
 	}
 	std::shared_ptr<value> confignull__(virtualmachine* vm)
@@ -26,15 +26,15 @@ namespace
 	{
 		return configdata::configFile();
 	}
-	std::shared_ptr<value> configname_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> configname_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		return std::make_shared<sqf::value>(cd->name());
 	}
-	std::shared_ptr<value> select_config_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> select_config_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto cd = left->data<configdata>();
-		auto index = right->as_int();
+		auto cd = left.data<configdata>();
+		auto index = right.as_int();
 		if (index >= static_cast<int>(cd->size()) || index < 0)
 		{
 			vm->wrn() << "Provided index out of config range. Index: " << index << ", ConfigName: " << (cd->is_null() ? "configNull" : cd->name()) << '.' << std::endl;
@@ -42,74 +42,73 @@ namespace
 		}
 		return (*cd)[index];
 	}
-	std::shared_ptr<value> count_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> count_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		return std::make_shared<sqf::value>(cd->size());
 	}
-	std::shared_ptr<value> confighierarchy_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> confighierarchy_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		std::vector<std::shared_ptr<value>> parents;
-		parents.push_back(right);
+		parents.push_back(std::make_shared<value>(right));
 		while (cd->has_logical_parent())
 		{
-			right = cd->logical_parent();
-			cd = right->data<configdata>();
-			parents.push_back(right);
+			cd = cd->logical_parent()->data<configdata>();
+			parents.push_back(std::make_shared<value>(cd));
 		}
 		std::reverse(parents.begin(), parents.end());
 		return std::make_shared<sqf::value>(parents);
 	}
-	std::shared_ptr<value> inheritsfrom_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> inheritsfrom_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		return cd->logical_parent();
 	}
-	std::shared_ptr<value> isnumber_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> isnumber_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		return std::make_shared<sqf::value>(!cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::SCALAR);
 	}
-	std::shared_ptr<value> istext_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> istext_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		return std::make_shared<sqf::value>(!cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::STRING);
 	}
-	std::shared_ptr<value> isclass_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> isclass_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		return std::make_shared<sqf::value>(!cd->is_null() && !cd->cfgvalue().get());
 	}
-	std::shared_ptr<value> isarray_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> isarray_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		return std::make_shared<sqf::value>(!cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::ARRAY);
 	}
-	std::shared_ptr<value> getnumber_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> getnumber_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		return !cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::SCALAR ? cd->cfgvalue() : std::make_shared<sqf::value>(0);
 	}
-	std::shared_ptr<value> gettext_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> gettext_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		return !cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::STRING ? cd->cfgvalue() : std::make_shared<sqf::value>("");
 	}
-	std::shared_ptr<value> getarray_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> getarray_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		return !cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::ARRAY ? cd->cfgvalue() : std::make_shared<sqf::value>(std::make_shared<sqf::arraydata>());
 	}
-	std::shared_ptr<value> isnull_config(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> isnull_config(virtualmachine* vm, value::cref right)
 	{
-		auto cd = right->data<configdata>();
+		auto cd = right.data<configdata>();
 		return std::make_shared<sqf::value>(cd->is_null());
 	}
-	std::shared_ptr<value> configclasses_code_config(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> configclasses_code_config(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto exp = left->as_string();
-		auto config = right->data<configdata>();
+		auto exp = left.as_string();
+		auto config = right.data<configdata>();
 
 
 		auto condition_stack = std::make_shared<callstack>(vm->active_vmstack()->stacks_top()->get_namespace());
@@ -120,9 +119,9 @@ namespace
 		vm->active_vmstack()->pushcallstack(cs);
 		return std::shared_ptr<value>();
 	}
-	std::shared_ptr<value> configproperties_array(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> configproperties_array(virtualmachine* vm, value::cref right)
 	{
-		auto arr = right->data<arraydata>();
+		auto arr = right.data<arraydata>();
 		if (!arr->check_type(vm, std::array<sqf::type, 3>{ CONFIG, STRING, type::BOOL }, 1))
 		{
 			return std::shared_ptr<value>();

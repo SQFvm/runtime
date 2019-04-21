@@ -19,9 +19,9 @@ namespace
 	{
 		return std::make_shared<value>(std::make_shared<objectdata>());
 	}
-	std::shared_ptr<value> typeof_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> typeof_object(virtualmachine* vm, value::cref right)
 	{
-		auto obj = right->data<objectdata>();
+		auto obj = right.data<objectdata>();
 		if (obj->is_null())
 		{
 			vm->wrn() << "Attempt to get typeOf a NULL OBJECT has been made." << std::endl;
@@ -32,9 +32,9 @@ namespace
 			return std::make_shared<value>(obj->obj()->classname());
 		}
 	}
-	std::shared_ptr<value> createvehicle_array(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> createvehicle_array(virtualmachine* vm, value::cref right)
 	{
-		auto arr = right->data<arraydata>();
+		auto arr = right.data<arraydata>();
 		if (arr->size() != 5)
 		{
 			vm->err() << "Array was expected to have exactly 5 elements. Got " << arr->size() << '.' << std::endl;
@@ -94,10 +94,10 @@ namespace
 		veh->posz(position->at(2)->as_double());
 		return std::make_shared<value>(std::make_shared<objectdata>(veh));
 	}
-	std::shared_ptr<value> createvehicle_string_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> createvehicle_string_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto type = left->as_string();
-		auto position = right->data<arraydata>();
+		auto type = left.as_string();
+		auto position = right.data<arraydata>();
 		if (position->size() != 3)
 		{
 			vm->err() << "Input array was expected to have 3 elements of type SCALAR. Got " << position->size() << '.' << std::endl;
@@ -129,9 +129,9 @@ namespace
 		return std::make_shared<value>(std::make_shared<objectdata>(veh));
 	}
 
-	std::shared_ptr<value> deletevehicle_array(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> deletevehicle_array(virtualmachine* vm, value::cref right)
 	{
-		auto veh = right->data<objectdata>();
+		auto veh = right.data<objectdata>();
 		if (veh->is_null())
 		{
 			vm->wrn() << "Attempt to delete NULL object." << std::endl;
@@ -140,9 +140,9 @@ namespace
 		veh->obj()->destroy(vm);
 		return std::make_shared<value>();
 	}
-	std::shared_ptr<value> position_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> position_object(virtualmachine* vm, value::cref right)
 	{
-		auto veh = right->data<objectdata>();
+		auto veh = right.data<objectdata>();
 		if (veh->is_null())
 		{
 			vm->err() << "Object is null." << std::endl;
@@ -155,15 +155,15 @@ namespace
 		arr->push_back(std::make_shared<value>(pos[2]));
 		return std::make_shared<value>(arr);
 	}
-	std::shared_ptr<value> setpos_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> setpos_object_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto veh = left->data<objectdata>();
+		auto veh = left.data<objectdata>();
 		if (veh->is_null())
 		{
 			vm->wrn() << "Object is null." << std::endl;
 			return std::make_shared<value>();
 		}
-		auto position = right->data<arraydata>();
+		auto position = right.data<arraydata>();
 		if (position->size() != 3)
 		{
 			vm->err() << "Input array was expected to have 3 elements of type SCALAR. Got " << position->size() << '.' << std::endl;
@@ -183,9 +183,9 @@ namespace
 		inner->posz(position->at(2)->as_double());
 		return std::make_shared<value>();
 	}
-	std::shared_ptr<value> velocity_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> velocity_object(virtualmachine* vm, value::cref right)
 	{
-		auto veh = right->data<objectdata>();
+		auto veh = right.data<objectdata>();
 		if (veh->is_null())
 		{
 			vm->err() << "Object is null." << std::endl;
@@ -198,15 +198,15 @@ namespace
 		arr->push_back(std::make_shared<value>(vel[2]));
 		return std::make_shared<value>(arr);
 	}
-	std::shared_ptr<value> setvelocity_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> setvelocity_object_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto veh = left->data<objectdata>();
+		auto veh = left.data<objectdata>();
 		if (veh->is_null())
 		{
 			vm->wrn() << "Object is null." << std::endl;
 			return std::make_shared<value>();
 		}
-		auto velocity = right->data<arraydata>();
+		auto velocity = right.data<arraydata>();
 		if (velocity->size() != 3)
 		{
 			vm->err() << "Input array was expected to have 3 elements of type SCALAR. Got " << velocity->size() << '.' << std::endl;
@@ -226,9 +226,9 @@ namespace
 		inner->velz(velocity->at(2)->as_double());
 		return std::make_shared<value>();
 	}
-	std::shared_ptr<value> domove_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> domove_object_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto obj = left->data<objectdata>()->obj();
+		auto obj = left.data<objectdata>()->obj();
 		if (obj->is_vehicle())
 		{
 			vm->err() << "Attempt to execute doMove on a vehicle. The operator doMove can only be executed on Units." << std::endl;
@@ -237,9 +237,9 @@ namespace
 		setpos_object_array(vm, left, right);
 		return std::make_shared<value>();
 	}
-	std::shared_ptr<value> domove_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> domove_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto arr = left->data<arraydata>();
+		auto arr = left.data<arraydata>();
 		bool errflag = false;
 		for (size_t i = 0; i < arr->size(); i++)
 		{
@@ -260,15 +260,15 @@ namespace
 		}
 		for (const auto& i : *arr)
 		{
-			setpos_object_array(vm, i, right);
+			setpos_object_array(vm, *i, right);
 		}
 		return std::make_shared<value>();
 	}
 
-	std::shared_ptr<value> createUnit_group_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> createUnit_group_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto grp = left->data<groupdata>();
-		auto arr = right->data<arraydata>();
+		auto grp = left.data<groupdata>();
+		auto arr = right.data<arraydata>();
 
 		if (arr->size() != 5)
 		{
@@ -330,10 +330,10 @@ namespace
 		veh->posz(position->at(2)->as_double());
 		return std::make_shared<value>(std::make_shared<objectdata>(veh));
 	}
-	std::shared_ptr<value> createUnit_string_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> createUnit_string_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto type = left->as_string();
-		auto arr = right->data<arraydata>();
+		auto type = left.as_string();
+		auto arr = right.data<arraydata>();
 		double skill = 0.5;
 		std::string rank = "PRIVATE";
 
@@ -419,20 +419,20 @@ namespace
 		veh->posz(position->at(2)->as_double());
 		return std::make_shared<value>(std::make_shared<objectdata>(veh));
 	}
-	std::shared_ptr<value> distance_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> distance_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<arraydata>();
-		auto r = right->data<arraydata>();
+		auto l = left.data<arraydata>();
+		auto r = right.data<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
 		{
 			return std::make_shared<value>();
 		}
 		return std::make_shared<value>(arraydata::distance3d(l, r));
 	}
-	std::shared_ptr<value> distance_object_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> distance_object_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<objectdata>();
-		auto r = right->data<arraydata>();
+		auto l = left.data<objectdata>();
+		auto r = right.data<arraydata>();
 		if (l->is_null())
 		{
 			vm->err() << "Left value provided is NULL object." << std::endl;
@@ -444,10 +444,10 @@ namespace
 		}
 		return std::make_shared<value>(l->obj()->distance3d(r->as_vec3()));
 	}
-	std::shared_ptr<value> distance_array_object(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> distance_array_object(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<arraydata>();
-		auto r = right->data<objectdata>();
+		auto l = left.data<arraydata>();
+		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
 			vm->err() << "Right value provided is NULL object." << std::endl;
@@ -459,10 +459,10 @@ namespace
 		}
 		return std::make_shared<value>(r->obj()->distance3d(l->as_vec3()));
 	}
-	std::shared_ptr<value> distance_object_object(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> distance_object_object(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<objectdata>();
-		auto r = right->data<objectdata>();
+		auto l = left.data<objectdata>();
+		auto r = right.data<objectdata>();
 		if (l->is_null())
 		{
 			vm->err() << "Left value provided is NULL object." << std::endl;
@@ -489,9 +489,9 @@ namespace
 		nearestobjects_distancesort2d(std::array<double, 2> p) : pos(p) {}
 		bool operator() (std::shared_ptr<value> l, std::shared_ptr<value> r) const { return l->data<objectdata>()->obj()->distance2d(pos) < r->data<objectdata>()->obj()->distance2d(pos); }
 	};
-	std::shared_ptr<value> nearestobjects_array(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> nearestobjects_array(virtualmachine* vm, value::cref right)
 	{
-		auto arr = right->data<arraydata>();
+		auto arr = right.data<arraydata>();
 		if (arr->size() != 3 && arr->size() != 4)
 		{
 			vm->err() << "Input array was expected to contain either 3 or 4 elements. Got " << arr->size() << '.' << std::endl;
@@ -598,14 +598,14 @@ namespace
 		}
 		return std::make_shared<value>(outputarr);
 	}
-	std::shared_ptr<value> isnull_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> isnull_object(virtualmachine* vm, value::cref right)
 	{
-		auto obj = right->data<objectdata>();
+		auto obj = right.data<objectdata>();
 		return std::make_shared<value>(obj->is_null());
 	}
-	std::shared_ptr<value> side_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> side_object(virtualmachine* vm, value::cref right)
 	{
-		auto obj = right->data<objectdata>();
+		auto obj = right.data<objectdata>();
 		auto grp = obj->obj()->group();
 		return std::make_shared<value>((!grp.get() || grp->is_null()) ? std::make_shared<sidedata>(sidedata::Civilian) : grp->side());
 	}
@@ -633,20 +633,20 @@ namespace
 		}
 		return false;
 	}
-	std::shared_ptr<value> iskindof_object_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> iskindof_object_string(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto obj = right->data<objectdata>();
+		auto obj = right.data<objectdata>();
 		if (obj->is_null())
 		{
 			vm->err() << "Left value provided is NULL object." << std::endl;
 			return std::shared_ptr<value>();
 		}
-		auto str = left->as_string();
+		auto str = left.as_string();
 		return std::make_shared<value>(obj->obj()->iskindof(str));
 	}
-	std::shared_ptr<value> iskindof_string_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> iskindof_string_string(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto confname = left->as_string();
+		auto confname = left.as_string();
 		auto configbin = configdata::configFile()->data<configdata>();
 		auto cfgVehicles = configbin->navigate("CfgVehicles")->data<configdata>();
 		if (cfgVehicles->is_null())
@@ -656,26 +656,26 @@ namespace
 		auto node = cfgVehicles->navigate(confname)->data<configdata>();
 		if (!node->is_null())
 		{
-			return std::make_shared<value>(node->is_kind_of(right->as_string()));
+			return std::make_shared<value>(node->is_kind_of(right.as_string()));
 		}
 		auto cfgAmmo = configbin->navigate("CfgAmmo")->data<configdata>();
 		node = cfgAmmo->navigate(confname)->data<configdata>();
 		if (!node->is_null())
 		{
-			return std::make_shared<value>(node->is_kind_of(right->as_string()));
+			return std::make_shared<value>(node->is_kind_of(right.as_string()));
 		}
 		auto cfgNonAiVehicles = configbin->navigate("CfgNonAiVehicles")->data<configdata>();
 		node = cfgNonAiVehicles->navigate(confname)->data<configdata>();
 		if (!node->is_null())
 		{
-			return std::make_shared<value>(node->is_kind_of(right->as_string()));
+			return std::make_shared<value>(node->is_kind_of(right.as_string()));
 		}
 		return std::make_shared<value>(false);
 	}
-	std::shared_ptr<value> iskindof_string_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> iskindof_string_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto classname = left->as_string();
-		auto arr = right->data<arraydata>();
+		auto classname = left.as_string();
+		auto arr = right.data<arraydata>();
 		if (!arr->check_type(vm, std::array<sqf::type, 2>{ STRING, CONFIG }))
 		{
 			return std::make_shared<value>();
@@ -699,10 +699,10 @@ namespace
 		return std::make_shared<value>(std::make_shared<objectdata>(vm->player_obj()));
 	}
 
-	std::shared_ptr<value> setdamage_object_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> setdamage_object_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<objectdata>();
-		auto r = right->as_float();
+		auto l = left.data<objectdata>();
+		auto r = right.as_float();
 		if (l->is_null())
 		{
 			vm->err() << "Left value provided is NULL object." << std::endl;
@@ -711,9 +711,9 @@ namespace
 		l->obj()->damage(r);
 		return std::make_shared<value>();
 	}
-	std::shared_ptr<value> getdamage_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> getdamage_object(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<objectdata>();
+		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
 			vm->err() << "Right value provided is NULL object." << std::endl;
@@ -721,9 +721,9 @@ namespace
 		}
 		return std::make_shared<value>(r->obj()->damage());
 	}
-	std::shared_ptr<value> alive_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> alive_object(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<objectdata>();
+		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
 			vm->err() << "Right value provided is NULL object." << std::endl;
@@ -731,9 +731,9 @@ namespace
 		}
 		return std::make_shared<value>(r->obj()->alive());
 	}
-	std::shared_ptr<value> crew_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> crew_object(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<objectdata>();
+		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
 			vm->err() << "Right value provided is NULL object." << std::endl;
@@ -764,9 +764,9 @@ namespace
 		}
 		return std::make_shared<value>(arr);
 	}
-	std::shared_ptr<value> vehicle_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> vehicle_object(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<objectdata>();
+		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
 			vm->err() << "Right value provided is NULL object." << std::endl;
@@ -776,21 +776,21 @@ namespace
 		if (!obj->is_vehicle())
 		{
 			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
-			return right;
+			return std::make_shared<value>(right);
 		}
 		auto parent = obj->parent_object();
 		if (parent->is_null() || !parent->obj()->is_vehicle())
 		{
-			return right;
+			return std::make_shared<value>(right);
 		}
 		else
 		{
 			return std::make_shared<value>(parent);
 		}
 	}
-	std::shared_ptr<value> objectparent_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> objectparent_object(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<objectdata>();
+		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
 			vm->err() << "Right value provided is NULL object." << std::endl;
@@ -798,9 +798,9 @@ namespace
 		}
 		return std::make_shared<value>(r->obj()->parent_object());
 	}
-	std::shared_ptr<value> driver_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> driver_object(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<objectdata>();
+		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
 			vm->err() << "Right value provided is NULL object." << std::endl;
@@ -810,13 +810,13 @@ namespace
 		if (!obj->is_vehicle())
 		{
 			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
-			return right;
+			return std::make_shared<value>(right);
 		}
 		return std::make_shared<value>(obj->driver());
 	}
-	std::shared_ptr<value> commander_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> commander_object(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<objectdata>();
+		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
 			vm->err() << "Right value provided is NULL object." << std::endl;
@@ -826,13 +826,13 @@ namespace
 		if (!obj->is_vehicle())
 		{
 			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
-			return right;
+			return std::make_shared<value>(right);
 		}
 		return std::make_shared<value>(obj->commander());
 	}
-	std::shared_ptr<value> gunner_object(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> gunner_object(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<objectdata>();
+		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
 			vm->err() << "Right value provided is NULL object." << std::endl;
@@ -842,13 +842,13 @@ namespace
 		if (!obj->is_vehicle())
 		{
 			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
-			return right;
+			return std::make_shared<value>(right);
 		}
 		return std::make_shared<value>(obj->gunner());
 	}
-	std::shared_ptr<value> in_object_object(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> in_object_object(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<objectdata>();
+		auto l = left.data<objectdata>();
 		if (l->is_null())
 		{
 			vm->err() << "Left value provided is NULL object." << std::endl;
@@ -859,7 +859,7 @@ namespace
 			vm->wrn() << "Right value provided is a vehicle object." << std::endl;
 			return std::make_shared<value>(false);
 		}
-		auto r = right->data<objectdata>();
+		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
 			vm->err() << "Right value provided is NULL object." << std::endl;

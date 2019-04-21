@@ -9,27 +9,27 @@
 using namespace sqf;
 namespace
 {
-	std::shared_ptr<value> count_string(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> count_string(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->as_string();
+		auto r = right.as_string();
 		return std::make_shared<value>(r.length());
 	}
-	std::shared_ptr<value> toupper_string(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> toupper_string(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->as_string();
+		auto r = right.as_string();
 		std::transform(r.begin(), r.end(), r.begin(), ::toupper);
 		return std::make_shared<value>(r);
 	}
-	std::shared_ptr<value> tolower_string(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> tolower_string(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->as_string();
+		auto r = right.as_string();
 		std::transform(r.begin(), r.end(), r.begin(), ::toupper);
 		return std::make_shared<value>(r);
 	}
-	std::shared_ptr<value> select_string_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> select_string_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto str = left->as_string();
-		auto arr = right->as_vector();
+		auto str = left.as_string();
+		auto arr = right.as_vector();
 		if (arr.empty())
 		{
 			vm->err() << "Array was expected to have at least a single element." << std::endl;
@@ -68,9 +68,9 @@ namespace
 		}
 		return std::make_shared<value>(str.substr(start));
 	}
-	std::shared_ptr<value> format_string(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> format_string(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->as_vector();
+		auto r = right.as_vector();
 		if (r.empty())
 		{
 			vm->wrn() << "Empty array passed." << std::endl;
@@ -121,9 +121,9 @@ namespace
 		sstream << format.substr(off);
 		return std::make_shared<value>(sstream.str());
 	}
-	std::shared_ptr<value> toarray_string(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> toarray_string(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->as_string();
+		auto r = right.as_string();
 		auto arr = std::vector<std::shared_ptr<value>>(r.size());
 		for (size_t i = 0; i < r.size(); i++)
 		{
@@ -131,9 +131,9 @@ namespace
 		}
 		return std::make_shared<value>(arr);
 	}
-	std::shared_ptr<value> tostring_array(virtualmachine* vm, std::shared_ptr<value> right)
+	std::shared_ptr<value> tostring_array(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->as_vector();
+		auto r = right.as_vector();
 		std::stringstream sstream;
 		for (size_t i = 0; i < r.size(); i++)
 		{
@@ -149,10 +149,10 @@ namespace
 		}
 		return std::make_shared<value>(sstream.str());
 	}
-	std::shared_ptr<value> joinstring_array_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> joinstring_array_string(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->as_vector();
-		auto r = right->as_string();
+		auto l = left.as_vector();
+		auto r = right.as_string();
 		std::stringstream sstream;
 		bool separator = false;
 		for (auto& it : l)
@@ -183,18 +183,18 @@ namespace
 		}
 		return std::make_shared<value>(sstream.str());
 	}
-	std::shared_ptr<value> plus_string_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> plus_string_string(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->as_string();
-		auto r = right->as_string();
+		auto l = left.as_string();
+		auto r = right.as_string();
 		std::stringstream sstream;
 		sstream << l << r;
 		return std::make_shared<value>(sstream.str());
 	}
-	std::shared_ptr<value> find_string_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	std::shared_ptr<value> find_string_string(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->as_string();
-		auto r = right->as_string();
+		auto l = left.as_string();
+		auto r = right.as_string();
 		size_t res = l.find(r);
 		return std::make_shared<value>(res == std::string::npos ? -1 : res);
 	}

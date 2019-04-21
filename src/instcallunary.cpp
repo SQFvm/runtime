@@ -17,7 +17,8 @@ void sqf::inst::callunary::execute(virtualmachine* vm) const
 	auto cmd = sqf::commandmap::find(mcmds, right->dtype()); 
 	if (cmd)
 	{
-		auto val = cmd->execute(vm, std::shared_ptr<value>(), right);
+        value dummy;
+		auto val = cmd->execute(vm, dummy, *right);
 		if (val)
 			vm->active_vmstack()->pushval(val);
 	}

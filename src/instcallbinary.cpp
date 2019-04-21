@@ -23,7 +23,7 @@ void sqf::inst::callbinary::execute(virtualmachine* vm) const
 	auto cmd = sqf::commandmap::find(mcmds, left->dtype(), right->dtype());
 	if (cmd)
 	{
-		auto val = cmd->execute(vm, left, right);
+		auto val = cmd->execute(vm, *left, *right);
 		if (val)
 			vm->active_vmstack()->pushval(val);
 	}

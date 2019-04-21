@@ -38,7 +38,7 @@ bool sqf::arraydata::equals(std::shared_ptr<data> d) const
 	return std::equal(mvalue.begin(),mvalue.end(),data->begin(),data->end(), [](const std::shared_ptr<value>& left, const std::shared_ptr<value>& right) {
 		if (left->dtype() == type::STRING && left->dtype() == right->dtype())
 			return left->as_string() == right->as_string();
-		return left->equals(right);
+		return left->equals(*right);
 	});
 }
 
