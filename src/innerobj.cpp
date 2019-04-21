@@ -18,7 +18,7 @@ sqf::innerobj::innerobj(std::string classname, bool isvehicle) : mdamage(0), mcl
 std::string sqf::innerobj::tosqf() const
 {
 	std::stringstream sstream;
-	sstream << (const void*)this << "# " << this->mnetid << ": " << mclassname;
+	sstream << static_cast<const void*>(this) << "# " << this->mnetid << ": " << mclassname;
 	return sstream.str();
 }
 
@@ -39,8 +39,7 @@ double sqf::innerobj::distance2d(std::array<double, 2> otherpos) const
 	return arraydata::distance2d(std::array<double, 2> { mposx, mposy }, otherpos);
 }
 
-bool sqf::innerobj::iskindof(std::string_view cfgname)
-{
+bool sqf::innerobj::iskindof(std::string_view cfgname) const {
 	auto configbin = configdata::configFile()->data<configdata>();
 	auto cfgVehicles = configbin->navigate("CfgVehicles")->data<configdata>();
 	if (cfgVehicles->is_null())
@@ -74,7 +73,7 @@ bool sqf::innerobj::update_values_from_configbin()
 	mhasDriver = vehConfig->cfgvalue("hasDriver", false);
 	mhasGunner = vehConfig->cfgvalue("hasGunner", false);
 	mhasCommander = vehConfig->cfgvalue("hasCommander", false);
-	mtransportSoldier = (size_t)vehConfig->cfgvalue("transportSoldier", 0);
+	mtransportSoldier = static_cast<size_t>(vehConfig->cfgvalue("transportSoldier", 0));
 	msoldiers.resize(mtransportSoldier);
 	return true;
 }

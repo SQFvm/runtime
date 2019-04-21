@@ -16,8 +16,8 @@ namespace sqf
 		std::string m_scopename;
 	public:
 		varscope() { m_scopename = ""; }
-		varscope(std::string name) { m_scopename = name; }
-		void set_variable(std::string_view key, std::shared_ptr<value> value) { m_variable_map[string_tolower(key)] = value; }
+		varscope(std::string name) { m_scopename = std::move(name); }
+		void set_variable(std::string_view key, std::shared_ptr<value> value) { m_variable_map[string_tolower(key)] = std::move(value); }
 		std::shared_ptr<value> get_variable_empty(std::string_view key)
 		{
 			auto it = m_variable_map.find(string_tolower(key));
@@ -30,7 +30,7 @@ namespace sqf
 
 		bool has_variable(std::string_view key) { auto it = m_variable_map.find(string_tolower(key)); return it != m_variable_map.end(); }
 
-		void set_scopename(std::string newname) { m_scopename = newname; }
+		void set_scopename(std::string newname) { m_scopename = std::move(newname); }
 
 		std::string get_scopename() const { return m_scopename; }
 

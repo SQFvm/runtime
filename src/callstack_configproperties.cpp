@@ -10,7 +10,7 @@
 {
 	// If callstack_configclasses is done, always return done
 	if (previous_nextresult() == done ||
-		m_configdata->size() == 0)
+        m_configdata->empty())
 	{
 		return done;
 	}

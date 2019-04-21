@@ -24,10 +24,10 @@ namespace sqf
 		void flag(bool f) { mflag = f; }
 		bool flag() const { return mflag; }
 		void executed(bool f) { mexecuted = f; }
-		bool executed() { return mexecuted; }
-		std::shared_ptr<value> val() { return mvalue; }
-		void defaultexec(std::shared_ptr<codedata> exec) { mdefaultexec = exec; }
-		std::shared_ptr<codedata> defaultexec() { return mdefaultexec; }
+		bool executed() const { return mexecuted; }
+		std::shared_ptr<value> val() const { return mvalue; }
+		void defaultexec(std::shared_ptr<codedata> exec) { mdefaultexec = std::move(exec); }
+		std::shared_ptr<codedata> defaultexec() const { return mdefaultexec; }
 		bool equals(std::shared_ptr<data> d) const override { return mvalue == std::dynamic_pointer_cast<switchdata>(d)->mvalue; }
 	};
 }

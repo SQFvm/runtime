@@ -568,7 +568,7 @@ bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 	}
 	auto h = sqf::parse::helper(&merr_buff, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, filename);
+	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, std::move(filename));
 	this->merrflag = h.err_hasdata();
 	if (!errflag)
 	{
@@ -597,7 +597,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 	case sqf::parse::config::configasttypes::CONFIGNODE:
 	{
 		std::shared_ptr<sqf::configdata> curnode;
-		if (node.children.size() > 0 && node.children.front().kind == sqf::parse::config::configasttypes::CONFIGNODE_PARENTIDENT)
+		if (!node.children.empty() && node.children.front().kind == sqf::parse::config::configasttypes::CONFIGNODE_PARENTIDENT)
 		{
 			curnode = std::make_shared<sqf::configdata>(parent, node.content, node.children.front().content);
 			for (size_t i = 1; i < node.children.size(); i++)
@@ -677,7 +677,7 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 
 	if (!errflag)
 	{
-		navigate_config(code.data(), this, parent, node);
+		navigate_config(code.data(), this, std::move(parent), node);
 	}
 }
 

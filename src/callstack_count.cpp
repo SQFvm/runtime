@@ -6,7 +6,7 @@
 
 ::sqf::callstack::nextinstres sqf::callstack_count::do_next(sqf::virtualmachine* vm)
 {
-    if (m_input_vector->size() == 0)
+    if (m_input_vector->empty())
     {
         push_back(std::make_shared<value>(m_count));
         return done;
@@ -41,10 +41,10 @@
                 m_count++;
             }
         }
-		else if (val->dtype() == type::NOTHING)
-		{
-			vm->wrn() << "count value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
-		}
+        else if (val->dtype() == type::NOTHING)
+        {
+            vm->wrn() << "count value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+        }
         else
         {
             vm->err() << "count value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;

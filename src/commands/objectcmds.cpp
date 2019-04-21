@@ -480,14 +480,14 @@ namespace
 		std::array<double, 3> pos;
 	public:
 		nearestobjects_distancesort3d(std::array<double, 3> p) : pos(p) {}
-		bool operator() (std::shared_ptr<value> l, std::shared_ptr<value> r) { return l->data<objectdata>()->obj()->distance3d(pos) < r->data<objectdata>()->obj()->distance3d(pos); }
+		bool operator() (std::shared_ptr<value> l, std::shared_ptr<value> r) const { return l->data<objectdata>()->obj()->distance3d(pos) < r->data<objectdata>()->obj()->distance3d(pos); }
 	};
 	class nearestobjects_distancesort2d
 	{
 		std::array<double, 2> pos;
 	public:
 		nearestobjects_distancesort2d(std::array<double, 2> p) : pos(p) {}
-		bool operator() (std::shared_ptr<value> l, std::shared_ptr<value> r) { return l->data<objectdata>()->obj()->distance2d(pos) < r->data<objectdata>()->obj()->distance2d(pos); }
+		bool operator() (std::shared_ptr<value> l, std::shared_ptr<value> r) const { return l->data<objectdata>()->obj()->distance2d(pos) < r->data<objectdata>()->obj()->distance2d(pos); }
 	};
 	std::shared_ptr<value> nearestobjects_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
@@ -497,7 +497,7 @@ namespace
 			vm->err() << "Input array was expected to contain either 3 or 4 elements. Got " << arr->size() << '.' << std::endl;
 			return std::shared_ptr<value>();
 		}
-		std::array<double, 3> position;
+		std::array<double, 3> position {0, 0, 0};
 		auto dtype = arr->at(0)->dtype();
 		if (dtype == ARRAY)
 		{

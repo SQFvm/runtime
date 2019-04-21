@@ -47,7 +47,7 @@ void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instructio
 	{
 		mstacks.push_back(std::make_shared<callstack>(vm->missionnamespace()));
 	}
-	mstacks.back()->push_back(inst);
+	mstacks.back()->push_back(std::move(inst));
 }
 
 std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string_view varname)

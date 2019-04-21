@@ -22,9 +22,9 @@ namespace sqf
 			std::shared_ptr<sqf::sqfnamespace> ns,
 			std::shared_ptr<codedata> exec,
 			std::shared_ptr<arraydata> arr
-		) : callstack(ns),
+		) : callstack(std::move(ns)),
+			m_input_array(std::move(arr)),
 			m_codedata(std::move(exec)),
-			m_input_array(arr),
 			m_current_index(0)
 		{
 		}

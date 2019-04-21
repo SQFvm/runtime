@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <utility>
 #include <vector>
 #include <array>
 #include <cmath>
@@ -27,10 +28,9 @@ namespace sqf
 		// Returns true, if no recursion is present.
 		// Returns false, if current array state contains a recursion.
 		bool recursion_test() { std::vector<std::shared_ptr<arraydata>> vec; return recursion_test_helper(vec); }
-		arraydata() {}
+        arraydata() = default;
 		arraydata(size_t size) : mvalue(std::vector<std::shared_ptr<value>>(size)) {}
-        arraydata(const std::vector<std::shared_ptr<value>>& v) : mvalue(v) {}
-        arraydata(std::vector<std::shared_ptr<value>>&& v) : mvalue(std::move(v)) {}
+        arraydata(std::vector<std::shared_ptr<value>> v) : mvalue(std::move(v)) {}
 		std::string tosqf() const override;
 		std::shared_ptr<value>& operator[](size_t index) { return at(index); }
 		std::shared_ptr<value> operator[](size_t index) const { return at(index); }
@@ -53,11 +53,11 @@ namespace sqf
 		std::array<double, 3> as_vec3() const;
 		std::array<double, 2> as_vec2() const;
 		operator std::array<double, 3>() const { return as_vec3(); }
-
+        //#TODO begin/end iterators
 		bool get(size_t index, bool defval);
 		float get(size_t index, float defval);
 		std::string get(size_t index, std::string defval);
-		int get(size_t index, int defval) { return (int)get(index, (float)defval); }
+		int get(size_t index, int defval) { return static_cast<int>(get(index, static_cast<float>(defval))); }
 		std::string get(size_t index, const char* defval) { return get(index, std::string(defval)); }
 
 		bool check_type(virtualmachine* vm, type t, size_t len) const { return check_type(vm, t, len, len); }

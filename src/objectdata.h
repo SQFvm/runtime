@@ -13,7 +13,7 @@ namespace sqf
 	private:
 		std::weak_ptr<innerobj> mobj;
 	public:
-		objectdata() {}
+        objectdata() = default;
 		objectdata(std::weak_ptr<innerobj> obj) : mobj(std::move(obj)) {}
 		std::string tosqf() const override;
 		bool is_null() const { return mobj.expired(); }

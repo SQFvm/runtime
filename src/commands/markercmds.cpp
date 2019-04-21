@@ -143,7 +143,7 @@ namespace
 			}
 			auto obj = objdata->obj();
 			auto tmp = obj->pos();
-			pos = std::array<float, 3> { (float)tmp[0], (float)tmp[1], (float)tmp[2]};
+			pos = std::array<float, 3> { static_cast<float>(tmp[0]), static_cast<float>(tmp[1]), static_cast<float>(tmp[2])};
 		}
 		else if (arr->check_type(vm, std::array<type, 2> { STRING, ARRAY }))
 		{

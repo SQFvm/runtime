@@ -59,7 +59,7 @@ namespace sqf
 								size_t start = curoff + 1;
 								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
 								auto str = std::string(code + start, code + curoff);
-								line = (size_t)std::stoul(str);
+								line = static_cast<size_t>(std::stoul(str));
 								break;
 							}
 						default: return;
@@ -1230,7 +1230,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.kind = sqfasttypes::VARIABLE;
-				thisnode.file = file;
+				thisnode.file = std::move(file);
 				auto len = identifier(code, curoff);
 				auto ident = std::string(code + curoff, code + curoff + len);
 				thisnode.content = ident;
@@ -1251,7 +1251,7 @@ namespace sqf
 				thisnode.kind = sqfasttypes::STRING;
 				thisnode.col = col;
 				thisnode.line = line;
-				thisnode.file = file;
+				thisnode.file = std::move(file);
 				size_t i;
 				auto startchr = code[curoff];
 				col++;

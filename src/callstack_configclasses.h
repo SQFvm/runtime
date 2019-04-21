@@ -24,11 +24,11 @@ namespace sqf
 			std::shared_ptr<configdata> data,
 			std::shared_ptr<codedata> cond
 		)
-		: callstack(ns),
+		: callstack(std::move(ns)),
 			m_current_index(0),
 			m_is_done(false),
 			m_code_condition(std::move(cond)),
-			m_configdata(data)
+			m_configdata(std::move(data))
 		{}
 
 		std::string get_name() override { return "configClasses"; }

@@ -70,7 +70,7 @@ namespace sqf
 								size_t start = curoff + 1;
 								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
 								auto str = std::string(code + start, code + curoff);
-								line = (size_t)std::stoul(str);
+								line = static_cast<size_t>(std::stoul(str));
 								break;
 							}
 						default: return;
