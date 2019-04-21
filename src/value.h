@@ -6,8 +6,6 @@
 #include <memory>
 
 #include "type.h"
-#include "data.h"
-#include "convert.h"
 
 namespace sqf
 {
@@ -16,12 +14,11 @@ namespace sqf
 	class value
 	{
 	public:
-        using ref = const std::shared_ptr<value>&;
+        using cref = const value&;
 	private:
 		std::shared_ptr<sqf::data> mdata;
-		type mtype;
 	public:
-		value(std::vector<std::shared_ptr<value>>);
+		value(std::vector<value>);
 		value(std::string);
 		value(char* str) : value(std::string(str)) {}
 		value(const char* str) : value(std::string(str)) {}
@@ -35,8 +32,7 @@ namespace sqf
 		value(size_t);
 		value(std::shared_ptr<callstack>);
 		value();
-		value(std::shared_ptr<sqf::data> d, type t) { mdata = std::move(d); mtype = t; }
-		value(type t) { mtype = t; }
+	    value(std::shared_ptr<sqf::data> d) { mdata = std::move(d); }
 
 		operator float() const;
 		operator double() const;
@@ -46,8 +42,8 @@ namespace sqf
 		operator long() const;
 		operator bool() const;
 		operator std::string() const;
-		operator std::vector<std::shared_ptr<sqf::value>>() const;
-		operator type() const { return mtype; }
+		operator std::vector<sqf::value>() const;
+        operator type() const { return dtype(); };
 
 		float as_float() const { return *this; }
 		double as_double() const { return *this; }
@@ -57,8 +53,8 @@ namespace sqf
 		long as_long() const { return *this; }
 		bool as_bool() const { return *this; }
 		std::string as_string() const { return *this; }
-		std::vector<std::shared_ptr<sqf::value>> as_vector() const { return *this; }
-		type dtype() const { return *this; }
+		std::vector<sqf::value> as_vector() const { return *this; }
+        type dtype() const;
 		std::shared_ptr<sqf::data> data() const { return mdata; }
 
 		///Tries to convert to T, if it fails it returns nullptr
@@ -72,32 +68,11 @@ namespace sqf
 			static_assert(std::is_base_of<sqf::data, T>::value, "value::data<T>() can only convert to sqf::data types");
 			return std::static_pointer_cast<T>(mdata);
 		}
-		bool equals(std::shared_ptr<sqf::value> v) const { return v && mtype == v->mtype && mdata && v->mdata && mdata->equals(v->mdata); }
 
-		std::string tosqf() const
-	    {
-			if (mdata)
-			{
-				return mdata->tosqf();
-			}
-			else if (mtype == type::NOTHING)
-			{
-				return "nil";
-			}
-			else if (mtype == type::ANY)
-			{
-				return "any";
-			}
-			else
-			{
-				return "";
-			}
-		}
-		void convert(type type)
-		{
-			if (mtype == type)
-				return;
-			mdata = sqf::convert(std::move(mdata), type);
-		}
+        bool equals(value::cref v) const;
+
+        std::string tosqf() const;
+
+        void convert(type type);
 	};
 }

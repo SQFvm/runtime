@@ -30,7 +30,7 @@ sqf::callstack_isnil::callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf
 	{
 		// Update the value stack
 		drop_values();
-		push_back(std::make_shared<value>(val->dtype() == sqf::type::NOTHING));
+		push_back(val.dtype() == sqf::type::NOTHING);
 	}
 	else
 	{

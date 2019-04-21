@@ -3,14 +3,15 @@
 #include <memory>
 #include "type.h"
 #include "string_op.h"
+#include "value.h"
 namespace sqf
 {
 	class virtualmachine;
 	class value;
 
-	typedef std::shared_ptr<value>(*nularcb)(virtualmachine*);
-	typedef std::shared_ptr<value>(*unarycb)(virtualmachine*, std::shared_ptr<value>);
-	typedef std::shared_ptr<value>(*binarycb)(virtualmachine*, std::shared_ptr<value>, std::shared_ptr<value>);
+	typedef value(*nularcb)(virtualmachine*);
+	typedef value(*unarycb)(virtualmachine*, const value&);
+	typedef value(*binarycb)(virtualmachine*, const value&, const value&);
 	class cmd
 	{
 	private:
@@ -22,7 +23,7 @@ namespace sqf
 
 	public:
 		cmd(short precedence, std::string name, type ltype, type rtype, std::string description) { mprecedence = precedence; mname = name; mltype = ltype; mrtype = rtype; mdesc = description; }
-		virtual std::shared_ptr<value> execute(virtualmachine*, std::shared_ptr<value> left, std::shared_ptr<value> right) const = 0;
+		virtual value execute(virtualmachine*, const value& left, const value& right) const = 0;
 		bool matches(type ltype, type rtype) { return (mltype == ltype || mltype == type::ANY) && (mrtype == rtype || mrtype == type::ANY); }
 		bool matches(std::string name, type ltype, type rtype) { return matches(ltype, rtype) && str_cmpi(mname.c_str(), -1, name.c_str(), -1); }
 		std::string desc() { return mdesc; }
@@ -40,7 +41,7 @@ namespace sqf
 		nularcb mfnc;
 	public:
 		nularcmd(std::string name, std::string description, nularcb fnc) : cmd(4, name, type::NA, type::NA, description) { mfnc = fnc; }
-		std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const override { return mfnc(vm); }
+		value execute(virtualmachine* vm, const value& left, const value& right) const override { return mfnc(vm); }
 	};
 	class unarycmd : public cmd
 	{
@@ -48,7 +49,7 @@ namespace sqf
 		unarycb mfnc;
 	public:
 		unarycmd(std::string name, type rtype, std::string description, unarycb fnc) : cmd(4, name, type::NA, rtype, description) { mfnc = fnc; }
-		std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const override { return mfnc(vm, right); }
+		value execute(virtualmachine* vm, const value& left, const value& right) const override { return mfnc(vm, right); }
 	};
 	class binarycmd : public cmd
 	{
@@ -56,7 +57,7 @@ namespace sqf
 		binarycb mfnc;
 	public:
 		binarycmd(short precedence, std::string name, type ltype, type rtype, std::string description, binarycb fnc) : cmd(precedence, name, ltype, rtype, description) { mfnc = fnc; }
-		std::shared_ptr<value> execute(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right) const override { return mfnc(vm, left, right); }
+		value execute(virtualmachine* vm, const value& left, const value& right) const override { return mfnc(vm, left, right); }
 	};
 
 	static std::shared_ptr<nularcmd> nular(std::string name, std::string description, nularcb fnc) { return std::make_shared<nularcmd>(name, description, fnc); }

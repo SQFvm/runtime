@@ -20,7 +20,7 @@ namespace sqf
 		std::chrono::system_clock::time_point mwakeupstamp;
 		bool misasleep;
 		std::string mscriptname;
-		std::shared_ptr<sqf::value> mlast_value;
+		sqf::value mlast_value;
 	public:
 		struct stackdump
 		{
@@ -65,11 +65,11 @@ namespace sqf
 			}
 			return mstacks.back()->current_instruction();
 		}
-		void pushcallstack(std::shared_ptr<sqf::callstack> cs) { mstacks.emplace_back(std::move(cs)); mlast_value = std::shared_ptr<sqf::value>(); }
+		void pushcallstack(std::shared_ptr<sqf::callstack> cs) { mstacks.emplace_back(std::move(cs)); mlast_value = {}; }
 
 		/// Will only be set when all stacks have been emptied.
 		/// Contains the value returned by the last callstack if available.
-		std::shared_ptr<sqf::value> last_value() { return mlast_value; }
+		sqf::value last_value() { return mlast_value; }
 
 		/// Drops the top-most callstack and puts the last value
 		/// from its value stack onto the lower callstack.
@@ -119,29 +119,29 @@ namespace sqf
 		std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator stacks_end() { return mstacks.rend(); }
 		std::shared_ptr<sqf::callstack> stacks_top() { return mstacks.back(); }
 
-		void pushval(std::shared_ptr<value> val)
+		void pushval(value val)
 		{
 			mstacks.back()->push_back(std::move(val));
 		}
-		std::shared_ptr<value> popval(bool &success)
+		value popval(bool &success)
 		{
 			if (mstacks.empty())
 			{
 				success = false;
-				return std::shared_ptr<value>();
+				return {};
 			}
 			return mstacks.back()->pop_back_value(success);
 		}
-		std::shared_ptr<value> peekval()
+		value peekval()
 		{
 			if (mstacks.empty())
 			{
-				return std::shared_ptr<value>();
+				return {};
 			}
 			return mstacks.back()->peek_value();
 		}
 
-		std::shared_ptr<value> getlocalvar(std::string_view varname);
+		value getlocalvar(std::string_view varname);
 		bool isempty() const { return mstacks.empty(); }
 		bool isscheduled() const { return misscheduled; }
 		bool isasleep() const { return misasleep; }

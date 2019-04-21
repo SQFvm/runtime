@@ -117,7 +117,7 @@ namespace
         };
 
 
-        static std::unordered_map<std::string, sqf::type> typeMap{
+        static std::unordered_map<std::string, sqf::type> typeMap{ //#TODO make a string to type func in type.h
             {toupper("NOTHING"sv), sqf::type::NOTHING},
             {toupper("ANY"sv), sqf::type::ANY},
             {toupper("SCALAR"sv), sqf::type::SCALAR},
@@ -643,7 +643,7 @@ namespace
 		if (textlen > 0)
 		{
 			auto data = std::string(code + curoff - textlen, code + curoff);
-			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(sqf::convert(std::make_shared<sqf::stringdata>(data), pushtype), pushtype));
+			auto inst = std::make_shared<sqf::inst::push>(sqf::value(sqf::convert(std::make_shared<sqf::stringdata>(data), pushtype)));
 			inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("push")));
 			vm->active_vmstack()->pushinst(vm, inst);
 		}

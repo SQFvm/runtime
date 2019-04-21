@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <utility>
 #include "utility.h"
+#include "value.h"
 
 namespace sqf
 {
@@ -12,18 +13,18 @@ namespace sqf
 	class varscope
 	{
 	private:
-		std::map<std::string, std::shared_ptr<value>> m_variable_map;
+		std::map<std::string, value> m_variable_map;
 		std::string m_scopename;
 	public:
 		varscope() { m_scopename = ""; }
 		varscope(std::string name) { m_scopename = std::move(name); }
-		void set_variable(std::string_view key, std::shared_ptr<value> value) { m_variable_map[string_tolower(key)] = std::move(value); }
-		std::shared_ptr<value> get_variable_empty(std::string_view key)
+		void set_variable(std::string_view key, value value) { m_variable_map[string_tolower(key)] = std::move(value); }
+		value get_variable_empty(std::string_view key)
 		{
 			auto it = m_variable_map.find(string_tolower(key));
-			return it == m_variable_map.end() ? std::shared_ptr<value>() : it->second;
+			return it == m_variable_map.end() ? value() : it->second;
 		}
-		std::shared_ptr<value> get_variable(std::string_view key);
+        value get_variable(std::string_view key) { return get_variable_empty(key); };
 
 		// Alias for has_variable(std::string key)
 		bool contains_variable(std::string_view key) { return has_variable(key); }
@@ -34,7 +35,7 @@ namespace sqf
 
 		std::string get_scopename() const { return m_scopename; }
 
-		const std::map<std::string, std::shared_ptr<value>>& get_variable_map() const { return m_variable_map; }
+		const std::map<std::string, value>& get_variable_map() const { return m_variable_map; }
 
 		void drop_variables() { m_variable_map.clear(); }
 	};

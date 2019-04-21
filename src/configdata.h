@@ -14,12 +14,12 @@ namespace sqf
 		std::string m_name;
 		std::string m_inherited_parent_name;
 		std::weak_ptr<configdata> m_logical_parent;
-		std::shared_ptr<value> m_value;
+		value m_value;
 		bool m_null;
 
-		std::shared_ptr<sqf::value> inherited_parent_unsafe() const;
-		std::shared_ptr<sqf::value> navigate_unsafe(std::string_view nextnode) const;
-		std::shared_ptr<sqf::value> navigate_full_unsafe(std::string_view nextnode) const;
+		sqf::value inherited_parent_unsafe() const;
+		sqf::value navigate_unsafe(std::string_view nextnode) const;
+		sqf::value navigate_full_unsafe(std::string_view nextnode) const;
 	public:
 		configdata(std::string name) : m_name(std::move(name)), m_null(true) {}
 		configdata() : m_name("bin\\config.bin"), m_null(false) {}
@@ -28,15 +28,15 @@ namespace sqf
 
 		std::string name() const { return m_name; }
 		std::string inherited_parent_name() { return m_inherited_parent_name; }
-		std::shared_ptr<sqf::value> inherited_parent() const { auto val = inherited_parent_unsafe(); return val.get() ? val : configNull(); }
+		sqf::value inherited_parent() const { auto val = inherited_parent_unsafe(); return val; }
 
-		std::shared_ptr<sqf::value> cfgvalue() const { return m_value; }
-		void set_cfgvalue(std::shared_ptr<sqf::value> val) { m_value = std::move(val); }
+		sqf::value cfgvalue() const { return m_value; }
+		void set_cfgvalue(sqf::value val) { m_value = std::move(val); }
 		bool is_null() const { return m_null; }
 		bool has_logical_parent() const { return !m_logical_parent.expired(); }
-		std::shared_ptr<sqf::value> logical_parent() const;
+		sqf::value logical_parent() const;
 
-		std::shared_ptr<sqf::value> navigate(std::string_view nextnode) const { auto val = navigate_full_unsafe(nextnode); return val.get() ? val : configNull(); }
+        sqf::value navigate(std::string_view nextnode) const { auto val = navigate_full_unsafe(nextnode); return val; }
 		bool is_kind_of(std::string_view s) const;
 		size_t count_logical_parents() const { if (auto sptr = m_logical_parent.lock()) { return sptr->count_logical_parents() + 1; } return 0; }
 
@@ -49,8 +49,9 @@ namespace sqf
 		std::string tosqf() const override;
 		void mergeinto(std::shared_ptr<configdata>);
 		bool equals(std::shared_ptr<data> d) const override { return d.get() == this; }
+        sqf::type dtype() const override { return sqf::type::CONFIG; }
 
-		static std::shared_ptr<sqf::value> configFile();
-		static std::shared_ptr<sqf::value> configNull();
+		static sqf::value configFile();
+		static sqf::value configNull();
 	};
 }

@@ -24,6 +24,7 @@
 #include "../fileio.h"
 #include "../parsepreprocessor.h"
 #include <cmath>
+#include "booldata.h"
 
 
 #define CALLEXTBUFFSIZE 10240
@@ -47,367 +48,368 @@ typedef int(__stdcall *RVExtensionArgs)(char*, int, const char*, const char**, i
 using namespace sqf;
 namespace
 {
-	std::shared_ptr<value> productversion_(virtualmachine* vm)
+	value productversion_(virtualmachine* vm)
 	{
-		auto vec = std::vector<std::shared_ptr<value>>{
-			std::make_shared<value>("SQF-VM " VERSION_FULL), //product name
-			std::make_shared<value>("sqf-vm"),
-			std::make_shared<value>(VERSION_MAJORMINOR),
-			std::make_shared<value>(VERSION_REVISION),
-			std::make_shared<value>("COMMUNITY"),
-			std::make_shared<value>(false),
+		auto vec = std::vector<value>{
+			value("SQF-VM " VERSION_FULL), //product name
+			value("sqf-vm"),
+			value(VERSION_MAJORMINOR),
+			value(VERSION_REVISION),
+			value("COMMUNITY"),
+			value(false),
 #if _WIN32
-			std::make_shared<value>("Windows"),
+			value("Windows"),
 #elif __linux__
-			std::make_shared<value>("Linux"),
+			value("Linux"),
 #else
-			std::make_shared<value>("NA"),
+			value("NA"),
 #endif
-			std::make_shared<value>(ENVIRONMENTSTR)
+			value(ENVIRONMENTSTR)
 		};
-		return std::make_shared<value>(vec);
+		return vec;
 	}
-	std::shared_ptr<value> call_code(virtualmachine* vm, std::shared_ptr<value> right)
+	value call_code(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<codedata>();
+		auto r = right.data<codedata>();
 		r->loadinto(vm, vm->active_vmstack());
-		vm->active_vmstack()->stacks_top()->set_variable("_this", std::make_shared<value>());
-		return std::shared_ptr<value>();
+		vm->active_vmstack()->stacks_top()->set_variable("_this", value());
+		return {};
 	}
-	std::shared_ptr<value> call_any_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value call_any_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto r = right->data<codedata>();
+		auto r = right.data<codedata>();
 		r->loadinto(vm, vm->active_vmstack());
-		vm->active_vmstack()->stacks_top()->set_variable("_this", left);
-		return std::shared_ptr<value>();
+		vm->active_vmstack()->stacks_top()->set_variable("_this", value(left));
+		return {};
 	}
-	std::shared_ptr<value> count_array(virtualmachine* vm, std::shared_ptr<value> right)
+	value count_array(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<arraydata>();
-		return std::make_shared<value>(r->size());
+		auto r = right.data<arraydata>();
+		return r->size();
 	}
-	std::shared_ptr<value> count_code_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value count_code_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<codedata>();
-		auto r = right->data<arraydata>();
+		auto l = left.data<codedata>();
+		auto r = right.data<arraydata>();
 		auto cs = std::make_shared<callstack_count>(vm->active_vmstack()->stacks_top()->get_namespace(), l, r);
 		vm->active_vmstack()->pushcallstack(cs);
-		return std::shared_ptr<value>();
+		return {};
 	}
-	std::shared_ptr<value> compile_string(virtualmachine* vm, std::shared_ptr<value> right)
+	value compile_string(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->as_string();
+		auto r = right.as_string();
 		auto cs = std::make_shared<callstack>(vm->active_vmstack()->stacks_top()->get_namespace());
 		vm->parse_sqf(r, cs);
-		return std::make_shared<value>(cs);
+		return value(cs);
 	}
-	std::shared_ptr<value> typename_any(virtualmachine* vm, std::shared_ptr<value> right)
+	value typename_any(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(type_str(right->dtype()));
+		return type_str(right.dtype());
 	}
-	std::shared_ptr<value> str_any(virtualmachine* vm, std::shared_ptr<value> right)
+	value str_any(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(std::make_shared<stringdata>(right->tosqf(), false), type::STRING);
+		return value(std::make_shared<stringdata>(right.tosqf(), false));
 	}
-	std::shared_ptr<value> nil_(virtualmachine* vm)
+	value nil_(virtualmachine* vm)
 	{
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> comment_string(virtualmachine* vm, std::shared_ptr<value> right)
+	value comment_string(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> if_bool(virtualmachine* vm, std::shared_ptr<value> right)
+	value if_bool(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(right->data(), type::IF);
+		return value(std::make_shared<ifdata>(right.data_try_as<booldata>()));
 	}
-	std::shared_ptr<value> then_if_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value then_if_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto ifcond = left->as_bool();
-		auto arr = right->as_vector();
+		auto ifcond = left.as_bool();
+		auto arr = right.as_vector();
 		if (arr.size() != 2)
 		{
 			vm->err() << "Expected 2 elements in array." << std::endl;
-			return std::make_shared<value>();
+			return {};
 		}
 		auto el0 = arr[0];
 		auto el1 = arr[1];
 		if (ifcond)
 		{
-			if (el1->dtype() != type::CODE)
+			if (el1.dtype() != type::CODE)
 			{
-				vm->wrn() << "Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1->dtype()) << "'." << std::endl;
+				vm->wrn() << "Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1.dtype()) << "'." << std::endl;
 			}
-			if (el0->dtype() == type::CODE)
+			if (el0.dtype() == type::CODE)
 			{
-				auto code = el0->data<codedata>();
+				auto code = el0.data<codedata>();
 				code->loadinto(vm, vm->active_vmstack());
-				return std::shared_ptr<value>();
+				return {};
 			}
 			else
 			{
-				vm->err() << "Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0->dtype()) << "'." << std::endl;
-				return std::make_shared<value>();
+				vm->err() << "Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0.dtype()) << "'." << std::endl;
+				return {};
 			}
 		}
 		else
 		{
-			if (el0->dtype() != type::CODE)
+			if (el0.dtype() != type::CODE)
 			{
-				vm->wrn() << "Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0->dtype()) << "'." << std::endl;
+				vm->wrn() << "Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0.dtype()) << "'." << std::endl;
 			}
-			if (el1->dtype() == type::CODE)
+			if (el1.dtype() == type::CODE)
 			{
-				auto code = el1->data<codedata>();
+				auto code = el1.data<codedata>();
 				code->loadinto(vm, vm->active_vmstack());
-				return std::shared_ptr<value>();
+				return {};
 			}
 			else
 			{
-				vm->err() << "Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1->dtype()) << "'." << std::endl;
-				return std::make_shared<value>();
+				vm->err() << "Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1.dtype()) << "'." << std::endl;
+				return {};
 			}
 		}
 	}
-	std::shared_ptr<value> then_if_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value then_if_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto ifcond = left->as_bool();
-		auto code = right->data<codedata>();
+		auto ifcond = left.as_bool();
+		auto code = right.data<codedata>();
 		if (ifcond)
 		{
 			code->loadinto(vm, vm->active_vmstack());
-			return std::shared_ptr<value>();
+			return {};
 		}
 		else
 		{
-			return std::make_shared<value>();
+			return {};
 		}
 	}
-	std::shared_ptr<value> exitwith_if_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value exitwith_if_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto ifcond = left->as_bool();
-		auto code = right->data<codedata>();
+		auto ifcond = left.as_bool();
+		auto code = right.data<codedata>();
 		if (ifcond)
 		{
 			auto cs = std::make_shared<callstack_exitwith>(vm->active_vmstack()->stacks_top()->get_namespace());
 			code->loadinto(vm->active_vmstack(), cs);
 			vm->active_vmstack()->pushcallstack(cs);
-			return std::shared_ptr<value>();
+			return {};
 		}
 		else
 		{
-			return std::make_shared<value>();
+			return {};
 		}
 	}
-	std::shared_ptr<value> else_code_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value else_code_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto vec = std::vector<std::shared_ptr<value>>(2);
-		vec[0] = left;
-		vec[1] = right;
-		return std::make_shared<value>(vec);
+		auto vec = std::vector<value>(2);
+		vec[0] = value(left);
+		vec[1] = value(right);
+		return vec;
 	}
-	std::shared_ptr<value> while_code(virtualmachine* vm, std::shared_ptr<value> right)
+	value while_code(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(right->data(), type::WHILE);
+		return value(std::make_shared<whiledata>(right.data_try_as<codedata>()));
 	}
-	std::shared_ptr<value> do_while_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value do_while_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto whilecond = left->data<codedata>();
-		auto execcode = right->data<codedata>();
+		auto whilecond = left.data<codedata>();
+		auto execcode = right.data<codedata>();
 
 		auto cs = std::make_shared<callstack_while>(vm->active_vmstack()->stacks_top()->get_namespace(), whilecond, execcode);
 		vm->active_vmstack()->pushcallstack(cs);
 
-		return std::shared_ptr<value>();
+		return {};
 	}
-	std::shared_ptr<value> for_string(virtualmachine* vm, std::shared_ptr<value> right)
+	value for_string(virtualmachine* vm, value::cref right)
 	{
-		auto str = right->as_string();
-		return std::make_shared<value>(std::make_shared<fordata>(str), type::FOR);
+		auto str = right.as_string();
+		return value(std::make_shared<fordata>(str));
 	}
-	std::shared_ptr<value> from_for_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value from_for_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto fordata = left->data<sqf::fordata>();
-		auto index = right->as_double();
+		auto fordata = left.data<sqf::fordata>();
+		auto index = right.as_double();
 		fordata->from(index);
 		return left;
 	}
-	std::shared_ptr<value> to_for_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value to_for_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto fordata = left->data<sqf::fordata>();
-		auto index = right->as_double();
+		auto fordata = left.data<sqf::fordata>();
+		auto index = right.as_double();
 		fordata->to(index);
 		return left;
 	}
-	std::shared_ptr<value> step_for_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value step_for_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto fordata = left->data<sqf::fordata>();
-		auto index = right->as_double();
+		auto fordata = left.data<sqf::fordata>();
+		auto index = right.as_double();
 		fordata->step(index);
 		return left;
 	}
-	std::shared_ptr<value> do_for_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value do_for_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto fordata = left->data<sqf::fordata>();
-		auto execcode = right->data<codedata>();
+		auto fordata = left.data<sqf::fordata>();
+		auto execcode = right.data<codedata>();
 
 		auto cs = std::make_shared<callstack_for_step>(vm->active_vmstack()->stacks_top()->get_namespace(), fordata, execcode);
 		vm->active_vmstack()->pushcallstack(cs);
-		return std::shared_ptr<value>();
+		return {};
 	}
-	std::shared_ptr<value> foreach_code_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value foreach_code_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<sqf::codedata>();
-		auto r = right->data<arraydata>();
+		auto l = left.data<sqf::codedata>();
+		auto r = right.data<arraydata>();
 		auto cs = std::make_shared<callstack_foreach>(vm->active_vmstack()->stacks_top()->get_namespace(), l, r);
 		vm->active_vmstack()->pushcallstack(cs);
-		return std::shared_ptr<value>();
+		return {};
 	}
-	std::shared_ptr<value> select_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value select_array_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto arr = left->as_vector();
-		auto index = static_cast<int>(std::round(right->as_float()));
+		auto arr = left.as_vector();
+		auto index = static_cast<int>(std::round(right.as_float()));
 
 		if (static_cast<int>(arr.size()) < index || index < 0)
 		{
 			vm->err() << "Index out of range." << std::endl;
-			return std::make_shared<value>();
+			return {};
 		}
 		if (arr.size() == index)
 		{
 			vm->wrn() << "Index equals range. Returning nil." << std::endl;
-			return std::make_shared<value>();
+			return {};
 		}
 		return arr[index];
 	}
-	std::shared_ptr<value> select_array_bool(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value select_array_bool(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto arr = left->as_vector();
-		auto flag = right->as_bool();
+		auto arr = left.as_vector();
+		auto flag = right.as_bool();
 		if ((!flag && arr.size() < 2) || arr.size() < 1)
 		{
 			vm->wrn() << "Array should have at least two elements. Returning ni" << std::endl;
-			return std::make_shared<value>();
+			return {};
 		}
 		else if (flag && arr.size() < 2)
 		{
 			vm->wrn() << "Array should have at least two elements." << std::endl;
-			return std::make_shared<sqf::value>();
+			return {};
 		}
 
 		return flag ? arr[1] : arr[0];
 	}
-	std::shared_ptr<value> select_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value select_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto vec = left->as_vector();
-		auto arr = right->as_vector();
+		auto vec = left.as_vector();
+		auto arr = right.as_vector();
 		if (arr.size() < 1)
 		{
 			vm->err() << "Array was expected to have at least a single element." << std::endl;
-			return std::make_shared<value>();
+			return {};
 		}
-		if (arr[0]->dtype() != type::SCALAR)
+		if (arr[0].dtype() != type::SCALAR)
 		{
-			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
-			return std::make_shared<value>();
+			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0].dtype()) << '.' << std::endl;
+			return {};
 		}
-		int start = static_cast<int>(std::round(arr[0]->as_float()));
+		int start = static_cast<int>(std::round(arr[0].as_float()));
 		if (start < 0)
 		{
 			vm->wrn() << "Start index is smaller then 0. Returning empty array." << std::endl;
-			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
+			return value(std::make_shared<sqf::arraydata>());
 		}
 		if (start > static_cast<int>(vec.size()))
 		{
 			vm->wrn() << "Start index is larger then string length. Returning empty array." << std::endl;
-			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
+			return value(std::make_shared<sqf::arraydata>());
 		}
 		if (arr.size() >= 2)
 		{
-			if (arr[1]->dtype() != type::SCALAR)
+			if (arr[1].dtype() != type::SCALAR)
 			{
-				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
-				return std::make_shared<value>();
+				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0].dtype()) << '.' << std::endl;
+				return {};
 			}
-			int length = static_cast<int>(std::round(arr[1]->as_float()));
+			int length = static_cast<int>(std::round(arr[1].as_float()));
 			if (length < 0)
 			{
 				vm->wrn() << "Length is smaller then 0. Returning empty array." << std::endl;
-				return std::make_shared<value>("");
+                return value(std::make_shared<sqf::arraydata>());
 			}
 
-			return std::make_shared<value>(std::vector<std::shared_ptr<value>>(vec.begin() + start, start + length > static_cast<int>(vec.size()) ? vec.end() : vec.begin() + start + length));
+			return value(std::vector<value>(vec.begin() + start, start + length > static_cast<int>(vec.size()) ? vec.end() : vec.begin() + start + length));
 		}
 		else
 		{
-			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
+			return value(std::make_shared<sqf::arraydata>());
 		}
 		
 	}
-	std::shared_ptr<value> select_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value select_array_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto arr = left->data<arraydata>();
+		auto arr = left.data<arraydata>();
 		if (arr->empty())
-			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
-		auto cond = right->data<codedata>();
+			return std::vector<value>();
+		auto cond = right.data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_select>(vm->active_vmstack()->stacks_top()->get_namespace(), arr, cond);
 		vm->active_vmstack()->pushcallstack(cs);
-		return std::shared_ptr<value>();
+		return {};
 	}
-    std::shared_ptr<value> sort_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+    value sort_array(virtualmachine* vm, value::cref left, value::cref right)
     {
-        auto arr = left->as_vector();
-        auto sort_flag = right->as_bool();
+        auto arr = left.data_try_as<arraydata>();
+        auto sort_flag = right.as_bool();
 
         // No sort required (we don't strictly enforce constraints in this case)
-        if (arr.size() <= 1) return {};
+        if (arr->size() <= 1) return {};
 
         // Check element types
-        auto type = arr[0]->dtype();
+        //#TODO arraydata::front
+        auto type = (*arr)[0].dtype();
         if (type != sqf::STRING && type != sqf::SCALAR && type != sqf::ARRAY)
         {
             vm->err() << "sort only accepts arrays of elements of type String, Number or Array." << std::endl;
             return {};
         }
-        if (!arraydata{arr}.check_type(vm, type, arr.size(), arr.size()))
+        if (!arr->check_type(vm, type, arr->size(), arr->size()))
             return {};
 
         // Confirm array element sub arrays are consistent in structure
         if (type == sqf::ARRAY)
         {
-            auto subarray = arr[0]->as_vector();
+            auto subarray = (*arr)[0].as_vector();
             std::vector<sqf::type> types;
-            std::transform(subarray.begin(), subarray.end(), std::back_inserter(types), [](const auto& elem) { return elem->dtype(); });
-            for (const auto& elem : arr)
+            std::transform(subarray.begin(), subarray.end(), std::back_inserter(types), [](const auto& elem) { return elem.dtype(); });
+            for (const auto& elem : *arr)
             {
-                if (!arraydata{ elem->as_vector() }.check_type(vm, types))
+                if (!arraydata{ elem.as_vector() }.check_type(vm, types))
                     return {};
             }
         }
 
-        std::sort(arr.begin(), arr.end(), [sort_flag](const auto& a, const auto& b) -> bool {
+        std::sort(arr->begin(), arr->end(), [sort_flag](const auto& a, const auto& b) -> bool {
 
-            switch (a->dtype()) 
+            switch (a.dtype()) 
             {
             case sqf::ARRAY: // sort based on elements
             {
-                auto a_arr = a->as_vector();
-                auto b_arr = b->as_vector();
+                auto a_arr = a.as_vector();
+                auto b_arr = b.as_vector();
 
                 for (size_t idx = 0; idx < a_arr.size(); ++idx)
                 {
                     const auto& a_elem = a_arr[idx];
                     const auto& b_elem = b_arr[idx];
 
-                    switch (a_elem->dtype())
+                    switch (a_elem.dtype())
                     {
                     case sqf::STRING:
-                        if (a_elem->as_string() < b_elem->as_string()) return sort_flag;
-                        if (a_elem->as_string() > b_elem->as_string()) return !sort_flag;
+                        if (a_elem.as_string() < b_elem.as_string()) return sort_flag;
+                        if (a_elem.as_string() > b_elem.as_string()) return !sort_flag;
                         break;
                     case sqf::SCALAR:
-                        if (a_elem->as_double() < b_elem->as_double()) return sort_flag;
-                        if (a_elem->as_double() > b_elem->as_double()) return !sort_flag;
+                        if (a_elem.as_double() < b_elem.as_double()) return sort_flag;
+                        if (a_elem.as_double() > b_elem.as_double()) return !sort_flag;
                         break;
                     };
                 }
@@ -415,14 +417,14 @@ namespace
             }
             case sqf::STRING:
             {
-                if (a->as_string() < b->as_string()) return sort_flag;
-                if (a->as_string() > b->as_string()) return !sort_flag;
+                if (a.as_string() < b.as_string()) return sort_flag;
+                if (a.as_string() > b.as_string()) return !sort_flag;
                 return false;
             }
             case sqf::SCALAR:
             {
-                if (a->as_double() < b->as_double()) return sort_flag;
-                if (a->as_double() > b->as_double()) return !sort_flag;
+                if (a.as_double() < b.as_double()) return sort_flag;
+                if (a.as_double() > b.as_double()) return !sort_flag;
                 return false;
             }
             };
@@ -430,237 +432,236 @@ namespace
             return false;
         });
 
-        *left = arr;
         return {};
     }
-	std::shared_ptr<value> resize_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+    value resize_array_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		if (right->as_int() < 0)
+		if (right.as_int() < 0)
 		{
 			vm->err() << "New size cannot be smaller then 0." << std::endl;
-			return std::make_shared<value>();
+			return {};
 		}
-		left->data<arraydata>()->resize(right->as_int());
-		return std::make_shared<value>();
+		left.data<arraydata>()->resize(right.as_int());
+		return {};
 	}
-	std::shared_ptr<value> pushback_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value pushback_array_any(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto arr = left->data<arraydata>();
+		auto arr = left.data<arraydata>();
 		auto newindex = arr->size();
-		if (!arr->push_back(right))
+		if (!arr->push_back(value(right)))
 		{
 			vm->err() << "Array recursion detected." << std::endl;
-			return std::shared_ptr<value>();
+			return {};
 		}
-		return std::make_shared<value>(newindex);
+		return newindex;
 	}
-	std::shared_ptr<value> pushbackunique_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value pushbackunique_array_any(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto arr = left->data<arraydata>();
+		auto arr = left.data<arraydata>();
 		int newindex = static_cast<int>(arr->size());
-		auto found = std::find_if(arr->begin(), arr->end(), [right](const std::shared_ptr<value>& val) { return val->equals(right); });
+		auto found = std::find_if(arr->begin(), arr->end(), [right](value::cref val) { return val.equals(right); });
 		if (found == arr->end())
 		{
-			if (!arr->push_back(right))
+			if (!arr->push_back(value(right)))
 			{
 				vm->err() << "Array recursion detected." << std::endl;
-				return std::shared_ptr<value>();
+				return {};
 			}
 		}
 		else
 		{
 			newindex = -1;
 		}
-		return std::make_shared<value>(newindex);
+		return newindex;
 	}
-	std::shared_ptr<value> findif_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value findif_array_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto arr = left->data<arraydata>();
+		auto arr = left.data<arraydata>();
 		if (arr->empty())
-			return std::make_shared<value>(-1);
-		auto cond = right->data<codedata>();
+			return -1;
+		auto cond = right.data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_findif>(vm->active_vmstack()->stacks_top()->get_namespace(), cond, arr);
 		vm->active_vmstack()->pushcallstack(cs);
-		return std::shared_ptr<value>();
+		return {};
 	}
-	std::shared_ptr<value> reverse_array(virtualmachine* vm, std::shared_ptr<value> right)
+    value reverse_array(virtualmachine* vm, value::cref right)
 	{
-		right->data<arraydata>()->reverse();
-		return std::make_shared<value>();
+		right.data<arraydata>()->reverse();
+		return {};
 	}
-	std::shared_ptr<value> private_string(virtualmachine* vm, std::shared_ptr<value> right)
+	value private_string(virtualmachine* vm, value::cref right)
 	{
-		auto str = right->as_string();
+		auto str = right.as_string(); //#TODO return by const ref
 		if (!vm->active_vmstack()->stacks_top()->has_variable(str))
 		{
-			vm->active_vmstack()->stacks_top()->set_variable(str, std::make_shared<value>());
+			vm->active_vmstack()->stacks_top()->set_variable(str, value());
 		}
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> private_array(virtualmachine* vm, std::shared_ptr<value> right)
+	value private_array(virtualmachine* vm, value::cref right)
 	{
-		auto arr = right->as_vector();
+		auto arr = right.as_vector();
 		bool errflag = false;
 		for (size_t i = 0; i < arr.size(); i++)
 		{
 			auto it = arr[i];
-			if (it->dtype() != sqf::type::STRING)
+			if (it.dtype() != sqf::type::STRING)
 			{
-				vm->err() << "Index position " << i << " was expected to be of type 'STRING' but was '" << sqf::type_str(it->dtype()) << "'." << std::endl;
+				vm->err() << "Index position " << i << " was expected to be of type 'STRING' but was '" << sqf::type_str(it.dtype()) << "'." << std::endl;
 			}
 		}
 		if (errflag)
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
 		for (auto& it : arr)
 		{
-			auto str = it->as_string();
+			auto str = it.as_string();
 			if (!vm->active_vmstack()->stacks_top()->has_variable(str))
 			{
-				vm->active_vmstack()->stacks_top()->set_variable(str, std::make_shared<value>());
+				vm->active_vmstack()->stacks_top()->set_variable(str, value());
 			}
 		}
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> isnil_string(virtualmachine* vm, std::shared_ptr<value> right)
+	value isnil_string(virtualmachine* vm, value::cref right)
 	{
-		auto varname = right->as_string();
+		auto varname = right.as_string();
 		auto val = vm->active_vmstack()->getlocalvar(varname);
-		if (val->dtype() == sqf::type::NOTHING)
+		if (val.dtype() == sqf::type::NOTHING)
 		{
 			val = vm->active_vmstack()->stacks_top()->get_namespace()->get_variable(varname);
 		}
-		return std::make_shared<value>(val->dtype() == sqf::type::NOTHING);
+		return val.dtype() == sqf::type::NOTHING;
 	}
-	std::shared_ptr<value> isnil_code(virtualmachine* vm, std::shared_ptr<value> right)
+	value isnil_code(virtualmachine* vm, value::cref right)
 	{
-		auto cdata = right->data<codedata>();
+		auto cdata = right.data<codedata>();
 		auto cs = std::make_shared<callstack_isnil>(vm->active_vmstack()->stacks_top()->get_namespace(), vm, cdata);
 		vm->active_vmstack()->pushcallstack(cs);
-		return std::shared_ptr<value>();
+		return {};
 	}
-	std::shared_ptr<value> hint_string(virtualmachine* vm, std::shared_ptr<value> right)
+	value hint_string(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->as_string();
+		auto r = right.as_string();
 		vm->out() << "[HINT]\t" << r << std::endl;
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> hint_text(virtualmachine* vm, std::shared_ptr<value> right)
+	value hint_text(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->as_string();
+		auto r = right.as_string();
 		vm->out() << "[HINT]\t" << r << std::endl;
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> systemchat_string(virtualmachine* vm, std::shared_ptr<value> right)
+	value systemchat_string(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->as_string();
+		auto r = right.as_string();
 		vm->out() << "[CHAT]\tSYSTEM: " << r << std::endl;
-		return std::make_shared<value>();
+		return {};
 	}
 
 #define MAGIC_SWITCH "___switch"
-	std::shared_ptr<value> switch_any(virtualmachine* vm, std::shared_ptr<value> right)
+	value switch_any(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(std::make_shared<switchdata>(right), sqf::type::SWITCH);
+		return value(std::make_shared<switchdata>(right));
 	}
-	std::shared_ptr<value> do_switch_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value do_switch_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto r = right->data<codedata>();
-		auto cs = std::make_shared<callstack_switch>(vm->active_vmstack()->stacks_top()->get_namespace(), left->data<switchdata>());
+		auto r = right.data<codedata>();
+		auto cs = std::make_shared<callstack_switch>(vm->active_vmstack()->stacks_top()->get_namespace(), left.data<switchdata>());
 		vm->active_vmstack()->pushcallstack(cs);
 		r->loadinto(vm->active_vmstack(), cs);
-		cs->set_variable(MAGIC_SWITCH, left);
-		return std::shared_ptr<value>();
+		cs->set_variable(MAGIC_SWITCH, value(left));
+		return {};
 	}
-	std::shared_ptr<value> case_any(virtualmachine* vm, std::shared_ptr<value> right)
+	value case_any(virtualmachine* vm, value::cref right)
 	{
 		auto valswtch = vm->active_vmstack()->getlocalvar(MAGIC_SWITCH);
-		if (valswtch->dtype() != sqf::type::SWITCH)
+		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
-			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch->dtype()) << "'.";
-			return std::shared_ptr<value>();
+			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
+			return {};
 		}
-		auto swtch = valswtch->data<switchdata>();
+		auto swtch = valswtch.data<switchdata>();
 
-		if (right->equals(swtch->val()))
+		if (right.equals(swtch->val()))
 		{
 			swtch->flag(true);
 		}
-		return std::make_shared<value>(swtch, sqf::type::SWITCH);
+		return value(swtch);
 	}
-	std::shared_ptr<value> default_code(virtualmachine* vm, std::shared_ptr<value> right)
+	value default_code(virtualmachine* vm, value::cref right)
 	{
 		auto valswtch = vm->active_vmstack()->getlocalvar(MAGIC_SWITCH);
-		if (valswtch->dtype() != sqf::type::SWITCH)
+		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
-			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch->dtype()) << "'.";
-			return std::shared_ptr<value>();
+			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
+			return {};
 		}
-		auto swtch = valswtch->data<switchdata>();
-		swtch->defaultexec(right->data<codedata>());
-		return std::make_shared<value>();
+		auto swtch = valswtch.data<switchdata>();
+		swtch->defaultexec(right.data<codedata>());
+		return {};
 	}
-	std::shared_ptr<value> colon_switch_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value colon_switch_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<switchdata>();
+		auto l = left.data<switchdata>();
 		if (l->executed())
 		{
-			return std::make_shared<value>();
+			return {};
 		}
-		auto r = right->data<codedata>();
+		auto r = right.data<codedata>();
 		if (l->flag())
 		{
 			l->executed(true);
 			r->loadinto(vm, vm->active_vmstack());
-			return std::shared_ptr<value>();
+			return {};
 		}
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> apply_array_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value apply_array_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto arr = left->data<arraydata>();
+		auto arr = left.data<arraydata>();
 		if (arr->empty())
-			return std::make_shared<value>(std::vector<std::shared_ptr<value>>());
-		auto cond = right->data<codedata>();
+			return std::vector<value>();
+		auto cond = right.data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_apply>(vm->active_vmstack()->stacks_top()->get_namespace(), arr, cond);
 		vm->active_vmstack()->pushcallstack(cs);
-		return std::shared_ptr<value>();
+		return {};
 	}
-	std::shared_ptr<value> spawn_any_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value spawn_any_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto code = right->data<codedata>();
+		auto code = right.data<codedata>();
 		auto script = std::make_shared<scriptdata>();
 		code->loadinto(vm, script->stack());
 		vm->push_spawn(script);
-		script->stack()->stacks_top()->set_variable("_this", left);
-		return std::make_shared<value>(script, sqf::type::SCRIPT);
+		script->stack()->stacks_top()->set_variable("_this", value(left));
+		return value(script);
 	}
-	std::shared_ptr<value> scriptdone_script(virtualmachine* vm, std::shared_ptr<value> right)
+	value scriptdone_script(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<scriptdata>();
-		return std::make_shared<value>(r->hasfinished());
+		auto r = right.data<scriptdata>();
+        return r->hasfinished();
 	}
-	std::shared_ptr<value> set_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value set_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto arr = left->data<arraydata>();
-		auto params = right->as_vector();
+		auto arr = left.data<arraydata>();
+		auto params = right.as_vector();
 		if (params.size() != 2)
 		{
 			vm->err() << "Expected 2 elements in array, got " << params.size() << ". Returning NIL." << std::endl;
-			return std::shared_ptr<value>();
+			return {};
 		}
-		if (params[0]->dtype() != sqf::type::SCALAR)
+		if (params[0].dtype() != sqf::type::SCALAR)
 		{
-			vm->err() << "Index position 0 was expected to be of type 'SCALAR' but was '" << sqf::type_str(params[0]->dtype()) << "'." << std::endl;
-			return std::shared_ptr<value>();
+			vm->err() << "Index position 0 was expected to be of type 'SCALAR' but was '" << sqf::type_str(params[0].dtype()) << "'." << std::endl;
+			return {};
 		}
 
-		auto index = params[0]->as_int();
+		auto index = params[0].as_int();
 		if (index < 0)
 		{
 			vm->err() << "Index position 0 was expected to be greater than or equal to 0 but was " << index << "." << std::endl;
-			return std::shared_ptr<value>();
+			return {};
 		}
 		auto val = params[1];
 		if (static_cast<int>(arr->size()) <= index)
@@ -673,46 +674,46 @@ namespace
 		{
 			(*arr)[index] = oldval;
 			vm->err() << "Array recursion detected." << std::endl;
-			return std::shared_ptr<value>();
+			return {};
 		}
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> plus_array(virtualmachine* vm, std::shared_ptr<value> right)
+	value plus_array(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<arraydata>();
-		return std::make_shared<value>(r->operator std::vector<std::shared_ptr<sqf::value>, std::allocator<std::shared_ptr<sqf::value>>>());
+		auto r = right.data<arraydata>();
+		return r->operator std::vector<value>();
 	}
-	std::shared_ptr<value> plus_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value plus_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		// create a copy of left array
-		auto result = std::make_shared<value>(left->as_vector());
-		result->data<arraydata>()->extend(right->as_vector());
+		auto result = value(left.as_vector());
+		result.data<arraydata>()->extend(right.as_vector());
 		return result;
 	}
 
-	bool value_equals_casesensitive(std::shared_ptr<value> a, std::shared_ptr<value> b)
+	bool value_equals_casesensitive(value::cref a, value::cref b)
 	{
 		// TODO: put this into value class? make use of it elsewhere
-		if (a->dtype() == type::STRING && a->dtype() == b->dtype())
+		if (a.dtype() == type::STRING && a.dtype() == b.dtype())
 		{
-			return a->as_string() == b->as_string();
+			return a.as_string() == b.as_string();
 		}
 		else
 		{
-			return a->equals(b);
+			return a.equals(b);
 		}
 	}
 
-	std::shared_ptr<value> minus_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value minus_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		// TODO: optimize (e.g. build a hash based set of the right array and check against it)
-		auto l = left->data<arraydata>();
-		auto r = right->data<arraydata>();
-		std::vector<std::shared_ptr<value>> result;
+		auto l = left.data<arraydata>();
+		auto r = right.data<arraydata>();
+		std::vector<value> result;
 
-		std::copy_if(l->begin(), l->end(), std::back_inserter(result), [&r](std::shared_ptr<value>& current) {
+		std::copy_if(l->begin(), l->end(), std::back_inserter(result), [&r](value::cref current) {
 
-			auto found = std::find_if(r->begin(), r->end(), [&current](std::shared_ptr<value>& check) {
+			auto found = std::find_if(r->begin(), r->end(), [&current](value::cref check) {
 				return value_equals_casesensitive(current, check);
 			});
 
@@ -720,30 +721,30 @@ namespace
 			return found == r->end();
 		});
 
-		return std::make_shared<value>(result);
+		return result;
 	}
-	std::shared_ptr<value> append_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value append_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		left->data<arraydata>()->extend(right->as_vector());
-		return std::make_shared<value>();
+		left.data<arraydata>()->extend(right.as_vector()); //#TODO don't copy
+		return {};
 	}
-	std::shared_ptr<value> arrayintersect_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value arrayintersect_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		// TODO: optimize (e.g. use hash set for checking)
-		auto l = left->data<arraydata>();
-		auto r = right->data<arraydata>();
-		std::vector<std::shared_ptr<value>> result;
+		auto l = left.data<arraydata>();
+		auto r = right.data<arraydata>();
+		std::vector<value> result;
 
-		std::copy_if(l->begin(), l->end(), std::back_inserter(result), [&r, &result](std::shared_ptr<value>& current) {
+		std::copy_if(l->begin(), l->end(), std::back_inserter(result), [&r, &result](value::cref current) {
 		
-			auto found = std::find_if(result.begin(), result.end(), [&current](std::shared_ptr<value>& check) {
+			auto found = std::find_if(result.begin(), result.end(), [&current](value::cref check) {
 				return value_equals_casesensitive(current, check);
 			});
 
 			//Result already contains the element. Don't add it (remove duplicates)
 			if (found != result.end()) return false;
 
-			found = std::find_if(r->begin(), r->end(), [&current](std::shared_ptr<value>& check) {
+			found = std::find_if(r->begin(), r->end(), [&current](value::cref check) {
 				return value_equals_casesensitive(current, check);
 			});
 
@@ -751,52 +752,52 @@ namespace
 			return found != r->end();
 		});
 
-		return std::make_shared<value>(result);
+		return result;
 	}
-	std::shared_ptr<value> deleteat_array_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value deleteat_array_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<arraydata>();
-		auto index = right->as_int();
+		auto l = left.data<arraydata>();
+		auto index = right.as_int();
 		if (index < 0 || index >= static_cast<int>(l->size()))
 		{
 			vm->wrn() << "Array index out of bounds." << std::endl;
-			return std::make_shared<value>();
+			return {};
 		}
 		auto val = l->at(index);
 		l->delete_at(index);
 		return val;
 	}
-	std::shared_ptr<value> find_array_any(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value find_array_any(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto l = left->data<arraydata>();
-		auto found = std::find_if(l->begin(), l->end(), [&right](std::shared_ptr<value>& check) {
+		auto l = left.data<arraydata>();
+		auto found = std::find_if(l->begin(), l->end(), [&right](value::cref check) {
 			return value_equals_casesensitive(check, right);
 		});
 
 		if (found != l->end())
-			return std::make_shared<value>(static_cast<int>(std::distance(l->begin(), found)));
+			return static_cast<int>(std::distance(l->begin(), found));
 
-		return std::make_shared<value>(-1);
+		return -1;
 	}
-	std::shared_ptr<value> selectmax_array(virtualmachine* vm, std::shared_ptr<value> right)
+	value selectmax_array(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<arraydata>();
+		auto r = right.data<arraydata>();
 		double max = 0;
 		for (size_t i = r->size() - 1; i != ~0; i--)
 		{
 			auto tmp = r->at(i);
-			if (tmp->dtype() == sqf::type::SCALAR)
+			if (tmp.dtype() == sqf::type::SCALAR)
 			{
-				if (tmp->as_double() > max)
+				if (tmp.as_double() > max)
 				{
-					max = tmp->as_double();
+					max = tmp.as_double();
 				}
 			}
-			else if (tmp->dtype() == sqf::type::BOOL)
+			else if (tmp.dtype() == sqf::type::BOOL)
 			{
-				if (tmp->as_bool() ? 1 : 0 > max)
+				if (tmp.as_bool() ? 1 : 0 > max)
 				{
-					max = tmp->as_bool() ? 1 : 0;
+					max = tmp.as_bool() ? 1 : 0;
 				}
 			}
 			else
@@ -805,30 +806,30 @@ namespace
 				{
 					max = 0;
 				}
-				vm->wrn() << "Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp->dtype()) << "'." << std::endl;
+				vm->wrn() << "Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp.dtype()) << "'." << std::endl;
 			}
 		}
-		return std::make_shared<value>(max);
+		return max;
 	}
-	std::shared_ptr<value> selectmin_array(virtualmachine* vm, std::shared_ptr<value> right)
+	value selectmin_array(virtualmachine* vm, value::cref right)
 	{
-		auto r = right->data<arraydata>();
+		auto r = right.data<arraydata>();
 		double min = 0;
 		for (size_t i = r->size() - 1; i != ~0; i--)
 		{
 			auto tmp = r->at(i);
-			if (tmp->dtype() == sqf::type::SCALAR)
+			if (tmp.dtype() == sqf::type::SCALAR)
 			{
-				if (tmp->as_double() < min)
+				if (tmp.as_double() < min)
 				{
-					min = tmp->as_double();
+					min = tmp.as_double();
 				}
 			}
-			else if (tmp->dtype() == sqf::type::BOOL)
+			else if (tmp.dtype() == sqf::type::BOOL)
 			{
-				if (tmp->as_bool() ? 1 : 0 < min)
+				if (tmp.as_bool() ? 1 : 0 < min)
 				{
-					min = tmp->as_bool() ? 1 : 0;
+					min = tmp.as_bool() ? 1 : 0;
 				}
 			}
 			else
@@ -837,10 +838,10 @@ namespace
 				{
 					min = 0;
 				}
-				vm->wrn() << "Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp->dtype()) << "'." << std::endl;
+				vm->wrn() << "Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp.dtype()) << "'." << std::endl;
 			}
 		}
-		return std::make_shared<value>(min);
+		return min;
 	}
 
 	std::shared_ptr<dlops> helpermethod_callextension_loadlibrary(virtualmachine* vm, std::string name)
@@ -875,14 +876,14 @@ namespace
 		}
 		return dl;
 	}
-	std::shared_ptr<value> callextension_string_string(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value callextension_string_string(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		static char buffer[CALLEXTBUFFSIZE + 1] = { 0 };
-		auto libname = left->as_string();
+		auto libname = left.as_string();
 		if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
 		{
 			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
-			return std::make_shared<value>("");
+			return "";
 		}
 		try
 		{
@@ -892,66 +893,66 @@ namespace
 #else
 			auto method = reinterpret_cast<RVExtension>(dl->resolve("RVExtension"));
 #endif
-			method(buffer, CALLEXTBUFFSIZE, right->as_string().c_str());
+			method(buffer, CALLEXTBUFFSIZE, right.as_string().c_str());
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
 				vm->wrn() << "Library '" << libname << "' is not terminating RVExtension output buffer with a '\\0'!" << std::endl;
 			}
-			return std::make_shared<value>(buffer);
+			return buffer;
 		}
 		catch (const std::runtime_error& ex)
 		{
 			vm->wrn() << "Could not complete command execution due to error with library '" << libname << "' (RVExtension): " << ex.what() << std::endl;
-			return std::make_shared<value>("");
+			return "";
 		}
 	}
-	std::shared_ptr<value> callextension_string_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value callextension_string_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		static char buffer[CALLEXTBUFFSIZE + 1] = { 0 };
-		auto libname = left->as_string();
+		auto libname = left.as_string();
 		if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
 		{
 			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
-			return std::make_shared<value>("");
+			return "";
 		}
-		auto rvec = right->data<arraydata>();
+		auto rvec = right.data<arraydata>();
 		if (rvec->size() < 2)
 		{
 			vm->wrn() << "Expected 2 elements in array, got " << rvec->size() << ". Returning error code PARAMS_ERROR_TOO_MANY_ARGS(201)." << std::endl;
-			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(201) });
+			return std::vector<value> { "", 0, 201 };
 		}
-		if (rvec->at(0)->dtype() != type::STRING)
+		if (rvec->at(0).dtype() != type::STRING)
 		{
-			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(rvec->at(0)->dtype()) << "'." << std::endl;
-			return std::shared_ptr<value>();
+			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(rvec->at(0).dtype()) << "'." << std::endl;
+			return {};
 		}
-		if (rvec->at(1)->dtype() != type::ARRAY)
+		if (rvec->at(1).dtype() != type::ARRAY)
 		{
-			vm->err() << "Index position 1 was expected to be of type 'STRING' but was '" << sqf::type_str(rvec->at(1)->dtype()) << "'." << std::endl;
-			return std::shared_ptr<value>();
+			vm->err() << "Index position 1 was expected to be of type 'STRING' but was '" << sqf::type_str(rvec->at(1).dtype()) << "'." << std::endl;
+			return {};
 		}
 
-		auto arr = rvec->at(1)->data<arraydata>();
+		auto arr = rvec->at(1).data<arraydata>();
 		if (arr->size() > RVARGSLIMIT)
 		{
 			vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_SIZE(101) error with '" << libname << "' (RVExtensionArgs)" << std::endl;
-			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(101) });
+			return std::vector<value> { "", 0, 101 };
 		}
 		std::vector<std::string> argstringvec;
 
 		for (const auto& at : *arr) 
 		{
-			switch (at->dtype())
+			switch (at.dtype())
 			{
 			case type::BOOL:
 			case type::STRING:
 			case type::SCALAR:
 			case type::ARRAY:
-				argstringvec.push_back(at->as_string());
+				argstringvec.push_back(at.as_string());
 				break;
 			default:
 				vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_TYPE(102) error with '" << libname << "' (RVExtensionArgs)" << std::endl;
-				return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(102) });
+				return std::vector<value>{ "", 0, 102 };
 			}
 		}
 		std::vector<const char*> argvec;
@@ -969,115 +970,115 @@ namespace
 #else
 			auto method = reinterpret_cast<RVExtensionArgs>(dl->resolve("RVExtensionArgs"));
 #endif
-			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0)->as_string().c_str(), argvec.data(), static_cast<int>(argvec.size()));
+			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0).as_string().c_str(), argvec.data(), static_cast<int>(argvec.size()));
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
 				vm->wrn() << "Library '" << libname << "' is not terminating RVExtensionArgs output buffer with a '\\0'!" << std::endl;
 			}
-			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(buffer), std::make_shared<value>(res), std::make_shared<value>(0) });
+			return std::vector<value>{ buffer, res, 0 };
 		}
 		catch (const std::runtime_error& ex)
 		{
 			vm->wrn() << "Could not complete command execution due to error with library '" << libname << "' (RVExtensionArgs): " << ex.what() << std::endl;
-			return std::make_shared<value>(std::vector<std::shared_ptr<value>> { std::make_shared<value>(""), std::make_shared<value>(0), std::make_shared<value>(501) });
+			return std::vector<value>{ "", 0, 501 };
 		}
 	}
-	std::shared_ptr<value> param_any_array(virtualmachine* vm, std::shared_ptr<value> src, std::shared_ptr<value> trgt)
+	value param_any_array(virtualmachine* vm, value::cref src, value::cref trgt)
 	{
 		std::shared_ptr<sqf::arraydata> elements;
-		if (src->dtype())
+		if (src.dtype())
 		{
-			elements = src->data<sqf::arraydata>();
+			elements = src.data<sqf::arraydata>();
 		}
 		else
 		{
 			elements = std::make_shared<arraydata>();
 			elements->push_back(src);
 		}
-		auto fels = trgt->as_vector();
+		auto fels = trgt.as_vector(); //#TODO don't copy
 		size_t i = 0;
 		bool flag;
 		
-		if(fels.size() != 0)
+		if(!fels.empty())
 		{
 			//validation step
-			if (fels.size() >= 1 && fels.at(0)->dtype() != sqf::SCALAR)
+			if (fels.size() >= 1 && fels.at(0).dtype() != sqf::SCALAR)
 			{
-				vm->err() << "Param element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
-				return std::shared_ptr<value>();
+				vm->err() << "Param element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2).dtype()) << '.' << std::endl;
+				return {};
 			}
 			else
 			{
-				i = fels.at(0)->as_int();
+				i = fels.at(0).as_int();
 			}
-			if (fels.size() >= 3 && fels.at(2)->dtype() != sqf::ARRAY)
+			if (fels.size() >= 3 && fels.at(2).dtype() != sqf::ARRAY)
 			{
-				vm->err() << "Param element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
-				return std::shared_ptr<value>();
+				vm->err() << "Param element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2).dtype()) << '.' << std::endl;
+				return {};
 			}
-			if (fels.size() >= 4 && (fels.at(3)->dtype() != sqf::ARRAY && fels.at(3)->dtype() != sqf::SCALAR))
+			if (fels.size() >= 4 && (fels.at(3).dtype() != sqf::ARRAY && fels.at(3).dtype() != sqf::SCALAR))
 			{
-				vm->err() << "Param element " << i << " is required to have its fourth element to be of type " << type_str(ARRAY) << " or " << type_str(SCALAR) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
-				return std::shared_ptr<value>();
+				vm->err() << "Param element " << i << " is required to have its fourth element to be of type " << type_str(ARRAY) << " or " << type_str(SCALAR) << ". Got " << sqf::type_str(fels.at(2).dtype()) << '.' << std::endl;
+				return {};
 			}
-			else if (fels.size() >= 4 && fels.at(3)->dtype() == sqf::ARRAY)
+			else if (fels.size() >= 4 && fels.at(3).dtype() == sqf::ARRAY)
 			{
-				auto tmp = fels.at(3)->data<arraydata>();
+				auto tmp = fels.at(3).data<arraydata>();
 				flag = false;
 				for (size_t j = 0; j < tmp->size(); j++)
 				{
-					if (tmp->at(j)->dtype() != sqf::SCALAR)
+					if (tmp->at(j).dtype() != sqf::SCALAR)
 					{
-						vm->err() << "Param element " << i << " and its inner " << j << ". element was expected to be of type " << type_str(SCALAR) << ". Got " << sqf::type_str(tmp->at(j)->dtype()) << '.' << std::endl;
+						vm->err() << "Param element " << i << " and its inner " << j << ". element was expected to be of type " << type_str(SCALAR) << ". Got " << sqf::type_str(tmp->at(j).dtype()) << '.' << std::endl;
 						flag = true;
 						continue;
 					}
 				}
 				if (flag)
 				{
-					return std::shared_ptr<value>();
+					return {};
 				}
 			}
 
 			if (i < elements->size())
 			{
 				auto el = elements->at(i);
-				if (fels.size() >= 3 && fels.at(2)->data<arraydata>()->size() != 0)
+				if (fels.size() >= 3 && !fels.at(2).data<arraydata>()->empty())
 				{
-					auto tmp = fels.at(2)->data<arraydata>();
+					auto tmp = fels.at(2).data<arraydata>();
 
-					auto found = std::find_if(tmp->begin(), tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
-						return type == val->dtype();
+					auto found = std::find_if(tmp->begin(), tmp->end(), [type = el.dtype()](value::cref val) {
+						return type == val.dtype();
 					});
 
 					flag = found != tmp->end();
 
 					if (!flag)
 					{
-						vm->wrn() << "Element " << i << " is not matching provided expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
+						vm->wrn() << "Element " << i << " is not matching provided expected data types. Got " << sqf::type_str(el.dtype()) << '.' << std::endl;
 						return fels.at(1);
 					}
 				}
-				if (fels.size() >= 4 && el->dtype() == sqf::ARRAY)
+				if (fels.size() >= 4 && el.dtype() == sqf::ARRAY)
 				{
 					flag = true;
-					if (fels.at(2)->dtype() == sqf::ARRAY)
+					if (fels.at(2).dtype() == sqf::ARRAY)
 					{
-						auto tmp = fels.at(2)->data<arraydata>();
+						auto tmp = fels.at(2).data<arraydata>();
 
-						auto found = std::find_if(tmp->begin(), tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
-							return type == val->dtype();
+						auto found = std::find_if(tmp->begin(), tmp->end(), [type = el.dtype()](value::cref val) {
+							return type == val.dtype();
 						});
 
 						flag = found != tmp->end();
 					}
-					else if (el->data<arraydata>()->size() != fels.at(3)->as_int())
+					else if (el.data<arraydata>()->size() != fels.at(3).as_int())
 					{
 						flag = false;
 					}
 					if (!flag)
 					{
-						vm->wrn() << "Element " << i << " is not matching expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
+						vm->wrn() << "Element " << i << " is not matching expected data types. Got " << sqf::type_str(el.dtype()) << '.' << std::endl;
 						return fels.at(1);
 					}
 				}
@@ -1085,71 +1086,71 @@ namespace
 			}
 			else
 			{
-				return fels.size() == 2 ? fels.at(1) : std::make_shared<sqf::value>();
+				return fels.size() == 2 ? fels.at(1) : value();
 			}
 		}
-		return std::make_shared<sqf::value>();
+		return {};
 	}
-	std::shared_ptr<value> param_array(virtualmachine* vm, std::shared_ptr<value> right)
+	value param_array(virtualmachine* vm, value::cref right)
 	{
 		auto _this = vm->active_vmstack()->getlocalvar("_this");
-		if (_this->dtype() != ARRAY)
+		if (_this.dtype() != ARRAY)
 		{
 			auto arr = std::make_shared<arraydata>();
 			arr->push_back(_this);
-			_this = std::make_shared<value>(arr, ARRAY);
+			_this = value(arr);
 		}
 		return param_any_array(vm, _this, right);
 	}
-	std::shared_ptr<value> params_array_array(virtualmachine* vm, std::shared_ptr<value> src, std::shared_ptr<value> trgt)
+	value params_array_array(virtualmachine* vm, value::cref src, value::cref trgt)
 	{
-		auto elements = src->data<sqf::arraydata>();
-		auto format = trgt->data<sqf::arraydata>();
+		auto elements = src.data<sqf::arraydata>();
+		auto format = trgt.data<sqf::arraydata>();
         bool flag;
 		for (size_t i = 0; i < format->size(); i++)
 		{
 			auto fel = format->at(i);
-			std::vector<std::shared_ptr<sqf::value>> fels;
-			if (fel->dtype() == sqf::ARRAY)
+			std::vector<sqf::value> fels;
+			if (fel.dtype() == sqf::ARRAY)
 			{
-				fels = fel->as_vector();
+				fels = fel.as_vector();
 			}
 			else
 			{
 				fels = { fel };
 			}
 			//validation step
-			if (fels.empty() || fels.at(0)->dtype() != sqf::STRING)
+			if (fels.empty() || fels.at(0).dtype() != sqf::STRING)
 			{
-				if (fel->dtype() == sqf::ARRAY)
+				if (fel.dtype() == sqf::ARRAY)
 				{
-					vm->err() << "Params element " << i << " was expected to be a " << type_str(STRING) << " or an " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(0)->dtype()) << '.' << std::endl;
+					vm->err() << "Params element " << i << " was expected to be a " << type_str(STRING) << " or an " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(0).dtype()) << '.' << std::endl;
 				}
 				else
 				{
-					vm->err() << "Params element " << i << " was expected to have the first element be a " << type_str(STRING) << ". Got " << sqf::type_str(fels.at(0)->dtype()) << '.' << std::endl;
+					vm->err() << "Params element " << i << " was expected to have the first element be a " << type_str(STRING) << ". Got " << sqf::type_str(fels.at(0).dtype()) << '.' << std::endl;
 				}
 				continue;
 			}
-			if (fels.size() >= 3 && fels.at(2)->dtype() != sqf::ARRAY)
+			if (fels.size() >= 3 && fels.at(2).dtype() != sqf::ARRAY)
 			{
-				vm->err() << "Params element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
+				vm->err() << "Params element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2).dtype()) << '.' << std::endl;
 				continue;
 			}
-			if (fels.size() >= 4 && (fels.at(3)->dtype() != sqf::ARRAY && fels.at(3)->dtype() != sqf::SCALAR))
+			if (fels.size() >= 4 && (fels.at(3).dtype() != sqf::ARRAY && fels.at(3).dtype() != sqf::SCALAR))
 			{
-				vm->err() << "Params element " << i << " is required to have its fourth element to be of type " << type_str(ARRAY) << " or " << type_str(SCALAR) << ". Got " << sqf::type_str(fels.at(2)->dtype()) << '.' << std::endl;
+				vm->err() << "Params element " << i << " is required to have its fourth element to be of type " << type_str(ARRAY) << " or " << type_str(SCALAR) << ". Got " << sqf::type_str(fels.at(2).dtype()) << '.' << std::endl;
 				continue;
 			}
-			else if (fels.size() >= 4 && fels.at(3)->dtype() == sqf::ARRAY)
+			else if (fels.size() >= 4 && fels.at(3).dtype() == sqf::ARRAY)
 			{
-				auto tmp = fels.at(3)->data<arraydata>();
+				auto tmp = fels.at(3).data<arraydata>();
 				flag = false;
 				for (size_t j = 0; j < tmp->size(); j++)
 				{
-					if (tmp->at(j)->dtype() != sqf::SCALAR)
+					if (tmp->at(j).dtype() != sqf::SCALAR)
 					{
-						vm->err() << "Params element " << i << " and its inner " << j << ". element was expected to be of type " << type_str(SCALAR) << ". Got " << sqf::type_str(tmp->at(j)->dtype()) << '.' << std::endl;
+						vm->err() << "Params element " << i << " and its inner " << j << ". element was expected to be of type " << type_str(SCALAR) << ". Got " << sqf::type_str(tmp->at(j).dtype()) << '.' << std::endl;
 						flag = true;
 						continue;
 					}
@@ -1163,145 +1164,145 @@ namespace
 			if (i < elements->size())
 			{
 				auto el = elements->at(i);
-				if (fels.size() >= 3 && fels.at(2)->data<arraydata>()->size() != 0)
+				if (fels.size() >= 3 && !fels.at(2).data<arraydata>()->empty())
 				{
-					auto tmp = fels.at(2)->data<arraydata>();
+					auto tmp = fels.at(2).data<arraydata>();
 
-					auto found = std::find_if(tmp->begin(), tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
-						return type == val->dtype();
+					auto found = std::find_if(tmp->begin(), tmp->end(), [type = el.dtype()](value::cref val) {
+						return type == val.dtype();
 					});
 
 					flag = found != tmp->end();
 
 					if (!flag)
 					{
-						vm->wrn() << "Element " << i << " is not matching provided expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
+						vm->wrn() << "Element " << i << " is not matching provided expected data types. Got " << sqf::type_str(el.dtype()) << '.' << std::endl;
 						return fels.at(1);
 					}
 				}
-				if (fels.size() >= 4 && el->dtype() == sqf::ARRAY)
+				if (fels.size() >= 4 && el.dtype() == sqf::ARRAY)
 				{
 					flag = true;
-					if (fels.at(2)->dtype() == sqf::ARRAY)
+					if (fels.at(2).dtype() == sqf::ARRAY)
 					{
-						auto tmp = fels.at(2)->data<arraydata>();
+						auto tmp = fels.at(2).data<arraydata>();
 
-						auto found = std::find_if(tmp->begin(),tmp->end(), [type = el->dtype()](const std::shared_ptr<value>& val) {
-							return type == val->dtype();
+						auto found = std::find_if(tmp->begin(),tmp->end(), [type = el.dtype()](value::cref val) {
+							return type == val.dtype();
 						});
 
 						flag = found != tmp->end();
 					}
-					else if (el->data<arraydata>()->size() != fels.at(3)->as_int())
+					else if (el.data<arraydata>()->size() != fels.at(3).as_int())
 					{
 						flag = false;
 					}
 					if (!flag)
 					{
-						vm->wrn() << "Element " << i << " is not matching expected data types. Got " << sqf::type_str(el->dtype()) << '.' << std::endl;
+						vm->wrn() << "Element " << i << " is not matching expected data types. Got " << sqf::type_str(el.dtype()) << '.' << std::endl;
 						return fels.at(1);
 					}
 				}
-				vm->active_vmstack()->stacks_top()->set_variable(fels.at(0)->as_string(), el);
+				vm->active_vmstack()->stacks_top()->set_variable(fels.at(0).as_string(), el);
 			}
 			else
 			{
-				vm->active_vmstack()->stacks_top()->set_variable(fels.at(0)->as_string(), fels.size() >= 2 ? fels.at(1) : std::make_shared<sqf::value>());
+				vm->active_vmstack()->stacks_top()->set_variable(fels.at(0).as_string(), fels.size() >= 2 ? fels.at(1) : value());
 			}
 		}
-		return std::make_shared<sqf::value>();
+		return {};
 	}
-	std::shared_ptr<value> params_array(virtualmachine* vm, std::shared_ptr<value> right)
+	value params_array(virtualmachine* vm, value::cref right)
 	{
 		auto _this = vm->active_vmstack()->getlocalvar("_this");
-		if (_this->dtype() != ARRAY)
+		if (_this.dtype() != ARRAY)
 		{
 			auto arr = std::make_shared<arraydata>();
 			arr->push_back(_this);
-			_this = std::make_shared<value>(arr, ARRAY);
+			_this = value(arr);
 		}
 		return params_array_array(vm, _this, right);
 	}
-	std::shared_ptr<value> selectrandom_array(virtualmachine* vm, std::shared_ptr<value> right)
+	value selectrandom_array(virtualmachine* vm, value::cref right)
 	{
-		auto arr = right->data<arraydata>();
+		auto arr = right.data<arraydata>();
 		return arr->at(rand() % arr->size());
 	}
-	std::shared_ptr<value> sleep_scalar(virtualmachine* vm, std::shared_ptr<value> right)
+	value sleep_scalar(virtualmachine* vm, value::cref right)
 	{
 		if (!vm->active_vmstack()->isscheduled())
 		{
 			vm->err() << "Cannot suspend in non-scheduled environment." << std::endl;
-			return std::shared_ptr<value>();
+			return {};
 		}
-		auto duration = std::chrono::duration<float>(right->as_float());
+		auto duration = std::chrono::duration<float>(right.as_float());
 
 		vm->active_vmstack()->sleep(std::chrono::duration_cast<std::chrono::milliseconds>(duration));
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> cansuspend_(virtualmachine* vm)
+	value cansuspend_(virtualmachine* vm)
 	{
-		return std::make_shared<value>(vm->active_vmstack()->isscheduled());
+		return vm->active_vmstack()->isscheduled();
 	}
-	std::shared_ptr<value> loadfile_string(virtualmachine* vm, std::shared_ptr<value> right)
+    value loadfile_string(virtualmachine* vm, value::cref right)
 	{
-		auto res = vm->get_filesystem().try_get_physical_path(right->as_string());
+		auto res = vm->get_filesystem().try_get_physical_path(right.as_string());
 		if (!res.has_value())
 		{
-			vm->wrn() << "File '" << right->as_string() << "' Not Found." << std::endl;
-			return std::make_shared<value>("");
+			vm->wrn() << "File '" << right.as_string() << "' Not Found." << std::endl;
+			return "";
 		}
 		else
 		{
-			return std::make_shared<value>(load_file(res.value()));
+			return load_file(res.value());
 		}
 	}
-	std::shared_ptr<value> preprocessfile_string(virtualmachine* vm, std::shared_ptr<value> right)
+	value preprocessfile_string(virtualmachine* vm, value::cref right)
 	{
-		auto res = vm->get_filesystem().try_get_physical_path(right->as_string());
+		auto res = vm->get_filesystem().try_get_physical_path(right.as_string());
 		if (!res.has_value())
 		{
-			vm->wrn() << "File '" << right->as_string() << "' Not Found." << std::endl;
-			return std::make_shared<value>("");
+			vm->wrn() << "File '" << right.as_string() << "' Not Found." << std::endl;
+			return "";
 		}
 		else
 		{
 			auto filecontents = load_file(res.value());
 			bool errflag = false;
 			auto parsedcontents = sqf::parse::preprocessor::parse(vm, filecontents, errflag, res.value());
-			return std::make_shared<value>(parsedcontents);
+			return parsedcontents;
 		}
 	}
-	std::shared_ptr<value> scriptname_string(virtualmachine* vm, std::shared_ptr<value> right)
+	value scriptname_string(virtualmachine* vm, value::cref right)
 	{
-		auto str = right->as_string();
+		auto str = right.as_string();
 		vm->active_vmstack()->script_name(str);
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> in_any_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value in_any_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto arr = right->data<arraydata>();
-		auto res = std::find_if(arr->begin(), arr->end(), [left](std::shared_ptr<value> it) -> bool {
-			return it->equals(left);
+		auto arr = right.data<arraydata>();
+		auto res = std::find_if(arr->begin(), arr->end(), [left](value::cref it) -> bool {
+			return it.equals(left);
 		});
-		return std::make_shared<value>(res != arr->end());
+		return res != arr->end();
 	}
-	std::shared_ptr<value> time_(virtualmachine* vm)
+	value time_(virtualmachine* vm)
 	{
 		auto curtime = sqf::virtualmachine::system_time().time_since_epoch();
 		auto starttime = vm->get_created_timestamp().time_since_epoch();
 		// Time is since beginning of game so long is fine.
 		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(starttime - curtime).count());
-		return std::make_shared<value>(r);
+		return r;
 	}
-	std::shared_ptr<value> throw_any(virtualmachine* vm, std::shared_ptr<value> right)
+	value throw_any(virtualmachine* vm, value::cref right)
 	{
 		auto res = std::find_if(vm->active_vmstack()->stacks_begin(), vm->active_vmstack()->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
 			return cs->get_name() == callstack_catch::name();
 		});
 		if (res == vm->active_vmstack()->stacks_end())
 		{
-			vm->err() << right->tosqf() << std::endl;
+			vm->err() << right.tosqf() << std::endl;
 		}
 		else
 		{
@@ -1313,16 +1314,16 @@ namespace
 		}
 		return {};
 	}
-	std::shared_ptr<value> try_code(virtualmachine* vm, std::shared_ptr<value> right)
+	value try_code(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(right->data<codedata>(), type::EXCEPTION);
+		return value(std::make_shared<exceptiondata>(right.data<codedata>()));
 	}
-	std::shared_ptr<value> catch_exception_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
+	value catch_exception_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		auto cs = std::make_shared<callstack_catch>(vm->active_vmstack()->stacks_top()->get_namespace(), right->data<codedata>());
+		auto cs = std::make_shared<callstack_catch>(vm->active_vmstack()->stacks_top()->get_namespace(), right.data<codedata>());
 		vm->active_vmstack()->pushcallstack(cs);
-		left->data<codedata>()->loadinto(vm->active_vmstack(), cs);
-		return std::shared_ptr<value>();
+		left.data<codedata>()->loadinto(vm->active_vmstack(), cs);
+		return {};
 	}
 }
 void sqf::commandmap::initgenericcmds()

@@ -29,19 +29,19 @@
         {
             vm->err() << "findIf callstack found no value." << std::endl;
         }
-        else if (val->dtype() == type::BOOL)
+        else if (val.dtype() == type::BOOL)
         {
-            if (val->as_bool())
+            if (val.as_bool())
             {
                 // Update the value stack
                 drop_values();
-                push_back(std::make_shared<value>(m_current_index-1));
+                push_back(m_current_index-1);
                 return done;
             }
         }
         else
         {
-            vm->err() << "findIf value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+            vm->err() << "findIf value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
         }
     }
 
@@ -50,7 +50,7 @@
 	{
 		// Update the value stack
 		drop_values();
-		push_back(std::make_shared<value>(-1));
+		push_back(-1);
 		return done;
 	}
 	// Normal mode
