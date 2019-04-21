@@ -19,8 +19,7 @@ void sqf::inst::callunary::execute(virtualmachine* vm) const
 	{
         value dummy;
 		auto val = cmd->execute(vm, dummy, right);
-		if (val)
-			vm->active_vmstack()->pushval(val);
+		vm->active_vmstack()->pushval(val);
 	}
 	else
 	{

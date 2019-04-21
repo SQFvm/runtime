@@ -196,7 +196,8 @@ namespace
 		auto l = left.as_string();
 		auto r = right.as_string();
 		size_t res = l.find(r);
-		return res == std::string::npos ? -1 : res;
+        auto x = res == std::string::npos;
+		return res == std::string::npos ? -1.f : res;
 	}
 }
 void sqf::commandmap::initstringcmds()

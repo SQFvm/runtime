@@ -68,7 +68,7 @@ sqf::value::value()
 }
 
 bool sqf::value::equals(value::cref v) const {
-    return v && mdata && v.mdata && mdata->type() == v.mdata->type() && mdata->equals(v.mdata);
+    return mdata && v.mdata && mdata->type() == v.mdata->type() && mdata->equals(v.mdata);
 }
 
 std::string sqf::value::tosqf() const {
