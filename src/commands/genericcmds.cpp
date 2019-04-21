@@ -24,6 +24,7 @@
 #include "../fileio.h"
 #include "../parsepreprocessor.h"
 #include <cmath>
+#include "booldata.h"
 
 
 #define CALLEXTBUFFSIZE 10240
@@ -107,7 +108,7 @@ namespace
 	}
 	std::shared_ptr<value> str_any(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		return std::make_shared<value>(std::make_shared<stringdata>(right->tosqf(), false), type::STRING);
+		return std::make_shared<value>(std::make_shared<stringdata>(right->tosqf(), false));
 	}
 	std::shared_ptr<value> nil_(virtualmachine* vm)
 	{
@@ -119,7 +120,7 @@ namespace
 	}
 	std::shared_ptr<value> if_bool(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		return std::make_shared<value>(right->data(), type::IF);
+		return std::make_shared<value>(std::make_shared<ifdata>(right->data_try_as<booldata>()));
 	}
 	std::shared_ptr<value> then_if_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -208,7 +209,7 @@ namespace
 	}
 	std::shared_ptr<value> while_code(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		return std::make_shared<value>(right->data(), type::WHILE);
+		return std::make_shared<value>(std::make_shared<whiledata>(right->data_try_as<codedata>()));
 	}
 	std::shared_ptr<value> do_while_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -223,7 +224,7 @@ namespace
 	std::shared_ptr<value> for_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto str = right->as_string();
-		return std::make_shared<value>(std::make_shared<fordata>(str), type::FOR);
+		return std::make_shared<value>(std::make_shared<fordata>(str));
 	}
 	std::shared_ptr<value> from_for_scalar(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -315,12 +316,12 @@ namespace
 		if (start < 0)
 		{
 			vm->wrn() << "Start index is smaller then 0. Returning empty array." << std::endl;
-			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
+			return std::make_shared<value>(std::make_shared<sqf::arraydata>());
 		}
 		if (start > static_cast<int>(vec.size()))
 		{
 			vm->wrn() << "Start index is larger then string length. Returning empty array." << std::endl;
-			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
+			return std::make_shared<value>(std::make_shared<sqf::arraydata>());
 		}
 		if (arr.size() >= 2)
 		{
@@ -340,7 +341,7 @@ namespace
 		}
 		else
 		{
-			return std::make_shared<value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
+			return std::make_shared<value>(std::make_shared<sqf::arraydata>());
 		}
 		
 	}
@@ -562,7 +563,7 @@ namespace
 #define MAGIC_SWITCH "___switch"
 	std::shared_ptr<value> switch_any(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		return std::make_shared<value>(std::make_shared<switchdata>(right), sqf::type::SWITCH);
+		return std::make_shared<value>(std::make_shared<switchdata>(right));
 	}
 	std::shared_ptr<value> do_switch_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -587,7 +588,7 @@ namespace
 		{
 			swtch->flag(true);
 		}
-		return std::make_shared<value>(swtch, sqf::type::SWITCH);
+		return std::make_shared<value>(swtch);
 	}
 	std::shared_ptr<value> default_code(virtualmachine* vm, std::shared_ptr<value> right)
 	{
@@ -634,7 +635,7 @@ namespace
 		code->loadinto(vm, script->stack());
 		vm->push_spawn(script);
 		script->stack()->stacks_top()->set_variable("_this", left);
-		return std::make_shared<value>(script, sqf::type::SCRIPT);
+		return std::make_shared<value>(script);
 	}
 	std::shared_ptr<value> scriptdone_script(virtualmachine* vm, std::shared_ptr<value> right)
 	{
@@ -1097,7 +1098,7 @@ namespace
 		{
 			auto arr = std::make_shared<arraydata>();
 			arr->push_back(_this);
-			_this = std::make_shared<value>(arr, ARRAY);
+			_this = std::make_shared<value>(arr);
 		}
 		return param_any_array(vm, _this, right);
 	}
@@ -1218,7 +1219,7 @@ namespace
 		{
 			auto arr = std::make_shared<arraydata>();
 			arr->push_back(_this);
-			_this = std::make_shared<value>(arr, ARRAY);
+			_this = std::make_shared<value>(arr);
 		}
 		return params_array_array(vm, _this, right);
 	}
@@ -1315,7 +1316,7 @@ namespace
 	}
 	std::shared_ptr<value> try_code(virtualmachine* vm, std::shared_ptr<value> right)
 	{
-		return std::make_shared<value>(right->data<codedata>(), type::EXCEPTION);
+		return std::make_shared<value>(std::make_shared<exceptiondata>(right->data<codedata>()));
 	}
 	std::shared_ptr<value> catch_exception_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{

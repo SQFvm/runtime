@@ -19,7 +19,7 @@ namespace
 		{
 			arr->push_back(std::make_shared<value>(marker.first));
 		}
-		return std::make_shared<value>(arr, ARRAY);
+		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> getmarkertype_string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
@@ -42,7 +42,7 @@ namespace
 			auto arr = std::make_shared<arraydata>(2);
 			arr->push_back(std::make_shared<value>(0));
 			arr->push_back(std::make_shared<value>(0));
-			return std::make_shared<value>(arr, ARRAY);
+			return std::make_shared<value>(arr);
 		}
 		return marker->get_size_sqf();
 	}
@@ -68,7 +68,7 @@ namespace
 			arr->push_back(std::make_shared<value>(0));
 			arr->push_back(std::make_shared<value>(0));
 			arr->push_back(std::make_shared<value>(0));
-			return std::make_shared<value>(arr, ARRAY);
+			return std::make_shared<value>(arr);
 		}
 		return marker->get_pos_sqf();
 	}

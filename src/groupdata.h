@@ -18,18 +18,19 @@ namespace sqf
 		std::string mgroupid;
 		bool misnull;
 		groupdata(std::shared_ptr<sidedata> side) : mside(std::move(side)), misnull(false) { }
-		groupdata() { }
+        groupdata() = default;
 	public:
 
 		operator std::shared_ptr<sidedata>() const { return mside; }
 		operator sidedata::eside() const { return mside->side(); }
 		std::shared_ptr<sidedata> side() const { return mside; }
 		bool equals(std::shared_ptr<data> d) const override { return this == d.get(); }
-		std::string groupid() { return mgroupid; }
+        sqf::type type() const override { return sqf::type::GROUP; }
+		std::string groupid() const { return mgroupid; }
 		void groupid(std::string id) { mgroupid = id; }
 		std::string tosqf() const override { return mgroupid; }
 
-		const std::vector<std::shared_ptr<innerobj>>& get_units() { return munits; }
+		const std::vector<std::shared_ptr<innerobj>>& get_units() const { return munits; }
 		bool is_empty() const { return munits.size() == 0; }
 		bool is_null() const { return misnull; }
 

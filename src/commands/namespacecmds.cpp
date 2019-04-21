@@ -24,7 +24,7 @@ namespace
 			if (obj->is_null())
 			{
 				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
-				return std::make_shared<value>(std::make_shared<arraydata>(), ARRAY);
+				return std::make_shared<value>(std::make_shared<arraydata>());
 			}
 			r = std::dynamic_pointer_cast<varscope>(obj->obj());
 		}
@@ -39,7 +39,7 @@ namespace
 	std::shared_ptr<value> with_namespace(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto r = right->data<sqfnamespace>();
-		return std::make_shared<value>(r, type::WITH);
+		return std::make_shared<value>(std::make_shared<sqfwith>(r));
 	}
 	std::shared_ptr<value> do_with_code(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -58,7 +58,7 @@ namespace
 			if (obj->is_null())
 			{
 				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
-				return std::make_shared<value>(std::make_shared<arraydata>(), ARRAY);
+				return std::make_shared<value>(std::make_shared<arraydata>());
 			}
 			l = std::dynamic_pointer_cast<varscope>(obj->obj());
 		}
@@ -79,7 +79,7 @@ namespace
 			if (obj->is_null())
 			{
 				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
-				return std::make_shared<value>(std::make_shared<arraydata>(), ARRAY);
+				return std::make_shared<value>(std::make_shared<arraydata>());
 			}
 			l = std::dynamic_pointer_cast<varscope>(obj->obj());
 		}
@@ -111,7 +111,7 @@ namespace
 			if (obj->is_null())
 			{
 				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
-				return std::make_shared<value>(std::make_shared<arraydata>(), ARRAY);
+				return std::make_shared<value>(std::make_shared<arraydata>());
 			}
 			l = std::dynamic_pointer_cast<varscope>(obj->obj());
 		}
@@ -139,13 +139,13 @@ namespace
 void sqf::commandmap::initnamespacecmds()
 {
 	add(nular("missionNamespace", "Returns the global namespace attached to mission.",
-		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->missionnamespace(), sqf::type::NAMESPACE); }));
+		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->missionnamespace()); }));
 	add(nular("uiNamespace", "The value of PI.",
-		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->uinamespace(), sqf::type::NAMESPACE); }));
+		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->uinamespace()); }));
 	add(nular("parsingNamespace", "Returns the global namespace attached to config parser.",
-		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->parsingnamespace(), sqf::type::NAMESPACE); }));
+		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->parsingnamespace()); }));
 	add(nular("profileNamespace", "Returns the global namespace attached to the active user profile. Use setVariable and getVariable to save and load data to and from this Namespace. A variable can be deleted by setting its value to nil. By default the variables set in this namespace will exist while the game is running. In order to make variables save permanently, use saveProfileNamespace before the game is over.",
-		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->profilenamespace(), sqf::type::NAMESPACE); }));
+		[](virtualmachine* vm) -> std::shared_ptr<value> { return std::make_shared<value>(vm->profilenamespace()); }));
 	add(unary("allVariables", type::NAMESPACE, "Returns a list of all variables from desired namespace.", allvariables_namespace));
 	add(unary("allVariables", type::OBJECT, "Returns a list of all variables from desired namespace.", allvariables_namespace));
 	add(unary("allVariables", type::GROUP, "Returns a list of all variables from desired namespace.", allvariables_namespace));

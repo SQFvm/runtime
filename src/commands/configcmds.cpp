@@ -99,7 +99,7 @@ namespace
 	std::shared_ptr<value> getarray_config(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto cd = right->data<configdata>();
-		return !cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::ARRAY ? cd->cfgvalue() : std::make_shared<sqf::value>(std::make_shared<sqf::arraydata>(), sqf::type::ARRAY);
+		return !cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::ARRAY ? cd->cfgvalue() : std::make_shared<sqf::value>(std::make_shared<sqf::arraydata>());
 	}
 	std::shared_ptr<value> isnull_config(virtualmachine* vm, std::shared_ptr<value> right)
 	{

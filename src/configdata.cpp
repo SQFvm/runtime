@@ -94,7 +94,7 @@ bool sqf::configdata::is_kind_of(std::string_view s) const
 
 std::shared_ptr<sqf::value> sqf::configdata::logical_parent() const
 {
-	return m_logical_parent.expired() ? configNull() : std::make_shared<sqf::value>(m_logical_parent.lock(), type::CONFIG);
+	return m_logical_parent.expired() ? configNull() : std::make_shared<sqf::value>(m_logical_parent.lock());
 }
 
 bool sqf::configdata::cfgvalue(std::string_view key, bool def) const
@@ -147,11 +147,11 @@ void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 std::shared_ptr<sqf::value> sqf::configdata::configFile()
 {
 	static std::shared_ptr<sqf::configdata> cdata = std::make_shared<sqf::configdata>();
-	return std::make_shared<sqf::value>(cdata, sqf::type::CONFIG);
+	return std::make_shared<sqf::value>(cdata);
 }
 
 std::shared_ptr<sqf::value> sqf::configdata::configNull()
 {
 	static std::shared_ptr<sqf::configdata> cdata = std::make_shared<sqf::configdata>("");
-	return std::make_shared<sqf::value>(cdata, sqf::type::CONFIG);
+	return std::make_shared<sqf::value>(cdata);
 }

@@ -8,80 +8,69 @@
 
 sqf::value::value(std::vector<std::shared_ptr<sqf::value>> arr)
 {
-	mtype = type::ARRAY;
 	mdata = std::make_shared<arraydata>(arr);
 }
 
 sqf::value::value(std::string s)
 {
-	mtype = type::STRING;
 	mdata = std::make_shared<stringdata>(s);
 }
 
 sqf::value::value(char c)
 {
-	mtype = type::STRING;
 	mdata = std::make_shared<stringdata>(std::string(1, c));
 }
 
 sqf::value::value(float num)
 {
-	mtype = type::SCALAR;
 	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(double num)
 {
-	mtype = type::SCALAR;
 	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(short num)
 {
-	mtype = type::SCALAR;
 	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(int num)
 {
-	mtype = type::SCALAR;
 	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(long num)
 {
-	mtype = type::SCALAR;
 	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(bool flag)
 {
-	mtype = type::BOOL;
 	mdata = std::make_shared<booldata>(flag);
 }
 
 sqf::value::value(size_t num)
 {
-	mtype = type::SCALAR;
 	mdata = std::make_shared<scalardata>(static_cast<float>(num));
 }
 
 sqf::value::value(std::shared_ptr<sqf::callstack> cs)
 {
-	mtype = type::CODE;
 	mdata = std::make_shared<codedata>(cs);
 }
 
 sqf::value::value()
 {
-	mtype = type::NOTHING;
 	mdata = std::shared_ptr<sqf::data>();
 }
 
 sqf::value::operator float() const
 {
 	auto data = mdata;
-	if (mtype != SCALAR)
+    auto type = dtype();
+	if (type != SCALAR)
 	{
 		data = sqf::convert(data, SCALAR);
 	}
@@ -90,7 +79,8 @@ sqf::value::operator float() const
 sqf::value::operator double() const
 {
 	auto data = mdata;
-	if (mtype != SCALAR)
+    auto type = dtype();
+	if (type != SCALAR)
 	{
 		data = sqf::convert(data, SCALAR);
 	}
@@ -101,7 +91,8 @@ sqf::value::operator double() const
 sqf::value::operator short() const
 {
 	auto data = mdata;
-	if (mtype != SCALAR)
+    auto type = dtype();
+	if (type != SCALAR)
 	{
 		data = sqf::convert(data, SCALAR);
 	}
@@ -111,7 +102,8 @@ sqf::value::operator short() const
 sqf::value::operator int() const
 {
 	auto data = mdata;
-	if (mtype != SCALAR)
+    auto type = dtype();
+	if (type != SCALAR)
 	{
 		data = sqf::convert(data, SCALAR);
 	}
@@ -121,7 +113,8 @@ sqf::value::operator int() const
 sqf::value::operator long() const
 {
 	auto data = mdata;
-	if (mtype != SCALAR)
+    auto type = dtype();
+	if (type != SCALAR)
 	{
 		data = sqf::convert(data, SCALAR);
 	}
@@ -131,7 +124,8 @@ sqf::value::operator long() const
 sqf::value::operator char() const
 {
 	auto data = mdata;
-	if (mtype != SCALAR)
+    auto type = dtype();
+	if (type != SCALAR)
 	{
 		data = sqf::convert(data, SCALAR);
 	}
@@ -141,7 +135,8 @@ sqf::value::operator char() const
 sqf::value::operator bool() const
 {
 	auto data = mdata;
-	if (mtype != BOOL && mtype != IF)
+    auto type = dtype();
+	if (type != BOOL && type != IF)
 	{
 		data = sqf::convert(data, SCALAR);
 	}
@@ -150,7 +145,8 @@ sqf::value::operator bool() const
 sqf::value::operator std::string() const
 {
 	auto data = mdata;
-	if (mtype != STRING)
+    auto type = dtype();
+	if (type != STRING)
 	{
 		data = sqf::convert(data, STRING);
 	}
@@ -159,7 +155,8 @@ sqf::value::operator std::string() const
 sqf::value::operator std::vector<std::shared_ptr<sqf::value>>() const
 {
 	auto data = mdata;
-	if (mtype != ARRAY && mtype != CONFIG)
+    auto type = dtype();
+	if (type != ARRAY && type != CONFIG)
 	{
 		data = sqf::convert(data, ARRAY);
 	}

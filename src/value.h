@@ -19,7 +19,6 @@ namespace sqf
         using ref = const std::shared_ptr<value>&;
 	private:
 		std::shared_ptr<sqf::data> mdata;
-		type mtype;
 	public:
 		value(std::vector<std::shared_ptr<value>>);
 		value(std::string);
@@ -35,8 +34,7 @@ namespace sqf
 		value(size_t);
 		value(std::shared_ptr<callstack>);
 		value();
-		value(std::shared_ptr<sqf::data> d, type t) { mdata = std::move(d); mtype = t; }
-		value(type t) { mtype = t; }
+	    value(std::shared_ptr<sqf::data> d) { mdata = std::move(d); }
 
 		operator float() const;
 		operator double() const;
@@ -47,7 +45,7 @@ namespace sqf
 		operator bool() const;
 		operator std::string() const;
 		operator std::vector<std::shared_ptr<sqf::value>>() const;
-		operator type() const { return mtype; }
+        operator type() const { if (!mdata) return type::NOTHING; return mdata->type(); }
 
 		float as_float() const { return *this; }
 		double as_double() const { return *this; }
@@ -72,7 +70,7 @@ namespace sqf
 			static_assert(std::is_base_of<sqf::data, T>::value, "value::data<T>() can only convert to sqf::data types");
 			return std::static_pointer_cast<T>(mdata);
 		}
-		bool equals(std::shared_ptr<sqf::value> v) const { return v && mtype == v->mtype && mdata && v->mdata && mdata->equals(v->mdata); }
+		bool equals(std::shared_ptr<sqf::value> v) const { return v && mdata && v->mdata && mdata->type() == v->mdata->type() && mdata->equals(v->mdata); }
 
 		std::string tosqf() const
 	    {
@@ -80,11 +78,11 @@ namespace sqf
 			{
 				return mdata->tosqf();
 			}
-			else if (mtype == type::NOTHING)
+			else if (!mdata || mdata->type() == type::NOTHING)
 			{
 				return "nil";
 			}
-			else if (mtype == type::ANY)
+			else if (mdata->type() == type::ANY)
 			{
 				return "any";
 			}
@@ -95,7 +93,7 @@ namespace sqf
 		}
 		void convert(type type)
 		{
-			if (mtype == type)
+			if (mdata->type() == type)
 				return;
 			mdata = sqf::convert(std::move(mdata), type);
 		}

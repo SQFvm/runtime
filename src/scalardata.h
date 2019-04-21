@@ -23,6 +23,7 @@ namespace sqf
 			if (!scalData) return false;
 			return mvalue == scalData->mvalue;
 		}
+        sqf::type type() const override { return isnan(mvalue) ? sqf::type::NaN : sqf::type::SCALAR; }
 
 		static void setdecimals(int val) { decimals = val; }
 	};

@@ -212,7 +212,7 @@ namespace
 		auto str = right->as_string();
 		auto cd = std::make_shared<sqf::configdata>();
 		vm->parse_config(str, cd);
-		return std::make_shared<value>(cd, type::CONFIG);
+		return std::make_shared<value>(cd);
 	}
 	std::shared_ptr<value> merge___config_config(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -226,9 +226,9 @@ namespace
 		auto arr = std::make_shared<arraydata>();
 		for (auto& object : vm->get_objlist())
 		{
-			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(object), OBJECT));
+			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(object)));
 		}
-		return std::make_shared<value>(arr, ARRAY);
+		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> prettyprintsqf___string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
@@ -249,7 +249,7 @@ namespace
 	std::shared_ptr<value> respawn___(virtualmachine* vm)
 	{
 		vm->player_obj(innerobj::create(vm, "CAManBase", false));
-		return std::make_shared<value>(std::make_shared<objectdata>(vm->player_obj()), type::OBJECT);
+		return std::make_shared<value>(std::make_shared<objectdata>(vm->player_obj()));
 	}
 	std::shared_ptr<value> preprocess___string(virtualmachine* vm, std::shared_ptr<value> right)
 	{
@@ -287,9 +287,9 @@ namespace
 					std::make_shared<sqf::value>(it.file),
 					std::make_shared<sqf::value>(it.dbginf)
 			};
-			sqfarr->push_back(std::make_shared<sqf::value>(std::make_shared<arraydata>(vec), sqf::type::ARRAY));
+			sqfarr->push_back(std::make_shared<sqf::value>(std::make_shared<arraydata>(vec)));
 		}
-		return std::make_shared<value>(sqfarr, sqf::type::ARRAY);
+		return std::make_shared<value>(sqfarr);
 	}
 	std::shared_ptr<value> allfiles___(virtualmachine* vm, std::shared_ptr<sqf::value> right)
 	{
@@ -297,7 +297,7 @@ namespace
 		if (vm->get_filesystem().disallow())
 		{
 			vm->wrn() << "FILE SYSTEM IS DISABLED" << std::endl;
-			return std::make_shared<sqf::value>(std::make_shared<arraydata>(), sqf::type::ARRAY);
+			return std::make_shared<sqf::value>(std::make_shared<arraydata>());
 		}
 #endif
 		auto arr = right->data<arraydata>();
@@ -327,7 +327,7 @@ namespace
 				}
 			}
 		}
-		return std::make_shared<sqf::value>(std::make_shared<arraydata>(files), sqf::type::ARRAY);
+		return std::make_shared<sqf::value>(std::make_shared<arraydata>(files));
 	}
 	std::shared_ptr<value> pwd___(virtualmachine* vm)
 	{

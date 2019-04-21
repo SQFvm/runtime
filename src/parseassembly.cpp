@@ -643,7 +643,7 @@ namespace
 		if (textlen > 0)
 		{
 			auto data = std::string(code + curoff - textlen, code + curoff);
-			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(sqf::convert(std::make_shared<sqf::stringdata>(data), pushtype), pushtype));
+			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(sqf::convert(std::make_shared<sqf::stringdata>(data), pushtype)));
 			inst->setdbginf(identline, identcol, std::string(), sqf::virtualmachine::dbgsegment(code, identstart, compiletime::strlen("push")));
 			vm->active_vmstack()->pushinst(vm, inst);
 		}

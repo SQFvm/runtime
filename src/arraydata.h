@@ -60,8 +60,8 @@ namespace sqf
 		int get(size_t index, int defval) { return static_cast<int>(get(index, static_cast<float>(defval))); }
 		std::string get(size_t index, const char* defval) { return get(index, std::string(defval)); }
 
-		bool check_type(virtualmachine* vm, type t, size_t len) const { return check_type(vm, t, len, len); }
-		bool check_type(virtualmachine*, type, size_t min, size_t max) const;
+		bool check_type(virtualmachine* vm, sqf::type t, size_t len) const { return check_type(vm, t, len, len); }
+		bool check_type(virtualmachine*, sqf::type, size_t min, size_t max) const;
 		template<size_t size>
 		bool check_type(virtualmachine* vm, const std::array<sqf::type, size>& arr) const { return check_type(vm, arr.data(), size); }
         bool check_type(virtualmachine* vm, const std::vector<sqf::type>& vec) const { return check_type(vm, vec.data(), vec.size()); }
@@ -92,5 +92,7 @@ namespace sqf
 		{
 			return std::sqrt(distance2dsqr(l, r));
 		}
+
+        sqf::type type() const override { return sqf::type::ARRAY; }
 	};
 }

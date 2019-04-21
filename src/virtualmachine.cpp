@@ -201,7 +201,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 							std::make_shared<sqf::value>(it.file),
 							std::make_shared<sqf::value>(it.dbginf)
 						};
-					sqfarr->push_back(std::make_shared<sqf::value>(std::make_shared<arraydata>(vec), sqf::type::ARRAY));
+					sqfarr->push_back(std::make_shared<sqf::value>(std::make_shared<arraydata>(vec)));
 				}
 				while (m_active_vmstack->stacks_top() != sqftry)
 				{
@@ -345,7 +345,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 			}
 			catch (std::out_of_range&)
 			{
-				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nanf("")), sqf::type::NaN));
+				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nanf(""))));
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 				vm->wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
 				stack->push_back(inst);
@@ -362,7 +362,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 			}
 			catch (std::out_of_range&)
 			{
-				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nanf("")), sqf::type::NaN));
+				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nanf(""))));
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 				vm->wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
 				stack->push_back(inst);
@@ -614,7 +614,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 				navigate_config(full, vm, curnode, subnode);
 			}
 		}
-		parent->push_back(std::make_shared<sqf::value>(curnode, sqf::type::CONFIG));
+		parent->push_back(std::make_shared<sqf::value>(curnode));
 	} break;
 	case sqf::parse::config::configasttypes::VALUENODE:
 	{
@@ -623,7 +623,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 		{
 			navigate_config(full, vm, curnode, subnode);
 		}
-		parent->push_back(std::make_shared<sqf::value>(curnode, sqf::type::CONFIG));
+		parent->push_back(std::make_shared<sqf::value>(curnode));
 	} break;
 	case sqf::parse::config::configasttypes::STRING:
 		parent->set_cfgvalue(std::make_shared<sqf::value>(node.content));

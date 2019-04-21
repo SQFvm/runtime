@@ -81,7 +81,7 @@ std::array<double, 2> sqf::arraydata::as_vec2() const
 	return std::array<double, 2> {at(0)->as_double(), at(1)->as_double()};
 }
 
-bool sqf::arraydata::check_type(virtualmachine * vm, type t, size_t min, size_t max) const
+bool sqf::arraydata::check_type(virtualmachine * vm, sqf::type t, size_t min, size_t max) const
 {
 	bool errflag = true;
 	if (size() < min || size() > max)

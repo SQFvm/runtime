@@ -49,6 +49,7 @@ namespace sqf
 		std::string tosqf() const override;
 		void mergeinto(std::shared_ptr<configdata>);
 		bool equals(std::shared_ptr<data> d) const override { return d.get() == this; }
+        sqf::type type() const override { return sqf::type::CONFIG; }
 
 		static std::shared_ptr<sqf::value> configFile();
 		static std::shared_ptr<sqf::value> configNull();

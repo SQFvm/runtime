@@ -189,7 +189,7 @@ namespace
 		arr->push_back(std::make_shared<value>(l->at(0)->as_double() + r->at(0)->as_double()));
 		arr->push_back(std::make_shared<value>(l->at(1)->as_double() + r->at(1)->as_double()));
 		arr->push_back(std::make_shared<value>(l->at(2)->as_double() + r->at(2)->as_double()));
-		return std::make_shared<value>(arr, ARRAY);
+		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> vectorcos_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -214,7 +214,7 @@ namespace
 		arr->push_back(std::make_shared<value>(l->at(1)->as_double() * r->at(2)->as_double() - l->at(2)->as_double() * r->at(1)->as_double()));
 		arr->push_back(std::make_shared<value>(l->at(2)->as_double() * r->at(0)->as_double() - l->at(0)->as_double() * r->at(2)->as_double()));
 		arr->push_back(std::make_shared<value>(l->at(0)->as_double() * r->at(1)->as_double() - l->at(1)->as_double() * r->at(0)->as_double()));
-		return std::make_shared<value>(arr, ARRAY);
+		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> vectordistance_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -250,7 +250,7 @@ namespace
 		arr->push_back(std::make_shared<value>(l->at(1)->as_double() * r));
 		arr->push_back(std::make_shared<value>(l->at(2)->as_double() * r));
 		arr->push_back(std::make_shared<value>(l->at(0)->as_double() * r));
-		return std::make_shared<value>(arr, ARRAY);
+		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> vectordiff_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
@@ -264,7 +264,7 @@ namespace
 		arr->push_back(std::make_shared<value>(l->at(1)->as_double() - r->at(1)->as_double()));
 		arr->push_back(std::make_shared<value>(l->at(2)->as_double() - r->at(2)->as_double()));
 		arr->push_back(std::make_shared<value>(l->at(0)->as_double() - r->at(0)->as_double()));
-		return std::make_shared<value>(arr, ARRAY);
+		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> vectordotproduct_array_array(virtualmachine* vm, std::shared_ptr<value> left, std::shared_ptr<value> right)
 	{
