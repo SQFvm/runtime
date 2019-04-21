@@ -334,7 +334,7 @@ namespace
 			if (length < 0)
 			{
 				vm->wrn() << "Length is smaller then 0. Returning empty array." << std::endl;
-				return "";
+                return value(std::make_shared<sqf::arraydata>());
 			}
 
 			return value(std::vector<value>(vec.begin() + start, start + length > static_cast<int>(vec.size()) ? vec.end() : vec.begin() + start + length));
