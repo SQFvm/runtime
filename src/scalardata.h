@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 #include "data.h"
+#include <cmath>
 
 namespace sqf
 {
@@ -23,7 +24,7 @@ namespace sqf
 			if (!scalData) return false;
 			return mvalue == scalData->mvalue;
 		}
-        sqf::type dtype() const override { return isnan(mvalue) ? sqf::type::NaN : sqf::type::SCALAR; }
+        sqf::type dtype() const override { return std::isnan(mvalue) ? sqf::type::NaN : sqf::type::SCALAR; }
 
 		static void setdecimals(int val) { decimals = val; }
 	};

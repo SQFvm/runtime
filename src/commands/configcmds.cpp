@@ -88,12 +88,12 @@ namespace
 	value getnumber_config(virtualmachine* vm, value::cref right)
 	{
 		auto cd = right.data<configdata>();
-		return !cd->is_null() && cd->cfgvalue().dtype() == sqf::type::SCALAR ? cd->cfgvalue() : 0;
+		return !cd->is_null() && cd->cfgvalue().dtype() == sqf::type::SCALAR ? cd->cfgvalue() : value(0);
 	}
 	value gettext_config(virtualmachine* vm, value::cref right)
 	{
 		auto cd = right.data<configdata>();
-		return !cd->is_null() && cd->cfgvalue().dtype() == sqf::type::STRING ? cd->cfgvalue() : "";
+		return !cd->is_null() && cd->cfgvalue().dtype() == sqf::type::STRING ? cd->cfgvalue() : value("");
 	}
 	value getarray_config(virtualmachine* vm, value::cref right)
 	{
