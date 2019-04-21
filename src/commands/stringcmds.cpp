@@ -23,7 +23,7 @@ namespace
 	value tolower_string(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_string();
-		std::transform(r.begin(), r.end(), r.begin(), ::toupper);
+		std::transform(r.begin(), r.end(), r.begin(), ::tolower);
 		return r;
 	}
 	value select_string_array(virtualmachine* vm, value::cref left, value::cref right)
