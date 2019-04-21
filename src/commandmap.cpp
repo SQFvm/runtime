@@ -2,9 +2,9 @@
 #include "cmd.h"
 #include <stdexcept>
 
-std::shared_ptr<sqf::unarycmd> sqf::commandmap::get(std::string str, type rtype)
+std::shared_ptr<sqf::unarycmd> sqf::commandmap::get(std::string_view str, type rtype)
 {
-	auto listsptr = munarycmd[tolowerstring_ref(str)];
+	auto listsptr = munarycmd[string_tolower(str)];
 	if (listsptr)
 	{
 		for (auto it : *listsptr)
@@ -18,9 +18,9 @@ std::shared_ptr<sqf::unarycmd> sqf::commandmap::get(std::string str, type rtype)
 	return std::shared_ptr<unarycmd>();
 }
 
-std::shared_ptr<sqf::binarycmd> sqf::commandmap::get(std::string str, type ltype, type rtype)
+std::shared_ptr<sqf::binarycmd> sqf::commandmap::get(std::string_view str, type ltype, type rtype)
 {
-	auto listsptr = mbinarycmd[tolowerstring_ref(str)];
+	auto listsptr = mbinarycmd[string_tolower(str)];
 	if (listsptr)
 	{
 		for (auto it : *listsptr)
@@ -64,13 +64,13 @@ sqf::commandmap& sqf::commandmap::get()
 	return map;
 }
 
-void sqf::commandmap::add(std::shared_ptr<nularcmd> cmd) { mnularcmd[tolowerstring(cmd->name())] = cmd; }
+void sqf::commandmap::add(std::shared_ptr<nularcmd> cmd) { mnularcmd[string_tolower(cmd->name())] = cmd; }
 void sqf::commandmap::add(std::shared_ptr<unarycmd> cmd)
 {
-	auto listsptr = munarycmd[tolowerstring(cmd->name())];
+	auto listsptr = munarycmd[string_tolower(cmd->name())];
 	if (!listsptr.get())
 	{
-		listsptr = munarycmd[tolowerstring(cmd->name())] = std::make_shared<std::vector<std::shared_ptr<unarycmd>>>();
+		listsptr = munarycmd[string_tolower(cmd->name())] = std::make_shared<std::vector<std::shared_ptr<unarycmd>>>();
 	}
 	listsptr->push_back(cmd);
 }
@@ -80,10 +80,10 @@ void sqf::commandmap::add(std::shared_ptr<binarycmd> cmd)
 	{
 		throw std::runtime_error("precedence needs to be > 0 & <= 10");
 	}
-	auto listsptr = mbinarycmd[tolowerstring(cmd->name())];
+	auto listsptr = mbinarycmd[string_tolower(cmd->name())];
 	if (!listsptr.get())
 	{
-		listsptr = mbinarycmd[tolowerstring(cmd->name())] = std::make_shared<std::vector<std::shared_ptr<binarycmd>>>();
+		listsptr = mbinarycmd[string_tolower(cmd->name())] = std::make_shared<std::vector<std::shared_ptr<binarycmd>>>();
 	}
 	listsptr->push_back(cmd);
 }

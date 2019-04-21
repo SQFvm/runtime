@@ -112,3 +112,9 @@ static std::string string_tolower(std::string_view s)
     std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
     return ret;
 }
+
+static std::string& string_tolower_ref(std::string& s)
+{
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    return s;
+}
