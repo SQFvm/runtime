@@ -247,9 +247,9 @@ namespace
 		{
 			return {};
 		}
+		arr->push_back(l->at(0).as_double() * r);
 		arr->push_back(l->at(1).as_double() * r);
 		arr->push_back(l->at(2).as_double() * r);
-		arr->push_back(l->at(0).as_double() * r);
 		return value(arr);
 	}
 	value vectordiff_array_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -261,9 +261,9 @@ namespace
 		{
 			return {};
 		}
+		arr->push_back(l->at(0).as_double() - r->at(0).as_double());
 		arr->push_back(l->at(1).as_double() - r->at(1).as_double());
 		arr->push_back(l->at(2).as_double() - r->at(2).as_double());
-		arr->push_back(l->at(0).as_double() - r->at(0).as_double());
 		return value(arr);
 	}
 	value vectordotproduct_array_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -315,7 +315,7 @@ namespace
 			arr->push_back(l->at(2).as_double() / magnitude);
 			arr->push_back(l->at(0).as_double() / magnitude);
 		}
-		return vectorMagnitudeSqr(*l);
+		return value(arr);
 	}
 	value tofixed_scalar(virtualmachine* vm, value::cref right)
 	{
