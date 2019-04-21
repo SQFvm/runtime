@@ -64,7 +64,7 @@ extern "C" {
 
 	DLLEXPORT_PREFIX void sqfvm_loadconfig(const char* cfg)
 	{
-		sqfvm_virtualmachine->parse_config(cfg, sqf::configdata::configFile()->data<sqf::configdata>());
+		sqfvm_virtualmachine->parse_config(cfg, sqf::configdata::configFile().data<sqf::configdata>());
 	}
 
 	DLLEXPORT_PREFIX void sqfvm_uninit()

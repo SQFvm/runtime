@@ -2,7 +2,7 @@
 #include "value.h"
 #include <sstream>
 
-std::shared_ptr<sqf::value> sqf::configdata::inherited_parent_unsafe() const 
+sqf::value sqf::configdata::inherited_parent_unsafe() const 
 {
 	std::weak_ptr<configdata> lparent = m_logical_parent;
 	while (!lparent.expired())
@@ -12,17 +12,17 @@ std::shared_ptr<sqf::value> sqf::configdata::inherited_parent_unsafe() const
 		// try to find parent
 		auto res = lockparent->navigate_unsafe(m_inherited_parent_name);
 		// check result
-		if (res && res->data<configdata>().get() != this)
+		if (res && res.data<configdata>().get() != this)
 		{ // hit, return parent
 			return res;
 		}
 		// set lparent for next round
 		lparent = lockparent->m_logical_parent;
 	}
-	return std::shared_ptr<sqf::value>();
+	return configNull();
 }
 
-std::shared_ptr<sqf::value> sqf::configdata::navigate_unsafe(std::string_view nextnode) const
+sqf::value sqf::configdata::navigate_unsafe(std::string_view nextnode) const
 {
 	for (auto it : innervector())
 	{
@@ -30,28 +30,28 @@ std::shared_ptr<sqf::value> sqf::configdata::navigate_unsafe(std::string_view ne
 			continue;
 		auto cd = it.data<sqf::configdata>();
 		if (str_cmpi(cd->m_name.c_str(), -1, nextnode.data(), -1) == 0)
-			return std::make_shared<value>(it);
+			return it;
 	}
-	return std::shared_ptr<sqf::value>();
+	return configNull();
 }
 
-std::shared_ptr<sqf::value> sqf::configdata::navigate_full_unsafe(std::string_view nextnode) const
+sqf::value sqf::configdata::navigate_full_unsafe(std::string_view nextnode) const
 {
 	auto it = navigate_unsafe(nextnode);
-	if (it)
+	if (!it.data<configdata>()->is_null())
 	{
 		return it;
 	}
 	else
 	{
-		std::shared_ptr<sqf::value> p;
-		while ((p = inherited_parent_unsafe()).get())
+		sqf::value p;
+		while (p = inherited_parent_unsafe(), !p.data_try_as<configdata>()->is_null())
 		{
-			it = p->data<configdata>()->navigate_full_unsafe(nextnode);
+			it = p.data<configdata>()->navigate_full_unsafe(nextnode);
 			if (it)
 				return it;
 		}
-		return std::shared_ptr<sqf::value>();
+		return configNull();
 	}
 }
 
@@ -80,26 +80,26 @@ bool sqf::configdata::is_kind_of(std::string_view s) const
 	{
 		return true;
 	}
-	auto node = this->inherited_parent()->data<configdata>();
+	auto node = this->inherited_parent().data<configdata>();
 	while (!node->is_null())
 	{
 		if (str_cmpi(node->name().c_str(), -1, s.data(), -1) == 0)
 		{
 			return true;
 		}
-		node = node->inherited_parent()->data<configdata>();
+		node = node->inherited_parent().data<configdata>();
 	}
 	return false;
 }
 
-std::shared_ptr<sqf::value> sqf::configdata::logical_parent() const
+sqf::value sqf::configdata::logical_parent() const
 {
-	return m_logical_parent.expired() ? configNull() : std::make_shared<sqf::value>(m_logical_parent.lock());
+	return m_logical_parent.expired() ? configNull() : sqf::value(m_logical_parent.lock());
 }
 
 bool sqf::configdata::cfgvalue(std::string_view key, bool def) const
 {
-	auto node = navigate(key)->data<configdata>();
+	auto node = navigate(key).data<configdata>();
 	if (node->is_null() || (node->cfgvalue().dtype() != type::BOOL && node->cfgvalue().dtype() != type::SCALAR))
 	{
 		return def;
@@ -108,7 +108,7 @@ bool sqf::configdata::cfgvalue(std::string_view key, bool def) const
 }
 float sqf::configdata::cfgvalue(std::string_view key, float def) const
 {
-	auto node = navigate(key)->data<configdata>();
+	auto node = navigate(key).data<configdata>();
 	if (node->is_null() || node->cfgvalue().dtype() != type::SCALAR)
 	{
 		return def;
@@ -117,7 +117,7 @@ float sqf::configdata::cfgvalue(std::string_view key, float def) const
 }
 std::string sqf::configdata::cfgvalue(std::string_view key, std::string def) const
 {
-	auto node = navigate(key)->data<configdata>();
+	auto node = navigate(key).data<configdata>();
 	if (node->is_null() || node->cfgvalue().dtype() != type::SCALAR)
 	{
 		return def;
@@ -135,7 +135,7 @@ void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 		auto othercd = cd->navigate_unsafe(subcd->m_name);
 		if (othercd)
 		{
-			subcd->mergeinto(othercd->data<configdata>());
+			subcd->mergeinto(othercd.data<configdata>());
 		}
 		else
 		{
@@ -144,14 +144,14 @@ void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 	}
 }
 
-std::shared_ptr<sqf::value> sqf::configdata::configFile()
+sqf::value sqf::configdata::configFile()
 {
 	static std::shared_ptr<sqf::configdata> cdata = std::make_shared<sqf::configdata>();
-	return std::make_shared<sqf::value>(cdata);
+	return sqf::value(cdata);
 }
 
-std::shared_ptr<sqf::value> sqf::configdata::configNull()
+sqf::value sqf::configdata::configNull()
 {
 	static std::shared_ptr<sqf::configdata> cdata = std::make_shared<sqf::configdata>("");
-	return std::make_shared<sqf::value>(cdata);
+	return sqf::value(cdata);
 }

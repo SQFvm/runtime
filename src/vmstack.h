@@ -128,7 +128,7 @@ namespace sqf
 			if (mstacks.empty())
 			{
 				success = false;
-				return value();
+				return {};
 			}
 			return mstacks.back()->pop_back_value(success);
 		}

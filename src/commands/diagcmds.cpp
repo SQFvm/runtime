@@ -7,19 +7,19 @@
 using namespace sqf;
 namespace
 {
-	std::shared_ptr<value> diag_log_any(virtualmachine* vm, value::cref right)
+	value diag_log_any(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_string();
 		vm->out() << "[DIAG]\t" << r << std::endl;
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> diag_tickTime_(virtualmachine* vm)
+	value diag_tickTime_(virtualmachine* vm)
 	{
 		// Easily fits in a long
 		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(virtualmachine::system_time().time_since_epoch()).count());
-		return std::make_shared<value>(r);
+		return r;
 	}
-	std::shared_ptr<value> assert_bool(virtualmachine* vm, value::cref right)
+	value assert_bool(virtualmachine* vm, value::cref right)
 	{
 		if (!right.as_bool())
 		{
@@ -29,9 +29,9 @@ namespace
 				vm->halt();
 			}
 		}
-		return std::make_shared<value>(right);
+		return right;
 	}
-	std::shared_ptr<value> halt_(virtualmachine* vm)
+	value halt_(virtualmachine* vm)
 	{
 		if (vm->dbg())
 		{
@@ -41,7 +41,7 @@ namespace
 		{
 			vm->wrn() << "No debugger connected." << std::endl;
 		}
-		return std::make_shared<value>();
+		return {};
 	}
 }
 void sqf::commandmap::initdiagcmdss()

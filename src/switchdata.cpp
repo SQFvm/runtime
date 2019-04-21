@@ -3,5 +3,5 @@
 
 std::string sqf::switchdata::tosqf() const
 {
-	return mvalue->tosqf();
+	return mvalue.tosqf();
 }

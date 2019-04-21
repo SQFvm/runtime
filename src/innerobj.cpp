@@ -40,13 +40,13 @@ double sqf::innerobj::distance2d(std::array<double, 2> otherpos) const
 }
 
 bool sqf::innerobj::iskindof(std::string_view cfgname) const {
-	auto configbin = configdata::configFile()->data<configdata>();
-	auto cfgVehicles = configbin->navigate("CfgVehicles")->data<configdata>();
+	auto configbin = configdata::configFile().data<configdata>();
+	auto cfgVehicles = configbin->navigate("CfgVehicles").data<configdata>();
 	if (cfgVehicles->is_null())
 	{
 		return false;
 	}
-	auto node = cfgVehicles->navigate(this->classname())->data<configdata>();
+	auto node = cfgVehicles->navigate(this->classname()).data<configdata>();
 	return node->is_kind_of(cfgname);
 }
 
@@ -59,13 +59,13 @@ void sqf::innerobj::destroy(sqf::virtualmachine * vm)
 
 bool sqf::innerobj::update_values_from_configbin()
 { 
-	auto configbin = configdata::configFile()->data<configdata>();
-	auto vehConfig = configbin->navigate("CfgVehicles")->data<configdata>();
+	auto configbin = configdata::configFile().data<configdata>();
+	auto vehConfig = configbin->navigate("CfgVehicles").data<configdata>();
 	if (vehConfig->is_null())
 	{
 		return false;
 	}
-	vehConfig = vehConfig->navigate(mclassname)->data<configdata>();
+	vehConfig = vehConfig->navigate(mclassname).data<configdata>();
 	if (vehConfig->is_null())
 	{
 		return false;

@@ -405,14 +405,14 @@ int main(int argc, char** argv)
 	}
 	for (auto& f : commandDummyNular.getValue())
 	{
-		sqf::commandmap::get().add(sqf::nular(f, "DUMMY", [](sqf::virtualmachine* vm) -> std::shared_ptr<sqf::value> {
-			vm->err() << "DUMMY" << std::endl; return std::make_shared<sqf::value>();
+		sqf::commandmap::get().add(sqf::nular(f, "DUMMY", [](sqf::virtualmachine* vm) -> sqf::value {
+			vm->err() << "DUMMY" << std::endl; return {};
 		}));
 	}
 	for (auto& f : commandDummyUnary.getValue())
 	{
-		sqf::commandmap::get().add(sqf::unary(f, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref r) -> std::shared_ptr<sqf::value> {
-			vm->err() << "DUMMY" << std::endl; return std::make_shared<sqf::value>();
+		sqf::commandmap::get().add(sqf::unary(f, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref r) -> sqf::value {
+			vm->err() << "DUMMY" << std::endl; return {};
 		}));
 	}
 	for (auto& f : commandDummyBinary.getValue())
@@ -426,8 +426,8 @@ int main(int argc, char** argv)
 		}
 		auto precedence = f.substr(0, split_index);
 		auto name = f.substr(split_index + 1);
-		sqf::commandmap::get().add(sqf::binary(std::stoi(precedence), name, sqf::type::ANY, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref l, sqf::value::cref r) -> std::shared_ptr<sqf::value> {
-			vm->err() << "DUMMY" << std::endl; return std::make_shared<sqf::value>();
+		sqf::commandmap::get().add(sqf::binary(std::stoi(precedence), name, sqf::type::ANY, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref l, sqf::value::cref r) -> sqf::value {
+			vm->err() << "DUMMY" << std::endl; return {};
 		}));
 	}
 	if (errflag)
@@ -594,7 +594,7 @@ int main(int argc, char** argv)
 				{
 					std::cout << "Parsing file '" << sanitized << std::endl;
 				}
-				vm.parse_config(ppedStr, sqf::configdata::configFile()->data<sqf::configdata>());
+				vm.parse_config(ppedStr, sqf::configdata::configFile().data<sqf::configdata>());
 			}
 		}
 		catch (const std::runtime_error& ex)
@@ -631,7 +631,7 @@ int main(int argc, char** argv)
 	//Load & merge all config-code provided via arg.
 	for (auto& raw : configArg.getValue())
 	{
-		vm.parse_config(raw, sqf::configdata::configFile()->data<sqf::configdata>());
+		vm.parse_config(raw, sqf::configdata::configFile().data<sqf::configdata>());
 	}
 
 	if (debugger_port > 0)

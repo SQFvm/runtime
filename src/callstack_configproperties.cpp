@@ -29,7 +29,7 @@
 		// Check if we still can go one level higher
 		if (!m_configdata->inherited_parent_name().empty())
 		{
-			m_configdata = m_configdata->inherited_parent()->data<configdata>();
+			m_configdata = m_configdata->inherited_parent().data<configdata>();
 			m_current_index = 0;
 			return do_next(vm);
 		}

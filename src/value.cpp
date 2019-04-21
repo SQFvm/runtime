@@ -4,7 +4,8 @@
 #include "scalardata.h"
 #include "stringdata.h"
 #include "codedata.h"
-
+#include "data.h"
+#include "convert.h"
 
 sqf::value::value(std::vector<sqf::value> arr)
 {
@@ -64,6 +65,28 @@ sqf::value::value(std::shared_ptr<sqf::callstack> cs)
 sqf::value::value()
 {
 	mdata = std::shared_ptr<sqf::data>();
+}
+
+bool sqf::value::equals(value::cref v) const {
+    return v && mdata && v.mdata && mdata->type() == v.mdata->type() && mdata->equals(v.mdata);
+}
+
+std::string sqf::value::tosqf() const {
+    if (mdata) {
+        return mdata->tosqf();
+    } else if (!mdata || mdata->type() == type::NOTHING) {
+        return "nil";
+    } else if (mdata->type() == type::ANY) {
+        return "any";
+    } else {
+        return "";
+    }
+}
+
+void sqf::value::convert(type type) {
+    if (mdata->type() == type)
+        return;
+    mdata = sqf::convert(std::move(mdata), type);
 }
 
 sqf::value::operator float() const
@@ -138,7 +161,7 @@ sqf::value::operator bool() const
     auto type = dtype();
 	if (type != BOOL && type != IF)
 	{
-		data = sqf::convert(data, SCALAR);
+		data = sqf::convert(data, BOOL);
 	}
 	return static_cast<bool>(*(std::dynamic_pointer_cast<booldata>(data).get()));
 }
@@ -161,4 +184,9 @@ sqf::value::operator std::vector<sqf::value>() const
 		data = sqf::convert(data, ARRAY);
 	}
 	return *(std::dynamic_pointer_cast<arraydata>(data).get());
+}
+
+sqf::type sqf::value::dtype() const {
+    if (!mdata) return type::NOTHING;
+    return mdata->type();
 }

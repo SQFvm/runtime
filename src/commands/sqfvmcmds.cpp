@@ -23,7 +23,7 @@
 using namespace sqf;
 namespace
 {
-	std::shared_ptr<value> assembly___code(virtualmachine* vm, value::cref right)
+	value assembly___code(virtualmachine* vm, value::cref right)
 	{
 		auto codedata = right.data<sqf::codedata>();
 		std::vector<sqf::value> outarr;
@@ -31,9 +31,9 @@ namespace
 		{
 			outarr.push_back(sqf::value((*it)->to_string()));
 		}
-		return std::make_shared<sqf::value>(outarr);
+		return outarr;
 	}
-	std::shared_ptr<value> cmds___(virtualmachine* vm)
+	value cmds___(virtualmachine* vm)
 	{
 		std::vector<sqf::value> outarr;
 		auto str = "n";
@@ -66,9 +66,9 @@ namespace
 				}));
 			}
 		}
-		return std::make_shared<sqf::value>(outarr);
+		return outarr;
 	}
-	std::shared_ptr<value> cmdsimplemented___(virtualmachine* vm)
+	value cmdsimplemented___(virtualmachine* vm)
 	{
 		std::vector<sqf::value> outarr;
 		auto str = "n";
@@ -107,9 +107,9 @@ namespace
 				}));
 			}
 		}
-		return std::make_shared<sqf::value>(outarr);
+		return outarr;
 	}
-	std::shared_ptr<value> vm___(virtualmachine* vm)
+	value vm___(virtualmachine* vm)
 	{
 		std::vector<sqf::value> outarr;
 		auto str = "n";
@@ -148,16 +148,16 @@ namespace
 				}));
 			}
 		}
-		return std::make_shared<sqf::value>(outarr);
+		return outarr;
 	}
-	std::shared_ptr<value> tree___string(virtualmachine* vm, value::cref right)
+	value tree___string(virtualmachine* vm, value::cref right)
 	{
 		auto str = right.as_string();
 		std::stringstream sstream;
 		vm->parse_sqf_tree(str, &sstream);
-		return std::make_shared<value>(sstream.str());
+		return sstream.str();
 	}
-	std::shared_ptr<value> help___string(virtualmachine* vm, value::cref right)
+	value help___string(virtualmachine* vm, value::cref right)
 	{
 		std::stringstream sstream;
 		auto str = right.as_string();
@@ -205,74 +205,74 @@ namespace
 		{
 			vm->out() << "Could not find any command with that name." << std::endl;
 		}
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> configparse___string(virtualmachine* vm, value::cref right)
+	value configparse___string(virtualmachine* vm, value::cref right)
 	{
 		auto str = right.as_string();
 		auto cd = std::make_shared<sqf::configdata>();
 		vm->parse_config(str, cd);
-		return std::make_shared<value>(cd);
+		return value(cd);
 	}
-	std::shared_ptr<value> merge___config_config(virtualmachine* vm, value::cref left, value::cref right)
+	value merge___config_config(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto target = left.data<configdata>();
 		auto source = right.data<configdata>();
 		source->mergeinto(target);
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> allObjects__(virtualmachine* vm)
+	value allObjects__(virtualmachine* vm)
 	{
 		auto arr = std::make_shared<arraydata>();
 		for (auto& object : vm->get_objlist())
 		{
 			arr->push_back(value(std::make_shared<objectdata>(object)));
 		}
-		return std::make_shared<value>(arr);
+		return value(arr);
 	}
-	std::shared_ptr<value> prettyprintsqf___string(virtualmachine* vm, value::cref right)
+	value prettyprintsqf___string(virtualmachine* vm, value::cref right)
 	{
 		auto str = right.as_string();
 		vm->pretty_print_sqf(str);
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> exit___(virtualmachine* vm)
+	value exit___(virtualmachine* vm)
 	{
 		vm->exitflag(true);
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> exit___scalar(virtualmachine* vm, value::cref right)
+	value exit___scalar(virtualmachine* vm, value::cref right)
 	{
 		vm->exitflag(true, static_cast<int>(std::round(right.as_float())));
-		return std::make_shared<value>();
+		return {};
 	}
-    std::shared_ptr<value> respawn___(virtualmachine* vm)
+    value respawn___(virtualmachine* vm)
 	{
 		vm->player_obj(innerobj::create(vm, "CAManBase", false));
-		return std::make_shared<value>(std::make_shared<objectdata>(vm->player_obj()));
+		return value(std::make_shared<objectdata>(vm->player_obj()));
 	}
-	std::shared_ptr<value> preprocess___string(virtualmachine* vm, value::cref right)
+	value preprocess___string(virtualmachine* vm, value::cref right)
 	{
 		auto content = right.as_string();
 		bool errflag = false;
 		auto ppres = sqf::parse::preprocessor::parse(vm, content, errflag, "__preprocess__.sqf");
 		if (errflag)
 		{
-			return std::make_shared<value>();
+			return {};
 		}
 		else
 		{
-			return std::make_shared<value>(ppres);
+			return ppres;
 		}
 	}
-	std::shared_ptr<value> except___code_code(virtualmachine* vm, value::cref left, value::cref right)
+	value except___code_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto cs = std::make_shared<callstack_sqftry>(vm->active_vmstack()->stacks_top()->get_namespace(), right.data<codedata>());
 		vm->active_vmstack()->pushcallstack(cs);
 		left.data<codedata>()->loadinto(vm->active_vmstack(), cs);
-		return std::shared_ptr<value>();
+		return {};
 	}
-	std::shared_ptr<value> callstack___(virtualmachine* vm)
+	value callstack___(virtualmachine* vm)
 	{
 		auto stackdump = vm->active_vmstack()->dump_callstack_diff({});
 		auto sqfarr = std::make_shared<arraydata>();
@@ -289,15 +289,15 @@ namespace
 			};
 			sqfarr->push_back(value(std::make_shared<arraydata>(vec)));
 		}
-		return std::make_shared<value>(sqfarr);
+		return value(sqfarr);
 	}
-	std::shared_ptr<value> allfiles___(virtualmachine* vm, value::cref right)
+	value allfiles___(virtualmachine* vm, value::cref right)
 	{
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 		if (vm->get_filesystem().disallow())
 		{
 			vm->wrn() << "FILE SYSTEM IS DISABLED" << std::endl;
-			return std::make_shared<sqf::value>(std::make_shared<arraydata>());
+			return sqf::value(std::make_shared<arraydata>());
 		}
 #endif
 		auto arr = right.data<arraydata>();
@@ -327,20 +327,20 @@ namespace
 				}
 			}
 		}
-		return std::make_shared<sqf::value>(std::make_shared<arraydata>(files));
+		return sqf::value(std::make_shared<arraydata>(files));
 	}
-	std::shared_ptr<value> pwd___(virtualmachine* vm)
+	value pwd___(virtualmachine* vm)
 	{
 		auto path = std::filesystem::path(vm->active_vmstack()->stacks_top()->current_instruction()->file());
-		return std::make_shared<sqf::value>(std::filesystem::absolute(path).string());
+		return std::filesystem::absolute(path).string();
 	}
-	std::shared_ptr<value> currentDirectory___(virtualmachine* vm)
+	value currentDirectory___(virtualmachine* vm)
 	{
 		auto path = std::filesystem::path(vm->active_vmstack()->stacks_top()->current_instruction()->file());
 		
-		return std::make_shared<sqf::value>(std::filesystem::absolute(path.parent_path()).string());
+		return std::filesystem::absolute(path.parent_path()).string();
 	}
-	std::shared_ptr<value> trim___(virtualmachine* vm, value::cref right)
+	value trim___(virtualmachine* vm, value::cref right)
 	{
 		auto str = right.as_string();
 		str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](int ch) {
@@ -349,7 +349,7 @@ namespace
 		str.erase(std::find_if(str.rbegin(), str.rend(), [](int ch) {
 			return !std::isspace(ch);
 			}).base(), str.end());
-		return std::make_shared<sqf::value>(str);
+		return str;
 	}
 }
 void sqf::commandmap::initsqfvmcmds()

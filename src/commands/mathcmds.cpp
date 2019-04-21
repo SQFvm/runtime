@@ -13,149 +13,149 @@
 using namespace sqf;
 namespace
 {
-	std::shared_ptr<value> plus_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
+	value plus_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		return std::make_shared<value>((left.as_double()) + (right.as_double()));
+		return (left.as_double()) + (right.as_double());
 	}
-	std::shared_ptr<value> minus_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
+	value minus_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		return std::make_shared<value>((left.as_double()) - (right.as_double()));
+		return (left.as_double()) - (right.as_double());
 	}
-	std::shared_ptr<value> multiply_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
+	value multiply_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		return std::make_shared<value>((left.as_double()) * (right.as_double()));
+		return (left.as_double()) * (right.as_double());
 	}
-	std::shared_ptr<value> divide_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
+	value divide_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto r = (right.as_double());
 		if (r == 0)
 		{
 			vm->wrn() << "Zero Divisor" << std::endl;
-			return std::make_shared<value>(0);
+			return 0;
 		}
-		return std::make_shared<value>((left.as_double()) / r);
+		return (left.as_double()) / r;
 	}
-	std::shared_ptr<value> abs_scalar(virtualmachine* vm, value::cref right)
+	value abs_scalar(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_double();
-		return std::make_shared<value>(std::fabs(r));
+		return std::fabs(r);
 	}
-	std::shared_ptr<value> atan2_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
+	value atan2_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
-		return std::make_shared<value>(std::atan2(left.as_double(), right.as_double()));
+		return std::atan2(left.as_double(), right.as_double());
 	}
-	std::shared_ptr<value> deg_scalar(virtualmachine* vm, value::cref right)
+	value deg_scalar(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(right.as_double() * (180 / compiletime::pi()));
+		return right.as_double() * (180 / compiletime::pi());
 	}
-    std::shared_ptr<value> log_scalar(virtualmachine* vm, value::cref right)
+    value log_scalar(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(std::log10(right.as_double()));
+		return std::log10(right.as_double());
 	}
-	std::shared_ptr<value> pi_(virtualmachine* vm)
+	value pi_(virtualmachine* vm)
 	{
-		return std::make_shared<value>(compiletime::pi());
+		return compiletime::pi();
 	}
-	std::shared_ptr<value> sin_scalar(virtualmachine* vm, value::cref right)
+	value sin_scalar(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(std::sin(right.as_double()));
+		return std::sin(right.as_double());
 	}
-	std::shared_ptr<value> acos_scalar(virtualmachine* vm, value::cref right)
+	value acos_scalar(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(std::acos(right.as_double()));
+		return std::acos(right.as_double());
 	}
-	std::shared_ptr<value> exp_scalar(virtualmachine* vm, value::cref right)
+	value exp_scalar(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(std::exp(right.as_double()));
+		return std::exp(right.as_double());
 	}
-    std::shared_ptr<value> rad_scalar(virtualmachine* vm, value::cref right)
+    value rad_scalar(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(right.as_double() * (compiletime::pi() / 180));
+		return right.as_double() * (compiletime::pi() / 180);
 	}
-	std::shared_ptr<value> sqrt_scalar(virtualmachine* vm, value::cref right)
+	value sqrt_scalar(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(std::sqrt(right.as_double()));
+		return std::sqrt(right.as_double());
 	}
-	std::shared_ptr<value> tan_scalar(virtualmachine* vm, value::cref right)
+	value tan_scalar(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(std::tan(right.as_double()));
+		return std::tan(right.as_double());
 	}
-    std::shared_ptr<value> random_scalar(virtualmachine* vm, value::cref right)
+    value random_scalar(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(compiletime::rand_lim(std::rand(), right.as_double()));
+		return compiletime::rand_lim(std::rand(), right.as_double());
 	}
-	std::shared_ptr<value> min_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
+	value min_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.as_double();
 		auto r = right.as_double();
-		return std::make_shared<value>(std::fmin(l, r));
+		return std::fmin(l, r);
 	}
-	std::shared_ptr<value> max_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
+	value max_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.as_double();
 		auto r = right.as_double();
-		return std::make_shared<value>(std::fmax(l, r));
+		return std::fmax(l, r);
 	}
-	std::shared_ptr<value> floor_scalar(virtualmachine* vm, value::cref right)
+	value floor_scalar(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_double();
-		return std::make_shared<value>(std::floor(r));
+		return std::floor(r);
 	}
-	std::shared_ptr<value> ceil_scalar(virtualmachine* vm, value::cref right)
+	value ceil_scalar(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_double();
-		return std::make_shared<value>(std::ceil(r));
+		return std::ceil(r);
 	}
-	std::shared_ptr<value> asin_scalar(virtualmachine* vm, value::cref right)
+	value asin_scalar(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_double();
-		return std::make_shared<value>(std::asin(r));
+		return std::asin(r);
 	}
-	std::shared_ptr<value> atan_scalar(virtualmachine* vm, value::cref right)
+	value atan_scalar(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_double();
-		return std::make_shared<value>(std::atan(r));
+		return std::atan(r);
 	}
-	std::shared_ptr<value> cos_scalar(virtualmachine* vm, value::cref right)
+	value cos_scalar(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_double();
-		return std::make_shared<value>(std::cos(r));
+		return std::cos(r);
 	}
-    std::shared_ptr<value> ln_scalar(virtualmachine* vm, value::cref right)
+    value ln_scalar(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_double();
-		return std::make_shared<value>(std::log(r));
+		return std::log(r);
 	}
-	std::shared_ptr<value> mod_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
+	value mod_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.as_double();
 		auto r = right.as_double();
-		return std::make_shared<value>(std::fmod(l, r));
+		return std::fmod(l, r);
 	}
-    std::shared_ptr<value> round_scalar(virtualmachine* vm, value::cref right)
+    value round_scalar(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_double();
-		return std::make_shared<value>(std::round(r));
+		return std::round(r);
 	}
-	std::shared_ptr<value> minus_scalar(virtualmachine* vm, value::cref right)
+	value minus_scalar(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_double();
-		return std::make_shared<value>(-r);
+		return -r;
 	}
-	std::shared_ptr<value> exclamationmark_bool(virtualmachine* vm, value::cref right)
+	value exclamationmark_bool(virtualmachine* vm, value::cref right)
 	{
 		auto f = right.as_bool();
-		return std::make_shared<value>(!f);
+		return !f;
 	}
-    std::shared_ptr<value> raisetopower_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
+    value raisetopower_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.as_double();
 		auto r = right.as_double();
-		return std::make_shared<value>(std::pow(l, r));
+		return std::pow(l, r);
 	}
-	std::shared_ptr<value> plus_scalar(virtualmachine* vm, value::cref right)
+	value plus_scalar(virtualmachine* vm, value::cref right)
 	{
-		return std::make_shared<value>(right);
+		return right;
 	}
 	double dotProduct(std::array<double, 3> left, std::array<double, 3> right)
 	{
@@ -177,130 +177,130 @@ namespace
 	{
 		return std::sqrt(vectorDistanceSqr(left, right));
 	}
-	std::shared_ptr<value> vectoradd_array_array(virtualmachine* vm, value::cref left, value::cref right)
+	value vectoradd_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.data<arraydata>();
 		auto r = right.data<arraydata>();
 		auto arr = std::make_shared<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
 		arr->push_back(l->at(0).as_double() + r->at(0).as_double());
 		arr->push_back(l->at(1).as_double() + r->at(1).as_double());
 		arr->push_back(l->at(2).as_double() + r->at(2).as_double());
-		return std::make_shared<value>(arr);
+		return value(arr);
 	}
-	std::shared_ptr<value> vectorcos_array_array(virtualmachine* vm, value::cref left, value::cref right)
+	value vectorcos_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.data<arraydata>();
 		auto r = right.data<arraydata>();
 		auto arr = std::make_shared<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
-		return std::make_shared<value>(dotProduct(*l, *r) / (vectorMagnitude(*l) * vectorMagnitude(*r)));
+		return dotProduct(*l, *r) / (vectorMagnitude(*l) * vectorMagnitude(*r));
 	}
-	std::shared_ptr<value> vectorcrossproduct_array_array(virtualmachine* vm, value::cref left, value::cref right)
+	value vectorcrossproduct_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.data<arraydata>();
 		auto r = right.data<arraydata>();
 		auto arr = std::make_shared<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
 		arr->push_back(l->at(1).as_double() * r->at(2).as_double() - l->at(2).as_double() * r->at(1).as_double());
 		arr->push_back(l->at(2).as_double() * r->at(0).as_double() - l->at(0).as_double() * r->at(2).as_double());
 		arr->push_back(l->at(0).as_double() * r->at(1).as_double() - l->at(1).as_double() * r->at(0).as_double());
-		return std::make_shared<value>(arr);
+		return value(arr);
 	}
-	std::shared_ptr<value> vectordistance_array_array(virtualmachine* vm, value::cref left, value::cref right)
+	value vectordistance_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.data<arraydata>();
 		auto r = right.data<arraydata>();
 		auto arr = std::make_shared<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
-		return std::make_shared<value>(vectorDistance(*l, *r));
+		return vectorDistance(*l, *r);
 	}
-	std::shared_ptr<value> vectordistancesqr_array_array(virtualmachine* vm, value::cref left, value::cref right)
+	value vectordistancesqr_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.data<arraydata>();
 		auto r = right.data<arraydata>();
 		auto arr = std::make_shared<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
-		return std::make_shared<value>(vectorDistanceSqr(*l, *r));
+		return vectorDistanceSqr(*l, *r);
 	}
-	std::shared_ptr<value> vectormultiply_array_scalar(virtualmachine* vm, value::cref left, value::cref right)
+	value vectormultiply_array_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.data<arraydata>();
 		auto r = right.as_double();
 		auto arr = std::make_shared<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3))
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
 		arr->push_back(l->at(1).as_double() * r);
 		arr->push_back(l->at(2).as_double() * r);
 		arr->push_back(l->at(0).as_double() * r);
-		return std::make_shared<value>(arr);
+		return value(arr);
 	}
-	std::shared_ptr<value> vectordiff_array_array(virtualmachine* vm, value::cref left, value::cref right)
+	value vectordiff_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.data<arraydata>();
 		auto r = right.data<arraydata>();
 		auto arr = std::make_shared<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
 		arr->push_back(l->at(1).as_double() - r->at(1).as_double());
 		arr->push_back(l->at(2).as_double() - r->at(2).as_double());
 		arr->push_back(l->at(0).as_double() - r->at(0).as_double());
-		return std::make_shared<value>(arr);
+		return value(arr);
 	}
-	std::shared_ptr<value> vectordotproduct_array_array(virtualmachine* vm, value::cref left, value::cref right)
+	value vectordotproduct_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.data<arraydata>();
 		auto r = right.data<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
-		return std::make_shared<value>(dotProduct(*l, *r));
+		return dotProduct(*l, *r);
 	}
-	std::shared_ptr<value> vectormagnitude_array(virtualmachine* vm, value::cref left)
+	value vectormagnitude_array(virtualmachine* vm, value::cref left)
 	{
 		auto l = left.data<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3))
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
-		return std::make_shared<value>(vectorMagnitude(*l));
+		return vectorMagnitude(*l);
 	}
-	std::shared_ptr<value> vectormagnitudesqr_array(virtualmachine* vm, value::cref left)
+	value vectormagnitudesqr_array(virtualmachine* vm, value::cref left)
 	{
 		auto l = left.data<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3))
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
-		return std::make_shared<value>(vectorMagnitudeSqr(*l));
+		return vectorMagnitudeSqr(*l);
 	}
-	std::shared_ptr<value> vectornormalized_array(virtualmachine* vm, value::cref left)
+	value vectornormalized_array(virtualmachine* vm, value::cref left)
 	{
 		auto l = left.data<arraydata>();
 		auto arr = std::make_shared<arraydata>();
 		if (!l->check_type(vm, SCALAR, 3))
 		{
-			return std::shared_ptr<value>();
+			return {};
 		}
 		auto magnitude = vectorMagnitude(*l);
 		if (magnitude == 0)
@@ -315,9 +315,9 @@ namespace
 			arr->push_back(l->at(2).as_double() / magnitude);
 			arr->push_back(l->at(0).as_double() / magnitude);
 		}
-		return std::make_shared<value>(vectorMagnitudeSqr(*l));
+		return vectorMagnitudeSqr(*l);
 	}
-	std::shared_ptr<value> tofixed_scalar(virtualmachine* vm, value::cref right)
+	value tofixed_scalar(virtualmachine* vm, value::cref right)
 	{
 		auto i = right.as_int();
 		if (i > 20)
@@ -329,9 +329,9 @@ namespace
 			i = -1;
 		}
 		sqf::scalardata::setdecimals(i);
-		return std::make_shared<value>();
+		return {};
 	}
-	std::shared_ptr<value> tofixed_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
+	value tofixed_scalar_scalar(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto i = right.as_int();
 		if (i > 20)
@@ -344,7 +344,7 @@ namespace
 		}
 		std::stringstream sstream;
 		sstream << std::fixed << std::setprecision(i) << left.as_float();
-		return std::make_shared<value>(sstream.str());
+        return sstream.str();
 	}
 }
 

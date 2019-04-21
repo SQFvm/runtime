@@ -6,8 +6,6 @@
 #include <memory>
 
 #include "type.h"
-#include "data.h"
-#include "convert.h"
 
 namespace sqf
 {
@@ -45,7 +43,7 @@ namespace sqf
 		operator bool() const;
 		operator std::string() const;
 		operator std::vector<sqf::value>() const;
-        operator type() const { if (!mdata) return type::NOTHING; return mdata->type(); }
+        operator type() const { return dtype(); };
 
 		float as_float() const { return *this; }
 		double as_double() const { return *this; }
@@ -56,7 +54,7 @@ namespace sqf
 		bool as_bool() const { return *this; }
 		std::string as_string() const { return *this; }
 		std::vector<sqf::value> as_vector() const { return *this; }
-		type dtype() const { return *this; }
+        type dtype() const;
 		std::shared_ptr<sqf::data> data() const { return mdata; }
 
 		///Tries to convert to T, if it fails it returns nullptr
@@ -70,32 +68,11 @@ namespace sqf
 			static_assert(std::is_base_of<sqf::data, T>::value, "value::data<T>() can only convert to sqf::data types");
 			return std::static_pointer_cast<T>(mdata);
 		}
-		bool equals(value::cref v) const { return v && mdata && v.mdata && mdata->type() == v.mdata->type() && mdata->equals(v.mdata); }
 
-		std::string tosqf() const
-	    {
-			if (mdata)
-			{
-				return mdata->tosqf();
-			}
-			else if (!mdata || mdata->type() == type::NOTHING)
-			{
-				return "nil";
-			}
-			else if (mdata->type() == type::ANY)
-			{
-				return "any";
-			}
-			else
-			{
-				return "";
-			}
-		}
-		void convert(type type)
-		{
-			if (mdata->type() == type)
-				return;
-			mdata = sqf::convert(std::move(mdata), type);
-		}
+        bool equals(value::cref v) const;
+
+        std::string tosqf() const;
+
+        void convert(type type);
 	};
 }
