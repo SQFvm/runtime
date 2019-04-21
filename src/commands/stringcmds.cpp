@@ -155,7 +155,7 @@ namespace
 		auto r = right->as_string();
 		std::stringstream sstream;
 		bool separator = false;
-		for (auto it : l)
+		for (auto& it : l)
 		{
 			if (separator)
 			{

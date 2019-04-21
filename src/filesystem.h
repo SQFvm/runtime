@@ -49,7 +49,7 @@ namespace sqf
 		// Attempts to receive a physical path from provided virtual path.
 		// Will throw a runtime_error if the requested path is not allowed
 		// to be received.
-		std::string get_physical_path(std::string virt, std::string current = "")
+		std::string get_physical_path(std::string_view virt, std::string_view current = "")
 		{
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 			if (mdisallow)
@@ -70,13 +70,13 @@ namespace sqf
 		// Attempts to receive a physical path from provided virtual path.
 		// Will return true if the path was received successfully.
 		// Returns false (and does not modifies second param) if not.
-		std::optional<std::string> try_get_physical_path(std::string virt, std::string current = "");
+		std::optional<std::string> try_get_physical_path(std::string_view virt, std::string_view current = "");
 		// Adds a physical path to the allowed list.
-		void add_allowed_physical(std::string phys);
+		void add_allowed_physical(std::string_view phys);
 		// Adds a mapping of a virtual path to a physical one.
-		void add_mapping(std::string virt, std::string phys);
+		void add_mapping(std::string_view virt, std::string_view phys);
         // Recursively scans directory for $PBOPREFIX$ files and adds mappings for them.
-        void add_mapping_auto(std::string phys);
+        void add_mapping_auto(std::string_view phys);
 
 
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
@@ -85,6 +85,6 @@ namespace sqf
 		bool disallow() { return mdisallow; }
 #endif
 
-		static std::string sanitize(std::string input) { return input; }
+		static std::string sanitize(std::string_view input) { return std::string(input); } //#TODO remove
 	};
 }

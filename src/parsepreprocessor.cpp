@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <sstream>
+#include <utility>
 #include <vector>
 #include <string>
 #include <optional>
@@ -28,7 +29,7 @@ namespace {
 	public:
 		std::unordered_map<std::string, macro> macros;
 		std::vector<std::string> path_tree;
-		sqf::virtualmachine* vm;
+		sqf::virtualmachine* vm { nullptr };
 		bool errflag = false;
 		bool allowwrite = true;
 		bool inside_ppif = false;
@@ -602,7 +603,7 @@ namespace {
 			output.append(parsedFile); output.append("\n");
 			output.append("#file "); output.append(fileinfo.path); output.append("\n");
 			output.append("#line "); output.append(lineInfo); output.append("\n");
-			return std::move(output);
+			return output;
 		}
 		else if (inst == "DEFINE")
 		{ // #define TEST(A, B, C) A #B##C
@@ -1050,8 +1051,8 @@ std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string
 		h.macros["_SQF_VM_REVISION"] = macro;
 	}
 	finfo fileinfo;
-	fileinfo.content = input;
-	fileinfo.path = filename;
+	fileinfo.content = std::move(input);
+	fileinfo.path = std::move(filename);
 	auto res = parse_file(h, fileinfo);
 	errflag = h.errflag;
 	return res;

@@ -39,7 +39,7 @@ double sqf::innerobj::distance2d(std::array<double, 2> otherpos) const
 	return arraydata::distance2d(std::array<double, 2> { mposx, mposy }, otherpos);
 }
 
-bool sqf::innerobj::iskindof(std::string cfgname)
+bool sqf::innerobj::iskindof(std::string_view cfgname)
 {
 	auto configbin = configdata::configFile()->data<configdata>();
 	auto cfgVehicles = configbin->navigate("CfgVehicles")->data<configdata>();

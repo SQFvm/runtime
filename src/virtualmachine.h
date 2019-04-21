@@ -149,10 +149,10 @@ namespace sqf
 		void remove_marker(std::string key) { mmarkers.erase(key); }
 		const std::map<std::string, sqf::marker>& get_markers() { return mmarkers; }
 
-		void parse_assembly(std::string);
+		void parse_assembly(std::string_view);
 		// Parses the provided code and prints the resulting
 		// SQF-tree out into provided std::stringstream pointer
-		void parse_sqf_tree(std::string, std::stringstream*);
+		void parse_sqf_tree(std::string_view, std::stringstream*);
 		// Parses the provided code and creates assembly
 		// instructions into a newly created sqf::callstack
 		// that gets pushed onto the default sqf::vmstack receivable using
@@ -165,7 +165,7 @@ namespace sqf
 		// 
 		// In all cases, the corresponding wrn_ and out_ methods
 		// Also should be checked in case they contain additional info.
-		bool parse_sqf(std::string code, std::string filepath = "") { return parse_sqf(active_vmstack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
+		bool parse_sqf(std::string_view code, std::string filepath = "") { return parse_sqf(active_vmstack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
 		// Parses the provided code and creates assembly
 		// instructions into provided sqf::callstack
 		// that gets pushed onto the default sqf::vmstack receivable using
@@ -178,7 +178,7 @@ namespace sqf
 		// 
 		// In all cases, the corresponding wrn_ and out_ methods
 		// Also should be checked in case they contain additional info.
-		bool parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { return parse_sqf(active_vmstack(), str, cs, filepath); }
+		bool parse_sqf(std::string_view str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { return parse_sqf(active_vmstack(), str, cs, filepath); }
 		// Parses the provided code and creates assembly
 		// instructions into provided sqf::callstack
 		// that gets pushed onto provided sqf::vmstack
@@ -190,12 +190,12 @@ namespace sqf
 		// 
 		// In all cases, the corresponding wrn_ and out_ methods
 		// Also should be checked in case they contain additional info.
-		bool parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>, std::string = "");
+		bool parse_sqf(std::shared_ptr<sqf::vmstack>, std::string_view, std::shared_ptr<sqf::callstack>, std::string = "");
 
 		astnode parse_sqf_cst(std::string_view code, std::string filepath = "") { bool errflag = false; return parse_sqf_cst(code, errflag, filepath); }
         astnode parse_sqf_cst(std::string_view code, bool& errorflag, std::string filepath = "");
-		void pretty_print_sqf(std::string code);
-		void parse_config(std::string, std::shared_ptr<configdata>);
+		void pretty_print_sqf(std::string_view code);
+		void parse_config(std::string_view, std::shared_ptr<configdata>);
 		bool errflag() const { return merrflag; }
 		bool wrnflag() const { return mwrnflag; }
 		void halt() { mhaltflag = true; }

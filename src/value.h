@@ -15,6 +15,8 @@ namespace sqf
 	class data;
 	class value
 	{
+	public:
+        using ref = const std::shared_ptr<value>&;
 	private:
 		std::shared_ptr<sqf::data> mdata;
 		type mtype;

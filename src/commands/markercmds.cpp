@@ -130,7 +130,7 @@ namespace
 	std::shared_ptr<value> createmarker_array(virtualmachine* vm, std::shared_ptr<value> right)
 	{
 		auto arr = right->data<arraydata>();
-		std::array<float, 3> pos;
+		std::array<float, 3> pos {0, 0, 0};
 		std::string name;
 		if (arr->check_type(vm, std::array<type, 2> { STRING, OBJECT}))
 		{

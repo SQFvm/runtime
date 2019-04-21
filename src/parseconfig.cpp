@@ -1,4 +1,5 @@
 #include <cwctype>
+#include <utility>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -69,7 +70,7 @@ namespace sqf
 								size_t start = curoff + 1;
 								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
 								auto str = std::string(code + start, code + curoff);
-								line = (size_t)std::stoul(str.c_str());
+								line = (size_t)std::stoul(str);
 								break;
 							}
 						default: return;
@@ -132,7 +133,7 @@ namespace sqf
 			}
 			//NODE = CONFIGNODE | VALUENODE;
 			bool NODE_start(const char* code, size_t curoff) { return CONFIGNODE_start(code, curoff) || VALUENODE_start(code, curoff); }
-			void NODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
+			void NODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const std::string &file, bool &errflag)
 			{
 				//auto thisnode = astnode();
 				//thisnode.offset = curoff;
@@ -375,7 +376,7 @@ namespace sqf
 				thisnode.kind = configasttypes::STRING;
 				thisnode.col = col;
 				thisnode.line = line;
-				thisnode.file = file;
+				thisnode.file = std::move(file);
 				size_t i;
 				auto startchr = code[curoff];
 				col++;
@@ -414,7 +415,7 @@ namespace sqf
 				thisnode.kind = configasttypes::NUMBER;
 				thisnode.col = col;
 				thisnode.line = line;
-				thisnode.file = file;
+				thisnode.file = std::move(file);
 				if (code[curoff] == '0' && code[curoff + 1] == 'x')
 				{
 					thisnode.kind = configasttypes::HEXNUMBER;
@@ -482,7 +483,7 @@ namespace sqf
 			{
 				auto thisnode = astnode();
 				thisnode.kind = configasttypes::LOCALIZATION;
-				thisnode.file = file;
+				thisnode.file = std::move(file);
 				curoff++;
 				col++;
 				auto len = identifier(code, curoff);
@@ -552,7 +553,7 @@ namespace sqf
 			}
 			//VALUE = STRING | NUMBER | LOCALIZATION | ARRAY;
 			bool VALUE_start(const char* code, size_t curoff) { return STRING_start(code, curoff) || NUMBER_start(code, curoff) || LOCALIZATION_start(code, curoff) || ARRAY_start(code, curoff); }
-			void VALUE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
+			void VALUE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const std::string &file, bool &errflag)
 			{
 				//auto thisnode = astnode();
 				//thisnode.offset = curoff;
@@ -585,9 +586,9 @@ namespace sqf
 			}
 
 
-			astnode parse_config(std::string codein, helper& h, bool &errflag)
+			astnode parse_config(std::string_view codein, helper& h, bool &errflag)
 			{
-				const char *code = codein.c_str();
+				const char *code = codein.data();
 				size_t line = 1;
 				size_t col = 0;
 				size_t curoff = 0;

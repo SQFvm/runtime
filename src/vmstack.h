@@ -38,7 +38,7 @@ namespace sqf
 		vmstack() : misscheduled(false), misasleep(false) {}
 		vmstack(bool isscheduled) : misscheduled(isscheduled), misasleep(false) {}
 		void pushinst(sqf::virtualmachine* vm, std::shared_ptr<instruction> inst);
-		std::string script_name() { return mscriptname; }
+		const std::string& script_name() const { return mscriptname; }
 		void script_name(std::string val) { if (mscriptname.empty()) { mscriptname = val; } }
 		std::shared_ptr<instruction> popinst(sqf::virtualmachine* vm)
 		{
@@ -142,10 +142,10 @@ namespace sqf
 			return mstacks.back()->peek_value();
 		}
 
-		std::shared_ptr<value> getlocalvar(std::string varname);
-		bool isempty() { return mstacks.size() == 0; }
-		bool isscheduled() { return misscheduled; }
-		bool isasleep() { return misasleep; }
+		std::shared_ptr<value> getlocalvar(std::string_view varname);
+		bool isempty() const { return mstacks.empty(); }
+		bool isscheduled() const { return misscheduled; }
+		bool isasleep() const { return misasleep; }
 		void wakeup() { misasleep = false; }
 		std::chrono::system_clock::time_point get_wakeupstamp() { return mwakeupstamp; }
 		void sleep(std::chrono::milliseconds ms);

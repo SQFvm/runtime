@@ -33,11 +33,18 @@ namespace sqf
 		void initobjectcmds();
 		void initmarkercmds();
 
-		std::string tolowerstring(std::string s)
+        static std::string tolowerstring(std::string_view s)
 		{
-			std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-			return s;
+            std::string ret(s);
+			std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
+			return ret;
 		}
+
+        static std::string& tolowerstring_ref(std::string& s)
+        {
+            std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+            return s;
+        }
 
 	public:
 		void init()
@@ -64,20 +71,20 @@ namespace sqf
 		std::shared_ptr<unarycmd> get(std::string str, type rtype);
 		std::shared_ptr<binarycmd> get(std::string str, type ltype, type rtype);
 
-		std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>> getrange_u(std::string str) { return munarycmd[tolowerstring(str)]; }
-		std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> getrange_b(std::string str) { return mbinarycmd[tolowerstring(str)]; }
+		std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>> getrange_u(std::string_view str) { return munarycmd[tolowerstring(str)]; }
+		std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> getrange_b(std::string_view str) { return mbinarycmd[tolowerstring(str)]; }
 
 		static std::shared_ptr<unarycmd> find(std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>> list, type rtype);
 		static std::shared_ptr<binarycmd> find(std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>> list, type ltype, type rtype);
 
-		bool contains_n(std::string name) { return mnularcmd.find(tolowerstring(name)) != mnularcmd.end(); }
-		bool contains_u(std::string name) { return munarycmd.find(tolowerstring(name)) != munarycmd.end(); }
-		bool contains_b(std::string name) { return mbinarycmd.find(tolowerstring(name)) != mbinarycmd.end(); }
+		bool contains_n(std::string_view name) { return mnularcmd.find(tolowerstring(name)) != mnularcmd.end(); }
+		bool contains_u(std::string_view name) { return munarycmd.find(tolowerstring(name)) != munarycmd.end(); }
+		bool contains_b(std::string_view name) { return mbinarycmd.find(tolowerstring(name)) != mbinarycmd.end(); }
 
 
-		const std::unordered_map<std::string, std::shared_ptr<nularcmd>>& all_n() { return mnularcmd; }
-		const std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>>&  all_u() { return munarycmd; }
-		const std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>>&  all_b() { return mbinarycmd; }
+		const auto& all_n() const { return mnularcmd; }
+		const auto& all_u() const { return munarycmd; }
+		const auto& all_b() const { return mbinarycmd; }
 
 		static sqf::commandmap& get();
 

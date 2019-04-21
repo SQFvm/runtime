@@ -27,9 +27,10 @@ namespace sqf
 		// Returns true, if no recursion is present.
 		// Returns false, if current array state contains a recursion.
 		bool recursion_test() { std::vector<std::shared_ptr<arraydata>> vec; return recursion_test_helper(vec); }
-		arraydata() : mvalue(std::vector<std::shared_ptr<value>>()) {}
+		arraydata() {}
 		arraydata(size_t size) : mvalue(std::vector<std::shared_ptr<value>>(size)) {}
-		arraydata(std::vector<std::shared_ptr<value>> v) : mvalue(std::vector<std::shared_ptr<value>>(v)) {}
+        arraydata(const std::vector<std::shared_ptr<value>>& v) : mvalue(v) {}
+        arraydata(std::vector<std::shared_ptr<value>>&& v) : mvalue(std::move(v)) {}
 		std::string tosqf() const override;
 		std::shared_ptr<value>& operator[](size_t index) { return at(index); }
 		std::shared_ptr<value> operator[](size_t index) const { return at(index); }
@@ -67,25 +68,25 @@ namespace sqf
 		template<size_t size>
         bool check_type(virtualmachine* vm, const std::array<sqf::type, size>& arr, size_t optionalstart) const { return check_type(vm, arr.data(), size, optionalstart); }
 
-		static double distance3dsqr(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { return distance3d(l->as_vec3(), r->as_vec3()); }
+		static double distance3dsqr(const std::shared_ptr<arraydata>& l, const std::shared_ptr<arraydata>& r) { return distance3d(l->as_vec3(), r->as_vec3()); }
 		static double distance3dsqr(const arraydata* l, const arraydata* r) { return distance3d(l->as_vec3(), r->as_vec3()); }
 		static double distance3dsqr(std::array<double, 3> l, std::array<double, 3> r)
 		{
 			return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2) + std::pow(l[2] - r[2], 2);
 		}
-		static double distance3d(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { return distance3d(l->as_vec3(), r->as_vec3()); }
+		static double distance3d(const std::shared_ptr<arraydata>& l, const std::shared_ptr<arraydata>& r) { return distance3d(l->as_vec3(), r->as_vec3()); }
 		static double distance3d(const arraydata* l, const arraydata* r) { return  distance3d(l->as_vec3(), r->as_vec3()); }
 		static double distance3d(std::array<double, 3> l, std::array<double, 3> r)
 		{
 			return std::sqrt(distance3dsqr(l, r));
 		}
-		static double distance2dsqr(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { return  distance2d(l->as_vec2(), r->as_vec2()); }
+		static double distance2dsqr(const std::shared_ptr<arraydata>& l, const std::shared_ptr<arraydata>& r) { return  distance2d(l->as_vec2(), r->as_vec2()); }
 		static double distance2dsqr(const arraydata* l, const arraydata* r) { return distance2d(l->as_vec2(), r->as_vec2()); }
 		static double distance2dsqr(std::array<double, 2> l, std::array<double, 2> r)
 		{
 			return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2) + std::pow(l[2] - r[2], 2);
 		}
-		static double distance2d(const std::shared_ptr<arraydata> l, const std::shared_ptr<arraydata> r) { return distance2d(l->as_vec2(), r->as_vec2()); }
+		static double distance2d(const std::shared_ptr<arraydata>& l, const std::shared_ptr<arraydata>& r) { return distance2d(l->as_vec2(), r->as_vec2()); }
 		static double distance2d(const arraydata* l, const arraydata* r) { return distance2d(l->as_vec2(), r->as_vec2()); }
 		static double distance2d(std::array<double, 2> l, std::array<double, 2> r)
 		{
