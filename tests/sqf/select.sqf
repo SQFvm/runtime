@@ -21,6 +21,7 @@
     ["assertException", { "" select [true] }, ""],                              // STRING select ARRAY
     ["assertEqual",     { "" select [-1] }, ""],                                // STRING select ARRAY
     ["assertEqual",     { "test" select [0, -1] }, ""],                         // STRING select ARRAY
+    ["assertException", { "test" select [0, true] }, ""],                       // STRING select ARRAY
     ["assertEqual",     { [1, 2, 3, 4, 5] select [0] }, []],                    // ARRAY select ARRAY
     ["assertEqual",     { [1, 2, 3, 4, 5] select [1] }, []],                    // ARRAY select ARRAY
     ["assertEqual",     { [1, 2, 3, 4, 5] select [0.6, 3] }, [2, 3, 4]],        // ARRAY select ARRAY

@@ -13,7 +13,12 @@
    ["assertEqual",     { format [] }, ""],
    ["assertEqual",     { format [true] }, ""],
    ["assertEqual",     { format ["%a"] }, ""],
-   ["assertEqual",     { format ["%5"] }, ""]
+   ["assertEqual",     { format ["%5"] }, ""],
+   ["assertEqual",     { toArray "123" }, [49,50,51]],
+   ["assertEqual",     { toString [49,50,51] }, "123"],
+   ["assertEqual",     { ["1","2","3"] joinString "-"  }, "1-2-3"],
+   ["assertEqual",     { [1,2,3] joinString "-"  }, "1-2-3"],
+   ["assertEqual",     { "a"+"b"  }, "ab"]
    
 
 ]
