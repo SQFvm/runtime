@@ -46,7 +46,7 @@ namespace
 			vm->wrn() << "Start index is smaller then 0. Returning empty string." << std::endl;
 			return "";
 		}
-		if (start > static_cast<int>(str.length()))
+		if (start >= static_cast<int>(str.length()))
 		{
 			vm->wrn() << "Start index is larger then string length. Returning empty string." << std::endl;
 			return "";

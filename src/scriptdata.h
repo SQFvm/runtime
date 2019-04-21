@@ -17,6 +17,6 @@ namespace sqf
 		bool hasfinished() const;
 		std::string tosqf() const override;
 		bool equals(std::shared_ptr<data> d) const override { return this == d.get(); }
-        sqf::type type() const override { return sqf::type::SCRIPT; }
+        sqf::type dtype() const override { return sqf::type::SCRIPT; }
 	};
 }

@@ -22,7 +22,7 @@ namespace sqf
 		void loadinto(sqf::virtualmachine*, std::shared_ptr<sqf::vmstack>);
 		void loadinto(std::shared_ptr<sqf::vmstack>, std::shared_ptr<sqf::callstack>);
 		bool equals(std::shared_ptr<data> d) const override { return minsts == std::dynamic_pointer_cast<codedata>(d)->minsts; }
-        sqf::type type() const override { return sqf::type::CODE; }
+        sqf::type dtype() const override { return sqf::type::CODE; }
 
 		std::vector<std::shared_ptr<sqf::instruction>>& instructions() { return minsts; }
 		const std::vector<std::shared_ptr<sqf::instruction>>& instructions() const { return minsts; }
@@ -43,13 +43,13 @@ namespace sqf
     class exceptiondata : public codedata {
     public:
         exceptiondata(std::shared_ptr<codedata> o) : codedata(*o) {}
-        sqf::type type() const override { return sqf::type::EXCEPTION; }
+        sqf::type dtype() const override { return sqf::type::EXCEPTION; }
     };
 
     class whiledata : public codedata {
     public:
         whiledata(std::shared_ptr<codedata> o) : codedata(*o) {}
-        sqf::type type() const override { return sqf::type::WHILE; }
+        sqf::type dtype() const override { return sqf::type::WHILE; }
     };
 
 }

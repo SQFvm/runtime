@@ -30,6 +30,6 @@ namespace sqf
 		void defaultexec(std::shared_ptr<codedata> exec) { mdefaultexec = std::move(exec); }
 		std::shared_ptr<codedata> defaultexec() const { return mdefaultexec; }
 		bool equals(std::shared_ptr<data> d) const override { return mvalue.equals(std::dynamic_pointer_cast<switchdata>(d)->mvalue); }
-        sqf::type type() const override { return sqf::type::SWITCH; }
+        sqf::type dtype() const override { return sqf::type::SWITCH; }
 	};
 }

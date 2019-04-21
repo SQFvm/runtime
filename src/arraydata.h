@@ -95,6 +95,6 @@ namespace sqf
 			return std::sqrt(distance2dsqr(l, r));
 		}
 
-        sqf::type type() const override { return sqf::type::ARRAY; }
+        sqf::type dtype() const override { return sqf::type::ARRAY; }
 	};
 }

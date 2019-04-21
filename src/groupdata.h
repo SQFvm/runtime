@@ -25,7 +25,7 @@ namespace sqf
 		operator sidedata::eside() const { return mside->side(); }
 		std::shared_ptr<sidedata> side() const { return mside; }
 		bool equals(std::shared_ptr<data> d) const override { return this == d.get(); }
-        sqf::type type() const override { return sqf::type::GROUP; }
+        sqf::type dtype() const override { return sqf::type::GROUP; }
 		std::string groupid() const { return mgroupid; }
 		void groupid(std::string id) { mgroupid = id; }
 		std::string tosqf() const override { return mgroupid; }

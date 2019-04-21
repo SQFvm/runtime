@@ -68,15 +68,15 @@ sqf::value::value()
 }
 
 bool sqf::value::equals(value::cref v) const {
-    return mdata && v.mdata && mdata->type() == v.mdata->type() && mdata->equals(v.mdata);
+    return mdata && v.mdata && mdata->dtype() == v.mdata->dtype() && mdata->equals(v.mdata);
 }
 
 std::string sqf::value::tosqf() const {
     if (mdata) {
         return mdata->tosqf();
-    } else if (!mdata || mdata->type() == type::NOTHING) {
+    } else if (!mdata || mdata->dtype() == type::NOTHING) {
         return "nil";
-    } else if (mdata->type() == type::ANY) {
+    } else if (mdata->dtype() == type::ANY) {
         return "any";
     } else {
         return "";
@@ -84,7 +84,7 @@ std::string sqf::value::tosqf() const {
 }
 
 void sqf::value::convert(type type) {
-    if (mdata->type() == type)
+    if (mdata->dtype() == type)
         return;
     mdata = sqf::convert(std::move(mdata), type);
 }
@@ -188,5 +188,5 @@ sqf::value::operator std::vector<sqf::value>() const
 
 sqf::type sqf::value::dtype() const {
     if (!mdata) return type::NOTHING;
-    return mdata->type();
+    return mdata->dtype();
 }
