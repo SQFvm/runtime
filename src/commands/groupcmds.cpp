@@ -32,7 +32,7 @@ namespace
 		auto arr = std::make_shared<arraydata>();
 		for (auto& unit : grp->get_units())
 		{
-			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(unit)));
+			arr->push_back(value(std::make_shared<objectdata>(unit)));
 		}
 		return std::make_shared<value>(arr);
 	}
@@ -43,7 +43,7 @@ namespace
 		if (grp)
 			for (auto& unit : grp->get_units())
 			{
-				arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(unit)));
+				arr->push_back(value(std::make_shared<objectdata>(unit)));
 			}
 		return std::make_shared<value>(arr);
 	}

@@ -37,7 +37,7 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> m_used_namepsace;
 
 		// Contains the values that currently are hold for eg. other instructions.
-		std::vector<std::shared_ptr<sqf::value>> m_value_stack;
+		std::vector<sqf::value> m_value_stack;
 
 		// The current instruction.
 		std::shared_ptr<sqf::instruction> m_current_instruction;
@@ -105,7 +105,7 @@ namespace sqf
 		}
 
 		// Adds a value onto the valuestack
-		void push_back(std::shared_ptr<value> val)
+		void push_back(value val)
 		{
 			m_value_stack.push_back(std::move(val));
 		}
@@ -144,7 +144,7 @@ namespace sqf
 
 		// Attempts to receive a value from the 
 		// value-stack.
-		std::shared_ptr<value> pop_back_value(bool &success)
+		value pop_back_value(bool &success)
 		{
 			if (m_value_stack.empty())
 			{
@@ -159,7 +159,7 @@ namespace sqf
 
 		// Returns the top value from the value-stack without
 		// removing it.
-		std::shared_ptr<value> peek_value()
+		value peek_value()
 		{
 			if (m_value_stack.empty())
 				return {};

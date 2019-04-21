@@ -714,9 +714,9 @@ int main(int argc, char** argv)
 		if (!noWorkPrintArg.getValue())
 		{
 			auto val = vm.active_vmstack()->last_value();
-			if (val != nullptr)
+			if (val.data())
 			{
-				std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+				std::cout << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.as_string() << std::endl;
 			}
 			else
 			{

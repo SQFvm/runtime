@@ -50,7 +50,7 @@ void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instructio
 	mstacks.back()->push_back(std::move(inst));
 }
 
-std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string_view varname)
+sqf::value sqf::vmstack::getlocalvar(std::string_view varname)
 {
 	for (auto it = stacks_begin(); it != stacks_end(); ++it)
 	{
@@ -59,7 +59,7 @@ std::shared_ptr<sqf::value> sqf::vmstack::getlocalvar(std::string_view varname)
 			return it->get()->get_variable(varname);
 		}
 	}
-	return std::make_shared<sqf::value>();
+	return sqf::value();
 }
 
 void sqf::vmstack::sleep(std::chrono::milliseconds ms)

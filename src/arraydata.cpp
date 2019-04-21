@@ -20,7 +20,7 @@ std::string sqf::arraydata::tosqf() const
 		{
 			sstream << ',';
 		}
-		sstream << ((it != nullptr) ? it->tosqf() : "nil");
+		sstream << it.tosqf();
 	}
 	sstream << ']';
 	return sstream.str();
@@ -35,10 +35,10 @@ bool sqf::arraydata::equals(std::shared_ptr<data> d) const
 		return false;
 	}
 
-	return std::equal(mvalue.begin(),mvalue.end(),data->begin(),data->end(), [](const std::shared_ptr<value>& left, const std::shared_ptr<value>& right) {
-		if (left->dtype() == type::STRING && left->dtype() == right->dtype())
-			return left->as_string() == right->as_string();
-		return left->equals(*right);
+	return std::equal(mvalue.begin(),mvalue.end(),data->begin(),data->end(), [](value::cref left, value::cref right) {
+		if (left.dtype() == type::STRING && left.dtype() == right.dtype())
+			return left.as_string() == right.as_string();
+		return left.equals(right);
 	});
 }
 
@@ -50,7 +50,7 @@ void sqf::arraydata::resize(size_t newsize)
 	{
 		for (; cursize < newsize; cursize++)
 		{
-			mvalue[cursize] = std::make_shared<sqf::value>();
+			mvalue[cursize] = value();
 		}
 	}
 }
@@ -60,7 +60,7 @@ void sqf::arraydata::reverse()
 	std::reverse(mvalue.begin(), mvalue.end());
 }
 
-void sqf::arraydata::extend(std::vector<std::shared_ptr<value>> other)
+void sqf::arraydata::extend(std::vector<value> other)
 {
 	mvalue.reserve(mvalue.size() + std::distance(other.begin(), other.end()));
 	mvalue.insert(mvalue.end(), other.begin(), other.end());
@@ -73,12 +73,12 @@ void sqf::arraydata::delete_at(int position)
 
 std::array<double, 3> sqf::arraydata::as_vec3() const
 {
-	return std::array<double, 3> {at(0)->as_double(), at(1)->as_double(), at(2)->as_double()};
+	return std::array<double, 3> {at(0).as_double(), at(1).as_double(), at(2).as_double()};
 }
 
 std::array<double, 2> sqf::arraydata::as_vec2() const
 {
-	return std::array<double, 2> {at(0)->as_double(), at(1)->as_double()};
+	return std::array<double, 2> {at(0).as_double(), at(1).as_double()};
 }
 
 bool sqf::arraydata::check_type(virtualmachine * vm, sqf::type t, size_t min, size_t max) const
@@ -98,9 +98,9 @@ bool sqf::arraydata::check_type(virtualmachine * vm, sqf::type t, size_t min, si
 	}
 	for (size_t i = 0; i < size(); i++)
 	{
-		if (at(i)->dtype() != t)
+		if (at(i).dtype() != t)
 		{
-			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(t) << ". Got " << type_str(at(i)->dtype()) << '.' << std::endl;
+			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(t) << ". Got " << type_str(at(i).dtype()) << '.' << std::endl;
 			errflag = false;
 		}
 	}
@@ -125,9 +125,9 @@ bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size
 	}
 	for (size_t i = 0; i < len; i++)
 	{
-		if (at(i)->dtype() != arr[i])
+		if (at(i).dtype() != arr[i])
 		{
-			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(arr[i]) << ". Got " << type_str(at(i)->dtype()) << '.' << std::endl;
+			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(arr[i]) << ". Got " << type_str(at(i).dtype()) << '.' << std::endl;
 			errflag = false;
 		}
 	}
@@ -152,9 +152,9 @@ bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size
 	}
 	for (size_t i = 0; i < size(); i++)
 	{
-		if (at(i)->dtype() != arr[i])
+		if (at(i).dtype() != arr[i])
 		{
-			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(arr[i]) << ". Got " << type_str(at(i)->dtype()) << '.' << std::endl;
+			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(arr[i]) << ". Got " << type_str(at(i).dtype()) << '.' << std::endl;
 			errflag = false;
 		}
 	}
@@ -165,9 +165,9 @@ bool sqf::arraydata::recursion_test_helper(std::vector<std::shared_ptr<arraydata
 {
 	for (auto& it : this->mvalue)
 	{
-		if (it && it->dtype() == type::ARRAY)
+		if (it && it.dtype() == type::ARRAY)
 		{
-			auto arr = it->data<arraydata>();
+			auto arr = it.data<arraydata>();
 			if (std::find(visited.begin(), visited.end(), arr) != visited.end())
 			{
 				return false;
@@ -185,19 +185,19 @@ bool sqf::arraydata::recursion_test_helper(std::vector<std::shared_ptr<arraydata
 
 bool sqf::arraydata::get(size_t index, bool defval)
 {
-	if (size() <= index || at(index)->dtype() != BOOL)
+	if (size() <= index || at(index).dtype() != BOOL)
 		return defval;
-	return at(index)->as_bool();
+	return at(index).as_bool();
 }
 float sqf::arraydata::get(size_t index, float defval)
 {
-	if (size() <= index || at(index)->dtype() != SCALAR)
+	if (size() <= index || at(index).dtype() != SCALAR)
 		return defval;
-	return at(index)->as_float();
+	return at(index).as_float();
 }
 std::string sqf::arraydata::get(size_t index, std::string defval)
 {
-	if (size() <= index || at(index)->dtype() != STRING)
+	if (size() <= index || at(index).dtype() != STRING)
 		return defval;
-	return at(index)->as_string();
+	return at(index).as_string();
 }

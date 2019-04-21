@@ -38,9 +38,9 @@ extern "C" {
 			sqfvm_virtualmachine->err_buffprint(true);
 			sqfvm_virtualmachine->wrn_buffprint(true);
 			sqfvm_virtualmachine->out_buffprint(true);
-			if (val != nullptr)
+			if (val.data() != nullptr)
 			{
-				sstream << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+				sstream << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.as_string() << std::endl;
 			}
 			else
 			{

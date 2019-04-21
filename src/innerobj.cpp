@@ -102,13 +102,13 @@ std::shared_ptr<sqf::innerobj> sqf::innerobj::create(sqf::virtualmachine* vm, st
 
 
 
-bool sqf::innerobj::soldiers_push_back(std::shared_ptr<sqf::value> val)
+bool sqf::innerobj::soldiers_push_back(sqf::value val)
 {
-	if (val->dtype() != OBJECT)
+	if (val.dtype() != OBJECT)
 	{
 		return false;
 	}
-	return soldiers_push_back(val->data<sqf::objectdata>());
+	return soldiers_push_back(val.data<sqf::objectdata>());
 }
 bool sqf::innerobj::soldiers_push_back(std::shared_ptr<sqf::objectdata> val)
 {

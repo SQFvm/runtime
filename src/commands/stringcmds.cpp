@@ -35,12 +35,12 @@ namespace
 			vm->err() << "Array was expected to have at least a single element." << std::endl;
 			return std::make_shared<value>();
 		}
-		if (arr[0]->dtype() != type::SCALAR)
+		if (arr[0].dtype() != type::SCALAR)
 		{
-			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
+			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0].dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		int start = static_cast<int>(std::round(arr[0]->as_float()));
+		int start = static_cast<int>(std::round(arr[0].as_float()));
 		if (start < 0)
 		{
 			vm->wrn() << "Start index is smaller then 0. Returning empty string." << std::endl;
@@ -53,12 +53,12 @@ namespace
 		}
 		if (arr.size() >= 2)
 		{
-			if (arr[1]->dtype() != type::SCALAR)
+			if (arr[1].dtype() != type::SCALAR)
 			{
-				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0]->dtype()) << '.' << std::endl;
+				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0].dtype()) << '.' << std::endl;
 				return std::make_shared<value>();
 			}
-			int length = static_cast<int>(std::round(arr[1]->as_float()));
+			int length = static_cast<int>(std::round(arr[1].as_float()));
 			if (length < 0)
 			{
 				vm->wrn() << "Length is smaller then 0. Returning empty string." << std::endl;
@@ -76,12 +76,12 @@ namespace
 			vm->wrn() << "Empty array passed." << std::endl;
 			return std::make_shared<value>("");
 		}
-		if (r[0]->dtype() != type::STRING)
+		if (r[0].dtype() != type::STRING)
 		{
 			vm->wrn() << "First element of array was expected to be of type STRING." << std::endl;
 			return std::make_shared<value>("");
 		}
-		auto format = r[0]->as_string();
+		auto format = r[0].as_string();
 		std::stringstream sstream;
 		size_t off = 0;
 		size_t newoff;
@@ -106,13 +106,13 @@ namespace
 				{
 					vm->wrn() << "Placeholder index " << num << " provided at string index " << newoff << " is out of range." << std::endl;
 				}
-				else if (r[num]->dtype() == STRING)
+				else if (r[num].dtype() == STRING)
 				{
-					sstream << r[num]->as_string();
+					sstream << r[num].as_string();
 				}
 				else
 				{
-					sstream << r[num]->tosqf();
+					sstream << r[num].tosqf();
 				}
 				while (format[newoff] >= '0' && format[newoff] <= '9') newoff++;
 			}
@@ -124,10 +124,10 @@ namespace
 	std::shared_ptr<value> toarray_string(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_string();
-		auto arr = std::vector<std::shared_ptr<value>>(r.size());
+		auto arr = std::vector<value>(r.size());
 		for (size_t i = 0; i < r.size(); i++)
 		{
-			arr[i] = std::make_shared<value>(static_cast<int>(r[i]));
+			arr[i] = static_cast<int>(r[i]);
 		}
 		return std::make_shared<value>(arr);
 	}
@@ -138,13 +138,13 @@ namespace
 		for (size_t i = 0; i < r.size(); i++)
 		{
 			auto& val = r[i];
-			if (val->dtype() == SCALAR)
+			if (val.dtype() == SCALAR)
 			{
-				sstream << static_cast<char>(val->as_int());
+				sstream << static_cast<char>(val.as_int());
 			}
 			else
 			{
-				vm->err() << "Element " << i << " of input array was not of type SCALAR. Got " << sqf::type_str(val->dtype()) << '.' << std::endl;
+				vm->err() << "Element " << i << " of input array was not of type SCALAR. Got " << sqf::type_str(val.dtype()) << '.' << std::endl;
 			}
 		}
 		return std::make_shared<value>(sstream.str());
@@ -159,25 +159,25 @@ namespace
 		{
 			if (separator)
 			{
-				if (it->dtype() == sqf::type::STRING)
+				if (it.dtype() == sqf::type::STRING)
 				{
-					sstream << r << it->as_string();
+					sstream << r << it.as_string();
 				}
 				else
 				{
-					sstream << r << it->tosqf();
+					sstream << r << it.tosqf();
 				}
 			}
 			else
 			{
 				separator = true;
-				if (it->dtype() == sqf::type::STRING)
+				if (it.dtype() == sqf::type::STRING)
 				{
-					sstream << it->as_string();
+					sstream << it.as_string();
 				}
 				else
 				{
-					sstream << it->tosqf();
+					sstream << it.tosqf();
 				}
 			}
 		}

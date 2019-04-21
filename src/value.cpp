@@ -6,7 +6,7 @@
 #include "codedata.h"
 
 
-sqf::value::value(std::vector<std::shared_ptr<sqf::value>> arr)
+sqf::value::value(std::vector<sqf::value> arr)
 {
 	mdata = std::make_shared<arraydata>(arr);
 }
@@ -152,7 +152,7 @@ sqf::value::operator std::string() const
 	}
 	return *(std::dynamic_pointer_cast<stringdata>(data).get());
 }
-sqf::value::operator std::vector<std::shared_ptr<sqf::value>>() const
+sqf::value::operator std::vector<sqf::value>() const
 {
 	auto data = mdata;
     auto type = dtype();

@@ -10,7 +10,7 @@ namespace sqf
 	{
 	private:
 		size_t m_current_index;
-		std::vector<std::shared_ptr<value>> m_output_vector;
+		std::vector<value> m_output_vector;
 		std::shared_ptr<arraydata> m_input_array;
 		std::shared_ptr<codedata> m_codedata;
 		bool m_is_done;

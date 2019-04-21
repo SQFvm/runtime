@@ -28,13 +28,13 @@
 		}
 
 		auto variable = get_variable(m_fordata->variable());
-		if (variable->dtype() != SCALAR)
+		if (variable.dtype() != SCALAR)
 		{
-			vm->wrn() << "for_step callstack variable '" << m_fordata->variable() << "' was expected to be of type SCALAR, got " << type_str(variable->dtype()) << "." << std::endl;
+			vm->wrn() << "for_step callstack variable '" << m_fordata->variable() << "' was expected to be of type SCALAR, got " << type_str(variable.dtype()) << "." << std::endl;
 			return done;
 		}
 		// Check if exit condition is met
-		auto current_value = variable->as_double();
+		auto current_value = variable.as_double();
 		if (m_fordata->step() > 0 ?
 			current_value >= m_fordata->to() :
 			current_value <= m_fordata->to())
@@ -43,7 +43,7 @@
 		}
 
 		// Update the variable 
-		set_variable(m_fordata->variable(), std::make_shared<value>(current_value + m_fordata->step()));
+		set_variable(m_fordata->variable(), current_value + m_fordata->step());
 
 		// Load the code
 		auto sptr = std::shared_ptr<callstack_for_step>(this, [](callstack_for_step*) {});
@@ -59,7 +59,7 @@
 			return done;
 		}
 		// Set the for variable to its initial value
-		set_variable(m_fordata->variable(), std::make_shared<sqf::value>(current_value));
+		set_variable(m_fordata->variable(), current_value);
 
 		// Load the code
 		auto sptr = std::shared_ptr<callstack_for_step>(this, [](callstack_for_step*) {});

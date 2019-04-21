@@ -26,11 +26,11 @@ std::shared_ptr<sqf::value> sqf::configdata::navigate_unsafe(std::string_view ne
 {
 	for (auto it : innervector())
 	{
-		if (it->dtype() != type::CONFIG)
+		if (it.dtype() != type::CONFIG)
 			continue;
-		auto cd = it->data<sqf::configdata>();
+		auto cd = it.data<sqf::configdata>();
 		if (str_cmpi(cd->m_name.c_str(), -1, nextnode.data(), -1) == 0)
-			return it;
+			return std::make_shared<value>(it);
 	}
 	return std::shared_ptr<sqf::value>();
 }
@@ -100,38 +100,38 @@ std::shared_ptr<sqf::value> sqf::configdata::logical_parent() const
 bool sqf::configdata::cfgvalue(std::string_view key, bool def) const
 {
 	auto node = navigate(key)->data<configdata>();
-	if (node->is_null() || (node->cfgvalue()->dtype() != type::BOOL && node->cfgvalue()->dtype() != type::SCALAR))
+	if (node->is_null() || (node->cfgvalue().dtype() != type::BOOL && node->cfgvalue().dtype() != type::SCALAR))
 	{
 		return def;
 	}
-	return node->cfgvalue()->as_bool();
+	return node->cfgvalue().as_bool();
 }
 float sqf::configdata::cfgvalue(std::string_view key, float def) const
 {
 	auto node = navigate(key)->data<configdata>();
-	if (node->is_null() || node->cfgvalue()->dtype() != type::SCALAR)
+	if (node->is_null() || node->cfgvalue().dtype() != type::SCALAR)
 	{
 		return def;
 	}
-	return node->cfgvalue()->as_float();
+	return node->cfgvalue().as_float();
 }
 std::string sqf::configdata::cfgvalue(std::string_view key, std::string def) const
 {
 	auto node = navigate(key)->data<configdata>();
-	if (node->is_null() || node->cfgvalue()->dtype() != type::SCALAR)
+	if (node->is_null() || node->cfgvalue().dtype() != type::SCALAR)
 	{
 		return def;
 	}
-	return node->cfgvalue()->as_string();
+	return node->cfgvalue().as_string();
 }
 
 void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 {
 	for (auto& val : innervector())
 	{
-		if (val->dtype() != sqf::type::CONFIG)
+		if (val.dtype() != sqf::type::CONFIG)
 			continue;
-		auto subcd = val->data<configdata>();
+		auto subcd = val.data<configdata>();
 		auto othercd = cd->navigate_unsafe(subcd->m_name);
 		if (othercd)
 		{

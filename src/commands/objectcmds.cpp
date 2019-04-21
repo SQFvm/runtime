@@ -41,40 +41,40 @@ namespace
 			return std::make_shared<value>();
 		}
 		//Type
-		if (arr->at(0)->dtype() != STRING)
+		if (arr->at(0).dtype() != STRING)
 		{
-			vm->err() << "Element 0 in input array was expected to be of type STRING. Got " << type_str(arr->at(0)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 0 in input array was expected to be of type STRING. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		auto type = arr->at(0)->as_string();
+		auto type = arr->at(0).as_string();
 		//Position
-		if (arr->at(1)->dtype() != ARRAY)
+		if (arr->at(1).dtype() != ARRAY)
 		{
-			vm->err() << "Element 1 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(0)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 1 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		auto position = arr->at(1)->data<arraydata>();
+		auto position = arr->at(1).data<arraydata>();
 		if (!position->check_type(vm, SCALAR, 3))
 		{
 			return std::make_shared<value>();
 		}
 		//Markers
-		if (arr->at(2)->dtype() != ARRAY)
+		if (arr->at(2).dtype() != ARRAY)
 		{
-			vm->err() << "Element 2 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(2)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 2 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
 		//Placement Radius
-		if (arr->at(3)->dtype() != SCALAR)
+		if (arr->at(3).dtype() != SCALAR)
 		{
-			vm->err() << "Element 3 in input array was expected to be of type SCALAR. Got " << type_str(arr->at(2)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 3 in input array was expected to be of type SCALAR. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		auto radius = arr->at(3)->as_double();
+		auto radius = arr->at(3).as_double();
 		//SPECIAL
-		if (arr->at(4)->dtype() != STRING)
+		if (arr->at(4).dtype() != STRING)
 		{
-			vm->err() << "Element 4 in input array was expected to be of type STRING. Got " << type_str(arr->at(2)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 4 in input array was expected to be of type STRING. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
 		if (vm->perform_classname_checks())
@@ -89,9 +89,9 @@ namespace
 			}
 		}
 		auto veh = innerobj::create(vm, type, true);
-		veh->posx(position->at(0)->as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
-		veh->posy(position->at(1)->as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
-		veh->posz(position->at(2)->as_double());
+		veh->posx(position->at(0).as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
+		veh->posy(position->at(1).as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
+		veh->posz(position->at(2).as_double());
 		return std::make_shared<value>(std::make_shared<objectdata>(veh));
 	}
 	std::shared_ptr<value> createvehicle_string_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -105,9 +105,9 @@ namespace
 		}
 		for (size_t i = 0; i < 3; i++)
 		{
-			if (position->at(i)->dtype() != SCALAR)
+			if (position->at(i).dtype() != SCALAR)
 			{
-				vm->err() << "Element " << i << " of input array was expected to be of type SCALAR. Got " << type_str(position->at(i)->dtype()) << '.' << std::endl;
+				vm->err() << "Element " << i << " of input array was expected to be of type SCALAR. Got " << type_str(position->at(i).dtype()) << '.' << std::endl;
 				return std::make_shared<value>();
 			}
 		}
@@ -123,9 +123,9 @@ namespace
 			}
 		}
 		auto veh = innerobj::create(vm, type, true);
-		veh->posx(position->at(0)->as_double());
-		veh->posy(position->at(1)->as_double());
-		veh->posz(position->at(2)->as_double());
+		veh->posx(position->at(0).as_double());
+		veh->posy(position->at(1).as_double());
+		veh->posz(position->at(2).as_double());
 		return std::make_shared<value>(std::make_shared<objectdata>(veh));
 	}
 
@@ -150,9 +150,9 @@ namespace
 		}
 		auto pos = veh->obj()->pos();
 		auto arr = std::make_shared<arraydata>();
-		arr->push_back(std::make_shared<value>(pos[0]));
-		arr->push_back(std::make_shared<value>(pos[1]));
-		arr->push_back(std::make_shared<value>(pos[2]));
+		arr->push_back(pos[0]);
+		arr->push_back(pos[1]);
+		arr->push_back(pos[2]);
 		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> setpos_object_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -171,16 +171,16 @@ namespace
 		}
 		for (size_t i = 0; i < 3; i++)
 		{
-			if (position->at(i)->dtype() != SCALAR)
+			if (position->at(i).dtype() != SCALAR)
 			{
-				vm->err() << "Element " << i << " of input array was expected to be of type SCALAR. Got " << type_str(position->at(i)->dtype()) << '.' << std::endl;
+				vm->err() << "Element " << i << " of input array was expected to be of type SCALAR. Got " << type_str(position->at(i).dtype()) << '.' << std::endl;
 				return std::make_shared<value>();
 			}
 		}
 		auto inner = veh->obj();
-		inner->posx(position->at(0)->as_double());
-		inner->posy(position->at(1)->as_double());
-		inner->posz(position->at(2)->as_double());
+		inner->posx(position->at(0).as_double());
+		inner->posy(position->at(1).as_double());
+		inner->posz(position->at(2).as_double());
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> velocity_object(virtualmachine* vm, value::cref right)
@@ -193,9 +193,9 @@ namespace
 		}
 		auto vel = veh->obj()->vel();
 		auto arr = std::make_shared<arraydata>();
-		arr->push_back(std::make_shared<value>(vel[0]));
-		arr->push_back(std::make_shared<value>(vel[1]));
-		arr->push_back(std::make_shared<value>(vel[2]));
+		arr->push_back(vel[0]);
+		arr->push_back(vel[1]);
+		arr->push_back(vel[2]);
 		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> setvelocity_object_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -214,16 +214,16 @@ namespace
 		}
 		for (size_t i = 0; i < 3; i++)
 		{
-			if (velocity->at(i)->dtype() != SCALAR)
+			if (velocity->at(i).dtype() != SCALAR)
 			{
-				vm->err() << "Element " << i << " of input array was expected to be of type SCALAR. Got " << type_str(velocity->at(i)->dtype()) << '.' << std::endl;
+				vm->err() << "Element " << i << " of input array was expected to be of type SCALAR. Got " << type_str(velocity->at(i).dtype()) << '.' << std::endl;
 				return std::make_shared<value>();
 			}
 		}
 		auto inner = veh->obj();
-		inner->velx(velocity->at(0)->as_double());
-		inner->vely(velocity->at(1)->as_double());
-		inner->velz(velocity->at(2)->as_double());
+		inner->velx(velocity->at(0).as_double());
+		inner->vely(velocity->at(1).as_double());
+		inner->velz(velocity->at(2).as_double());
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> domove_object_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -243,12 +243,12 @@ namespace
 		bool errflag = false;
 		for (size_t i = 0; i < arr->size(); i++)
 		{
-			if (arr->at(i)->dtype() != OBJECT)
+			if (arr->at(i).dtype() != OBJECT)
 			{
-				vm->err() << "Element " << i << " of left input array was expected to be of type OBJECT. Got " << type_str(arr->at(i)->dtype()) << '.' << std::endl;
+				vm->err() << "Element " << i << " of left input array was expected to be of type OBJECT. Got " << type_str(arr->at(i).dtype()) << '.' << std::endl;
 				errflag = true;
 			}
-			else if (arr->at(i)->data<objectdata>()->obj()->is_vehicle())
+			else if (arr->at(i).data<objectdata>()->obj()->is_vehicle())
 			{
 				vm->err() << "Attempt to execute doMove on a vehicle. The operator doMove can only be executed on Units." << std::endl;
 				errflag = true;
@@ -260,7 +260,7 @@ namespace
 		}
 		for (const auto& i : *arr)
 		{
-			setpos_object_array(vm, *i, right);
+			setpos_object_array(vm, i, right);
 		}
 		return std::make_shared<value>();
 	}
@@ -276,40 +276,40 @@ namespace
 			return std::make_shared<value>();
 		}
 		//Type
-		if (arr->at(0)->dtype() != STRING)
+		if (arr->at(0).dtype() != STRING)
 		{
-			vm->err() << "Element 0 in input array was expected to be of type STRING. Got " << type_str(arr->at(0)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 0 in input array was expected to be of type STRING. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		auto type = arr->at(0)->as_string();
+		auto type = arr->at(0).as_string();
 		//Position
-		if (arr->at(1)->dtype() != ARRAY)
+		if (arr->at(1).dtype() != ARRAY)
 		{
-			vm->err() << "Element 1 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(0)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 1 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		auto position = arr->at(1)->data<arraydata>();
+		auto position = arr->at(1).data<arraydata>();
 		if (!position->check_type(vm, SCALAR, 3))
 		{
 			return std::make_shared<value>();
 		}
 		//Markers
-		if (arr->at(2)->dtype() != ARRAY)
+		if (arr->at(2).dtype() != ARRAY)
 		{
-			vm->err() << "Element 2 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(2)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 2 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
 		//Placement Radius
-		if (arr->at(3)->dtype() != SCALAR)
+		if (arr->at(3).dtype() != SCALAR)
 		{
-			vm->err() << "Element 3 in input array was expected to be of type SCALAR. Got " << type_str(arr->at(2)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 3 in input array was expected to be of type SCALAR. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		auto radius = arr->at(3)->as_double();
+		auto radius = arr->at(3).as_double();
 		//SPECIAL
-		if (arr->at(4)->dtype() != STRING)
+		if (arr->at(4).dtype() != STRING)
 		{
-			vm->err() << "Element 4 in input array was expected to be of type STRING. Got " << type_str(arr->at(2)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 4 in input array was expected to be of type STRING. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
 		if (vm->perform_classname_checks())
@@ -325,9 +325,9 @@ namespace
 		}
 		auto veh = innerobj::create(vm, type, false);
 		grp->add_unit(veh);
-		veh->posx(position->at(0)->as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
-		veh->posy(position->at(1)->as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
-		veh->posz(position->at(2)->as_double());
+		veh->posx(position->at(0).as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
+		veh->posy(position->at(1).as_double() + ((std::rand() % static_cast<int>(radius * 2)) - radius));
+		veh->posz(position->at(2).as_double());
 		return std::make_shared<value>(std::make_shared<objectdata>(veh));
 	}
 	std::shared_ptr<value> createUnit_string_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -343,62 +343,62 @@ namespace
 			return std::make_shared<value>();
 		}
 		//Position
-		if (arr->at(0)->dtype() != ARRAY)
+		if (arr->at(0).dtype() != ARRAY)
 		{
-			vm->err() << "Element 0 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(0)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 0 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		auto position = arr->at(0)->data<arraydata>();
+		auto position = arr->at(0).data<arraydata>();
 		if (!position->check_type(vm, SCALAR, 3))
 		{
 			return std::make_shared<value>();
 		}
 		//Group
-		if (arr->at(1)->dtype() != GROUP)
+		if (arr->at(1).dtype() != GROUP)
 		{
-			vm->err() << "Element 1 in input array was expected to be of type GROUP. Got " << type_str(arr->at(1)->dtype()) << '.' << std::endl;
+			vm->err() << "Element 1 in input array was expected to be of type GROUP. Got " << type_str(arr->at(1).dtype()) << '.' << std::endl;
 			return std::make_shared<value>();
 		}
-		auto grp = arr->at(1)->data<groupdata>();
+		auto grp = arr->at(1).data<groupdata>();
 
 		//Optionals
 		//init
 		if (arr->size() >= 3)
 		{
-			if (arr->at(2)->dtype() != STRING)
+			if (arr->at(2).dtype() != STRING)
 			{
-				vm->err() << "Element 2 in input array was expected to be of type STRING. Got " << type_str(arr->at(2)->dtype()) << '.' << std::endl;
+				vm->err() << "Element 2 in input array was expected to be of type STRING. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
 				return std::make_shared<value>();
 			}
 			else
 			{
-				std::string init = arr->at(2)->as_string();
+				std::string init = arr->at(2).as_string();
 			}
 		}
 		//skill
 		if (arr->size() >= 4)
 		{
-			if (arr->at(3)->dtype() != SCALAR)
+			if (arr->at(3).dtype() != SCALAR)
 			{
-				vm->err() << "Element 3 in input array was expected to be of type SCALAR. Got " << type_str(arr->at(3)->dtype()) << '.' << std::endl;
+				vm->err() << "Element 3 in input array was expected to be of type SCALAR. Got " << type_str(arr->at(3).dtype()) << '.' << std::endl;
 				return std::make_shared<value>();
 			}
 			else
 			{
-				skill = arr->at(3)->as_double();
+				skill = arr->at(3).as_double();
 			}
 		}
 		//rank
 		if (arr->size() >= 5)
 		{
-			if (arr->at(4)->dtype() != STRING)
+			if (arr->at(4).dtype() != STRING)
 			{
-				vm->err() << "Element 4 in input array was expected to be of type STRING. Got " << type_str(arr->at(4)->dtype()) << '.' << std::endl;
+				vm->err() << "Element 4 in input array was expected to be of type STRING. Got " << type_str(arr->at(4).dtype()) << '.' << std::endl;
 				return std::make_shared<value>();
 			}
 			else
 			{
-				rank = arr->at(4)->as_string();
+				rank = arr->at(4).as_string();
 			}
 		}
 		if (vm->perform_classname_checks())
@@ -414,9 +414,9 @@ namespace
 		}
 		auto veh = innerobj::create(vm, type, false);
 		grp->add_unit(veh);
-		veh->posx(position->at(0)->as_double());
-		veh->posy(position->at(1)->as_double());
-		veh->posz(position->at(2)->as_double());
+		veh->posx(position->at(0).as_double());
+		veh->posy(position->at(1).as_double());
+		veh->posz(position->at(2).as_double());
 		return std::make_shared<value>(std::make_shared<objectdata>(veh));
 	}
 	std::shared_ptr<value> distance_array_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -480,14 +480,14 @@ namespace
 		std::array<double, 3> pos;
 	public:
 		nearestobjects_distancesort3d(std::array<double, 3> p) : pos(p) {}
-		bool operator() (std::shared_ptr<value> l, std::shared_ptr<value> r) const { return l->data<objectdata>()->obj()->distance3d(pos) < r->data<objectdata>()->obj()->distance3d(pos); }
+		bool operator() (value::cref l, value::cref r) const { return l.data<objectdata>()->obj()->distance3d(pos) < r.data<objectdata>()->obj()->distance3d(pos); }
 	};
 	class nearestobjects_distancesort2d
 	{
 		std::array<double, 2> pos;
 	public:
 		nearestobjects_distancesort2d(std::array<double, 2> p) : pos(p) {}
-		bool operator() (std::shared_ptr<value> l, std::shared_ptr<value> r) const { return l->data<objectdata>()->obj()->distance2d(pos) < r->data<objectdata>()->obj()->distance2d(pos); }
+		bool operator() (value::cref l, value::cref r) const { return l.data<objectdata>()->obj()->distance2d(pos) < r.data<objectdata>()->obj()->distance2d(pos); }
 	};
 	std::shared_ptr<value> nearestobjects_array(virtualmachine* vm, value::cref right)
 	{
@@ -498,58 +498,58 @@ namespace
 			return std::shared_ptr<value>();
 		}
 		std::array<double, 3> position {0, 0, 0};
-		auto dtype = arr->at(0)->dtype();
+		auto dtype = arr->at(0).dtype();
 		if (dtype == ARRAY)
 		{
-			if (!arr->at(0)->data<arraydata>()->check_type(vm, SCALAR, 3))
+			if (!arr->at(0).data<arraydata>()->check_type(vm, SCALAR, 3))
 			{
 				return std::make_shared<value>();
 			}
-			position = arr->at(0)->data<arraydata>()->as_vec3();
+			position = arr->at(0).data<arraydata>()->as_vec3();
 		}
 		else if (dtype == OBJECT)
 		{
-			if (arr->at(0)->data<objectdata>()->is_null())
+			if (arr->at(0).data<objectdata>()->is_null())
 			{
 				vm->err() << "Input array element 0 is NULL object." << std::endl;
 				return std::shared_ptr<value>();
 			}
-			position = arr->at(0)->data<objectdata>()->obj()->pos();
+			position = arr->at(0).data<objectdata>()->obj()->pos();
 		}
 		else
 		{
-			vm->err() << "Input array element 0 was expected to be of type ARRAY or OBJECT. Got " << type_str(arr->at(0)->dtype()) << '.' << std::endl;
+			vm->err() << "Input array element 0 was expected to be of type ARRAY or OBJECT. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
 			return std::shared_ptr<value>();
 		}
-		if (arr->at(1)->dtype() != ARRAY)
+		if (arr->at(1).dtype() != ARRAY)
 		{
-			vm->err() << "Input array element 1 was expected to be of type ARRAY. Got " << type_str(arr->at(1)->dtype()) << '.' << std::endl;
+			vm->err() << "Input array element 1 was expected to be of type ARRAY. Got " << type_str(arr->at(1).dtype()) << '.' << std::endl;
 			return std::shared_ptr<value>();
 		}
-		auto filterarr = arr->at(1)->data<arraydata>();
+		auto filterarr = arr->at(1).data<arraydata>();
 		for (size_t i = 0; i < filterarr->size(); i++)
 		{
-			if (filterarr->at(i)->dtype() != STRING)
+			if (filterarr->at(i).dtype() != STRING)
 			{
-				vm->err() << "Input array element 1 contains non-string element at array index " << i << ". Got " << type_str(filterarr->at(i)->dtype()) << '.' << std::endl;
+				vm->err() << "Input array element 1 contains non-string element at array index " << i << ". Got " << type_str(filterarr->at(i).dtype()) << '.' << std::endl;
 				return std::shared_ptr<value>();
 			}
 		}
-		if (arr->at(2)->dtype() != SCALAR)
+		if (arr->at(2).dtype() != SCALAR)
 		{
-			vm->err() << "Input array element 2 was expected to be of type SCALAR. Got " << type_str(arr->at(2)->dtype()) << '.' << std::endl;
+			vm->err() << "Input array element 2 was expected to be of type SCALAR. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
 			return std::shared_ptr<value>();
 		}
-		auto radius = arr->at(2)->as_double();
+		auto radius = arr->at(2).as_double();
 		auto is2ddistance = false;
 		if (arr->size() == 4)
 		{
-			if (arr->at(3)->dtype() != sqf::BOOL)
+			if (arr->at(3).dtype() != sqf::BOOL)
 			{
-				vm->err() << "Input array element 3 was expected to be of type BOOLEAN. Got " << type_str(arr->at(3)->dtype()) << '.' << std::endl;
+				vm->err() << "Input array element 3 was expected to be of type BOOLEAN. Got " << type_str(arr->at(3).dtype()) << '.' << std::endl;
 				return std::shared_ptr<value>();
 			}
-			is2ddistance = arr->at(3)->as_bool();
+			is2ddistance = arr->at(3).as_bool();
 		}
 		auto outputarr = std::make_shared<arraydata>();
 		if (is2ddistance)
@@ -559,17 +559,17 @@ namespace
 			{
 				if (object->distance2d(position2d) > radius) continue;
 
-				bool match = filterarr->size() == 0 || !vm->perform_classname_checks();
+				bool match = filterarr->empty() || !vm->perform_classname_checks();
 				if (!match)
 				{
-					auto found = std::find_if(filterarr->begin(), filterarr->end(), [&object](std::shared_ptr<value>& value) {
-						return object->iskindof(value->as_string());
+					auto found = std::find_if(filterarr->begin(), filterarr->end(), [&object](value::cref value) {
+						return object->iskindof(value.as_string());
 					});
 					match = found != filterarr->end();
 				}
 				if (match)
 				{
-					outputarr->push_back(std::make_shared<value>(std::make_shared<objectdata>(object)));
+					outputarr->push_back(value(std::make_shared<objectdata>(object)));
 				}
 				
 			}
@@ -581,17 +581,17 @@ namespace
 			{
 				if (object->distance3d(position) > radius) continue;
 				
-				bool match = filterarr->size() == 0 || !vm->perform_classname_checks();
+				bool match = filterarr->empty() || !vm->perform_classname_checks();
 				if (!match)
 				{
-					auto found = std::find_if(filterarr->begin(), filterarr->end(), [&object](std::shared_ptr<value>& value) {
-						return object->iskindof(value->as_string());
+					auto found = std::find_if(filterarr->begin(), filterarr->end(), [&object](value::cref value) {
+						return object->iskindof(value.as_string());
 					});
 					match = found != filterarr->end();
 				}
 				if (match)
 				{
-					outputarr->push_back(std::make_shared<value>(std::make_shared<objectdata>(object)));
+					outputarr->push_back(value(std::make_shared<objectdata>(object)));
 				}
 			}
 			std::sort(outputarr->begin(), outputarr->end(), nearestobjects_distancesort3d(position));
@@ -616,7 +616,7 @@ namespace
 		{
 			if (object->is_vehicle())
 				continue;
-			arr->push_back(std::make_shared<value>(std::make_shared<objectdata>(object)));
+			arr->push_back(value(std::make_shared<objectdata>(object)));
 		}
 		return std::make_shared<value>(arr);
 	}
@@ -680,8 +680,8 @@ namespace
 		{
 			return std::make_shared<value>();
 		}
-		auto basename = arr->at(0)->as_string();
-		auto conf = arr->at(1)->data<configdata>();
+		auto basename = arr->at(0).as_string();
+		auto conf = arr->at(1).data<configdata>();
 		auto node = conf->navigate(classname)->data<configdata>();
 		if (node->is_null())
 		{
@@ -748,19 +748,19 @@ namespace
 		}
 		if (!obj->driver()->is_null())
 		{
-			arr->push_back(std::make_shared<value>(obj->driver()));
+			arr->push_back(value(obj->driver()));
 		}
 		if (!obj->gunner()->is_null())
 		{
-			arr->push_back(std::make_shared<value>(obj->gunner()));
+			arr->push_back(value(obj->gunner()));
 		}
 		if (!obj->commander()->is_null())
 		{
-			arr->push_back(std::make_shared<value>(obj->commander()));
+			arr->push_back(value(obj->commander()));
 		}
 		for (auto& it : obj->soldiers())
 		{
-			arr->push_back(std::make_shared<value>(it));
+			arr->push_back(value(it));
 		}
 		return std::make_shared<value>(arr);
 	}

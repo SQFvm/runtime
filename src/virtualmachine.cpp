@@ -139,7 +139,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				vals.push_back(val);
 				if (val != nullptr)
 				{
-					std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+					std::cout << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val->as_string() << std::endl;
 				}
 				else
 				{
@@ -192,16 +192,16 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				auto sqfarr = std::make_shared<arraydata>();
 				for (auto& it : stackdump)
 				{
-					std::vector<std::shared_ptr<sqf::value>> vec = {
-							std::make_shared<sqf::value>(it.namespace_used->get_name()),
-							std::make_shared<sqf::value>(it.scope_name),
-							std::make_shared<sqf::value>(it.callstack_name),
-							std::make_shared<sqf::value>(it.line),
-							std::make_shared<sqf::value>(it.column),
-							std::make_shared<sqf::value>(it.file),
-							std::make_shared<sqf::value>(it.dbginf)
+					std::vector<sqf::value> vec = {
+							sqf::value(it.namespace_used->get_name()),
+							sqf::value(it.scope_name),
+							sqf::value(it.callstack_name),
+							sqf::value(it.line),
+							sqf::value(it.column),
+							sqf::value(it.file),
+							sqf::value(it.dbginf)
 						};
-					sqfarr->push_back(std::make_shared<sqf::value>(std::make_shared<arraydata>(vec)));
+					sqfarr->push_back(sqf::value(std::make_shared<arraydata>(vec)));
 				}
 				while (m_active_vmstack->stacks_top() != sqftry)
 				{
@@ -339,13 +339,13 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		{
 			try
 			{
-				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stol(node.content, nullptr, 16)));
+				auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::stol(node.content, nullptr, 16)));
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 				stack->push_back(inst);
 			}
 			catch (std::out_of_range&)
 			{
-				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nanf(""))));
+				auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::scalardata>(std::nanf(""))));
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 				vm->wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
 				stack->push_back(inst);
@@ -356,13 +356,13 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		{
 			try
 			{
-				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::stod(node.content)));
+				auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::stod(node.content)));
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 				stack->push_back(inst);
 			}
 			catch (std::out_of_range&)
 			{
-				auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(std::make_shared<sqf::scalardata>(std::nanf(""))));
+				auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::scalardata>(std::nanf(""))));
 				inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 				vm->wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
 				stack->push_back(inst);
@@ -371,7 +371,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		break;
 		case sqf::parse::sqf::sqfasttypes::STRING:
 		{
-			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(node.content));
+			auto inst = std::make_shared<sqf::inst::push>(sqf::value(node.content));
 			inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
@@ -390,7 +390,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 				auto subnode = node.children[i];
 				navigate_sqf(full, vm, cs, subnode);
 			}
-			auto inst = std::make_shared<sqf::inst::push>(std::make_shared<sqf::value>(cs));
+			auto inst = std::make_shared<sqf::inst::push>(sqf::value(cs));
 			inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
@@ -614,7 +614,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 				navigate_config(full, vm, curnode, subnode);
 			}
 		}
-		parent->push_back(std::make_shared<sqf::value>(curnode));
+		parent->push_back(sqf::value(curnode));
 	} break;
 	case sqf::parse::config::configasttypes::VALUENODE:
 	{
@@ -623,29 +623,29 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 		{
 			navigate_config(full, vm, curnode, subnode);
 		}
-		parent->push_back(std::make_shared<sqf::value>(curnode));
+		parent->push_back(sqf::value(curnode));
 	} break;
 	case sqf::parse::config::configasttypes::STRING:
-		parent->set_cfgvalue(std::make_shared<sqf::value>(node.content));
+		parent->set_cfgvalue(sqf::value(node.content));
 		break;
 	case sqf::parse::config::configasttypes::NUMBER:
-		parent->set_cfgvalue(std::make_shared<sqf::value>(std::stod(node.content)));
+		parent->set_cfgvalue(sqf::value(std::stod(node.content)));
 		break;
 	case sqf::parse::config::configasttypes::HEXNUMBER:
-		parent->set_cfgvalue(std::make_shared<sqf::value>(std::stol(node.content, nullptr, 16)));
+		parent->set_cfgvalue(sqf::value(std::stol(node.content, nullptr, 16)));
 		break;
 	case sqf::parse::config::configasttypes::LOCALIZATION:
-		parent->set_cfgvalue(std::make_shared<sqf::value>(node.content));
+		parent->set_cfgvalue(sqf::value(node.content));
 		break;
 	case sqf::parse::config::configasttypes::ARRAY:
 	{
-		std::vector<std::shared_ptr<sqf::value>> values;
+		std::vector<sqf::value> values;
 		for (auto& subnode : node.children)
 		{
 			navigate_config(full, vm, parent, subnode);
 			values.push_back(parent->cfgvalue());
 		}
-		parent->set_cfgvalue(std::make_shared<sqf::value>(values));
+		parent->set_cfgvalue(sqf::value(values));
 	} break;
 	case sqf::parse::config::configasttypes::VALUE:
 		break;

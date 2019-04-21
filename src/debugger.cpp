@@ -99,7 +99,7 @@ namespace {
 				auto variables = nlohmann::json::array();
 				for (auto& pair : cs->get_variable_map())
 				{
-					variables.push_back(nlohmann::json{ { "name", pair.first },{ "value", pair.second->as_string() } });
+					variables.push_back(nlohmann::json{ { "name", pair.first },{ "value", pair.second.as_string() } });
 				}
 				jcs["variables"] = variables;
 				data.push_back(jcs);
@@ -140,29 +140,29 @@ namespace {
 						}
 						else
 						{
-							data.push_back(nlohmann::json{ { "name", name },{ "value", (*s)->get_variable(name)->as_string() } });
+							data.push_back(nlohmann::json{ { "name", name },{ "value", (*s)->get_variable(name).as_string() } });
 						}
 					}
 				}
 				else if (scope.get<std::string>() == "missionNamespace")
 				{
 					auto ns = _vm->missionnamespace();
-					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name)->as_string() } });
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name).as_string() } });
 				}
 				else if (scope.get<std::string>() =="uiNamespace")
 				{
 					auto ns = _vm->uinamespace();
-					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name)->as_string() } });
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name).as_string() } });
 				}
 				else if (scope.get<std::string>() =="profileNamespace")
 				{
 					auto ns = _vm->profilenamespace();
-					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name)->as_string() } });
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name).as_string() } });
 				}
 				else if (scope.get<std::string>() =="parsingNamespace")
 				{
 					auto ns = _vm->parsingnamespace();
-					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name)->as_string() } });
+					data.push_back(nlohmann::json{ { "name", name },{ "value", ns->get_variable(name).as_string() } });
 				}
 			}
 			return nlohmann::json{

@@ -17,7 +17,7 @@ namespace
 		auto arr = std::make_shared<arraydata>();
 		for (auto& marker : vm->get_markers())
 		{
-			arr->push_back(std::make_shared<value>(marker.first));
+			arr->push_back(value(marker.first));
 		}
 		return std::make_shared<value>(arr);
 	}
@@ -40,8 +40,8 @@ namespace
 		{
 			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			auto arr = std::make_shared<arraydata>(2);
-			arr->push_back(std::make_shared<value>(0));
-			arr->push_back(std::make_shared<value>(0));
+			arr->push_back(0);
+			arr->push_back(0);
 			return std::make_shared<value>(arr);
 		}
 		return marker->get_size_sqf();
@@ -65,9 +65,9 @@ namespace
 		{
 			vm->wrn() << "Provided marker name does not exist." << std::endl;
 			auto arr = std::make_shared<arraydata>(3);
-			arr->push_back(std::make_shared<value>(0));
-			arr->push_back(std::make_shared<value>(0));
-			arr->push_back(std::make_shared<value>(0));
+			arr->push_back(0);
+			arr->push_back(0);
+			arr->push_back(0);
 			return std::make_shared<value>(arr);
 		}
 		return marker->get_pos_sqf();
@@ -134,8 +134,8 @@ namespace
 		std::string name;
 		if (arr->check_type(vm, std::array<type, 2> { STRING, OBJECT}))
 		{
-			name = arr->at(0)->as_string();
-			auto objdata = arr->at(1)->data<sqf::objectdata>();
+			name = arr->at(0).as_string();
+			auto objdata = arr->at(1).data<sqf::objectdata>();
 			if (objdata->is_null())
 			{
 				vm->wrn() << "Provided object is null." << std::endl;
@@ -147,13 +147,13 @@ namespace
 		}
 		else if (arr->check_type(vm, std::array<type, 2> { STRING, ARRAY }))
 		{
-			name = arr->at(0)->as_string();
-			auto tmpArr = arr->at(1)->data<arraydata>();
+			name = arr->at(0).as_string();
+			auto tmpArr = arr->at(1).data<arraydata>();
 			pos = std::array<float, 3>
 			{
-				tmpArr->at(0)->as_float(),
-				tmpArr->at(1)->as_float(),
-				tmpArr->size() > 2 ? tmpArr->at(2)->as_float() : 0
+				tmpArr->at(0).as_float(),
+				tmpArr->at(1).as_float(),
+				tmpArr->size() > 2 ? tmpArr->at(2).as_float() : 0
 			};
 			if (!arr->check_type(vm, SCALAR, 2, 3))
 			{
@@ -257,7 +257,7 @@ namespace
 		{
 			return std::shared_ptr<value>();
 		}
-		m->set_pos(std::array<float, 3>{ arr->at(0)->as_float(), arr->at(1)->as_float(), arr->size() > 2 ? arr->at(2)->as_float() : 0 });
+		m->set_pos(std::array<float, 3>{ arr->at(0).as_float(), arr->at(1).as_float(), arr->size() > 2 ? arr->at(2).as_float() : 0 });
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> setmarkertype_string_string(virtualmachine* vm, value::cref left, value::cref right)
@@ -348,7 +348,7 @@ namespace
 		{
 			return std::shared_ptr<value>();
 		}
-		m->set_size(std::array<float, 2>{ arr->at(0)->as_float(), arr->at(1)->as_float() });
+		m->set_size(std::array<float, 2>{ arr->at(0).as_float(), arr->at(1).as_float() });
 		return std::make_shared<value>();
 	}
 	std::shared_ptr<value> setmarkeralpha_string_scalar(virtualmachine* vm, value::cref left, value::cref right)

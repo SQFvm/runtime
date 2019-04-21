@@ -40,7 +40,7 @@ namespace
 			vm->wrn() << "Provided index out of config range. Index: " << index << ", ConfigName: " << (cd->is_null() ? "configNull" : cd->name()) << '.' << std::endl;
 			return configdata::configNull();
 		}
-		return (*cd)[index];
+		return std::make_shared<sqf::value>((*cd)[index]);
 	}
 	std::shared_ptr<value> count_config(virtualmachine* vm, value::cref right)
 	{
@@ -50,12 +50,12 @@ namespace
 	std::shared_ptr<value> confighierarchy_config(virtualmachine* vm, value::cref right)
 	{
 		auto cd = right.data<configdata>();
-		std::vector<std::shared_ptr<value>> parents;
-		parents.push_back(std::make_shared<value>(right));
+		std::vector<value> parents;
+		parents.push_back(right);
 		while (cd->has_logical_parent())
 		{
 			cd = cd->logical_parent()->data<configdata>();
-			parents.push_back(std::make_shared<value>(cd));
+			parents.emplace_back(cd);
 		}
 		std::reverse(parents.begin(), parents.end());
 		return std::make_shared<sqf::value>(parents);
@@ -68,37 +68,37 @@ namespace
 	std::shared_ptr<value> isnumber_config(virtualmachine* vm, value::cref right)
 	{
 		auto cd = right.data<configdata>();
-		return std::make_shared<sqf::value>(!cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::SCALAR);
+		return std::make_shared<sqf::value>(!cd->is_null() && cd->cfgvalue().dtype() == sqf::type::SCALAR);
 	}
 	std::shared_ptr<value> istext_config(virtualmachine* vm, value::cref right)
 	{
 		auto cd = right.data<configdata>();
-		return std::make_shared<sqf::value>(!cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::STRING);
+		return std::make_shared<sqf::value>(!cd->is_null() && cd->cfgvalue().dtype() == sqf::type::STRING);
 	}
 	std::shared_ptr<value> isclass_config(virtualmachine* vm, value::cref right)
 	{
 		auto cd = right.data<configdata>();
-		return std::make_shared<sqf::value>(!cd->is_null() && !cd->cfgvalue().get());
+		return std::make_shared<sqf::value>(!cd->is_null() && cd->cfgvalue().dtype() != NOTHING);
 	}
 	std::shared_ptr<value> isarray_config(virtualmachine* vm, value::cref right)
 	{
 		auto cd = right.data<configdata>();
-		return std::make_shared<sqf::value>(!cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::ARRAY);
+		return std::make_shared<sqf::value>(!cd->is_null() && cd->cfgvalue().dtype() == sqf::type::ARRAY);
 	}
 	std::shared_ptr<value> getnumber_config(virtualmachine* vm, value::cref right)
 	{
 		auto cd = right.data<configdata>();
-		return !cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::SCALAR ? cd->cfgvalue() : std::make_shared<sqf::value>(0);
+		return std::make_shared<value>(!cd->is_null() && cd->cfgvalue().dtype() == sqf::type::SCALAR ? cd->cfgvalue() : 0);
 	}
 	std::shared_ptr<value> gettext_config(virtualmachine* vm, value::cref right)
 	{
 		auto cd = right.data<configdata>();
-		return !cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::STRING ? cd->cfgvalue() : std::make_shared<sqf::value>("");
+		return std::make_shared<value>(!cd->is_null() && cd->cfgvalue().dtype() == sqf::type::STRING ? cd->cfgvalue() : "");
 	}
 	std::shared_ptr<value> getarray_config(virtualmachine* vm, value::cref right)
 	{
 		auto cd = right.data<configdata>();
-		return !cd->is_null() && cd->cfgvalue()->dtype() == sqf::type::ARRAY ? cd->cfgvalue() : std::make_shared<sqf::value>(std::make_shared<sqf::arraydata>());
+		return std::make_shared<value>(!cd->is_null() && cd->cfgvalue().dtype() == sqf::type::ARRAY ? cd->cfgvalue() : sqf::value(std::make_shared<sqf::arraydata>()));
 	}
 	std::shared_ptr<value> isnull_config(virtualmachine* vm, value::cref right)
 	{
@@ -126,7 +126,7 @@ namespace
 		{
 			return std::shared_ptr<value>();
 		}
-		auto config = arr->at(0)->data<configdata>();
+		auto config = arr->at(0).data<configdata>();
 		auto exp = arr->get(1, "true");
 		auto include_inherited = arr->get(2, true);
 

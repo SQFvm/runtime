@@ -29,17 +29,17 @@ std::shared_ptr<sqf::value> sqf::marker::get_size_sqf() const
 {
 	auto val = get_size();
 	auto arr = std::make_shared<arraydata>();
-	arr->push_back(std::make_shared<value>(val[0]));
-	arr->push_back(std::make_shared<value>(val[1]));
+	arr->push_back(val[0]);
+	arr->push_back(val[1]);
 	return std::make_shared<value>(arr);
 }
 std::shared_ptr<sqf::value> sqf::marker::get_pos_sqf() const
 {
 	auto val = get_pos();
 	auto arr = std::make_shared<arraydata>();
-	arr->push_back(std::make_shared<value>(val[0]));
-	arr->push_back(std::make_shared<value>(val[1]));
-	arr->push_back(std::make_shared<value>(val[2]));
+	arr->push_back(val[0]);
+	arr->push_back(val[1]);
+	arr->push_back(val[2]);
 	return std::make_shared<value>(arr);
 }
 

@@ -186,9 +186,9 @@ namespace
 		{
 			return std::shared_ptr<value>();
 		}
-		arr->push_back(std::make_shared<value>(l->at(0)->as_double() + r->at(0)->as_double()));
-		arr->push_back(std::make_shared<value>(l->at(1)->as_double() + r->at(1)->as_double()));
-		arr->push_back(std::make_shared<value>(l->at(2)->as_double() + r->at(2)->as_double()));
+		arr->push_back(l->at(0).as_double() + r->at(0).as_double());
+		arr->push_back(l->at(1).as_double() + r->at(1).as_double());
+		arr->push_back(l->at(2).as_double() + r->at(2).as_double());
 		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> vectorcos_array_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -211,9 +211,9 @@ namespace
 		{
 			return std::shared_ptr<value>();
 		}
-		arr->push_back(std::make_shared<value>(l->at(1)->as_double() * r->at(2)->as_double() - l->at(2)->as_double() * r->at(1)->as_double()));
-		arr->push_back(std::make_shared<value>(l->at(2)->as_double() * r->at(0)->as_double() - l->at(0)->as_double() * r->at(2)->as_double()));
-		arr->push_back(std::make_shared<value>(l->at(0)->as_double() * r->at(1)->as_double() - l->at(1)->as_double() * r->at(0)->as_double()));
+		arr->push_back(l->at(1).as_double() * r->at(2).as_double() - l->at(2).as_double() * r->at(1).as_double());
+		arr->push_back(l->at(2).as_double() * r->at(0).as_double() - l->at(0).as_double() * r->at(2).as_double());
+		arr->push_back(l->at(0).as_double() * r->at(1).as_double() - l->at(1).as_double() * r->at(0).as_double());
 		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> vectordistance_array_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -247,9 +247,9 @@ namespace
 		{
 			return std::shared_ptr<value>();
 		}
-		arr->push_back(std::make_shared<value>(l->at(1)->as_double() * r));
-		arr->push_back(std::make_shared<value>(l->at(2)->as_double() * r));
-		arr->push_back(std::make_shared<value>(l->at(0)->as_double() * r));
+		arr->push_back(l->at(1).as_double() * r);
+		arr->push_back(l->at(2).as_double() * r);
+		arr->push_back(l->at(0).as_double() * r);
 		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> vectordiff_array_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -261,9 +261,9 @@ namespace
 		{
 			return std::shared_ptr<value>();
 		}
-		arr->push_back(std::make_shared<value>(l->at(1)->as_double() - r->at(1)->as_double()));
-		arr->push_back(std::make_shared<value>(l->at(2)->as_double() - r->at(2)->as_double()));
-		arr->push_back(std::make_shared<value>(l->at(0)->as_double() - r->at(0)->as_double()));
+		arr->push_back(l->at(1).as_double() - r->at(1).as_double());
+		arr->push_back(l->at(2).as_double() - r->at(2).as_double());
+		arr->push_back(l->at(0).as_double() - r->at(0).as_double());
 		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> vectordotproduct_array_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -305,15 +305,15 @@ namespace
 		auto magnitude = vectorMagnitude(*l);
 		if (magnitude == 0)
 		{
-			arr->push_back(std::make_shared<value>(0));
-			arr->push_back(std::make_shared<value>(0));
-			arr->push_back(std::make_shared<value>(0));
+			arr->push_back(0);
+			arr->push_back(0);
+			arr->push_back(0);
 		}
 		else
 		{
-			arr->push_back(std::make_shared<value>(l->at(1)->as_double() / magnitude));
-			arr->push_back(std::make_shared<value>(l->at(2)->as_double() / magnitude));
-			arr->push_back(std::make_shared<value>(l->at(0)->as_double() / magnitude));
+			arr->push_back(l->at(1).as_double() / magnitude);
+			arr->push_back(l->at(2).as_double() / magnitude);
+			arr->push_back(l->at(0).as_double() / magnitude);
 		}
 		return std::make_shared<value>(vectorMagnitudeSqr(*l));
 	}

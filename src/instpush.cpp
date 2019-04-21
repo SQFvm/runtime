@@ -7,5 +7,5 @@ void sqf::inst::push::execute(virtualmachine* vm) const { vm->active_vmstack()->
 
 std::string sqf::inst::push::to_string() const
 {
-	return std::string("PUSH ") + mvalue->tosqf();
+	return std::string("PUSH ") + mvalue.tosqf();
 }

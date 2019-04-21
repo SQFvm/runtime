@@ -20,7 +20,7 @@ namespace sqf
 	private:
 		std::shared_ptr<sqf::data> mdata;
 	public:
-		value(std::vector<std::shared_ptr<value>>);
+		value(std::vector<value>);
 		value(std::string);
 		value(char* str) : value(std::string(str)) {}
 		value(const char* str) : value(std::string(str)) {}
@@ -44,7 +44,7 @@ namespace sqf
 		operator long() const;
 		operator bool() const;
 		operator std::string() const;
-		operator std::vector<std::shared_ptr<sqf::value>>() const;
+		operator std::vector<sqf::value>() const;
         operator type() const { if (!mdata) return type::NOTHING; return mdata->type(); }
 
 		float as_float() const { return *this; }
@@ -55,7 +55,7 @@ namespace sqf
 		long as_long() const { return *this; }
 		bool as_bool() const { return *this; }
 		std::string as_string() const { return *this; }
-		std::vector<std::shared_ptr<sqf::value>> as_vector() const { return *this; }
+		std::vector<sqf::value> as_vector() const { return *this; }
 		type dtype() const { return *this; }
 		std::shared_ptr<sqf::data> data() const { return mdata; }
 

@@ -9,27 +9,27 @@ void sqf::inst::callbinary::execute(virtualmachine* vm) const
 {
 	bool flag;
 	auto right = vm->active_vmstack()->popval(flag);
-	if (!flag || right == nullptr || right->dtype() == sqf::type::NOTHING)
+	if (!flag ||right.dtype() == sqf::type::NOTHING)
 	{
 		vm->err() << "callBinary could not receive a value for right arg." << std::endl;
 		return;
 	}
 	auto left = vm->active_vmstack()->popval(flag);
-	if (!flag || left == nullptr || left->dtype() == sqf::type::NOTHING)
+	if (!flag || left.dtype() == sqf::type::NOTHING)
 	{
 		vm->err() << "callBinary could not receive a value for left arg." << std::endl;
 		return;
 	}
-	auto cmd = sqf::commandmap::find(mcmds, left->dtype(), right->dtype());
+	auto cmd = sqf::commandmap::find(mcmds, left.dtype(), right.dtype());
 	if (cmd)
 	{
-		auto val = cmd->execute(vm, *left, *right);
+		auto val = cmd->execute(vm, left, right);
 		if (val)
-			vm->active_vmstack()->pushval(val);
+			vm->active_vmstack()->pushval(*val);
 	}
 	else
 	{
-		vm->err() << "Unknown input type combination. LType:" << sqf::type_str(left->dtype()) << ", RType: " << sqf::type_str(right->dtype()) << '.' << std::endl;
+		vm->err() << "Unknown input type combination. LType:" << sqf::type_str(left.dtype()) << ", RType: " << sqf::type_str(right.dtype()) << '.' << std::endl;
 	}
 }
 

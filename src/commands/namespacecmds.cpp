@@ -32,8 +32,8 @@ namespace
 		{
 			r = std::dynamic_pointer_cast<varscope>(right.data());
 		}
-		std::vector<std::shared_ptr<value>> arr(r->get_variable_map().size());
-		transform(r->get_variable_map().begin(), r->get_variable_map().end(), arr.begin(), [](auto pair) { return std::make_shared<value>(pair.first); });
+		std::vector<value> arr(r->get_variable_map().size());
+		transform(r->get_variable_map().begin(), r->get_variable_map().end(), arr.begin(), [](auto pair) { return value(pair.first); });
 		return std::make_shared<value>(arr);
 	}
 	std::shared_ptr<value> with_namespace(virtualmachine* vm, value::cref right)
@@ -68,7 +68,7 @@ namespace
 		}
 		auto r = right.as_string();
 		auto var = l->get_variable_empty(r);
-		return var != nullptr ? var : std::make_shared<value>();
+        return std::make_shared<value>(var.dtype() != type::NOTHING ? var : value());
 	}
 	std::shared_ptr<value> getVariable_namespace_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
@@ -93,14 +93,14 @@ namespace
 			vm->err() << "Expected 2 elements in array, got " << r.size() << ". Returning NIL." << std::endl;
 			return std::shared_ptr<value>();
 		}
-		if (r[0]->dtype() != sqf::type::STRING)
+		if (r[0].dtype() != sqf::type::STRING)
 		{
-			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(r[0]->dtype()) << "'." << std::endl;
+			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(r[0].dtype()) << "'." << std::endl;
 			return std::shared_ptr<value>();
 		}
 		auto def = r[1];
-		auto var = l->get_variable_empty(r[0]->as_string());
-		return var != nullptr ? var : def;
+		auto var = l->get_variable_empty(r[0].as_string());
+		return std::make_shared<value>(var.dtype() != type::NOTHING ? var : def);
 	}
 	std::shared_ptr<value> setVariable_namespace_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
@@ -126,13 +126,13 @@ namespace
 			return std::shared_ptr<value>();
 		}
 		//Third element is ignored due to no networking in sqf-vm
-		if (r[0]->dtype() != sqf::type::STRING)
+		if (r[0].dtype() != sqf::type::STRING)
 		{
-			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(r[0]->dtype()) << "'." << std::endl;
+			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(r[0].dtype()) << "'." << std::endl;
 			return std::shared_ptr<value>();
 		}
 		auto val = r[1];
-		l->set_variable(r[0]->as_string(), val);
+		l->set_variable(r[0].as_string(), val);
 		return std::make_shared<value>();
 	}
 }

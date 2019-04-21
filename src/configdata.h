@@ -14,7 +14,7 @@ namespace sqf
 		std::string m_name;
 		std::string m_inherited_parent_name;
 		std::weak_ptr<configdata> m_logical_parent;
-		std::shared_ptr<value> m_value;
+		value m_value;
 		bool m_null;
 
 		std::shared_ptr<sqf::value> inherited_parent_unsafe() const;
@@ -30,8 +30,8 @@ namespace sqf
 		std::string inherited_parent_name() { return m_inherited_parent_name; }
 		std::shared_ptr<sqf::value> inherited_parent() const { auto val = inherited_parent_unsafe(); return val.get() ? val : configNull(); }
 
-		std::shared_ptr<sqf::value> cfgvalue() const { return m_value; }
-		void set_cfgvalue(std::shared_ptr<sqf::value> val) { m_value = std::move(val); }
+		sqf::value cfgvalue() const { return m_value; }
+		void set_cfgvalue(sqf::value val) { m_value = std::move(val); }
 		bool is_null() const { return m_null; }
 		bool has_logical_parent() const { return !m_logical_parent.expired(); }
 		std::shared_ptr<sqf::value> logical_parent() const;

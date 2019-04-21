@@ -8,7 +8,7 @@
 
 void sqf::inst::makearray::execute(virtualmachine* vm) const
 {
-	auto vec = std::vector<std::shared_ptr<value>>(msize);
+	auto vec = std::vector<value>(msize);
 	for (size_t i = msize - 1; i != (size_t)~0; i--)
 	{
 		bool flag;
@@ -19,5 +19,5 @@ void sqf::inst::makearray::execute(virtualmachine* vm) const
 			break;
 		}
 	}
-	vm->active_vmstack()->pushval(std::make_shared<value>(vec));
+	vm->active_vmstack()->pushval(value(vec));
 }
