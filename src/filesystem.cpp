@@ -84,6 +84,10 @@ std::optional<std::filesystem::path> sqf::filesystem::resolvePath(std::filesyste
 
 std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string_view virt, std::string_view current)
 {
+	if (virt.empty())
+	{
+		return {};
+	}
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 	if (mdisallow)
 	{
