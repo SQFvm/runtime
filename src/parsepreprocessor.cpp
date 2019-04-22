@@ -810,7 +810,7 @@ namespace {
 		std::stringstream sstream;
 		std::stringstream wordstream;
 		std::unordered_map<std::string, std::string> empty_parammap;
-		sstream << "#file " << fileinfo.path << std::endl << "#line 0\n" << std::endl;
+		sstream << "#file " << fileinfo.path << std::endl << "#line 0" << std::endl;
 		bool was_new_line = true;
 		bool is_in_string = false;
 		while ((c = fileinfo.next()) != '\0')
