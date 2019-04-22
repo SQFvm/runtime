@@ -212,7 +212,11 @@ namespace sqf
 				// to give this macro a special behavior rather
 				// then a content.
 				// Gets only applied if pointer is != nullptr
-				std::string(*callback)(finfo fileinfo, std::vector<std::string> params);
+				// m -> the original macro
+				// local_fileinfo -> the location, where the macro is called locally (lowest level)
+				// original_fileinfo -> the most upper file in the macro chain
+				// params -> the passed parameters
+				std::string(*callback)(const macro& m, const finfo& local_fileinfo, const finfo& original_fileinfo, const std::vector<std::string>& params);
 
 				macro() : name(), content(), args(), filepath(), line(0), column(0), hasargs(false), callback(nullptr) {}
 			};

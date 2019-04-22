@@ -50,34 +50,34 @@ namespace {
 		}
 	};
 
-	std::string handle_macro(helper& h, finfo& fileinfo, const macro& m, const std::unordered_map<std::string, std::string>& param_map);
+	std::string handle_macro(helper& h, finfo& local_fileinfo, finfo& original_fileinfo, const macro& m, const std::unordered_map<std::string, std::string>& param_map);
 	std::string replace(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params);
-	std::string handle_arg(helper& h, finfo& fileinfo, size_t endindex, const std::unordered_map<std::string, std::string>& param_map);
+	std::string handle_arg(helper& h, finfo& local_fileinfo, finfo& original_fileinfo, size_t endindex, const std::unordered_map<std::string, std::string>& param_map);
 	std::string parse_ppinstruction(helper& h, finfo& fileinfo);
 	std::string parse_file(helper& h, finfo& fileinfo);
-	void replace_stringify(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map);
-	void replace_concat(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map);
+	void replace_stringify(helper& h, finfo& local_fileinfo, finfo& original_fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map);
+	void replace_concat(helper& h, finfo& local_fileinfo, finfo& original_fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map);
 	size_t replace_find_wordend(finfo fileinfo);
 	void replace_skip(finfo& fileinfo, std::stringstream& sstream);
 
-	void replace_stringify(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map)
+	void replace_stringify(helper& h, finfo& local_fileinfo, finfo& original_fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map)
 	{
 		char c;
-		replace_skip(fileinfo, sstream);
-		c = fileinfo.peek();
+		replace_skip(local_fileinfo, sstream);
+		c = local_fileinfo.peek();
 		if (c == '#')
 		{
-			fileinfo.next();
-			replace_concat(h, fileinfo, m, params, sstream, param_map);
+			local_fileinfo.next();
+			replace_concat(h, local_fileinfo, original_fileinfo, m, params, sstream, param_map);
 		}
 		else
 		{
-			auto word_end = replace_find_wordend(fileinfo);
+			auto word_end = replace_find_wordend(local_fileinfo);
 			std::string word;
 			word.resize(word_end);
 			for (int i = 0; i < word_end; i++)
 			{
-				word[i] = fileinfo.next();
+				word[i] = local_fileinfo.next();
 			}
 			auto param_res = std::find_if(
 				m.args.begin(),
@@ -106,22 +106,22 @@ namespace {
 				}
 				else
 				{
-					sstream << '"' << handle_macro(h, fileinfo, macro_res->second, param_map) << '"';
+					sstream << '"' << handle_macro(h, local_fileinfo, original_fileinfo, macro_res->second, param_map) << '"';
 				}
 			}
 		}
 	}
-	void replace_concat(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map)
+	void replace_concat(helper& h, finfo& local_fileinfo, finfo& original_fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map)
 	{
 		char c;
-		replace_skip(fileinfo, sstream);
-		c = fileinfo.peek();
-		auto word_end = replace_find_wordend(fileinfo);
+		replace_skip(local_fileinfo, sstream);
+		c = local_fileinfo.peek();
+		auto word_end = replace_find_wordend(local_fileinfo);
 		std::string word;
 		word.resize(word_end);
 		for (int i = 0; i < word_end; i++)
 		{
-			word[i] = fileinfo.next();
+			word[i] = local_fileinfo.next();
 		}
 		auto param_res = std::find_if(
 			m.args.begin(),
@@ -150,7 +150,7 @@ namespace {
 			}
 			else
 			{
-				sstream << handle_macro(h, fileinfo, macro_res->second, param_map);
+				sstream << handle_macro(h, local_fileinfo, original_fileinfo, macro_res->second, param_map);
 			}
 		}
 	}
@@ -233,24 +233,28 @@ namespace {
 			}
 		}
 	}
-	std::string replace(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params)
+	std::string replace(helper& h, finfo& original_fileinfo, const macro& m, std::vector<std::string>& params)
 	{
 		if (m.args.size() != params.size())
 		{
 			h.errflag = true;
-			if (fileinfo.path.empty())
+			if (original_fileinfo.path.empty())
 			{
-				h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Arg Count Missmatch." << std::endl;
+				h.vm->err() << "[ERR][L" << original_fileinfo.line << "|C" << original_fileinfo.col << "]\t" << "Arg Count Missmatch." << std::endl;
 			}
 			else
 			{
-				h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Arg Count Missmatch." << std::endl;
+				h.vm->err() << "[ERR][L" << original_fileinfo.line << "|C" << original_fileinfo.col << "|" << original_fileinfo.path << "]\t" << "Arg Count Missmatch." << std::endl;
 			}
 			return "";
 		}
+		finfo local_fileinfo;
+		local_fileinfo.content = m.content;
+		local_fileinfo.path = m.filepath;
+		local_fileinfo.line = m.line;
 		if (m.callback)
 		{
-			return m.callback(fileinfo, params);
+			return m.callback(m, local_fileinfo, original_fileinfo, params);
 		}
 
 		std::unordered_map<std::string, std::string> parammap;
@@ -261,32 +265,30 @@ namespace {
 
 		std::stringstream sstream;
 		
-		finfo thisfileinfo;
-		thisfileinfo.content = m.content;
 
 		char c;
 		while (true)
 		{
-			replace_skip(thisfileinfo, sstream);
-			c = thisfileinfo.peek();
+			replace_skip(local_fileinfo, sstream);
+			c = local_fileinfo.peek();
 			if (c == '#')
 			{
-				thisfileinfo.next();
-				replace_stringify(h, thisfileinfo, m, params, sstream, parammap);
+				local_fileinfo.next();
+				replace_stringify(h, local_fileinfo, original_fileinfo, m, params, sstream, parammap);
 			}
 			else if (c == '\n' || c == '\0')
 			{
-				thisfileinfo.next();
+				local_fileinfo.next();
 				break;
 			}
 			else
 			{
-				auto word_end = replace_find_wordend(thisfileinfo);
+				auto word_end = replace_find_wordend(local_fileinfo);
 				std::string word;
 				word.resize(word_end);
 				for (int i = 0; i < word_end; i++)
 				{
-					word[i] = thisfileinfo.next();
+					word[i] = local_fileinfo.next();
 				}
 				auto param_res = std::find_if(
 					m.args.begin(),
@@ -316,7 +318,7 @@ namespace {
 					}
 					else
 					{
-						sstream << handle_macro(h, thisfileinfo, macro_res->second, parammap);
+						sstream << handle_macro(h, local_fileinfo, original_fileinfo, macro_res->second, parammap);
 					}
 				}
 			}
@@ -324,14 +326,14 @@ namespace {
 
 		return sstream.str();
 	}
-	std::string handle_arg(helper& h, finfo& fileinfo, size_t endindex, const std::unordered_map<std::string, std::string>& param_map)
+	std::string handle_arg(helper& h, finfo& local_fileinfo, finfo& original_fileinfo, size_t endindex, const std::unordered_map<std::string, std::string>& param_map)
 	{
-		size_t word_start = fileinfo.off;
+		size_t word_start = local_fileinfo.off;
 		bool inside_word = false;
 		bool string_mode = false;
 		std::stringstream sstream;
 		char c;
-		while (fileinfo.off != endindex && (c = fileinfo.next()) != '\0')
+		while (local_fileinfo.off != endindex && (c = local_fileinfo.next()) != '\0')
 		{
 			if (string_mode)
 			{
@@ -364,9 +366,9 @@ namespace {
 					if (!inside_word)
 					{
 						inside_word = true;
-						word_start = fileinfo.off - 1;
+						word_start = local_fileinfo.off - 1;
 					}
-					if (fileinfo.off != endindex)
+					if (local_fileinfo.off != endindex)
 					{
 						break;
 					} // Intended conditional fallthrough
@@ -374,33 +376,33 @@ namespace {
 					if (inside_word)
 					{
 						inside_word = false;
-						auto word = fileinfo.content.substr(word_start, fileinfo.off - word_start - (fileinfo.off != endindex ? 1 : 0));
+						auto word = local_fileinfo.content.substr(word_start, local_fileinfo.off - word_start - (local_fileinfo.off != endindex ? 1 : 0));
 						auto res = h.contains_macro(word);
 						if (res.has_value())
 						{
 							if (res.value().hasargs)
 							{
-								fileinfo.move_back();
+								local_fileinfo.move_back();
 							}
-							auto handled = handle_macro(h, fileinfo, res.value(), param_map);
+							auto handled = handle_macro(h, local_fileinfo, original_fileinfo, res.value(), param_map);
 							if (h.errflag)
 							{
 								return "";
 							}
 							sstream << handled;
-							if (fileinfo.off != endindex)
+							if (local_fileinfo.off != endindex)
 							{
 								if (!res.value().hasargs)
 								{
-									fileinfo.move_back();
+									local_fileinfo.move_back();
 								}
-								sstream << fileinfo.next();
+								sstream << local_fileinfo.next();
 							}
 						}
 						else if (param_map.find(word) != param_map.end())
 						{
 							sstream << param_map.at(word);
-							if (fileinfo.off != endindex)
+							if (local_fileinfo.off != endindex)
 							{
 								sstream << c;
 							}
@@ -408,7 +410,7 @@ namespace {
 						else
 						{
 							sstream << word;
-							if (fileinfo.off != endindex)
+							if (local_fileinfo.off != endindex)
 							{
 								sstream << c;
 							}
@@ -423,24 +425,24 @@ namespace {
 		}
 		return sstream.str();
 	}
-	std::string handle_macro(helper& h, finfo& fileinfo, const macro& m, const std::unordered_map<std::string, std::string>& param_map)
+	std::string handle_macro(helper& h, finfo& local_fileinfo, finfo& original_fileinfo, const macro& m, const std::unordered_map<std::string, std::string>& param_map)
 	{ // Needs to handle 'NAME(ARG1, ARG2, ARGN)' not more, not less!
 		std::vector<std::string> params;
 		if (m.hasargs)
 		{
-			if (fileinfo.peek() != '(')
+			if (local_fileinfo.peek() != '(')
 			{
 				return m.name;
 			}
-			fileinfo.next(); // Skip the initial '('
+			local_fileinfo.next(); // Skip the initial '('
 			size_t rb_counter = 0;
 			size_t cb_counter = 0;
 			size_t eb_counter = 0;
-			size_t lastargstart = fileinfo.off;
+			size_t lastargstart = local_fileinfo.off;
 			bool exit = false;
 			char c;
 			bool in_string = false;
-			while (!exit && (c = fileinfo.next()) != '\0')
+			while (!exit && (c = local_fileinfo.next()) != '\0')
 			{
 				if (in_string)
 				{
@@ -463,22 +465,22 @@ namespace {
 				case ',':
 					if (rb_counter == 0 && eb_counter == 0 && cb_counter == 0)
 					{
-						fileinfo.move_back();
-						if (fileinfo.off - lastargstart > 0)
+						local_fileinfo.move_back();
+						if (local_fileinfo.off - lastargstart > 0)
 						{
-							finfo copy = fileinfo;
+							finfo copy = local_fileinfo;
 							copy.off = lastargstart;
-							auto handled_param = handle_arg(h, copy, fileinfo.off, param_map);
+							auto handled_param = handle_arg(h, copy, original_fileinfo, local_fileinfo.off, param_map);
 							params.emplace_back(std::move(handled_param));
 						}
-						fileinfo.next();
-						lastargstart = fileinfo.off;
+						local_fileinfo.next();
+						lastargstart = local_fileinfo.off;
 					}
 					break;
 				}
 			}
 		}
-		return replace(h, fileinfo, m, params);
+		return replace(h, original_fileinfo, m, params);
 	}
 	std::string parse_ppinstruction(helper& h, finfo& fileinfo)
 	{
@@ -867,7 +869,7 @@ namespace {
 							if (m.has_value())
 							{
 								fileinfo.move_back();
-								auto res = handle_macro(h, fileinfo, m.value(), empty_parammap);
+								auto res = handle_macro(h, fileinfo, fileinfo, m.value(), empty_parammap);
 								if (h.errflag)
 								{
 									return res;
@@ -917,7 +919,7 @@ namespace {
 			if (m.has_value())
 			{
 				fileinfo.move_back();
-				auto res = handle_macro(h, fileinfo, m.value(), empty_parammap);
+				auto res = handle_macro(h, fileinfo, fileinfo, m.value(), empty_parammap);
 				if (h.errflag)
 				{
 					return res;
@@ -933,13 +935,13 @@ namespace {
 	}
 
 }
-std::string line_macro_callback(finfo fileinfo, std::vector<std::string> params)
+std::string line_macro_callback(const macro& m, const finfo& local_fileinfo, const finfo& original_fileinfo, const std::vector<std::string>& params)
 {
-	return std::to_string(fileinfo.line);
+	return std::to_string(original_fileinfo.line);
 }
-std::string file_macro_callback(finfo fileinfo, std::vector<std::string> params)
+std::string file_macro_callback(const macro& m, const finfo& local_fileinfo, const finfo& original_fileinfo, const std::vector<std::string>& params)
 {
-	return '"' + fileinfo.path + '"';
+	return '"' + original_fileinfo.path + '"';
 }
 std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string input, bool & errflag, std::string filename)
 {
