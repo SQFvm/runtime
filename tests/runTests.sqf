@@ -90,7 +90,7 @@ diag_log format ["    %1", ___currentDirectory___];
 {  
     if (_x find "runTests" == -1) then {
         if (count _x > ___currentDirectoryLength___) then {
-            if (true) then
+            if (_x select [0, ___currentDirectoryLength___] == ___currentDirectory___) then
             {
                 {
                     private ___name___ = _x select [___currentDirectoryLength___];

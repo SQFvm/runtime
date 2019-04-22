@@ -18,6 +18,7 @@ namespace sqf {
         namespace preprocessor {
             namespace settings {
                 bool disable_warn_define = false;
+				std::vector<macro> predefined_macros = std::vector<macro>();
             }
         }
     }
@@ -49,92 +50,190 @@ namespace {
 		}
 	};
 
-	std::string handle_macro(helper& h, finfo& fileinfo, const macro& m);
-	std::string replace(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string> params);
-	std::string handle_arg(helper& h, finfo& fileinfo, size_t endindex);
-	std::string parse_macro(helper& h, finfo& fileinfo);
+	std::string handle_macro(helper& h, finfo& fileinfo, const macro& m, const std::unordered_map<std::string, std::string>& param_map);
+	std::string replace(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params);
+	std::string handle_arg(helper& h, finfo& fileinfo, size_t endindex, const std::unordered_map<std::string, std::string>& param_map);
+	std::string parse_ppinstruction(helper& h, finfo& fileinfo);
 	std::string parse_file(helper& h, finfo& fileinfo);
+	void replace_stringify(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map);
+	void replace_concat(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map);
+	size_t replace_find_wordend(finfo fileinfo);
+	void replace_skip(finfo& fileinfo, std::stringstream& sstream);
 
-	void replace_helper_step1(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, bool& stringify_required, std::string& actual_content, std::stringstream& sstream, size_t& word_start, size_t off = ~0)
+	void replace_stringify(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map)
 	{
-		if (word_start != off)
+		char c;
+		replace_skip(fileinfo, sstream);
+		c = fileinfo.peek();
+		if (c == '#')
 		{
-			auto word = actual_content.substr(word_start, off - word_start);
-			auto res = std::find_if(
+			fileinfo.next();
+			replace_concat(h, fileinfo, m, params, sstream, param_map);
+		}
+		else
+		{
+			auto word_end = replace_find_wordend(fileinfo);
+			std::string word;
+			word.resize(word_end);
+			for (int i = 0; i < word_end; i++)
+			{
+				word[i] = fileinfo.next();
+			}
+			auto param_res = std::find_if(
 				m.args.begin(),
 				m.args.end(),
-				[word](std::string s) { return word == s; }
+				[word](std::string s) -> bool {
+					return s.compare(word) == 0;
+				}
 			);
-			if (res != m.args.end())
+			if (param_res != m.args.end())
 			{
-				size_t index = res - m.args.begin();
-				if (stringify_required)
-				{
-					sstream << '"' << params[index] << '"';
-					stringify_required = false;
-				}
-				else
-				{
-					sstream << params[index];
-				}
+				auto index = param_res - m.args.begin();
+				sstream << '"' << params[index] << '"';
 			}
 			else
 			{
-				if (stringify_required)
+				auto macro_res = std::find_if(
+					h.macros.begin(),
+					h.macros.end(),
+					[word](std::unordered_map<std::string, macro>::value_type m) -> bool {
+						return m.first.compare(word) == 0;
+					}
+				);
+				if (macro_res == h.macros.end())
 				{
-					sstream << '#' << word;
-					stringify_required = false;
-				}
-				else
-				{
-					sstream << word;
-				}
-			}
-		}
-		word_start = off + 1;
-	}
-	void replace_helper_step3(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, bool& stringify_required, std::string& actual_content, std::stringstream& sstream, size_t& word_start, size_t& off)
-	{
-		if (word_start != off)
-		{
-			auto word = actual_content.substr(word_start, off - word_start);
-			auto res = h.contains_macro(word);
-			if (res.has_value())
-			{
-				finfo handlefinfo;
-				handlefinfo.off = off;
-				handlefinfo.line = m.line;
-				handlefinfo.col = off;
-				handlefinfo.path = m.filepath;
-				handlefinfo.content = actual_content;
-				auto handled = handle_macro(h, handlefinfo, res.value());
-				if (stringify_required)
-				{
-					stringify_required = false;
-					sstream << '"' << handled << '"';
-				}
-				else
-				{
-					sstream << handled;
-				}
-				off = handlefinfo.off - 1;
-			}
-			else
-			{
-				if (stringify_required)
-				{
-					stringify_required = false;
 					sstream << '"' << word << '"';
 				}
 				else
 				{
-					sstream << word;
+					sstream << '"' << handle_macro(h, fileinfo, macro_res->second, param_map) << '"';
 				}
 			}
 		}
-		word_start = off + 1;
 	}
-	std::string replace(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string> params)
+	void replace_concat(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params, std::stringstream& sstream, const std::unordered_map<std::string, std::string>& param_map)
+	{
+		char c;
+		replace_skip(fileinfo, sstream);
+		c = fileinfo.peek();
+		auto word_end = replace_find_wordend(fileinfo);
+		std::string word;
+		word.resize(word_end);
+		for (int i = 0; i < word_end; i++)
+		{
+			word[i] = fileinfo.next();
+		}
+		auto param_res = std::find_if(
+			m.args.begin(),
+			m.args.end(),
+			[word](std::string s) -> bool {
+				return s.compare(word) == 0;
+			}
+		);
+		if (param_res != m.args.end())
+		{
+			auto index = param_res - m.args.begin();
+			sstream << params[index];
+		}
+		else
+		{
+			auto macro_res = std::find_if(
+				h.macros.begin(),
+				h.macros.end(),
+				[word](std::unordered_map<std::string, macro>::value_type m) -> bool {
+					return m.first.compare(word) == 0;
+				}
+			);
+			if (macro_res == h.macros.end())
+			{
+				sstream << word;
+			}
+			else
+			{
+				sstream << handle_macro(h, fileinfo, macro_res->second, param_map);
+			}
+		}
+	}
+
+	size_t replace_find_wordend(finfo fileinfo)
+	{
+		auto currentOffset = fileinfo.off;
+
+		while (true)
+		{
+			char c = fileinfo.next();
+			switch (c)
+			{
+			case 'a': case 'b': case 'c': case 'd': case 'e':
+			case 'f': case 'g': case 'h': case 'i': case 'j':
+			case 'k': case 'l': case 'm': case 'n': case 'o':
+			case 'p': case 'q': case 'r': case 's': case 't':
+			case 'u': case 'v': case 'w': case 'x': case 'y':
+			case 'z': case 'A': case 'B': case 'C': case 'D':
+			case 'E': case 'F': case 'G': case 'H': case 'I':
+			case 'J': case 'K': case 'L': case 'M': case 'N':
+			case 'O': case 'P': case 'Q': case 'R': case 'S':
+			case 'T': case 'U': case 'V': case 'W': case 'X':
+			case 'Y': case 'Z': case '0': case '1': case '2':
+			case '3': case '4': case '5': case '6': case '7':
+			case '8': case '9': case '_':
+				continue;
+			case '\0':
+				return fileinfo.off - currentOffset;
+			default:
+				return fileinfo.off - currentOffset - 1;
+			}
+		}
+	}
+	void replace_skip(finfo& fileinfo, std::stringstream& sstream)
+	{
+		auto currentOffset = fileinfo.off;
+		bool flag = true;
+		bool escape = false;
+		while (flag)
+		{
+			char c = fileinfo.peek();
+			switch (c)
+			{
+			case '\\':
+				escape = true;
+				break;
+			case '\n':
+				if (escape)
+				{
+					escape = false;
+					break;
+				}
+			case 'a': case 'b': case 'c': case 'd': case 'e':
+			case 'f': case 'g': case 'h': case 'i': case 'j':
+			case 'k': case 'l': case 'm': case 'n': case 'o':
+			case 'p': case 'q': case 'r': case 's': case 't':
+			case 'u': case 'v': case 'w': case 'x': case 'y':
+			case 'z': case 'A': case 'B': case 'C': case 'D':
+			case 'E': case 'F': case 'G': case 'H': case 'I':
+			case 'J': case 'K': case 'L': case 'M': case 'N':
+			case 'O': case 'P': case 'Q': case 'R': case 'S':
+			case 'T': case 'U': case 'V': case 'W': case 'X':
+			case 'Y': case 'Z': case '0': case '1': case '2':
+			case '3': case '4': case '5': case '6': case '7':
+			case '8': case '9': case '_':
+			case '#':
+			case '\0':
+				if (escape)
+				{
+					sstream << '\\';
+				}
+				flag = false;
+				break;
+			case '\r':
+				break;
+			default:
+				escape = false;
+				sstream << fileinfo.next();
+			}
+		}
+	}
+	std::string replace(helper& h, finfo& fileinfo, const macro& m, std::vector<std::string>& params)
 	{
 		if (m.args.size() != params.size())
 		{
@@ -153,228 +252,79 @@ namespace {
 		{
 			return m.callback(fileinfo, params);
 		}
-		std::stringstream sstream;
-		std::string actual_content = m.content;
-		bool stringify_required = false;
-		bool concat_required = false;
-		bool inside_string = false;
-		size_t last_stringify_required = -2;
-		// 1. Replace & scan for replace/concat hash
-		{
-			size_t word_start = 0;
-			for (size_t off = 0; off < actual_content.length(); off++)
-			{
-				char c = actual_content[off];
-				switch (c)
-				{
-					case 'a': case 'b': case 'c': case 'd': case 'e':
-					case 'f': case 'g': case 'h': case 'i': case 'j':
-					case 'k': case 'l': case 'm': case 'n': case 'o':
-					case 'p': case 'q': case 'r': case 's': case 't':
-					case 'u': case 'v': case 'w': case 'x': case 'y':
-					case 'z': case 'A': case 'B': case 'C': case 'D':
-					case 'E': case 'F': case 'G': case 'H': case 'I':
-					case 'J': case 'K': case 'L': case 'M': case 'N':
-					case 'O': case 'P': case 'Q': case 'R': case 'S':
-					case 'T': case 'U': case 'V': case 'W': case 'X':
-					case 'Y': case 'Z': case '0': case '1': case '2':
-					case '3': case '4': case '5': case '6': case '7':
-					case '8': case '9': case '_':
-						break;
-					case '#':
-						if (inside_string)
-						{
-							break;
-						}
-						replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
-						
-						{
-							auto peek1 = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
-							auto peek2 = off + 2 < actual_content.length() ? actual_content[off + 2] : '\0';
-							if (peek1 == '#' && peek2 == '#')
-							{
-								off++;
-								sstream << "#";
-								word_start++;
-							}
-							if (peek1 == '#')
-							{
-								off++;
-								word_start++;
-								sstream << "##";
-							}
-							else
-							{
-								last_stringify_required = off;
-								stringify_required = true;
-							}
-						}
-						break;
-					case '"':
-						if (!inside_string)
-						{
-							inside_string = true;
-						}
-						else
-						{
-							inside_string = false;
-							auto word = actual_content.substr(word_start, off - word_start);
-							sstream << word << c;
-							word_start = off + 1;
-						}
-						break;
-					default:
-						if (inside_string)
-						{
-							break;
-						}
-						if (stringify_required && off - 1 == last_stringify_required)
-						{
-							stringify_required = false;
-							word_start--;
-						}
-						replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
-						sstream << c;
-				}
-			}
 
-			replace_helper_step1(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, actual_content.length());
-			if (stringify_required)
-			{
-				stringify_required = false;
-				sstream << '#';
-			}
-			actual_content = sstream.str();
-			sstream.str("");
-		}
-		// 3. Execute nested macros
+		std::unordered_map<std::string, std::string> parammap;
+		for (size_t i = 0; i < params.size(); i++)
 		{
-			size_t word_start = 0;
-			bool is_inside_string = false;
-			stringify_required = false;
-			for (size_t off = 0; off < actual_content.length(); off++)
+			parammap[m.args[i]] = params[i];
+		}
+
+		std::stringstream sstream;
+		
+		finfo thisfileinfo;
+		thisfileinfo.content = m.content;
+
+		char c;
+		while (true)
+		{
+			replace_skip(thisfileinfo, sstream);
+			c = thisfileinfo.peek();
+			if (c == '#')
 			{
-				char c = actual_content[off];
-				switch (c)
+				thisfileinfo.next();
+				replace_stringify(h, thisfileinfo, m, params, sstream, parammap);
+			}
+			else if (c == '\n' || c == '\0')
+			{
+				thisfileinfo.next();
+				break;
+			}
+			else
+			{
+				auto word_end = replace_find_wordend(thisfileinfo);
+				std::string word;
+				word.resize(word_end);
+				for (int i = 0; i < word_end; i++)
 				{
-					case 'a': case 'b': case 'c': case 'd': case 'e':
-					case 'f': case 'g': case 'h': case 'i': case 'j':
-					case 'k': case 'l': case 'm': case 'n': case 'o':
-					case 'p': case 'q': case 'r': case 's': case 't':
-					case 'u': case 'v': case 'w': case 'x': case 'y':
-					case 'z': case 'A': case 'B': case 'C': case 'D':
-					case 'E': case 'F': case 'G': case 'H': case 'I':
-					case 'J': case 'K': case 'L': case 'M': case 'N':
-					case 'O': case 'P': case 'Q': case 'R': case 'S':
-					case 'T': case 'U': case 'V': case 'W': case 'X':
-					case 'Y': case 'Z': case '0': case '1': case '2':
-					case '3': case '4': case '5': case '6': case '7':
-					case '8': case '9': case '_':
-						break;
-					case '#':
-						if (inside_string)
-						{
-							break;
+					word[i] = thisfileinfo.next();
+				}
+				auto param_res = std::find_if(
+					m.args.begin(),
+					m.args.end(),
+					[word](std::string s) -> bool {
+						return s.compare(word) == 0;
+					}
+				);
+				if (param_res != m.args.end())
+				{
+					auto index = param_res - m.args.begin();
+					sstream << params[index];
+				}
+				else
+				{
+					// ToDo: Handle args in macro params
+					auto macro_res = std::find_if(
+						h.macros.begin(),
+						h.macros.end(),
+						[word](std::unordered_map<std::string, macro>::value_type m) -> bool {
+							return m.first.compare(word) == 0;
 						}
-						replace_helper_step3(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
-						{
-							auto peek1 = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
-							auto peek2 = off + 2 < actual_content.length() ? actual_content[off + 2] : '\0';
-							if (peek1 == '#' && peek2 == '#')
-							{
-								off++;
-								sstream << "#";
-								word_start++;
-							}
-							if (peek1 == '#')
-							{
-								off++;
-								word_start++;
-								sstream << "##";
-								concat_required = true;
-							}
-							else
-							{
-								stringify_required = true;
-								word_start++;
-							}
-						}
-						break;
-					case '"':
-						if (!inside_string)
-						{
-							inside_string = true;
-						}
-						else
-						{
-							inside_string = false;
-							auto word = actual_content.substr(word_start, off - word_start);
-							if (stringify_required)
-							{
-								sstream << c << word << c << c;
-								stringify_required = false;
-							}
-							else
-							{
-								sstream << word << c;
-							}
-							word_start = off + 1;
-							break;
-						}
-					default:
-						if (inside_string)
-						{
-							break;
-						}
-						size_t offold = off;
-						replace_helper_step3(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, off);
-						if (off == offold)
-						{
-							sstream << c;
-						}
-						break;
+					);
+					if (macro_res == h.macros.end())
+					{
+						sstream << word;
+					}
+					else
+					{
+						sstream << handle_macro(h, thisfileinfo, macro_res->second, parammap);
+					}
 				}
 			}
-			size_t len = actual_content.length();
-			replace_helper_step3(h, fileinfo, m, params, stringify_required, actual_content, sstream, word_start, len);
-			if (stringify_required)
-			{
-				stringify_required = false;
-				sstream << '#';
-			}
-			actual_content = sstream.str();
-			sstream.str("");
 		}
-		// 4. Concat everything
-		if (concat_required)
-		{
-			for (size_t off = 0; off < actual_content.length(); off++)
-			{
-				char c = actual_content[off];
-				char c_la1 = off + 1 < actual_content.length() ? actual_content[off + 1] : '\0';
-				char c_la2 = off + 2 < actual_content.length() ? actual_content[off + 2] : '\0';
-				switch (c)
-				{
-					case '#':
-						if (c_la1 == '#' && c_la2 == '#')
-						{
-							sstream << c;
-						}
-						else if (c_la1 == '#')
-						{
-							off++;
-						}
-						break;
-					default:
-						sstream << c;
-						break;
-				}
-			}
-			actual_content = sstream.str();
-		}
-		return actual_content;
+
+		return sstream.str();
 	}
-	std::string handle_arg(helper& h, finfo& fileinfo, size_t endindex)
+	std::string handle_arg(helper& h, finfo& fileinfo, size_t endindex, const std::unordered_map<std::string, std::string>& param_map)
 	{
 		size_t word_start = fileinfo.off;
 		bool inside_word = false;
@@ -432,7 +382,7 @@ namespace {
 							{
 								fileinfo.move_back();
 							}
-							auto handled = handle_macro(h, fileinfo, res.value());
+							auto handled = handle_macro(h, fileinfo, res.value(), param_map);
 							if (h.errflag)
 							{
 								return "";
@@ -445,6 +395,14 @@ namespace {
 									fileinfo.move_back();
 								}
 								sstream << fileinfo.next();
+							}
+						}
+						else if (param_map.find(word) != param_map.end())
+						{
+							sstream << param_map.at(word);
+							if (fileinfo.off != endindex)
+							{
+								sstream << c;
 							}
 						}
 						else
@@ -465,7 +423,7 @@ namespace {
 		}
 		return sstream.str();
 	}
-	std::string handle_macro(helper& h, finfo& fileinfo, const macro& m)
+	std::string handle_macro(helper& h, finfo& fileinfo, const macro& m, const std::unordered_map<std::string, std::string>& param_map)
 	{ // Needs to handle 'NAME(ARG1, ARG2, ARGN)' not more, not less!
 		std::vector<std::string> params;
 		if (m.hasargs)
@@ -494,36 +452,35 @@ namespace {
 				}
 				switch (c)
 				{
-					case '[': eb_counter++; break;
-					case ']': eb_counter--; break;
-					case '{': cb_counter++; break;
-					case '}': cb_counter--; break;
-					case '(': rb_counter++; break;
-					case '"': in_string = true; break;
-					case ')': if (rb_counter != 0) { rb_counter--; break; }
-							  else { exit = true; /* goto case ',' */ }
-					case ',':
-						if (rb_counter == 0 && eb_counter == 0 && cb_counter == 0)
+				case '[': eb_counter++; break;
+				case ']': eb_counter--; break;
+				case '{': cb_counter++; break;
+				case '}': cb_counter--; break;
+				case '(': rb_counter++; break;
+				case '"': in_string = true; break;
+				case ')': if (rb_counter != 0) { rb_counter--; break; }
+						  else { exit = true; /* goto case ',' */ }
+				case ',':
+					if (rb_counter == 0 && eb_counter == 0 && cb_counter == 0)
+					{
+						fileinfo.move_back();
+						if (fileinfo.off - lastargstart > 0)
 						{
-							fileinfo.move_back();
-							if (fileinfo.off - lastargstart > 0)
-							{
-								finfo copy = fileinfo;
-								copy.off = lastargstart;
-								auto handled_param = handle_arg(h, copy, fileinfo.off);
-								params.emplace_back(std::move(handled_param));
-							}
-							fileinfo.next();
-							lastargstart = fileinfo.off;
+							finfo copy = fileinfo;
+							copy.off = lastargstart;
+							auto handled_param = handle_arg(h, copy, fileinfo.off, param_map);
+							params.emplace_back(std::move(handled_param));
 						}
-						break;
+						fileinfo.next();
+						lastargstart = fileinfo.off;
+					}
+					break;
 				}
 			}
 		}
 		return replace(h, fileinfo, m, std::move(params));
 	}
-
-	std::string parse_macro(helper& h, finfo& fileinfo)
+	std::string parse_ppinstruction(helper& h, finfo& fileinfo)
 	{
 		bool was_new_line = true;
 		auto inst = fileinfo.get_word();
@@ -845,12 +802,12 @@ namespace {
 			return "";
 		}
 	}
-
 	std::string parse_file(helper& h, finfo& fileinfo)
 	{
 		char c;
 		std::stringstream sstream;
 		std::stringstream wordstream;
+		std::unordered_map<std::string, std::string> empty_parammap;
 		sstream << "#file " << fileinfo.path << std::endl << "#line 0\n" << std::endl;
 		bool was_new_line = true;
 		bool is_in_string = false;
@@ -885,7 +842,7 @@ namespace {
 				{
 					if (c == '#' && was_new_line)
 					{
-						auto res = parse_macro(h, fileinfo);
+						auto res = parse_ppinstruction(h, fileinfo);
 						if (h.errflag)
 						{
 							return res;
@@ -910,7 +867,7 @@ namespace {
 							if (m.has_value())
 							{
 								fileinfo.move_back();
-								auto res = handle_macro(h, fileinfo, m.value());
+								auto res = handle_macro(h, fileinfo, m.value(), empty_parammap);
 								if (h.errflag)
 								{
 									return res;
@@ -960,7 +917,7 @@ namespace {
 			if (m.has_value())
 			{
 				fileinfo.move_back();
-				auto res = handle_macro(h, fileinfo, m.value());
+				auto res = handle_macro(h, fileinfo, m.value(), empty_parammap);
 				if (h.errflag)
 				{
 					return res;
