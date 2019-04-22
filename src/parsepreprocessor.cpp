@@ -478,7 +478,7 @@ namespace {
 				}
 			}
 		}
-		return replace(h, fileinfo, m, std::move(params));
+		return replace(h, fileinfo, m, params);
 	}
 	std::string parse_ppinstruction(helper& h, finfo& fileinfo)
 	{
