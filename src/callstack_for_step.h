@@ -21,7 +21,7 @@ namespace sqf
 			std::shared_ptr<sqf::sqfnamespace> ns,
 			std::shared_ptr<fordata> fordata,
 			std::shared_ptr<codedata> exec
-		) : callstack(ns),
+		) : callstack(std::move(ns)),
 			m_fordata(std::move(fordata)),
 			m_codedata(std::move(exec)),
 			m_initialized(false)

@@ -73,17 +73,17 @@ namespace sqf
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
 
-		std::chrono::system_clock::time_point get_created_timestamp() { return mcreatedtimestamp; }
+		std::chrono::system_clock::time_point get_created_timestamp() const { return mcreatedtimestamp; }
 
-		std::shared_ptr<innerobj> player_obj() { return mplayer_obj; }
-		void player_obj(std::shared_ptr<innerobj> val) { mplayer_obj = val; }
+		std::shared_ptr<innerobj> player_obj() const { return mplayer_obj; }
+		void player_obj(std::shared_ptr<innerobj> val) { mplayer_obj = std::move(val); }
 		std::shared_ptr<sqf::vmstack> active_vmstack() { return m_active_vmstack; }
 		std::shared_ptr<sqf::vmstack> active_vmstack() const { return m_active_vmstack; }
-		const std::vector<std::shared_ptr<innerobj>>& get_objlist() { return mobjlist; }
-		std::shared_ptr<sqf::sqfnamespace> missionnamespace() { return mmissionnamespace; }
-		std::shared_ptr<sqf::sqfnamespace> uinamespace() { return muinamespace; }
-		std::shared_ptr<sqf::sqfnamespace> parsingnamespace() { return mparsingnamespace; }
-		std::shared_ptr<sqf::sqfnamespace> profilenamespace() { return mprofilenamespace; }
+		const std::vector<std::shared_ptr<innerobj>>& get_objlist() const { return mobjlist; }
+		std::shared_ptr<sqf::sqfnamespace> missionnamespace() const { return mmissionnamespace; }
+		std::shared_ptr<sqf::sqfnamespace> uinamespace() const { return muinamespace; }
+		std::shared_ptr<sqf::sqfnamespace> parsingnamespace() const { return mparsingnamespace; }
+		std::shared_ptr<sqf::sqfnamespace> profilenamespace() const { return mprofilenamespace; }
 
 
 
@@ -97,7 +97,7 @@ namespace sqf
 			out_clear();
 		}
 		void out_clear() { mout_buff.str({}); moutflag = false; }
-		bool out_hasdata() { return moutflag; }
+		bool out_hasdata() const { return moutflag; }
 
 		std::stringstream& err() { merrflag = true; return merr_buff; }
 		void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
@@ -109,7 +109,7 @@ namespace sqf
 			err_clear();
 		}
 		void err_clear() { merr_buff.str({}); merrflag = false; }
-		bool err_hasdata() { return merrflag; }
+		bool err_hasdata() const { return merrflag; }
 
 		std::stringstream& wrn()
 		{
@@ -128,8 +128,8 @@ namespace sqf
 			wrn_clear();
 		}
 		void wrn_clear() { mwrn_buff.str({}); mwrnflag = false; }
-		bool wrn_hasdata() { return mwrnflag; }
-		bool wrn_enabled() { return mwrnenabled; }
+		bool wrn_hasdata() const { return mwrnflag; }
+		bool wrn_enabled() const { return mwrnenabled; }
 		void wrn_enabled(bool flag) { mwrnenabled = flag; }
 
 
@@ -138,21 +138,21 @@ namespace sqf
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
 		void exitflag(bool flag) { mexitflag = flag; }
 		void exitflag(bool flag, int exitcode) { mexitflag = flag; m_exitcode = exitcode; }
-		bool exitflag() { return mexitflag; }
-		int exitcode() { return m_exitcode; }
+		bool exitflag() const { return mexitflag; }
+		int exitcode()const { return m_exitcode; }
 
-		bool perform_classname_checks() { return m_perform_classname_checks; }
+		bool perform_classname_checks() const { return m_perform_classname_checks; }
 		void perform_classname_checks(bool f) { m_perform_classname_checks = f; }
 
 		marker* get_marker(std::string key) { return mmarkers.find(key) == mmarkers.end() ? nullptr : &mmarkers[key]; }
 		void set_marker(std::string key, marker m) { mmarkers[key] = m; }
 		void remove_marker(std::string key) { mmarkers.erase(key); }
-		const std::map<std::string, sqf::marker>& get_markers() { return mmarkers; }
+		const std::map<std::string, sqf::marker>& get_markers() const { return mmarkers; }
 
-		void parse_assembly(std::string);
+		void parse_assembly(std::string_view);
 		// Parses the provided code and prints the resulting
 		// SQF-tree out into provided std::stringstream pointer
-		void parse_sqf_tree(std::string, std::stringstream*);
+		void parse_sqf_tree(std::string_view, std::stringstream*);
 		// Parses the provided code and creates assembly
 		// instructions into a newly created sqf::callstack
 		// that gets pushed onto the default sqf::vmstack receivable using
@@ -165,7 +165,7 @@ namespace sqf
 		// 
 		// In all cases, the corresponding wrn_ and out_ methods
 		// Also should be checked in case they contain additional info.
-		bool parse_sqf(std::string code, std::string filepath = "") { return parse_sqf(active_vmstack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
+		bool parse_sqf(std::string_view code, std::string filepath = "") { return parse_sqf(active_vmstack(), code, std::shared_ptr<sqf::callstack>(), filepath); }
 		// Parses the provided code and creates assembly
 		// instructions into provided sqf::callstack
 		// that gets pushed onto the default sqf::vmstack receivable using
@@ -178,7 +178,7 @@ namespace sqf
 		// 
 		// In all cases, the corresponding wrn_ and out_ methods
 		// Also should be checked in case they contain additional info.
-		bool parse_sqf(std::string str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { return parse_sqf(active_vmstack(), str, cs, filepath); }
+		bool parse_sqf(std::string_view str, std::shared_ptr<sqf::callstack> cs, std::string filepath = "") { return parse_sqf(active_vmstack(), str, cs, filepath); }
 		// Parses the provided code and creates assembly
 		// instructions into provided sqf::callstack
 		// that gets pushed onto provided sqf::vmstack
@@ -190,12 +190,12 @@ namespace sqf
 		// 
 		// In all cases, the corresponding wrn_ and out_ methods
 		// Also should be checked in case they contain additional info.
-		bool parse_sqf(std::shared_ptr<sqf::vmstack>, std::string, std::shared_ptr<sqf::callstack>, std::string = "");
+		bool parse_sqf(std::shared_ptr<sqf::vmstack>, std::string_view, std::shared_ptr<sqf::callstack>, std::string = "");
 
 		astnode parse_sqf_cst(std::string_view code, std::string filepath = "") { bool errflag = false; return parse_sqf_cst(code, errflag, filepath); }
         astnode parse_sqf_cst(std::string_view code, bool& errorflag, std::string filepath = "");
-		void pretty_print_sqf(std::string code);
-		void parse_config(std::string, std::shared_ptr<configdata>);
+		void pretty_print_sqf(std::string_view code);
+		void parse_config(std::string_view, std::shared_ptr<configdata>);
 		bool errflag() const { return merrflag; }
 		bool wrnflag() const { return mwrnflag; }
 		void halt() { mhaltflag = true; }

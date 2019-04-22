@@ -53,7 +53,7 @@ namespace sqf
 			bool SQF_start(helper &h, const char* code, size_t curoff);
 			void SQF(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
 			bool STATEMENT_start(helper &h, const char* code, size_t curoff);
-			void STATEMENT(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
+			void STATEMENT(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const std::string& file, bool &errflag);
 			bool ASSIGNMENT_start(helper &h, const char* code, size_t curoff);
 			void ASSIGNMENT(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
 			bool BINARYEXPRESSION_start(helper &h, const char* code, size_t curoff);
@@ -61,13 +61,13 @@ namespace sqf
 			bool BRACKETS_start(helper &h, const char* code, size_t curoff);
 			void BRACKETS(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
 			bool PRIMARYEXPRESSION_start(helper &h, const char* code, size_t curoff);
-			void PRIMARYEXPRESSION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
+			void PRIMARYEXPRESSION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const std::string& file, bool &errflag);
 			bool NULAREXPRESSION_start(helper &h, const char* code, size_t curoff);
 			void NULAREXPRESSION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
 			bool UNARYEXPRESSION_start(helper &h, const char* code, size_t curoff);
 			void UNARYEXPRESSION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
 			bool NUMBER_start(helper &h, const char* code, size_t curoff);
-			void NUMBER(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
+			void NUMBER(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const std::string& file, bool &errflag);
 			bool VARIABLE_start(helper &h, const char* code, size_t curoff);
 			void VARIABLE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
 			bool STRING_start(helper &h, const char* code, size_t curoff);

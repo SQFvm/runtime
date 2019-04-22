@@ -3,12 +3,13 @@
 #include "vmstack.h"
 #include "commandmap.h"
 #include "cmd.h"
+#include "value.h"
 
 void sqf::inst::callnular::execute(virtualmachine* vm) const
 {
-	auto val = mcmd->execute(vm, std::shared_ptr<value>(), std::shared_ptr<value>());
-	if (val)
-		vm->active_vmstack()->pushval(val);
+    value dummy;
+    auto val = mcmd->execute(vm, dummy, dummy);
+	vm->active_vmstack()->pushval(val);
 }
 
 std::string sqf::inst::callnular::to_string() const

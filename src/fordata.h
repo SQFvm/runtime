@@ -24,5 +24,6 @@ namespace sqf
 		void to(double d) { mto = d; }
 		void step(double d) { mstep = d; }
 		bool equals(std::shared_ptr<data> d) const override { return false; }
+        sqf::type dtype() const override { return sqf::type::FOR; };
 	};
 }

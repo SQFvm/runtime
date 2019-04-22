@@ -42,7 +42,7 @@ namespace sqf
 			bool NODELIST_start(const char* code, size_t curoff);
 			void NODELIST(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
 			bool NODE_start(const char* code, size_t curoff);
-			void NODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
+			void NODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const std::string& file, bool &errflag);
 			bool CONFIGNODE_start(const char* code, size_t curoff);
 			void CONFIGNODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
 			bool VALUENODE_start(const char* code, size_t curoff);
@@ -56,10 +56,10 @@ namespace sqf
 			bool ARRAY_start(const char* code, size_t curoff);
 			void ARRAY(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
 			bool VALUE_start(const char* code, size_t curoff);
-			void VALUE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
+			void VALUE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const std::string& file, bool &errflag);
 
 
-			astnode parse_config(std::string codein, helper& h, bool &errflag);
+			astnode parse_config(std::string_view codein, helper& h, bool &errflag);
 			const char* astkindname(short id);
 		}
 	}

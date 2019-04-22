@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "instruction.h"
+#include "value.h"
 
 namespace sqf
 {
@@ -10,13 +11,13 @@ namespace sqf
 		class push : public instruction
 		{
 		private:
-			std::shared_ptr<value> mvalue;
+			value mvalue;
 		public:
-			push(std::shared_ptr<value> val) { mvalue = val; }
+			push(value val) { mvalue = val; }
 			void execute(virtualmachine* vm) const override;
 			insttype thistype() const override { return insttype::push; }
 			std::string to_string() const override;
-			std::shared_ptr<value> get_value() { return mvalue; }
+			value get_value() { return mvalue; }
 		};
 	}
 }

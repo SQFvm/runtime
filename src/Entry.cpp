@@ -19,11 +19,11 @@
 
 #include "dllexports.h"
 #include "debugger.h"
-#include <signal.h>
+#include <csignal>
 #ifdef _WIN32
 #include <windows.h>
 #include <direct.h>
-#include <string.h>
+#include <cstring>
 #else
 #include <limits.h>
 #include <sys/ioctl.h>
@@ -290,7 +290,7 @@ int main(int argc, char** argv)
 				}
 			}
 
-			main((int)args.size(), args.data());
+			main(static_cast<int>(args.size()), args.data());
 
 			if (args.size() > 1)
 			{
@@ -301,7 +301,7 @@ int main(int argc, char** argv)
 			}
 			return 0;
 		}
-		catch (std::runtime_error err)
+		catch (std::runtime_error& err)
 		{
 			std::cout << err.what() << std::endl;
 			return -1;
@@ -379,7 +379,7 @@ int main(int argc, char** argv)
 	for (auto& f : virtualArg.getValue())
 	{
 		auto split_index = f.find('|');
-		if (split_index == -1)
+		if (split_index == std::string::npos)
 		{
 			errflag = true;
 			std::cerr << "Failed find splitter '|' for mapping '" << f << "'." << std::endl;
@@ -405,20 +405,20 @@ int main(int argc, char** argv)
 	}
 	for (auto& f : commandDummyNular.getValue())
 	{
-		sqf::commandmap::get().add(sqf::nular(f, "DUMMY", [](sqf::virtualmachine* vm) -> std::shared_ptr<sqf::value> {
-			vm->err() << "DUMMY" << std::endl; return std::make_shared<sqf::value>();
+		sqf::commandmap::get().add(sqf::nular(f, "DUMMY", [](sqf::virtualmachine* vm) -> sqf::value {
+			vm->err() << "DUMMY" << std::endl; return {};
 		}));
 	}
 	for (auto& f : commandDummyUnary.getValue())
 	{
-		sqf::commandmap::get().add(sqf::unary(f, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, std::shared_ptr<sqf::value> r) -> std::shared_ptr<sqf::value> {
-			vm->err() << "DUMMY" << std::endl; return std::make_shared<sqf::value>();
+		sqf::commandmap::get().add(sqf::unary(f, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref r) -> sqf::value {
+			vm->err() << "DUMMY" << std::endl; return {};
 		}));
 	}
 	for (auto& f : commandDummyBinary.getValue())
 	{
 		auto split_index = f.find('|');
-		if (split_index == -1)
+		if (split_index == std::string::npos)
 		{
 			errflag = true;
 			std::cerr << "Failed find splitter '|' for precedence '" << f << "'." << std::endl;
@@ -426,8 +426,8 @@ int main(int argc, char** argv)
 		}
 		auto precedence = f.substr(0, split_index);
 		auto name = f.substr(split_index + 1);
-		sqf::commandmap::get().add(sqf::binary(std::stoi(precedence), name, sqf::type::ANY, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, std::shared_ptr<sqf::value> l, std::shared_ptr<sqf::value> r) -> std::shared_ptr<sqf::value> {
-			vm->err() << "DUMMY" << std::endl; return std::make_shared<sqf::value>();
+		sqf::commandmap::get().add(sqf::binary(std::stoi(precedence), name, sqf::type::ANY, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref l, sqf::value::cref r) -> sqf::value {
+			vm->err() << "DUMMY" << std::endl; return {};
 		}));
 	}
 	if (errflag)
@@ -594,7 +594,7 @@ int main(int argc, char** argv)
 				{
 					std::cout << "Parsing file '" << sanitized << std::endl;
 				}
-				vm.parse_config(ppedStr, sqf::configdata::configFile()->data<sqf::configdata>());
+				vm.parse_config(ppedStr, sqf::configdata::configFile().data<sqf::configdata>());
 			}
 		}
 		catch (const std::runtime_error& ex)
@@ -631,7 +631,7 @@ int main(int argc, char** argv)
 	//Load & merge all config-code provided via arg.
 	for (auto& raw : configArg.getValue())
 	{
-		vm.parse_config(raw, sqf::configdata::configFile()->data<sqf::configdata>());
+		vm.parse_config(raw, sqf::configdata::configFile().data<sqf::configdata>());
 	}
 
 	if (debugger_port > 0)
@@ -714,9 +714,9 @@ int main(int argc, char** argv)
 		if (!noWorkPrintArg.getValue())
 		{
 			auto val = vm.active_vmstack()->last_value();
-			if (val != nullptr)
+			if (val.data())
 			{
-				std::cout << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+				std::cout << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.as_string() << std::endl;
 			}
 			else
 			{

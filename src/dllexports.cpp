@@ -38,9 +38,9 @@ extern "C" {
 			sqfvm_virtualmachine->err_buffprint(true);
 			sqfvm_virtualmachine->wrn_buffprint(true);
 			sqfvm_virtualmachine->out_buffprint(true);
-			if (val != nullptr)
+			if (val.data() != nullptr)
 			{
-				sstream << "[WORK]\t<" << sqf::type_str(val->dtype()) << ">\t" << val->as_string() << std::endl;
+				sstream << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.as_string() << std::endl;
 			}
 			else
 			{
@@ -64,7 +64,7 @@ extern "C" {
 
 	DLLEXPORT_PREFIX void sqfvm_loadconfig(const char* cfg)
 	{
-		sqfvm_virtualmachine->parse_config(cfg, sqf::configdata::configFile()->data<sqf::configdata>());
+		sqfvm_virtualmachine->parse_config(cfg, sqf::configdata::configFile().data<sqf::configdata>());
 	}
 
 	DLLEXPORT_PREFIX void sqfvm_uninit()

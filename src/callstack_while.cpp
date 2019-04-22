@@ -31,28 +31,28 @@
 			vm->err() << "while callstack found no value." << std::endl;
 			return done;
 		}
-		else if (val->dtype() == type::BOOL)
+		else if (val.dtype() == type::BOOL)
 		{
-			if (val->as_bool())
+			if (val.as_bool())
 			{
 				auto sptr = std::shared_ptr<callstack_while>(this, [](callstack_while*) {});
 				m_codedata_body->loadinto(vm->active_vmstack(), sptr);
 			}
 			else
 			{
-				push_back(std::make_shared<sqf::value>());
+				push_back(value());
 				return done;
 			}
 		}
-		else if (val->dtype() == type::NOTHING)
+		else if (val.dtype() == type::NOTHING)
 		{
-			vm->wrn() << "while value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
-			push_back(std::make_shared<sqf::value>());
+			vm->wrn() << "while value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+			push_back(value());
 			return done;
 		}
 		else
 		{
-			vm->err() << "while value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+			vm->err() << "while value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
 			return done;
 		}
 	}

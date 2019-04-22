@@ -37,7 +37,7 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> m_used_namepsace;
 
 		// Contains the values that currently are hold for eg. other instructions.
-		std::vector<std::shared_ptr<sqf::value>> m_value_stack;
+		std::vector<sqf::value> m_value_stack;
 
 		// The current instruction.
 		std::shared_ptr<sqf::instruction> m_current_instruction;
@@ -67,7 +67,7 @@ namespace sqf
 		// Sets the current instruction
 		void current_instruction(std::shared_ptr<sqf::instruction> inst)
 		{
-			m_current_instruction = inst;
+			m_current_instruction = std::move(inst);
 		}
 
 	public:
@@ -82,14 +82,12 @@ namespace sqf
 		std::queue<std::shared_ptr<sqf::instruction>>& instruction_queue() { return m_instruction_queue; }
 
 		// Returns the current instruction
-		std::shared_ptr<sqf::instruction> current_instruction()
-		{
+		std::shared_ptr<sqf::instruction> current_instruction() const {
 			return m_current_instruction;
 		}
 
 		// Returns the previos result
-		nextinstres previous_nextresult()
-		{
+		nextinstres previous_nextresult() const {
 			return m_current_nextinstres;
 		}
 
@@ -103,11 +101,11 @@ namespace sqf
 		// Adds an instruction to the this callstack.
 		void push_back(std::shared_ptr<sqf::instruction> value)
 		{
-			m_instruction_queue.push(value);
+			m_instruction_queue.emplace(std::move(value));
 		}
 
 		// Adds a value onto the valuestack
-		void push_back(std::shared_ptr<value> val)
+		void push_back(value val)
 		{
 			m_value_stack.push_back(std::move(val));
 		}
@@ -122,7 +120,7 @@ namespace sqf
 		// eg. global variables
 		void set_namespace(std::shared_ptr<sqf::sqfnamespace> ns)
 		{
-			m_used_namepsace = ns;
+			m_used_namepsace = std::move(ns);
 		}
 
 		// Returns the instruction stacksize
@@ -146,7 +144,7 @@ namespace sqf
 
 		// Attempts to receive a value from the 
 		// value-stack.
-		std::shared_ptr<value> pop_back_value(bool &success)
+		value pop_back_value(bool &success)
 		{
 			if (m_value_stack.empty())
 			{
@@ -161,7 +159,7 @@ namespace sqf
 
 		// Returns the top value from the value-stack without
 		// removing it.
-		std::shared_ptr<value> peek_value()
+		value peek_value()
 		{
 			if (m_value_stack.empty())
 				return {};

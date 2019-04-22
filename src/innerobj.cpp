@@ -18,7 +18,7 @@ sqf::innerobj::innerobj(std::string classname, bool isvehicle) : mdamage(0), mcl
 std::string sqf::innerobj::tosqf() const
 {
 	std::stringstream sstream;
-	sstream << (const void*)this << "# " << this->mnetid << ": " << mclassname;
+	sstream << static_cast<const void*>(this) << "# " << this->mnetid << ": " << mclassname;
 	return sstream.str();
 }
 
@@ -39,15 +39,14 @@ double sqf::innerobj::distance2d(std::array<double, 2> otherpos) const
 	return arraydata::distance2d(std::array<double, 2> { mposx, mposy }, otherpos);
 }
 
-bool sqf::innerobj::iskindof(std::string cfgname)
-{
-	auto configbin = configdata::configFile()->data<configdata>();
-	auto cfgVehicles = configbin->navigate("CfgVehicles")->data<configdata>();
+bool sqf::innerobj::iskindof(std::string_view cfgname) const {
+	auto configbin = configdata::configFile().data<configdata>();
+	auto cfgVehicles = configbin->navigate("CfgVehicles").data<configdata>();
 	if (cfgVehicles->is_null())
 	{
 		return false;
 	}
-	auto node = cfgVehicles->navigate(this->classname())->data<configdata>();
+	auto node = cfgVehicles->navigate(this->classname()).data<configdata>();
 	return node->is_kind_of(cfgname);
 }
 
@@ -60,13 +59,13 @@ void sqf::innerobj::destroy(sqf::virtualmachine * vm)
 
 bool sqf::innerobj::update_values_from_configbin()
 { 
-	auto configbin = configdata::configFile()->data<configdata>();
-	auto vehConfig = configbin->navigate("CfgVehicles")->data<configdata>();
+	auto configbin = configdata::configFile().data<configdata>();
+	auto vehConfig = configbin->navigate("CfgVehicles").data<configdata>();
 	if (vehConfig->is_null())
 	{
 		return false;
 	}
-	vehConfig = vehConfig->navigate(mclassname)->data<configdata>();
+	vehConfig = vehConfig->navigate(mclassname).data<configdata>();
 	if (vehConfig->is_null())
 	{
 		return false;
@@ -74,7 +73,7 @@ bool sqf::innerobj::update_values_from_configbin()
 	mhasDriver = vehConfig->cfgvalue("hasDriver", false);
 	mhasGunner = vehConfig->cfgvalue("hasGunner", false);
 	mhasCommander = vehConfig->cfgvalue("hasCommander", false);
-	mtransportSoldier = (size_t)vehConfig->cfgvalue("transportSoldier", 0);
+	mtransportSoldier = static_cast<size_t>(vehConfig->cfgvalue("transportSoldier", 0));
 	msoldiers.resize(mtransportSoldier);
 	return true;
 }
@@ -103,13 +102,13 @@ std::shared_ptr<sqf::innerobj> sqf::innerobj::create(sqf::virtualmachine* vm, st
 
 
 
-bool sqf::innerobj::soldiers_push_back(std::shared_ptr<sqf::value> val)
+bool sqf::innerobj::soldiers_push_back(sqf::value val)
 {
-	if (val->dtype() != OBJECT)
+	if (val.dtype() != OBJECT)
 	{
 		return false;
 	}
-	return soldiers_push_back(val->data<sqf::objectdata>());
+	return soldiers_push_back(val.data<sqf::objectdata>());
 }
 bool sqf::innerobj::soldiers_push_back(std::shared_ptr<sqf::objectdata> val)
 {

@@ -12,5 +12,5 @@ std::shared_ptr<sqf::objectdata> sqf::objectdata::objnull_data()
 }
 std::shared_ptr<sqf::value> sqf::objectdata::objnull()
 {
-	return std::make_shared<sqf::value>(objnull_data(), type::OBJECT);
+	return std::make_shared<sqf::value>(objnull_data());
 }

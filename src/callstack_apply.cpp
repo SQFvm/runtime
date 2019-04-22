@@ -9,7 +9,7 @@
 {
 	// If callstack_apply is done, always return done
 	if (previous_nextresult() == done ||
-		m_input_array->size() == 0)
+        m_input_array->empty())
 	{
 		return done;
 	}
@@ -39,7 +39,7 @@
 		m_is_done = true;
 		// and update the value stack
 		drop_values();
-		push_back(std::make_shared<value>(m_output_vector));
+		push_back(m_output_vector);
 		return done;
 	}
 	// Normal mode

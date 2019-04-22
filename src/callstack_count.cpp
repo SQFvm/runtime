@@ -6,9 +6,9 @@
 
 ::sqf::callstack::nextinstres sqf::callstack_count::do_next(sqf::virtualmachine* vm)
 {
-    if (m_input_vector->size() == 0)
+    if (m_input_vector->empty())
     {
-        push_back(std::make_shared<value>(m_count));
+        push_back(m_count);
         return done;
     }
 
@@ -34,20 +34,20 @@
         {
             vm->wrn() << "count callstack found no value." << std::endl;
         }
-        else if (val->dtype() == type::BOOL)
+        else if (val.dtype() == type::BOOL)
         {
-            if (val->as_bool())
+            if (val.as_bool())
             {
                 m_count++;
             }
         }
-		else if (val->dtype() == type::NOTHING)
-		{
-			vm->wrn() << "count value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
-		}
+        else if (val.dtype() == type::NOTHING)
+        {
+            vm->wrn() << "count value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+        }
         else
         {
-            vm->err() << "count value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+            vm->err() << "count value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
         }
     }
 
@@ -57,7 +57,7 @@
 		// set the "is done" flag to true
 		// and update the value stack
 		drop_values();
-		push_back(std::make_shared<value>(m_count));
+		push_back(m_count);
 		return done;
 	}
 	// Normal mode

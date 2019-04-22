@@ -4,7 +4,7 @@
 #include "instpush.h"
 #include "value.h"
 
-sqf::callstack_isnil::callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf::virtualmachine * vm, std::shared_ptr<codedata> exec) : callstack(ns)
+sqf::callstack_isnil::callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf::virtualmachine * vm, std::shared_ptr<codedata> exec) : callstack(std::move(ns))
 {
 	auto sptr = std::shared_ptr<callstack_isnil>(this, [](callstack_isnil*) {});
 	exec->loadinto(vm->active_vmstack(), sptr);
@@ -30,7 +30,7 @@ sqf::callstack_isnil::callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf
 	{
 		// Update the value stack
 		drop_values();
-		push_back(std::make_shared<value>(val->dtype() == sqf::type::NOTHING));
+		push_back(val.dtype() == sqf::type::NOTHING);
 	}
 	else
 	{

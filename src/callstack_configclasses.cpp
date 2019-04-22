@@ -9,7 +9,7 @@
 {
 	// If callstack_configclasses is done, always return done
 	if (previous_nextresult() == done ||
-		m_configdata->size() == 0)
+        m_configdata->empty())
 	{
 		return done;
 	}
@@ -23,13 +23,13 @@
 	}
 
 	// Search for the next configdata with an actual value
-	std::shared_ptr<value> val;
+	value val;
 	auto previous_current_index = m_current_index;
 	while (m_configdata->size() > m_current_index)
 	{
 		val = m_configdata->at(static_cast<int>(m_current_index));
 		m_current_index++;
-		if (val && val->data<configdata>()->cfgvalue().get() != nullptr)
+		if (val && val.data<configdata>()->cfgvalue())
 		{
 			break;
 		}
@@ -48,23 +48,23 @@
 				vm->err() << "configClasses callstack found no value." << std::endl;
 			}
 		}
-		else if (val->dtype() == type::BOOL)
+		else if (val.dtype() == type::BOOL)
 		{
-			if (val->as_bool())
+			if (val.as_bool())
 			{
 				m_output_vector.push_back(m_configdata->at(static_cast<int>(m_current_index - 1)));
 			}
 		}
 		else
 		{
-			vm->err() << "configClasses value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+			vm->err() << "configClasses value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
 		}
 
 		// set the "is done" flag to true
 		m_is_done = true;
 		// and update the value stack
 		drop_values();
-		push_back(std::make_shared<value>(m_output_vector));
+		push_back(m_output_vector);
 		return done;
 	}
 	// Normal mode
@@ -78,16 +78,16 @@
 			{
 				vm->err() << "configClasses callstack found no value." << std::endl;
 			}
-			else if (val->dtype() == type::BOOL)
+			else if (val.dtype() == type::BOOL)
 			{
-				if (val->as_bool())
+				if (val.as_bool())
 				{
 					m_output_vector.push_back(m_configdata->at(static_cast<int>(m_current_index - 1)));
 				}
 			}
 			else
 			{
-				vm->err() << "configClasses value was expected to be of type BOOL, got " << sqf::type_str(val->dtype()) << "." << std::endl;
+				vm->err() << "configClasses value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
 			}
 		}
 		set_variable("_x", val);

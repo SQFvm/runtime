@@ -103,7 +103,7 @@ namespace sqf
 		// Will return true if it succeeded, false if the value provided
 		// was null, not an object, not a unit, already inside the vehicle or no slots
 		// are left to occupy.
-		bool soldiers_push_back(std::shared_ptr<sqf::value> val);
+		bool soldiers_push_back(sqf::value val);
 		// Attempts to add provided objectdata to the soldiers list.
 		// Will return true if it succeeded, false if the value provided
 		// was null, not a unit, already inside the vehicle or no slots are left to occupy.
@@ -111,7 +111,7 @@ namespace sqf
 		void soldiers_pop_back();
 		void soldiers_erase(std::shared_ptr<sqf::objectdata> obj);
 
-		bool iskindof(std::string cfgname);
+		bool iskindof(std::string_view cfgname) const;
 
 		void destroy(sqf::virtualmachine*);
 
