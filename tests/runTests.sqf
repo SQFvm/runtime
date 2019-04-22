@@ -1,5 +1,3 @@
-
-
 testsIndex = 0;
 testsPassed = 0;
 testsFailed = 0;
