@@ -165,7 +165,7 @@ bool sqf::arraydata::recursion_test_helper(std::vector<std::shared_ptr<arraydata
 {
 	for (auto& it : this->mvalue)
 	{
-		if (it && it.dtype() == type::ARRAY)
+		if (it.dtype() == type::ARRAY)
 		{
 			auto arr = it.data<arraydata>();
 			if (std::find(visited.begin(), visited.end(), arr) != visited.end())

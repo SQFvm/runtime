@@ -29,7 +29,7 @@
 	{
 		val = m_configdata->at(static_cast<int>(m_current_index));
 		m_current_index++;
-		if (val && val.data<configdata>()->cfgvalue())
+		if (val.data<configdata>()->cfgvalue().dtype() != type::NOTHING)
 		{
 			break;
 		}

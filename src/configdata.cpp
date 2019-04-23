@@ -12,7 +12,7 @@ sqf::value sqf::configdata::inherited_parent_unsafe() const
 		// try to find parent
 		auto res = lockparent->navigate_unsafe(m_inherited_parent_name);
 		// check result
-		if (res && res.data<configdata>().get() != this)
+		if (res.data<configdata>().get() != this)
 		{ // hit, return parent
 			return res;
 		}
@@ -48,7 +48,7 @@ sqf::value sqf::configdata::navigate_full_unsafe(std::string_view nextnode) cons
 		while (p = inherited_parent_unsafe(), !p.data_try_as<configdata>()->is_null())
 		{
 			it = p.data<configdata>()->navigate_full_unsafe(nextnode);
-			if (it)
+			if (it.dtype() != type::NOTHING)
 				return it;
 		}
 		return configNull();
@@ -57,7 +57,8 @@ sqf::value sqf::configdata::navigate_full_unsafe(std::string_view nextnode) cons
 
 std::string sqf::configdata::tosqf() const
 {
-	std::stringstream sstream;
+	std::string output;
+	output.reserve(count_logical_parents()*128);
 	for (size_t i = count_logical_parents(); i != (size_t)~0; i--)
 	{
 		auto node = std::shared_ptr<configdata>(const_cast<configdata*>(this), [](configdata*) {});
@@ -65,13 +66,14 @@ std::string sqf::configdata::tosqf() const
 		{
 			node = node->m_logical_parent.lock();
 		}
-		sstream << node->m_name;
+		output.append(node->m_name);
 		if (i != 0)
 		{
-			sstream << '/';
+			output.push_back('/');
 		}
 	}
-	return sstream.str();
+	output.shrink_to_fit();
+	return output;
 }
 
 bool sqf::configdata::is_kind_of(std::string_view s) const
@@ -133,7 +135,7 @@ void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 			continue;
 		auto subcd = val.data<configdata>();
 		auto othercd = cd->navigate_unsafe(subcd->m_name);
-		if (othercd)
+		if (othercd.dtype() != type::NOTHING)
 		{
 			subcd->mergeinto(othercd.data<configdata>());
 		}
