@@ -212,7 +212,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			}
 		}
 		
-		if (mwrnflag && !mwrnflag)
+		if (mwrnflag)
 		{
 			(*mwrn) << inst->dbginf("WRN") << mwrn_buff.str();
 			if (_debugger) {
