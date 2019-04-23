@@ -92,7 +92,7 @@ std::string rebuild_from_assembly_recursive(const sqf::codedata* data, int& inde
 			{
 				strvec[i] = rebuild_from_assembly_recursive(data, --index, 0);
 			}
-			for (auto& it = strvec.rbegin(); it != strvec.rend(); it++)
+			for (auto it = strvec.rbegin(); it != strvec.rend(); it++)
 			{
 				if (it != strvec.rbegin())
 				{
