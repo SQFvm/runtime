@@ -331,6 +331,7 @@ namespace {
 		size_t word_start = local_fileinfo.off;
 		bool inside_word = false;
 		bool string_mode = false;
+		bool part_of_word = false;
 		std::stringstream sstream;
 		char c;
 		while (local_fileinfo.off != endindex && (c = local_fileinfo.next()) != '\0')
@@ -372,11 +373,12 @@ namespace {
 					{
 						break;
 					} // Intended conditional fallthrough
+					part_of_word = true;
 				default:
 					if (inside_word)
 					{
 						inside_word = false;
-						auto word = local_fileinfo.content.substr(word_start, local_fileinfo.off - word_start - (local_fileinfo.off != endindex ? 1 : 0));
+						auto word = local_fileinfo.content.substr(word_start, local_fileinfo.off - word_start - (!part_of_word ? 1 : 0));
 						auto res = h.contains_macro(word);
 						if (res.has_value())
 						{
@@ -392,11 +394,7 @@ namespace {
 							sstream << handled;
 							if (local_fileinfo.off != endindex)
 							{
-								if (!res.value().hasargs)
-								{
-									local_fileinfo.move_back();
-								}
-								sstream << local_fileinfo.next();
+								local_fileinfo.move_back();
 							}
 						}
 						else if (param_map.find(word) != param_map.end())
@@ -404,7 +402,7 @@ namespace {
 							sstream << param_map.at(word);
 							if (local_fileinfo.off != endindex)
 							{
-								sstream << c;
+								local_fileinfo.move_back();
 							}
 						}
 						else
@@ -412,7 +410,7 @@ namespace {
 							sstream << word;
 							if (local_fileinfo.off != endindex)
 							{
-								sstream << c;
+								local_fileinfo.move_back();
 							}
 						}
 					}
@@ -420,6 +418,7 @@ namespace {
 					{
 						sstream << c;
 					}
+					part_of_word = false;
 					break;
 			}
 		}
