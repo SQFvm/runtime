@@ -11,6 +11,12 @@
 #include "fileio.h"
 #include "Entry.h"
 
+//#define PRINT_MACRO_CHAIN
+
+#ifdef PRINT_MACRO_CHAIN
+#include <iostream>
+#endif
+
 using namespace sqf::parse::preprocessor;
 
 namespace sqf {
@@ -479,7 +485,43 @@ namespace {
 				}
 			}
 		}
+#ifdef PRINT_MACRO_CHAIN
+		auto replace_result = replace(h, original_fileinfo, m, params);
+		std::cout << "Resolving '" << m.name << "'" << std::endl;
+		std::cout << m.name << " - Definition: #define " << m.name;
+		if (m.hasargs)
+		{
+			std::cout << "(";
+			for (size_t i = 0; i < m.args.size(); i++)
+			{
+				if (i != 0)
+				{
+					std::cout << ",";
+				}
+				std::cout << m.args[i];
+			}
+			std::cout << ")";
+		}
+		std::cout << " " << m.content << std::endl;
+		std::cout << m.name << " - Input: " << m.name;
+		if (m.hasargs)
+		{
+			std::cout << "(";
+			for (size_t i = 0; i < params.size(); i++)
+			{
+				if (i != 0)
+				{
+					std::cout << ",";
+				}
+				std::cout << params[i];
+			}
+			std::cout << ")";
+		}
+		std::cout << std::endl << m.name << " - Result: " << replace_result << std::endl;
+		return replace_result;
+#else
 		return replace(h, original_fileinfo, m, params);
+#endif
 	}
 	std::string parse_ppinstruction(helper& h, finfo& fileinfo)
 	{
