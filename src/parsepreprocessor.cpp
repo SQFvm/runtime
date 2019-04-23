@@ -406,7 +406,7 @@ namespace {
 						else if (param_map.find(word) != param_map.end())
 						{
 							sstream << param_map.at(word);
-							if (local_fileinfo.off != endindex)
+							if (!part_of_word)
 							{
 								local_fileinfo.move_back();
 							}
@@ -414,7 +414,7 @@ namespace {
 						else
 						{
 							sstream << word;
-							if (local_fileinfo.off != endindex)
+							if (!part_of_word)
 							{
 								local_fileinfo.move_back();
 							}
