@@ -392,7 +392,7 @@ namespace {
 								return "";
 							}
 							sstream << handled;
-							if (local_fileinfo.off != endindex)
+							if (!res->hasargs && !part_of_word)
 							{
 								local_fileinfo.move_back();
 							}
