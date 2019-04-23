@@ -57,7 +57,8 @@ sqf::value sqf::configdata::navigate_full_unsafe(std::string_view nextnode) cons
 
 std::string sqf::configdata::tosqf() const
 {
-	std::stringstream sstream;
+	std::string output;
+	output.reserve(count_logical_parents()*128);
 	for (size_t i = count_logical_parents(); i != (size_t)~0; i--)
 	{
 		auto node = std::shared_ptr<configdata>(const_cast<configdata*>(this), [](configdata*) {});
@@ -65,13 +66,14 @@ std::string sqf::configdata::tosqf() const
 		{
 			node = node->m_logical_parent.lock();
 		}
-		sstream << node->m_name;
+		output.append(node->m_name);
 		if (i != 0)
 		{
-			sstream << '/';
+			output.push_back('/');
 		}
 	}
-	return sstream.str();
+	output.shrink_to_fit();
+	return output;
 }
 
 bool sqf::configdata::is_kind_of(std::string_view s) const
