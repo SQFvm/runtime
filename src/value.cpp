@@ -155,7 +155,7 @@ sqf::value::operator char() const
 	return static_cast<char>(*(std::dynamic_pointer_cast<scalardata>(data).get()));
 }
 
-sqf::value::operator bool() const
+bool sqf::value::as_bool() const
 {
 	auto data = mdata;
     auto type = dtype();
@@ -165,6 +165,7 @@ sqf::value::operator bool() const
 	}
 	return static_cast<bool>(*(std::dynamic_pointer_cast<booldata>(data).get()));
 }
+
 sqf::value::operator std::string() const
 {
 	auto data = mdata;

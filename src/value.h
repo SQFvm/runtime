@@ -33,14 +33,14 @@ namespace sqf
 		value(std::shared_ptr<callstack>);
 		value();
 	    value(std::shared_ptr<sqf::data> d) { mdata = std::move(d); }
-
+		//#TODO add a is_nil() function instead of comparing dtype
 		explicit operator float() const;
 		explicit operator double() const;
 		explicit operator char() const;
 		explicit operator short() const;
 		explicit operator int() const;
 		explicit operator long() const;
-		explicit operator bool() const;
+		//explicit operator bool() const;
 		explicit operator std::string() const;
 		explicit operator std::vector<sqf::value>() const;
         explicit operator type() const { return dtype(); };
@@ -51,7 +51,7 @@ namespace sqf
 		short as_short() const { return static_cast<short>(*this); }
 		int as_int() const { return static_cast<int>(*this); }
 		long as_long() const { return static_cast<long>(*this); }
-		bool as_bool() const { return static_cast<bool>(*this); }
+		bool as_bool() const;
 		std::string as_string() const { return static_cast<std::string>(*this); }
 		std::vector<sqf::value> as_vector() const { return static_cast<std::vector<sqf::value>>(*this); }
         type dtype() const;
