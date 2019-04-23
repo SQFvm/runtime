@@ -464,16 +464,12 @@ int main(int argc, char** argv)
 	// Preprocess the files
 	for (auto& f : preprocessFileArg.getValue())
 	{
-		auto sanitized = sqf::filesystem::sanitize(f);
+		auto sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / f).lexically_normal()).string();
 		try
 		{
 			if (sanitized.empty())
 			{
 				continue;
-			}
-			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
-			{
-				sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / sanitized).lexically_normal()).string();
 			}
 			if (verbose)
 			{
@@ -508,16 +504,12 @@ int main(int argc, char** argv)
 	//Load all sqf-files provided via arg.
 	for (auto& f : sqf_files)
 	{
-		auto sanitized = sqf::filesystem::sanitize(f);
+		auto sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / f).lexically_normal()).string();
 		try
 		{
 			if (sanitized.empty())
 			{
 				continue;
-			}
-			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
-			{
-				sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / sanitized).lexically_normal()).string();
 			}
 			if (verbose)
 			{
@@ -561,16 +553,12 @@ int main(int argc, char** argv)
 	//Load & merge all config-files provided via arg.
 	for (auto& f : config_files)
 	{
-		auto sanitized = sqf::filesystem::sanitize(f);
+		auto sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / f).lexically_normal()).string();
 		try
 		{
 			if (sanitized.empty())
 			{
 				continue;
-			}
-			if (f.length() > 2 && f[0] == '.' && (f[1] == '/' || f[1] == '\\'))
-			{
-				sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / sanitized).lexically_normal()).string();
 			}
 			if (verbose)
 			{

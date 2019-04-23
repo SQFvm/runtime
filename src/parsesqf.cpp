@@ -41,25 +41,25 @@ namespace sqf
 						case '\r': curoff++; col++; continue;
 						case '\n': curoff++; line++; col = 0; continue;
 						case '#':
-							if ((code[curoff + 1] == 'f' && code[curoff + 2] == 'i' && code[curoff + 3] == 'l' && code[curoff + 4] == 'e') ||
-								(code[curoff + 1] == 'F' && code[curoff + 2] == 'I' && code[curoff + 3] == 'L' && code[curoff + 4] == 'E'))
+							if ((code[curoff + 1] == 'l' || code[curoff + 1] == 'L') &&
+								(code[curoff + 2] == 'i' || code[curoff + 1] == 'I') &&
+								(code[curoff + 3] == 'n' || code[curoff + 1] == 'N') &&
+								(code[curoff + 4] == 'e' || code[curoff + 1] == 'E'))
 							{
-								curoff += 5;
-								size_t start = curoff + 1;
-								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
-
-								auto str = std::string(code + start, code + curoff);
-								file = str;
-								break;
-							}
-							else if ((code[curoff + 1] == 'l' && code[curoff + 2] == 'i' && code[curoff + 3] == 'n' && code[curoff + 4] == 'e') ||
-								(code[curoff + 1] == 'L' && code[curoff + 2] == 'I' && code[curoff + 3] == 'N' && code[curoff + 4] == 'E'))
-							{
-								curoff += 5;
-								size_t start = curoff + 1;
-								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
+								curoff += 6;
+								size_t start = curoff;
+								for (; code[curoff] != '\0' && code[curoff] != '\n' && code[curoff] != ' '; curoff++);
 								auto str = std::string(code + start, code + curoff);
 								line = static_cast<size_t>(std::stoul(str));
+
+								for (; code[curoff] != '\0' && code[curoff] != '\n' && code[curoff] == ' '; curoff++);
+								if (code[curoff] != '\0' && code[curoff] != '\n')
+								{
+									start = curoff;
+									for (; code[curoff] != '\0' && code[curoff] != '\n' && code[curoff] != ' '; curoff++);
+									auto str = std::string(code + start, code + curoff);
+									file = str;
+								}
 								break;
 							}
 						default: return;
