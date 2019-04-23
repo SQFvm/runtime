@@ -34,26 +34,26 @@ namespace sqf
 		value();
 	    value(std::shared_ptr<sqf::data> d) { mdata = std::move(d); }
 
-		operator float() const;
-		operator double() const;
-		operator char() const;
-		operator short() const;
-		operator int() const;
-		operator long() const;
-		operator bool() const;
-		operator std::string() const;
-		operator std::vector<sqf::value>() const;
-        operator type() const { return dtype(); };
+		explicit operator float() const;
+		explicit operator double() const;
+		explicit operator char() const;
+		explicit operator short() const;
+		explicit operator int() const;
+		explicit operator long() const;
+		explicit operator bool() const;
+		explicit operator std::string() const;
+		explicit operator std::vector<sqf::value>() const;
+        explicit operator type() const { return dtype(); };
 
-		float as_float() const { return *this; }
-		double as_double() const { return *this; }
-		char as_char() const { return *this; }
-		short as_short() const { return *this; }
-		int as_int() const { return *this; }
-		long as_long() const { return *this; }
-		bool as_bool() const { return *this; }
-		std::string as_string() const { return *this; }
-		std::vector<sqf::value> as_vector() const { return *this; }
+		float as_float() const { return static_cast<float>(*this); }
+		double as_double() const { return static_cast<double>(*this); }
+		char as_char() const { return static_cast<char>(*this); }
+		short as_short() const { return static_cast<short>(*this); }
+		int as_int() const { return static_cast<int>(*this); }
+		long as_long() const { return static_cast<long>(*this); }
+		bool as_bool() const { return static_cast<bool>(*this); }
+		std::string as_string() const { return static_cast<std::string>(*this); }
+		std::vector<sqf::value> as_vector() const { return static_cast<std::vector<sqf::value>>(*this); }
         type dtype() const;
 		std::shared_ptr<sqf::data> data() const { return mdata; }
 
