@@ -86,15 +86,19 @@ std::string rebuild_from_assembly_recursive(const sqf::codedata* data, int& inde
 		{
 			auto instmakearray = std::static_pointer_cast<sqf::inst::makearray>(inst);
 			std::stringstream sstream;
+			auto strvec = std::vector<std::string>(instmakearray->size());
 			sstream << "[";
 			for (size_t i = 0; i < instmakearray->size(); i++)
 			{
-				if (i > 0)
+				strvec[i] = rebuild_from_assembly_recursive(data, --index, 0);
+			}
+			for (auto& it = strvec.rbegin(); it != strvec.rend(); it++)
+			{
+				if (it != strvec.rbegin())
 				{
 					sstream << ", ";
 				}
-				auto expression = rebuild_from_assembly_recursive(data, --index, 0);
-				sstream << expression;
+				sstream << *it;
 			}
 			sstream << "]";
 			return sstream.str();
