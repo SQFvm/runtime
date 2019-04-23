@@ -56,7 +56,7 @@ namespace sqf
 								if (code[curoff] != '\0' && code[curoff] != '\n')
 								{
 									start = curoff;
-									for (; code[curoff] != '\0' && code[curoff] != '\n' && code[curoff] != ' '; curoff++);
+									for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
 									auto str = std::string(code + start, code + curoff);
 									file = str;
 								}
