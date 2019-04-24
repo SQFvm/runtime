@@ -1,3 +1,8 @@
+
+diag_log format (["%1"] + productVersion);
+diag_log format (["v %3.%4 (git sha1 %5)"] + productVersion);
+diag_log format (["%8 %9"] + productVersion);
+
 testsIndex = 0;
 testsPassed = 0;
 testsFailed = 0;
