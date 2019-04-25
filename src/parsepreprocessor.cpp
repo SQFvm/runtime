@@ -10,6 +10,8 @@
 #include "virtualmachine.h"
 #include "fileio.h"
 #include "Entry.h"
+#include "logging.h"
+#include <iostream>
 
 //#define PRINT_MACRO_CHAIN
 
@@ -244,14 +246,11 @@ namespace {
 		if (m.args.size() != params.size())
 		{
 			h.errflag = true;
-			if (original_fileinfo.path.empty())
-			{
-				h.vm->err() << "[ERR][L" << original_fileinfo.line << "|C" << original_fileinfo.col << "]\t" << "Arg Count Missmatch." << std::endl;
-			}
-			else
-			{
-				h.vm->err() << "[ERR][L" << original_fileinfo.line << "|C" << original_fileinfo.col << "|" << original_fileinfo.path << "]\t" << "Arg Count Missmatch." << std::endl;
-			}
+			Logger l(std::cout);//#TODO remove this test
+			CanLog cl(l);
+			namespace err = logmessage::preprocessor;
+
+			cl.log(err::ArgCountMissmatch(original_fileinfo));
 			return "";
 		}
 		finfo local_fileinfo;
