@@ -13,26 +13,6 @@ enum class loglevel {
     trace
 };
 
-class LogMessageBase {
-public:
-    LogMessageBase(loglevel level, size_t code) : level(level), errorCode(code) {}
-    virtual ~LogMessageBase() = default;
-
-    [[nodiscard]] virtual std::string formatMessage() const = 0;
-    virtual loglevel getLevel() {
-        return level;
-    }
-    virtual size_t getErrorCode() {
-        return errorCode;
-    }
-    operator LogMessageBase*(){
-        return this;
-    }
-protected:
-    loglevel level = loglevel::verbose;
-    size_t errorCode;
-};
-
 namespace sqf {
     class instruction;
     namespace parse {
@@ -56,14 +36,25 @@ public:
 };
 
 
-//XX(name, number, level, arguments)
-//CATS(name) category start
-//CATE category end
-#define LOG_MESSAGES(XX, CATS, CATE) \
-    CATS(preprocessor) \
-    XX(ArgCountMissmatch, 1, error) \
-    CATE\
+class LogMessageBase {
+public:
+    LogMessageBase(loglevel level, size_t code) : level(level), errorCode(code) {}
+    virtual ~LogMessageBase() = default;
 
+    [[nodiscard]] virtual std::string formatMessage() const = 0;
+    virtual loglevel getLevel() {
+        return level;
+    }
+    virtual size_t getErrorCode() {
+        return errorCode;
+    }
+    operator LogMessageBase*(){
+        return this;
+    }
+protected:
+    loglevel level = loglevel::verbose;
+    size_t errorCode;
+};
 
 class Logger {
     std::ostream& logTarget;
@@ -72,9 +63,8 @@ class Logger {
     std::vector<bool> enabledWarningLevels;
 public:
     Logger(std::ostream& target);
-    Logger(std::ostream& target, std::ostream& targetErr);
 
-    bool isEnabled(loglevel level) const {
+    [[nodiscard]] bool isEnabled(loglevel level) const {
         return enabledWarningLevels[static_cast<size_t>(level)];
     }
 
@@ -204,8 +194,6 @@ namespace logmessage {
                 PreprocBase(level, errorCode, std::move(loc)), instruction(instruction) {}
             [[nodiscard]] std::string formatMessage() const override;
         };
-
-
 
     }
 }

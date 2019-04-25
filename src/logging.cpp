@@ -13,8 +13,6 @@ Logger::Logger(std::ostream& target): logTarget(target) {
 #endif
 }
 
-Logger::Logger(std::ostream& target, std::ostream& targetErr): logTarget(target) {}
-
 void Logger::log(loglevel level, std::string_view message) {
     std::unique_lock lock(streamLock);
 
@@ -28,6 +26,7 @@ void Logger::log(loglevel level, std::string_view message) {
         default: ;
     }
 
+    logTarget << message;
 }
 
 
@@ -81,10 +80,11 @@ std::string LogLocationInfo::format() const {
 #pragma endregion LogLocationInfo
 
 void CanLog::log(LogMessageBase&& message) const {
+    if (!logger.isEnabled(message.getLevel())) return;
     logger.log(message.getLevel(), message.formatMessage());
 
 
-    log(logmessage::preprocessor::ArgCountMissmatch(LogLocationInfo()));
+    //log(logmessage::preprocessor::ArgCountMissmatch(LogLocationInfo()));
 
 }
 
