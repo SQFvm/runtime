@@ -63,7 +63,8 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mexitflag = false;
 	mallowsleep = true;
 	mplayer_obj = innerobj::create(this, "CAManBase", false);
-	mcreatedtimestamp = system_time();
+	m_created_timestamp = system_time();
+	m_current_time = system_time();
 }
 void sqf::virtualmachine::execute()
 {
