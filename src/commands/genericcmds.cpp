@@ -23,6 +23,7 @@
 #include "../sqfnamespace.h"
 #include "../fileio.h"
 #include "../parsepreprocessor.h"
+#include "../git_sha1.h"
 #include <cmath>
 #include "booldata.h"
 
@@ -55,7 +56,7 @@ namespace
 			value("sqf-vm"),
 			value(VERSION_MAJORMINOR),
 			value(VERSION_REVISION),
-			value("COMMUNITY"),
+			value("COMMUNITY-" + std::string{g_GIT_SHA1}),
 			value(false),
 #if _WIN32
 			value("Windows"),

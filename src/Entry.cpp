@@ -8,6 +8,7 @@
 #include "configdata.h"
 #include "fileio.h"
 #include "parsepreprocessor.h"
+#include "git_sha1.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -33,9 +34,9 @@
 #endif
 
 #ifdef _WIN32
-#define RELPATHHINT "Supports absolut and relative pathing using '.\\path\\to\\file' or 'C:\\path\\to\\file'."
+#define RELPATHHINT "Supports absolute and relative pathing using '.\\path\\to\\file' or 'C:\\path\\to\\file'."
 #else
-#define RELPATHHINT "Supports absolut and relative pathing using './path/to/file' or '/path/to/file'."
+#define RELPATHHINT "Supports absolute and relative pathing using './path/to/file' or '/path/to/file'."
 #endif
 
 void strcpy_safe(char* const dest, size_t len, const char* const src)
@@ -141,7 +142,7 @@ int main(int argc, char** argv)
 
 
 	auto executable_path = sqf::filesystem::sanitize(get_working_dir());
-	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', VERSION_FULL "\n");
+	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', std::string{VERSION_FULL} + " (" + g_GIT_SHA1 + ")\n");
 
 	TCLAP::ValueArg<std::string> cliFileArg("", "cli-file", "Allows to provide a file from which to load arguments from. If passed, all other arguments will be ignored! Each argument needs to be separated by line-feed. " RELPATHHINT, false, "", "PATH");
 	cmd.add(cliFileArg);

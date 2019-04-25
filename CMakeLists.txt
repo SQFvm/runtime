@@ -9,6 +9,7 @@ set(CMAKE_MACOSX_RPATH 1)
 # Enable multithreaded compilation in MSVC
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 
+# Add the filesystem library if we are building on Clang or GCC
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(ST_CXXFS_LIBS stdc++fs)
 endif()
@@ -23,7 +24,17 @@ include_directories("${PROJECT_SOURCE_DIR}/include/tclap-1.2.2/include")
 file(GLOB vm_src 
     "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c"
     "${PROJECT_SOURCE_DIR}/src/commands/*.h" "${PROJECT_SOURCE_DIR}/src/commands/*.cpp" "${PROJECT_SOURCE_DIR}/src/commands/*.c"
+    "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp"
 )
+
+# Get the local git revision hash and put it into a header we can use
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+
+configure_file("${PROJECT_SOURCE_DIR}/cmake/git_sha1.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp" @ONLY)
+list(APPEND vm_src "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp")
+
 
 find_package(Threads)
 
