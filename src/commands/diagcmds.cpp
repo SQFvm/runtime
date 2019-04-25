@@ -19,7 +19,7 @@ namespace
 		auto starttime = vm->get_created_timestamp().time_since_epoch();
 		// Time is since beginning of game so long is fine.
 		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(curtime - starttime).count());
-		return r;
+		return (float)r * 0.001;
 	}
 	value assert_bool(virtualmachine* vm, value::cref right)
 	{
