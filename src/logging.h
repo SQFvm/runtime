@@ -18,7 +18,7 @@ public:
     LogMessageBase(loglevel level, size_t code) : level(level), errorCode(code) {}
     virtual ~LogMessageBase() = default;
 
-    virtual std::string formatMessage();
+    [[nodiscard]] virtual std::string formatMessage() const = 0;
     virtual loglevel getLevel() {
         return level;
     }
@@ -52,7 +52,7 @@ public:
     size_t line;
     size_t col;
 
-    std::string format() const;
+    [[nodiscard]] std::string format() const;
 };
 
 
@@ -74,7 +74,7 @@ public:
     Logger(std::ostream& target);
     Logger(std::ostream& target, std::ostream& targetErr);
 
-    bool isEnabled(loglevel level) {
+    bool isEnabled(loglevel level) const {
         return enabledWarningLevels[static_cast<size_t>(level)];
     }
 
@@ -106,15 +106,106 @@ namespace logmessage {
             LogLocationInfo location;
         };
 
-
-
         class ArgCountMissmatch : public PreprocBase {
             static const loglevel level = loglevel::error;
             static const size_t errorCode = 1;
         public:
-            ArgCountMissmatch(LogLocationInfo);
-            std::string formatMessage() override;
+            ArgCountMissmatch(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
+            [[nodiscard]] std::string formatMessage() const override;
         };
+
+        class UnexpectedDataAfterInclude : public PreprocBase {
+            static const loglevel level = loglevel::warning;
+            static const size_t errorCode = 1;
+        public:
+            UnexpectedDataAfterInclude(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
+        class RecursiveInclude : public PreprocBase {
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 1;
+            std::string includeTree;
+        public:
+            RecursiveInclude(LogLocationInfo loc, std::string includeTree) :
+                PreprocBase(level, errorCode, std::move(loc)), includeTree(std::move(includeTree)) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
+        class IncludeFailed : public PreprocBase {
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 1;
+            std::string_view line;
+            const std::runtime_error& exception;
+        public:
+            IncludeFailed(LogLocationInfo loc, std::string_view line, const std::runtime_error& exception) :
+                PreprocBase(level, errorCode, std::move(loc)), line(line), exception(exception) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
+        class MacroDefinedTwice : public PreprocBase {
+            static const loglevel level = loglevel::warning;
+            static const size_t errorCode = 1;
+            std::string_view macroname;
+        public:
+            MacroDefinedTwice(LogLocationInfo loc, std::string_view macroname) :
+                PreprocBase(level, errorCode, std::move(loc)), macroname(macroname) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
+        class MacroNotFound : public PreprocBase {
+            static const loglevel level = loglevel::warning;
+            static const size_t errorCode = 1;
+            std::string_view macroname;
+        public:
+            MacroNotFound(LogLocationInfo loc, std::string_view macroname) :
+                PreprocBase(level, errorCode, std::move(loc)), macroname(macroname) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
+        class UnexpectedIfdef : public PreprocBase {
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 1;
+        public:
+            UnexpectedIfdef(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
+        class UnexpectedIfndef : public PreprocBase {
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 1;
+        public:
+            UnexpectedIfndef(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
+        class UnexpectedElse : public PreprocBase {
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 1;
+        public:
+            UnexpectedElse(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
+        class UnexpectedEndif : public PreprocBase {
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 1;
+        public:
+            UnexpectedEndif(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
+        class UnknownInstruction : public PreprocBase {
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 1;
+            std::string_view instruction;
+        public:
+            UnknownInstruction(LogLocationInfo loc, std::string_view instruction) :
+                PreprocBase(level, errorCode, std::move(loc)), instruction(instruction) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
+
 
     }
 }

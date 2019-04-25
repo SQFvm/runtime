@@ -90,14 +90,157 @@ void CanLog::log(LogMessageBase&& message) const {
 
 
 namespace logmessage::preprocessor {
-    ArgCountMissmatch::ArgCountMissmatch(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
 
-    std::string ArgCountMissmatch::formatMessage() {
+    std::string ArgCountMissmatch::formatMessage() const {
         auto output = location.format();
         auto const message = "Arg Count Missmatch."sv;
 
         output.reserve(output.length() + message.length());
         output.append(message);
+        return output;
+    }
+
+    std::string UnexpectedDataAfterInclude::formatMessage() const {
+        auto output = location.format();
+        auto const message = "Unexpected data after include path."sv;
+
+        output.reserve(output.length() + message.length());
+        output.append(message);
+        return output;
+
+    }
+
+    std::string RecursiveInclude::formatMessage() const {
+        auto output = location.format();
+        auto const message = "Recursive include detected. Include Tree:"sv;
+
+        output.reserve(output.length() + message.length() + includeTree.length());
+        output.append(message);
+        output.append(includeTree);
+        return output;
+    }
+
+    std::string IncludeFailed::formatMessage() const {
+        auto output = location.format();
+
+        const std::string_view exceptionMessage(exception.what());
+
+        output.reserve(
+            output.length() 
+            + "Failed to include '"sv.length()
+            + line.length()
+            + "' into file '"sv.length()
+            + location.path.length()
+            + "']\t':"sv.length()
+            + exceptionMessage.length()
+        );
+        output.append("Failed to include '"sv);
+        output.append(line);
+        output.append("' into file '"sv);
+        output.append(location.path);
+        output.append("']\t':"sv);
+        output.append(exceptionMessage);
+        return output;
+
+    }
+
+    std::string MacroDefinedTwice::formatMessage() const {
+        auto output = location.format();
+
+        output.reserve(
+            output.length() 
+            + "Macro '"sv.length()
+            + macroname.length()
+            + "' defined twice."sv.length()
+        );
+
+        output.append("Macro '"sv);
+        output.append(macroname);
+        output.append("' defined twice."sv);
+        return output;
+    }
+
+    std::string MacroNotFound::formatMessage() const {
+        auto output = location.format();
+
+        output.reserve(
+            output.length() 
+            + "Macro '"sv.length()
+            + macroname.length()
+            + "' not found."sv.length()
+        );
+
+        output.append("Macro '"sv);
+        output.append(macroname);
+        output.append("' not found."sv);
+        return output;
+    }
+
+    std::string UnexpectedIfdef::formatMessage() const {
+        auto output = location.format();
+        const auto message = "Unexpected IFDEF. Already inside of a IFDEF or IFNDEF enclosure."sv;
+
+        output.reserve(
+            output.length() 
+            + message.length()
+        );
+
+        output.append(message);
+        return output;
+    }
+
+    std::string UnexpectedIfndef::formatMessage() const {
+        auto output = location.format();
+        const auto message = "Unexpected IFNDEF. Already inside of a IFDEF or IFNDEF enclosure."sv;
+
+        output.reserve(
+            output.length() 
+            + message.length()
+        );
+
+        output.append(message);
+        return output;
+    }
+
+    std::string UnexpectedElse::formatMessage() const {
+        auto output = location.format();
+        const auto message = "Unexpected ELSE. Not inside of a IFDEF or IFNDEF enclosure."sv;
+
+        output.reserve(
+            output.length() 
+            + message.length()
+        );
+
+        output.append(message);
+        return output;
+    }
+
+    std::string UnexpectedEndif::formatMessage() const {
+        auto output = location.format();
+        const auto message = "Unexpected ENDIF. Not inside inside of a IFDEF or IFNDEF enclosure."sv;
+
+        output.reserve(
+            output.length() 
+            + message.length()
+        );
+
+        output.append(message);
+        return output;
+    }
+
+    std::string UnknownInstruction::formatMessage() const {
+        auto output = location.format();
+
+        output.reserve(
+            output.length() 
+            + "Unknown PreProcessor instruction '"sv.length()
+            + instruction.length()
+            + "'."sv.length()
+        );
+
+        output.append("Unknown PreProcessor instruction '"sv);
+        output.append(instruction);
+        output.append("'."sv);
         return output;
     }
 
