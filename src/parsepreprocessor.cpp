@@ -195,21 +195,11 @@ namespace {
 	{
 		auto currentOffset = fileinfo.off;
 		bool flag = true;
-		bool escape = false;
 		while (flag)
 		{
 			char c = fileinfo.peek();
 			switch (c)
 			{
-			case '\\':
-				escape = true;
-				break;
-			case '\n':
-				if (escape)
-				{
-					escape = false;
-					break;
-				}
 			case 'a': case 'b': case 'c': case 'd': case 'e':
 			case 'f': case 'g': case 'h': case 'i': case 'j':
 			case 'k': case 'l': case 'm': case 'n': case 'o':
@@ -223,18 +213,14 @@ namespace {
 			case 'Y': case 'Z': case '0': case '1': case '2':
 			case '3': case '4': case '5': case '6': case '7':
 			case '8': case '9': case '_':
+			case '\n': case '\\':
 			case '#':
 			case '\0':
-				if (escape)
-				{
-					sstream << '\\';
-				}
 				flag = false;
 				break;
 			case '\r':
 				break;
 			default:
-				escape = false;
 				sstream << fileinfo.next();
 			}
 		}
