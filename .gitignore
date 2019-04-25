@@ -344,3 +344,5 @@ CTestTestfile.cmake
 /tclap-1.2.2/ChangeLog
 /tclap-1.2.2/AUTHORS
 /tclap-1.2.2/aclocal.m4
+
+build/git_sha1\.cpp

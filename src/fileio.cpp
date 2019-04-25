@@ -62,60 +62,62 @@ int get_bom_skip(const std::vector<char>& buff)
 {
 	if (buff.empty())
 		return 0;
-	if (buff[0] == static_cast<char>(0xEF) && buff[1] == static_cast<char>(0xBB) && buff[2] == static_cast<char>(0xBF))
+	// We are comparing against unsigned
+	auto ubuff = reinterpret_cast<const unsigned char*>(buff.data());
+	if (ubuff[0] == 0xEF && ubuff[1] == 0xBB && ubuff[2] == 0xBF)
 	{
 		//UTF-8
 		return 3;
 	}
-	else if (buff[0] == static_cast<char>(0xFE) && buff[1] == static_cast<char>(0xFF))
+	else if (ubuff[0] == 0xFE && ubuff[1] == 0xFF)
 	{
 		//UTF-16 (BE)
 		return 2;
 	}
-	else if (buff[0] == static_cast<char>(0xFE) && buff[1] == static_cast<char>(0xFE))
+	else if (ubuff[0] == 0xFE && ubuff[1] == 0xFE)
 	{
 		//UTF-16 (LE)
 		return 2;
 	}
-	else if (buff[0] == static_cast<char>(0x00) && buff[1] == static_cast<char>(0x00) && buff[2] == static_cast<char>(0xFF) && buff[3] == static_cast<char>(0xFF))
+	else if (ubuff[0] == 0x00 && ubuff[1] == 0x00 && ubuff[2] == 0xFF && ubuff[3] == 0xFF)
 	{
 		//UTF-32 (BE)
 		return 2;
 	}
-	else if (buff[0] == static_cast<char>(0xFF) && buff[1] == static_cast<char>(0xFF) && buff[2] == static_cast<char>(0x00) && buff[3] == static_cast<char>(0x00))
+	else if (ubuff[0] == 0xFF && ubuff[1] == 0xFF && ubuff[2] == 0x00 && ubuff[3] == 0x00)
 	{
 		//UTF-32 (LE)
 		return 2;
 	}
-	else if (buff[0] == static_cast<char>(0x2B) && buff[1] == static_cast<char>(0x2F) && buff[2] == static_cast<char>(0x76) &&
-		(buff[3] == static_cast<char>(0x38) || buff[3] == static_cast<char>(0x39) || buff[3] == static_cast<char>(0x2B) || buff[3] == static_cast<char>(0x2F)))
+	else if (ubuff[0] == 0x2B && ubuff[1] == 0x2F && ubuff[2] == 0x76 &&
+		(ubuff[3] == 0x38 || ubuff[3] == 0x39 || ubuff[3] == 0x2B || ubuff[3] == 0x2F))
 	{
 		//UTF-7
 		return 4;
 	}
-	else if (buff[0] == static_cast<char>(0xF7) && buff[1] == static_cast<char>(0x64) && buff[2] == static_cast<char>(0x4C))
+	else if (ubuff[0] == 0xF7 && ubuff[1] == 0x64 && ubuff[2] == 0x4C)
 	{
 		//UTF-1
 		return 3;
 	}
-	else if (buff[0] == static_cast<char>(0xDD) && buff[1] == static_cast<char>(0x73) && buff[2] == static_cast<char>(0x66) && buff[3] == static_cast<char>(0x73))
+	else if (ubuff[0] == 0xDD && ubuff[1] == 0x73 && ubuff[2] == 0x66 && ubuff[3] == 0x73)
 	{
 		//UTF-EBCDIC
 		return 3;
 	}
-	else if (buff[0] == static_cast<char>(0x0E) && buff[1] == static_cast<char>(0xFE) && buff[2] == static_cast<char>(0xFF))
+	else if (ubuff[0] == 0x0E && ubuff[1] == 0xFE && ubuff[2] == 0xFF)
 	{
 		//SCSU
 		return 3;
 	}
-	else if (buff[0] == static_cast<char>(0xFB) && buff[1] == static_cast<char>(0xEE) && buff[2] == static_cast<char>(0x28))
+	else if (ubuff[0] == 0xFB && ubuff[1] == 0xEE && ubuff[2] == 0x28)
 	{
 		//BOCU-1
-		if (buff[3] == static_cast<char>(0xFF))
+		if (ubuff[3] == 0xFF)
 			return 4;
 		return 3;
 	}
-	else if (buff[0] == static_cast<char>(0x84) && buff[1] == static_cast<char>(0x31) && buff[2] == static_cast<char>(0x95) && buff[3] == static_cast<char>(0x33))
+	else if (ubuff[0] == 0x84 && ubuff[1] == 0x31 && ubuff[2] == 0x95 && ubuff[3] == 0x33)
 	{
 		//GB 18030
 		return 3;

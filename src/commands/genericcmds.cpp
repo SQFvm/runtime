@@ -23,6 +23,7 @@
 #include "../sqfnamespace.h"
 #include "../fileio.h"
 #include "../parsepreprocessor.h"
+#include "../git_sha1.h"
 #include <cmath>
 #include "booldata.h"
 
@@ -55,7 +56,7 @@ namespace
 			value("sqf-vm"),
 			value(VERSION_MAJORMINOR),
 			value(VERSION_REVISION),
-			value("COMMUNITY"),
+			value("COMMUNITY-" + std::string{g_GIT_SHA1}),
 			value(false),
 #if _WIN32
 			value("Windows"),
@@ -1290,10 +1291,10 @@ namespace
 	value time_(virtualmachine* vm)
 	{
 		auto curtime = sqf::virtualmachine::system_time().time_since_epoch();
-		auto starttime = vm->get_created_timestamp().time_since_epoch();
+		auto starttime = vm->get_current_time().time_since_epoch();
 		// Time is since beginning of game so long is fine.
-		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(starttime - curtime).count());
-		return r;
+		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(curtime - starttime).count());
+		return (float)r * 0.001;
 	}
 	value throw_any(virtualmachine* vm, value::cref right)
 	{

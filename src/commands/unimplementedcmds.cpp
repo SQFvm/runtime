@@ -2117,7 +2117,6 @@ void sqf::commandmap::initunimplemented()
 	add(nular("diag_activescripts", "", [](virtualmachine* vm) -> value { vm->err() << "NOT IMPLEMENTED (diag_activescripts)." << std::endl; return {}; }));
 	add(nular("isstressdamageenabled", "", [](virtualmachine* vm) -> value { vm->err() << "NOT IMPLEMENTED (isstressdamageenabled)." << std::endl; return {}; }));
 	add(nular("fogparams", "", [](virtualmachine* vm) -> value { vm->err() << "NOT IMPLEMENTED (fogparams)." << std::endl; return {}; }));
-	add(nular("time", "", [](virtualmachine* vm) -> value { vm->err() << "NOT IMPLEMENTED (time)." << std::endl; return {}; }));
 	add(nular("shownhud", "", [](virtualmachine* vm) -> value { vm->err() << "NOT IMPLEMENTED (shownhud)." << std::endl; return {}; }));
 	add(nular("switchableunits", "", [](virtualmachine* vm) -> value { vm->err() << "NOT IMPLEMENTED (switchableunits)." << std::endl; return {}; }));
 	add(nular("playerrespawntime", "", [](virtualmachine* vm) -> value { vm->err() << "NOT IMPLEMENTED (playerrespawntime)." << std::endl; return {}; }));

@@ -15,9 +15,11 @@ namespace
 	}
 	value diag_tickTime_(virtualmachine* vm)
 	{
-		// Easily fits in a long
-		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(virtualmachine::system_time().time_since_epoch()).count());
-		return r;
+		auto curtime = sqf::virtualmachine::system_time().time_since_epoch();
+		auto starttime = vm->get_created_timestamp().time_since_epoch();
+		// Time is since beginning of game so long is fine.
+		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(curtime - starttime).count());
+		return (float)r * 0.001;
 	}
 	value assert_bool(virtualmachine* vm, value::cref right)
 	{
