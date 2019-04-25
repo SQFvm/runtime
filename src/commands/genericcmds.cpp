@@ -1292,7 +1292,7 @@ namespace
 		auto curtime = sqf::virtualmachine::system_time().time_since_epoch();
 		auto starttime = vm->get_current_time().time_since_epoch();
 		// Time is since beginning of game so long is fine.
-		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(starttime - curtime).count());
+		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(curtime - starttime).count());
 		return r;
 	}
 	value throw_any(virtualmachine* vm, value::cref right)
