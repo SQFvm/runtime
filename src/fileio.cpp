@@ -69,7 +69,7 @@ int get_bom_skip(const std::vector<char>& buff)
 		//UTF-8
 		return 3;
 	}
-	else if (buff[0] == 0xFE && ubuff[1] == 0xFF)
+	else if (ubuff[0] == 0xFE && ubuff[1] == 0xFF)
 	{
 		//UTF-16 (BE)
 		return 2;
