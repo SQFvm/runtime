@@ -64,13 +64,27 @@ sqf::commandmap& sqf::commandmap::get()
 	return map;
 }
 
-void sqf::commandmap::add(std::shared_ptr<nularcmd> cmd) { mnularcmd[string_tolower(cmd->name())] = cmd; }
+void sqf::commandmap::add(std::shared_ptr<nularcmd> cmd)
+{
+	auto key = string_tolower(cmd->name());
+	if (mnularcmd.find(key) != mnularcmd.end())
+	{
+		throw std::runtime_error("Duplicate Command.");
+	}
+	mnularcmd[key] = cmd;
+}
 void sqf::commandmap::add(std::shared_ptr<unarycmd> cmd)
 {
 	auto listsptr = munarycmd[string_tolower(cmd->name())];
 	if (!listsptr.get())
 	{
 		listsptr = munarycmd[string_tolower(cmd->name())] = std::make_shared<std::vector<std::shared_ptr<unarycmd>>>();
+	}
+	if (std::find_if(listsptr->begin(), listsptr->end(), [cmd](std::shared_ptr<unarycmd> it) -> bool {
+		return cmd->rtype() == sqf::type::ANY || it->rtype() == sqf::type::ANY || it->rtype() == cmd->rtype();
+		}) != listsptr->end())
+	{
+		throw std::runtime_error("Duplicate Command.");
 	}
 	listsptr->push_back(cmd);
 }
@@ -84,6 +98,14 @@ void sqf::commandmap::add(std::shared_ptr<binarycmd> cmd)
 	if (!listsptr.get())
 	{
 		listsptr = mbinarycmd[string_tolower(cmd->name())] = std::make_shared<std::vector<std::shared_ptr<binarycmd>>>();
+	}
+	if (std::find_if(listsptr->begin(), listsptr->end(), [cmd](std::shared_ptr<binarycmd> it) -> bool {
+		auto risconflict = cmd->rtype() == sqf::type::ANY || it->rtype() == sqf::type::ANY || cmd->rtype() == it->rtype();
+		auto lisconflict = cmd->ltype() == sqf::type::ANY || it->ltype() == sqf::type::ANY || cmd->ltype() == it->ltype();
+		return risconflict && lisconflict;
+		}) != listsptr->end())
+	{
+		throw std::runtime_error("Duplicate Command.");
 	}
 	listsptr->push_back(cmd);
 }
