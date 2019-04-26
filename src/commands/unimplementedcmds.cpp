@@ -346,7 +346,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "disableuavconnectability", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (disableuavconnectability)." << std::endl; return {}; }));
 	add(binary(4, "nearroads", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (nearroads)." << std::endl; return {}; }));
 	add(binary(4, "displayctrl", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (displayctrl)." << std::endl; return {}; }));
-	add(binary(4, "foreach", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (foreach)." << std::endl; return {}; }));
 	add(binary(4, "set3denmissionattribute", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (set3denmissionattribute)." << std::endl; return {}; }));
 	add(binary(4, "setformdir", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setformdir)." << std::endl; return {}; }));
 	add(binary(4, "ctrlsetfontsecondary", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrlsetfontsecondary)." << std::endl; return {}; }));
@@ -677,7 +676,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "moveindriver", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (moveindriver)." << std::endl; return {}; }));
 	add(binary(4, "selectdiarysubject", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (selectdiarysubject)." << std::endl; return {}; }));
 	add(binary(4, "canslingload", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (canslingload)." << std::endl; return {}; }));
-	add(binary(4, "sort", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (sort)." << std::endl; return {}; }));
 	add(binary(4, "createmissiondisplay", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (createmissiondisplay)." << std::endl; return {}; }));
 	add(binary(4, "setfuelcargo", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setfuelcargo)." << std::endl; return {}; }));
 	add(binary(4, "dotarget", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (dotarget)." << std::endl; return {}; }));
@@ -721,7 +719,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "setvehicleradar", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setvehicleradar)." << std::endl; return {}; }));
 	add(binary(4, "dosuppressivefire", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (dosuppressivefire)." << std::endl; return {}; }));
 	add(binary(4, "assignteam", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (assignteam)." << std::endl; return {}; }));
-	add(binary(4, "callextension", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (callextension)." << std::endl; return {}; }));
 	add(binary(4, "kbhastopic", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (kbhastopic)." << std::endl; return {}; }));
 	add(binary(4, "menutext", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menutext)." << std::endl; return {}; }));
 	add(binary(4, "lnbaddcolumn", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbaddcolumn)." << std::endl; return {}; }));
@@ -1018,8 +1015,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("disableremotesensors", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (disableremotesensors)." << std::endl; return {}; })); /* BOOL */
 	add(unary("attackenabled", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (attackenabled)." << std::endl; return {}; })); /* OBJECT,GROUP */
 	add(unary("curatoreditingarea", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (curatoreditingarea)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("playmusic", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (playmusic)." << std::endl; return {}; })); /* STRING */
-	add(unary("playmusic", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (playmusic)." << std::endl; return {}; })); /* ARRAY */
+	add(unary("playmusic", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (playmusic)." << std::endl; return {}; })); /* STRING, ARRAY */
 	add(unary("assignedteam", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (assignedteam)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("vectordirvisual", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (vectordirvisual)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("lnbsetvalue", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbsetvalue)." << std::endl; return {}; })); /* ARRAY */
@@ -1031,16 +1027,14 @@ void sqf::commandmap::initunimplemented()
 	add(unary("movetime", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (movetime)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("waypointspeed", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waypointspeed)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("tvpictureright", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvpictureright)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("ctrltext", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrltext)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("ctrltext", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrltext)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("ctrltext", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrltext)." << std::endl; return {}; })); /* CONTROL, SCALAR */
 	add(unary("ctrlclassname", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrlclassname)." << std::endl; return {}; })); /* CONTROL */
 	add(unary("actionname", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (actionname)." << std::endl; return {}; })); /* STRING */
 	add(unary("animationstate", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (animationstate)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("menuchecked", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menuchecked)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("lineintersectsobjs", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lineintersectsobjs)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("weaponcargo", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (weaponcargo)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("buttonaction", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (buttonaction)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("buttonaction", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (buttonaction)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("buttonaction", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (buttonaction)." << std::endl; return {}; })); /* CONTROL, SCALAR */
 	add(unary("set3deniconsvisible", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (set3deniconsvisible)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("hcshowbar", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (hcshowbar)." << std::endl; return {}; })); /* BOOL */
 	add(unary("drop", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (drop)." << std::endl; return {}; })); /* ARRAY */
@@ -1055,8 +1049,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("lnbsettext", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbsettext)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("waypointstatements", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waypointstatements)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("scudstate", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (scudstate)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("sliderrange", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (sliderrange)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("sliderrange", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (sliderrange)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("sliderrange", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (sliderrange)." << std::endl; return {}; })); /* CONTROL, SCALAR */
 	add(unary("isautotrimonrtd", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isautotrimonrtd)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("boundingboxreal", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (boundingboxreal)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("terrainintersect", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (terrainintersect)." << std::endl; return {}; })); /* ARRAY */
@@ -1087,9 +1080,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("getbleedingremaining", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getbleedingremaining)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("squadparams", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (squadparams)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("groupfromnetid", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (groupfromnetid)." << std::endl; return {}; })); /* STRING */
-	add(unary("leader", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (leader)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("leader", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (leader)." << std::endl; return {}; })); /* GROUP */
-	add(unary("leader", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (leader)." << std::endl; return {}; })); /* TEAM_MEMBER */
+	add(unary("leader", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (leader)." << std::endl; return {}; })); /* OBJECT, GROUP,TEAM_MEMBER  */
 	add(unary("settrafficdistance", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (settrafficdistance)." << std::endl; return {}; })); /* SCALAR */
 	add(unary("currentthrowable", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (currentthrowable)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("enableengineartillery", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (enableengineartillery)." << std::endl; return {}; })); /* BOOL */
@@ -1137,8 +1128,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("lnbdata", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbdata)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("unitisuav", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (unitisuav)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("lbadd", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbadd)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("lnbclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbclear)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("lnbclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbclear)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("lnbclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbclear)." << std::endl; return {}; })); /* CONTROL, SCALAR */
 	add(unary("assignedtarget", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (assignedtarget)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("cameraeffectenablehud", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (cameraeffectenablehud)." << std::endl; return {}; })); /* BOOL */
 	add(unary("execfsm", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (execfsm)." << std::endl; return {}; })); /* STRING */
@@ -1170,8 +1160,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("isplayer", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isplayer)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("buldozer_enableroaddiag", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (buldozer_enableroaddiag)." << std::endl; return {}; })); /* BOOL */
 	add(unary("campreloaded", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (campreloaded)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("local", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (local)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("local", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (local)." << std::endl; return {}; })); /* GROUP */
+	add(unary("local", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (local)." << std::endl; return {}; })); /* OBJECT, GROUP */
 	add(unary("drawicon3d", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (drawicon3d)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("surfacetype", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (surfacetype)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("lbdata", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbdata)." << std::endl; return {}; })); /* ARRAY */
@@ -1186,11 +1175,8 @@ void sqf::commandmap::initunimplemented()
 	add(unary("uniform", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (uniform)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("delete3denentities", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (delete3denentities)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("commandgetout", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (commandgetout)." << std::endl; return {}; })); /* ARRAY,OBJECT */
-	add(unary("wfsidetext", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (wfsidetext)." << std::endl; return {}; })); /* SIDE */
-	add(unary("wfsidetext", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (wfsidetext)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("wfsidetext", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (wfsidetext)." << std::endl; return {}; })); /* GROUP */
-	add(unary("tvexpandall", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvexpandall)." << std::endl; return {}; })); /* SCALAR */
-	add(unary("tvexpandall", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvexpandall)." << std::endl; return {}; })); /* CONTROL */
+	add(unary("wfsidetext", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (wfsidetext)." << std::endl; return {}; })); /* SIDE, OBJECT, GROUP */
+	add(unary("tvexpandall", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvexpandall)." << std::endl; return {}; })); /* SCALAR, CONTROL */
 	add(unary("velocitymodelspace", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (velocitymodelspace)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("getallownedmines", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getallownedmines)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("onpreloadstarted", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (onpreloadstarted)." << std::endl; return {}; })); /* STRING,CODE */
@@ -1208,8 +1194,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("position", type::LOCATION, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (position)." << std::endl; return {}; })); /* LOCATION */
 	add(unary("canunloadincombat", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (canunloadincombat)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("attachedobjects", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (attachedobjects)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("netid", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (netid)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("netid", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (netid)." << std::endl; return {}; })); /* GROUP */
+	add(unary("netid", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (netid)." << std::endl; return {}; })); /* OBJECT, GROUP */
 	add(unary("waypointcompletionradius", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waypointcompletionradius)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("removeallassigneditems", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (removeallassigneditems)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("ropeunwound", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ropeunwound)." << std::endl; return {}; })); /* OBJECT */
@@ -1231,8 +1216,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("actionkeysimages", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (actionkeysimages)." << std::endl; return {}; })); /* ARRAY,STRING */
 	add(unary("enablesentences", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (enablesentences)." << std::endl; return {}; })); /* BOOL */
 	add(unary("curatoreditableobjects", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (curatoreditableobjects)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("entities", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (entities)." << std::endl; return {}; })); /* STRING */
-	add(unary("entities", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (entities)." << std::endl; return {}; })); /* ARRAY */
+	add(unary("entities", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (entities)." << std::endl; return {}; })); /* STRING, ARRAY */
 	add(unary("tvcount", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvcount)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("setgroupiconsselectable", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setgroupiconsselectable)." << std::endl; return {}; })); /* BOOL */
 	add(unary("showwarrant", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (showwarrant)." << std::endl; return {}; })); /* BOOL */
@@ -1302,8 +1286,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("textlog", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (textlog)." << std::endl; return {}; })); /* ANY */
 	add(unary("openyoutubevideo", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (openyoutubevideo)." << std::endl; return {}; })); /* STRING */
 	add(unary("combatmode", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (combatmode)." << std::endl; return {}; })); /* OBJECT,GROUP */
-	add(unary("ppeffectdestroy", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ppeffectdestroy)." << std::endl; return {}; })); /* SCALAR */
-	add(unary("ppeffectdestroy", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ppeffectdestroy)." << std::endl; return {}; })); /* ARRAY */
+	add(unary("ppeffectdestroy", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ppeffectdestroy)." << std::endl; return {}; })); /* SCALAR, ARRAY */
 	add(unary("add3deneventhandler", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (add3deneventhandler)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("canstand", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (canstand)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("rotorsforcesrtd", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (rotorsforcesrtd)." << std::endl; return {}; })); /* OBJECT */
@@ -1359,8 +1342,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("currentweaponmode", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (currentweaponmode)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("getwingspositionrtd", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getwingspositionrtd)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("waypointloitertype", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waypointloitertype)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("name", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (name)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("name", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (name)." << std::endl; return {}; })); /* LOCATION */
+	add(unary("name", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (name)." << std::endl; return {}; })); /* OBJEC, LOCATIONT */
 	add(unary("onbriefinggroup", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (onbriefinggroup)." << std::endl; return {}; })); /* STRING */
 	add(unary("locationposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (locationposition)." << std::endl; return {}; })); /* LOCATION */
 	add(unary("importance", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (importance)." << std::endl; return {}; })); /* LOCATION */
@@ -1370,8 +1352,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("keyimage", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (keyimage)." << std::endl; return {}; })); /* SCALAR */
 	add(unary("removeallweapons", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (removeallweapons)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("titleobj", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (titleobj)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("lbsort", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsort)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("lbsort", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsort)." << std::endl; return {}; })); /* ARRAY */
+	add(unary("lbsort", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsort)." << std::endl; return {}; })); /* CONTROL, ARRAY */
 	add(unary("vehiclevarname", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (vehiclevarname)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("triggertimeoutcurrent", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (triggertimeoutcurrent)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("ctrlmodeldirandup", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrlmodeldirandup)." << std::endl; return {}; })); /* CONTROL */
@@ -1390,12 +1371,10 @@ void sqf::commandmap::initunimplemented()
 	add(unary("servercommandavailable", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (servercommandavailable)." << std::endl; return {}; })); /* STRING */
 	add(unary("geteditormode", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (geteditormode)." << std::endl; return {}; })); /* CONTROL */
 	add(unary("removeallprimaryweaponitems", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (removeallprimaryweaponitems)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("menuhover", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menuhover)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("menuhover", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menuhover)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("menuhover", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menuhover)." << std::endl; return {}; })); /* CONTROL, SCALAR */
 	add(unary("verifysignature", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (verifysignature)." << std::endl; return {}; })); /* STRING */
 	add(unary("group", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (group)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("allturrets", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (allturrets)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("allturrets", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (allturrets)." << std::endl; return {}; })); /* OBJECT */
+	add(unary("allturrets", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (allturrets)." << std::endl; return {}; })); /* ARRAY, OBJECT */
 	add(unary("restarteditorcamera", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (restarteditorcamera)." << std::endl; return {}; })); /* CONTROL */
 	add(unary("camcommitted", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (camcommitted)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("tvtooltip", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvtooltip)." << std::endl; return {}; })); /* ARRAY */
@@ -1431,10 +1410,8 @@ void sqf::commandmap::initunimplemented()
 	add(unary("lbsetdata", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsetdata)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("isvehiclecargo", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isvehiclecargo)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("agent", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (agent)." << std::endl; return {}; })); /* TEAM_MEMBER */
-	add(unary("openmap", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (openmap)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("openmap", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (openmap)." << std::endl; return {}; })); /* BOOL */
-	add(unary("playsound", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (playsound)." << std::endl; return {}; })); /* STRING */
-	add(unary("playsound", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (playsound)." << std::endl; return {}; })); /* ARRAY */
+	add(unary("openmap", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (openmap)." << std::endl; return {}; })); /* ARRAY, BOOL */
+	add(unary("playsound", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (playsound)." << std::endl; return {}; })); /* STRING, ARRAY */
 	add(unary("dostop", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (dostop)." << std::endl; return {}; })); /* ARRAY,OBJECT */
 	add(unary("oneachframe", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (oneachframe)." << std::endl; return {}; })); /* STRING,CODE */
 	add(unary("lightdetachobject", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lightdetachobject)." << std::endl; return {}; })); /* OBJECT */
@@ -1444,8 +1421,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("setsimulweatherlayers", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setsimulweatherlayers)." << std::endl; return {}; })); /* SCALAR */
 	add(unary("getdescription", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getdescription)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("ropeendposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ropeendposition)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("text", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (text)." << std::endl; return {}; })); /* STRING */
-	add(unary("text", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (text)." << std::endl; return {}; })); /* LOCATION */
+	add(unary("text", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (text)." << std::endl; return {}; })); /* STRING, LOCATION */
 	add(unary("items", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (items)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("showcinemaborder", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (showcinemaborder)." << std::endl; return {}; })); /* BOOL */
 	add(unary("ctrlautoscrolldelay", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrlautoscrolldelay)." << std::endl; return {}; })); /* CONTROL */
@@ -1479,8 +1455,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("waypointattachedobject", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waypointattachedobject)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("ishidden", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ishidden)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("preloadtitleobj", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (preloadtitleobj)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("tvcollapseall", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvcollapseall)." << std::endl; return {}; })); /* SCALAR */
-	add(unary("tvcollapseall", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvcollapseall)." << std::endl; return {}; })); /* CONTROL */
+	add(unary("tvcollapseall", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvcollapseall)." << std::endl; return {}; })); /* SCALAR, CONTROL */
 	add(unary("ctrlparent", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrlparent)." << std::endl; return {}; })); /* CONTROL */
 	add(unary("diag_dynamicsimulationend", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (diag_dynamicsimulationend)." << std::endl; return {}; })); /* STRING */
 	add(unary("registeredtasks", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (registeredtasks)." << std::endl; return {}; })); /* TEAM_MEMBER */
@@ -1498,8 +1473,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("createsimpleobject", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (createsimpleobject)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("airportside", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (airportside)." << std::endl; return {}; })); /* SCALAR */
 	add(unary("assignedvehiclerole", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (assignedvehiclerole)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("lnbgetcolumnsposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbgetcolumnsposition)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("lnbgetcolumnsposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbgetcolumnsposition)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("lnbgetcolumnsposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbgetcolumnsposition)." << std::endl; return {}; })); /* CONTROL, SCALAR */
 	add(unary("enableteamswitch", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (enableteamswitch)." << std::endl; return {}; })); /* BOOL */
 	add(unary("waypointforcebehaviour", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waypointforcebehaviour)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("precision", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (precision)." << std::endl; return {}; })); /* OBJECT */
@@ -1573,15 +1547,13 @@ void sqf::commandmap::initunimplemented()
 	add(unary("enginespowerrtd", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (enginespowerrtd)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("sethorizonparallaxcoef", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (sethorizonparallaxcoef)." << std::endl; return {}; })); /* SCALAR */
 	add(unary("echo", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (echo)." << std::endl; return {}; })); /* STRING */
-	add(unary("dynamicsimulationenabled", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (dynamicsimulationenabled)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("dynamicsimulationenabled", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (dynamicsimulationenabled)." << std::endl; return {}; })); /* GROUP */
+	add(unary("dynamicsimulationenabled", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (dynamicsimulationenabled)." << std::endl; return {}; })); /* OBJECT, GROUP */
 	add(unary("hcallgroups", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (hcallgroups)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("setcamshakedefparams", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setcamshakedefparams)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("screentoworld", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (screentoworld)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("menuenable", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menuenable)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("currentcommand", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (currentcommand)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("sliderposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (sliderposition)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("sliderposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (sliderposition)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("sliderposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (sliderposition)." << std::endl; return {}; })); /* CONTROL, SCALAR */
 	add(unary("unitpos", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (unitpos)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("finddisplay", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (finddisplay)." << std::endl; return {}; })); /* SCALAR */
 	add(unary("itemcargo", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (itemcargo)." << std::endl; return {}; })); /* OBJECT */
@@ -1599,8 +1571,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("handgunweapon", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (handgunweapon)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("activateaddons", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (activateaddons)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("addmagazinepool", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (addmagazinepool)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("synchronizedwaypoints", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (synchronizedwaypoints)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("synchronizedwaypoints", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (synchronizedwaypoints)." << std::endl; return {}; })); /* ARRAY */
+	add(unary("synchronizedwaypoints", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (synchronizedwaypoints)." << std::endl; return {}; })); /* OBJECT, ARRAY */
 	add(unary("vehiclecargoenabled", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (vehiclecargoenabled)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("save3deninventory", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (save3deninventory)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("compilefinal", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (compilefinal)." << std::endl; return {}; })); /* STRING */
@@ -1627,8 +1598,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("handgunitems", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (handgunitems)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("removeallcuratoreditingareas", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (removeallcuratoreditingareas)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("skiptime", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (skiptime)." << std::endl; return {}; })); /* SCALAR */
-	add(unary("getpos", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getpos)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("getpos", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getpos)." << std::endl; return {}; })); /* LOCATION */
+	add(unary("getpos", type::LOCATION, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getpos)." << std::endl; return {}; })); /* LOCATION */
 	add(unary("curatorcameraarea", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (curatorcameraarea)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("enableaudiofeature", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (enableaudiofeature)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("publicvariable", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (publicvariable)." << std::endl; return {}; })); /* STRING */
@@ -1664,8 +1634,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("actionkeys", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (actionkeys)." << std::endl; return {}; })); /* STRING */
 	add(unary("waypointbehaviour", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waypointbehaviour)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("preloadcamera", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (preloadcamera)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("parsenumber", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (parsenumber)." << std::endl; return {}; })); /* STRING */
-	add(unary("parsenumber", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (parsenumber)." << std::endl; return {}; })); /* BOOL */
+	add(unary("parsenumber", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (parsenumber)." << std::endl; return {}; })); /* STRING, BOOL */
 	add(unary("deletecenter", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (deletecenter)." << std::endl; return {}; })); /* SIDE */
 	add(unary("remoteexeccall", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (remoteexeccall)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("setstaminascheme", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setstaminascheme)." << std::endl; return {}; })); /* STRING */
@@ -1681,8 +1650,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("taskalwaysvisible", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (taskalwaysvisible)." << std::endl; return {}; })); /* TASK */
 	add(unary("vestitems", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (vestitems)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("switchcamera", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (switchcamera)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("ppeffectcommitted", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ppeffectcommitted)." << std::endl; return {}; })); /* STRING */
-	add(unary("ppeffectcommitted", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ppeffectcommitted)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("ppeffectcommitted", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ppeffectcommitted)." << std::endl; return {}; })); /* STRING, SCALAR */
 	add(unary("buttonsetaction", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (buttonsetaction)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("menudelete", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menudelete)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("fromeditor", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (fromeditor)." << std::endl; return {}; })); /* TEAM_MEMBER */
@@ -1702,26 +1670,23 @@ void sqf::commandmap::initunimplemented()
 	add(unary("image", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (image)." << std::endl; return {}; })); /* STRING */
 	add(unary("dynamicsimulationdistancemult", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (dynamicsimulationdistancemult)." << std::endl; return {}; })); /* STRING */
 	add(unary("tvsetcursel", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvsetcursel)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("tvclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvclear)." << std::endl; return {}; })); /* SCALAR */
-	add(unary("tvclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvclear)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("isnull", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* SCRIPT */
-	add(unary("isnull", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("isnull", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* DISPLAY */
-	add(unary("isnull", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* NetObject */
-	add(unary("isnull", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* TASK */
-	add(unary("isnull", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* LOCATION */
+	add(unary("tvclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvclear)." << std::endl; return {}; })); /* SCALAR, CONTROL */
+	add(unary("isnull", type::SCRIPT, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* SCRIPT, CONTROL, DISPLAY, NetObject, TASK, LOCATION */
+	add(unary("isnull", type::CONTROL, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* SCRIPT, CONTROL, DISPLAY, NetObject, TASK, LOCATION */
+	add(unary("isnull", type::DISPLAY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* SCRIPT, CONTROL, DISPLAY, NetObject, TASK, LOCATION */
+	add(unary("isnull", type::NetObject, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* SCRIPT, CONTROL, DISPLAY, NetObject, TASK, LOCATION */
+	add(unary("isnull", type::TASK, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* SCRIPT, CONTROL, DISPLAY, NetObject, TASK, LOCATION */
+	add(unary("isnull", type::LOCATION, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isnull)." << std::endl; return {}; })); /* SCRIPT, CONTROL, DISPLAY, NetObject, TASK, LOCATION */
 	add(unary("setacctime", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setacctime)." << std::endl; return {}; })); /* SCALAR */
 	add(unary("remove3denlayer", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (remove3denlayer)." << std::endl; return {}; })); /* SCALAR */
 	add(unary("removebackpack", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (removebackpack)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("hideobjectglobal", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (hideobjectglobal)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("lnbcolor", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbcolor)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("lnbcurselrow", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbcurselrow)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("lnbcurselrow", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbcurselrow)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("lnbcurselrow", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbcurselrow)." << std::endl; return {}; })); /* CONTROL, SCALAR */
 	add(unary("getbackpackcargo", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getbackpackcargo)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("getshotparents", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getshotparents)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("curatorregisteredobjects", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (curatorregisteredobjects)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("ctrlenabled", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrlenabled)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("ctrlenabled", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrlenabled)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("ctrlenabled", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrlenabled)." << std::endl; return {}; })); /* CONTROL, SCALAR */
 	add(unary("removeallmusiceventhandlers", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (removeallmusiceventhandlers)." << std::endl; return {}; })); /* STRING */
 	add(unary("playersnumber", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (playersnumber)." << std::endl; return {}; })); /* SIDE */
 	add(unary("onplayerconnected", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (onplayerconnected)." << std::endl; return {}; })); /* STRING,CODE */
@@ -1736,8 +1701,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("tvsetvalue", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvsetvalue)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("removemusiceventhandler", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (removemusiceventhandler)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("getburningvalue", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getburningvalue)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("formation", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (formation)." << std::endl; return {}; })); /* OBJECT,GROUP */
-	add(unary("formation", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (formation)." << std::endl; return {}; })); /* TEAM_MEMBER */
+	add(unary("formation", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (formation)." << std::endl; return {}; })); /* OBJECT,GROUP,TEAM_MEMBER */
 	add(unary("simulclouddensity", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (simulclouddensity)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("localize", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (localize)." << std::endl; return {}; })); /* STRING */
 	add(unary("loadbackpack", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (loadbackpack)." << std::endl; return {}; })); /* OBJECT */
@@ -1746,22 +1710,18 @@ void sqf::commandmap::initunimplemented()
 	add(unary("menudata", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menudata)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("ropelength", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ropelength)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("getanimspeedcoef", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getanimspeedcoef)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("fullcrew", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (fullcrew)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("fullcrew", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (fullcrew)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("createvehicle", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (createvehicle)." << std::endl; return {}; })); /* ARRAY */
+	add(unary("fullcrew", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (fullcrew)." << std::endl; return {}; })); /* OBJECT,ARRAY */
 	add(unary("formationmembers", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (formationmembers)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("addcamshake", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (addcamshake)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("getcontainermaxload", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getcontainermaxload)." << std::endl; return {}; })); /* STRING */
-	add(unary("type", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (type)." << std::endl; return {}; })); /* TASK */
-	add(unary("type", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (type)." << std::endl; return {}; })); /* LOCATION */
+	add(unary("type", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (type)." << std::endl; return {}; })); /* TASK, LOCATION */
 	add(unary("lnbsetpicturecolor", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbsetpicturecolor)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("visibleposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (visibleposition)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("getpilotcameradirection", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getpilotcameradirection)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("speedmode", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (speedmode)." << std::endl; return {}; })); /* OBJECT,GROUP */
 	add(unary("vestcontainer", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (vestcontainer)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("currenttasks", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (currenttasks)." << std::endl; return {}; })); /* TEAM_MEMBER */
-	add(unary("showhud", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (showhud)." << std::endl; return {}; })); /* BOOL */
-	add(unary("showhud", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (showhud)." << std::endl; return {}; })); /* ARRAY */
+	add(unary("showhud", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (showhud)." << std::endl; return {}; })); /* BOOL, ARRAY */
 	add(unary("getposasl", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getposasl)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("showcuratorcompass", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (showcuratorcompass)." << std::endl; return {}; })); /* BOOL */
 	add(unary("forcemap", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (forcemap)." << std::endl; return {}; })); /* BOOL */
@@ -1776,8 +1736,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("enablecaustics", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (enablecaustics)." << std::endl; return {}; })); /* BOOL */
 	add(unary("deactivatekey", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (deactivatekey)." << std::endl; return {}; })); /* STRING */
 	add(unary("setdate", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setdate)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("direction", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (direction)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("direction", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (direction)." << std::endl; return {}; })); /* LOCATION */
+	add(unary("direction", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (direction)." << std::endl; return {}; })); /* OBJECT,LOCATION, */
 	add(unary("dynamicsimulationdistance", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (dynamicsimulationdistance)." << std::endl; return {}; })); /* STRING */
 	add(unary("ppeffectenabled", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ppeffectenabled)." << std::endl; return {}; })); /* SCALAR */
 	add(unary("getdlcs", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getdlcs)." << std::endl; return {}; })); /* SCALAR */
@@ -1794,8 +1753,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("lnbpicture", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbpicture)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("waypointname", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waypointname)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("deletesite", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (deletesite)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("nearestbuilding", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (nearestbuilding)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("nearestbuilding", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (nearestbuilding)." << std::endl; return {}; })); /* ARRAY */
+	add(unary("nearestbuilding", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (nearestbuilding)." << std::endl; return {}; })); /* OBJECT,ARRAY */
 	add(unary("addforcegeneratorrtd", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (addforcegeneratorrtd)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("forcegeneratorrtd", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (forcegeneratorrtd)." << std::endl; return {}; })); /* SCALAR */
 	add(unary("getposatlvisual", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getposatlvisual)." << std::endl; return {}; })); /* OBJECT */
@@ -1823,8 +1781,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("addmissioneventhandler", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (addmissioneventhandler)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("ongroupiconclick", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ongroupiconclick)." << std::endl; return {}; })); /* STRING,CODE */
 	add(unary("hmd", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (hmd)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("setobjectviewdistance", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setobjectviewdistance)." << std::endl; return {}; })); /* SCALAR */
-	add(unary("setobjectviewdistance", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setobjectviewdistance)." << std::endl; return {}; })); /* ARRAY */
+	add(unary("setobjectviewdistance", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setobjectviewdistance)." << std::endl; return {}; })); /* SCALAR,ARRAY */
 	add(unary("remove3deneventhandler", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (remove3deneventhandler)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("waypointscript", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waypointscript)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("lnbtextright", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbtextright)." << std::endl; return {}; })); /* ARRAY */
@@ -1833,8 +1790,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("hintcadet", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (hintcadet)." << std::endl; return {}; })); /* STRING,TEXT */
 	add(unary("set3dengrid", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (set3dengrid)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("roadsconnectedto", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (roadsconnectedto)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("lbcursel", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbcursel)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("lbcursel", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbcursel)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("lbcursel", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbcursel)." << std::endl; return {}; })); /* CONTROL,SCALAR */
 	add(unary("canfire", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (canfire)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("creategeardialog", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (creategeardialog)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("slidersetspeed", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (slidersetspeed)." << std::endl; return {}; })); /* ARRAY */
@@ -1846,12 +1802,10 @@ void sqf::commandmap::initunimplemented()
 	add(unary("tvpicture", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvpicture)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("underwater", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (underwater)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("showwaypoints", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (showwaypoints)." << std::endl; return {}; })); /* BOOL */
-	add(unary("sliderspeed", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (sliderspeed)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("sliderspeed", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (sliderspeed)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("sliderspeed", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (sliderspeed)." << std::endl; return {}; })); /* CONTROL,SCALAR */
 	add(unary("setmusiceventhandler", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setmusiceventhandler)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("unitaimposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (unitaimposition)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("lnbsize", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbsize)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("lnbsize", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbsize)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("lnbsize", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbsize)." << std::endl; return {}; })); /* CONTROL,SCALAR */
 	add(unary("ropecreate", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ropecreate)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("deletestatus", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (deletestatus)." << std::endl; return {}; })); /* STRING */
 	add(unary("lnbsetpicturecolorselected", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbsetpicturecolorselected)." << std::endl; return {}; })); /* ARRAY */
@@ -1860,8 +1814,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("selectplayer", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (selectplayer)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("menusetcheck", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menusetcheck)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("createlocation", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (createlocation)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("menuclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menuclear)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("menuclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menuclear)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("menuclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menuclear)." << std::endl; return {}; })); /* CONTROL,SCALAR */
 	add(unary("failmission", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (failmission)." << std::endl; return {}; })); /* STRING */
 	add(unary("lnbsetcolorright", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbsetcolorright)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("setcompassoscillation", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setcompassoscillation)." << std::endl; return {}; })); /* ARRAY */
@@ -1881,11 +1834,8 @@ void sqf::commandmap::initunimplemented()
 	add(unary("lineintersects", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lineintersects)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("isuavconnected", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (isuavconnected)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("ctrlposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrlposition)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("lbsize", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsize)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("lbsize", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsize)." << std::endl; return {}; })); /* SCALAR */
-	add(unary("getunitloadout", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getunitloadout)." << std::endl; return {}; })); /* ARRAY,OBJECT */
-	add(unary("getunitloadout", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getunitloadout)." << std::endl; return {}; })); /* STRING */
-	add(unary("getunitloadout", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getunitloadout)." << std::endl; return {}; })); /* CONFIG */
+	add(unary("lbsize", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsize)." << std::endl; return {}; })); /* CONTROL, SCALAR */
+	add(unary("getunitloadout", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getunitloadout)." << std::endl; return {}; })); /* ARRAY,OBJECT,CONFIG,STRING */
 	add(unary("roadat", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (roadat)." << std::endl; return {}; })); /* ARRAY,OBJECT */
 	add(unary("createguardedpoint", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (createguardedpoint)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("commitoverlay", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (commitoverlay)." << std::endl; return {}; })); /* CONTROL */
@@ -1919,8 +1869,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("createvehiclecrew", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (createvehiclecrew)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("uniformmagazines", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (uniformmagazines)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("enablecamshake", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (enablecamshake)." << std::endl; return {}; })); /* BOOL */
-	add(unary("tvcursel", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvcursel)." << std::endl; return {}; })); /* SCALAR */
-	add(unary("tvcursel", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvcursel)." << std::endl; return {}; })); /* CONTROL */
+	add(unary("tvcursel", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (tvcursel)." << std::endl; return {}; })); /* SCALAR,CONTROL */
 	add(unary("setdetailmapblendpars", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setdetailmapblendpars)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("onbriefingnotes", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (onbriefingnotes)." << std::endl; return {}; })); /* STRING */
 	add(unary("backpackitems", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (backpackitems)." << std::endl; return {}; })); /* OBJECT */
@@ -1939,8 +1888,7 @@ void sqf::commandmap::initunimplemented()
 	add(unary("taskstate", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (taskstate)." << std::endl; return {}; })); /* TASK */
 	add(unary("magazinesdetailvest", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (magazinesdetailvest)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("not", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (not)." << std::endl; return {}; })); /* BOOL */
-	add(unary("lbclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbclear)." << std::endl; return {}; })); /* CONTROL */
-	add(unary("lbclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbclear)." << std::endl; return {}; })); /* SCALAR */
+	add(unary("lbclear", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbclear)." << std::endl; return {}; })); /* CONTROL,SCALAR */
 	add(unary("getpilotcameraposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getpilotcameraposition)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("forcerespawn", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (forcerespawn)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("titletext", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (titletext)." << std::endl; return {}; })); /* ARRAY */

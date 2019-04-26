@@ -1409,7 +1409,6 @@ void sqf::commandmap::initgenericcmds()
 	add(unary("loadFile", type::STRING, "", loadfile_string));
 	add(unary("preprocessFileLineNumbers", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
 	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
-	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
 	add(unary("scriptName", type::STRING, "Assign a user friendly name to the VM script this command is executed from. Once name is assigned, it cannot be changed.", scriptname_string));
 	add(binary(4, "in", type::ANY, type::ARRAY, "Checks whether provided unit is inside of a vehicle. String values will be compared casesensitive.", in_any_array));
 	add(unary("throw", type::ANY, "Throws an exception. The exception is processed by first catch block. This command will terminate further execution of the code.", throw_any));
