@@ -254,7 +254,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "create3denentity", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (create3denentity)." << std::endl; return {}; }));
 	add(binary(4, "lbsetpicturerightcolorselected", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsetpicturerightcolorselected)." << std::endl; return {}; }));
 	add(binary(4, "deleteresources", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (deleteresources)." << std::endl; return {}; }));
-	add(binary(4, "try", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (try)." << std::endl; return {}; }));
 	add(binary(4, "ropedetach", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ropedetach)." << std::endl; return {}; }));
 	add(binary(4, "enablesimulationglobal", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (enablesimulationglobal)." << std::endl; return {}; }));
 	add(binary(4, "ctrlsetfonth1b", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrlsetfonth1b)." << std::endl; return {}; }));
@@ -444,7 +443,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "synchronizewaypoint", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (synchronizewaypoint)." << std::endl; return {}; }));
 	add(binary(4, "lbsettext", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsettext)." << std::endl; return {}; }));
 	add(binary(4, "lnbdeleterow", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lnbdeleterow)." << std::endl; return {}; }));
-	add(binary(4, "throw", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (throw)." << std::endl; return {}; }));
 	add(binary(4, "nearsupplies", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (nearsupplies)." << std::endl; return {}; }));
 	add(binary(4, "copywaypoints", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (copywaypoints)." << std::endl; return {}; }));
 	add(binary(4, "setleader", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setleader)." << std::endl; return {}; }));
