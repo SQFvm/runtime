@@ -346,3 +346,4 @@ CTestTestfile.cmake
 /tclap-1.2.2/aclocal.m4
 
 build/git_sha1\.cpp
+/git_sha1.cpp
