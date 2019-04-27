@@ -1291,10 +1291,10 @@ namespace
 	value time_(virtualmachine* vm)
 	{
 		auto curtime = sqf::virtualmachine::system_time().time_since_epoch();
-		auto starttime = vm->get_created_timestamp().time_since_epoch();
+		auto starttime = vm->get_current_time().time_since_epoch();
 		// Time is since beginning of game so long is fine.
-		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(starttime - curtime).count());
-		return r;
+		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(curtime - starttime).count());
+		return (float)r * 0.001;
 	}
 	value throw_any(virtualmachine* vm, value::cref right)
 	{
@@ -1408,7 +1408,6 @@ void sqf::commandmap::initgenericcmds()
 	add(nular("canSuspend", "Returns true if sleep, uiSleep or waitUntil commands can be used in current scope.", cansuspend_));
 	add(unary("loadFile", type::STRING, "", loadfile_string));
 	add(unary("preprocessFileLineNumbers", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
-	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
 	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
 	add(unary("scriptName", type::STRING, "Assign a user friendly name to the VM script this command is executed from. Once name is assigned, it cannot be changed.", scriptname_string));
 	add(binary(4, "in", type::ANY, type::ARRAY, "Checks whether provided unit is inside of a vehicle. String values will be compared casesensitive.", in_any_array));
