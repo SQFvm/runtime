@@ -276,41 +276,48 @@ namespace {
 			else
 			{
 				auto word_end = replace_find_wordend(local_fileinfo);
-				std::string word;
-				word.resize(word_end);
-				for (int i = 0; i < word_end; i++)
+				if (word_end == 0)
 				{
-					word[i] = local_fileinfo.next();
-				}
-				auto param_res = std::find_if(
-					m.args.begin(),
-					m.args.end(),
-					[word](std::string s) -> bool {
-						return s.compare(word) == 0;
-					}
-				);
-				if (param_res != m.args.end())
-				{
-					auto index = param_res - m.args.begin();
-					sstream << params[index];
+					sstream << local_fileinfo.next();;
 				}
 				else
 				{
-					// ToDo: Handle args in macro params
-					auto macro_res = std::find_if(
-						h.macros.begin(),
-						h.macros.end(),
-						[word](std::unordered_map<std::string, macro>::value_type m) -> bool {
-							return m.first.compare(word) == 0;
+					std::string word;
+					word.resize(word_end);
+					for (int i = 0; i < word_end; i++)
+					{
+						word[i] = local_fileinfo.next();
+					}
+					auto param_res = std::find_if(
+						m.args.begin(),
+						m.args.end(),
+						[word](std::string s) -> bool {
+							return s.compare(word) == 0;
 						}
 					);
-					if (macro_res == h.macros.end())
+					if (param_res != m.args.end())
 					{
-						sstream << word;
+						auto index = param_res - m.args.begin();
+						sstream << params[index];
 					}
 					else
 					{
-						sstream << handle_macro(h, local_fileinfo, original_fileinfo, macro_res->second, parammap);
+						// ToDo: Handle args in macro params
+						auto macro_res = std::find_if(
+							h.macros.begin(),
+							h.macros.end(),
+							[word](std::unordered_map<std::string, macro>::value_type m) -> bool {
+								return m.first.compare(word) == 0;
+							}
+						);
+						if (macro_res == h.macros.end())
+						{
+							sstream << word;
+						}
+						else
+						{
+							sstream << handle_macro(h, local_fileinfo, original_fileinfo, macro_res->second, parammap);
+						}
 					}
 				}
 			}
