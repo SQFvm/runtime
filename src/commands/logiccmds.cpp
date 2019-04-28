@@ -136,6 +136,7 @@ void sqf::commandmap::initlogiccmds()
 	add(binary(3, "==", sqf::type::CONTROL, sqf::type::CONTROL, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
 	add(binary(3, "==", sqf::type::LOCATION, sqf::type::LOCATION, "Check if one value is equal to another. Both values need to be of the same type.", equals_any_any));
 	
+	add(binary(3, "!=", sqf::type::SCALAR, sqf::type::SCALAR, "Returns whether one value is not equal to another.", notequals_any_any));
 	add(binary(3, "!=", sqf::type::SIDE, sqf::type::SIDE, "Returns whether one value is not equal to another.", notequals_any_any));
 	add(binary(3, "!=", sqf::type::STRING, sqf::type::STRING, "Returns whether one value is not equal to another.", notequals_any_any));
 	add(binary(3, "!=", sqf::type::OBJECT, sqf::type::OBJECT, "Returns whether one value is not equal to another.", notequals_any_any));
