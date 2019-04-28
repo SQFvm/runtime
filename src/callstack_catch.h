@@ -34,7 +34,6 @@ namespace sqf
 		}
 
 		void except(sqf::value message) { m_message = std::move(message); m_do_catch = true; }
-		bool can_recover() override { return true; }
 
 		std::string get_name() override { return name(); }
 		static std::string name() { return "catch"; }
