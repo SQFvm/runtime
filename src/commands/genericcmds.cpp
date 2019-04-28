@@ -1303,7 +1303,7 @@ namespace
 		});
 		if (res == vm->active_vmstack()->stacks_end())
 		{
-			vm->err() << right.tosqf() << std::endl;
+			vm->err() << right.tosqf();
 		}
 		else
 		{
