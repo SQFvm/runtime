@@ -30,7 +30,7 @@
 
 #define CALLEXTBUFFSIZE 10240
 #define CALLEXTVERSIONBUFFSIZE 32
-#define RVARGSLIMIT 1024
+#define RVARGSLIMIT 2048
 
 #if defined(__linux__) || defined(__APPLE__) || defined(__unix__)
 #include <dlfcn.h>
