@@ -263,15 +263,17 @@ std::string sqf::virtualmachine::dbgsegment(const char* full, size_t off, size_t
 			}
 		}
 	}
-	std::string txt;
+
 	std::string spacing(off - i, ' ');
-	std::string postfix(length == 0 ? 1 : length, '^');
+	std::string postfix(std::max<size_t>(1, length), '^');
+
+	std::string txt;
 	txt.reserve(len + 1 + spacing.length() + postfix.length() + 1);
-	txt = std::string(full + i, full + i + len);
-	txt += "\n";
-	txt += spacing;
-	txt += postfix;
-	txt += "\n";
+	txt.assign(full + i, len);
+	txt.append("\n");
+	txt.append(spacing);
+	txt.append(postfix);
+	txt.append("\n");
 	return txt;
 }
 bool contains_nular(std::string_view ident)
