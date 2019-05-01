@@ -240,7 +240,6 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 }
 std::string sqf::virtualmachine::dbgsegment(const char* full, size_t off, size_t length)
 {
-	std::stringstream sstream;
 	size_t i = off < 15 ? 0 : off - 15;
 	size_t len = 30 + length;
 	if (i < 0)
@@ -264,11 +263,16 @@ std::string sqf::virtualmachine::dbgsegment(const char* full, size_t off, size_t
 			}
 		}
 	}
-	auto txt = std::string(full + i, full + i + len);
-	std::replace(txt.begin(), txt.end(), '\t', ' ');
-	sstream << txt << std::endl
-		<< std::string(off - i, ' ') << std::string(length == 0 ? 1 : length, '^') << std::endl;
-	return sstream.str();
+	std::string txt;
+	std::string spacing(off - i, ' ');
+	std::string postfix(length == 0 ? 1 : length, '^');
+	txt.reserve(len + 1 + spacing.length() + postfix.length() + 1);
+	txt = std::string(full + i, full + i + len);
+	txt += "\n";
+	txt += spacing;
+	txt += postfix;
+	txt += "\n";
+	return txt;
 }
 bool contains_nular(std::string_view ident)
 {
@@ -298,7 +302,7 @@ short precedence(std::string_view s)
 	return srange->begin()->get()->precedence();
 }
 
-void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::callstack> stack, astnode node)
+void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::callstack> stack, const astnode& node)
 {
 	switch (node.kind)
 	{
