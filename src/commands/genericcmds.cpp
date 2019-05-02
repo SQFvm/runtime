@@ -682,7 +682,7 @@ namespace
 	value plus_array(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.data<arraydata>();
-		return r->operator std::vector<value>();
+		return value{std::vector<value>{r->deep_copy()}};
 	}
 	value plus_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{

@@ -32,6 +32,7 @@ namespace sqf
         arraydata() = default;
 		arraydata(size_t size) : mvalue(std::vector<value>(size)) {}
         arraydata(std::vector<value> v) : mvalue(std::move(v)) {}
+		arraydata deep_copy() const;
 		std::string tosqf() const override;
 		value& operator[](size_t index) { return at(index); }
 		value operator[](size_t index) const { return at(index); }
