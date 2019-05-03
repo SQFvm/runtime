@@ -363,7 +363,7 @@ void sqf::commandmap::initsqfvmcmds()
 	add(nular("allObjects__", "Returns an array containing all objects created.", allObjects__));
 	add(unary("prettyprintsqf__", sqf::type::STRING, "Takes provided SQF code and pretty-prints it to output.", prettyprintsqf___string));
 	add(nular("exit__", "Exits the VM execution immediately. Will not notify debug interface when used.", exit___));
-	add(unary("exit__", sqf::type::SCALAR, "Exits the VM execution immediately. Will not notify debug interface when used. Allows to pass an exit code to the VM.", exit___scalar));
+	add(unary("exitcode__", sqf::type::SCALAR, "Exits the VM execution immediately. Will not notify debug interface when used. Allows to pass an exit code to the VM.", exit___scalar));
 	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
 	add(nular("respawn__", "'Respawns' the player object.", respawn___));
 	add(unary("preprocess__", sqf::type::STRING, "Runs the PreProcessor on provided string.", preprocess___string));
