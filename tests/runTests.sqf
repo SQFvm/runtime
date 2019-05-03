@@ -160,5 +160,5 @@ else
 {
     diag_log "";
     diag_log (["FAILED", "SUCCESS"] select (testsPassed == testsIndex));
-    exit__ (testsIndex - testsPassed);
+    exitcode__ (testsIndex - testsPassed);
 };
