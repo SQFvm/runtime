@@ -21,7 +21,7 @@ namespace sqf
 		void add(std::shared_ptr<sqf::instruction> inst) { minsts.push_back(inst); }
 		void loadinto(sqf::virtualmachine*, std::shared_ptr<sqf::vmstack>);
 		void loadinto(std::shared_ptr<sqf::vmstack>, std::shared_ptr<sqf::callstack>);
-		bool equals(std::shared_ptr<data> d) const override { return minsts == std::dynamic_pointer_cast<codedata>(d)->minsts; }
+		bool equals(std::shared_ptr<data> d) const override;
         sqf::type dtype() const override { return sqf::type::CODE; }
 
 		std::vector<std::shared_ptr<sqf::instruction>>& instructions() { return minsts; }
