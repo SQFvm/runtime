@@ -204,28 +204,42 @@ namespace
 		auto l = left.as_string();
 		auto r = right.as_string();
 		std::vector<value> values;
+		if (r.empty())
+		{
+			for (auto c : l)
+			{
+				values.push_back(c);
+			}
+			return values;
+		}
 		// Avoid using actual strtok method due to concerns regarding the way
 		// it works (Reentrancy variance)
-		size_t last_index = 0;
+		size_t match_length = 0;
 		for (size_t i = 0; i < l.length(); i++)
 		{
 			char lc = l[i];
+			bool hit = false;
 			for (auto rc : r)
 			{
 				if (lc == rc)
 				{
-					if (last_index + 1 != i)
+					if (match_length > 0)
 					{
-						values.push_back(l.substr(last_index + 1, i - last_index));
+						values.push_back(l.substr(i - match_length, match_length));
+						match_length = 0;
 					}
-					last_index = i;
+					hit = true;
 					break;
 				}
 			}
+			if (!hit)
+			{
+				match_length++;
+			}
 		}
-		if (last_index + 1 < l.size())
+		if (match_length != 0)
 		{
-			values.push_back(l.substr(last_index + 1));
+			values.push_back(l.substr(l.size() - match_length));
 		}
 		return values;
 	}
