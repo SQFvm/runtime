@@ -114,7 +114,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		!m_active_vmstack->isasleep() &&
 		m_active_vmstack->terminate() &&
 		(inst = m_active_vmstack->popinst(this)).get() &&
-		m_active_vmstack->stacks_top()->previous_nextresult() == sqf::callstack::nextinstres::suspend
+		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend
 		)
 	{
 		minstcount++;

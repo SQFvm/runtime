@@ -340,7 +340,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "turretowner", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (turretowner)." << std::endl; return {}; }));
 	add(binary(4, "setface", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setface)." << std::endl; return {}; }));
 	add(binary(4, "fadesound", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (fadesound)." << std::endl; return {}; }));
-	add(binary(4, "splitstring", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (splitstring)." << std::endl; return {}; }));
 	add(binary(4, "setwaypointformation", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setwaypointformation)." << std::endl; return {}; }));
 	add(binary(4, "disableuavconnectability", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (disableuavconnectability)." << std::endl; return {}; }));
 	add(binary(4, "nearroads", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (nearroads)." << std::endl; return {}; }));
