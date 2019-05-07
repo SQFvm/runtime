@@ -214,16 +214,19 @@ namespace
 			{
 				if (lc == rc)
 				{
-					if (last_index != i - 1)
+					if (last_index + 1 != i)
 					{
-						values.push_back(l.substr(last_index, i - last_index));
+						values.push_back(l.substr(last_index + 1, i - last_index));
 					}
 					last_index = i;
 					break;
 				}
 			}
 		}
-		values.push_back(l.substr(last_index));
+		if (last_index + 1 != l.size())
+		{
+			values.push_back(l.substr(last_index + 1));
+		}
 		return values;
 	}
 }
