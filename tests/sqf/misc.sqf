@@ -19,10 +19,9 @@
    ["assertEqual",     { ["1","2","3"] joinString "-"  }, "1-2-3"],
    ["assertEqual",     { [1,2,3] joinString "-"  }, "1-2-3"],
    ["assertEqual",     { "a"+"b"  }, "ab"],
+   ["assertFalse",     { [nil] isEqualTo [nil] }],
    ["assertFalse",     { isNil {"a"+"b"}  }],
    ["assertEqual",     { for "_i" from 1 to 10 do { _i }; }, 10],
    //["assertEqual",     { for [{ _i = 0 }, { _i < 10 }, { _i = _i + 1 }] do { _i };  }, 10] //not implemented
    ["assertEqual",     { str (switch (true)) }, "true"]
-   
-
 ]

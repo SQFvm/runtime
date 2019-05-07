@@ -445,6 +445,34 @@ namespace
 		left.data<arraydata>()->resize(right.as_int());
 		return {};
 	}
+    value deleterange_array_array(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		if (!right.data<arraydata>()->check_type(vm, sqf::type::SCALAR, 2))
+		{
+			return {};
+		}
+		auto from = (int)std::roundf((*right.data<arraydata>())[0].as_float());
+		auto to = (int)std::roundf((*right.data<arraydata>())[1].as_float());
+
+		auto arr = left.data<arraydata>();
+		if (from > to)
+		{
+			vm->wrn() << "From index (" << from << ") is larger then to index (" << to << ")." << std::endl;
+			to = from;
+		}
+		if (from < 0)
+		{
+			vm->wrn() << "From index (" << from << ") is less then 0." << std::endl;
+			return {};
+		}
+		if (to >= arr->size())
+		{
+			vm->wrn() << "To index (" << to << ") is larger then or equal to array size (" << arr->size() << ")then 0." << std::endl;
+			to = arr->size() - 1;
+		}
+		arr->erase(arr->begin() + from, arr->begin() + to + 1);
+		return {};
+	}
 	value pushback_array_any(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto arr = left.data<arraydata>();
@@ -1375,6 +1403,8 @@ void sqf::commandmap::initgenericcmds()
 	add(binary(4, "select", type::ARRAY, type::ARRAY, "Selects a range of elements in provided array, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_array_array));
 	add(binary(4, "select", type::ARRAY, type::CODE, "Selects elements from provided array matching provided condition. Current element will be placed in _x variable.", select_array_code));
 	add(binary(4, "resize", type::ARRAY, type::SCALAR, "Changes the size of the given array. The command does not return new array, it resizes the source array to the desired number of elements. If the new size is bigger than the current size, the new places are filled with nils.", resize_array_scalar));
+	add(binary(4, "deleterange", type::ARRAY, type::ARRAY, "Removes a range of array elements from the given array (modifies the original array, just like resize or set).", deleterange_array_array));
+
 	add(binary(4, "pushBack", type::ARRAY, type::ANY, "Insert an element to the back of the given array. This command modifies the original array. Returns the index of the newly added element.", pushback_array_any));
 	add(binary(4, "pushBackUnique", type::ARRAY, type::ANY, "Adds element to the back of the given array but only if it is unique to the array. The index of the added element is returned upon success, otherwise -1. This command modifies the original array.", pushbackunique_array_any));
 	add(binary(4, "findIf", type::ARRAY, type::CODE, "Searches for an element within array for which the code evaluates to true. Returns the 0 based index on success or -1 if not found. Code on the right side of the command is evaluated for each element of the array, processed element can be referenced in code as _x.", findif_array_code));

@@ -46,6 +46,8 @@ namespace sqf
 		std::vector<value>::iterator begin() { return mvalue.begin(); }
 		std::vector<value>::iterator end() { return mvalue.end(); }
 
+		std::vector<value>::iterator erase(std::vector<value>::iterator begin, std::vector<value>::iterator end) { return mvalue.erase(begin, end); }
+
         //#TODO emplace back
 		bool push_back(value val) { mvalue.push_back(std::move(val)); if (!recursion_test()) { mvalue.pop_back(); return false; } return true; }
 		value pop_back() { auto back = mvalue.back(); mvalue.pop_back(); return back; }

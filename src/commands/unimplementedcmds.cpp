@@ -792,7 +792,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "listobjects", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (listobjects)." << std::endl; return {}; }));
 	add(binary(4, "connectterminaltouav", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (connectterminaltouav)." << std::endl; return {}; }));
 	add(binary(4, "setwingforcescalertd", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setwingforcescalertd)." << std::endl; return {}; }));
-	add(binary(4, "deleterange", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (deleterange)." << std::endl; return {}; }));
 	add(binary(4, "ctrladdeventhandler", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrladdeventhandler)." << std::endl; return {}; }));
 	add(binary(4, "setparticlefire", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setparticlefire)." << std::endl; return {}; }));
 	add(binary(4, "lbsetpicturecolorselected", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsetpicturecolorselected)." << std::endl; return {}; }));
