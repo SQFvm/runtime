@@ -223,7 +223,7 @@ namespace
 				}
 			}
 		}
-		if (last_index + 1 != l.size())
+		if (last_index + 1 < l.size())
 		{
 			values.push_back(l.substr(last_index + 1));
 		}
