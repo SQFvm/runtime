@@ -97,7 +97,7 @@ void sqf::virtualmachine::execute()
 			if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { break; }
 		}
 		if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { mspawns.clear(); }
-		mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished(); });
+		mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished() || it->stack()->terminate(); });
 	}
 	m_active_vmstack = m_main_vmstack;
 
@@ -108,7 +108,14 @@ void sqf::virtualmachine::execute()
 void sqf::virtualmachine::performexecute(size_t exitAfter)
 {
 	std::shared_ptr<sqf::instruction> inst;
-	while (!mexitflag && exitAfter != 0 && !m_active_vmstack->isasleep() && (inst = m_active_vmstack->popinst(this)).get())
+	while (
+		!mexitflag &&
+		exitAfter != 0 &&
+		!m_active_vmstack->isasleep() &&
+		!m_active_vmstack->terminate() &&
+		(inst = m_active_vmstack->popinst(this)).get() &&
+		m_active_vmstack->stacks_top()->previous_nextresult() == sqf::callstack::nextinstres::suspend
+		)
 	{
 		minstcount++;
 		if (exitAfter > 0)
