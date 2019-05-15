@@ -230,9 +230,10 @@ namespace
 		}
 		return value(arr);
 	}
-	value prettyprintsqf___string(virtualmachine* vm, value::cref right)
+	value pretty___code(virtualmachine* vm, value::cref right)
 	{
-		auto str = right.as_string();
+		auto code = right.data<codedata>();
+		auto str = code->tosqf();
 		vm->pretty_print_sqf(str);
 		return {};
 	}
@@ -361,7 +362,7 @@ void sqf::commandmap::initsqfvmcmds()
 	add(unary("configparse__", sqf::type::STRING, "Parses provided string as config into a new config object.", configparse___string));
 	add(binary(4, "merge__", sqf::type::CONFIG, sqf::type::CONFIG, "Merges contents from the right config into the left config. Duplicate entries will be overriden. Contents will not be copied but referenced.", merge___config_config));
 	add(nular("allObjects__", "Returns an array containing all objects created.", allObjects__));
-	add(unary("prettyprintsqf__", sqf::type::STRING, "Takes provided SQF code and pretty-prints it to output.", prettyprintsqf___string));
+	add(unary("pretty__", sqf::type::CODE, "Takes provided SQF code and pretty-prints it to output.", pretty___code));
 	add(nular("exit__", "Exits the VM execution immediately. Will not notify debug interface when used.", exit___));
 	add(unary("exitcode__", sqf::type::SCALAR, "Exits the VM execution immediately. Will not notify debug interface when used. Allows to pass an exit code to the VM.", exit___scalar));
 	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
