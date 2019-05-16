@@ -170,6 +170,14 @@ namespace
 		vm->parse_sqf_tree(str, &sstream);
 		return sstream.str();
 	}
+	value tree___code(virtualmachine* vm, value::cref right)
+	{
+		auto code = right.data<codedata>();
+		auto str = code->tosqf();
+		std::stringstream sstream;
+		vm->parse_sqf_tree(str, &sstream);
+		return sstream.str();
+	}
 	value help___string(virtualmachine* vm, value::cref right)
 	{
 		std::stringstream sstream;
@@ -375,6 +383,7 @@ namespace
 void sqf::commandmap::initsqfvmcmds()
 {
 	add(unary("tree__", sqf::type::STRING, "Returns a string containing the abstract syntax tree for the provided SQF expression.", tree___string));
+	add(unary("tree__", sqf::type::CODE, "Returns a string containing the abstract syntax tree for the provided SQF expression.", tree___code));
 	add(nular("cmds__", "Returns an array containing all commands available.", cmds___));
 	add(nular("cmdsimplemented__", "Returns an array containing all commands that are actually implemented.", cmdsimplemented___));
 	add(unary("help__", sqf::type::STRING, "Displays all available information for a single command.", help___string));
