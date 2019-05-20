@@ -4,6 +4,7 @@
 #include <sstream>
 #include <array>
 #include <vector>
+#include <thread>
 #include <optional>
 #include "networking.h"
 #include "network_server.h"

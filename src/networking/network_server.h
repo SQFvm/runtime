@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <mutex>
 #include <queue>
+#include <thread>
 #include <sstream>
 #include "networking.h"
 
