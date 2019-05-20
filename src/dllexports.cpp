@@ -18,6 +18,7 @@ extern "C" {
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 		sqfvm_virtualmachine->get_filesystem().disallow(true);
 #endif
+		sqfvm_virtualmachine->disable_networking();
 		sqf::commandmap::get().init();
 	}
 	DLLEXPORT_PREFIX void sqfvm_exec(const char* code, char* buffer, unsigned int bufferlen)

@@ -72,6 +72,7 @@ namespace sqf
 		int m_exitcode = 0;
 		bool mallowsleep;
 		bool m_perform_classname_checks;
+		bool m_allow_networking;
 		sqf::filesystem m_filesystem;
 		std::chrono::system_clock::time_point m_created_timestamp;
 		std::chrono::system_clock::time_point m_current_time;
@@ -124,6 +125,12 @@ namespace sqf
 		}
 		bool is_networking_set() { return m_current_networking_client || m_current_networking_server; }
 		void release_networking();
+
+		// Disables the networking capabilities of this VM.
+		// Note that existing networking is not affected.
+		void disable_networking() { m_allow_networking = false; }
+		// Checks wether or not networking got disabled
+		bool allow_networking() { return m_allow_networking; }
 
 		std::stringstream& out() { moutflag = true; return mout_buff; }
 		void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }

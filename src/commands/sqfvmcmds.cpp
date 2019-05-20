@@ -392,6 +392,11 @@ namespace
 	}
 	value remoteConnect___(virtualmachine* vm, value::cref right)
 	{
+		if (!vm->allow_networking())
+		{
+			vm->wrn() << "NETWORKING DISABLED!" << std::endl;
+			return false;
+		}
 		networking_init();
 		if (vm->is_networking_set())
 		{
