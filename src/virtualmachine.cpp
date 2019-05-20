@@ -136,7 +136,7 @@ void sqf::virtualmachine::execute()
 			if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { break; }
 		}
 		if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { mspawns.clear(); }
-		mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished(); });
+		mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished() || it->stack()->terminate(); });
 	}
 	m_active_vmstack = m_main_vmstack;
 
@@ -147,7 +147,14 @@ void sqf::virtualmachine::execute()
 void sqf::virtualmachine::performexecute(size_t exitAfter)
 {
 	std::shared_ptr<sqf::instruction> inst;
-	while (!mexitflag && exitAfter != 0 && !m_active_vmstack->isasleep() && (inst = m_active_vmstack->popinst(this)).get())
+	while (
+		!mexitflag &&
+		exitAfter != 0 &&
+		!m_active_vmstack->isasleep() &&
+		!m_active_vmstack->terminate() &&
+		(inst = m_active_vmstack->popinst(this)).get() &&
+		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend
+		)
 	{
 		minstcount++;
 		if (exitAfter > 0)
@@ -279,7 +286,6 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 }
 std::string sqf::virtualmachine::dbgsegment(const char* full, size_t off, size_t length)
 {
-	std::stringstream sstream;
 	size_t i = off < 15 ? 0 : off - 15;
 	size_t len = 30 + length;
 	if (i < 0)
@@ -303,11 +309,18 @@ std::string sqf::virtualmachine::dbgsegment(const char* full, size_t off, size_t
 			}
 		}
 	}
-	auto txt = std::string(full + i, full + i + len);
-	std::replace(txt.begin(), txt.end(), '\t', ' ');
-	sstream << txt << std::endl
-		<< std::string(off - i, ' ') << std::string(length == 0 ? 1 : length, '^') << std::endl;
-	return sstream.str();
+
+	std::string spacing(off - i, ' ');
+	std::string postfix(std::max<size_t>(1, length), '^');
+
+	std::string txt;
+	txt.reserve(len + 1 + spacing.length() + postfix.length() + 1);
+	txt.assign(full + i, len);
+	txt.append("\n");
+	txt.append(spacing);
+	txt.append(postfix);
+	txt.append("\n");
+	return txt;
 }
 bool contains_nular(std::string_view ident)
 {
@@ -337,7 +350,7 @@ short precedence(std::string_view s)
 	return srange->begin()->get()->precedence();
 }
 
-void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::callstack> stack, astnode node)
+void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::callstack> stack, const astnode& node)
 {
 	switch (node.kind)
 	{

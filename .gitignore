@@ -347,3 +347,5 @@ CTestTestfile.cmake
 
 build/git_sha1\.cpp
 /git_sha1.cpp
+
+*.diagsession

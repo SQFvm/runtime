@@ -30,7 +30,7 @@
 
 #define CALLEXTBUFFSIZE 10240
 #define CALLEXTVERSIONBUFFSIZE 32
-#define RVARGSLIMIT 1024
+#define RVARGSLIMIT 2048
 
 #if defined(__linux__) || defined(__APPLE__) || defined(__unix__)
 #include <dlfcn.h>
@@ -445,6 +445,34 @@ namespace
 		left.data<arraydata>()->resize(right.as_int());
 		return {};
 	}
+    value deleterange_array_array(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		if (!right.data<arraydata>()->check_type(vm, sqf::type::SCALAR, 2))
+		{
+			return {};
+		}
+		auto from = (int)std::roundf((*right.data<arraydata>())[0].as_float());
+		auto to = (int)std::roundf((*right.data<arraydata>())[1].as_float());
+
+		auto arr = left.data<arraydata>();
+		if (from > to)
+		{
+			vm->wrn() << "From index (" << from << ") is larger then to index (" << to << ")." << std::endl;
+			to = from;
+		}
+		if (from < 0)
+		{
+			vm->wrn() << "From index (" << from << ") is less then 0." << std::endl;
+			return {};
+		}
+		if (to >= arr->size())
+		{
+			vm->wrn() << "To index (" << to << ") is larger then or equal to array size (" << arr->size() << ")then 0." << std::endl;
+			to = arr->size() - 1;
+		}
+		arr->erase(arr->begin() + from, arr->begin() + to + 1);
+		return {};
+	}
 	value pushback_array_any(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto arr = left.data<arraydata>();
@@ -643,6 +671,20 @@ namespace
 		auto r = right.data<scriptdata>();
         return r->hasfinished();
 	}
+	value terminate_script(virtualmachine* vm, value::cref right)
+	{
+		auto r = right.data<scriptdata>();
+		if (r->stack()->terminate())
+		{
+			vm->wrn() << "Scripthandle terminated twice." << std::endl;
+		}
+		if (r->hasfinished())
+		{
+			vm->wrn() << "Scripthandle already done." << std::endl;
+		}
+		r->stack()->terminate(true);
+		return {};
+	}
 	value set_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto arr = left.data<arraydata>();
@@ -682,7 +724,7 @@ namespace
 	value plus_array(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.data<arraydata>();
-		return r->operator std::vector<value>();
+		return value{std::vector<value>{r->deep_copy()}};
 	}
 	value plus_array_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
@@ -1361,6 +1403,8 @@ void sqf::commandmap::initgenericcmds()
 	add(binary(4, "select", type::ARRAY, type::ARRAY, "Selects a range of elements in provided array, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_array_array));
 	add(binary(4, "select", type::ARRAY, type::CODE, "Selects elements from provided array matching provided condition. Current element will be placed in _x variable.", select_array_code));
 	add(binary(4, "resize", type::ARRAY, type::SCALAR, "Changes the size of the given array. The command does not return new array, it resizes the source array to the desired number of elements. If the new size is bigger than the current size, the new places are filled with nils.", resize_array_scalar));
+	add(binary(4, "deleterange", type::ARRAY, type::ARRAY, "Removes a range of array elements from the given array (modifies the original array, just like resize or set).", deleterange_array_array));
+
 	add(binary(4, "pushBack", type::ARRAY, type::ANY, "Insert an element to the back of the given array. This command modifies the original array. Returns the index of the newly added element.", pushback_array_any));
 	add(binary(4, "pushBackUnique", type::ARRAY, type::ANY, "Adds element to the back of the given array but only if it is unique to the array. The index of the added element is returned upon success, otherwise -1. This command modifies the original array.", pushbackunique_array_any));
 	add(binary(4, "findIf", type::ARRAY, type::CODE, "Searches for an element within array for which the code evaluates to true. Returns the 0 based index on success or -1 if not found. Code on the right side of the command is evaluated for each element of the array, processed element can be referenced in code as _x.", findif_array_code));
@@ -1383,6 +1427,9 @@ void sqf::commandmap::initgenericcmds()
 	add(binary(4, "apply", type::ARRAY, type::CODE, "Applies given code to each element of the array and returns resulting array. The value of the current array element, to which the code will be applied, is stored in variable _x.", apply_array_code));
 	add(binary(4, "spawn", type::ANY, type::CODE, "Adds given code to the scheduler. For SQF-VM, every script is guaranteed to get the same ammount of instructions done before being suspended.", spawn_any_code));
 	add(unary("scriptDone", type::SCRIPT, "Check if a script is finished running using the Script_(Handle).", scriptdone_script));
+	add(unary("terminate", type::SCRIPT, "Terminates (aborts) spawned or execVMed script. "
+		"The given script will not terminate immediately upon terminate command execution, it will do so the next time the script is processed by the scheduler", terminate_script));
+
 
 
 	add(binary(4, "set", type::ARRAY, type::ARRAY, "Changes the element at the given (zero-based) index of the array. If the array size is smaller then the index provided, it is resized to allow for the index to be set.", set_array_array));

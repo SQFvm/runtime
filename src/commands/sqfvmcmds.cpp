@@ -38,7 +38,20 @@ namespace
 	{
 		auto codedata = right.data<sqf::codedata>();
 		std::vector<sqf::value> outarr;
-		for (auto it = codedata->instructions_rbegin(); it != codedata->instructions_rend(); it++)
+		for (auto it = codedata->instructions_begin(); it != codedata->instructions_end(); it++)
+		{
+			outarr.push_back(sqf::value((*it)->to_string()));
+		}
+		return outarr;
+	}
+	value assembly___string(virtualmachine* vm, value::cref right)
+	{
+		auto str = right.as_string();
+		auto cs = std::make_shared<callstack>(vm->active_vmstack()->stacks_top()->get_namespace());
+		vm->parse_sqf(str, cs);
+		sqf::codedata codedata(cs);
+		std::vector<sqf::value> outarr;
+		for (auto it = codedata.instructions_begin(); it != codedata.instructions_end(); it++)
 		{
 			outarr.push_back(sqf::value((*it)->to_string()));
 		}
@@ -168,6 +181,14 @@ namespace
 		vm->parse_sqf_tree(str, &sstream);
 		return sstream.str();
 	}
+	value tree___code(virtualmachine* vm, value::cref right)
+	{
+		auto code = right.data<codedata>();
+		auto str = code->tosqf();
+		std::stringstream sstream;
+		vm->parse_sqf_tree(str, &sstream);
+		return sstream.str();
+	}
 	value help___string(virtualmachine* vm, value::cref right)
 	{
 		std::stringstream sstream;
@@ -241,7 +262,14 @@ namespace
 		}
 		return value(arr);
 	}
-	value prettyprintsqf___string(virtualmachine* vm, value::cref right)
+	value pretty___code(virtualmachine* vm, value::cref right)
+	{
+		auto code = right.data<codedata>();
+		auto str = code->tosqf();
+		vm->pretty_print_sqf(str);
+		return {};
+	}
+	value prettysqf___string(virtualmachine* vm, value::cref right)
 	{
 		auto str = right.as_string();
 		vm->pretty_print_sqf(str);
@@ -397,19 +425,23 @@ namespace
 void sqf::commandmap::initsqfvmcmds()
 {
 	add(unary("tree__", sqf::type::STRING, "Returns a string containing the abstract syntax tree for the provided SQF expression.", tree___string));
+	add(unary("tree__", sqf::type::CODE, "Returns a string containing the abstract syntax tree for the provided SQF expression.", tree___code));
 	add(nular("cmds__", "Returns an array containing all commands available.", cmds___));
 	add(nular("cmdsimplemented__", "Returns an array containing all commands that are actually implemented.", cmdsimplemented___));
 	add(unary("help__", sqf::type::STRING, "Displays all available information for a single command.", help___string));
 	add(unary("configparse__", sqf::type::STRING, "Parses provided string as config into a new config object.", configparse___string));
 	add(binary(4, "merge__", sqf::type::CONFIG, sqf::type::CONFIG, "Merges contents from the right config into the left config. Duplicate entries will be overriden. Contents will not be copied but referenced.", merge___config_config));
 	add(nular("allObjects__", "Returns an array containing all objects created.", allObjects__));
-	add(unary("prettyprintsqf__", sqf::type::STRING, "Takes provided SQF code and pretty-prints it to output.", prettyprintsqf___string));
+	add(unary("pretty__", sqf::type::CODE, "Takes provided SQF code and pretty-prints it to output.", pretty___code));
+	add(unary("prettysqf__", sqf::type::CODE, "Takes provided SQF code and pretty-prints it to output.", pretty___code));
+	add(unary("prettysqf__", sqf::type::STRING, "Takes provided SQF code and pretty-prints it to output.", prettysqf___string));
 	add(nular("exit__", "Exits the VM execution immediately. Will not notify debug interface when used.", exit___));
-	add(unary("exit__", sqf::type::SCALAR, "Exits the VM execution immediately. Will not notify debug interface when used. Allows to pass an exit code to the VM.", exit___scalar));
+	add(unary("exitcode__", sqf::type::SCALAR, "Exits the VM execution immediately. Will not notify debug interface when used. Allows to pass an exit code to the VM.", exit___scalar));
 	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
 	add(nular("respawn__", "'Respawns' the player object.", respawn___));
 	add(unary("preprocess__", sqf::type::STRING, "Runs the PreProcessor on provided string.", preprocess___string));
 	add(unary("assembly__", sqf::type::CODE, "returns an array, containing the assembly instructions as string.", assembly___code));
+	add(unary("assembly__", sqf::type::STRING, "returns an array, containing the assembly instructions as string.", assembly___string));
 	add(binary(4, "except__", sqf::type::CODE, sqf::type::CODE, "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'. A callstack is available in '_callstack'.", except___code_code));
 	add(nular("callstack__", "Returns an array containing the whole callstack.", callstack___));
 	add(unary("allFiles__", sqf::type::ARRAY, "Returns all files available in currently loaded paths with the given file extensions.", allfiles___));

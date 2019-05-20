@@ -32,6 +32,7 @@ namespace sqf
         arraydata() = default;
 		arraydata(size_t size) : mvalue(std::vector<value>(size)) {}
         arraydata(std::vector<value> v) : mvalue(std::move(v)) {}
+		arraydata deep_copy() const;
 		std::string tosqf() const override;
 		value& operator[](size_t index) { return at(index); }
 		value operator[](size_t index) const { return at(index); }
@@ -44,6 +45,8 @@ namespace sqf
 
 		std::vector<value>::iterator begin() { return mvalue.begin(); }
 		std::vector<value>::iterator end() { return mvalue.end(); }
+
+		std::vector<value>::iterator erase(std::vector<value>::iterator begin, std::vector<value>::iterator end) { return mvalue.erase(begin, end); }
 
         //#TODO emplace back
 		bool push_back(value val) { mvalue.push_back(std::move(val)); if (!recursion_test()) { mvalue.pop_back(); return false; } return true; }

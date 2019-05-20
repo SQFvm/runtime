@@ -147,3 +147,97 @@ void sqf::codedata::loadinto(std::shared_ptr<sqf::vmstack> stack, std::shared_pt
 		cs->push_back(it);
 	}
 }
+
+bool sqf::codedata::equals(std::shared_ptr<data> d) const
+{
+	auto cd = std::dynamic_pointer_cast<codedata>(d);
+	if (cd->minsts.size() != minsts.size())
+	{
+		return false;
+	}
+	for (size_t i = 0; i < minsts.size(); i++)
+	{
+		const auto l = cd->minsts[i];
+		const auto r = minsts[i];
+		if (l->thistype() != r->thistype())
+		{
+			return false;
+		}
+		switch (l->thistype())
+		{
+		case sqf::instruction::assignto:
+		{
+			const auto assignto_l = std::dynamic_pointer_cast<inst::assignto>(l);
+			const auto assignto_r = std::dynamic_pointer_cast<inst::assignto>(r);
+			if (assignto_l->variable_name() != assignto_r->variable_name())
+			{
+				return false;
+			}
+		} break;
+		case sqf::instruction::assigntolocal:
+		{
+			const auto assigntolocal_l = std::dynamic_pointer_cast<inst::assigntolocal>(l);
+			const auto assigntolocal_r = std::dynamic_pointer_cast<inst::assigntolocal>(r);
+			if (assigntolocal_l->variable_name() != assigntolocal_r->variable_name())
+			{
+				return false;
+			}
+		} break;
+		case sqf::instruction::callbinary:
+		{
+			const auto callbinary_l = std::dynamic_pointer_cast<inst::callbinary>(l);
+			const auto callbinary_r = std::dynamic_pointer_cast<inst::callbinary>(r);
+			if (callbinary_l->commands()->front()->name() != callbinary_r->commands()->front()->name())
+			{
+				return false;
+			}
+		} break;
+		case sqf::instruction::callunary:
+		{
+			const auto callunary_l = std::dynamic_pointer_cast<inst::callunary>(l);
+			const auto callunary_r = std::dynamic_pointer_cast<inst::callunary>(r);
+			if (callunary_l->commands()->front()->name() != callunary_r->commands()->front()->name())
+			{
+				return false;
+			}
+		} break;
+		case sqf::instruction::callnular:
+		{
+			const auto callnular_l = std::dynamic_pointer_cast<inst::callnular>(l);
+			const auto callnular_r = std::dynamic_pointer_cast<inst::callnular>(r);
+			if (callnular_l->command()->name() != callnular_r->command()->name())
+			{
+				return false;
+			}
+		} break;
+		case sqf::instruction::getvariable:
+		{
+			const auto getvariable_l = std::dynamic_pointer_cast<inst::getvariable>(l);
+			const auto getvariable_r = std::dynamic_pointer_cast<inst::getvariable>(r);
+			if (getvariable_l->variable_name() != getvariable_r->variable_name())
+			{
+				return false;
+			}
+		} break;
+		case sqf::instruction::makearray:
+		{
+			const auto makearray_l = std::dynamic_pointer_cast<inst::makearray>(l);
+			const auto makearray_r = std::dynamic_pointer_cast<inst::makearray>(r);
+			if (makearray_l->size() != makearray_r->size())
+			{
+				return false;
+			}
+		} break;
+		case sqf::instruction::push:
+		{
+			const auto push_l = std::dynamic_pointer_cast<inst::push>(l);
+			const auto push_r = std::dynamic_pointer_cast<inst::push>(r);
+			if (!push_l->get_value().equals(push_r->get_value()))
+			{
+				return false;
+			}
+		}break;
+		}
+	}
+	return true;
+}

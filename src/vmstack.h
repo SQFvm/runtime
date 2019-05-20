@@ -21,6 +21,7 @@ namespace sqf
 		bool misasleep;
 		std::string mscriptname;
 		sqf::value mlast_value;
+		bool m_terminate;
 	public:
 		struct stackdump
 		{
@@ -35,11 +36,13 @@ namespace sqf
 		// Creates a stackdump from current top-callstack to the target callstack.
 		// If no target is provided, whole callstack will be dumped.
 		std::vector<sqf::vmstack::stackdump> dump_callstack_diff(std::shared_ptr<sqf::callstack> target);
-		vmstack() : misscheduled(false), misasleep(false) {}
+		vmstack() : misscheduled(false), misasleep(false), m_terminate(false) {}
 		vmstack(bool isscheduled) : misscheduled(isscheduled), misasleep(false) {}
 		void pushinst(sqf::virtualmachine* vm, std::shared_ptr<instruction> inst);
 		const std::string& script_name() const { return mscriptname; }
 		void script_name(std::string val) { if (mscriptname.empty()) { mscriptname = std::move(val); } }
+		bool terminate() { return m_terminate; }
+		void terminate(bool flag) { m_terminate = flag; }
 		std::shared_ptr<instruction> popinst(sqf::virtualmachine* vm)
 		{
 			if (mstacks.empty())

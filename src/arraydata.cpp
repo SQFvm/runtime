@@ -5,6 +5,23 @@
 #include <sstream>
 #include <algorithm>
 
+sqf::arraydata sqf::arraydata::deep_copy() const
+{
+	std::vector<value> arr_copy;
+	for (auto&& val : mvalue)
+	{
+		if (val.dtype() == type::ARRAY)
+		{
+			arr_copy.emplace_back(sqf::arraydata{ val.as_vector() }.deep_copy().innervector());
+		}
+		else
+		{
+			arr_copy.emplace_back(val);
+		}
+	}
+	return arr_copy;
+}
+
 std::string sqf::arraydata::tosqf() const
 {
 	std::stringstream sstream;

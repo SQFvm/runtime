@@ -3,7 +3,7 @@
 #include <vector>
 #include "astnode.h"
 
-void print_navigate_ast(std::basic_ostream<char, std::char_traits<char>>* outstreamptr, astnode node, const char *(*astkindname)(short), unsigned short level)
+void print_navigate_ast(std::basic_ostream<char, std::char_traits<char>>* outstreamptr, const astnode& node, const char *(*astkindname)(short), unsigned short level)
 {
 	if (level == 0)
 	{

@@ -199,6 +199,50 @@ namespace
         auto x = res == std::string::npos;
 		return res == std::string::npos ? -1.f : res;
 	}
+	value splitstring_string_string(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto l = left.as_string();
+		auto r = right.as_string();
+		std::vector<value> values;
+		if (r.empty())
+		{
+			for (auto c : l)
+			{
+				values.push_back(c);
+			}
+			return values;
+		}
+		// Avoid using actual strtok method due to concerns regarding the way
+		// it works (Reentrancy variance)
+		size_t match_length = 0;
+		for (size_t i = 0; i < l.length(); i++)
+		{
+			char lc = l[i];
+			bool hit = false;
+			for (auto rc : r)
+			{
+				if (lc == rc)
+				{
+					if (match_length > 0)
+					{
+						values.push_back(l.substr(i - match_length, match_length));
+						match_length = 0;
+					}
+					hit = true;
+					break;
+				}
+			}
+			if (!hit)
+			{
+				match_length++;
+			}
+		}
+		if (match_length != 0)
+		{
+			values.push_back(l.substr(l.size() - match_length));
+		}
+		return values;
+	}
 }
 void sqf::commandmap::initstringcmds()
 {
@@ -212,4 +256,7 @@ void sqf::commandmap::initstringcmds()
 	add(binary(4, "joinString", sqf::type::ARRAY, sqf::type::STRING, "Joins array into String with provided separator. Array can be of mixed types, all elements will be converted to String prior to joining, but the fastest operation is on the array of Strings.", joinstring_array_string));
 	add(binary(6, "+", sqf::type::STRING, sqf::type::STRING, "Concatinates two strings together.", plus_string_string));
 	add(binary(4, "find", sqf::type::STRING, sqf::type::STRING, "Searches for a string within a string. Returns the 0 based index on success or -1 if not found.", find_string_string));
+	add(binary(4, "splitString", type::STRING, type::STRING, "An SQF version of C++ strtok. "
+		"Splits given string str into an array of tokens according to given delimiters. "
+		"In addition, if empty string "" is used for delimiters, str is split by each character.", splitstring_string_string));
 }

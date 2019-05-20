@@ -318,13 +318,7 @@ namespace {
 					else
 					{
 						// ToDo: Handle args in macro params
-						auto macro_res = std::find_if(
-							h.macros.begin(),
-							h.macros.end(),
-							[word](std::unordered_map<std::string, macro>::value_type m) -> bool {
-								return m.first.compare(word) == 0;
-							}
-						);
+						auto macro_res = h.macros.find(word);
 						if (macro_res == h.macros.end())
 						{
 							sstream << word;

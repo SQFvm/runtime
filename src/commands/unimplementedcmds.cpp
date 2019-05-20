@@ -340,7 +340,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "turretowner", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (turretowner)." << std::endl; return {}; }));
 	add(binary(4, "setface", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setface)." << std::endl; return {}; }));
 	add(binary(4, "fadesound", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (fadesound)." << std::endl; return {}; }));
-	add(binary(4, "splitstring", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (splitstring)." << std::endl; return {}; }));
 	add(binary(4, "setwaypointformation", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setwaypointformation)." << std::endl; return {}; }));
 	add(binary(4, "disableuavconnectability", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (disableuavconnectability)." << std::endl; return {}; }));
 	add(binary(4, "nearroads", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (nearroads)." << std::endl; return {}; }));
@@ -793,7 +792,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "listobjects", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (listobjects)." << std::endl; return {}; }));
 	add(binary(4, "connectterminaltouav", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (connectterminaltouav)." << std::endl; return {}; }));
 	add(binary(4, "setwingforcescalertd", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setwingforcescalertd)." << std::endl; return {}; }));
-	add(binary(4, "deleterange", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (deleterange)." << std::endl; return {}; }));
 	add(binary(4, "ctrladdeventhandler", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrladdeventhandler)." << std::endl; return {}; }));
 	add(binary(4, "setparticlefire", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setparticlefire)." << std::endl; return {}; }));
 	add(binary(4, "lbsetpicturecolorselected", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsetpicturecolorselected)." << std::endl; return {}; }));
@@ -1356,7 +1354,6 @@ void sqf::commandmap::initunimplemented()
 	add(unary("ctrlmodeldirandup", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (ctrlmodeldirandup)." << std::endl; return {}; })); /* CONTROL */
 	add(unary("assignedgunner", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (assignedgunner)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("setmouseposition", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setmouseposition)." << std::endl; return {}; })); /* ARRAY */
-	add(unary("terminate", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (terminate)." << std::endl; return {}; })); /* SCRIPT */
 	add(unary("soldiermagazines", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (soldiermagazines)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("endmission", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (endmission)." << std::endl; return {}; })); /* STRING */
 	add(unary("leaderboardrequestrowsglobal", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (leaderboardrequestrowsglobal)." << std::endl; return {}; })); /* ARRAY */
