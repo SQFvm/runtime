@@ -24,11 +24,15 @@ extern "C" {
 
 	//https://stackoverflow.com/questions/28027937/cross-platform-sockets
 
-	int networking_init();
-	int networking_cleanup();
+	int networking_init(void);
+	int networking_cleanup(void);
 
-
+	int networking_initialized(int doinit, int uninit);
 	int networking_close(SOCKET);
+	// param1: The IP Address
+	// param2: The PORT
+	// param3: OUT parameter, the resulting socket
+	// return: 0 (false) if everything is fine, 1 (true) if some error happened.
 	int networking_create_client(const char*, const char*, SOCKET*);
 	int networking_create_server(SOCKET *);
 	int networking_server_bind(SOCKET*, unsigned short);

@@ -14,12 +14,10 @@ extern "C" {
 
 int networking_init()
 {
-	static unsigned char flag = 0;
-	if (flag)
+	if (networking_initialized(1, 0))
 	{
 		return 1;
 	}
-	flag = ~0;
 #ifdef WIN32
 	WSADATA wsa_data;
 	return WSAStartup(MAKEWORD(1, 1), &wsa_data);
@@ -30,15 +28,44 @@ int networking_init()
 
 int networking_cleanup()
 {
+	if (!networking_initialized(0, 1))
+	{
+		return 1;
+	}
 #ifdef WIN32
 	return WSACleanup();
 #else
 	return 0;
 #endif
 }
+
+int networking_initialized(int doinit, int uninit)
+{
+	static unsigned char flag = 0;
+	if (uninit)
+	{
+		if (!flag)
+		{
+			return 1;
+		}
+		flag = 0;
+		return 0;
+	}
+	else
+	{
+		if (flag)
+		{
+			return 1;
+		}
+		if (doinit)
+		{
+			flag = ~0;
+		}
+		return 0;
+	}
+}
 int networking_close(SOCKET sock)
 {
-
 	int status;
 
 #ifdef WIN32
@@ -74,7 +101,7 @@ int networking_create_client(const char* ip, const char* port, SOCKET* outSocket
 		freeaddrinfo(ptr);
 		return 2;
 	}
-
+	
 	res = connect(*outSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
 	if (res)
 	{

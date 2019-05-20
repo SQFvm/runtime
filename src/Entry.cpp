@@ -9,6 +9,8 @@
 #include "fileio.h"
 #include "parsepreprocessor.h"
 #include "git_sha1.h"
+#include "networking.h"
+#include "networking/network_server.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -184,7 +186,10 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg automatedArg("a", "automated", "Disables all possible prompts.", false);
 	cmd.add(automatedArg);
 
-	TCLAP::ValueArg<int> debuggerArg("d", "debugger", "Causes the sqf-vm to start a network server that allows to attach a single debugger to it.", false, 0, "PORT");
+	TCLAP::ValueArg<int> serverArg("s", "server", "Causes the SQF-VM to start a network server that allows other SQF-VM instances to connecto to it via remoteConnect__.", false, 0, "PORT");
+	cmd.add(serverArg);
+
+	TCLAP::ValueArg<int> debuggerArg("d", "debugger", "Causes the SQF-VM to start a network server that allows to attach a single debugger to it.", false, 0, "PORT");
 	cmd.add(debuggerArg);
 
 	TCLAP::ValueArg<int> maxInstructionsArg("m", "max-instructions", "Sets the maximum ammount of instructions to execute before a hard exit may occur. Setting this to 0 will disable the limit.", false, 0, "NUMBER");
@@ -622,6 +627,31 @@ int main(int argc, char** argv)
 	{
 		vm.parse_config(raw, sqf::configdata::configFile().data<sqf::configdata>());
 	}
+	if (serverArg.isSet())
+	{
+		networking_init();
+		auto port = serverArg.getValue();
+		SOCKET socket;
+		if (networking_create_server(&socket))
+		{
+#if _WIN32
+			std::cout << "Something moved wrong during creation of the client socket (0x" << std::hex << GetLastError() << ")" << std::endl;
+#else
+			std::cout << "Something moved wrong during creation of the client socket." << std::endl;
+#endif
+			return -1;
+		}
+		try
+		{
+			vm.set_networking(std::make_shared<sqf::networking::server>(port));
+			std::cout << "Listening on port " << port << std::endl;
+		}
+		catch (std::runtime_error e)
+		{
+			std::cout << "Something moved wrong during creation of the client socket: " << e.what() << std::endl;
+			return -1;
+		}
+	}
 
 	if (debugger_port > 0)
 	{
@@ -716,9 +746,9 @@ int main(int argc, char** argv)
 
 	} while (!automated && !vm.exitflag());
 
+	
 	if (debugger_port > 0)
 	{
-		networking_cleanup();
 		if (dbg)
 		{
 			delete dbg;
@@ -730,7 +760,12 @@ int main(int argc, char** argv)
 			srv = nullptr;
 		}
 	}
+	if (vm.is_networking_set())
+	{
+		vm.release_networking();
+	}
 
+	networking_cleanup();
 	sqf::commandmap::get().uninit();
 	return vm.exitcode();
 }

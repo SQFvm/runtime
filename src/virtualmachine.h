@@ -28,6 +28,11 @@ namespace sqf
 	class debugger;
 	class value;
 	class sqfnamespace;
+	namespace networking
+	{
+		class client;
+		class server;
+	}
 	class virtualmachine
 	{
 	private:
@@ -70,9 +75,14 @@ namespace sqf
 		sqf::filesystem m_filesystem;
 		std::chrono::system_clock::time_point m_created_timestamp;
 		std::chrono::system_clock::time_point m_current_time;
+		std::shared_ptr<networking::client> m_current_networking_client;
+		std::shared_ptr<networking::server> m_current_networking_server;
+		void handle_networking();
+
 	public:
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
+		~virtualmachine();
 
 		std::chrono::system_clock::time_point get_created_timestamp() const { return m_created_timestamp; }
 		std::chrono::system_clock::time_point get_current_time() const { return m_current_time; }
@@ -88,7 +98,32 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> parsingnamespace() const { return mparsingnamespace; }
 		std::shared_ptr<sqf::sqfnamespace> profilenamespace() const { return mprofilenamespace; }
 
-
+		std::shared_ptr<networking::client> get_networking_client()
+		{
+			return m_current_networking_client;
+		}
+		std::shared_ptr<networking::server> get_networking_server()
+		{
+			return m_current_networking_server;
+		}
+		void set_networking(std::shared_ptr<networking::client> client)
+		{
+			if (is_networking_set())
+			{
+				throw std::runtime_error("Networking already set. Cannot set Client.");
+			}
+			m_current_networking_client = client;
+		}
+		void set_networking(std::shared_ptr<networking::server> server)
+		{
+			if (is_networking_set())
+			{
+				throw std::runtime_error("Networking already set. Cannot set Server.");
+			}
+			m_current_networking_server = server;
+		}
+		bool is_networking_set() { return m_current_networking_client || m_current_networking_server; }
+		void release_networking();
 
 		std::stringstream& out() { moutflag = true; return mout_buff; }
 		void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }

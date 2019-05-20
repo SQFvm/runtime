@@ -1,3 +1,12 @@
+#ifdef _WIN32
+// Required due to some headers using WinSock2.h
+// & some headers requiring windows.h
+// If this was not here, a link conflict would emerge due to
+// windows.h including winsock1
+#include <WinSock2.h>
+#endif
+
+
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
@@ -12,6 +21,8 @@
 #include "../callstack_sqftry.h"
 #include "../instruction.h"
 #include "../codedata.h"
+#include "../networking/network_client.h"
+#include "../networking.h"
 #include "filesystem.h"
 #include <sstream>
 #include <array>
@@ -351,6 +362,37 @@ namespace
 			}).base(), str.end());
 		return str;
 	}
+	value remoteConnect___(virtualmachine* vm, value::cref right)
+	{
+		networking_init();
+		if (vm->is_networking_set())
+		{
+			vm->err() << "Already connected to something." << std::endl;
+			return {};
+		}
+		auto s = right.as_string();
+		auto index = s.find(':');
+		if (index == std::string::npos)
+		{
+			vm->err() << "Invalid input format." << std::endl;
+			return {};
+		}
+		auto address = s.substr(0, index);
+		auto port = s.substr(index + 1);
+		SOCKET socket;
+		if (networking_create_client(address.c_str(), port.c_str(), &socket))
+		{
+			vm->wrn() << "Something moved wrong during creation of the client socket." << std::endl;
+			return false;
+		}
+		vm->set_networking(std::make_shared<networking::client>(socket));
+		return true;
+	}
+	value closeconnection___(virtualmachine* vm)
+	{
+		vm->release_networking();
+		return {};
+	}
 }
 void sqf::commandmap::initsqfvmcmds()
 {
@@ -374,4 +416,6 @@ void sqf::commandmap::initsqfvmcmds()
 	add(nular("pwd__", "Current path determined by current instruction.", pwd___));
 	add(nular("currentDirectory__", "Current directory determined by current instruction.", currentDirectory___));
 	add(unary("trim__", sqf::type::STRING, "Trims provided strings start and end.", trim___));
+	add(unary("remoteConnect__", sqf::type::STRING, "Connects this as a client to the provided endpoint. Endpoint is expected to have the format ADDRESS:PORT. Returns TRUE on success, false if it failed. Note that IP-Address is required, not DNS names (eg. use '127.0.0.1' instead of 'localhost').", remoteConnect___));
+	add(nular("closeConnection__", "Closes the connection previously opened using remoteConnect__.", closeconnection___));
 }

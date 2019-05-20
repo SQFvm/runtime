@@ -1,3 +1,11 @@
+#ifdef _WIN32
+// Required due to some headers using WinSock2.h
+// & some headers requiring windows.h
+// If this was not here, a link conflict would emerge due to
+// windows.h including winsock1
+#include <WinSock2.h>
+#endif
+
 #include "virtualmachine.h"
 #include "astnode.h"
 #include "helper.h"
@@ -26,6 +34,8 @@
 #include "sqfnamespace.h"
 #include "innerobj.h"
 #include "scalardata.h"
+#include "networking/network_client.h"
+#include "networking/network_server.h"
 //#include "parsepp_handler.h"
 
 #include <iostream>
@@ -39,6 +49,7 @@
 #if !defined(_DEBUG) && defined(DEBUG_VM_ASSEMBLY)
 #undef DEBUG_VM_ASSEMBLY
 #endif // !_RELEASE
+
 
 
 
@@ -66,6 +77,30 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	m_created_timestamp = system_time();
 	m_current_time = system_time();
 }
+sqf::virtualmachine::~virtualmachine()
+{
+	if (m_current_networking_client)
+	{
+		m_current_networking_client->stop();
+	}
+	if (m_current_networking_server)
+	{
+		m_current_networking_server->stop();
+	}
+}
+void sqf::virtualmachine::release_networking()
+{
+	{
+		if (m_current_networking_client)
+		{
+			m_current_networking_client->stop();
+		}
+		if (m_current_networking_server)
+		{
+			m_current_networking_server->stop();
+		}
+	}
+}
 void sqf::virtualmachine::execute()
 {
 	out_buffprint();
@@ -75,6 +110,10 @@ void sqf::virtualmachine::execute()
 	mexitflag = false;
 	while (!mexitflag && (!mspawns.empty() || !m_main_vmstack->isempty() || (_debugger && _debugger->stop(this))))
 	{
+		if (is_networking_set())
+		{
+			handle_networking();
+		}
 		if (_debugger) { _debugger->status(sqf::debugger::RUNNING); }
 		m_active_vmstack = m_main_vmstack;
 		performexecute();
@@ -751,3 +790,9 @@ std::chrono::system_clock::time_point sqf::virtualmachine::system_time()
 //	//return parser.parse(this, inputfile);
 //	return "";
 //}
+
+
+void sqf::virtualmachine::handle_networking()
+{
+
+}
