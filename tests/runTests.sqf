@@ -155,7 +155,7 @@ diag_log format ["%1 out of %2 tests passed.", testsPassed, testsIndex];
 if (fatalError) then
 {
     diag_log "FATALERROR occured during testing.";
-    exit__ -1;
+    exitcode__ -1;
 }
 else 
 {
