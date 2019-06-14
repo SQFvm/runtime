@@ -68,7 +68,7 @@ namespace
 		}
 		return str.substr(start);
 	}
-	value format_string(virtualmachine* vm, value::cref right)
+	value format_array(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_vector();
 		if (r.empty())
@@ -250,7 +250,7 @@ void sqf::commandmap::initstringcmds()
 	add(unary("toLower", sqf::type::STRING, "Converts the supplied string to all lowercase characters.", tolower_string));
 	add(unary("toUpper", sqf::type::STRING, "Converts the supplied string to all uppercase characters.", toupper_string));
 	add(binary(4, "select", type::STRING, type::ARRAY, "Selects a range of characters in provided string, starting at element 0 index, ending at either end of the string or the provided element 1 length.", select_string_array));
-	add(unary("format", sqf::type::ARRAY, "Composes a string containing other variables or other variable types. Converts any variable type to a string.", format_string));
+	add(unary("format", sqf::type::ARRAY, "Composes a string containing other variables or other variable types. Converts any variable type to a string.", format_array));
 	add(unary("toArray", sqf::type::STRING, "Converts the supplied String into an Array of Numbers.", toarray_string));
 	add(unary("toString", sqf::type::ARRAY, "Converts the supplied String into an Array of Numbers.", tostring_array));
 	add(binary(4, "joinString", sqf::type::ARRAY, sqf::type::STRING, "Joins array into String with provided separator. Array can be of mixed types, all elements will be converted to String prior to joining, but the fastest operation is on the array of Strings.", joinstring_array_string));
