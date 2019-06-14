@@ -118,7 +118,7 @@ namespace
 			}
 			off = newoff;
 		}
-		sstream << format.substr(off);
+		sstream << (format.size() >= off ? format.substr(off) : "");
 		return sstream.str();
 	}
 	value toarray_string(virtualmachine* vm, value::cref right)
