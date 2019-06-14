@@ -118,6 +118,7 @@ diag_log format ["    %1", ___currentDirectory___];
                                 case "assertTrue": { [___name___, ___code___, ___desc___, _forEachIndex, true] call test_fnc_assertEqual };
                                 case "assertFalse": { [___name___, ___code___, ___desc___, _forEachIndex, false] call test_fnc_assertEqual };
                                 case "assertEqual": { [___name___, ___code___, ___desc___, _forEachIndex, _x select 2] call test_fnc_assertEqual };
+                                case "assertNil";
                                 case "assertIsNil": { [___name___, ___code___, ___desc___, _forEachIndex] call test_fnc_assertIsNil };
                                 case "assertException": { [___name___, ___code___, ___desc___, _forEachIndex] call test_fnc_assertException };
                                 default {
