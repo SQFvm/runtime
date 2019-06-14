@@ -22,8 +22,8 @@ namespace sqf
 	public:
 		switchdata(value val) : mvalue(std::move(val)), mflag(false), mexecuted(false) {}
 		std::string tosqf() const override;
-		void flag(bool f) { mflag = f; }
-		bool flag() const { return mflag; }
+		void case_matches(bool f) { mflag = f; }
+		bool case_matches() const { return mflag; }
 		void executed(bool f) { mexecuted = f; }
 		bool executed() const { return mexecuted; }
 		value val() const { return mvalue; }

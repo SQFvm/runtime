@@ -615,7 +615,7 @@ namespace
 
 		if (right.equals(swtch->val()))
 		{
-			swtch->flag(true);
+			swtch->case_matches(true);
 		}
 		return value(swtch);
 	}
@@ -639,7 +639,7 @@ namespace
 			return {};
 		}
 		auto r = right.data<codedata>();
-		if (l->flag())
+		if (l->case_matches())
 		{
 			l->executed(true);
 			r->loadinto(vm, vm->active_vmstack());
