@@ -10,12 +10,6 @@
 	{
 		return done;
 	}
-
-	if (m_switchdata->has_match() && m_switchdata->exec())
-	{
-		this->drop_instructions();
-	}
-
 	// Receive the next "normal" result
 	// and unless it is done, return it
 	auto next = callstack::do_next(vm);
