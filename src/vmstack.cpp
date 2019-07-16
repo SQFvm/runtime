@@ -8,8 +8,8 @@ std::vector<sqf::vmstack::stackdump> sqf::vmstack::dump_callstack_diff(std::shar
 {
 	std::vector<sqf::vmstack::stackdump> vec;
 
-	auto start = this->mstacks.rbegin();
-	for (auto it = start; it != this->mstacks.rend(); it++)
+	auto start = this->m_stacks.rbegin();
+	for (auto it = start; it != this->m_stacks.rend(); it++)
 	{
 		auto inst = (*it)->current_instruction();
 
@@ -43,11 +43,11 @@ std::vector<sqf::vmstack::stackdump> sqf::vmstack::dump_callstack_diff(std::shar
 
 void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instruction> inst)
 {
-	if (mstacks.empty())
+	if (m_stacks.empty())
 	{
-		mstacks.push_back(std::make_shared<callstack>(vm->missionnamespace()));
+		m_stacks.push_back(std::make_shared<callstack>(vm->missionnamespace()));
 	}
-	mstacks.back()->push_back(std::move(inst));
+	m_stacks.back()->push_back(std::move(inst));
 }
 
 sqf::value sqf::vmstack::getlocalvar(std::string_view varname)
@@ -64,6 +64,6 @@ sqf::value sqf::vmstack::getlocalvar(std::string_view varname)
 
 void sqf::vmstack::sleep(std::chrono::milliseconds ms)
 {
-	mwakeupstamp = sqf::virtualmachine::system_time() + ms;
-	misasleep = true;
+	m_wakeup_stamp = sqf::virtualmachine::system_time() + ms;
+	m_is_asleep = true;
 }

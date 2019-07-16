@@ -15,11 +15,11 @@ namespace sqf
 	class vmstack
 	{
 	private:
-		std::vector<std::shared_ptr<sqf::callstack>> mstacks;
-		bool misscheduled;
-		std::chrono::system_clock::time_point mwakeupstamp;
-		bool misasleep;
-		std::string mscriptname;
+		std::vector<std::shared_ptr<sqf::callstack>> m_stacks;
+		bool m_is_scheduled;
+		std::chrono::system_clock::time_point m_wakeup_stamp;
+		bool m_is_asleep;
+		std::string m_script_name;
 		sqf::value mlast_value;
 		bool m_terminate;
 	public:
@@ -36,19 +36,19 @@ namespace sqf
 		// Creates a stackdump from current top-callstack to the target callstack.
 		// If no target is provided, whole callstack will be dumped.
 		std::vector<sqf::vmstack::stackdump> dump_callstack_diff(std::shared_ptr<sqf::callstack> target);
-		vmstack() : misscheduled(false), misasleep(false), m_terminate(false) {}
-		vmstack(bool isscheduled) : misscheduled(isscheduled), misasleep(false) {}
+		vmstack() : m_is_scheduled(false), m_is_asleep(false), m_terminate(false), m_script_name("") {}
+		vmstack(bool isscheduled) : m_is_scheduled(isscheduled), m_is_asleep(false), m_terminate(false), m_script_name("") {}
 		void pushinst(sqf::virtualmachine* vm, std::shared_ptr<instruction> inst);
-		const std::string& script_name() const { return mscriptname; }
-		void script_name(std::string val) { if (mscriptname.empty()) { mscriptname = std::move(val); } }
+		const std::string& script_name() const { return m_script_name; }
+		void script_name(std::string val) { if (m_script_name.empty()) { m_script_name = std::move(val); } }
 		bool terminate() { return m_terminate; }
 		void terminate(bool flag) { m_terminate = flag; }
 		std::shared_ptr<instruction> popinst(sqf::virtualmachine* vm)
 		{
-			if (mstacks.empty())
+			if (m_stacks.empty())
 				return std::shared_ptr<sqf::instruction>();
 			
-			switch (mstacks.back()->previous_nextresult())
+			switch (m_stacks.back()->previous_nextresult())
 			{
 			case callstack::exitwith:
 				drop_callstack();
@@ -58,17 +58,17 @@ namespace sqf
 				break;
 			}
 
-			if (mstacks.empty())
+			if (m_stacks.empty())
 				return std::shared_ptr<sqf::instruction>();
 
-			auto res = mstacks.back()->next(vm);
+			auto res = m_stacks.back()->next(vm);
 			if (res == callstack::done || res == callstack::exitwith)
 			{
 				return popinst(vm);
 			}
-			return mstacks.back()->current_instruction();
+			return m_stacks.back()->current_instruction();
 		}
-		void pushcallstack(std::shared_ptr<sqf::callstack> cs) { mstacks.emplace_back(std::move(cs)); mlast_value = {}; }
+		void pushcallstack(std::shared_ptr<sqf::callstack> cs) { m_stacks.emplace_back(std::move(cs)); mlast_value = {}; }
 
 		/// Will only be set when all stacks have been emptied.
 		/// Contains the value returned by the last callstack if available.
@@ -78,39 +78,39 @@ namespace sqf
 		/// from its value stack onto the lower callstack.
 		void drop_callstack()
 		{
-			if (!mstacks.empty())
+			if (!m_stacks.empty())
 			{
 				bool success = false;
-				auto value = mstacks.back()->pop_back_value(success);
-				mstacks.pop_back();
+				auto value = m_stacks.back()->pop_back_value(success);
+				m_stacks.pop_back();
 				if (success)
 				{
-					if (mstacks.empty())
+					if (m_stacks.empty())
 					{
 						mlast_value = value;
 					}
 					else
 					{
-						mstacks.back()->push_back(value);
+						m_stacks.back()->push_back(value);
 					}
 				}
 			}
 		}
 		void drop_callstack_by_scopename(std::string name, bool include = true)
 		{
-			for (int i = static_cast<int>(mstacks.size()) - 1; i >= 0; i--)
+            for (int i = static_cast<int>(m_stacks.size()) - 1; i >= 0; i--)
 			{
-				auto stack = mstacks[i];
+				auto stack = m_stacks[i];
 				if (str_cmpi(stack->get_scopename().c_str(), -1, name.c_str(), -1) == 0)
 				{
-					i = static_cast<int>(mstacks.size()) - i;
+					i = static_cast<int>(m_stacks.size()) - i;
 					if (include)
 					{
 						i++;
 					}
 					for (; i > 0; i--)
 					{
-						mstacks.pop_back();
+						m_stacks.pop_back();
 					}
 					break;
 				}
@@ -118,19 +118,19 @@ namespace sqf
 		}
 		void drop_callstack_by_callstackname(std::string name, bool include = true)
 		{
-			for (int i = static_cast<int>(mstacks.size()) - 1; i >= 0; i--)
+			for (int i = static_cast<int>(m_stacks.size()) - 1; i >= 0; i--)
 			{
-				auto stack = mstacks[i];
+				auto stack = m_stacks[i];
 				if (str_cmpi(stack->get_name().c_str(), -1, name.c_str(), -1) == 0)
 				{
-					i = static_cast<int>(mstacks.size()) - i;
+					i = static_cast<int>(m_stacks.size()) - i;
 					if (include)
 					{
 						i++;
 					}
 					for (; i > 0; i--)
 					{
-						mstacks.pop_back();
+						m_stacks.pop_back();
 					}
 					break;
 				}
@@ -138,38 +138,38 @@ namespace sqf
 		}
 
 
-		std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator stacks_begin() { return mstacks.rbegin(); }
-		std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator stacks_end() { return mstacks.rend(); }
-		std::shared_ptr<sqf::callstack> stacks_top() { return mstacks.back(); }
+		std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator stacks_begin() { return m_stacks.rbegin(); }
+		std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator stacks_end() { return m_stacks.rend(); }
+		std::shared_ptr<sqf::callstack> stacks_top() { return m_stacks.back(); }
 
 		void pushval(value val)
 		{
-			mstacks.back()->push_back(std::move(val));
+			m_stacks.back()->push_back(std::move(val));
 		}
 		value popval(bool &success)
 		{
-			if (mstacks.empty())
+			if (m_stacks.empty())
 			{
 				success = false;
 				return {};
 			}
-			return mstacks.back()->pop_back_value(success);
+			return m_stacks.back()->pop_back_value(success);
 		}
 		value peekval()
 		{
-			if (mstacks.empty())
+			if (m_stacks.empty())
 			{
 				return {};
 			}
-			return mstacks.back()->peek_value();
+			return m_stacks.back()->peek_value();
 		}
 
 		value getlocalvar(std::string_view varname);
-		bool isempty() const { return mstacks.empty(); }
-		bool isscheduled() const { return misscheduled; }
-		bool isasleep() const { return misasleep; }
-		void wakeup() { misasleep = false; }
-		std::chrono::system_clock::time_point get_wakeupstamp() const { return mwakeupstamp; }
+		bool isempty() const { return m_stacks.empty(); }
+		bool isscheduled() const { return m_is_scheduled; }
+		bool isasleep() const { return m_is_asleep; }
+		void wakeup() { m_is_asleep = false; }
+		std::chrono::system_clock::time_point get_wakeupstamp() const { return m_wakeup_stamp; }
 		void sleep(std::chrono::milliseconds ms);
 	};
 }
