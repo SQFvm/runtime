@@ -45,14 +45,6 @@ namespace sqf
 		// The current nextinstres
 		nextinstres m_current_nextinstres;
 	protected:
-		// Removes ALL instructions from this callstack
-		void drop_instructions()
-		{
-			while (!m_instruction_queue.empty())
-			{
-				m_instruction_queue.pop();
-			}
-		}
 
 		// Performs the next operation
 		virtual nextinstres do_next(sqf::virtualmachine* vm)
@@ -169,6 +161,14 @@ namespace sqf
 		void drop_values()
 		{
 			m_value_stack.clear();
+		}
+		// Removes ALL instructions from this callstack
+		void drop_instructions()
+		{
+			while (!m_instruction_queue.empty())
+			{
+				m_instruction_queue.pop();
+			}
 		}
 	};
 }

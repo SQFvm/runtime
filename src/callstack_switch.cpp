@@ -18,11 +18,20 @@
 		return next;
 	}
 
-	if (!m_switchdata->executed() && m_switchdata->defaultexec().get())
+	if (!m_switchdata->was_executed())
 	{
+		m_switchdata->was_executed(true);
 		auto sptr = std::shared_ptr<callstack_switch>(this, [](callstack_switch*) {});
-		m_switchdata->defaultexec()->loadinto(vm->active_vmstack(), sptr);
-		m_switchdata->defaultexec(std::shared_ptr<codedata>());
+		if (m_switchdata->has_match())
+		{
+			m_switchdata->exec()->loadinto(vm->active_vmstack(), sptr);
+			m_switchdata->exec(std::shared_ptr<codedata>());
+		}
+		else
+		{
+			m_switchdata->exec_default()->loadinto(vm->active_vmstack(), sptr);
+			m_switchdata->exec_default(std::shared_ptr<codedata>());
+		}
 		return callstack::do_next(vm);
 	}
 

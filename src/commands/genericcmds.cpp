@@ -615,7 +615,7 @@ namespace
 
 		if (right.equals(swtch->val()))
 		{
-			swtch->flag(true);
+			swtch->has_match(true);
 		}
 		return value(swtch);
 	}
@@ -628,22 +628,21 @@ namespace
 			return {};
 		}
 		auto swtch = valswtch.data<switchdata>();
-		swtch->defaultexec(right.data<codedata>());
+		swtch->exec_default(right.data<codedata>());
 		return {};
 	}
 	value colon_switch_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto l = left.data<switchdata>();
-		if (l->executed())
+		if (l->exec())
 		{
 			return {};
 		}
 		auto r = right.data<codedata>();
-		if (l->flag())
+		if (l->has_match())
 		{
-			l->executed(true);
-			r->loadinto(vm, vm->active_vmstack());
-			return {};
+			l->exec(r);
+			vm->active_vmstack()->stacks_top()->drop_instructions();
 		}
 		return {};
 	}
@@ -1351,7 +1350,7 @@ namespace
 		{
 			while (vm->active_vmstack()->stacks_top() != *res)
 			{
-				vm->active_vmstack()->dropcallstack();
+				vm->active_vmstack()->drop_callstack();
 			}
 			std::static_pointer_cast<sqf::callstack_catch>(*res)->except(right);
 		}

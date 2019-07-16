@@ -51,10 +51,10 @@ namespace sqf
 			switch (mstacks.back()->previous_nextresult())
 			{
 			case callstack::exitwith:
-				dropcallstack();
+				drop_callstack();
 				// fallthrough
 			case callstack::done:
-				dropcallstack();
+				drop_callstack();
 				break;
 			}
 
@@ -76,7 +76,7 @@ namespace sqf
 
 		/// Drops the top-most callstack and puts the last value
 		/// from its value stack onto the lower callstack.
-		void dropcallstack()
+		void drop_callstack()
 		{
 			if (!mstacks.empty())
 			{
@@ -96,12 +96,32 @@ namespace sqf
 				}
 			}
 		}
-		void dropcallstack(std::string name, bool include = true)
+		void drop_callstack_by_scopename(std::string name, bool include = true)
 		{
-            for (int i = static_cast<int>(mstacks.size()) - 1; i >= 0; i--)
+			for (int i = static_cast<int>(mstacks.size()) - 1; i >= 0; i--)
 			{
 				auto stack = mstacks[i];
 				if (str_cmpi(stack->get_scopename().c_str(), -1, name.c_str(), -1) == 0)
+				{
+					i = static_cast<int>(mstacks.size()) - i;
+					if (include)
+					{
+						i++;
+					}
+					for (; i > 0; i--)
+					{
+						mstacks.pop_back();
+					}
+					break;
+				}
+			}
+		}
+		void drop_callstack_by_callstackname(std::string name, bool include = true)
+		{
+			for (int i = static_cast<int>(mstacks.size()) - 1; i >= 0; i--)
+			{
+				auto stack = mstacks[i];
+				if (str_cmpi(stack->get_name().c_str(), -1, name.c_str(), -1) == 0)
 				{
 					i = static_cast<int>(mstacks.size()) - i;
 					if (include)

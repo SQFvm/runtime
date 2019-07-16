@@ -22,6 +22,7 @@ namespace sqf
 			m_switchdata(std::move(swtch))
 		{
 		}
-		std::string get_name() override { return "switch"; }
+		std::string get_name() override { return name(); }
+		static std::string name() { return "switch"; }
 	};
 }

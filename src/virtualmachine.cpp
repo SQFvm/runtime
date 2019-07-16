@@ -118,7 +118,7 @@ void sqf::virtualmachine::execute()
 		if (_debugger) { _debugger->status(sqf::debugger::RUNNING); }
 		m_active_vmstack = m_main_vmstack;
 		performexecute();
-		while (!m_main_vmstack->isempty()) { m_main_vmstack->dropcallstack(); }
+		while (!m_main_vmstack->isempty()) { m_main_vmstack->drop_callstack(); }
 		for (auto& it : mspawns)
 		{
 			m_active_vmstack = it->stack();
@@ -253,7 +253,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				}
 				while (m_active_vmstack->stacks_top() != sqftry)
 				{
-					m_active_vmstack->dropcallstack();
+					m_active_vmstack->drop_callstack();
 				}
 				sqftry->except(merr_buff.str(), sqfarr);
                 err_clear();
