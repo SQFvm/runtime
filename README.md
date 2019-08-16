@@ -1,7 +1,13 @@
 ## SQF-VM
 __SQF-VM is a fully working and open-source Virtual Machine for the scripting language of the ArmA Games.__
 
-[![GitHub issues](https://img.shields.io/github/issues/SQFvm/vm.svg)](https://github.com/SQFvm/vm/issues) [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://raw.githubusercontent.com/SQFvm/vm/master/LICENSE) [![GitHub forks](https://img.shields.io/github/forks/SQFvm/vm.svg)](https://github.com/SQFvm/vm/network) [![GitHub stars](https://img.shields.io/github/stars/SQFvm/vm.svg)](https://github.com/SQFvm/vm/stargazers) [![Github All Releases](https://img.shields.io/github/downloads/SQFvm/vm/total.svg)](https://github.com/SQFvm/vm/releases) [![Build Status](https://travis-ci.org/SQFvm/vm.svg?branch=master)](https://travis-ci.org/SQFvm/vm)
+[![GitHub issues](https://img.shields.io/github/issues/SQFvm/vm)](https://github.com/SQFvm/vm/issues)
+[![GitHub forks](https://img.shields.io/github/forks/SQFvm/vm)](https://github.com/SQFvm/vm/network)
+[![GitHub license](https://img.shields.io/badge/license-GPLv3-blue)](https://raw.githubusercontent.com/SQFvm/vm/master/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/SQFvm/vm)](https://github.com/SQFvm/vm/stargazers)
+[![Github All Releases](https://img.shields.io/github/downloads/SQFvm/vm/total)](https://github.com/SQFvm/vm/releases)
+[![Build Status](https://travis-ci.org/SQFvm/vm.svg?branch=master)](https://travis-ci.org/SQFvm/vm)
+[![Discord](https://img.shields.io/discord/365800217871908864)](https://discord.gg/eP4QgTr)
 
 ### Cloning
 When cloning this repository you have to issue `git submodule init` followed by `git submodule update` in order to get all dependencies cloned as well.
