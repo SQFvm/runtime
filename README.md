@@ -3,7 +3,7 @@ __SQF-VM is a fully working and open-source Virtual Machine for the scripting la
 
 [![GitHub issues](https://img.shields.io/github/issues/SQFvm/vm)](https://github.com/SQFvm/vm/issues)
 [![GitHub forks](https://img.shields.io/github/forks/SQFvm/vm)](https://github.com/SQFvm/vm/network)
-[![GitHub license](https://img.shields.io/badge/license-GPLv3-blue)](https://raw.githubusercontent.com/SQFvm/vm/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-LGPLv3-blue)](https://raw.githubusercontent.com/SQFvm/vm/master/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/SQFvm/vm)](https://github.com/SQFvm/vm/stargazers)
 [![Github All Releases](https://img.shields.io/github/downloads/SQFvm/vm/total)](https://github.com/SQFvm/vm/releases)
 [![Build Status](https://travis-ci.org/SQFvm/vm.svg?branch=master)](https://travis-ci.org/SQFvm/vm)
