@@ -343,7 +343,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-	int maxinstructions = maxInstructionsArg.getValue();
 	bool disableClassnameCheck = disableClassnameCheckArg.getValue();
 	bool noLoadExecDir = noLoadExecDirArg.getValue();
 	bool verbose = verboseArg.getValue();
@@ -359,6 +358,12 @@ int main(int argc, char** argv)
 
 	vm.perform_classname_checks(disableClassnameCheck);
 	vm.wrn_enabled(!disableRuntimeWarningsArg.getValue());
+	
+	if (maxInstructionsArg.getValue() != 0)
+	{
+		vm.set_max_instructions(maxInstructionsArg.getValue());
+	}
+
 
 	// Prepare Virtual-File-System
 	if (!noLoadExecDir)

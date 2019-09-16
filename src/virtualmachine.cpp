@@ -59,8 +59,8 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mwrn = &std::cerr;
 	merr = &std::cerr;
 	mhaltflag = false;
-	minstcount = 0;
-	mmaxinst = maxinst;
+	m_instructions_count = 0;
+	m_max_instructions = maxinst;
 	m_main_vmstack = std::make_shared<vmstack>();
 	m_active_vmstack = m_main_vmstack;
 	merrflag = false;
@@ -157,14 +157,14 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend
 		)
 	{
-		minstcount++;
+		m_instructions_count++;
 		if (exitAfter > 0)
 		{
 			exitAfter--;
 		}
-		if (mmaxinst != 0 && mmaxinst == minstcount)
+		if (m_max_instructions != 0 && m_max_instructions == m_instructions_count)
 		{
-			err() << "MAX INST COUNT REACHED (" << mmaxinst << ")" << std::endl;
+			err() << "MAX INST COUNT REACHED (" << m_max_instructions << ")" << std::endl;
 			(*merr) << inst->dbginf("RNT") << merr_buff.str();
 			if (_debugger) {
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
