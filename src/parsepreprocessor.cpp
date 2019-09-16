@@ -10,6 +10,8 @@
 #include "virtualmachine.h"
 #include "fileio.h"
 #include "Entry.h"
+#include "logging.h"
+#include <iostream>
 
 //#define PRINT_MACRO_CHAIN
 
@@ -29,6 +31,14 @@ namespace sqf {
         }
     }
 }
+
+
+//This is for testing. Should be moved into preprocessor class
+Logger l(std::cout);//#TODO remove this test
+CanLog cl(l);
+namespace err = logmessage::preprocessor;
+
+
 
 namespace {
 	class helper
@@ -245,14 +255,7 @@ namespace {
 		if (m.args.size() != params.size())
 		{
 			h.errflag = true;
-			if (original_fileinfo.path.empty())
-			{
-				h.vm->err() << "[ERR][L" << original_fileinfo.line << "|C" << original_fileinfo.col << "]\t" << "Arg Count Missmatch." << std::endl;
-			}
-			else
-			{
-				h.vm->err() << "[ERR][L" << original_fileinfo.line << "|C" << original_fileinfo.col << "|" << original_fileinfo.path << "]\t" << "Arg Count Missmatch." << std::endl;
-			}
+			cl.log(err::ArgCountMissmatch(original_fileinfo));
 			return "";
 		}
 		finfo local_fileinfo;
@@ -546,12 +549,8 @@ namespace {
             auto endIter = std::find_if(line.begin(), line.end(), [](char c) -> bool {
                 return c == '"';
             });
-            if (std::distance(endIter, line.end()) > 1) {
-                if (fileinfo.path.empty())
-                    h.vm->wrn() << "[WARN][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unexpected data after include path." << std::endl;
-                else
-                    h.vm->wrn() << "[WARN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unexpected data after include path." << std::endl;
-            }
+            if (std::distance(endIter, line.end()) > 1)
+				cl.log(err::UnexpectedDataAfterInclude(fileinfo));
             line.erase(endIter, line.end());
 			finfo otherfinfo;
 			try
@@ -562,18 +561,12 @@ namespace {
 				if (res != h.path_tree.end())
 				{
 					h.errflag = true;
-					if (fileinfo.path.empty())
-					{
-						h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Recursive include detected. Include Tree." << std::endl;
-					}
-					else
-					{
-						h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Recursive include detected. Include Tree." << std::endl;
-					}
+					std::stringstream includeTree;
 					for (size_t i = 0; i < h.path_tree.size(); i++)
 					{
-						h.vm->err() << i << ". " << h.path_tree[i] << std::endl;
+						includeTree << i << ". " << h.path_tree[i] << std::endl;
 					}
+					cl.log(err::RecursiveInclude(fileinfo, includeTree.str()));
 					return "";
 				}
                 otherfinfo.content = load_file(path);
@@ -582,14 +575,7 @@ namespace {
 			catch (const std::runtime_error& ex)
 			{
 				h.errflag = true;
-				if (fileinfo.path.empty())
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Failed to include '" << line << "' into file '" << fileinfo.path << "]\t" << "':" << ex.what() << std::endl;
-				}
-				else
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Failed to include '" << line << "' into file '" << fileinfo.path << "]\t" << "':" << ex.what() << std::endl;
-				}
+				cl.log(err::IncludeFailed(fileinfo, line, ex));
 				return "";
 			}
 			std::string output;
@@ -632,14 +618,7 @@ namespace {
 				m.name = line;
 				if (h.macros.find(m.name) != h.macros.end() && !settings::disable_warn_define)
 				{
-					if (fileinfo.path.empty())
-					{
-						h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
-					}
-					else
-					{
-						h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
-					}
+					cl.log(err::MacroDefinedTwice(fileinfo, m.name));
 				}
 			}
 			else
@@ -649,14 +628,7 @@ namespace {
 					m.name = line.substr(0, spaceIndex);
 					if (h.macros.find(m.name) != h.macros.end() && !settings::disable_warn_define)
 					{
-						if (fileinfo.path.empty())
-						{
-							h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
-						}
-						else
-						{
-							h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
-						}
+						cl.log(err::MacroDefinedTwice(fileinfo, m.name));
 					}
 					m.content = line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex); //Special magic for '#define macro\'
 					m.hasargs = false;
@@ -667,14 +639,7 @@ namespace {
 					m.name = line.substr(0, bracketsIndex);
 					if (h.macros.find(m.name) != h.macros.end() && !settings::disable_warn_define)
 					{
-						if (fileinfo.path.empty())
-						{
-							h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
-						}
-						else
-						{
-							h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << m.name << "' defined twice." << std::endl;
-						}
+						cl.log(err::MacroDefinedTwice(fileinfo, m.name));
 					}
 					auto bracketsEndIndex = line.find(')');
 					auto argumentsString = line.substr(bracketsIndex + 1, bracketsEndIndex);
@@ -722,14 +687,7 @@ namespace {
 			{
 				if (!settings::disable_warn_define)
 				{
-					if (fileinfo.path.empty())
-					{
-						h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Macro '" << line << "' not found." << std::endl;
-					}
-					else
-					{
-						h.vm->wrn() << "[WRN][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Macro '" << line << "' not found." << std::endl;
-					}
+					cl.log(err::MacroNotFound(fileinfo, line));
 				}
 			}
 			else
@@ -743,14 +701,7 @@ namespace {
 			if (h.inside_ppif)
 			{
 				h.errflag = true;
-				if (fileinfo.path.empty())
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unexpected IFDEF. Already inside of a IFDEF or IFNDEF enclosure." << std::endl;
-				}
-				else
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unexpected IFDEF. Already inside of a IFDEF or IFNDEF enclosure." << std::endl;
-				}
+				cl.log(err::UnexpectedIfdef(fileinfo));
 				return "";
 			}
 			else
@@ -773,14 +724,7 @@ namespace {
 			if (h.inside_ppif)
 			{
 				h.errflag = true;
-				if (fileinfo.path.empty())
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unexpected IFNDEF. Already inside of a IFDEF or IFNDEF enclosure." << std::endl;
-				}
-				else
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unexpected IFNDEF. Already inside of a IFDEF or IFNDEF enclosure." << std::endl;
-				}
+				cl.log(err::UnexpectedIfndef(fileinfo));
 				return "";
 			}
 			else
@@ -803,14 +747,7 @@ namespace {
 			if (!h.inside_ppif)
 			{
 				h.errflag = true;
-				if (fileinfo.path.empty())
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unexpected ELSE. Not inside of a IFDEF or IFNDEF enclosure." << std::endl;
-				}
-				else
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unexpected ELSE. Not inside of a IFDEF or IFNDEF enclosure." << std::endl;
-				}
+				cl.log(err::UnexpectedElse(fileinfo));
 				return "";
 			}
 			h.allowwrite = !h.allowwrite;
@@ -821,14 +758,7 @@ namespace {
 			if (!h.inside_ppif)
 			{
 				h.errflag = true;
-				if (fileinfo.path.empty())
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unexpected ENDIF. Not inside inside of a IFDEF or IFNDEF enclosure." << std::endl;
-				}
-				else
-				{
-					h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unexpected ENDIF. Not inside inside of a IFDEF or IFNDEF enclosure." << std::endl;
-				}
+				cl.log(err::UnexpectedEndif(fileinfo));
 				return "";
 			}
 			h.inside_ppif = false;
@@ -838,14 +768,7 @@ namespace {
 		else
 		{
 			h.errflag = true;
-			if (fileinfo.path.empty())
-			{
-				h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "]\t" << "Unknown PreProcessor instruction '" << inst << "'." << std::endl;
-			}
-			else
-			{
-				h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Unknown PreProcessor instruction '" << inst << "'." << std::endl;
-			}
+			cl.log(err::UnknownInstruction(fileinfo, inst));
 			return "";
 		}
 	}
