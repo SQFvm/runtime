@@ -23,8 +23,11 @@ test_fnc_testPassed = {
 
 test_fnc_testFailed = {
     params ["___name___", "___desc___", "___index___", "___reason___"];
-    systemChat format ["Test !FAILED! '%1' - %2  %3", ___name___, ___index___ + 1, trim__ ___desc___];
-    systemChat format ["    Reason: %1", trim__ ___reason___];
+    private _msg1 = format ["Test !FAILED! '%1' - %2  %3", ___name___, ___index___ + 1, trim__ ___desc___];
+    private _msg2 = format ["    Reason: %1", trim__ ___reason___];
+    systemChat _msg1;
+    systemChat _msg2;
+    ___failed___ pushBack [_msg1, _msg2];
     testsFailed = testsFailed + 1;
 };
 
@@ -93,7 +96,8 @@ test_fnc_assertException = {
 
 private ___currentDirectory___ = currentDirectory__;
 private ___currentDirectoryLength___ = count ___currentDirectory___;
-
+private ___exceptions___ = [];
+private ___failed___ = [];
 diag_log "Loading tests from:";
 diag_log format ["    %1", ___currentDirectory___];
 
@@ -151,7 +155,9 @@ diag_log format ["    %1", ___currentDirectory___];
                 }
                 except__
                 {
-                    diag_log format ["Exception during test execution of %1: %2", ___name___, _exception];
+                    private _msg = format ["Exception during test execution of %1: %2", ___name___, _exception];
+                    diag_log _msg;
+                    ___exceptions___ pushBack _msg;
                     fatalError = true;
                 };
             };
@@ -159,9 +165,16 @@ diag_log format ["    %1", ___currentDirectory___];
     };
 } forEach allFiles__ [".sqf"];
 diag_log format ["%1 out of %2 tests passed.", testsPassed, testsIndex];
+{
+    diag_log (_x select 0);
+    diag_log (_x select 1);
+} foreach ___failed___;
 if (fatalError) then
 {
-    diag_log "FATALERROR occured during testing.";
+    diag_log "FATALERROR occured during testing:";
+    {
+        diag_log _x;
+    } foreach ___exceptions___;
     exitcode__ -1;
 }
 else 
