@@ -36,8 +36,8 @@ namespace sqf
 	class virtualmachine
 	{
 	private:
-		unsigned long long minstcount;
-		unsigned long long mmaxinst;
+		unsigned long long m_instructions_count;
+		unsigned long long m_max_instructions;
 		std::shared_ptr<sqf::vmstack> m_main_vmstack;
 		std::shared_ptr<sqf::vmstack> m_active_vmstack;
 		std::list<std::shared_ptr<scriptdata>> mspawns;
@@ -176,6 +176,8 @@ namespace sqf
 		bool wrn_hasdata() const { return mwrnflag; }
 		bool wrn_enabled() const { return mwrnenabled; }
 		void wrn_enabled(bool flag) { mwrnenabled = flag; }
+
+		void set_max_instructions(unsigned long long value) { m_max_instructions = value; }
 
 
 
