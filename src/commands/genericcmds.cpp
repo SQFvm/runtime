@@ -1329,6 +1329,12 @@ namespace
 		});
 		return res != arr->end();
 	}
+	value in_string_string(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto needle = left.as_string();
+		auto haystack = right.as_string();
+		return haystack.find(needle) != std::string::npos;
+	}
 	value time_(virtualmachine* vm)
 	{
 		auto curtime = sqf::virtualmachine::system_time().time_since_epoch();
@@ -1457,6 +1463,7 @@ void sqf::commandmap::initgenericcmds()
 	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
 	add(unary("scriptName", type::STRING, "Assign a user friendly name to the VM script this command is executed from. Once name is assigned, it cannot be changed.", scriptname_string));
 	add(binary(4, "in", type::ANY, type::ARRAY, "Checks whether value is in array. String values will be compared casesensitive.", in_any_array));
+	add(binary(4, "in", type::STRING, type::STRING, "Checks whether string is in string. Values will be compared casesensitive.", in_string_string));
 	add(unary("throw", type::ANY, "Throws an exception. The exception is processed by first catch block. This command will terminate further execution of the code.", throw_any));
 	add(unary("try", type::CODE, "Defines a try-catch structure. This sets up an exception handling block.", try_code));
 	add(binary(4, "catch", type::EXCEPTION, type::CODE, "Processes code when an exception is thrown in a try block. The exception caught can be found in the _exception variable.", catch_exception_code));
