@@ -1,4 +1,11 @@
-
+/*********************************************************
+ * The following SQF code REQUIRES SQF-VM                *
+ * to work. There are special, SQF-VM only commands      *
+ * used, to make it as productive as possible.           *
+ *                                                       *
+ * SQF-VM commands are suffixed with a double underscore *
+ * (eg. exitcode__)                                      *
+ *********************************************************/
 diag_log format (["%1"] + productVersion);
 diag_log format (["v %3.%4 (%5)"] + productVersion);
 diag_log format (["%7 %8"] + productVersion);
