@@ -34,16 +34,16 @@
 			return done;
 		}
 		// Check if exit condition is met
-		auto current_value = variable.as_double();
+		auto current_value = variable.as_double() + m_fordata->step();
 		if (m_fordata->step() > 0 ?
-			current_value >= m_fordata->to() :
-			current_value <= m_fordata->to())
+			current_value > m_fordata->to() :
+			current_value < m_fordata->to())
 		{
 			return done;
 		}
 
 		// Update the variable 
-		set_variable(m_fordata->variable(), current_value + m_fordata->step());
+		set_variable(m_fordata->variable(), current_value);
 
 		// Load the code
 		auto sptr = std::shared_ptr<callstack_for_step>(this, [](callstack_for_step*) {});
