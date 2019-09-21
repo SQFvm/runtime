@@ -215,6 +215,7 @@ unsigned int str_cmp(const char* lString, int lLen, const char* rString, int rLe
 		{
 			return -1;
 		}
+		i++;
 	}
 
 	return 0;
