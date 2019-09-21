@@ -1325,7 +1325,7 @@ namespace
 	{
 		auto arr = right.data<arraydata>();
 		auto res = std::find_if(arr->begin(), arr->end(), [left](value::cref it) -> bool {
-			return it.equals(left);
+			return it.equals_exact(left);
 		});
 		return res != arr->end();
 	}
