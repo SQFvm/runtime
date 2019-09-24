@@ -18,7 +18,11 @@ namespace sqf
 	public:
 		varscope() { m_scopename = ""; }
 		varscope(std::string name) { m_scopename = std::move(name); }
+
+		// Assigns the given value to the given variable.
 		void set_variable(std::string_view key, value value) { m_variable_map[string_tolower(key)] = std::move(value); }
+
+		// Allows to receive a previously set (using set_variable) variable
 		value get_variable_empty(std::string_view key)
 		{
 			auto it = m_variable_map.find(string_tolower(key));
@@ -26,10 +30,13 @@ namespace sqf
 		}
         value get_variable(std::string_view key) { return get_variable_empty(key); };
 
+		// Checks if a given variable was previously set using eg. set_variable.
+		bool has_variable(std::string_view key) { auto it = m_variable_map.find(string_tolower(key)); return it != m_variable_map.end(); }
+
 		// Alias for has_variable(std::string key)
+		// Checks if a given variable was previously set using eg. set_variable.
 		bool contains_variable(std::string_view key) { return has_variable(key); }
 
-		bool has_variable(std::string_view key) { auto it = m_variable_map.find(string_tolower(key)); return it != m_variable_map.end(); }
 
 		void set_scopename(std::string newname) { m_scopename = std::move(newname); }
 
