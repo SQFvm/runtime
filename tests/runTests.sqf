@@ -5,7 +5,32 @@
  *                                                       *
  * SQF-VM commands are suffixed with a double underscore *
  * (eg. exitcode__)                                      *
- *********************************************************/
+ * ----------------------------------------------------- *
+ * Test-Case format:                                     *
+ * - ["OP", { CODE }, PARA]                              *
+ * - ["OP", ["DESCRIPTION", {CODE}], PARA]               *
+ * ----------------------------------------------------- *
+ * Test-Case Operations:                                 *
+ * - assert:                                             *
+ *      Allows to just execute a piece of code. Will     *
+ *      PASS if there is no exception raised during      *
+ *      execution.                                       *
+ * - assertTrue:                                         *
+ *      Will PASS if the codes return value is true.     *
+ * - assertFalse:                                        *
+ *      Will PASS if the codes return value is false.    *
+ * - assertNil|assertIsNil:                              *
+ *      Will PASS if the codes return value is nil.      *
+ * - assertEqual:                                        *
+ *      Will PASS if the codes return value is equal     *
+ *      to whatever is passed with PARA.                 *
+ * - assertException:                                    *
+ *      Will PASS if the code threw any Exception.       *
+ *      Note that this is including, but not limited     *
+ *      to the `throw` operator.                         *
+ ********************************************************/
+ 
+ 
 diag_log format (["%1"] + productVersion);
 diag_log format (["v %3.%4 (%5)"] + productVersion);
 diag_log format (["%7 %8"] + productVersion);
