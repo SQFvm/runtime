@@ -12,7 +12,7 @@ namespace sqf
 		std::string mvalue;
 	public:
         stringdata() = default;
-		stringdata(std::string s) : mvalue(s[0] != '"' && s[0] != '\'' ? s : parse_from_sqf(s)) {}
+		stringdata(std::string s) : mvalue(s) {}
 		stringdata(std::string s, bool parse) : mvalue(parse ? parse_from_sqf(s) : s) {}
 		std::string tosqf() const override { return parse_to_sqf(mvalue); }
 		operator const char*() const { return mvalue.c_str(); }

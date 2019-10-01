@@ -43,6 +43,7 @@
 #include <sstream>
 #include <algorithm>
 #include <utility>
+#include <stringdata.h>
 
 // #define DEBUG_VM_ASSEMBLY
 
@@ -425,7 +426,7 @@ void navigate_sqf(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf
 		break;
 		case sqf::parse::sqf::sqfasttypes::STRING:
 		{
-			auto inst = std::make_shared<sqf::inst::push>(sqf::value(node.content));
+			auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::stringdata>(node.content, true)));
 			inst->setdbginf(node.line, node.col, node.file, vm->dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
