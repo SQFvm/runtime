@@ -65,6 +65,14 @@ test_fnc_assertEqual = {
     }] call test_fnc_exceptWrapper;
 };
 
+test_fnc_assert = {
+    [_this, {
+        params ["___name___", "___test___", "___desc___", "___index___", "___compare___"];
+        private ___ret___ = call ___test___;
+        [___name___, ___desc___, ___index___] call test_fnc_testPassed;
+    }] call test_fnc_exceptWrapper;
+};
+
 test_fnc_assertIsNil = {
     [_this, {
         params ["___name___", "___test___", "___desc___", "___index___", "___compare___"];
@@ -126,6 +134,7 @@ diag_log format ["    %1", ___currentDirectory___];
                             
                             switch (___mode___) do
                             {
+                                case "assert": { [___name___, ___code___, ___desc___, _forEachIndex, true] call test_fnc_assert };
                                 case "assertTrue": { [___name___, ___code___, ___desc___, _forEachIndex, true] call test_fnc_assertEqual };
                                 case "assertFalse": { [___name___, ___code___, ___desc___, _forEachIndex, false] call test_fnc_assertEqual };
                                 case "assertEqual": { [___name___, ___code___, ___desc___, _forEachIndex, _x select 2] call test_fnc_assertEqual };
