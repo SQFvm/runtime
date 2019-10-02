@@ -54,6 +54,7 @@ endif ()
 
 
 if (SQFVM_BUILD_LIBRARY)
+    list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/Entry.cpp")
     add_library(libsqfvm SHARED ${vm_src})
     target_include_directories(libsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
     SET_TARGET_PROPERTIES(libsqfvm PROPERTIES PREFIX "")
