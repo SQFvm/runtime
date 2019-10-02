@@ -1217,7 +1217,6 @@ void sqf::commandmap::initunimplemented()
 	add(unary("setgroupiconsselectable", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setgroupiconsselectable)." << std::endl; return {}; })); /* BOOL */
 	add(unary("showwarrant", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (showwarrant)." << std::endl; return {}; })); /* BOOL */
 	add(unary("assigneditems", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (assigneditems)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("copytoclipboard", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (copytoclipboard)." << std::endl; return {}; })); /* STRING */
 	add(unary("groupselectedunits", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (groupselectedunits)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("titlefadeout", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (titlefadeout)." << std::endl; return {}; })); /* SCALAR */
 	add(unary("atltoasl", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (atltoasl)." << std::endl; return {}; })); /* ARRAY */
