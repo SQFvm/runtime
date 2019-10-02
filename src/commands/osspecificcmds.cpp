@@ -21,14 +21,14 @@ namespace
 		auto data = (std::string)right;
 		if (!OpenClipboard(NULL))
 		{
-			vm->wrn() << "Failed to access clipboard.";
+			vm->wrn() << "Failed to access clipboard." << std::endl;
 			return {};
 		}
 		EmptyClipboard();
 		HGLOBAL hClipboardData = GlobalAlloc(GMEM_DDESHARE, data.length() + 1);
 		if (hClipboardData == NULL)
 		{
-			vm->wrn() << "Failed to allocate clipboard.";
+			vm->wrn() << "Failed to allocate clipboard." << std::endl;
 			return {};
 		}
 		char* pchData = (char*)GlobalLock(hClipboardData);
@@ -38,7 +38,7 @@ namespace
 		CloseClipboard();
 
 #else
-		vm->wrn() << "Clipboard-Access is not available.";
+		vm->wrn() << "Clipboard-Access is not available." << std::endl;
 #endif
 		return {};
 
