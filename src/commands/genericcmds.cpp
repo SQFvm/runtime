@@ -1315,6 +1315,19 @@ namespace
 			return parsedcontents;
 		}
 	}
+	value scopename_string(virtualmachine* vm, value::cref right)
+	{
+		auto str = right.as_string();
+		if (vm->active_vmstack()->stacks_top()->get_scopename().empty())
+		{
+			vm->active_vmstack()->stacks_top()->set_scopename(str);
+		}
+		else
+		{
+			vm->err() << "scopeName already set." << std::endl;
+		}
+		return {};
+	}
 	value scriptname_string(virtualmachine* vm, value::cref right)
 	{
 		auto str = right.as_string();
@@ -1461,6 +1474,7 @@ void sqf::commandmap::initgenericcmds()
 	add(unary("loadFile", type::STRING, "", loadfile_string));
 	add(unary("preprocessFileLineNumbers", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
 	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
+	add(unary("scopeName", type::STRING, "Defines name of current scope. Name is visible in debugger, and name is also used as reference in some commands like breakOut and breakTo. Scope name should be defined only once per scope. Trying to set a different name on the scope that has already defined scope name will result in error.", scopename_string));
 	add(unary("scriptName", type::STRING, "Assign a user friendly name to the VM script this command is executed from. Once name is assigned, it cannot be changed.", scriptname_string));
 	add(binary(4, "in", type::ANY, type::ARRAY, "Checks whether value is in array. String values will be compared casesensitive.", in_any_array));
 	add(binary(4, "in", type::STRING, type::STRING, "Checks whether string is in string. Values will be compared casesensitive.", in_string_string));

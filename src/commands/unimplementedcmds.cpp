@@ -1722,7 +1722,6 @@ void sqf::commandmap::initunimplemented()
 	add(unary("forcemap", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (forcemap)." << std::endl; return {}; })); /* BOOL */
 	add(unary("inflamed", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (inflamed)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("waypoints", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waypoints)." << std::endl; return {}; })); /* OBJECT,GROUP */
-	add(unary("scopename", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (scopename)." << std::endl; return {}; })); /* STRING */
 	add(unary("menusetaction", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menusetaction)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("weaponinertia", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (weaponinertia)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("haspilotcamera", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (haspilotcamera)." << std::endl; return {}; })); /* OBJECT */
