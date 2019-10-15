@@ -58,5 +58,3 @@ char* const copy_str(const std::string& str);
 
 int console_width();
 int main(int argc, char** argv);
-
-std::string get_working_dir();

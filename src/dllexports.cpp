@@ -10,7 +10,34 @@
 #include <sstream>
 #include <cstring>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <direct.h>
+#include <cstring>
+#else
+#include <limits.h>
+#include <sys/ioctl.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <execinfo.h>
+#endif
+
 extern "C" {
+
+	std::string get_working_dir()
+	{
+#if defined(_WIN32) || defined(_WIN64)
+		char buffer[MAX_PATH];
+		_getcwd(buffer, MAX_PATH);
+		return std::string(buffer);
+#elif defined(__GNUC__)
+		char buffer[PATH_MAX];
+		getcwd(buffer, PATH_MAX);
+		return std::string(buffer);
+#else
+#error "NO IMPLEMENTATION AVAILABLE"
+#endif
+	}
 	DLLEXPORT_PREFIX void sqfvm_init(unsigned long long limit)
 	{
 		sqfvm_virtualmachine = std::make_shared<sqf::virtualmachine>(limit);
