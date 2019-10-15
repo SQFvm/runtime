@@ -328,7 +328,7 @@ namespace
 		{
 			if (arr[1].dtype() != type::SCALAR)
 			{
-				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0].dtype()) << '.' << std::endl;
+				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[1].dtype()) << '.' << std::endl;
 				return {};
 			}
 			int length = static_cast<int>(std::round(arr[1].as_float()));
