@@ -1331,7 +1331,14 @@ namespace
 	value scriptname_string(virtualmachine* vm, value::cref right)
 	{
 		auto str = right.as_string();
-		vm->active_vmstack()->script_name(str);
+		if (vm->active_vmstack()->script_name().empty())
+		{
+			vm->active_vmstack()->script_name(str);
+		}
+		else
+		{
+			vm->wrn() << "scriptName already set." << std::endl;
+		}
 		return {};
 	}
 	value in_any_array(virtualmachine* vm, value::cref left, value::cref right)
