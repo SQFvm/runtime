@@ -31,6 +31,7 @@ namespace sqf
 		void initgroupcmds();
 		void initobjectcmds();
 		void initmarkercmds();
+		void initosspecificcmds();
 	public:
 		void init()
 		{
@@ -45,6 +46,7 @@ namespace sqf
 			initgroupcmds();
 			initobjectcmds();
 			initmarkercmds();
+			initosspecificcmds();
 			initunimplemented();
 		}
 
