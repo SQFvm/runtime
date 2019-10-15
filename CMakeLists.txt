@@ -67,7 +67,6 @@ if (SQFVM_BUILD_STATIC_LIBRARY)
     list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/dllexports.cpp")
 
     add_library(slibsqfvm STATIC ${vm_src})
-    target_compile_definitions(slibsqfvm_nc PUBLIC DISABLE_CLIPBOARD)
     target_include_directories(slibsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
     SET_TARGET_PROPERTIES(slibsqfvm PROPERTIES PREFIX "")
 endif ()
