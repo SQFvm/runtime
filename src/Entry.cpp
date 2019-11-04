@@ -174,6 +174,10 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> preprocessFileArg("E", "preprocess-file", "Runs the preprocessor on provided file and prints it to stdout. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(preprocessFileArg);
 
+	TCLAP::MultiArg<std::string> defineArg("D", "define", "Allows to add PreProcessor definitions. Note that file-based definitions may override and/or conflict with theese.", false, "NAME|NAME=VALUE");
+	cmd.add(defineArg);
+
+
 	TCLAP::MultiArg<std::string> commandDummyNular("", "command-dummy-nular", "Adds the provided command as dummy.", false, "NAME");
 	cmd.add(commandDummyNular);
 
@@ -414,6 +418,8 @@ int main(int argc, char** argv)
 			std::cout << "Mapped '" << virtSanitized << "' onto '" << physSanitized << "'." << std::endl;
 		}
 	}
+
+	// Prepare Dummy-Commands
 	for (auto& f : commandDummyNular.getValue())
 	{
 		sqf::commandmap::get().add(sqf::nular(f, "DUMMY", [](sqf::virtualmachine* vm) -> sqf::value {
@@ -441,6 +447,21 @@ int main(int argc, char** argv)
 			vm->err() << "DUMMY" << std::endl; return {};
 		}));
 	}
+
+	// Prepare Defines
+	for (auto& d : defineArg.getValue())
+	{
+		auto eqIndex = d.find('=');
+		if (eqIndex == std::string::npos)
+		{
+			vm.push_back_preprocessor_define(d);
+		}
+		else
+		{
+			vm.push_back_preprocessor_define(d.substr(0, eqIndex), d.substr(eqIndex + 1));
+		}
+	}
+
 	if (errflag)
 	{
 		if (!automated)
