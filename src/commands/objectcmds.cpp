@@ -423,9 +423,13 @@ namespace
 	{
 		auto l = left.data<arraydata>();
 		auto r = right.data<arraydata>();
-		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
+		if (!l->check_type(vm, SCALAR, 2, 3) || !r->check_type(vm, SCALAR, 2, 3))
 		{
 			return {};
+		}
+		if (l->size() == 2 || r->size() == 2)
+		{
+			return arraydata::distance2d(l, r);
 		}
 		return arraydata::distance3d(l, r);
 	}
@@ -438,9 +442,13 @@ namespace
 			vm->err() << "Left value provided is NULL object." << std::endl;
 			return {};
 		}
-		if (!r->check_type(vm, SCALAR, 3))
+		if (!r->check_type(vm, SCALAR, 2, 3))
 		{
 			return {};
+		}
+		if (r->size() == 2)
+		{
+			return l->obj()->distance2d(r->as_vec2());
 		}
 		return l->obj()->distance3d(r->as_vec3());
 	}
@@ -453,9 +461,13 @@ namespace
 			vm->err() << "Right value provided is NULL object." << std::endl;
 			return {};
 		}
-		if (!l->check_type(vm, SCALAR, 3))
+		if (!l->check_type(vm, SCALAR, 2, 3))
 		{
 			return {};
+		}
+		if (l->size() == 2)
+		{
+			return r->obj()->distance2d(l->as_vec2());
 		}
 		return r->obj()->distance3d(l->as_vec3());
 	}
