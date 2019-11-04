@@ -1054,6 +1054,17 @@ std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string
 		macro.name = "_SQF_VM_REVISION";
 		h.macros["_SQF_VM_REVISION"] = macro;
 	}
+	for (auto& it : vm->preprocessor_defines())
+	{
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = it.second;
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = it.first;
+		h.macros[it.first] = macro;
+	}
 	finfo fileinfo;
 	fileinfo.content = std::move(input);
 	fileinfo.path = std::move(filename);

@@ -8,6 +8,7 @@
 #include <list>
 #include <sstream>
 #include <chrono>
+#include <utility>
 
 #include "dlops.h"
 #include "marker.h"
@@ -80,10 +81,16 @@ namespace sqf
 		std::shared_ptr<networking::server> m_current_networking_server;
 		void handle_networking();
 
+		std::vector<std::pair<std::string, std::string>> m_preprocessor_defines;
+
 	public:
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
 		~virtualmachine();
+
+		void push_back_preprocessor_define(std::string key) { m_preprocessor_defines.push_back({ key, "" }); }
+		void push_back_preprocessor_define(std::string key, std::string value) { m_preprocessor_defines.push_back({ key, value }); }
+		const std::vector<std::pair<std::string, std::string>>& preprocessor_defines() const { return m_preprocessor_defines; }
 
 		std::chrono::system_clock::time_point get_created_timestamp() const { return m_created_timestamp; }
 		std::chrono::system_clock::time_point get_current_time() const { return m_current_time; }
