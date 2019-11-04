@@ -726,8 +726,8 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
-			return {};
+			vm->wrn() << "Right value provided is NULL object." << std::endl;
+			return false;
 		}
 		return r->obj()->alive();
 	}
