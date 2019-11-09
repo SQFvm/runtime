@@ -69,9 +69,9 @@ namespace sqf
 		void performexecute(size_t exitAfter = ~0);
 		std::vector<std::shared_ptr<dlops>> mlibraries;
 		debugger* _debugger;
-		bool mexitflag;
-		int m_exitcode = 0;
-		bool mallowsleep;
+		bool m_exit_flag;
+		int m_exit_code = 0;
+		bool m_allow_sleep;
 		bool m_perform_classname_checks;
 		bool m_allow_networking;
 		sqf::filesystem m_filesystem;
@@ -190,10 +190,10 @@ namespace sqf
 
 		void execute();
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
-		void exitflag(bool flag) { mexitflag = flag; }
-		void exitflag(bool flag, int exitcode) { mexitflag = flag; m_exitcode = exitcode; }
-		bool exitflag() const { return mexitflag; }
-		int exitcode()const { return m_exitcode; }
+		void exit_flag(bool flag) { m_exit_flag = flag; }
+		void exit_flag(bool flag, int exitcode) { m_exit_flag = flag; m_exit_code = exitcode; }
+		bool exit_flag() const { return m_exit_flag; }
+		int exit_code()const { return m_exit_code; }
 
 		bool perform_classname_checks() const { return m_perform_classname_checks; }
 		void perform_classname_checks(bool f) { m_perform_classname_checks = f; }
@@ -254,8 +254,8 @@ namespace sqf
 		bool wrnflag() const { return mwrnflag; }
 		void halt() { mhaltflag = true; }
 		std::vector<std::shared_ptr<dlops>>& libraries() { return mlibraries; }
-		bool allowsleep() const { return mallowsleep; }
-		void allowsleep(bool flag) { mallowsleep = flag; }
+		bool allow_sleep() const { return m_allow_sleep; }
+		void allow_sleep(bool flag) { m_allow_sleep = flag; }
 
 		debugger* dbg() { return _debugger; }
 		void dbg(debugger* debugger) { _debugger = debugger; }

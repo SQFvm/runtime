@@ -72,8 +72,8 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mparsingnamespace = std::make_shared<sqf::sqfnamespace>("parsingNamespace");
 	mprofilenamespace = std::make_shared<sqf::sqfnamespace>("profileNamespace");
 	m_perform_classname_checks = true;
-	mexitflag = false;
-	mallowsleep = true;
+	m_exit_flag = false;
+	m_allow_sleep = true;
 	m_allow_networking = true;
 	mplayer_obj = innerobj::create(this, "CAManBase", false);
 	m_created_timestamp = system_time();
@@ -109,8 +109,8 @@ void sqf::virtualmachine::execute()
 	wrn_buffprint();
 	err_buffprint();
 
-	mexitflag = false;
-	while (!mexitflag && (!mspawns.empty() || !m_main_vmstack->isempty() || (_debugger && _debugger->stop(this))))
+	m_exit_flag = false;
+	while (!m_exit_flag && (!mspawns.empty() || !m_main_vmstack->isempty() || (_debugger && _debugger->stop(this))))
 	{
 		if (is_networking_set())
 		{
@@ -123,7 +123,7 @@ void sqf::virtualmachine::execute()
 		for (auto& it : mspawns)
 		{
 			m_active_vmstack = it->stack();
-			if (mallowsleep && m_active_vmstack->isasleep())
+			if (m_allow_sleep && m_active_vmstack->isasleep())
 			{
 				if (m_active_vmstack->get_wakeupstamp() <= virtualmachine::system_time())
 				{
@@ -150,7 +150,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 {
 	std::shared_ptr<sqf::instruction> inst;
 	while (
-		!mexitflag &&
+		!m_exit_flag &&
 		exitAfter != 0 &&
 		!m_active_vmstack->isasleep() &&
 		!m_active_vmstack->terminate() &&
