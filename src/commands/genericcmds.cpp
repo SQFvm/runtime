@@ -1272,6 +1272,11 @@ namespace
 	}
 	value sleep_scalar(virtualmachine* vm, value::cref right)
 	{
+		if (!vm->allowsleep())
+		{
+			vm->err() << "Sleeping is disabled." << std::endl;
+			return {};
+		}
 		if (!vm->active_vmstack()->isscheduled())
 		{
 			vm->err() << "Cannot suspend in non-scheduled environment." << std::endl;
