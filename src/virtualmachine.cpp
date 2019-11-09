@@ -180,27 +180,20 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 		inst->execute(this);
 #ifdef DEBUG_VM_ASSEMBLY
 		bool success;
-		std::vector<std::shared_ptr<sqf::value>> vals;
+		std::vector<sqf::value> vals;
 		do {
-			auto val = stack()->popval(success);
+			auto val = m_active_vmstack->popval(success);
 			if (success)
 			{
 				vals.push_back(val);
-				if (val != nullptr)
-				{
-					std::cout << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val->as_string() << std::endl;
-				}
-				else
-				{
-					std::cout << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
-				}
+				std::cout << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.tosqf() << std::endl;
 			}
 		} while (success);
 		while (!vals.empty())
 		{
 			auto it = vals.back();
 			vals.pop_back();
-			stack()->pushval(it);
+			m_active_vmstack->pushval(it);
 		}
 #endif
 		if (merrflag)
