@@ -41,7 +41,7 @@ extern "C" {
 	DLLEXPORT_PREFIX void sqfvm_init(unsigned long long limit)
 	{
 		sqfvm_virtualmachine = std::make_shared<sqf::virtualmachine>(limit);
-		sqfvm_virtualmachine->allowsleep(false);
+		sqfvm_virtualmachine->allow_sleep(false);
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 		sqfvm_virtualmachine->get_filesystem().disallow(true);
 #endif

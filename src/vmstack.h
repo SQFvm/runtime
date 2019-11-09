@@ -16,11 +16,11 @@ namespace sqf
 	{
 	private:
 		std::vector<std::shared_ptr<sqf::callstack>> m_stacks;
-		bool m_is_scheduled;
 		std::chrono::system_clock::time_point m_wakeup_stamp;
-		bool m_is_asleep;
 		std::string m_script_name;
 		sqf::value mlast_value;
+		bool m_is_scheduled;
+		bool m_is_asleep;
 		bool m_terminate;
 	public:
 		struct stackdump
@@ -36,8 +36,22 @@ namespace sqf
 		// Creates a stackdump from current top-callstack to the target callstack.
 		// If no target is provided, whole callstack will be dumped.
 		std::vector<sqf::vmstack::stackdump> dump_callstack_diff(std::shared_ptr<sqf::callstack> target);
-		vmstack() : m_is_scheduled(false), m_is_asleep(false), m_terminate(false), m_script_name("") {}
-		vmstack(bool isscheduled) : m_is_scheduled(isscheduled), m_is_asleep(false), m_terminate(false), m_script_name("") {}
+
+		vmstack() :
+			m_script_name(""),
+			m_is_scheduled(false),
+			m_is_asleep(false),
+			m_terminate(false)
+		{
+		}
+		vmstack(bool isscheduled) :
+			m_script_name(""),
+			m_is_scheduled(isscheduled),
+			m_is_asleep(false),
+			m_terminate(false)
+		{
+		}
+
 		void pushinst(sqf::virtualmachine* vm, std::shared_ptr<instruction> inst);
 		const std::string& script_name() const { return m_script_name; }
 		void script_name(std::string val) { if (m_script_name.empty()) { m_script_name = std::move(val); } }

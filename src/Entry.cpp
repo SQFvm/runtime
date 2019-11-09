@@ -770,7 +770,7 @@ int main(int argc, char** argv)
 			std::wcout << std::endl;
 		}
 
-	} while (!automated && !vm.exitflag());
+	} while (!automated && !vm.exit_flag());
 
 	
 	if (debugger_port > 0)
@@ -793,5 +793,5 @@ int main(int argc, char** argv)
 
 	networking_cleanup();
 	sqf::commandmap::get().uninit();
-	return vm.exitcode();
+	return vm.exit_code();
 }

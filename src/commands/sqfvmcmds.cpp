@@ -277,12 +277,12 @@ namespace
 	}
 	value exit___(virtualmachine* vm)
 	{
-		vm->exitflag(true);
+		vm->exit_flag(true);
 		return {};
 	}
 	value exit___scalar(virtualmachine* vm, value::cref right)
 	{
-		vm->exitflag(true, static_cast<int>(std::round(right.as_float())));
+		vm->exit_flag(true, static_cast<int>(std::round(right.as_float())));
 		return {};
 	}
     value respawn___(virtualmachine* vm)
