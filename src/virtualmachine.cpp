@@ -123,7 +123,7 @@ void sqf::virtualmachine::execute()
 		for (auto& it : mspawns)
 		{
 			m_active_vmstack = it->stack();
-			if (m_allow_sleep && m_active_vmstack->isasleep())
+			if (m_active_vmstack->isasleep())
 			{
 				if (m_active_vmstack->get_wakeupstamp() <= virtualmachine::system_time())
 				{
