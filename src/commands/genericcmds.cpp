@@ -1272,7 +1272,7 @@ namespace
 	}
 	value sleep_scalar(virtualmachine* vm, value::cref right)
 	{
-		if (!vm->allow_sleep())
+		if (!vm->allow_suspension())
 		{
 			vm->err() << "Sleeping is disabled." << std::endl;
 			return {};
