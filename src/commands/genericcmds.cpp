@@ -10,6 +10,7 @@
 #include "../scriptdata.h"
 #include "../callstack_for_step.h"
 #include "../callstack_while.h"
+#include "../callstack_waituntil.h"
 #include "../callstack_select.h"
 #include "../callstack_isnil.h"
 #include "../callstack_exitwith.h"
@@ -211,6 +212,16 @@ namespace
 	value while_code(virtualmachine* vm, value::cref right)
 	{
 		return value(std::make_shared<whiledata>(right.data_try_as<codedata>()));
+	}
+	value waituntil_code(virtualmachine* vm, value::cref right)
+	{
+		auto condition = right.data<codedata>();
+
+		auto cs = std::make_shared<callstack_waituntil>(vm->active_vmstack()->stacks_top()->get_namespace(), condition);
+		vm->active_vmstack()->pushcallstack(cs);
+		condition->loadinto(vm->active_vmstack(), cs);
+
+		return {};
 	}
 	value do_while_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
@@ -1417,6 +1428,8 @@ void sqf::commandmap::initgenericcmds()
 	add(binary(5, "else", type::CODE, type::CODE, "Concats left and right element into a single, 2 element array.", else_code_code));
 	add(binary(4, "exitWith", type::IF, type::CODE, "If condition evaluates to true, executes the code in a new scope and exits the current one afterwards.", exitwith_if_code));
 	add(unary("while", type::CODE, "Marks code as WHILE type.", while_code));
+	add(unary("waitUntil", type::CODE, "Suspends execution of scheduled script until the given condition satisfied. This command will loop and call the code inside {} until the code returns true.", waituntil_code));
+
 	add(binary(4, "do", type::WHILE, type::CODE, "Executes provided code as long as while condition evaluates to true.", do_while_code));
 	add(unary("for", type::STRING, "Creates a FOR type for usage in 'for <var> from <start> to <end> [ step <stepsize> ] do <code>' construct.", for_string));
 	add(binary(4, "from", type::FOR, type::SCALAR, "Sets the start index in a FOR type construct.", from_for_scalar));

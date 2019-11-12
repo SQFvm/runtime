@@ -118,8 +118,10 @@ void sqf::virtualmachine::execute()
 		}
 		if (_debugger) { _debugger->status(sqf::debugger::RUNNING); }
 		m_active_vmstack = m_main_vmstack;
-		performexecute();
-		while (!m_main_vmstack->isempty()) { m_main_vmstack->drop_callstack(); }
+		if (!performexecute())
+		{
+			while (!m_main_vmstack->isempty()) { m_main_vmstack->drop_callstack(); }
+		}
 		for (auto& it : mspawns)
 		{
 			m_active_vmstack = it->stack();
@@ -146,7 +148,7 @@ void sqf::virtualmachine::execute()
 	wrn_buffprint();
 	err_buffprint();
 }
-void sqf::virtualmachine::performexecute(size_t exitAfter)
+bool sqf::virtualmachine::performexecute(size_t exitAfter)
 {
 	std::shared_ptr<sqf::instruction> inst;
 	while (
@@ -171,7 +173,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
 			}
             err_clear();
-			break;
+			return false;
 		}
 		if (_debugger && _debugger->hitbreakpoint(inst->line(), inst->file())) { _debugger->position(inst->line(), inst->col(), inst->file()); _debugger->breakmode(this); }
 #ifdef DEBUG_VM_ASSEMBLY
@@ -224,7 +226,7 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 							<< "\tcallstack: " << it.callstack_name
 							<< std::endl << it.dbginf << std::endl;
 					}
-					break;
+					return false;
 				}
 			}
 			else
@@ -274,10 +276,11 @@ void sqf::virtualmachine::performexecute(size_t exitAfter)
 			_debugger->check(this);
 			if (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)
 			{
-				break;
+				return false;
 			}
 		}
 	}
+	return true;
 }
 std::string sqf::virtualmachine::dbgsegment(const char* full, size_t off, size_t length)
 {

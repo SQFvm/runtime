@@ -66,7 +66,12 @@ namespace sqf
 
 		std::map<int, size_t> mgroupidcounter;
 		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
-		void performexecute(size_t exitAfter = ~0);
+
+		/*
+		 * Executes the currently configured setting up to the provided instruction count.
+		 * Will return true if run was clean, false if it was not.
+		 */
+		bool performexecute(size_t exitAfter = ~0);
 		std::vector<std::shared_ptr<dlops>> mlibraries;
 		debugger* _debugger;
 		bool m_exit_flag;
