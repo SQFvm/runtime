@@ -71,7 +71,7 @@ namespace sqf
 		debugger* _debugger;
 		bool m_exit_flag;
 		int m_exit_code = 0;
-		bool m_allow_sleep;
+		bool m_allow_suspension;
 		bool m_perform_classname_checks;
 		bool m_allow_networking;
 		sqf::filesystem m_filesystem;
@@ -254,8 +254,8 @@ namespace sqf
 		bool wrnflag() const { return mwrnflag; }
 		void halt() { mhaltflag = true; }
 		std::vector<std::shared_ptr<dlops>>& libraries() { return mlibraries; }
-		bool allow_sleep() const { return m_allow_sleep; }
-		void allow_sleep(bool flag) { m_allow_sleep = flag; }
+		bool allow_suspension() const { return m_allow_suspension; }
+		void allow_suspension(bool flag) { m_allow_suspension = flag; }
 
 		debugger* dbg() { return _debugger; }
 		void dbg(debugger* debugger) { _debugger = debugger; }

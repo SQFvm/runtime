@@ -73,7 +73,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mprofilenamespace = std::make_shared<sqf::sqfnamespace>("profileNamespace");
 	m_perform_classname_checks = true;
 	m_exit_flag = false;
-	m_allow_sleep = true;
+	m_allow_suspension = true;
 	m_allow_networking = true;
 	mplayer_obj = innerobj::create(this, "CAManBase", false);
 	m_created_timestamp = system_time();
