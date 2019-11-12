@@ -256,15 +256,17 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 			}
 		}
 		
-		if (mwrnflag && mwrnenabled)
+		if (mwrnflag)
 		{
-			(*mwrn) << inst->dbginf("WRN") << mwrn_buff.str();
+			if (mwrnenabled)
+			{
+				(*mwrn) << inst->dbginf("WRN") << mwrn_buff.str();
+			}
 			if (_debugger) {
 				_debugger->position(inst->line(), inst->col(), inst->file());
 				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
 			}
-			mwrn_buff.str(std::string());
-			mwrnflag = false;
+			wrn_clear();
 		}
         out_buffprint();
 		if (_debugger) {
