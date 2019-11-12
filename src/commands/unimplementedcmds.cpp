@@ -1306,7 +1306,6 @@ void sqf::commandmap::initunimplemented()
 	add(unary("surfacenormal", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (surfacenormal)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("lineintersectswith", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lineintersectswith)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("hcremoveallgroups", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (hcremoveallgroups)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("waituntil", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waituntil)." << std::endl; return {}; })); /* CODE */
 	add(unary("getposworld", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getposworld)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("showwatch", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (showwatch)." << std::endl; return {}; })); /* BOOL */
 	add(unary("configsourcemodlist", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (configsourcemodlist)." << std::endl; return {}; })); /* CONFIG */
