@@ -487,6 +487,62 @@ namespace
 		}
 		return l->obj()->distance3d(r->obj());
 	}
+	value distance2d_array_array(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto l = left.data<arraydata>();
+		auto r = right.data<arraydata>();
+		if (!l->check_type(vm, SCALAR, 2, 3) || !r->check_type(vm, SCALAR, 2, 3))
+		{
+			return {};
+		}
+		return arraydata::distance2d(l, r);
+	}
+	value distance2d_object_array(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto l = left.data<objectdata>();
+		auto r = right.data<arraydata>();
+		if (l->is_null())
+		{
+			vm->err() << "Left value provided is NULL object." << std::endl;
+			return {};
+		}
+		if (!r->check_type(vm, SCALAR, 2, 3))
+		{
+			return {};
+		}
+		return l->obj()->distance2d(r->as_vec2());
+	}
+	value distance2d_array_object(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto l = left.data<arraydata>();
+		auto r = right.data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return {};
+		}
+		if (!l->check_type(vm, SCALAR, 2, 3))
+		{
+			return {};
+		}
+		return r->obj()->distance2d(l->as_vec2());
+	}
+	value distance2d_object_object(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto l = left.data<objectdata>();
+		auto r = right.data<objectdata>();
+		if (l->is_null())
+		{
+			vm->err() << "Left value provided is NULL object." << std::endl;
+			return {};
+		}
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return {};
+		}
+		return l->obj()->distance2d(r->obj());
+	}
 	class nearestobjects_distancesort3d
 	{
 		std::array<double, 3> pos;
@@ -920,6 +976,10 @@ void sqf::commandmap::initobjectcmds()
 	add(binary(4, "distance", type::OBJECT, type::ARRAY, "Returns a distance in meters between two positions.", distance_object_array));
 	add(binary(4, "distance", type::ARRAY, type::OBJECT, "Returns a distance in meters between two positions.", distance_array_object));
 	add(binary(4, "distance", type::OBJECT, type::OBJECT, "Returns a distance in meters between two positions.", distance_object_object));
+	add(binary(4, "distance2d", type::ARRAY, type::ARRAY, "Returns a 2d distance in meters between two positions.", distance2d_array_array));
+	add(binary(4, "distance2d", type::OBJECT, type::ARRAY, "Returns a 2d distance in meters between two positions.", distance2d_object_array));
+	add(binary(4, "distance2d", type::ARRAY, type::OBJECT, "Returns a 2d distance in meters between two positions.", distance2d_array_object));
+	add(binary(4, "distance2d", type::OBJECT, type::OBJECT, "Returns a 2d distance in meters between two positions.", distance2d_object_object));
 	add(unary("nearestObjects", type::ARRAY, "Returns a list of nearest objects of the given types to the given position or object, within the specified distance. If more than one object is found they will be ordered by proximity, the closest one will be first in the array.", nearestobjects_array));
 	add(unary("isNull", type::OBJECT, "Checks whether the tested item is Null.", isnull_object));
 	add(unary("side", type::OBJECT, "Returns the side of an object.", side_object));
