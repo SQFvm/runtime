@@ -90,12 +90,30 @@ void sqf::arraydata::delete_at(int position)
 
 std::array<double, 3> sqf::arraydata::as_vec3() const
 {
-	return std::array<double, 3> {at(0).as_double(), at(1).as_double(), at(2).as_double()};
+	switch (size())
+	{
+	case 0:
+		return std::array<double, 3> { 0, 0, 0 };
+	case 1:
+		return std::array<double, 3> { at(0).as_double(), 0, 0 };
+	case 2:
+		return std::array<double, 3> { at(0).as_double(), at(1).as_double(), 0 };
+	default:
+		return std::array<double, 3> { at(0).as_double(), at(1).as_double(), at(2).as_double() };
+	}
 }
 
 std::array<double, 2> sqf::arraydata::as_vec2() const
 {
-	return std::array<double, 2> {at(0).as_double(), at(1).as_double()};
+	switch (size())
+	{
+	case 0:
+		return std::array<double, 2> { 0, 0 };
+	case 1:
+		return std::array<double, 2> { at(0).as_double(), 0 };
+	default:
+		return std::array<double, 2> { at(0).as_double(), at(1).as_double() };
+	}
 }
 
 bool sqf::arraydata::check_type(virtualmachine * vm, sqf::type t, size_t min, size_t max) const

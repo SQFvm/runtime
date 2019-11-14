@@ -21,5 +21,11 @@
     ["assertEqual",     { private _obj1 = "CAManBase" createVehicle [0,0,0]; private _obj2 = "CAManBase" createVehicle [3,0,0]; private _res = _obj1 distance _obj2; deleteVehicle _obj1; deleteVehicle _obj2; _res }, 3],
     ["assertEqual",     { private _obj1 = "CAManBase" createVehicle [0,0,4]; private _obj2 = "CAManBase" createVehicle [0,0,0]; private _res = _obj1 distance _obj2; deleteVehicle _obj1; deleteVehicle _obj2; _res }, 4],
     ["assertEqual",     { private _obj1 = "CAManBase" createVehicle [0,5,0]; private _obj2 = "CAManBase" createVehicle [0,0,0]; private _res = _obj1 distance _obj2; deleteVehicle _obj1; deleteVehicle _obj2; _res }, 5],
-    ["assertEqual",     { private _obj1 = "CAManBase" createVehicle [6,0,0]; private _obj2 = "CAManBase" createVehicle [0,0,0]; private _res = _obj1 distance _obj2; deleteVehicle _obj1; deleteVehicle _obj2; _res }, 6]
+    ["assertEqual",     { private _obj1 = "CAManBase" createVehicle [6,0,0]; private _obj2 = "CAManBase" createVehicle [0,0,0]; private _res = _obj1 distance _obj2; deleteVehicle _obj1; deleteVehicle _obj2; _res }, 6],
+    ["assertEqual",     { [0,0] distance [0,0,1] }, 1],
+    ["assertEqual",     { [0,0] distance [0,0,2] }, 2],
+    ["assertEqual",     { [0,0] distance [0,0,3] }, 3],
+    ["assertEqual",     { [0,0,4] distance [0,0] }, 4],
+    ["assertEqual",     { [0,0,5] distance [0,0] }, 5],
+    ["assertEqual",     { [0,0,6] distance [0,0] }, 6]
 ]
