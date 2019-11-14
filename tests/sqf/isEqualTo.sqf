@@ -14,6 +14,7 @@
     ["assertTrue",      { [[1,2,3],[1,2,3]] isEqualTo [[1,2,3],[1,2,3]] }],
     ["assertFalse",     { [[1,2,3]] isEqualTo [[1,2,3],[1,2,3]] }],
     ["assertFalse",     { [nil] isEqualTo [nil] }],
+    ["assertTrue",      { private _arr = [nil]; _arr isEqualTo _arr }],
     ["assertTrue",      { [player] isEqualTo [player] }],
     ["assertTrue",      { ["test"] isEqualTo ["test"] }],
     ["assertFalse",     { ["test"] isEqualTo ["TEST"] }]
