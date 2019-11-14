@@ -601,7 +601,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "lbsetpicture", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lbsetpicture)." << std::endl; return {}; }));
 	add(binary(4, "setammocargo", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setammocargo)." << std::endl; return {}; }));
 	add(binary(4, "addbackpackcargoglobal", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (addbackpackcargoglobal)." << std::endl; return {}; }));
-	add(binary(4, "distance2d", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (distance2d)." << std::endl; return {}; }));
 	add(binary(4, "createsimpletask", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (createsimpletask)." << std::endl; return {}; }));
 	add(binary(4, "commandfsm", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (commandfsm)." << std::endl; return {}; }));
 	add(binary(4, "setcamerainterest", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setcamerainterest)." << std::endl; return {}; }));
