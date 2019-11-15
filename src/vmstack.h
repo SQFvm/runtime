@@ -178,7 +178,8 @@ namespace sqf
 			return m_stacks.back()->peek_value();
 		}
 
-		value getlocalvar(std::string_view varname);
+		value get_variable(std::string_view varname) { bool flag = false; return get_variable(varname, flag); }
+		value get_variable(std::string_view varname, bool& ref_success);
 		bool isempty() const { return m_stacks.empty(); }
 		bool isscheduled() const { return m_is_scheduled; }
 		bool isasleep() const { return m_is_asleep; }

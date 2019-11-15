@@ -67,8 +67,7 @@ namespace
 			l = std::dynamic_pointer_cast<varscope>(left.data());
 		}
 		auto r = right.as_string();
-		auto var = l->get_variable_empty(r);
-        return var.dtype() != type::NOTHING ? var : value();
+        return l->get_variable(r);
 	}
 	value getVariable_namespace_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
@@ -98,9 +97,16 @@ namespace
 			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(r[0].dtype()) << "'." << std::endl;
 			return {};
 		}
-		auto def = r[1];
-		auto var = l->get_variable_empty(r[0].as_string());
-		return var.dtype() != type::NOTHING ? var : def;
+		bool success = false;
+		auto var = l->get_variable(r[0].as_string(), success);
+		if (success)
+		{
+			return var;
+		}
+		else
+		{
+			return r[1];
+		}
 	}
 	value setVariable_namespace_array(virtualmachine* vm, value::cref left, value::cref right)
 	{

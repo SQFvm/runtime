@@ -50,15 +50,17 @@ void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instructio
 	m_stacks.back()->push_back(std::move(inst));
 }
 
-sqf::value sqf::vmstack::getlocalvar(std::string_view varname)
+sqf::value sqf::vmstack::get_variable(std::string_view varname, bool& ref_success)
 {
 	for (auto it = stacks_begin(); it != stacks_end(); ++it)
 	{
 		if (it->get()->has_variable(varname))
 		{
+			ref_success = true;
 			return it->get()->get_variable(varname);
 		}
 	}
+	ref_success = false;
 	return sqf::value();
 }
 
