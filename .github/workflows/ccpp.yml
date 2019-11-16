@@ -11,8 +11,10 @@ jobs:
     - uses: actions/checkout@v1
     - name: Setup C++ environment
       uses: kurocha/setup-cpp@v1
-    - name: make
-      run: make
+    - name: cmake-configure
+      uses: snickerbockers/cmake-configure@prerel1
+    - name: make all
+      run: make all
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
   build-windows:
@@ -23,7 +25,9 @@ jobs:
     - uses: actions/checkout@v1
     - name: Setup C++ environment
       uses: kurocha/setup-cpp@v1
-    - name: make
-      run: make
+    - name: cmake-configure
+      uses: snickerbockers/cmake-configure@prerel1
+    - name: make all
+      run: make all
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
