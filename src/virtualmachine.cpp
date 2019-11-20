@@ -110,7 +110,7 @@ void sqf::virtualmachine::execute()
 	err_buffprint();
 
 	m_exit_flag = false;
-	while (!m_exit_flag && (!mspawns.empty() || !m_main_vmstack->isempty() || (_debugger && _debugger->stop(this))))
+	while (!m_exit_flag && (!mspawns.empty() || !m_main_vmstack->empty() || (_debugger && _debugger->stop(this))))
 	{
 		if (is_networking_set())
 		{
@@ -120,12 +120,12 @@ void sqf::virtualmachine::execute()
 		m_active_vmstack = m_main_vmstack;
 		if (!performexecute())
 		{
-			while (!m_main_vmstack->isempty()) { m_main_vmstack->drop_callstack(); }
+			while (!m_main_vmstack->empty()) { m_main_vmstack->drop_callstack(); }
 		}
 		for (auto& it : mspawns)
 		{
 			m_active_vmstack = it->stack();
-			if (m_active_vmstack->isasleep())
+			if (m_active_vmstack->asleep())
 			{
 				if (m_active_vmstack->get_wakeupstamp() <= virtualmachine::system_time())
 				{
@@ -154,9 +154,9 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 	while (
 		!m_exit_flag &&
 		exitAfter != 0 &&
-		!m_active_vmstack->isasleep() &&
+		!m_active_vmstack->asleep() &&
 		!m_active_vmstack->terminate() &&
-		(inst = m_active_vmstack->popinst(this)).get() &&
+		(inst = m_active_vmstack->pop_back_instruction(this)).get() &&
 		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend
 		)
 	{
@@ -214,7 +214,7 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 				(*merr) << inst->dbginf("RNT") << merr_buff.str();
                 err_clear();
 				//Only for non-scheduled (and thus the mainstack)
-				if (!m_active_vmstack->isscheduled())
+				if (!m_active_vmstack->scheduled())
 				{
 					this->err() << "Stacktrace:" << std::endl;
 					auto stackdump = m_active_vmstack->dump_callstack_diff({});
@@ -617,7 +617,7 @@ bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 	if (!cs.get())
 	{
 		cs = std::make_shared<sqf::callstack>(this->missionnamespace());
-		vmstck->pushcallstack(cs);
+		vmstck->push_back(cs);
 	}
 	auto h = sqf::parse::helper(&merr_buff, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;

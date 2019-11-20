@@ -8,7 +8,7 @@ sqf::scriptdata::scriptdata()
 
 bool sqf::scriptdata::hasfinished() const
 {
-	return mthisstack->isempty();
+	return mthisstack->empty();
 }
 
 std::string sqf::scriptdata::tosqf() const

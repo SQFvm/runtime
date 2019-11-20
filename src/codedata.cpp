@@ -137,7 +137,7 @@ void sqf::codedata::loadinto(sqf::virtualmachine * vm, std::shared_ptr<sqf::vmst
 {
 	auto cs = std::make_shared<callstack>(vm->missionnamespace());
 	loadinto(stack, cs);
-	stack->pushcallstack(cs);
+	stack->push_back(cs);
 }
 
 void sqf::codedata::loadinto(std::shared_ptr<sqf::vmstack> stack, std::shared_ptr<sqf::callstack> cs)

@@ -291,7 +291,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "addmenuitem", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (addmenuitem)." << std::endl; return {}; }));
 	add(binary(4, "enablesimulation", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (enablesimulation)." << std::endl; return {}; }));
 	add(binary(4, "allowdamage", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (allowdamage)." << std::endl; return {}; }));
-	add(binary(4, "execvm", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (execvm)." << std::endl; return {}; }));
 	add(binary(4, "setlightcolor", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setlightcolor)." << std::endl; return {}; }));
 	add(binary(4, "setwaypointhouseposition", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setwaypointhouseposition)." << std::endl; return {}; }));
 	add(binary(4, "setfriend", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (setfriend)." << std::endl; return {}; }));

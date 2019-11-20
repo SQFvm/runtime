@@ -41,7 +41,7 @@ std::vector<sqf::vmstack::stackdump> sqf::vmstack::dump_callstack_diff(std::shar
 	return vec;
 }
 
-void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instruction> inst)
+void sqf::vmstack::push_back(sqf::virtualmachine * vm, std::shared_ptr<instruction> inst)
 {
 	if (m_stacks.empty())
 	{
@@ -50,7 +50,7 @@ void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instructio
 	m_stacks.back()->push_back(std::move(inst));
 }
 
-sqf::value sqf::vmstack::getlocalvar(std::string_view varname)
+sqf::value sqf::vmstack::get_local_variable(std::string_view varname)
 {
 	for (auto it = stacks_begin(); it != stacks_end(); ++it)
 	{

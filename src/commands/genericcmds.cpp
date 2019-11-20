@@ -38,10 +38,14 @@
 typedef void(*RVExtensionVersion)(char*, int);
 typedef void(*RVExtension)(char*, int, const char*);
 typedef int(*RVExtensionArgs)(char*, int, const char*, const char**, int);
+typedef int(*RVExtensionRegisterCallback_Proc)(char const* name, char const* function, char const* data);
+typedef int(*RVExtensionRegisterCallback)(int(*callbackProc)(char const* name, char const* function, char const* data));
 #elif defined(_WIN32)
 typedef void(__stdcall *RVExtensionVersion)(char*, int);
 typedef void(__stdcall *RVExtension)(char*, int, const char*);
 typedef int(__stdcall *RVExtensionArgs)(char*, int, const char*, const char**, int);
+typedef int(*RVExtensionRegisterCallback_Proc)(char const* name, char const* function, char const* data);
+typedef int(__stdcall *RVExtensionRegisterCallback)(RVExtensionRegisterCallback_Proc);
 #else
 #error UNSUPPORTED PLATFORM
 #endif
@@ -94,7 +98,7 @@ namespace
 		auto l = left.data<codedata>();
 		auto r = right.data<arraydata>();
 		auto cs = std::make_shared<callstack_count>(vm->active_vmstack()->stacks_top()->get_namespace(), l, r);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value compile_string(virtualmachine* vm, value::cref right)
@@ -194,7 +198,7 @@ namespace
 		{
 			auto cs = std::make_shared<callstack_exitwith>(vm->active_vmstack()->stacks_top()->get_namespace());
 			code->loadinto(vm->active_vmstack(), cs);
-			vm->active_vmstack()->pushcallstack(cs);
+			vm->active_vmstack()->push_back(cs);
 			return {};
 		}
 		else
@@ -218,7 +222,7 @@ namespace
 		auto condition = right.data<codedata>();
 
 		auto cs = std::make_shared<callstack_waituntil>(vm->active_vmstack()->stacks_top()->get_namespace(), condition);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		condition->loadinto(vm->active_vmstack(), cs);
 
 		return {};
@@ -229,7 +233,7 @@ namespace
 		auto execcode = right.data<codedata>();
 
 		auto cs = std::make_shared<callstack_while>(vm->active_vmstack()->stacks_top()->get_namespace(), whilecond, execcode);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 
 		return {};
 	}
@@ -265,7 +269,7 @@ namespace
 		auto execcode = right.data<codedata>();
 
 		auto cs = std::make_shared<callstack_for_step>(vm->active_vmstack()->stacks_top()->get_namespace(), fordata, execcode);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value foreach_code_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -273,7 +277,7 @@ namespace
 		auto l = left.data<sqf::codedata>();
 		auto r = right.data<arraydata>();
 		auto cs = std::make_shared<callstack_foreach>(vm->active_vmstack()->stacks_top()->get_namespace(), l, r);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value select_array_scalar(virtualmachine* vm, value::cref left, value::cref right)
@@ -364,7 +368,7 @@ namespace
 			return std::vector<value>();
 		auto cond = right.data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_select>(vm->active_vmstack()->stacks_top()->get_namespace(), arr, cond);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
     value sort_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -521,7 +525,7 @@ namespace
 			return -1;
 		auto cond = right.data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_findif>(vm->active_vmstack()->stacks_top()->get_namespace(), cond, arr);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
     value reverse_array(virtualmachine* vm, value::cref right)
@@ -567,7 +571,7 @@ namespace
 	value isnil_string(virtualmachine* vm, value::cref right)
 	{
 		auto varname = right.as_string();
-		auto val = vm->active_vmstack()->getlocalvar(varname);
+		auto val = vm->active_vmstack()->get_local_variable(varname);
 		if (val.dtype() == sqf::type::NOTHING)
 		{
 			val = vm->active_vmstack()->stacks_top()->get_namespace()->get_variable(varname);
@@ -578,7 +582,7 @@ namespace
 	{
 		auto cdata = right.data<codedata>();
 		auto cs = std::make_shared<callstack_isnil>(vm->active_vmstack()->stacks_top()->get_namespace(), vm, cdata);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value hint_string(virtualmachine* vm, value::cref right)
@@ -609,14 +613,14 @@ namespace
 	{
 		auto r = right.data<codedata>();
 		auto cs = std::make_shared<callstack_switch>(vm->active_vmstack()->stacks_top()->get_namespace(), left.data<switchdata>());
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		r->loadinto(vm->active_vmstack(), cs);
 		cs->set_variable(MAGIC_SWITCH, value(left));
 		return {};
 	}
 	value case_any(virtualmachine* vm, value::cref right)
 	{
-		auto valswtch = vm->active_vmstack()->getlocalvar(MAGIC_SWITCH);
+		auto valswtch = vm->active_vmstack()->get_local_variable(MAGIC_SWITCH);
 		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
 			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
@@ -632,7 +636,7 @@ namespace
 	}
 	value default_code(virtualmachine* vm, value::cref right)
 	{
-		auto valswtch = vm->active_vmstack()->getlocalvar(MAGIC_SWITCH);
+		auto valswtch = vm->active_vmstack()->get_local_variable(MAGIC_SWITCH);
 		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
 			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
@@ -664,7 +668,7 @@ namespace
 			return std::vector<value>();
 		auto cond = right.data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_apply>(vm->active_vmstack()->stacks_top()->get_namespace(), arr, cond);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value spawn_any_code(virtualmachine* vm, value::cref left, value::cref right)
@@ -927,6 +931,12 @@ namespace
 		{
 			vm->out() << "[RPT]\tCallExtension loaded: '" << name << '\'' << std::endl;
 		}
+		if (dl->try_resolve("RVExtensionRegisterCallback", &sym))
+		{
+			auto method = reinterpret_cast<RVExtensionRegisterCallback>(sym);
+			
+			vm->out() << "[RPT]\tRegistered 'ExtensionCallback' with '" << name << '\'' << std::endl;
+		}
 		return dl;
 	}
 	value callextension_string_string(virtualmachine* vm, value::cref left, value::cref right)
@@ -1146,7 +1156,7 @@ namespace
 	}
 	value param_array(virtualmachine* vm, value::cref right)
 	{
-		auto _this = vm->active_vmstack()->getlocalvar("_this");
+		auto _this = vm->active_vmstack()->get_local_variable("_this");
 		if (_this.dtype() != ARRAY)
 		{
 			auto arr = std::make_shared<arraydata>();
@@ -1267,7 +1277,7 @@ namespace
 	}
 	value params_array(virtualmachine* vm, value::cref right)
 	{
-		auto _this = vm->active_vmstack()->getlocalvar("_this");
+		auto _this = vm->active_vmstack()->get_local_variable("_this");
 		if (_this.dtype() != ARRAY)
 		{
 			auto arr = std::make_shared<arraydata>();
@@ -1288,7 +1298,7 @@ namespace
 			vm->err() << "Sleeping is disabled." << std::endl;
 			return {};
 		}
-		if (!vm->active_vmstack()->isscheduled())
+		if (!vm->active_vmstack()->scheduled())
 		{
 			vm->err() << "Cannot suspend in non-scheduled environment." << std::endl;
 			return {};
@@ -1300,7 +1310,7 @@ namespace
 	}
 	value cansuspend_(virtualmachine* vm)
 	{
-		return vm->active_vmstack()->isscheduled();
+		return vm->active_vmstack()->scheduled();
 	}
     value loadfile_string(virtualmachine* vm, value::cref right)
 	{
@@ -1405,7 +1415,7 @@ namespace
 	value catch_exception_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto cs = std::make_shared<callstack_catch>(vm->active_vmstack()->stacks_top()->get_namespace(), right.data<codedata>());
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		left.data<codedata>()->loadinto(vm->active_vmstack(), cs);
 		return {};
 	}

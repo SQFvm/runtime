@@ -24,7 +24,7 @@
     if (m_current_index > 0)
     {
         bool success;
-        auto val = vm->active_vmstack()->popval(success);
+        auto val = vm->active_vmstack()->pop_back_value(success);
         if (!success)
         {
             vm->err() << "findIf callstack found no value." << std::endl;

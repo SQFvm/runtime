@@ -21,7 +21,7 @@
 
 	// Receive the last result from the value stack
 	bool success;
-	auto val = vm->active_vmstack()->popval(success);
+	auto val = vm->active_vmstack()->pop_back_value(success);
 	if (!success)
 	{
 		vm->err() << "waituntil callstack found no value." << std::endl;
@@ -36,7 +36,7 @@
 			m_codedata_condition->loadinto(vm->active_vmstack(), sptr);
 			if (vm->allow_suspension())
 			{
-				if (!vm->active_vmstack()->isscheduled())
+				if (!vm->active_vmstack()->scheduled())
 				{
 					vm->wrn() << "waitUntil in non-scheduled code." << std::endl;
 				}

@@ -25,7 +25,7 @@ sqf::callstack_isnil::callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf
 	}
 
 	bool success;
-	auto val = vm->active_vmstack()->popval(success);
+	auto val = vm->active_vmstack()->pop_back_value(success);
 	if (success)
 	{
 		// Update the value stack

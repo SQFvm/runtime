@@ -8,7 +8,7 @@
 void sqf::inst::callunary::execute(virtualmachine* vm) const
 {
 	bool flag;
-	auto right = vm->active_vmstack()->popval(flag);
+	auto right = vm->active_vmstack()->pop_back_value(flag);
 	if (!flag || right.dtype() == sqf::type::NOTHING)
 	{
 		vm->err() << "callUnary could not receive a value for right arg." << std::endl;
@@ -19,7 +19,7 @@ void sqf::inst::callunary::execute(virtualmachine* vm) const
 	{
         value dummy;
 		auto val = cmd->execute(vm, dummy, right);
-		vm->active_vmstack()->pushval(val);
+		vm->active_vmstack()->push_back(val);
 	}
 	else
 	{

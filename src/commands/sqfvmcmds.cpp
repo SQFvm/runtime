@@ -307,7 +307,7 @@ namespace
 	value except___code_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto cs = std::make_shared<callstack_sqftry>(vm->active_vmstack()->stacks_top()->get_namespace(), right.data<codedata>());
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		left.data<codedata>()->loadinto(vm->active_vmstack(), cs);
 		return {};
 	}
