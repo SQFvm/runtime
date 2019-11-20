@@ -54,6 +54,11 @@ namespace sqf
 		void add(std::shared_ptr<nularcmd> cmd);
 		void add(std::shared_ptr<unarycmd> cmd);
 		void add(std::shared_ptr<binarycmd> cmd);
+
+		bool remove(std::string str);
+		bool remove(std::string str, sqf::type rtype);
+		bool remove(sqf::type ltype, std::string str, sqf::type rtype);
+
 		std::shared_ptr<nularcmd> get(std::string_view str) { return mnularcmd[string_tolower(str)]; }
 		std::shared_ptr<unarycmd> get(std::string_view str, type rtype);
 		std::shared_ptr<binarycmd> get(std::string_view str, type ltype, type rtype);
