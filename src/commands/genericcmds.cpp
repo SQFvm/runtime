@@ -1443,7 +1443,7 @@ namespace
 			return value(script);
 		}
 	}
-	value execvm_string(virtualmachine* vm, value::cref left, value::cref right)
+	value execvm_string(virtualmachine* vm, value::cref right)
 	{
 		return execvm_any_string(vm, {}, right);
 	}
