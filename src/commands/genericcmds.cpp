@@ -1419,6 +1419,34 @@ namespace
 		left.data<codedata>()->loadinto(vm->active_vmstack(), cs);
 		return {};
 	}
+	value execvm_any_string(virtualmachine* vm, value::cref left, value::cref right)
+	{
+
+		auto res = vm->get_filesystem().try_get_physical_path(right.as_string());
+		if (!res.has_value())
+		{
+			vm->wrn() << "File '" << right.as_string() << "' Not Found." << std::endl;
+			auto script = std::make_shared<scriptdata>();
+			return value(script);
+		}
+		else
+		{
+			auto filecontents = load_file(res.value());
+			bool errflag = false;
+			auto parsedcontents = sqf::parse::preprocessor::parse(vm, filecontents, errflag, res.value());
+			auto cs = std::make_shared<callstack>(vm->active_vmstack()->stacks_top()->get_namespace());
+			auto script = std::make_shared<scriptdata>();
+			vm->parse_sqf(parsedcontents, cs);
+			script->stack()->push_back(cs);
+			vm->push_spawn(script);
+			script->stack()->stacks_top()->set_variable("_this", left);
+			return value(script);
+		}
+	}
+	value execvm_string(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		return execvm_any_string(vm, {}, right);
+	}
 }
 void sqf::commandmap::initgenericcmds()
 {
@@ -1496,7 +1524,8 @@ void sqf::commandmap::initgenericcmds()
 
 	add(unary("selectMax", type::ARRAY, "Returns the array element with maximum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmax_array));
 	add(unary("selectMin", type::ARRAY, "Returns the array element with minimum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmin_array));
-
+	add(binary(4, "execVM", type::ANY, type::STRING, "Compiles and adds SQF Script to the scheduler queue and returns script handle.", execvm_any_string));
+	add(unary("execVM", type::STRING, "Compiles and adds SQF Script to the scheduler queue and returns script handle.", execvm_string));
 	add(binary(4, "callExtension", type::STRING, type::STRING, "See https://community.bistudio.com/wiki/callExtension", callextension_string_string));
 	add(binary(4, "callExtension", type::STRING, type::ARRAY, "See https://community.bistudio.com/wiki/callExtension", callextension_string_array));
 

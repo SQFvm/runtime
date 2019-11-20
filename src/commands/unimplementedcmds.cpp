@@ -1236,7 +1236,6 @@ void sqf::commandmap::initunimplemented()
 	add(unary("taskcompleted", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (taskcompleted)." << std::endl; return {}; })); /* TASK */
 	add(unary("playsound3d", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (playsound3d)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("getanimaimprecision", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (getanimaimprecision)." << std::endl; return {}; })); /* OBJECT */
-	add(unary("execvm", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (execvm)." << std::endl; return {}; })); /* STRING */
 	add(unary("waypointformation", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (waypointformation)." << std::endl; return {}; })); /* ARRAY */
 	add(unary("cantriggerdynamicsimulation", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (cantriggerdynamicsimulation)." << std::endl; return {}; })); /* OBJECT */
 	add(unary("get3denconnections", type::ANY, "", [](virtualmachine* vm, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (get3denconnections)." << std::endl; return {}; })); /* ANY */
