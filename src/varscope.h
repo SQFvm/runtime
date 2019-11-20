@@ -22,13 +22,21 @@ namespace sqf
 		// Assigns the given value to the given variable.
 		void set_variable(std::string_view key, value value) { m_variable_map[string_tolower(key)] = std::move(value); }
 
-		// Allows to receive a previously set (using set_variable) variable
-		value get_variable_empty(std::string_view key)
+		value get_variable(std::string_view key) { bool flag = false;  return get_variable(key, flag); };
+        value get_variable(std::string_view key, bool& ref_success)
 		{
 			auto it = m_variable_map.find(string_tolower(key));
-			return it == m_variable_map.end() ? value() : it->second;
+			if (it == m_variable_map.end())
+			{
+				ref_success = false;
+				return {};
+			}
+			else
+			{
+				ref_success = true;
+				return it->second;
+			}
 		}
-        value get_variable(std::string_view key) { return get_variable_empty(key); };
 
 		// Checks if a given variable was previously set using eg. set_variable.
 		bool has_variable(std::string_view key) { auto it = m_variable_map.find(string_tolower(key)); return it != m_variable_map.end(); }

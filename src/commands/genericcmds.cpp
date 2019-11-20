@@ -571,7 +571,7 @@ namespace
 	value isnil_string(virtualmachine* vm, value::cref right)
 	{
 		auto varname = right.as_string();
-		auto val = vm->active_vmstack()->get_local_variable(varname);
+		auto val = vm->active_vmstack()->get_variable(varname);
 		if (val.dtype() == sqf::type::NOTHING)
 		{
 			val = vm->active_vmstack()->stacks_top()->get_namespace()->get_variable(varname);
@@ -620,7 +620,7 @@ namespace
 	}
 	value case_any(virtualmachine* vm, value::cref right)
 	{
-		auto valswtch = vm->active_vmstack()->get_local_variable(MAGIC_SWITCH);
+		auto valswtch = vm->active_vmstack()->get_variable(MAGIC_SWITCH);
 		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
 			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
@@ -636,7 +636,7 @@ namespace
 	}
 	value default_code(virtualmachine* vm, value::cref right)
 	{
-		auto valswtch = vm->active_vmstack()->get_local_variable(MAGIC_SWITCH);
+		auto valswtch = vm->active_vmstack()->get_variable(MAGIC_SWITCH);
 		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
 			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
@@ -1156,7 +1156,7 @@ namespace
 	}
 	value param_array(virtualmachine* vm, value::cref right)
 	{
-		auto _this = vm->active_vmstack()->get_local_variable("_this");
+		auto _this = vm->active_vmstack()->get_variable("_this");
 		if (_this.dtype() != ARRAY)
 		{
 			auto arr = std::make_shared<arraydata>();
@@ -1277,7 +1277,7 @@ namespace
 	}
 	value params_array(virtualmachine* vm, value::cref right)
 	{
-		auto _this = vm->active_vmstack()->get_local_variable("_this");
+		auto _this = vm->active_vmstack()->get_variable("_this");
 		if (_this.dtype() != ARRAY)
 		{
 			auto arr = std::make_shared<arraydata>();
