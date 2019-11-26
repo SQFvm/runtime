@@ -11,7 +11,14 @@ void sqf::inst::callunary::execute(virtualmachine* vm) const
 	auto right = vm->active_vmstack()->pop_back_value(flag);
 	if (!flag || right.dtype() == sqf::type::NOTHING)
 	{
-		vm->err() << "callUnary could not receive a value for right arg." << std::endl;
+		if (vm->active_vmstack()->scheduled())
+		{
+			vm->err() << "callUnary could not receive a value for right arg." << std::endl;
+		}
+		else
+		{
+			vm->wrn() << "callUnary could not receive a value for right arg." << std::endl;
+		}
 		return;
 	}
 	auto cmd = sqf::commandmap::find(mcmds, right.dtype()); 

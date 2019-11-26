@@ -11,13 +11,27 @@ void sqf::inst::callbinary::execute(virtualmachine* vm) const
 	auto right = vm->active_vmstack()->pop_back_value(flag);
 	if (!flag ||right.dtype() == sqf::type::NOTHING)
 	{
-		vm->err() << "callBinary could not receive a value for right arg." << std::endl;
+		if (vm->active_vmstack()->scheduled())
+		{
+			vm->err() << "callBinary could not receive a value for right arg." << std::endl;
+		}
+		else
+		{
+			vm->wrn() << "callBinary could not receive a value for right arg." << std::endl;
+		}
 		return;
 	}
 	auto left = vm->active_vmstack()->pop_back_value(flag);
 	if (!flag || left.dtype() == sqf::type::NOTHING)
 	{
-		vm->err() << "callBinary could not receive a value for left arg." << std::endl;
+		if (vm->active_vmstack()->scheduled())
+		{
+			vm->err() << "callBinary could not receive a value for left arg." << std::endl;
+		}
+		else
+		{
+			vm->wrn() << "callBinary could not receive a value for left arg." << std::endl;
+		}
 		return;
 	}
 	auto cmd = sqf::commandmap::find(mcmds, left.dtype(), right.dtype());
