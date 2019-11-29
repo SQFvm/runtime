@@ -1070,5 +1070,10 @@ std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string
 	fileinfo.path = std::move(filename);
 	auto res = parse_file(h, fileinfo);
 	errflag = h.errflag;
+	if (h.inside_ppif)
+	{
+		vm->wrn() << "Unclosed #IFDEF/#IFNDEF" << std::endl;
+		return "";
+	}
 	return res;
 }
