@@ -79,7 +79,10 @@ int console_width()
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	int columns;
 
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+	{
+		return 80;
+	}
 	columns = csbi.srWindow.Right - csbi.srWindow.Left;
 	return columns;
 #else
