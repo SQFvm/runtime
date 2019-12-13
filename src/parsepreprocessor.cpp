@@ -577,7 +577,6 @@ namespace {
 					return "";
 				}
                 otherfinfo.content = load_file(path);
-				h.path_tree.emplace_back(path);
 			}
 			catch (const std::runtime_error& ex)
 			{
@@ -851,6 +850,7 @@ namespace {
 	}
 	std::string parse_file(helper& h, finfo& fileinfo)
 	{
+		h.path_tree.push_back(fileinfo.path);
 		char c;
 		std::stringstream sstream;
 		std::stringstream wordstream;
@@ -976,9 +976,9 @@ namespace {
 				sstream << word;
 			}
 		}
+		h.path_tree.pop_back();
 		return sstream.str();
 	}
-
 }
 std::string line_macro_callback(const macro& m, const finfo& local_fileinfo, const finfo& original_fileinfo, const std::vector<std::string>& params)
 {
