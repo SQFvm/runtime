@@ -33,13 +33,47 @@ namespace sqf {
 namespace {
 	class helper
 	{
+	private:
+		std::vector<std::string> m_path_tree;
+		std::vector<bool> m_inside_ppf_tree;
+		bool m_inside_ppif_err_flag = false;
 	public:
 		std::unordered_map<std::string, macro> macros;
-		std::vector<std::string> path_tree;
 		sqf::virtualmachine* vm { nullptr };
 		bool errflag = false;
 		bool allowwrite = true;
-		bool inside_ppif = false;
+
+		bool inside_ppif_err_flag()
+		{
+			return m_inside_ppif_err_flag;
+		}
+		bool inside_ppif()
+		{
+			return m_inside_ppf_tree.back();
+		}
+		void inside_ppif(bool flag)
+		{
+			m_inside_ppf_tree.back() = flag;
+		}
+		void push_path(const std::string s)
+		{
+			m_path_tree.push_back(s);
+			m_inside_ppf_tree.push_back(false);
+		}
+		void pop_path()
+		{
+			if (inside_ppif())
+			{
+				vm->wrn() << "[WRN][L0 | C0]\t" << "Unclosed #IFDEF/#IFNDEF in '" << m_path_tree.back() << "'" << std::endl;
+				m_inside_ppif_err_flag = true;
+			}
+			m_path_tree.pop_back();
+			m_inside_ppf_tree.pop_back();
+		}
+		std::vector<std::string>& path_tree()
+		{
+			return m_path_tree;
+		}
 
 
 		std::optional<macro> contains_macro(std::string mname)
@@ -558,8 +592,8 @@ namespace {
 			{
 				otherfinfo.path = h.vm->get_filesystem().get_physical_path(line, fileinfo.path);
 				const auto& path = otherfinfo.path;
-				auto res = std::find_if(h.path_tree.begin(), h.path_tree.end(), [path](std::string& parent) -> bool { return parent == path; });
-				if (res != h.path_tree.end())
+				auto res = std::find_if(h.path_tree().begin(), h.path_tree().end(), [path](std::string& parent) -> bool { return parent == path; });
+				if (res != h.path_tree().end())
 				{
 					h.errflag = true;
 					if (fileinfo.path.empty())
@@ -570,9 +604,9 @@ namespace {
 					{
 						h.vm->err() << "[ERR][L" << fileinfo.line << "|C" << fileinfo.col << "|" << fileinfo.path << "]\t" << "Recursive include detected. Include Tree." << std::endl;
 					}
-					for (size_t i = 0; i < h.path_tree.size(); i++)
+					for (size_t i = 0; i < h.path_tree().size(); i++)
 					{
-						h.vm->err() << i << ". " << h.path_tree[i] << std::endl;
+						h.vm->err() << i << ". " << h.path_tree()[i] << std::endl;
 					}
 					return "";
 				}
@@ -739,7 +773,7 @@ namespace {
 		}
 		else if (inst == "IFDEF")
 		{ // #ifdef TEST
-			if (h.inside_ppif)
+			if (h.inside_ppif())
 			{
 				h.errflag = true;
 				if (fileinfo.path.empty())
@@ -754,7 +788,7 @@ namespace {
 			}
 			else
 			{
-				h.inside_ppif = true;
+				h.inside_ppif(true);
 			}
 			auto res = h.macros.find(line);
 			if (res == h.macros.end())
@@ -769,7 +803,7 @@ namespace {
 		}
 		else if (inst == "IFNDEF")
 		{ // #ifndef TEST
-			if (h.inside_ppif)
+			if (h.inside_ppif())
 			{
 				h.errflag = true;
 				if (fileinfo.path.empty())
@@ -784,7 +818,7 @@ namespace {
 			}
 			else
 			{
-				h.inside_ppif = true;
+				h.inside_ppif(true);
 			}
 			auto res = h.macros.find(line);
 			if (res == h.macros.end())
@@ -799,7 +833,7 @@ namespace {
 		}
 		else if (inst == "ELSE")
 		{ // #else
-			if (!h.inside_ppif)
+			if (!h.inside_ppif())
 			{
 				h.errflag = true;
 				if (fileinfo.path.empty())
@@ -817,7 +851,7 @@ namespace {
 		}
 		else if (inst == "ENDIF")
 		{ // #endif
-			if (!h.inside_ppif)
+			if (!h.inside_ppif())
 			{
 				h.errflag = true;
 				if (fileinfo.path.empty())
@@ -830,7 +864,7 @@ namespace {
 				}
 				return "";
 			}
-			h.inside_ppif = false;
+			h.inside_ppif(false);
 			h.allowwrite = true;
 			return "\n";
 		}
@@ -850,7 +884,7 @@ namespace {
 	}
 	std::string parse_file(helper& h, finfo& fileinfo)
 	{
-		h.path_tree.push_back(fileinfo.path);
+		h.push_path(fileinfo.path);
 		char c;
 		std::stringstream sstream;
 		std::stringstream wordstream;
@@ -976,7 +1010,7 @@ namespace {
 				sstream << word;
 			}
 		}
-		h.path_tree.pop_back();
+		h.pop_path();
 		return sstream.str();
 	}
 }
@@ -1070,9 +1104,8 @@ std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string
 	fileinfo.path = std::move(filename);
 	auto res = parse_file(h, fileinfo);
 	errflag = h.errflag;
-	if (h.inside_ppif)
+	if (h.inside_ppif_err_flag())
 	{
-		vm->wrn() << "Unclosed #IFDEF/#IFNDEF" << std::endl;
 		return "";
 	}
 	return res;
