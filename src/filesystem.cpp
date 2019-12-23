@@ -9,6 +9,10 @@ void sqf::filesystem::addPathMappingInternal(std::filesystem::path virt, std::fi
     std::vector<std::string> virtElements;
 
     for (auto& el : virt) { //Split path into elements
+		if (el.string().empty())
+		{
+			continue;
+		}
         virtElements.emplace_back(el.string());
     }
 
