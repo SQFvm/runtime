@@ -1,9 +1,13 @@
 #include "scriptdata.h"
 #include "vmstack.h"
+#include "callstack.h"
 
 sqf::scriptdata::scriptdata()
 {
 	mthisstack = std::make_shared<sqf::vmstack>(true);
+	auto cs = std::make_shared<callstack>();
+	cs->set_variable("_thisScript", this);
+	mthisstack->push_back(cs);
 }
 
 bool sqf::scriptdata::hasfinished() const
