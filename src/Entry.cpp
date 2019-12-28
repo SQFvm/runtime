@@ -11,6 +11,7 @@
 #include "git_sha1.h"
 #include "networking.h"
 #include "networking/network_server.h"
+#include "linting.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -232,6 +233,9 @@ int main(int argc, char** argv)
 		"To disable assembly generation too, refer to --no-assembly-creation.", false);
 	cmd.add(parseOnlyArg);
 
+	TCLAP::SwitchArg lintPrivateVarExistingArg("", "lint-private-var-usage", "Adds the 'private_var_usage' lint check to the SQF-VM SQF Parser. Note that this check requires assembly generation.", false);
+	cmd.add(lintPrivateVarExistingArg);
+
 	TCLAP::SwitchArg noWorkPrintArg("", "no-work-print", "Disables the printing of all values which are on the work stack.", false);
 	cmd.add(noWorkPrintArg);
 
@@ -362,6 +366,11 @@ int main(int argc, char** argv)
 	sqf::commandmap::get().init();
 	netserver* srv = nullptr;
 	sqf::debugger* dbg = nullptr;
+
+	if (lintPrivateVarExistingArg.getValue())
+	{
+		sqf::linting::add_to(&vm, sqf::linting::check::private_var_usage);
+	}
 
 	vm.perform_classname_checks(disableClassnameCheck);
 	vm.wrn_enabled(!disableRuntimeWarningsArg.getValue());

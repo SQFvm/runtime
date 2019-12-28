@@ -9,6 +9,7 @@
 #include <sstream>
 #include <chrono>
 #include <utility>
+#include <functional>
 
 #include "dlops.h"
 #include "marker.h"
@@ -36,6 +37,12 @@ namespace sqf
 	}
 	class virtualmachine
 	{
+	public:
+		enum action
+		{
+			enter,
+			exit
+		};
 	private:
 		unsigned long long m_instructions_count;
 		unsigned long long m_max_instructions;
@@ -71,7 +78,6 @@ namespace sqf
 		 * Executes the currently configured setting up to the provided instruction count.
 		 * Will return true if run was clean, false if it was not.
 		 */
-		bool performexecute(size_t exitAfter = ~0);
 		std::vector<std::shared_ptr<dlops>> mlibraries;
 		debugger* _debugger;
 		bool m_exit_flag;
@@ -84,10 +90,26 @@ namespace sqf
 		std::chrono::system_clock::time_point m_current_time;
 		std::shared_ptr<networking::client> m_current_networking_client;
 		std::shared_ptr<networking::server> m_current_networking_server;
-		void handle_networking();
 
 		std::vector<std::pair<std::string, std::string>> m_preprocessor_defines;
 
+		std::vector<std::function<void(virtualmachine*, const char* text, const astnode&, action)>> m_parsing_callbacks;
+
+	private:
+		void navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const astnode& node);
+		void handle_networking();
+		bool performexecute(size_t exitAfter = ~0);
+		void execute_parsing_callbacks(const char* text, const astnode& node, action act)
+		{
+			if (m_parsing_callbacks.empty())
+			{
+				return;
+			}
+			for (auto& it : m_parsing_callbacks)
+			{
+				it(this, text, node, act);
+			}
+		}
 	public:
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
@@ -110,6 +132,11 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> uinamespace() const { return muinamespace; }
 		std::shared_ptr<sqf::sqfnamespace> parsingnamespace() const { return mparsingnamespace; }
 		std::shared_ptr<sqf::sqfnamespace> profilenamespace() const { return mprofilenamespace; }
+
+		void register_callback(std::function<void(virtualmachine*, const char* text, const astnode&, action)> callback)
+		{
+			m_parsing_callbacks.push_back(callback);
+		}
 
 		std::shared_ptr<networking::client> get_networking_client()
 		{
