@@ -70,6 +70,10 @@ namespace sqf
 			m_current_nextinstres(NA)
 		{
 		}
+		callstack() : m_current_nextinstres(NA)
+		{
+
+		}
 
 		std::queue<std::shared_ptr<sqf::instruction>>& instruction_queue() { return m_instruction_queue; }
 
