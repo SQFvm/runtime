@@ -79,6 +79,10 @@ namespace sqf
 						break;
 					}
 					auto varname = node.content;
+					if (varname.length() < 1 || varname[0] != '_')
+					{
+						break;
+					}
 					std::transform(varname.begin(), varname.end(), varname.begin(), [](unsigned char c) { return std::tolower(c); });
 
 					auto find_result = std::find(m_existing_variables.begin(), m_existing_variables.end(), varname);
