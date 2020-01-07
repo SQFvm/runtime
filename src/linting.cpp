@@ -15,11 +15,55 @@ namespace sqf
 			std::vector<std::string> m_existing_variables;
 			/// List of Existing Variables sorted by introduced code node.
 			std::vector<std::vector<std::string>> m_existing_variables2;
+			std::vector<std::string> m_operators;
 
 			void check(sqf::virtualmachine* vm, const char* code, const astnode& node, sqf::virtualmachine::action act)
 			{
 				switch (node.kind)
 				{
+				case sqf::parse::sqf::sqfasttypes::UNARYOP:
+					if (act == sqf::virtualmachine::action::enter)
+					{
+						std::string operatorname = node.content;
+						std::transform(operatorname.begin(), operatorname.end(), operatorname.begin(), [](unsigned char c) { return std::tolower(c); });
+						m_operators.push_back(operatorname);
+					}
+					break;
+				case sqf::parse::sqf::sqfasttypes::UNARYEXPRESSION:
+					if (act == sqf::virtualmachine::action::exit)
+					{
+						m_operators.pop_back();
+					}
+					break;
+				case sqf::parse::sqf::sqfasttypes::BINARYOP:
+					if (act == sqf::virtualmachine::action::enter)
+					{
+						std::string operatorname = node.content;
+						std::transform(operatorname.begin(), operatorname.end(), operatorname.begin(), [](unsigned char c) { return std::tolower(c); });
+						m_operators.push_back(operatorname);
+					}
+					break;
+				case sqf::parse::sqf::sqfasttypes::BINARYEXPRESSION:
+					if (act == sqf::virtualmachine::action::exit)
+					{
+						m_operators.pop_back();
+					}
+					break;
+				case sqf::parse::sqf::sqfasttypes::STRING:
+					if (act == sqf::virtualmachine::action::enter)
+					{
+						auto operatorname = m_operators.back();
+						if (operatorname == "private" ||
+							operatorname == "for" ||
+							(operatorname == "params" && node.kind == sqf::parse::sqf::sqfasttypes::STRING))
+						{
+							auto varname = node.content;
+							std::transform(varname.begin(), varname.end(), varname.begin(), [](unsigned char c) { return std::tolower(c); });
+							m_existing_variables.push_back(varname);
+							m_existing_variables2.back().push_back(varname);
+						}
+					}
+					break;
 				case sqf::parse::sqf::sqfasttypes::SQF:
 					if (act == sqf::virtualmachine::action::enter)
 					{
