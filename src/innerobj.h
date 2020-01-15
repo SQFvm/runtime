@@ -15,45 +15,45 @@ namespace sqf
 	class innerobj : public std::enable_shared_from_this<innerobj>, public varscope
 	{
 	private:
-		size_t mnetid;
-		double mposx;
-		double mposy;
-		double mposz;
-		double mvelx;
-		double mvely;
-		double mvelz;
-		double mdamage;
-		std::string mclassname;
-		std::shared_ptr<groupdata> mgroup;
-		bool misvehicle;
+		size_t m_netid;
+		double m_position_x;
+		double m_position_y;
+		double m_position_z;
+		double m_velocity_x;
+		double m_velocity_y;
+		double m_velocity_z;
+		double m_damage;
+		std::string m_classname;
+		std::shared_ptr<groupdata> m_group;
+		bool m_is_vehicle;
 
-		bool mhasDriver;
-		bool mhasGunner;
-		bool mhasCommander;
+		bool m_has_driver;
+		bool m_has_gunner;
+		bool m_has_commander;
 		size_t mtransportSoldier;
 
-		std::shared_ptr<objectdata> mparent_object;
-		std::shared_ptr<objectdata> mdriver;
-		std::shared_ptr<objectdata> mgunner;
-		std::shared_ptr<objectdata> mcommander;
-		std::vector<std::shared_ptr<sqf::objectdata>> msoldiers;
+		std::shared_ptr<objectdata> m_parent_object;
+		std::shared_ptr<objectdata> m_driver;
+		std::shared_ptr<objectdata> m_gunner;
+		std::shared_ptr<objectdata> m_commander;
+		std::vector<std::shared_ptr<sqf::objectdata>> m_soldiers;
 
 		innerobj(std::string classname, bool isvehicle);
 	public:
 		virtual std::string tosqf() const;
 
-		std::array<double, 3> pos() const { return { mposx, mposy, mposz }; }
-		double posx() const { return mposx; }
-		double posy() const { return mposy; }
-		double posz() const { return mposz; }
-		std::array<double, 3> vel() const { return { mvelx, mvely, mvelz }; }
-		double velx() const { return mvelx; }
-		double vely() const { return mvely; }
-		double velz() const { return mvelz; }
-		std::string classname() const { return mclassname; }
-		size_t netid() const { return mnetid; }
-		bool is_vehicle() const { return misvehicle; }
-		std::shared_ptr<groupdata> group() const { return mgroup; }
+		std::array<double, 3> pos() const { return { m_position_x, m_position_y, m_position_z }; }
+		double posx() const { return m_position_x; }
+		double posy() const { return m_position_y; }
+		double posz() const { return m_position_z; }
+		std::array<double, 3> vel() const { return { m_velocity_x, m_velocity_y, m_velocity_z }; }
+		double velx() const { return m_velocity_x; }
+		double vely() const { return m_velocity_y; }
+		double velz() const { return m_velocity_z; }
+		std::string classname() const { return m_classname; }
+		size_t netid() const { return m_netid; }
+		bool is_vehicle() const { return m_is_vehicle; }
+		std::shared_ptr<groupdata> group() const { return m_group; }
 
 		double distance3dsqr(std::shared_ptr<innerobj> obj) const { return distance3dsqr(obj->pos()); }
 		double distance3dsqr(const innerobj* obj) const { return distance3dsqr(obj->pos()); }
@@ -62,36 +62,36 @@ namespace sqf
 		double distance3d(const innerobj* obj) const { return distance3d(obj->pos()); }
 		double distance3d(std::array<double, 3> otherpos) const;
 
-		double distance2dsqr(std::shared_ptr<innerobj> obj) const { return distance2dsqr(std::array<double, 2> { obj->mposx, obj->mposy }); }
-		double distance2dsqr(const innerobj* obj) const { return distance2dsqr(std::array<double, 2> { obj->mposx, obj->mposy }); }
+		double distance2dsqr(std::shared_ptr<innerobj> obj) const { return distance2dsqr(std::array<double, 2> { obj->m_position_x, obj->m_position_y }); }
+		double distance2dsqr(const innerobj* obj) const { return distance2dsqr(std::array<double, 2> { obj->m_position_x, obj->m_position_y }); }
 		double distance2dsqr(std::array<double, 2> otherpos) const;
-		double distance2d(std::shared_ptr<innerobj> obj) const { return distance2d(std::array<double, 2> { obj->mposx, obj->mposy }); }
-		double distance2d(const innerobj* obj) const { return distance2d(std::array<double, 2> { obj->mposx, obj->mposy }); }
+		double distance2d(std::shared_ptr<innerobj> obj) const { return distance2d(std::array<double, 2> { obj->m_position_x, obj->m_position_y }); }
+		double distance2d(const innerobj* obj) const { return distance2d(std::array<double, 2> { obj->m_position_x, obj->m_position_y }); }
 		double distance2d(std::array<double, 2> otherpos) const;
 
-		double damage() const { return mdamage; }
-		void damage(double val) { mdamage = val < 0 ? 0 : val > 1 ? 1 : val; }
-		void damage_by(double val) { auto newdmg = mdamage += val; damage(newdmg); }
-		bool alive() { return mdamage < 1; }
+		double damage() const { return m_damage; }
+		void damage(double val) { m_damage = val < 0 ? 0 : val > 1 ? 1 : val; }
+		void damage_by(double val) { auto newdmg = m_damage += val; damage(newdmg); }
+		bool alive() { return m_damage < 1; }
 
-		void pos(std::array<double, 3> arr) { mposx = arr[0]; mposy = arr[1]; mposz = arr[2]; }
-		void posx(double d) { mposx = d; }
-		void posy(double d) { mposy = d; }
-		void posz(double d) { mposz = d; }
-		void vel(std::array<double, 3> arr) { mvelx = arr[0]; mvely = arr[1]; mvelz = arr[2]; }
-		void velx(double d) { mvelx = d; }
-		void vely(double d) { mvely = d; }
-		void velz(double d) { mvelz = d; }
-		void group(std::shared_ptr<groupdata> g) { mgroup = g; }
+		void pos(std::array<double, 3> arr) { m_position_x = arr[0]; m_position_y = arr[1]; m_position_z = arr[2]; }
+		void posx(double d) { m_position_x = d; }
+		void posy(double d) { m_position_y = d; }
+		void posz(double d) { m_position_z = d; }
+		void vel(std::array<double, 3> arr) { m_velocity_x = arr[0]; m_velocity_y = arr[1]; m_velocity_z = arr[2]; }
+		void velx(double d) { m_velocity_x = d; }
+		void vely(double d) { m_velocity_y = d; }
+		void velz(double d) { m_velocity_z = d; }
+		void group(std::shared_ptr<groupdata> g) { m_group = g; }
 
-		std::shared_ptr<sqf::objectdata> parent_object() const { return mparent_object; }
+		std::shared_ptr<sqf::objectdata> parent_object() const { return m_parent_object; }
 
-		std::shared_ptr<sqf::objectdata> driver() const { return mdriver; }
-		std::shared_ptr<sqf::objectdata> gunner() const { return mgunner; }
-		std::shared_ptr<sqf::objectdata> commander() const { return mcommander; }
-		std::vector<std::shared_ptr<sqf::objectdata>>::iterator soldiers_begin() { return msoldiers.begin(); }
-		std::vector<std::shared_ptr<sqf::objectdata>>::iterator soldiers_end() { return msoldiers.end(); }
-		const std::vector<std::shared_ptr<sqf::objectdata>>& soldiers() const { return msoldiers; }
+		std::shared_ptr<sqf::objectdata> driver() const { return m_driver; }
+		std::shared_ptr<sqf::objectdata> gunner() const { return m_gunner; }
+		std::shared_ptr<sqf::objectdata> commander() const { return m_commander; }
+		std::vector<std::shared_ptr<sqf::objectdata>>::iterator soldiers_begin() { return m_soldiers.begin(); }
+		std::vector<std::shared_ptr<sqf::objectdata>>::iterator soldiers_end() { return m_soldiers.end(); }
+		const std::vector<std::shared_ptr<sqf::objectdata>>& soldiers() const { return m_soldiers; }
 
 		void driver(std::shared_ptr<sqf::objectdata> val);
 		void gunner(std::shared_ptr<sqf::objectdata> val);

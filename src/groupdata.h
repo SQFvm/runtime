@@ -13,26 +13,28 @@ namespace sqf
 	class groupdata : public data, public varscope, public std::enable_shared_from_this<groupdata>
 	{
 	private:
-		std::vector<std::shared_ptr<innerobj>> munits;
-		std::shared_ptr<sidedata> mside;
-		std::string mgroupid;
-		bool misnull;
-		groupdata(std::shared_ptr<sidedata> side) : mside(std::move(side)), misnull(false) { }
+		std::vector<std::shared_ptr<innerobj>> m_units;
+		std::shared_ptr<sidedata> m_side;
+		std::string m_groupid;
+		bool m_isnull;
+		std::shared_ptr<innerobj> m_leader;
+		groupdata(std::shared_ptr<sidedata> side) : m_side(std::move(side)), m_isnull(false) { }
         groupdata() = default;
 	public:
 
-		operator std::shared_ptr<sidedata>() const { return mside; }
-		operator sidedata::eside() const { return mside->side(); }
-		std::shared_ptr<sidedata> side() const { return mside; }
+		operator std::shared_ptr<sidedata>() const { return m_side; }
+		operator sidedata::eside() const { return m_side->side(); }
+
+		std::shared_ptr<sidedata> side() const { return m_side; }
 		bool equals(std::shared_ptr<data> d) const override { return this == d.get(); }
         sqf::type dtype() const override { return sqf::type::GROUP; }
-		std::string groupid() const { return mgroupid; }
-		void groupid(std::string id) { mgroupid = id; }
-		std::string tosqf() const override { return mgroupid; }
+		std::string groupid() const { return m_groupid; }
+		void groupid(std::string id) { m_groupid = id; }
+		std::string tosqf() const override { return m_groupid; }
 
-		const std::vector<std::shared_ptr<innerobj>>& get_units() const { return munits; }
-		bool is_empty() const { return munits.size() == 0; }
-		bool is_null() const { return misnull; }
+		const std::vector<std::shared_ptr<innerobj>>& get_units() const { return m_units; }
+		bool is_empty() const { return m_units.size() == 0; }
+		bool is_null() const { return m_isnull; }
 
 		static std::shared_ptr<sqf::groupdata> create();
 		static std::shared_ptr<sqf::groupdata> create(sqf::virtualmachine* vm, std::shared_ptr<sqf::sidedata> side);

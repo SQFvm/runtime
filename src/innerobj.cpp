@@ -8,17 +8,17 @@
 #include "objectdata.h"
 #include <sstream>
 
-sqf::innerobj::innerobj(std::string classname, bool isvehicle) : mdamage(0), mclassname(std::move(classname)), misvehicle(isvehicle)
+sqf::innerobj::innerobj(std::string classname, bool isvehicle) : m_damage(0), m_classname(std::move(classname)), m_is_vehicle(isvehicle)
 {
-	mdriver = objectdata::objnull_data();
-	mgunner = objectdata::objnull_data();
-	mcommander = objectdata::objnull_data();
+	m_driver = objectdata::objnull_data();
+	m_gunner = objectdata::objnull_data();
+	m_commander = objectdata::objnull_data();
 }
 
 std::string sqf::innerobj::tosqf() const
 {
 	std::stringstream sstream;
-	sstream << static_cast<const void*>(this) << "# " << this->mnetid << ": " << mclassname;
+	sstream << static_cast<const void*>(this) << "# " << this->m_netid << ": " << m_classname;
 	return sstream.str();
 }
 
@@ -32,11 +32,11 @@ double sqf::innerobj::distance3d(std::array<double, 3> otherpos) const
 }
 double sqf::innerobj::distance2dsqr(std::array<double, 2> otherpos) const
 {
-	return arraydata::distance2dsqr(std::array<double, 2> { mposx, mposy }, otherpos);
+	return arraydata::distance2dsqr(std::array<double, 2> { m_position_x, m_position_y }, otherpos);
 }
 double sqf::innerobj::distance2d(std::array<double, 2> otherpos) const
 {
-	return arraydata::distance2d(std::array<double, 2> { mposx, mposy }, otherpos);
+	return arraydata::distance2d(std::array<double, 2> { m_position_x, m_position_y }, otherpos);
 }
 
 bool sqf::innerobj::iskindof(std::string_view cfgname) const {
@@ -52,8 +52,8 @@ bool sqf::innerobj::iskindof(std::string_view cfgname) const {
 
 void sqf::innerobj::destroy(sqf::virtualmachine * vm)
 {
-	if (mgroup)
-		mgroup->drop_unit(shared_from_this());
+	if (m_group)
+		m_group->drop_unit(shared_from_this());
 	vm->drop_obj(this);
 }
 
@@ -65,16 +65,16 @@ bool sqf::innerobj::update_values_from_configbin()
 	{
 		return false;
 	}
-	vehConfig = vehConfig->navigate(mclassname).data<configdata>();
+	vehConfig = vehConfig->navigate(m_classname).data<configdata>();
 	if (vehConfig->is_null())
 	{
 		return false;
 	}
-	mhasDriver = vehConfig->cfgvalue("hasDriver", false);
-	mhasGunner = vehConfig->cfgvalue("hasGunner", false);
-	mhasCommander = vehConfig->cfgvalue("hasCommander", false);
+	m_has_driver = vehConfig->cfgvalue("hasDriver", false);
+	m_has_gunner = vehConfig->cfgvalue("hasGunner", false);
+	m_has_commander = vehConfig->cfgvalue("hasCommander", false);
 	mtransportSoldier = static_cast<size_t>(vehConfig->cfgvalue("transportSoldier", 0));
-	msoldiers.resize(mtransportSoldier);
+	m_soldiers.resize(mtransportSoldier);
 	return true;
 }
 
@@ -92,7 +92,7 @@ std::shared_ptr<sqf::innerobj> sqf::innerobj::create(sqf::virtualmachine* vm, st
 	objptr->update_values_from_configbin();
 	auto obj = std::shared_ptr<innerobj>(objptr);
 	auto netid = vm->push_obj(obj);
-	obj->mnetid = netid;
+	obj->m_netid = netid;
 	return obj;
 }
 
@@ -112,77 +112,77 @@ bool sqf::innerobj::soldiers_push_back(sqf::value val)
 }
 bool sqf::innerobj::soldiers_push_back(std::shared_ptr<sqf::objectdata> val)
 {
-	if (val->is_null() || val->obj()->is_vehicle() || msoldiers.size() >= mtransportSoldier)
+	if (val->is_null() || val->obj()->is_vehicle() || m_soldiers.size() >= mtransportSoldier)
 	{
 		return false;
 	}
-	val->obj()->mparent_object = std::make_shared<objectdata>(this->shared_from_this());
-	msoldiers.push_back(val);
+	val->obj()->m_parent_object = std::make_shared<objectdata>(this->shared_from_this());
+	m_soldiers.push_back(val);
 	return true;
 }
 void sqf::innerobj::soldiers_pop_back()
 {
-	auto back = msoldiers.back();
+	auto back = m_soldiers.back();
 	if (!back->is_null())
 	{
-		back->obj()->mparent_object = objectdata::objnull_data();
+		back->obj()->m_parent_object = objectdata::objnull_data();
 	}
-	msoldiers.pop_back();
+	m_soldiers.pop_back();
 }
 void sqf::innerobj::soldiers_erase(std::shared_ptr<sqf::objectdata> obj)
 {
-	auto res = std::find(msoldiers.begin(), msoldiers.end(), obj);
-	if (res != msoldiers.end())
+	auto res = std::find(m_soldiers.begin(), m_soldiers.end(), obj);
+	if (res != m_soldiers.end())
 	{
 		if (!(*res)->is_null())
 		{
-			(*res)->obj()->mparent_object = objectdata::objnull_data();
+			(*res)->obj()->m_parent_object = objectdata::objnull_data();
 		}
-		msoldiers.erase(res);
+		m_soldiers.erase(res);
 	}
 }
 void sqf::innerobj::driver(std::shared_ptr<sqf::objectdata> val)
 {
-	if (mhasDriver && (val->is_null() || !val->obj()->is_vehicle()))
+	if (m_has_driver && (val->is_null() || !val->obj()->is_vehicle()))
 	{
-		if (!mdriver->is_null())
+		if (!m_driver->is_null())
 		{
-			mdriver->obj()->mparent_object = objectdata::objnull_data();
+			m_driver->obj()->m_parent_object = objectdata::objnull_data();
 		}
-		mdriver = val;
+		m_driver = val;
 		if (!val->is_null())
 		{
-			mdriver->obj()->mparent_object = std::make_shared<objectdata>(this->shared_from_this());
+			m_driver->obj()->m_parent_object = std::make_shared<objectdata>(this->shared_from_this());
 		}
 	}
 }
 void sqf::innerobj::gunner(std::shared_ptr<sqf::objectdata> val)
 {
-	if (mhasGunner && (val->is_null() || !val->obj()->is_vehicle()))
+	if (m_has_gunner && (val->is_null() || !val->obj()->is_vehicle()))
 	{
-		if (!mgunner->is_null())
+		if (!m_gunner->is_null())
 		{
-			mgunner->obj()->mparent_object = objectdata::objnull_data();
+			m_gunner->obj()->m_parent_object = objectdata::objnull_data();
 		}
-		mgunner = val;
+		m_gunner = val;
 		if (!val->is_null())
 		{
-			mgunner->obj()->mparent_object = std::make_shared<objectdata>(this->shared_from_this());
+			m_gunner->obj()->m_parent_object = std::make_shared<objectdata>(this->shared_from_this());
 		}
 	}
 }
 void sqf::innerobj::commander(std::shared_ptr<sqf::objectdata> val)
 {
-	if (mhasCommander && (val->is_null() || !val->obj()->is_vehicle()))
+	if (m_has_commander && (val->is_null() || !val->obj()->is_vehicle()))
 	{
-		if (!mcommander->is_null())
+		if (!m_commander->is_null())
 		{
-			mcommander->obj()->mparent_object = objectdata::objnull_data();
+			m_commander->obj()->m_parent_object = objectdata::objnull_data();
 		}
-		mcommander = val;
+		m_commander = val;
 		if (!val->is_null())
 		{
-			mcommander->obj()->mparent_object = std::make_shared<objectdata>(this->shared_from_this());
+			m_commander->obj()->m_parent_object = std::make_shared<objectdata>(this->shared_from_this());
 		}
 	}
 }
