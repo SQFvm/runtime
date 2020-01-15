@@ -352,7 +352,7 @@ short precedence(std::string_view s)
 
 void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const astnode& node)
 {
-	execute_parsing_callbacks(full, node, enter);
+	execute_parsing_callbacks(full, node, action::enter);
 	switch (node.kind)
 	{
 		case sqf::parse::sqf::sqfasttypes::BEXP1:
@@ -498,7 +498,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			}
 		}
 	}
-	execute_parsing_callbacks(full, node, exit);
+	execute_parsing_callbacks(full, node, action::exit);
 }
 void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnode& node, size_t depth)
 {
