@@ -10,7 +10,9 @@ __SQF-VM is a fully working and open-source Virtual Machine for the scripting la
 [![Discord](https://img.shields.io/discord/365800217871908864)](https://discord.gg/eP4QgTr)
 
 ### Cloning
-When cloning this repository you have to issue `git submodule init` followed by `git submodule update` in order to get all dependencies cloned as well.
+When cloning this repository, you have to do a recursive clone by doing the following: `git clone https://github.com/SQFvm/vm.git --recursive`.
+
+If you already have cloned without the `--recursive`, you have to perform `git submodule init` followed by `git submodule update` in order to get all dependencies cloned.
 
 ### FAQ
 

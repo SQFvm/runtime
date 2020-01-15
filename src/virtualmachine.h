@@ -15,6 +15,7 @@
 #include "marker.h"
 #include "filesystem.h"
 #include "astnode.h"
+#include "macro.h"
 
 
 namespace sqf
@@ -38,7 +39,7 @@ namespace sqf
 	class virtualmachine
 	{
 	public:
-		enum action
+		enum class action
 		{
 			enter,
 			exit
@@ -91,7 +92,7 @@ namespace sqf
 		std::shared_ptr<networking::client> m_current_networking_client;
 		std::shared_ptr<networking::server> m_current_networking_server;
 
-		std::vector<std::pair<std::string, std::string>> m_preprocessor_defines;
+		std::vector<sqf::parse::preprocessor::macro> m_preprocessor_macros;
 
 		std::vector<std::function<void(virtualmachine*, const char* text, const astnode&, action)>> m_parsing_callbacks;
 
@@ -115,9 +116,8 @@ namespace sqf
 		virtualmachine(unsigned long long maxinst);
 		~virtualmachine();
 
-		void push_back_preprocessor_define(std::string key) { m_preprocessor_defines.push_back({ key, "" }); }
-		void push_back_preprocessor_define(std::string key, std::string value) { m_preprocessor_defines.push_back({ key, value }); }
-		const std::vector<std::pair<std::string, std::string>>& preprocessor_defines() const { return m_preprocessor_defines; }
+		void push_macro(sqf::parse::preprocessor::macro macro) { m_preprocessor_macros.push_back(macro); }
+		const std::vector<sqf::parse::preprocessor::macro>& preprocessor_macros() const { return m_preprocessor_macros; }
 
 		std::chrono::system_clock::time_point get_created_timestamp() const { return m_created_timestamp; }
 		std::chrono::system_clock::time_point get_current_time() const { return m_current_time; }

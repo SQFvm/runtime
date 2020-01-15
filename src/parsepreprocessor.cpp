@@ -295,7 +295,7 @@ namespace {
 		local_fileinfo.line = m.line;
 		if (m.callback)
 		{
-			return m.callback(m, local_fileinfo, original_fileinfo, params);
+			return m.callback(m, &local_fileinfo, &original_fileinfo, params, h.vm);
 		}
 
 		std::unordered_map<std::string, std::string> parammap;
@@ -1014,13 +1014,23 @@ namespace {
 		return sstream.str();
 	}
 }
-std::string line_macro_callback(const macro& m, const finfo& local_fileinfo, const finfo& original_fileinfo, const std::vector<std::string>& params)
+std::string line_macro_callback(
+	const macro& m,
+	const finfo* local_fileinfo,
+	const finfo* original_fileinfo,
+	const std::vector<std::string>& params,
+	sqf::virtualmachine* vm)
 {
-	return std::to_string(original_fileinfo.line);
+	return std::to_string(original_fileinfo->line);
 }
-std::string file_macro_callback(const macro& m, const finfo& local_fileinfo, const finfo& original_fileinfo, const std::vector<std::string>& params)
+std::string file_macro_callback(
+	const macro& m,
+	const finfo* local_fileinfo,
+	const finfo* original_fileinfo,
+	const std::vector<std::string>& params,
+	sqf::virtualmachine* vm)
 {
-	return '"' + original_fileinfo.path + '"';
+	return '"' + original_fileinfo->path + '"';
 }
 std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string input, bool & errflag, std::string filename)
 {
@@ -1088,16 +1098,9 @@ std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string
 		macro.name = "_SQF_VM_REVISION";
 		h.macros["_SQF_VM_REVISION"] = macro;
 	}
-	for (auto& it : vm->preprocessor_defines())
+	for (auto& macro : vm->preprocessor_macros())
 	{
-		macro macro;
-		macro.line = 0;
-		macro.column = 0;
-		macro.content = it.second;
-		macro.filepath = "";
-		macro.hasargs = false;
-		macro.name = it.first;
-		h.macros[it.first] = macro;
+		h.macros[macro.name] = macro;
 	}
 	finfo fileinfo;
 	fileinfo.content = std::move(input);

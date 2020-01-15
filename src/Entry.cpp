@@ -466,11 +466,11 @@ int main(int argc, char** argv)
 		auto eqIndex = d.find('=');
 		if (eqIndex == std::string::npos)
 		{
-			vm.push_back_preprocessor_define(d);
+			vm.push_macro({ d , "__commandline" });
 		}
 		else
 		{
-			vm.push_back_preprocessor_define(d.substr(0, eqIndex), d.substr(eqIndex + 1));
+			vm.push_macro({ d.substr(0, eqIndex), d.substr(eqIndex + 1), "__commandline" });
 		}
 	}
 
