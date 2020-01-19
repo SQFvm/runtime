@@ -940,6 +940,38 @@ namespace
 			return res != veh->soldiers_end();
 		}
 	}
+	value vehiclevarname_object(virtualmachine* vm, value::cref right)
+	{
+		auto r = right.data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return {};
+		}
+		if (!r->obj()->is_vehicle())
+		{
+			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			return false;
+		}
+		return r->obj()->varname();
+	}
+	value setvehiclevarname_object_string(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto l = left.data<objectdata>();
+		if (l->is_null())
+		{
+			vm->err() << "Left value provided is NULL object." << std::endl;
+			return {};
+		}
+		if (l->obj()->is_vehicle())
+		{
+			vm->wrn() << "Right value provided is a vehicle object." << std::endl;
+			return false;
+		}
+		auto r = right.as_string();
+		l->obj()->varname(r);
+		return {};
+	}
 }
 void sqf::commandmap::initobjectcmds()
 {
@@ -986,5 +1018,7 @@ void sqf::commandmap::initobjectcmds()
 	add(unary("commander", type::OBJECT, "Returns the primary observer. If provided object is a unit, the unit is returned.", commander_object));
 	add(unary("gunner", type::OBJECT, "Returns the gunner of a vehicle. If provided object is a unit, the unit is returned.", gunner_object));
 	add(binary(4, "in", type::OBJECT, type::OBJECT, "Checks whether unit is in vehicle.", in_object_object));
-
+	add(unary("vehicleVarName", type::OBJECT, "Returns the name of the variable which contains a primary editor reference to this object." "\n"
+		"This is the variable given in the Insert Unit dialog / name field, in the editor. It can be changed using setVehicleVarName.", vehiclevarname_object));
+	add(binary(4, "setVehicleVarName", type::OBJECT, type::STRING, "Sets string representation of an object to a custom string. For example it is possible to return \"MyFerrari\" instead of default \"ce06b00# 164274: offroad_01_unarmed_f.p3d\" when querying object as string", setvehiclevarname_object_string));
 }

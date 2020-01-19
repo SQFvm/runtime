@@ -8,7 +8,28 @@
 #include "objectdata.h"
 #include <sstream>
 
-sqf::innerobj::innerobj(std::string classname, bool isvehicle) : m_damage(0), m_classname(std::move(classname)), m_is_vehicle(isvehicle)
+sqf::innerobj::innerobj(std::string classname, bool isvehicle) :
+	m_netid(),
+	m_position_x(0),
+	m_position_y(0),
+	m_position_z(0),
+	m_velocity_x(0),
+	m_velocity_y(0),
+	m_velocity_z(0),
+	m_damage(0),
+	m_classname(std::move(classname)),
+	m_varname(),
+	m_group(),
+	m_is_vehicle(isvehicle),
+	m_has_driver(false),
+	m_has_gunner(false),
+	m_has_commander(false),
+	mtransportSoldier(0),
+	m_parent_object(),
+	m_driver(),
+	m_gunner(),
+	m_commander(),
+	m_soldiers()
 {
 	m_driver = objectdata::objnull_data();
 	m_gunner = objectdata::objnull_data();
@@ -17,9 +38,16 @@ sqf::innerobj::innerobj(std::string classname, bool isvehicle) : m_damage(0), m_
 
 std::string sqf::innerobj::tosqf() const
 {
-	std::stringstream sstream;
-	sstream << static_cast<const void*>(this) << "# " << this->m_netid << ": " << m_classname;
-	return sstream.str();
+	if (m_varname.empty())
+	{
+		std::stringstream sstream;
+		sstream << static_cast<const void*>(this) << "# " << this->m_netid << ": " << m_classname;
+		return sstream.str();
+	}
+	else
+	{
+		return m_varname;
+	}
 }
 
 double sqf::innerobj::distance3dsqr(std::array<double, 3> otherpos) const
