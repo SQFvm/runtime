@@ -29,7 +29,6 @@
 #include "sidedata.h"
 #include "groupdata.h"
 #include "scriptdata.h"
-#include "debugger.h"
 #include "callstack_sqftry.h"
 #include "sqfnamespace.h"
 #include "innerobj.h"
@@ -59,14 +58,12 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mout = &std::cout;
 	mwrn = &std::cerr;
 	merr = &std::cerr;
-	mhaltflag = false;
 	m_instructions_count = 0;
 	m_max_instructions = maxinst;
 	m_main_vmstack = std::make_shared<vmstack>();
 	m_active_vmstack = m_main_vmstack;
 	merrflag = false;
 	mwrnflag = false;
-	_debugger = nullptr;
 	mmissionnamespace = std::make_shared<sqf::sqfnamespace>("missionNamespace");
 	muinamespace = std::make_shared< sqf::sqfnamespace>("uiNamespace");
 	mparsingnamespace = std::make_shared<sqf::sqfnamespace>("parsingNamespace");
@@ -103,50 +100,186 @@ void sqf::virtualmachine::release_networking()
 		}
 	}
 }
-void sqf::virtualmachine::execute()
+sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 {
 	out_buffprint();
 	wrn_buffprint();
 	err_buffprint();
-
-	m_exit_flag = false;
-	while (!m_exit_flag && (!mspawns.empty() || !m_main_vmstack->empty() || (_debugger && _debugger->stop(this))))
+	execresult res;
+	switch (action)
 	{
-		if (is_networking_set())
+	case sqf::virtualmachine::execaction::leave_scope:
+		if (m_run_mutex.try_lock())
 		{
-			handle_networking();
-		}
-		if (_debugger) { _debugger->status(sqf::debugger::RUNNING); }
-		m_active_vmstack = m_main_vmstack;
-		if (!performexecute())
-		{
-			while (!m_main_vmstack->empty()) { m_main_vmstack->drop_callstack(); }
-		}
-		for (auto& it : mspawns)
-		{
-			m_active_vmstack = it->stack();
-			if (m_active_vmstack->asleep())
+			const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
+			auto scopeNum = m_active_vmstack->stacks_size() - 1;
+			bool flag = true;
+			while (m_status == vmstatus::running)
 			{
-				if (m_active_vmstack->get_wakeupstamp() <= virtualmachine::system_time())
+				flag = performexecute(1);
+				if (!flag)
 				{
-					m_active_vmstack->wakeup();
+					break;
 				}
-				else
+				if (m_active_vmstack->stacks_size() <= scopeNum)
 				{
-					continue;
+					break;
 				}
 			}
-			performexecute(150);
-			if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { break; }
+			if (flag)
+			{
+				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
+				res = execresult::OK;
+			}
+			else
+			{
+				m_status = vmstatus::halt_error;
+				res = execresult::runtime_error;
+			}
 		}
-		if (_debugger && (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)) { mspawns.clear(); }
-		mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished() || it->stack()->terminate(); });
+		else
+		{
+		res = execresult::action_error;
+		}
+		break;
+	case sqf::virtualmachine::execaction::start:
+		if (m_run_mutex.try_lock())
+		{
+			const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
+			bool flag = true;
+			m_status = vmstatus::running;
+			while (m_status == vmstatus::running)
+			{
+				if (is_networking_set())
+				{
+					handle_networking();
+				}
+				m_active_vmstack = m_main_vmstack;
+				flag = performexecute(150);
+				if (!flag)
+				{
+					break;
+				}
+				for (auto& it : mspawns)
+				{
+					m_active_vmstack = it->stack();
+					if (m_active_vmstack->asleep())
+					{
+						if (m_active_vmstack->get_wakeupstamp() <= virtualmachine::system_time())
+						{
+							m_active_vmstack->wakeup();
+						}
+						else
+						{
+							continue;
+						}
+					}
+					flag = performexecute(150);
+					if (!flag)
+					{
+						break;
+					}
+				}
+				mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished() || it->stack()->terminate(); });
+			}
+			if (flag)
+			{
+				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
+				res = execresult::OK;
+			}
+			else
+			{
+				m_status = vmstatus::halt_error;
+				res = execresult::runtime_error;
+			}
+		}
+		else
+		{
+			res = execresult::action_error;
+		}
+		break;
+	case sqf::virtualmachine::execaction::assembly_step:
+		if (m_run_mutex.try_lock())
+		{
+			const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
+			if (performexecute(1))
+			{
+				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
+				res = execresult::OK;
+			}
+			else
+			{
+				m_status = vmstatus::halt_error;
+				res = execresult::runtime_error;
+			}
+		}
+		else
+		{
+			res = execresult::action_error;
+		}
+		break;
+
+
+
+	case sqf::virtualmachine::execaction::stop:
+		if (m_status != vmstatus::running)
+		{
+			res = execresult::action_error;
+		}
+		else if (m_run_mutex.try_lock())
+		{
+			m_run_mutex.unlock();
+			res = execresult::action_error;
+		}
+		else
+		{
+			m_status = vmstatus::requested_halt;
+		}
+		break;
+	case sqf::virtualmachine::execaction::abort:
+		if (m_status == vmstatus::running)
+		{
+			if (m_run_mutex.try_lock())
+			{
+				m_run_mutex.unlock();
+				res = execresult::action_error;
+			}
+			else
+			{
+				m_status = vmstatus::requested_abort;
+			}
+		}
+		else if (m_status == vmstatus::halt_error)
+		{
+			if (m_run_mutex.try_lock())
+			{
+				while (!m_main_vmstack->empty()) { m_main_vmstack->drop_callstack(); }
+				for (auto& it : mspawns)
+				{
+					while (!it->stack()->empty()) { it->stack()->drop_callstack(); }
+				}
+				m_run_mutex.unlock();
+				m_status = vmstatus::empty;
+			}
+			else
+			{
+				res = execresult::action_error;
+			}
+		}
+		else
+		{
+			res = execresult::action_error;
+		}
+		break;
+	default:
+		res = execresult::action_error;
+		break;
 	}
-	m_active_vmstack = m_main_vmstack;
 
 	out_buffprint();
 	wrn_buffprint();
 	err_buffprint();
+	return res;
 }
 bool sqf::virtualmachine::performexecute(size_t exitAfter)
 {
@@ -157,7 +290,8 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 		!m_active_vmstack->asleep() &&
 		!m_active_vmstack->terminate() &&
 		(inst = m_active_vmstack->pop_back_instruction(this)).get() &&
-		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend
+		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend &&
+		m_status == sqf::virtualmachine::vmstatus::running
 		)
 	{
 		m_instructions_count++;
@@ -169,13 +303,9 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 		{
 			err() << "MAX INST COUNT REACHED (" << m_max_instructions << ")" << std::endl;
 			(*merr) << inst->dbginf("RNT") << merr_buff.str();
-			if (_debugger) {
-				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
-			}
             err_clear();
 			return false;
 		}
-		if (_debugger && _debugger->hitbreakpoint(inst->line(), inst->file())) { _debugger->position(inst->line(), inst->col(), inst->file()); _debugger->breakmode(this); }
 #ifdef DEBUG_VM_ASSEMBLY
 		(*mout) << inst->to_string() << std::endl;
 #endif
@@ -200,11 +330,6 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 #endif
 		if (merrflag)
 		{
-			if (_debugger) {
-				_debugger->position(inst->line(), inst->col(), inst->file());
-				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
-			}
-
 			// Try to find a callstack_sqftry
 			auto res = std::find_if(m_active_vmstack->stacks_begin(), m_active_vmstack->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
 				return cs->can_recover();
@@ -262,25 +387,9 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 			{
 				(*mwrn) << inst->dbginf("WRN") << mwrn_buff.str();
 			}
-			if (_debugger) {
-				_debugger->position(inst->line(), inst->col(), inst->file());
-				_debugger->error(this, inst->line(), inst->col(), inst->file(), merr_buff.str());
-			}
 			wrn_clear();
 		}
         out_buffprint();
-		if (_debugger) {
-			if (mhaltflag)
-			{
-				mhaltflag = false;
-				_debugger->breakmode(this);
-			}
-			_debugger->check(this);
-			if (_debugger->controlstatus() == sqf::debugger::QUIT || _debugger->controlstatus() == sqf::debugger::STOP)
-			{
-				return false;
-			}
-		}
 	}
 	return true;
 }
@@ -349,10 +458,9 @@ short precedence(std::string_view s)
 	}
 	return srange->begin()->get()->precedence();
 }
-
 void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const astnode& node)
 {
-	execute_parsing_callbacks(full, node, action::enter);
+	execute_parsing_callbacks(full, node, evaction::enter);
 	switch (node.kind)
 	{
 		case sqf::parse::sqf::sqfasttypes::BEXP1:
@@ -498,7 +606,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			}
 		}
 	}
-	execute_parsing_callbacks(full, node, action::exit);
+	execute_parsing_callbacks(full, node, evaction::exit);
 }
 void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnode& node, size_t depth)
 {
@@ -599,13 +707,11 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnod
 		}
 	}
 }
-
 astnode sqf::virtualmachine::parse_sqf_cst(std::string_view code, bool& errorflag, std::string filename)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	return sqf::parse::sqf::parse_sqf(code.data(), h, errorflag, std::move(filename));
 }
-
 void sqf::virtualmachine::parse_sqf_tree(std::string_view code, std::stringstream* sstream)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
@@ -613,7 +719,6 @@ void sqf::virtualmachine::parse_sqf_tree(std::string_view code, std::stringstrea
 	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, "");
 	print_navigate_ast(sstream, node, sqf::parse::sqf::astkindname);
 }
-
 bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::string_view code, std::shared_ptr<sqf::callstack> cs, std::string filename)
 {
 	if (!cs.get())
@@ -632,7 +737,6 @@ bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 	}
 	return errflag;
 }
-
 void sqf::virtualmachine::pretty_print_sqf(std::string_view code)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
@@ -643,7 +747,6 @@ void sqf::virtualmachine::pretty_print_sqf(std::string_view code)
 		navigate_pretty_print_sqf(code.data(), this, node, 0);
 	}
 }
-
 void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode& node)
 {
 	auto kind = static_cast<sqf::parse::config::configasttypes::configasttypes>(node.kind);
@@ -713,7 +816,6 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 	}
 	}
 }
-
 void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<configdata> parent)
 {
 	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
@@ -735,7 +837,6 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 		navigate_config(code.data(), this, std::move(parent), node);
 	}
 }
-
 size_t sqf::virtualmachine::push_obj(std::shared_ptr<sqf::innerobj> obj)
 {
 	if (!mfreeobjids.empty())
@@ -758,7 +859,6 @@ void sqf::virtualmachine::drop_obj(const sqf::innerobj * obj)
 	mobjlist[id] = std::shared_ptr<sqf::innerobj>();
 	mfreeobjids.push_back(id);
 }
-
 std::shared_ptr<sqf::innerobj> sqf::virtualmachine::get_obj_netid(size_t netid)
 {
 	if (mobjlist.size() <= netid)
@@ -767,7 +867,6 @@ std::shared_ptr<sqf::innerobj> sqf::virtualmachine::get_obj_netid(size_t netid)
 	}
 	return mobjlist[netid];
 }
-
 std::string sqf::virtualmachine::get_group_id(std::shared_ptr<sqf::sidedata> side)
 {
 	int sidenum = side->side();
@@ -776,12 +875,10 @@ std::string sqf::virtualmachine::get_group_id(std::shared_ptr<sqf::sidedata> sid
 	sstream << side->tosqf() << " ALPHA " << id;
 	return sstream.str();
 }
-
 void sqf::virtualmachine::push_group(std::shared_ptr<sqf::groupdata> d)
 {
 	mgroups[d->side()->side()].push_back(d);
 }
-
 void sqf::virtualmachine::drop_group(std::shared_ptr<sqf::groupdata> grp)
 {
 	auto& grpList = mgroups[grp->side()->side()];
@@ -805,8 +902,6 @@ std::chrono::system_clock::time_point sqf::virtualmachine::system_time()
 //	//return parser.parse(this, inputfile);
 //	return "";
 //}
-
-
 void sqf::virtualmachine::handle_networking()
 {
 

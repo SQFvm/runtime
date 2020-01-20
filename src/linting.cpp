@@ -17,12 +17,12 @@ namespace sqf
 			std::vector<std::vector<std::string>> m_existing_variables2;
 			std::vector<std::string> m_operators;
 
-			void check(sqf::virtualmachine* vm, const char* code, const astnode& node, sqf::virtualmachine::action act)
+			void check(sqf::virtualmachine* vm, const char* code, const astnode& node, sqf::virtualmachine::evaction act)
 			{
 				switch (node.kind)
 				{
 				case sqf::parse::sqf::sqfasttypes::UNARYOP:
-					if (act == sqf::virtualmachine::action::enter)
+					if (act == sqf::virtualmachine::evaction::enter)
 					{
 						std::string operatorname = node.content;
 						std::transform(operatorname.begin(), operatorname.end(), operatorname.begin(), [](unsigned char c) { return std::tolower(c); });
@@ -30,13 +30,13 @@ namespace sqf
 					}
 					break;
 				case sqf::parse::sqf::sqfasttypes::UNARYEXPRESSION:
-					if (act == sqf::virtualmachine::action::exit)
+					if (act == sqf::virtualmachine::evaction::exit)
 					{
 						m_operators.pop_back();
 					}
 					break;
 				case sqf::parse::sqf::sqfasttypes::BINARYOP:
-					if (act == sqf::virtualmachine::action::enter)
+					if (act == sqf::virtualmachine::evaction::enter)
 					{
 						std::string operatorname = node.content;
 						std::transform(operatorname.begin(), operatorname.end(), operatorname.begin(), [](unsigned char c) { return std::tolower(c); });
@@ -44,13 +44,13 @@ namespace sqf
 					}
 					break;
 				case sqf::parse::sqf::sqfasttypes::BINARYEXPRESSION:
-					if (act == sqf::virtualmachine::action::exit)
+					if (act == sqf::virtualmachine::evaction::exit)
 					{
 						m_operators.pop_back();
 					}
 					break;
 				case sqf::parse::sqf::sqfasttypes::STRING:
-					if (act == sqf::virtualmachine::action::enter)
+					if (act == sqf::virtualmachine::evaction::enter)
 					{
 						auto operatorname = m_operators.back();
 						if (operatorname == "private" ||
@@ -65,7 +65,7 @@ namespace sqf
 					}
 					break;
 				case sqf::parse::sqf::sqfasttypes::SQF:
-					if (act == sqf::virtualmachine::action::enter)
+					if (act == sqf::virtualmachine::evaction::enter)
 					{
 						m_existing_variables2.push_back({});
 						m_existing_variables.push_back("_this");
@@ -76,7 +76,7 @@ namespace sqf
 						m_existing_variables.push_back("_thisfsm");
 						m_existing_variables.push_back("_thisscript");
 					}
-					else if (act == sqf::virtualmachine::action::exit)
+					else if (act == sqf::virtualmachine::evaction::exit)
 					{
 						m_existing_variables.clear();
 						m_existing_variables2.clear();
@@ -84,11 +84,11 @@ namespace sqf
 					break;
 				case sqf::parse::sqf::sqfasttypes::CODE:
 				{
-					if (act == sqf::virtualmachine::action::enter)
+					if (act == sqf::virtualmachine::evaction::enter)
 					{
 						m_existing_variables2.push_back({});
 					}
-					else if (act == sqf::virtualmachine::action::exit)
+					else if (act == sqf::virtualmachine::evaction::exit)
 					{
 						for (size_t i = 0; i < m_existing_variables2.back().size(); i++)
 						{
@@ -101,7 +101,7 @@ namespace sqf
 				case sqf::parse::sqf::sqfasttypes::ASSIGNMENT:
 				case sqf::parse::sqf::sqfasttypes::ASSIGNMENTLOCAL:
 				{
-					if (act != sqf::virtualmachine::action::enter)
+					if (act != sqf::virtualmachine::evaction::enter)
 					{
 						break;
 					}
@@ -118,7 +118,7 @@ namespace sqf
 				break;
 				case sqf::parse::sqf::sqfasttypes::VARIABLE:
 				{
-					if (act != sqf::virtualmachine::action::enter)
+					if (act != sqf::virtualmachine::evaction::enter)
 					{
 						break;
 					}
@@ -147,7 +147,7 @@ namespace sqf
 			case sqf::linting::private_var_usage:
 			{
 				vm->register_callback([instance = private_var_usage_check()](
-					sqf::virtualmachine * vm, const char* code, const astnode & node, sqf::virtualmachine::action act) mutable -> void
+					sqf::virtualmachine * vm, const char* code, const astnode & node, sqf::virtualmachine::evaction act) mutable -> void
 				{
 					instance.check(vm, code, node, act);
 				});

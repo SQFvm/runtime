@@ -154,6 +154,7 @@ namespace sqf
 
 		std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator stacks_begin() { return m_stacks.rbegin(); }
 		std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator stacks_end() { return m_stacks.rend(); }
+		size_t stacks_size() { return m_stacks.size(); }
 		std::shared_ptr<sqf::callstack> stacks_top() { return m_stacks.back(); }
 
 		void push_back(value val)

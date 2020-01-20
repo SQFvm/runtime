@@ -22,7 +22,6 @@
 #include <string_view>
 
 #include "dllexports.h"
-#include "debugger.h"
 #include <csignal>
 #ifdef _WIN32
 #include <windows.h>
@@ -197,9 +196,6 @@ int main(int argc, char** argv)
 	TCLAP::ValueArg<int> serverArg("s", "server", "Causes the SQF-VM to start a network server that allows other SQF-VM instances to connecto to it via remoteConnect__.", false, 0, "PORT");
 	cmd.add(serverArg);
 
-	TCLAP::ValueArg<int> debuggerArg("d", "debugger", "Causes the SQF-VM to start a network server that allows to attach a single debugger to it.", false, 0, "PORT");
-	cmd.add(debuggerArg);
-
 	TCLAP::ValueArg<int> maxInstructionsArg("m", "max-instructions", "Sets the maximum ammount of instructions to execute before a hard exit may occur. Setting this to 0 will disable the limit.", false, 0, "NUMBER");
 	cmd.add(maxInstructionsArg);
 
@@ -229,7 +225,6 @@ int main(int argc, char** argv)
 	cmd.add(verboseArg);
 
 	TCLAP::SwitchArg parseOnlyArg("", "parse-only", "Disables all code execution entirely and performs only the parsing & assembly generation tasks. "
-		"Note that this also will prevent the debugger to start. "
 		"To disable assembly generation too, refer to --no-assembly-creation.", false);
 	cmd.add(parseOnlyArg);
 
@@ -358,14 +353,12 @@ int main(int argc, char** argv)
 	bool noLoadExecDir = noLoadExecDirArg.getValue();
 	bool verbose = verboseArg.getValue();
 
-	auto debugger_port = debuggerArg.getValue();
 
 	sqf::parse::preprocessor::settings::disable_warn_define = disableMacroWarningsArg.getValue();
 
 	sqf::virtualmachine vm;
 	sqf::commandmap::get().init();
 	netserver* srv = nullptr;
-	sqf::debugger* dbg = nullptr;
 
 	if (lintPrivateVarExistingArg.getValue())
 	{
@@ -691,22 +684,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (debugger_port > 0)
-	{
-		networking_init();
-		dbg = new sqf::debugger((srv = new netserver(debugger_port)));
-		vm.dbg(dbg);
-		std::cout << "Waiting for client to connect..." << std::endl;
-		try
-		{
-			srv->wait_accept();
-			std::cout << "Client connected!" << std::endl;
-		}
-		catch (const std::runtime_error& err)
-		{
-			std::cout << err.what() << std::endl;
-		}
-	}
 	do
 	{
 		if (!automated)
@@ -759,14 +736,19 @@ int main(int argc, char** argv)
 
 		if (noExecutePrintArg.getValue())
 		{
-			vm.execute();
+			vm.execute_all();
 		}
 		else
 		{
+			sqf::virtualmachine::execresult result;
 			std::cout << "Executing..." << std::endl;
 			std::cout << std::string(console_width(), '-') << std::endl;
-			vm.execute();
+			result = vm.execute(sqf::virtualmachine::execaction::start);
 			std::cout << std::string(console_width(), '-') << std::endl;
+			if (result != sqf::virtualmachine::execresult::OK)
+			{
+				vm.execute(sqf::virtualmachine::execaction::abort);
+			}
 		}
 		if (!noWorkPrintArg.getValue())
 		{
@@ -784,20 +766,6 @@ int main(int argc, char** argv)
 
 	} while (!automated && !vm.exit_flag());
 
-	
-	if (debugger_port > 0)
-	{
-		if (dbg)
-		{
-			delete dbg;
-			dbg = nullptr;
-		}
-		if (srv)
-		{
-			delete srv;
-			srv = nullptr;
-		}
-	}
 	if (vm.is_networking_set())
 	{
 		vm.release_networking();
