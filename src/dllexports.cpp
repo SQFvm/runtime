@@ -61,7 +61,11 @@ extern "C" {
 		if (!err)
 		{
 			sqfvm_virtualmachine->parse_sqf(inputAfterPP, "__libraryfeed.sqf");
-			sqfvm_virtualmachine->execute_all();
+			auto result = sqfvm_virtualmachine->execute(sqf::virtualmachine::execaction::start);
+			if (result != sqf::virtualmachine::execresult::OK)
+			{
+				sqfvm_virtualmachine->execute(sqf::virtualmachine::execaction::abort);
+			}
 			auto val = sqfvm_virtualmachine->active_vmstack()->last_value();
 			sqfvm_virtualmachine->err_buffprint(true);
 			sqfvm_virtualmachine->wrn_buffprint(true);
