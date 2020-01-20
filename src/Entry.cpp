@@ -734,21 +734,20 @@ int main(int argc, char** argv)
 		}
 
 
-		if (noExecutePrintArg.getValue())
+		sqf::virtualmachine::execresult result;
+		if (!noExecutePrintArg.getValue())
 		{
-			vm.execute_all();
-		}
-		else
-		{
-			sqf::virtualmachine::execresult result;
 			std::cout << "Executing..." << std::endl;
 			std::cout << std::string(console_width(), '-') << std::endl;
-			result = vm.execute(sqf::virtualmachine::execaction::start);
+		}
+		result = vm.execute(sqf::virtualmachine::execaction::start);
+		if (!noExecutePrintArg.getValue())
+		{
 			std::cout << std::string(console_width(), '-') << std::endl;
-			if (result != sqf::virtualmachine::execresult::OK)
-			{
-				vm.execute(sqf::virtualmachine::execaction::abort);
-			}
+		}
+		if (result != sqf::virtualmachine::execresult::OK)
+		{
+			vm.execute(sqf::virtualmachine::execaction::abort);
 		}
 		if (!noWorkPrintArg.getValue())
 		{
