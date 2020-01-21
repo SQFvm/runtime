@@ -100,6 +100,29 @@ void sqf::virtualmachine::release_networking()
 		}
 	}
 }
+void sqf::virtualmachine::execute_helper_execution_abort()
+{
+	while (!m_main_vmstack->empty()) { m_main_vmstack->drop_callstack(); }
+	for (auto& it : mspawns)
+	{
+		while (!it->stack()->empty()) { it->stack()->drop_callstack(); }
+	}
+	mspawns.clear();
+}
+bool sqf::virtualmachine::execute_helper_execution_end()
+{
+	if (m_exit_flag)
+	{
+		m_exit_flag = false;
+		execute_helper_execution_abort();
+		return true;
+	}
+	if (this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0)
+	{
+		return true;
+	}
+	return false;
+}
 sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 {
 	out_buffprint();
@@ -114,7 +137,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
 			auto scopeNum = m_active_vmstack->stacks_size() - 1;
 			bool flag = true;
-			while (m_status == vmstatus::running)
+			while (m_status == vmstatus::running && !execute_helper_execution_end())
 			{
 				flag = performexecute(1);
 				if (!flag)
@@ -148,7 +171,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
 			bool flag = true;
 			m_status = vmstatus::running;
-			while (m_status == vmstatus::running)
+			while (m_status == vmstatus::running && !execute_helper_execution_end())
 			{
 				if (is_networking_set())
 				{
@@ -234,6 +257,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 		else
 		{
 			m_status = vmstatus::requested_halt;
+			res = execresult::OK;
 		}
 		break;
 	case sqf::virtualmachine::execaction::abort:
@@ -247,28 +271,28 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			else
 			{
 				m_status = vmstatus::requested_abort;
+				res = execresult::OK;
 			}
 		}
 		else if (m_status == vmstatus::halt_error)
 		{
 			if (m_run_mutex.try_lock())
 			{
-				while (!m_main_vmstack->empty()) { m_main_vmstack->drop_callstack(); }
-				for (auto& it : mspawns)
-				{
-					while (!it->stack()->empty()) { it->stack()->drop_callstack(); }
-				}
-				m_run_mutex.unlock();
+				const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
+				execute_helper_execution_abort();
 				m_status = vmstatus::empty;
+				res = execresult::OK;
 			}
 			else
 			{
 				res = execresult::action_error;
+				res = execresult::OK;
 			}
 		}
 		else
 		{
 			res = execresult::action_error;
+			res = execresult::OK;
 		}
 		break;
 	default:

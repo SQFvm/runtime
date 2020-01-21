@@ -134,6 +134,8 @@ namespace sqf
 				it(this, text, node, act);
 			}
 		}
+		void execute_helper_execution_abort();
+		bool execute_helper_execution_end();
 	public:
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
