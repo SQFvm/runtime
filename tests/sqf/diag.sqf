@@ -2,8 +2,7 @@
 [   
     ["assertTrue",  { diag_tickTime > 0 }],
     ["assertTrue",  { assert(true) }],
-    ["assertException",  { assert(false) }],
-    ["assertIsNil",  { halt }],
+    ["assertException", { assert(false) }],
 	["assertEqual", { productVersion }, productVersion],
 	["assertEqual", { typename "" }, "STRING"],
 	["assertEqual", { typename 1 }, "SCALAR"],
