@@ -10,7 +10,7 @@
 #include <chrono>
 #include <utility>
 #include <functional>
-#include <mutex>
+#include <atomic>
 
 #include "dlops.h"
 #include "marker.h"
@@ -50,7 +50,10 @@ namespace sqf
 			stop,
 			abort,
 			assembly_step,
-			leave_scope
+			leave_scope,
+			// Special execaction to reset the run_atomic flag in case of
+			// exception being thrown by the virtualmachine execution method.
+			reset_run_atomic
 		};
 		enum class execresult
 		{
@@ -96,7 +99,7 @@ namespace sqf
 
 		std::map<int, size_t> mgroupidcounter;
 		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
-		std::mutex m_run_mutex;
+		std::atomic<bool> m_run_atomic;
 		vmstatus m_status;
 
 		/*

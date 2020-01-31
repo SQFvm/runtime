@@ -75,6 +75,7 @@ sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
 	mplayer_obj = innerobj::create(this, "CAManBase", false);
 	m_created_timestamp = system_time();
 	m_current_time = system_time();
+	m_run_atomic = false;
 }
 sqf::virtualmachine::~virtualmachine()
 {
@@ -128,13 +129,13 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 	wrn_buffprint();
 	err_buffprint();
 	execresult res;
+	bool expected = false;
 	switch (action)
 	{
 	case sqf::virtualmachine::execaction::leave_scope:
-		if (m_run_mutex.try_lock())
+		if (m_run_atomic.compare_exchange_weak(expected, true, std::memory_order::memory_order_seq_cst, std::memory_order::memory_order_seq_cst))
 		{
 			m_exit_flag = false;
-			const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
 			auto scopeNum = m_active_vmstack->stacks_size() - 1;
 			bool flag = true;
 			while (m_status == vmstatus::running && !execute_helper_execution_end())
@@ -159,6 +160,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 				m_status = vmstatus::halt_error;
 				res = execresult::runtime_error;
 			}
+			m_run_atomic = false;
 		}
 		else
 		{
@@ -166,10 +168,9 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 		}
 		break;
 	case sqf::virtualmachine::execaction::start:
-		if (m_run_mutex.try_lock())
+		if (m_run_atomic.compare_exchange_weak(expected, true, std::memory_order::memory_order_seq_cst, std::memory_order::memory_order_seq_cst))
 		{
 			m_exit_flag = false;
-			const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
 			bool flag = true;
 			m_status = vmstatus::running;
 			while (m_status == vmstatus::running && !execute_helper_execution_end())
@@ -216,6 +217,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 				m_status = vmstatus::halt_error;
 				res = execresult::runtime_error;
 			}
+			m_run_atomic = false;
 		}
 		else
 		{
@@ -223,10 +225,9 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 		}
 		break;
 	case sqf::virtualmachine::execaction::assembly_step:
-		if (m_run_mutex.try_lock())
+		if (m_run_atomic.compare_exchange_weak(expected, true, std::memory_order::memory_order_seq_cst, std::memory_order::memory_order_seq_cst))
 		{
 			m_exit_flag = false;
-			const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
 			if (performexecute(1))
 			{
 				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
@@ -237,6 +238,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 				m_status = vmstatus::halt_error;
 				res = execresult::runtime_error;
 			}
+			m_run_atomic = false;
 		}
 		else
 		{
@@ -251,9 +253,8 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 		{
 			res = execresult::action_error;
 		}
-		else if (m_run_mutex.try_lock())
+		else if (!m_run_atomic)
 		{
-			m_run_mutex.unlock();
 			res = execresult::action_error;
 		}
 		else
@@ -265,9 +266,8 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 	case sqf::virtualmachine::execaction::abort:
 		if (m_status == vmstatus::running)
 		{
-			if (m_run_mutex.try_lock())
+			if (!m_run_atomic)
 			{
-				m_run_mutex.unlock();
 				res = execresult::action_error;
 			}
 			else
@@ -278,12 +278,12 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 		}
 		else if (m_status == vmstatus::halt_error)
 		{
-			if (m_run_mutex.try_lock())
+			if (m_run_atomic.compare_exchange_weak(expected, true, std::memory_order::memory_order_seq_cst, std::memory_order::memory_order_seq_cst))
 			{
-				const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
 				execute_helper_execution_abort();
 				m_status = vmstatus::empty;
 				res = execresult::OK;
+				m_run_atomic = false;
 			}
 			else
 			{
@@ -296,6 +296,9 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			res = execresult::action_error;
 			res = execresult::OK;
 		}
+		break;
+	case sqf::virtualmachine::execaction::reset_run_atomic:
+		m_run_atomic = false;
 		break;
 	default:
 		res = execresult::action_error;
