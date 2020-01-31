@@ -574,6 +574,10 @@ namespace {
 		if (inst == "INCLUDE")
 		{ // #include "file/path"
 		  // Trim
+			if (!h.allowwrite)
+			{
+				return "\n";
+			}
 			line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) -> bool {
 				return c != '"';
 			}));
