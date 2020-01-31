@@ -113,7 +113,6 @@ bool sqf::virtualmachine::execute_helper_execution_end()
 {
 	if (m_exit_flag)
 	{
-		m_exit_flag = false;
 		execute_helper_execution_abort();
 		return true;
 	}
@@ -134,6 +133,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 	case sqf::virtualmachine::execaction::leave_scope:
 		if (m_run_mutex.try_lock())
 		{
+			m_exit_flag = false;
 			const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
 			auto scopeNum = m_active_vmstack->stacks_size() - 1;
 			bool flag = true;
@@ -162,12 +162,13 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 		}
 		else
 		{
-		res = execresult::action_error;
+			res = execresult::action_error;
 		}
 		break;
 	case sqf::virtualmachine::execaction::start:
 		if (m_run_mutex.try_lock())
 		{
+			m_exit_flag = false;
 			const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
 			bool flag = true;
 			m_status = vmstatus::running;
@@ -224,6 +225,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 	case sqf::virtualmachine::execaction::assembly_step:
 		if (m_run_mutex.try_lock())
 		{
+			m_exit_flag = false;
 			const std::lock_guard<std::mutex> lock(m_run_mutex, std::adopt_lock);
 			if (performexecute(1))
 			{
