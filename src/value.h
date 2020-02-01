@@ -70,6 +70,7 @@ namespace sqf
 		}
 
         bool equals(value::cref v) const;
+        bool equals_exact(value::cref v) const;
 
         std::string tosqf() const;
 

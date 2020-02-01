@@ -109,3 +109,38 @@ void sqf::commandmap::add(std::shared_ptr<binarycmd> cmd)
 	}
 	listsptr->push_back(cmd);
 }
+
+bool sqf::commandmap::remove(std::string str)
+{
+	auto res = mnularcmd.find(string_tolower(str));
+	if (res != mnularcmd.end())
+	{
+		mnularcmd.erase(res);
+		return true;
+	}
+	return false;
+}
+
+bool sqf::commandmap::remove(std::string str, sqf::type rtype)
+{
+	auto res = munarycmd.find(string_tolower(str));
+	if (res != munarycmd.end())
+	{
+		auto vec = res->second;
+		vec->erase(std::remove_if(vec->begin(), vec->end(), [rtype](std::shared_ptr<unarycmd> it) -> bool { return it->matches(type::NA, rtype); }), vec->end());
+		return true;
+	}
+	return false;
+}
+
+bool sqf::commandmap::remove(sqf::type ltype, std::string str, sqf::type rtype)
+{
+	auto res = mbinarycmd.find(string_tolower(str));
+	if (res != mbinarycmd.end())
+	{
+		auto vec = res->second;
+		vec->erase(std::remove_if(vec->begin(), vec->end(), [ltype, rtype](std::shared_ptr<binarycmd> it) -> bool { return it->matches(ltype, rtype); }), vec->end());
+		return true;
+	}
+	return false;
+}

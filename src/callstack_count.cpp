@@ -29,7 +29,7 @@
     if (m_current_index > 0)
     {
         bool success;
-        auto val = vm->active_vmstack()->popval(success);
+        auto val = vm->active_vmstack()->pop_back_value(success);
         if (!success)
         {
             vm->wrn() << "count callstack found no value." << std::endl;

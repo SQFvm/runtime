@@ -8,11 +8,15 @@
 #include <list>
 #include <sstream>
 #include <chrono>
+#include <utility>
+#include <functional>
+#include <atomic>
 
 #include "dlops.h"
 #include "marker.h"
 #include "filesystem.h"
 #include "astnode.h"
+#include "macro.h"
 
 
 namespace sqf
@@ -25,7 +29,6 @@ namespace sqf
 	class groupdata;
 	class sidedata;
 	class scriptdata;
-	class debugger;
 	class value;
 	class sqfnamespace;
 	namespace networking
@@ -35,6 +38,38 @@ namespace sqf
 	}
 	class virtualmachine
 	{
+	public:
+		enum class evaction
+		{
+			enter,
+			exit
+		};
+		enum class execaction
+		{
+			start,
+			stop,
+			abort,
+			assembly_step,
+			leave_scope,
+			// Special execaction to reset the run_atomic flag in case of
+			// exception being thrown by the virtualmachine execution method.
+			reset_run_atomic
+		};
+		enum class execresult
+		{
+			OK,
+			action_error,
+			runtime_error
+		};
+		enum class vmstatus
+		{
+			empty,
+			halted,
+			running,
+			requested_halt,
+			halt_error,
+			requested_abort
+		};
 	private:
 		unsigned long long m_instructions_count;
 		unsigned long long m_max_instructions;
@@ -51,7 +86,6 @@ namespace sqf
 		bool merrflag = false;
 		bool mwrnflag = false;
 		bool mwrnenabled = true;
-		bool mhaltflag;
 		std::vector<size_t> mfreeobjids;
 		std::vector<std::shared_ptr<innerobj>> mobjlist;
 		std::shared_ptr<innerobj> mplayer_obj;
@@ -65,12 +99,17 @@ namespace sqf
 
 		std::map<int, size_t> mgroupidcounter;
 		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
-		void performexecute(size_t exitAfter = ~0);
+		std::atomic<bool> m_run_atomic;
+		vmstatus m_status;
+
+		/*
+		 * Executes the currently configured setting up to the provided instruction count.
+		 * Will return true if run was clean, false if it was not.
+		 */
 		std::vector<std::shared_ptr<dlops>> mlibraries;
-		debugger* _debugger;
-		bool mexitflag;
-		int m_exitcode = 0;
-		bool mallowsleep;
+		bool m_exit_flag;
+		int m_exit_code = 0;
+		bool m_allow_suspension;
 		bool m_perform_classname_checks;
 		bool m_allow_networking;
 		sqf::filesystem m_filesystem;
@@ -78,12 +117,35 @@ namespace sqf
 		std::chrono::system_clock::time_point m_current_time;
 		std::shared_ptr<networking::client> m_current_networking_client;
 		std::shared_ptr<networking::server> m_current_networking_server;
-		void handle_networking();
 
+		std::vector<sqf::parse::preprocessor::macro> m_preprocessor_macros;
+
+		std::vector<std::function<void(virtualmachine*, const char* text, const astnode&, evaction)>> m_parsing_callbacks;
+
+	private:
+		void navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const astnode& node);
+		void handle_networking();
+		bool performexecute(size_t exitAfter = ~0);
+		void execute_parsing_callbacks(const char* text, const astnode& node, evaction act)
+		{
+			if (m_parsing_callbacks.empty())
+			{
+				return;
+			}
+			for (auto& it : m_parsing_callbacks)
+			{
+				it(this, text, node, act);
+			}
+		}
+		void execute_helper_execution_abort();
+		bool execute_helper_execution_end();
 	public:
 		virtualmachine() : virtualmachine(0) {};
 		virtualmachine(unsigned long long maxinst);
 		~virtualmachine();
+
+		void push_macro(sqf::parse::preprocessor::macro macro) { m_preprocessor_macros.push_back(macro); }
+		const std::vector<sqf::parse::preprocessor::macro>& preprocessor_macros() const { return m_preprocessor_macros; }
 
 		std::chrono::system_clock::time_point get_created_timestamp() const { return m_created_timestamp; }
 		std::chrono::system_clock::time_point get_current_time() const { return m_current_time; }
@@ -98,6 +160,11 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> uinamespace() const { return muinamespace; }
 		std::shared_ptr<sqf::sqfnamespace> parsingnamespace() const { return mparsingnamespace; }
 		std::shared_ptr<sqf::sqfnamespace> profilenamespace() const { return mprofilenamespace; }
+
+		void register_callback(std::function<void(virtualmachine*, const char* text, const astnode&, evaction)> callback)
+		{
+			m_parsing_callbacks.push_back(callback);
+		}
 
 		std::shared_ptr<networking::client> get_networking_client()
 		{
@@ -180,13 +247,12 @@ namespace sqf
 		void set_max_instructions(unsigned long long value) { m_max_instructions = value; }
 
 
-
-		void execute();
+		execresult execute(execaction action);
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
-		void exitflag(bool flag) { mexitflag = flag; }
-		void exitflag(bool flag, int exitcode) { mexitflag = flag; m_exitcode = exitcode; }
-		bool exitflag() const { return mexitflag; }
-		int exitcode()const { return m_exitcode; }
+		void exit_flag(bool flag) { m_exit_flag = flag; }
+		void exit_flag(bool flag, int exitcode) { m_exit_flag = flag; m_exit_code = exitcode; }
+		bool exit_flag() const { return m_exit_flag; }
+		int exit_code()const { return m_exit_code; }
 
 		bool perform_classname_checks() const { return m_perform_classname_checks; }
 		void perform_classname_checks(bool f) { m_perform_classname_checks = f; }
@@ -245,13 +311,10 @@ namespace sqf
 		void parse_config(std::string_view, std::shared_ptr<configdata>);
 		bool errflag() const { return merrflag; }
 		bool wrnflag() const { return mwrnflag; }
-		void halt() { mhaltflag = true; }
 		std::vector<std::shared_ptr<dlops>>& libraries() { return mlibraries; }
-		bool allowsleep() const { return mallowsleep; }
-		void allowsleep(bool flag) { mallowsleep = flag; }
+		bool allow_suspension() const { return m_allow_suspension; }
+		void allow_suspension(bool flag) { m_allow_suspension = flag; }
 
-		debugger* dbg() { return _debugger; }
-		void dbg(debugger* debugger) { _debugger = debugger; }
 		filesystem& get_filesystem() { return m_filesystem; }
 
 		size_t push_obj(std::shared_ptr<sqf::innerobj> obj);

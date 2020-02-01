@@ -89,7 +89,7 @@ namespace sqf
 		static double distance2dsqr(const arraydata* l, const arraydata* r) { return distance2d(l->as_vec2(), r->as_vec2()); }
 		static double distance2dsqr(std::array<double, 2> l, std::array<double, 2> r)
 		{
-			return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2) + std::pow(l[2] - r[2], 2);
+			return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2);
 		}
 		static double distance2d(const std::shared_ptr<arraydata>& l, const std::shared_ptr<arraydata>& r) { return distance2d(l->as_vec2(), r->as_vec2()); }
 		static double distance2d(const arraydata* l, const arraydata* r) { return distance2d(l->as_vec2(), r->as_vec2()); }

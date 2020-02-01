@@ -27,7 +27,7 @@
 			m_switchdata->exec()->loadinto(vm->active_vmstack(), sptr);
 			m_switchdata->exec(std::shared_ptr<codedata>());
 		}
-		else
+		else if (m_switchdata->exec_default())
 		{
 			m_switchdata->exec_default()->loadinto(vm->active_vmstack(), sptr);
 			m_switchdata->exec_default(std::shared_ptr<codedata>());

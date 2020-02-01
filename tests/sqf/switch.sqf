@@ -23,5 +23,6 @@
             _arr
         },
         ["past case 1","past cases inner","past cases call outter","inside 2","b"]
-    ]
+    ],
+    ["assert", { switch(2) do { case 1: {}; }; }]
 ]

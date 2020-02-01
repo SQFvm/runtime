@@ -43,13 +43,47 @@ namespace err = logmessage::preprocessor;
 namespace {
 	class helper
 	{
+	private:
+		std::vector<std::string> m_path_tree;
+		std::vector<bool> m_inside_ppf_tree;
+		bool m_inside_ppif_err_flag = false;
 	public:
 		std::unordered_map<std::string, macro> macros;
-		std::vector<std::string> path_tree;
 		sqf::virtualmachine* vm { nullptr };
 		bool errflag = false;
 		bool allowwrite = true;
-		bool inside_ppif = false;
+
+		bool inside_ppif_err_flag()
+		{
+			return m_inside_ppif_err_flag;
+		}
+		bool inside_ppif()
+		{
+			return m_inside_ppf_tree.back();
+		}
+		void inside_ppif(bool flag)
+		{
+			m_inside_ppf_tree.back() = flag;
+		}
+		void push_path(const std::string s)
+		{
+			m_path_tree.push_back(s);
+			m_inside_ppf_tree.push_back(false);
+		}
+		void pop_path()
+		{
+			if (inside_ppif())
+			{
+				vm->wrn() << "[WRN][L0 | C0]\t" << "Unclosed #IFDEF/#IFNDEF in '" << m_path_tree.back() << "'" << std::endl;
+				m_inside_ppif_err_flag = true;
+			}
+			m_path_tree.pop_back();
+			m_inside_ppf_tree.pop_back();
+		}
+		std::vector<std::string>& path_tree()
+		{
+			return m_path_tree;
+		}
 
 
 		std::optional<macro> contains_macro(std::string mname)
@@ -264,7 +298,7 @@ namespace {
 		local_fileinfo.line = m.line;
 		if (m.callback)
 		{
-			return m.callback(m, local_fileinfo, original_fileinfo, params);
+			return m.callback(m, &local_fileinfo, &original_fileinfo, params, h.vm);
 		}
 
 		std::unordered_map<std::string, std::string> parammap;
@@ -543,6 +577,10 @@ namespace {
 		if (inst == "INCLUDE")
 		{ // #include "file/path"
 		  // Trim
+			if (!h.allowwrite)
+			{
+				return "\n";
+			}
 			line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) -> bool {
 				return c != '"';
 			}));
@@ -557,8 +595,8 @@ namespace {
 			{
 				otherfinfo.path = h.vm->get_filesystem().get_physical_path(line, fileinfo.path);
 				const auto& path = otherfinfo.path;
-				auto res = std::find_if(h.path_tree.begin(), h.path_tree.end(), [path](std::string& parent) -> bool { return parent == path; });
-				if (res != h.path_tree.end())
+				auto res = std::find_if(h.path_tree().begin(), h.path_tree().end(), [path](std::string& parent) -> bool { return parent == path; });
+				if (res != h.path_tree().end())
 				{
 					h.errflag = true;
 					std::stringstream includeTree;
@@ -570,7 +608,6 @@ namespace {
 					return "";
 				}
                 otherfinfo.content = load_file(path);
-				h.path_tree.emplace_back(path);
 			}
 			catch (const std::runtime_error& ex)
 			{
@@ -698,7 +735,7 @@ namespace {
 		}
 		else if (inst == "IFDEF")
 		{ // #ifdef TEST
-			if (h.inside_ppif)
+			if (h.inside_ppif())
 			{
 				h.errflag = true;
 				cl.log(err::UnexpectedIfdef(fileinfo));
@@ -706,7 +743,7 @@ namespace {
 			}
 			else
 			{
-				h.inside_ppif = true;
+				h.inside_ppif(true);
 			}
 			auto res = h.macros.find(line);
 			if (res == h.macros.end())
@@ -721,7 +758,7 @@ namespace {
 		}
 		else if (inst == "IFNDEF")
 		{ // #ifndef TEST
-			if (h.inside_ppif)
+			if (h.inside_ppif())
 			{
 				h.errflag = true;
 				cl.log(err::UnexpectedIfndef(fileinfo));
@@ -729,7 +766,7 @@ namespace {
 			}
 			else
 			{
-				h.inside_ppif = true;
+				h.inside_ppif(true);
 			}
 			auto res = h.macros.find(line);
 			if (res == h.macros.end())
@@ -744,7 +781,7 @@ namespace {
 		}
 		else if (inst == "ELSE")
 		{ // #else
-			if (!h.inside_ppif)
+			if (!h.inside_ppif())
 			{
 				h.errflag = true;
 				cl.log(err::UnexpectedElse(fileinfo));
@@ -755,13 +792,13 @@ namespace {
 		}
 		else if (inst == "ENDIF")
 		{ // #endif
-			if (!h.inside_ppif)
+			if (!h.inside_ppif())
 			{
 				h.errflag = true;
 				cl.log(err::UnexpectedEndif(fileinfo));
 				return "";
 			}
-			h.inside_ppif = false;
+			h.inside_ppif(false);
 			h.allowwrite = true;
 			return "\n";
 		}
@@ -774,6 +811,7 @@ namespace {
 	}
 	std::string parse_file(helper& h, finfo& fileinfo)
 	{
+		h.push_path(fileinfo.path);
 		char c;
 		std::stringstream sstream;
 		std::stringstream wordstream;
@@ -899,17 +937,27 @@ namespace {
 				sstream << word;
 			}
 		}
+		h.pop_path();
 		return sstream.str();
 	}
-
 }
-std::string line_macro_callback(const macro& m, const finfo& local_fileinfo, const finfo& original_fileinfo, const std::vector<std::string>& params)
+std::string line_macro_callback(
+	const macro& m,
+	const finfo* local_fileinfo,
+	const finfo* original_fileinfo,
+	const std::vector<std::string>& params,
+	sqf::virtualmachine* vm)
 {
-	return std::to_string(original_fileinfo.line);
+	return std::to_string(original_fileinfo->line);
 }
-std::string file_macro_callback(const macro& m, const finfo& local_fileinfo, const finfo& original_fileinfo, const std::vector<std::string>& params)
+std::string file_macro_callback(
+	const macro& m,
+	const finfo* local_fileinfo,
+	const finfo* original_fileinfo,
+	const std::vector<std::string>& params,
+	sqf::virtualmachine* vm)
 {
-	return '"' + original_fileinfo.path + '"';
+	return '"' + original_fileinfo->path + '"';
 }
 std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string input, bool & errflag, std::string filename)
 {
@@ -977,10 +1025,18 @@ std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string
 		macro.name = "_SQF_VM_REVISION";
 		h.macros["_SQF_VM_REVISION"] = macro;
 	}
+	for (auto& macro : vm->preprocessor_macros())
+	{
+		h.macros[macro.name] = macro;
+	}
 	finfo fileinfo;
 	fileinfo.content = std::move(input);
 	fileinfo.path = std::move(filename);
 	auto res = parse_file(h, fileinfo);
 	errflag = h.errflag;
+	if (h.inside_ppif_err_flag())
+	{
+		return "";
+	}
 	return res;
 }

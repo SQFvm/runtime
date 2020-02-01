@@ -23,6 +23,7 @@
 #include "../codedata.h"
 #include "../networking/network_client.h"
 #include "../networking.h"
+#include "../codedata.h"
 #include "filesystem.h"
 #include <sstream>
 #include <array>
@@ -277,12 +278,12 @@ namespace
 	}
 	value exit___(virtualmachine* vm)
 	{
-		vm->exitflag(true);
+		vm->exit_flag(true);
 		return {};
 	}
 	value exit___scalar(virtualmachine* vm, value::cref right)
 	{
-		vm->exitflag(true, static_cast<int>(std::round(right.as_float())));
+		vm->exit_flag(true, static_cast<int>(std::round(right.as_float())));
 		return {};
 	}
     value respawn___(virtualmachine* vm)
@@ -307,7 +308,7 @@ namespace
 	value except___code_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto cs = std::make_shared<callstack_sqftry>(vm->active_vmstack()->stacks_top()->get_namespace(), right.data<codedata>());
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		left.data<codedata>()->loadinto(vm->active_vmstack(), cs);
 		return {};
 	}
@@ -426,6 +427,88 @@ namespace
 		vm->release_networking();
 		return {};
 	}
+	value provide___code_string(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto arr = right.data<arraydata>();
+		if (!arr->check_type(vm, sqf::type::STRING, 1, 3))
+		{
+			return {};
+		}
+		sqf::type ltype;
+		sqf::type rtype;
+		std::string name;
+		int size = arr->size();
+		switch (size)
+		{
+			case 1:
+				name = arr->at(0).as_string();
+			break;
+			case 3:
+			{
+				name = arr->at(1).as_string();
+				auto l = arr->at(0).as_string();
+				ltype = parsetype(l);
+				auto r = arr->at(arr->size() - 1).as_string();
+				rtype = parsetype(r);
+			}
+			break;
+			case 2:
+			{
+				name = arr->at(0).as_string();
+				auto r = arr->at(arr->size() - 1).as_string();
+				rtype = parsetype(r);
+			} break;
+			default:
+				return {};
+		}
+		switch (size)
+		{
+		case 1:
+			sqf::commandmap::get().remove(name);
+			sqf::commandmap::get().add(sqf::nulardata<std::shared_ptr<codedata>>(
+				left.data<codedata>(),
+				name,
+				"",
+				[](virtualmachine* vm, std::shared_ptr<codedata> code) -> value
+				{
+					code->loadinto(vm, vm->active_vmstack());
+					vm->active_vmstack()->stacks_top()->set_variable("_this", value());
+					return {};
+				}));
+			break;
+		case 2:
+			sqf::commandmap::get().remove(name, rtype);
+			sqf::commandmap::get().add(sqf::unarydata<std::shared_ptr<codedata>>(
+				left.data<codedata>(),
+				name,
+				rtype,
+				"",
+				[](virtualmachine* vm, std::shared_ptr<codedata> code, sqf::value::cref right) -> value
+				{
+					code->loadinto(vm, vm->active_vmstack());
+					vm->active_vmstack()->stacks_top()->set_variable("_this", right);
+					return {};
+				}));
+			break;
+		case 3:
+			sqf::commandmap::get().remove(ltype, name, rtype);
+			sqf::commandmap::get().add(sqf::binarydata<std::shared_ptr<codedata>>(
+				left.data<codedata>(),
+				(short)4,
+				name,
+				ltype,
+				rtype,
+				"",
+				[](virtualmachine* vm, std::shared_ptr<codedata> code, sqf::value::cref left, sqf::value::cref right) -> value
+				{
+					code->loadinto(vm, vm->active_vmstack());
+					vm->active_vmstack()->stacks_top()->set_variable("_this", value({ left , right }));
+					return {};
+				}));
+			break;
+		}
+		return {};
+	}
 }
 void sqf::commandmap::initsqfvmcmds()
 {
@@ -455,4 +538,6 @@ void sqf::commandmap::initsqfvmcmds()
 	add(unary("trim__", sqf::type::STRING, "Trims provided strings start and end.", trim___));
 	add(unary("remoteConnect__", sqf::type::STRING, "Connects this as a client to the provided endpoint. Endpoint is expected to have the format ADDRESS:PORT. Returns TRUE on success, false if it failed. Note that IP-Address is required, not DNS names (eg. use '127.0.0.1' instead of 'localhost').", remoteConnect___));
 	add(nular("closeConnection__", "Closes the connection previously opened using remoteConnect__.", closeconnection___));
+	add(binary(4, "provide__", sqf::type::CODE, sqf::type::ARRAY, "Allows to provide an implementation for a given operator. Will NOT override existing definitions. Array is expected to be of the following formats:"
+		"nular: [\"name\"], unary: [\"name\", \"type\"], binary: [\"ltype\", \"name\", \"rtype\"]", provide___code_string));
 }

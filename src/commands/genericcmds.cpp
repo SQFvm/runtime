@@ -10,6 +10,7 @@
 #include "../scriptdata.h"
 #include "../callstack_for_step.h"
 #include "../callstack_while.h"
+#include "../callstack_waituntil.h"
 #include "../callstack_select.h"
 #include "../callstack_isnil.h"
 #include "../callstack_exitwith.h"
@@ -37,10 +38,14 @@
 typedef void(*RVExtensionVersion)(char*, int);
 typedef void(*RVExtension)(char*, int, const char*);
 typedef int(*RVExtensionArgs)(char*, int, const char*, const char**, int);
+typedef int(*RVExtensionRegisterCallback_Proc)(char const* name, char const* function, char const* data);
+typedef int(*RVExtensionRegisterCallback)(int(*callbackProc)(char const* name, char const* function, char const* data));
 #elif defined(_WIN32)
 typedef void(__stdcall *RVExtensionVersion)(char*, int);
 typedef void(__stdcall *RVExtension)(char*, int, const char*);
 typedef int(__stdcall *RVExtensionArgs)(char*, int, const char*, const char**, int);
+typedef int(*RVExtensionRegisterCallback_Proc)(char const* name, char const* function, char const* data);
+typedef int(__stdcall *RVExtensionRegisterCallback)(RVExtensionRegisterCallback_Proc);
 #else
 #error UNSUPPORTED PLATFORM
 #endif
@@ -93,7 +98,7 @@ namespace
 		auto l = left.data<codedata>();
 		auto r = right.data<arraydata>();
 		auto cs = std::make_shared<callstack_count>(vm->active_vmstack()->stacks_top()->get_namespace(), l, r);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value compile_string(virtualmachine* vm, value::cref right)
@@ -193,7 +198,7 @@ namespace
 		{
 			auto cs = std::make_shared<callstack_exitwith>(vm->active_vmstack()->stacks_top()->get_namespace());
 			code->loadinto(vm->active_vmstack(), cs);
-			vm->active_vmstack()->pushcallstack(cs);
+			vm->active_vmstack()->push_back(cs);
 			return {};
 		}
 		else
@@ -212,13 +217,23 @@ namespace
 	{
 		return value(std::make_shared<whiledata>(right.data_try_as<codedata>()));
 	}
+	value waituntil_code(virtualmachine* vm, value::cref right)
+	{
+		auto condition = right.data<codedata>();
+
+		auto cs = std::make_shared<callstack_waituntil>(vm->active_vmstack()->stacks_top()->get_namespace(), condition);
+		vm->active_vmstack()->push_back(cs);
+		condition->loadinto(vm->active_vmstack(), cs);
+
+		return {};
+	}
 	value do_while_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto whilecond = left.data<codedata>();
 		auto execcode = right.data<codedata>();
 
 		auto cs = std::make_shared<callstack_while>(vm->active_vmstack()->stacks_top()->get_namespace(), whilecond, execcode);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 
 		return {};
 	}
@@ -254,7 +269,7 @@ namespace
 		auto execcode = right.data<codedata>();
 
 		auto cs = std::make_shared<callstack_for_step>(vm->active_vmstack()->stacks_top()->get_namespace(), fordata, execcode);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value foreach_code_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -262,7 +277,7 @@ namespace
 		auto l = left.data<sqf::codedata>();
 		auto r = right.data<arraydata>();
 		auto cs = std::make_shared<callstack_foreach>(vm->active_vmstack()->stacks_top()->get_namespace(), l, r);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value select_array_scalar(virtualmachine* vm, value::cref left, value::cref right)
@@ -328,7 +343,7 @@ namespace
 		{
 			if (arr[1].dtype() != type::SCALAR)
 			{
-				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[0].dtype()) << '.' << std::endl;
+				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[1].dtype()) << '.' << std::endl;
 				return {};
 			}
 			int length = static_cast<int>(std::round(arr[1].as_float()));
@@ -353,7 +368,7 @@ namespace
 			return std::vector<value>();
 		auto cond = right.data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_select>(vm->active_vmstack()->stacks_top()->get_namespace(), arr, cond);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
     value sort_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -510,7 +525,7 @@ namespace
 			return -1;
 		auto cond = right.data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_findif>(vm->active_vmstack()->stacks_top()->get_namespace(), cond, arr);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
     value reverse_array(virtualmachine* vm, value::cref right)
@@ -556,7 +571,7 @@ namespace
 	value isnil_string(virtualmachine* vm, value::cref right)
 	{
 		auto varname = right.as_string();
-		auto val = vm->active_vmstack()->getlocalvar(varname);
+		auto val = vm->active_vmstack()->get_variable(varname);
 		if (val.dtype() == sqf::type::NOTHING)
 		{
 			val = vm->active_vmstack()->stacks_top()->get_namespace()->get_variable(varname);
@@ -567,7 +582,7 @@ namespace
 	{
 		auto cdata = right.data<codedata>();
 		auto cs = std::make_shared<callstack_isnil>(vm->active_vmstack()->stacks_top()->get_namespace(), vm, cdata);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value hint_string(virtualmachine* vm, value::cref right)
@@ -598,14 +613,14 @@ namespace
 	{
 		auto r = right.data<codedata>();
 		auto cs = std::make_shared<callstack_switch>(vm->active_vmstack()->stacks_top()->get_namespace(), left.data<switchdata>());
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		r->loadinto(vm->active_vmstack(), cs);
 		cs->set_variable(MAGIC_SWITCH, value(left));
 		return {};
 	}
 	value case_any(virtualmachine* vm, value::cref right)
 	{
-		auto valswtch = vm->active_vmstack()->getlocalvar(MAGIC_SWITCH);
+		auto valswtch = vm->active_vmstack()->get_variable(MAGIC_SWITCH);
 		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
 			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
@@ -621,7 +636,7 @@ namespace
 	}
 	value default_code(virtualmachine* vm, value::cref right)
 	{
-		auto valswtch = vm->active_vmstack()->getlocalvar(MAGIC_SWITCH);
+		auto valswtch = vm->active_vmstack()->get_variable(MAGIC_SWITCH);
 		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
 			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
@@ -653,7 +668,7 @@ namespace
 			return std::vector<value>();
 		auto cond = right.data<codedata>();
 		auto cs = std::make_shared<sqf::callstack_apply>(vm->active_vmstack()->stacks_top()->get_namespace(), arr, cond);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value spawn_any_code(virtualmachine* vm, value::cref left, value::cref right)
@@ -916,6 +931,12 @@ namespace
 		{
 			vm->out() << "[RPT]\tCallExtension loaded: '" << name << '\'' << std::endl;
 		}
+		if (dl->try_resolve("RVExtensionRegisterCallback", &sym))
+		{
+			auto method = reinterpret_cast<RVExtensionRegisterCallback>(sym);
+			
+			vm->out() << "[RPT]\tRegistered 'ExtensionCallback' with '" << name << '\'' << std::endl;
+		}
 		return dl;
 	}
 	value callextension_string_string(virtualmachine* vm, value::cref left, value::cref right)
@@ -1135,7 +1156,7 @@ namespace
 	}
 	value param_array(virtualmachine* vm, value::cref right)
 	{
-		auto _this = vm->active_vmstack()->getlocalvar("_this");
+		auto _this = vm->active_vmstack()->get_variable("_this");
 		if (_this.dtype() != ARRAY)
 		{
 			auto arr = std::make_shared<arraydata>();
@@ -1256,7 +1277,7 @@ namespace
 	}
 	value params_array(virtualmachine* vm, value::cref right)
 	{
-		auto _this = vm->active_vmstack()->getlocalvar("_this");
+		auto _this = vm->active_vmstack()->get_variable("_this");
 		if (_this.dtype() != ARRAY)
 		{
 			auto arr = std::make_shared<arraydata>();
@@ -1272,7 +1293,12 @@ namespace
 	}
 	value sleep_scalar(virtualmachine* vm, value::cref right)
 	{
-		if (!vm->active_vmstack()->isscheduled())
+		if (!vm->allow_suspension())
+		{
+			vm->err() << "Sleeping is disabled." << std::endl;
+			return {};
+		}
+		if (!vm->active_vmstack()->scheduled())
 		{
 			vm->err() << "Cannot suspend in non-scheduled environment." << std::endl;
 			return {};
@@ -1284,7 +1310,7 @@ namespace
 	}
 	value cansuspend_(virtualmachine* vm)
 	{
-		return vm->active_vmstack()->isscheduled();
+		return vm->active_vmstack()->scheduled();
 	}
     value loadfile_string(virtualmachine* vm, value::cref right)
 	{
@@ -1315,17 +1341,37 @@ namespace
 			return parsedcontents;
 		}
 	}
+	value scopename_string(virtualmachine* vm, value::cref right)
+	{
+		auto str = right.as_string();
+		if (vm->active_vmstack()->stacks_top()->get_scopename().empty())
+		{
+			vm->active_vmstack()->stacks_top()->set_scopename(str);
+		}
+		else
+		{
+			vm->err() << "scopeName already set." << std::endl;
+		}
+		return {};
+	}
 	value scriptname_string(virtualmachine* vm, value::cref right)
 	{
 		auto str = right.as_string();
-		vm->active_vmstack()->script_name(str);
+		if (vm->active_vmstack()->script_name().empty())
+		{
+			vm->active_vmstack()->script_name(str);
+		}
+		else
+		{
+			vm->wrn() << "scriptName already set." << std::endl;
+		}
 		return {};
 	}
 	value in_any_array(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto arr = right.data<arraydata>();
 		auto res = std::find_if(arr->begin(), arr->end(), [left](value::cref it) -> bool {
-			return it.equals(left);
+			return it.equals_exact(left);
 		});
 		return res != arr->end();
 	}
@@ -1369,9 +1415,37 @@ namespace
 	value catch_exception_code(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto cs = std::make_shared<callstack_catch>(vm->active_vmstack()->stacks_top()->get_namespace(), right.data<codedata>());
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		left.data<codedata>()->loadinto(vm->active_vmstack(), cs);
 		return {};
+	}
+	value execvm_any_string(virtualmachine* vm, value::cref left, value::cref right)
+	{
+
+		auto res = vm->get_filesystem().try_get_physical_path(right.as_string());
+		if (!res.has_value())
+		{
+			vm->wrn() << "File '" << right.as_string() << "' Not Found." << std::endl;
+			auto script = std::make_shared<scriptdata>();
+			return value(script);
+		}
+		else
+		{
+			auto filecontents = load_file(res.value());
+			bool errflag = false;
+			auto parsedcontents = sqf::parse::preprocessor::parse(vm, filecontents, errflag, res.value());
+			auto cs = std::make_shared<callstack>(vm->active_vmstack()->stacks_top()->get_namespace());
+			auto script = std::make_shared<scriptdata>();
+			vm->parse_sqf(parsedcontents, cs);
+			script->stack()->push_back(cs);
+			vm->push_spawn(script);
+			script->stack()->stacks_top()->set_variable("_this", left);
+			return value(script);
+		}
+	}
+	value execvm_string(virtualmachine* vm, value::cref right)
+	{
+		return execvm_any_string(vm, {}, right);
 	}
 }
 void sqf::commandmap::initgenericcmds()
@@ -1392,6 +1466,8 @@ void sqf::commandmap::initgenericcmds()
 	add(binary(5, "else", type::CODE, type::CODE, "Concats left and right element into a single, 2 element array.", else_code_code));
 	add(binary(4, "exitWith", type::IF, type::CODE, "If condition evaluates to true, executes the code in a new scope and exits the current one afterwards.", exitwith_if_code));
 	add(unary("while", type::CODE, "Marks code as WHILE type.", while_code));
+	add(unary("waitUntil", type::CODE, "Suspends execution of scheduled script until the given condition satisfied. This command will loop and call the code inside {} until the code returns true.", waituntil_code));
+
 	add(binary(4, "do", type::WHILE, type::CODE, "Executes provided code as long as while condition evaluates to true.", do_while_code));
 	add(unary("for", type::STRING, "Creates a FOR type for usage in 'for <var> from <start> to <end> [ step <stepsize> ] do <code>' construct.", for_string));
 	add(binary(4, "from", type::FOR, type::SCALAR, "Sets the start index in a FOR type construct.", from_for_scalar));
@@ -1448,7 +1524,8 @@ void sqf::commandmap::initgenericcmds()
 
 	add(unary("selectMax", type::ARRAY, "Returns the array element with maximum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmax_array));
 	add(unary("selectMin", type::ARRAY, "Returns the array element with minimum numerical value. Therefore it is expected that supplied array consists of Numbers only. Booleans however are also supported and will be evaluated as Numbers: true - 1, false - 0. nil value treated as 0. Other non Number elements (not recommended) will be evaluated as 0 and Bad conversion: scalar message will be logged.", selectmin_array));
-
+	add(binary(4, "execVM", type::ANY, type::STRING, "Compiles and adds SQF Script to the scheduler queue and returns script handle.", execvm_any_string));
+	add(unary("execVM", type::STRING, "Compiles and adds SQF Script to the scheduler queue and returns script handle.", execvm_string));
 	add(binary(4, "callExtension", type::STRING, type::STRING, "See https://community.bistudio.com/wiki/callExtension", callextension_string_string));
 	add(binary(4, "callExtension", type::STRING, type::ARRAY, "See https://community.bistudio.com/wiki/callExtension", callextension_string_array));
 
@@ -1461,6 +1538,7 @@ void sqf::commandmap::initgenericcmds()
 	add(unary("loadFile", type::STRING, "", loadfile_string));
 	add(unary("preprocessFileLineNumbers", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
 	add(unary("preprocessFile", type::STRING, "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
+	add(unary("scopeName", type::STRING, "Defines name of current scope. Name is visible in debugger, and name is also used as reference in some commands like breakOut and breakTo. Scope name should be defined only once per scope. Trying to set a different name on the scope that has already defined scope name will result in error.", scopename_string));
 	add(unary("scriptName", type::STRING, "Assign a user friendly name to the VM script this command is executed from. Once name is assigned, it cannot be changed.", scriptname_string));
 	add(binary(4, "in", type::ANY, type::ARRAY, "Checks whether value is in array. String values will be compared casesensitive.", in_any_array));
 	add(binary(4, "in", type::STRING, type::STRING, "Checks whether string is in string. Values will be compared casesensitive.", in_string_string));

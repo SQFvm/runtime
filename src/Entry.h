@@ -17,7 +17,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 3
-#define VERSION_REVISION 1
+#define VERSION_REVISION 2
 #define VERSION "RC1"
 #define VERSION_FULL VERSION " - " __DATE__ " " __TIME__
 #define VERSION_MAJORMINOR CONCAT(VERSION_MAJOR, VERSION_MINOR)
@@ -58,5 +58,3 @@ char* const copy_str(const std::string& str);
 
 int console_width();
 int main(int argc, char** argv);
-
-std::string get_working_dir();

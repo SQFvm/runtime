@@ -25,7 +25,7 @@
 
 		// Receive the last result from the value stack
 		bool success;
-		auto val = vm->active_vmstack()->popval(success);
+		auto val = vm->active_vmstack()->pop_back_value(success);
 		if (!success)
 		{
 			vm->err() << "while callstack found no value." << std::endl;

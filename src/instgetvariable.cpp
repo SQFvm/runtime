@@ -7,13 +7,18 @@
 void sqf::inst::getvariable::execute(virtualmachine* vm) const
 {
 	value val;
+	bool success = false;
 	if (mvarname[0] == '_')
 	{ // local variable
-		val = vm->active_vmstack()->getlocalvar(mvarname);
+		val = vm->active_vmstack()->get_variable(mvarname, success);
 	}
 	else
 	{ // global variable
-		val = vm->active_vmstack()->stacks_top()->get_namespace()->get_variable(mvarname);
+		val = vm->active_vmstack()->stacks_top()->get_namespace()->get_variable(mvarname, success);
 	}
-	vm->active_vmstack()->pushval(val);
+	if (!success)
+	{
+		vm->wrn() << "Could not find variable with the name '" << mvarname << "'" << std::endl;
+	}
+	vm->active_vmstack()->push_back(val);
 }

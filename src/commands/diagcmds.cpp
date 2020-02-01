@@ -1,7 +1,6 @@
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
-#include "../debugger.h"
 #include "../virtualmachine.h"
 
 using namespace sqf;
@@ -26,23 +25,12 @@ namespace
 		if (!right.as_bool())
 		{
 			vm->err() << "Assert failed." << std::endl;
-			if (vm->dbg())
-			{
-				vm->halt();
-			}
 		}
 		return right;
 	}
 	value halt_(virtualmachine* vm)
 	{
-		if (vm->dbg())
-		{
-			vm->halt();
-		}
-		else
-		{
-			vm->wrn() << "No debugger connected." << std::endl;
-		}
+		vm->execute(sqf::virtualmachine::execaction::stop);
 		return {};
 	}
 }

@@ -116,7 +116,7 @@ namespace
 		auto condition = std::make_shared<codedata>(condition_stack);
 
 		auto cs = std::make_shared<sqf::callstack_configclasses>(vm->active_vmstack()->stacks_top()->get_namespace(), config, condition);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value configproperties_array(virtualmachine* vm, value::cref right)
@@ -136,7 +136,7 @@ namespace
 		auto condition = std::make_shared<codedata>(condition_stack);
 
 		auto cs = std::make_shared<sqf::callstack_configproperties>(vm->active_vmstack()->stacks_top()->get_namespace(), config, condition, include_inherited);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 }

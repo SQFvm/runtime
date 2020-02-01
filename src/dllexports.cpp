@@ -10,11 +10,38 @@
 #include <sstream>
 #include <cstring>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <direct.h>
+#include <cstring>
+#else
+#include <limits.h>
+#include <sys/ioctl.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <execinfo.h>
+#endif
+
 extern "C" {
+
+	std::string get_working_dir()
+	{
+#if defined(_WIN32) || defined(_WIN64)
+		char buffer[MAX_PATH];
+		_getcwd(buffer, MAX_PATH);
+		return std::string(buffer);
+#elif defined(__GNUC__)
+		char buffer[PATH_MAX];
+		getcwd(buffer, PATH_MAX);
+		return std::string(buffer);
+#else
+#error "NO IMPLEMENTATION AVAILABLE"
+#endif
+	}
 	DLLEXPORT_PREFIX void sqfvm_init(unsigned long long limit)
 	{
 		sqfvm_virtualmachine = std::make_shared<sqf::virtualmachine>(limit);
-		sqfvm_virtualmachine->allowsleep(false);
+		sqfvm_virtualmachine->allow_suspension(false);
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 		sqfvm_virtualmachine->get_filesystem().disallow(true);
 #endif
@@ -34,7 +61,11 @@ extern "C" {
 		if (!err)
 		{
 			sqfvm_virtualmachine->parse_sqf(inputAfterPP, "__libraryfeed.sqf");
-			sqfvm_virtualmachine->execute();
+			auto result = sqfvm_virtualmachine->execute(sqf::virtualmachine::execaction::start);
+			if (result != sqf::virtualmachine::execresult::OK)
+			{
+				sqfvm_virtualmachine->execute(sqf::virtualmachine::execaction::abort);
+			}
 			auto val = sqfvm_virtualmachine->active_vmstack()->last_value();
 			sqfvm_virtualmachine->err_buffprint(true);
 			sqfvm_virtualmachine->wrn_buffprint(true);

@@ -11,6 +11,7 @@
 #include "git_sha1.h"
 #include "networking.h"
 #include "networking/network_server.h"
+#include "linting.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -21,7 +22,6 @@
 #include <string_view>
 
 #include "dllexports.h"
-#include "debugger.h"
 #include <csignal>
 #ifdef _WIN32
 #include <windows.h>
@@ -79,7 +79,10 @@ int console_width()
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	int columns;
 
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+	{
+		return 80;
+	}
 	columns = csbi.srWindow.Right - csbi.srWindow.Left;
 	return columns;
 #else
@@ -174,6 +177,10 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> preprocessFileArg("E", "preprocess-file", "Runs the preprocessor on provided file and prints it to stdout. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(preprocessFileArg);
 
+	TCLAP::MultiArg<std::string> defineArg("D", "define", "Allows to add PreProcessor definitions. Note that file-based definitions may override and/or conflict with theese.", false, "NAME|NAME=VALUE");
+	cmd.add(defineArg);
+
+
 	TCLAP::MultiArg<std::string> commandDummyNular("", "command-dummy-nular", "Adds the provided command as dummy.", false, "NAME");
 	cmd.add(commandDummyNular);
 
@@ -188,9 +195,6 @@ int main(int argc, char** argv)
 
 	TCLAP::ValueArg<int> serverArg("s", "server", "Causes the SQF-VM to start a network server that allows other SQF-VM instances to connecto to it via remoteConnect__.", false, 0, "PORT");
 	cmd.add(serverArg);
-
-	TCLAP::ValueArg<int> debuggerArg("d", "debugger", "Causes the SQF-VM to start a network server that allows to attach a single debugger to it.", false, 0, "PORT");
-	cmd.add(debuggerArg);
 
 	TCLAP::ValueArg<int> maxInstructionsArg("m", "max-instructions", "Sets the maximum ammount of instructions to execute before a hard exit may occur. Setting this to 0 will disable the limit.", false, 0, "NUMBER");
 	cmd.add(maxInstructionsArg);
@@ -221,9 +225,11 @@ int main(int argc, char** argv)
 	cmd.add(verboseArg);
 
 	TCLAP::SwitchArg parseOnlyArg("", "parse-only", "Disables all code execution entirely and performs only the parsing & assembly generation tasks. "
-		"Note that this also will prevent the debugger to start. "
 		"To disable assembly generation too, refer to --no-assembly-creation.", false);
 	cmd.add(parseOnlyArg);
+
+	TCLAP::SwitchArg lintPrivateVarExistingArg("", "lint-private-var-usage", "Adds the 'private_var_usage' lint check to the SQF-VM SQF Parser. Note that this check requires assembly generation.", false);
+	cmd.add(lintPrivateVarExistingArg);
 
 	TCLAP::SwitchArg noWorkPrintArg("", "no-work-print", "Disables the printing of all values which are on the work stack.", false);
 	cmd.add(noWorkPrintArg);
@@ -347,14 +353,17 @@ int main(int argc, char** argv)
 	bool noLoadExecDir = noLoadExecDirArg.getValue();
 	bool verbose = verboseArg.getValue();
 
-	auto debugger_port = debuggerArg.getValue();
 
 	sqf::parse::preprocessor::settings::disable_warn_define = disableMacroWarningsArg.getValue();
 
 	sqf::virtualmachine vm;
 	sqf::commandmap::get().init();
 	netserver* srv = nullptr;
-	sqf::debugger* dbg = nullptr;
+
+	if (lintPrivateVarExistingArg.getValue())
+	{
+		sqf::linting::add_to(&vm, sqf::linting::check::private_var_usage);
+	}
 
 	vm.perform_classname_checks(disableClassnameCheck);
 	vm.wrn_enabled(!disableRuntimeWarningsArg.getValue());
@@ -414,6 +423,8 @@ int main(int argc, char** argv)
 			std::cout << "Mapped '" << virtSanitized << "' onto '" << physSanitized << "'." << std::endl;
 		}
 	}
+
+	// Prepare Dummy-Commands
 	for (auto& f : commandDummyNular.getValue())
 	{
 		sqf::commandmap::get().add(sqf::nular(f, "DUMMY", [](sqf::virtualmachine* vm) -> sqf::value {
@@ -441,6 +452,21 @@ int main(int argc, char** argv)
 			vm->err() << "DUMMY" << std::endl; return {};
 		}));
 	}
+
+	// Prepare Defines
+	for (auto& d : defineArg.getValue())
+	{
+		auto eqIndex = d.find('=');
+		if (eqIndex == std::string::npos)
+		{
+			vm.push_macro({ d , "__commandline" });
+		}
+		else
+		{
+			vm.push_macro({ d.substr(0, eqIndex), d.substr(eqIndex + 1), "__commandline" });
+		}
+	}
+
 	if (errflag)
 	{
 		if (!automated)
@@ -658,22 +684,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (debugger_port > 0)
-	{
-		networking_init();
-		dbg = new sqf::debugger((srv = new netserver(debugger_port)));
-		vm.dbg(dbg);
-		std::cout << "Waiting for client to connect..." << std::endl;
-		try
-		{
-			srv->wait_accept();
-			std::cout << "Client connected!" << std::endl;
-		}
-		catch (const std::runtime_error& err)
-		{
-			std::cout << err.what() << std::endl;
-		}
-	}
 	do
 	{
 		if (!automated)
@@ -724,16 +734,20 @@ int main(int argc, char** argv)
 		}
 
 
-		if (noExecutePrintArg.getValue())
-		{
-			vm.execute();
-		}
-		else
+		sqf::virtualmachine::execresult result;
+		if (!noExecutePrintArg.getValue())
 		{
 			std::cout << "Executing..." << std::endl;
 			std::cout << std::string(console_width(), '-') << std::endl;
-			vm.execute();
+		}
+		result = vm.execute(sqf::virtualmachine::execaction::start);
+		if (!noExecutePrintArg.getValue())
+		{
 			std::cout << std::string(console_width(), '-') << std::endl;
+		}
+		if (result != sqf::virtualmachine::execresult::OK)
+		{
+			vm.execute(sqf::virtualmachine::execaction::abort);
 		}
 		if (!noWorkPrintArg.getValue())
 		{
@@ -749,22 +763,8 @@ int main(int argc, char** argv)
 			std::wcout << std::endl;
 		}
 
-	} while (!automated && !vm.exitflag());
+	} while (!automated && !vm.exit_flag());
 
-	
-	if (debugger_port > 0)
-	{
-		if (dbg)
-		{
-			delete dbg;
-			dbg = nullptr;
-		}
-		if (srv)
-		{
-			delete srv;
-			srv = nullptr;
-		}
-	}
 	if (vm.is_networking_set())
 	{
 		vm.release_networking();
@@ -772,5 +772,5 @@ int main(int argc, char** argv)
 
 	networking_cleanup();
 	sqf::commandmap::get().uninit();
-	return vm.exitcode();
+	return vm.exit_code();
 }

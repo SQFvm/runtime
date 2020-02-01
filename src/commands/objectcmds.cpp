@@ -423,7 +423,7 @@ namespace
 	{
 		auto l = left.data<arraydata>();
 		auto r = right.data<arraydata>();
-		if (!l->check_type(vm, SCALAR, 3) || !r->check_type(vm, SCALAR, 3))
+		if (!l->check_type(vm, SCALAR, 2, 3) || !r->check_type(vm, SCALAR, 2, 3))
 		{
 			return {};
 		}
@@ -438,7 +438,7 @@ namespace
 			vm->err() << "Left value provided is NULL object." << std::endl;
 			return {};
 		}
-		if (!r->check_type(vm, SCALAR, 3))
+		if (!r->check_type(vm, SCALAR, 2, 3))
 		{
 			return {};
 		}
@@ -453,7 +453,7 @@ namespace
 			vm->err() << "Right value provided is NULL object." << std::endl;
 			return {};
 		}
-		if (!l->check_type(vm, SCALAR, 3))
+		if (!l->check_type(vm, SCALAR, 2, 3))
 		{
 			return {};
 		}
@@ -474,6 +474,62 @@ namespace
 			return {};
 		}
 		return l->obj()->distance3d(r->obj());
+	}
+	value distance2d_array_array(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto l = left.data<arraydata>();
+		auto r = right.data<arraydata>();
+		if (!l->check_type(vm, SCALAR, 2, 3) || !r->check_type(vm, SCALAR, 2, 3))
+		{
+			return {};
+		}
+		return arraydata::distance2d(l, r);
+	}
+	value distance2d_object_array(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto l = left.data<objectdata>();
+		auto r = right.data<arraydata>();
+		if (l->is_null())
+		{
+			vm->err() << "Left value provided is NULL object." << std::endl;
+			return {};
+		}
+		if (!r->check_type(vm, SCALAR, 2, 3))
+		{
+			return {};
+		}
+		return l->obj()->distance2d(r->as_vec2());
+	}
+	value distance2d_array_object(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto l = left.data<arraydata>();
+		auto r = right.data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return {};
+		}
+		if (!l->check_type(vm, SCALAR, 2, 3))
+		{
+			return {};
+		}
+		return r->obj()->distance2d(l->as_vec2());
+	}
+	value distance2d_object_object(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto l = left.data<objectdata>();
+		auto r = right.data<objectdata>();
+		if (l->is_null())
+		{
+			vm->err() << "Left value provided is NULL object." << std::endl;
+			return {};
+		}
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return {};
+		}
+		return l->obj()->distance2d(r->obj());
 	}
 	class nearestobjects_distancesort3d
 	{
@@ -726,8 +782,8 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
-			return {};
+			vm->wrn() << "Right value provided is NULL object." << std::endl;
+			return false;
 		}
 		return r->obj()->alive();
 	}
@@ -884,6 +940,38 @@ namespace
 			return res != veh->soldiers_end();
 		}
 	}
+	value vehiclevarname_object(virtualmachine* vm, value::cref right)
+	{
+		auto r = right.data<objectdata>();
+		if (r->is_null())
+		{
+			vm->err() << "Right value provided is NULL object." << std::endl;
+			return {};
+		}
+		if (!r->obj()->is_vehicle())
+		{
+			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			return false;
+		}
+		return r->obj()->varname();
+	}
+	value setvehiclevarname_object_string(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto l = left.data<objectdata>();
+		if (l->is_null())
+		{
+			vm->err() << "Left value provided is NULL object." << std::endl;
+			return {};
+		}
+		if (l->obj()->is_vehicle())
+		{
+			vm->wrn() << "Right value provided is a vehicle object." << std::endl;
+			return false;
+		}
+		auto r = right.as_string();
+		l->obj()->varname(r);
+		return {};
+	}
 }
 void sqf::commandmap::initobjectcmds()
 {
@@ -908,6 +996,10 @@ void sqf::commandmap::initobjectcmds()
 	add(binary(4, "distance", type::OBJECT, type::ARRAY, "Returns a distance in meters between two positions.", distance_object_array));
 	add(binary(4, "distance", type::ARRAY, type::OBJECT, "Returns a distance in meters between two positions.", distance_array_object));
 	add(binary(4, "distance", type::OBJECT, type::OBJECT, "Returns a distance in meters between two positions.", distance_object_object));
+	add(binary(4, "distance2d", type::ARRAY, type::ARRAY, "Returns a 2d distance in meters between two positions.", distance2d_array_array));
+	add(binary(4, "distance2d", type::OBJECT, type::ARRAY, "Returns a 2d distance in meters between two positions.", distance2d_object_array));
+	add(binary(4, "distance2d", type::ARRAY, type::OBJECT, "Returns a 2d distance in meters between two positions.", distance2d_array_object));
+	add(binary(4, "distance2d", type::OBJECT, type::OBJECT, "Returns a 2d distance in meters between two positions.", distance2d_object_object));
 	add(unary("nearestObjects", type::ARRAY, "Returns a list of nearest objects of the given types to the given position or object, within the specified distance. If more than one object is found they will be ordered by proximity, the closest one will be first in the array.", nearestobjects_array));
 	add(unary("isNull", type::OBJECT, "Checks whether the tested item is Null.", isnull_object));
 	add(unary("side", type::OBJECT, "Returns the side of an object.", side_object));
@@ -926,5 +1018,7 @@ void sqf::commandmap::initobjectcmds()
 	add(unary("commander", type::OBJECT, "Returns the primary observer. If provided object is a unit, the unit is returned.", commander_object));
 	add(unary("gunner", type::OBJECT, "Returns the gunner of a vehicle. If provided object is a unit, the unit is returned.", gunner_object));
 	add(binary(4, "in", type::OBJECT, type::OBJECT, "Checks whether unit is in vehicle.", in_object_object));
-
+	add(unary("vehicleVarName", type::OBJECT, "Returns the name of the variable which contains a primary editor reference to this object." "\n"
+		"This is the variable given in the Insert Unit dialog / name field, in the editor. It can be changed using setVehicleVarName.", vehiclevarname_object));
+	add(binary(4, "setVehicleVarName", type::OBJECT, type::STRING, "Sets string representation of an object to a custom string. For example it is possible to return \"MyFerrari\" instead of default \"ce06b00# 164274: offroad_01_unarmed_f.p3d\" when querying object as string", setvehiclevarname_object_string));
 }
