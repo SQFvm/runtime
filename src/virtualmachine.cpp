@@ -288,13 +288,11 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			else
 			{
 				res = execresult::action_error;
-				res = execresult::OK;
 			}
 		}
 		else
 		{
 			res = execresult::action_error;
-			res = execresult::OK;
 		}
 		break;
 	case sqf::virtualmachine::execaction::reset_run_atomic:
