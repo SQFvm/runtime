@@ -19,10 +19,10 @@ void Logger::log(loglevel level, std::string_view message) {
     switch (level) {
         case loglevel::fatal: logTarget << "[FAT]"; break;
         case loglevel::error: logTarget << "[ERR]"; break;
-        case loglevel::warning: logTarget << "[WARN]"; break;
-        case loglevel::info: logTarget << "[INFO]"; break;
-        case loglevel::trace: logTarget << "[T]"; break;
-        case loglevel::verbose: logTarget << "[V]"; break;
+        case loglevel::warning: logTarget << "[WRN]"; break;
+        case loglevel::info: logTarget << "[INF]"; break;
+		case loglevel::verbose: logTarget << "[VBS]"; break;
+        case loglevel::trace: logTarget << "[TRC]"; break;
         default: ;
     }
 
@@ -38,7 +38,7 @@ void Logger::log(loglevel, const char* format, ...) {
 
 #pragma region LogLocationInfo
 
-LogLocationInfo::LogLocationInfo(const sqf::parse::preprocessor::finfo& info) {
+LogLocationInfo::LogLocationInfo(const sqf::parse::preprocessorfileinfo& info) {
     path = info.path;
     line = info.line;
     col = info.col;
@@ -80,8 +80,8 @@ std::string LogLocationInfo::format() const {
 #pragma endregion LogLocationInfo
 
 void CanLog::log(LogMessageBase&& message) const {
-    if (!logger.isEnabled(message.getLevel())) return;
-    logger.log(message.getLevel(), message.formatMessage());
+    if (!m_logger.isEnabled(message.getLevel())) return;
+	m_logger.log(message.getLevel(), message.formatMessage());
 
 
     //log(logmessage::preprocessor::ArgCountMissmatch(LogLocationInfo()));
@@ -217,7 +217,19 @@ namespace logmessage::preprocessor {
 
     std::string UnexpectedEndif::formatMessage() const {
         auto output = location.format();
-        const auto message = "Unexpected ENDIF. Not inside inside of a IFDEF or IFNDEF enclosure."sv;
+        const auto message = "Unexpected ENDIF. Not inside of a IFDEF or IFNDEF enclosure."sv;
+
+        output.reserve(
+            output.length() 
+            + message.length()
+        );
+
+        output.append(message);
+        return output;
+    }
+    std::string MissingEndif::formatMessage() const {
+        auto output = location.format();
+        const auto message = "Missing ENDIF. Still inside of a IFDEF or IFNDEF enclosure at end of file."sv;
 
         output.reserve(
             output.length() 

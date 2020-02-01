@@ -16,16 +16,14 @@ enum class loglevel {
 namespace sqf {
     class instruction;
     namespace parse {
-        namespace preprocessor {
-            class finfo;
-        }
+		class preprocessorfileinfo;
     }
 }
 
 class LogLocationInfo {
 public:
     LogLocationInfo() = default;
-    LogLocationInfo(const sqf::parse::preprocessor::finfo&);
+    LogLocationInfo(const sqf::parse::preprocessorfileinfo&);
     LogLocationInfo(const sqf::instruction&);
 
     std::string path;
@@ -78,9 +76,11 @@ public:
 
 //Classes that can log, inherit from this
 class CanLog {
-    Logger& logger;
+    Logger& m_logger;
+protected:
+	const Logger& get_logger() { return m_logger; }
 public:
-    CanLog(Logger& logger) : logger(logger) {}
+    CanLog(Logger& logger) : m_logger(logger) {}
     void log(LogMessageBase&& message) const;
 };
 
@@ -177,13 +177,21 @@ namespace logmessage {
             [[nodiscard]] std::string formatMessage() const override;
         };
 
-        class UnexpectedEndif : public PreprocBase {
-            static const loglevel level = loglevel::error;
-            static const size_t errorCode = 1;
-        public:
-            UnexpectedEndif(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
-            [[nodiscard]] std::string formatMessage() const override;
-        };
+		class UnexpectedEndif : public PreprocBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 1;
+		public:
+			UnexpectedEndif(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+
+		class MissingEndif : public PreprocBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 1;
+		public:
+			MissingEndif(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
 
         class UnknownInstruction : public PreprocBase {
             static const loglevel level = loglevel::error;
