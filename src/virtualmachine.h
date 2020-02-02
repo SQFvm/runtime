@@ -15,8 +15,8 @@
 #include "dlops.h"
 #include "marker.h"
 #include "filesystem.h"
-#include "astnode.h"
-#include "macro.h"
+#include "parsing/astnode.h"
+#include "parsing/macro.h"
 
 
 namespace sqf
@@ -118,15 +118,15 @@ namespace sqf
 		std::shared_ptr<networking::client> m_current_networking_client;
 		std::shared_ptr<networking::server> m_current_networking_server;
 
-		std::vector<sqf::parse::preprocessor::macro> m_preprocessor_macros;
+		std::vector<sqf::parse::macro> m_preprocessor_macros;
 
-		std::vector<std::function<void(virtualmachine*, const char* text, const astnode&, evaction)>> m_parsing_callbacks;
+		std::vector<std::function<void(virtualmachine*, const char* text, const sqf::parse::astnode&, evaction)>> m_parsing_callbacks;
 
 	private:
-		void navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const astnode& node);
+		void navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const sqf::parse::astnode& node);
 		void handle_networking();
 		bool performexecute(size_t exitAfter = ~0);
-		void execute_parsing_callbacks(const char* text, const astnode& node, evaction act)
+		void execute_parsing_callbacks(const char* text, const sqf::parse::astnode& node, evaction act)
 		{
 			if (m_parsing_callbacks.empty())
 			{
@@ -144,8 +144,8 @@ namespace sqf
 		virtualmachine(unsigned long long maxinst);
 		~virtualmachine();
 
-		void push_macro(sqf::parse::preprocessor::macro macro) { m_preprocessor_macros.push_back(macro); }
-		const std::vector<sqf::parse::preprocessor::macro>& preprocessor_macros() const { return m_preprocessor_macros; }
+		void push_macro(sqf::parse::macro macro) { m_preprocessor_macros.push_back(macro); }
+		const std::vector<sqf::parse::macro>& preprocessor_macros() const { return m_preprocessor_macros; }
 
 		std::chrono::system_clock::time_point get_created_timestamp() const { return m_created_timestamp; }
 		std::chrono::system_clock::time_point get_current_time() const { return m_current_time; }
@@ -161,7 +161,7 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> parsingnamespace() const { return mparsingnamespace; }
 		std::shared_ptr<sqf::sqfnamespace> profilenamespace() const { return mprofilenamespace; }
 
-		void register_callback(std::function<void(virtualmachine*, const char* text, const astnode&, evaction)> callback)
+		void register_callback(std::function<void(virtualmachine*, const char* text, const sqf::parse::astnode&, evaction)> callback)
 		{
 			m_parsing_callbacks.push_back(callback);
 		}
@@ -248,7 +248,6 @@ namespace sqf
 
 
 		execresult execute(execaction action);
-		static std::string dbgsegment(const char* full, size_t off, size_t length);
 		void exit_flag(bool flag) { m_exit_flag = flag; }
 		void exit_flag(bool flag, int exitcode) { m_exit_flag = flag; m_exit_code = exitcode; }
 		bool exit_flag() const { return m_exit_flag; }
@@ -305,8 +304,8 @@ namespace sqf
 		// Also should be checked in case they contain additional info.
 		bool parse_sqf(std::shared_ptr<sqf::vmstack>, std::string_view, std::shared_ptr<sqf::callstack>, std::string = "");
 
-		astnode parse_sqf_cst(std::string_view code, std::string filepath = "") { bool errflag = false; return parse_sqf_cst(code, errflag, filepath); }
-        astnode parse_sqf_cst(std::string_view code, bool& errorflag, std::string filepath = "");
+		sqf::parse::astnode parse_sqf_cst(std::string_view code, std::string filepath = "") { bool errflag = false; return parse_sqf_cst(code, errflag, filepath); }
+        sqf::parse::astnode parse_sqf_cst(std::string_view code, bool& errorflag, std::string filepath = "");
 		void pretty_print_sqf(std::string_view code);
 		void parse_config(std::string_view, std::shared_ptr<configdata>);
 		bool errflag() const { return merrflag; }
