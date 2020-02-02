@@ -510,9 +510,8 @@ void sqf::parse::assembly::push(position_info& info)
 		m_vm->active_vmstack()->push_back(m_vm, inst);
 	}
 }	
-void sqf::parse::assembly::parse(std::string_view codein, std::string file)
+void sqf::parse::assembly::parse()
 {
-	m_contents = codein.data();
-	position_info info = { 1, 0, 0, file };
+	position_info info = { 1, 0, 0, m_file };
 	assembly_root(info);
 }

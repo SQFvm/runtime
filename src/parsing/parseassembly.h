@@ -50,6 +50,7 @@ namespace sqf
 		private:
 			virtualmachine* m_vm;
 			std::string_view m_contents;
+			std::string m_file;
 
 			void skip(position_info& info);
 			//ident = [a-zA-Z]+;
@@ -100,8 +101,12 @@ namespace sqf
 			bool push_start(size_t);
 			void push(position_info& info);
 		public:
-			assembly(virtualmachine* vm, Logger& ref_logger) : CanLog(ref_logger), m_vm(vm) {}
-			void parse(std::string_view codein, std::string file);
+			assembly(virtualmachine* vm, Logger& ref_logger, std::string_view contents, std::string file) :
+				CanLog(ref_logger),
+				m_vm(vm),
+				m_contents(contents),
+				m_file(file) {}
+			void parse();
 		};
 	}
 }
