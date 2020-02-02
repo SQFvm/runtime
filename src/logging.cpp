@@ -1,5 +1,6 @@
 #include "logging.h"
-#include "parsepreprocessor.h"
+#include "parsing/parsepreprocessor.h"
+#include "parsing/position_info.h"
 #include "instruction.h"
 using namespace std::string_view_literals;
 
@@ -42,6 +43,13 @@ LogLocationInfo::LogLocationInfo(const sqf::parse::preprocessorfileinfo& info) {
     path = info.path;
     line = info.line;
     col = info.col;
+}
+
+LogLocationInfo::LogLocationInfo(const sqf::parse::position_info& info)
+{
+	path = info.file;
+	line = info.line;
+	col = info.column;
 }
 
 LogLocationInfo::LogLocationInfo(const sqf::instruction& info) {
@@ -258,4 +266,291 @@ namespace logmessage::preprocessor {
 
 }
 
+namespace logmessage::assembly {
+	std::string ExpectedSemicolon::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected Semicolon."sv;
 
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NoViableAlternativeInstructions::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "No viable alternative at Instruction Path."sv 
+			"Expected: ENDSTATEMENT or CALLUNARY or CALLBINARY or ASSIGNTO" 
+			"or ASSIGNTOLOCAL or CALLNULAR or GETVARIABLE or MAKEARRAY or PUSH"sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NoViableAlternativeArg::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "No viable alternative at Instruction Path."sv
+			"Expected: CALLUNARY or CALLBINARY or ASSIGNTO"
+			"or ASSIGNTOLOCAL or CALLNULAR or GETVARIABLE or MAKEARRAY"sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedEndStatement::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected literal 'endStatement'."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedCallNular::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected literal 'callNular'."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedNularOperator::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected name of nular operator."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string UnknownNularOperator::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "Unknown nular operator '"sv.length()
+			+ operator_name.length()
+			+ "'."sv.length()
+		);
+
+		output.append("Unknown nular operator '"sv);
+		output.append(operator_name);
+		output.append("'."sv);
+		return output;
+	}
+	std::string ExpectedCallUnary::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected literal 'callUnary'."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedUnaryOperator::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected name of unary operator."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string UnknownUnaryOperator::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "Unknown unary operator '"sv.length()
+			+ operator_name.length()
+			+ "'."sv.length()
+		);
+
+		output.append("Unknown unary operator '"sv);
+		output.append(operator_name);
+		output.append("'."sv);
+		return output;
+	}
+	std::string ExpectedCallBinary::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected literal 'callBinary'."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedBinaryOperator::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected name of binary operator."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string UnknownBinaryOperator::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "Unknown binary operator '"sv.length()
+			+ operator_name.length()
+			+ "'."sv.length()
+		);
+
+		output.append("Unknown binary operator '"sv);
+		output.append(operator_name);
+		output.append("'."sv);
+		return output;
+	}
+	std::string ExpectedAssignTo::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected literal 'assignTo'."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedVariableName::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected variable name."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedAssignToLocal::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected literal 'assignToLocal'."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedGetVariable::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected literal 'getVariable'."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedMakeArray::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected literal 'makeArray'."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedInteger::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected integer."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedPush::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected literal 'push'."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedTypeName::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected type name."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+}
