@@ -7,10 +7,11 @@
 #endif
 
 #include "virtualmachine.h"
-#include "astnode.h"
+#include "parsing/astnode.h"
+#include "parsing/debugsegment.h"
 #include "helper.h"
-#include "parsesqf.h"
-#include "parseconfig.h"
+#include "parsing/parsesqf.h"
+#include "parsing/parseconfig.h"
 #include "instruction.h"
 #include "instassignto.h"
 #include "instassigntolocal.h"
@@ -447,7 +448,7 @@ short precedence(std::string_view s)
 	}
 	return srange->begin()->get()->precedence();
 }
-void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const astnode& node)
+void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const sqf::parse::astnode& node)
 {
 	execute_parsing_callbacks(full, node, evaction::enter);
 	switch (node.kind)
@@ -467,7 +468,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			navigate_sqf(full, stack, node.children[0]);
 			navigate_sqf(full, stack, node.children[2]);
 			auto inst = std::make_shared<sqf::inst::callbinary>(sqf::commandmap::get().getrange_b(node.children[1].content));
-			inst->setdbginf(node.children[1].line, node.children[1].col, node.file, dbgsegment(full, node.children[1].offset, node.children[1].length));
+			inst->setdbginf(node.children[1].line, node.children[1].col, node.file, sqf::parse::dbgsegment(full, node.children[1].offset, node.children[1].length));
 			stack->push_back(inst);
 		}
 		break;
@@ -475,14 +476,14 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 		{
 			navigate_sqf(full, stack, node.children[1]);
 			auto inst = std::make_shared<sqf::inst::callunary>(sqf::commandmap::get().getrange_u(node.children[0].content));
-			inst->setdbginf(node.children[0].line, node.children[0].col, node.file, dbgsegment(full, node.children[0].offset, node.children[0].length));
+			inst->setdbginf(node.children[0].line, node.children[0].col, node.file, sqf::parse::dbgsegment(full, node.children[0].offset, node.children[0].length));
 			stack->push_back(inst);
 		}
 		break;
 		case sqf::parse::sqf::sqfasttypes::NULAROP:
 		{
 			auto inst = std::make_shared<sqf::inst::callnular>(sqf::commandmap::get().get(node.content));
-			inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
 		break;
@@ -491,13 +492,13 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			try
 			{
 				auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::stol(node.content, nullptr, 16)));
-				inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+				inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 				stack->push_back(inst);
 			}
 			catch (std::out_of_range&)
 			{
 				auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::scalardata>(std::nanf(""))));
-				inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+				inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 				wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
 				stack->push_back(inst);
 			}
@@ -508,13 +509,13 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			try
 			{
 				auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::stod(node.content)));
-				inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+				inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 				stack->push_back(inst);
 			}
 			catch (std::out_of_range&)
 			{
 				auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::scalardata>(std::nanf(""))));
-				inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+				inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 				wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
 				stack->push_back(inst);
 			}
@@ -523,7 +524,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 		case sqf::parse::sqf::sqfasttypes::STRING:
 		{
 			auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::stringdata>(node.content, true)));
-			inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
 		break;
@@ -535,14 +536,14 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 				if (i != 0)
 				{
 					auto inst = std::make_shared<sqf::inst::endstatement>();
-					inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+					inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 					cs->push_back(inst);
 				}
 				auto subnode = node.children[i];
 				navigate_sqf(full, cs, subnode);
 			}
 			auto inst = std::make_shared<sqf::inst::push>(sqf::value(cs));
-			inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
 		break;
@@ -553,7 +554,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 				navigate_sqf(full, stack, subnode);
 			}
 			auto inst = std::make_shared<sqf::inst::makearray>(node.children.size());
-			inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
 		break;
@@ -561,7 +562,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 		{
 			navigate_sqf(full, stack, node.children[1]);
 			auto inst = std::make_shared<sqf::inst::assignto>(node.children[0].content);
-			inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
 		break;
@@ -569,14 +570,14 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 		{
 			navigate_sqf(full, stack, node.children[1]);
 			auto inst = std::make_shared<sqf::inst::assigntolocal>(node.children[0].content);
-			inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
 		break;
 		case sqf::parse::sqf::sqfasttypes::VARIABLE:
 		{
 			auto inst = std::make_shared<sqf::inst::getvariable>(node.content);
-			inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
 		break;
@@ -587,7 +588,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 				if (i != 0)
 				{
 					auto inst = std::make_shared<sqf::inst::endstatement>();
-					inst->setdbginf(node.line, node.col, node.file, dbgsegment(full, node.offset, node.length));
+					inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 					stack->push_back(inst);
 				}
 				auto subnode = node.children[i];
@@ -597,7 +598,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 	}
 	execute_parsing_callbacks(full, node, evaction::exit);
 }
-void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnode& node, size_t depth)
+void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, sqf::parse::astnode& node, size_t depth)
 {
 	switch (node.kind)
 	{
@@ -696,14 +697,14 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, astnod
 		}
 	}
 }
-astnode sqf::virtualmachine::parse_sqf_cst(std::string_view code, bool& errorflag, std::string filename)
+sqf::parse::astnode sqf::virtualmachine::parse_sqf_cst(std::string_view code, bool& errorflag, std::string filename)
 {
-	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
+	auto h = sqf::parse::helper(merr, sqf::parse::dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	return sqf::parse::sqf::parse_sqf(code.data(), h, errorflag, std::move(filename));
 }
 void sqf::virtualmachine::parse_sqf_tree(std::string_view code, std::stringstream* sstream)
 {
-	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
+	auto h = sqf::parse::helper(merr, sqf::parse::dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
 	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, "");
 	print_navigate_ast(sstream, node, sqf::parse::sqf::astkindname);
@@ -715,7 +716,7 @@ bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 		cs = std::make_shared<sqf::callstack>(this->missionnamespace());
 		vmstck->push_back(cs);
 	}
-	auto h = sqf::parse::helper(&merr_buff, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
+	auto h = sqf::parse::helper(&merr_buff, sqf::parse::dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
 	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, std::move(filename));
 	this->merrflag = h.err_hasdata();
@@ -728,7 +729,7 @@ bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 }
 void sqf::virtualmachine::pretty_print_sqf(std::string_view code)
 {
-	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
+	auto h = sqf::parse::helper(merr, sqf::parse::dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
 	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, "");
 	if (!errflag)
@@ -807,7 +808,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 }
 void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<configdata> parent)
 {
-	auto h = sqf::parse::helper(merr, dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
+	auto h = sqf::parse::helper(merr, sqf::parse::dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
 	bool errflag = false;
 	auto node = sqf::parse::config::parse_config(code, h, errflag);
 //#if defined(_DEBUG)
