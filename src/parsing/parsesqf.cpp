@@ -10,1441 +10,1195 @@
 #include <string>
 #include <sstream>
 
-namespace sqf
+namespace err = logmessage::sqf;
+
+void sqf::parse::sqf::skip(size_t &curoff)
 {
-	namespace parse
+	while (true)
 	{
-		namespace sqf
+		switch (m_contents[curoff])
 		{
-			void skip(const char *code, size_t &curoff)
+			case ' ': curoff++; continue;
+			case '\t': curoff++; continue;
+			case '\r': curoff++; continue;
+			case '\n': curoff++; continue;
+			default: return;
+		}
+	}
+}
+void sqf::parse::sqf::skip(position_info& info)
+{
+	while (true)
+	{
+		switch (m_contents[info.offset])
+		{
+		case ' ': info.offset++; info.column++; continue;
+		case '\t': info.offset++; info.column++; continue;
+		case '\r': info.offset++; info.column++; continue;
+		case '\n': info.offset++; info.line++; info.column = 0; continue;
+		case '#':
+			if ((m_contents[info.offset + 1] == 'l' || m_contents[info.offset + 1] == 'L') &&
+				(m_contents[info.offset + 2] == 'i' || m_contents[info.offset + 1] == 'I') &&
+				(m_contents[info.offset + 3] == 'n' || m_contents[info.offset + 1] == 'N') &&
+				(m_contents[info.offset + 4] == 'e' || m_contents[info.offset + 1] == 'E'))
 			{
-				while (true)
-				{
-					switch (code[curoff])
-					{
-						case ' ': curoff++; continue;
-						case '\t': curoff++; continue;
-						case '\r': curoff++; continue;
-						case '\n': curoff++; continue;
-						default: return;
-					}
-				}
-			}
-			void skip(const char *code, size_t &line, size_t &col, std::string& file, size_t &curoff)
-			{
-				while (true)
-				{
-					switch (code[curoff])
-					{
-						case ' ': curoff++; col++; continue;
-						case '\t': curoff++; col++; continue;
-						case '\r': curoff++; col++; continue;
-						case '\n': curoff++; line++; col = 0; continue;
-						case '#':
-							if ((code[curoff + 1] == 'l' || code[curoff + 1] == 'L') &&
-								(code[curoff + 2] == 'i' || code[curoff + 1] == 'I') &&
-								(code[curoff + 3] == 'n' || code[curoff + 1] == 'N') &&
-								(code[curoff + 4] == 'e' || code[curoff + 1] == 'E'))
-							{
-								curoff += 6;
-								size_t start = curoff;
-								for (; code[curoff] != '\0' && code[curoff] != '\n' && code[curoff] != ' '; curoff++);
-								auto str = std::string(code + start, code + curoff);
-								line = static_cast<size_t>(std::stoul(str));
+				info.offset += 6;
+				size_t start = info.offset;
+				for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n' && m_contents[info.offset] != ' '; info.offset++);
+				auto str = std::string(m_contents.substr(start, info.offset - start));
+				info.line = static_cast<size_t>(std::stoul(str));
 
-								for (; code[curoff] != '\0' && code[curoff] != '\n' && code[curoff] == ' '; curoff++);
-								if (code[curoff] != '\0' && code[curoff] != '\n')
-								{
-									start = curoff;
-									for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
-									auto str = std::string(code + start, code + curoff);
-									file = str;
-								}
-								break;
-							}
-						default: return;
-					}
+				for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n' && m_contents[info.offset] == ' '; info.offset++);
+				if (m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n')
+				{
+					start = info.offset;
+					for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n'; info.offset++);
+					auto str = std::string(m_contents.substr(start, info.offset - start));
+					info.file = str;
 				}
+				break;
 			}
+		default: return;
+		}
+	}
+}
 
-			//endchr = [,;];
-			size_t endchr(const char* code, size_t off) { return code[off] == ';' || code[off] == ',' ? 1 : 0; }
-			//identifier = [_a-zA-Z][_a-zA-Z0-9]*;
-			size_t identifier(const char* code, size_t off) { size_t i = off; if (!((code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '_')) return 0; for (i = off + 1; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++) {}; return i - off; }
-			//identifier = [_a-zA-Z][_a-zA-Z0-9]+;
-			size_t assidentifier(const char* code, size_t off)
-			{
-				size_t i = off;
-				if (!((code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '_'))
-				{
-					return 0;
-				}
+//endchr = [,;];
+size_t sqf::parse::sqf::endchr(size_t off) { return m_contents[off] == ';' || m_contents[off] == ',' ? 1 : 0; }
+//identifier = [_a-zA-Z][_a-zA-Z0-9]*;
+size_t sqf::parse::sqf::identifier(size_t off) { size_t i = off; if (!((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || m_contents[i] == '_')) return 0; for (i = off + 1; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'; i++) {}; return i - off; }
+//identifier = [_a-zA-Z][_a-zA-Z0-9]+;
+size_t sqf::parse::sqf::assidentifier(size_t off)
+{
+	size_t i = off;
+	if (!((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || m_contents[i] == '_'))
+	{
+		return 0;
+	}
 
-				for (i++; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++);
-				return i - off;
-			}
-			//operator_ = [+-*/%^]|&&|\|\||==|[!<>][=]?|[a-zA-Z_]+;
-			size_t operator_(const char* code, size_t off) {
-				if (code[off] == '+' || code[off] == '-' || code[off] == '*' || code[off] == '/' || code[off] == '%' || code[off] == '^' || code[off] == ':' || code[off] == '#') return 1;
-				if ((code[off] == '|' && code[off + 1] == '|') || (code[off] == '&' && code[off + 1] == '&') || (code[off] == '=' && code[off + 1] == '=') || (code[off] == '>' && code[off + 1] == '>')) return 2;
-				if (code[off] == '<' || code[off] == '>' || code[off] == '!')
-				{
-					if (code[off + 1] == '=') return 2;
-					return 1;
-				}
-				size_t i;
-				for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++);
-				return i - off;
-			}
-			//hexadecimal = [0-9a-fA-F]+;
-			size_t hexadecimal(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'f') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] >= '0' && code[i] <= '9'); i++) {}; return i - off; }
-			//scalarsub = [0-9]+;
-			size_t scalarsub(const char* code, size_t off) { size_t i; for (i = off; code[i] >= '0' && code[i] <= '9'; i++) {}; return i - off; }
-			//scalar = scalarsub(.scalarsub)?;
-			size_t scalar(const char* code, size_t off) { size_t i = off + scalarsub(code, off); if (code[off] == '.') i += scalarsub(code, off); return i - off; }
-			//anytext = (?![ \t\r\n;])+;
-			size_t anytext(const char* code, size_t off) { size_t i; for (i = off; code[i] != ' ' && code[i] != '\t' && code[i] != '\r' && code[i] != '\n' && code[i] != ';'; i++) {}; return i - off; }
-			//SQF = [ STATEMENT { endchr { endchr } STATEMENT } ]
-			bool SQF_start(helper &h, const char* code, size_t curoff) { return true; }
-			void SQF(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
+	for (i++; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'; i++);
+	return i - off;
+}
+//operator_ = [+-*/%^]|&&|\|\||==|[!<>][=]?|[a-zA-Z_]+;
+size_t sqf::parse::sqf::operator_(size_t off) {
+	if (m_contents[off] == '+' || m_contents[off] == '-' || m_contents[off] == '*' || m_contents[off] == '/' || m_contents[off] == '%' || m_contents[off] == '^' || m_contents[off] == ':' || m_contents[off] == '#') return 1;
+	if ((m_contents[off] == '|' && m_contents[off + 1] == '|') || (m_contents[off] == '&' && m_contents[off + 1] == '&') || (m_contents[off] == '=' && m_contents[off + 1] == '=') || (m_contents[off] == '>' && m_contents[off + 1] == '>')) return 2;
+	if (m_contents[off] == '<' || m_contents[off] == '>' || m_contents[off] == '!')
+	{
+		if (m_contents[off + 1] == '=') return 2;
+		return 1;
+	}
+	size_t i;
+	for (i = off; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'; i++);
+	return i - off;
+}
+//hexadecimal = [0-9a-fA-F]+;
+size_t sqf::parse::sqf::hexadecimal(size_t off) { size_t i; for (i = off; (m_contents[i] >= 'a' && m_contents[i] <= 'f') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= '0' && m_contents[i] <= '9'); i++) {}; return i - off; }
+//scalarsub = [0-9]+;
+size_t sqf::parse::sqf::scalarsub(size_t off) { size_t i; for (i = off; m_contents[i] >= '0' && m_contents[i] <= '9'; i++) {}; return i - off; }
+//scalar = scalarsub(.scalarsub)?;
+size_t sqf::parse::sqf::scalar(size_t off) { size_t i = off + scalarsub(off); if (m_contents[off] == '.') i += scalarsub(off); return i - off; }
+//anytext = (?![ \t\r\n;])+;
+size_t sqf::parse::sqf::anytext(size_t off) { size_t i; for (i = off; m_contents[i] != ' ' && m_contents[i] != '\t' && m_contents[i] != '\r' && m_contents[i] != '\n' && m_contents[i] != ';'; i++) {}; return i - off; }
+//SQF = [ STATEMENT { endchr { endchr } STATEMENT } ]
+bool sqf::parse::sqf::SQF_start(size_t curoff) { return true; }
+void sqf::parse::sqf::SQF(astnode &root, position_info& info, bool &errflag)
+{
+	skip(info);
+	size_t endchrlen;
+	while ((endchrlen = endchr(info.offset)) > 0)
+	{
+		info.offset += endchrlen;
+		info.column += endchrlen;
+		skip(info);
+	}
+	//Iterate over statements as long as it is an instruction start.
+	while (STATEMENT_start(info.offset))
+	{
+		STATEMENT(root, info, errflag);
+		skip(info);
+		//Make sure at least one endchr is available unless no statement follows
+		if (!endchr(info.offset) && STATEMENT_start(info.offset))
+		{
+			log(err::ExpectedStatementTerminator(info));
+			errflag = true;
+		}
+		else
+		{
+			//Add endchr up until no semicolon is left
+			while ((endchrlen = endchr(info.offset)) > 0)
 			{
-				//auto thisnode = astnode();
-				//thisnode.offset = curoff;
-				//thisnode.kind = sqfasttypes::SQF;
-				//thisnode.file = file;
-				skip(code, line, col, file, curoff);
-				size_t endchrlen;
-				while ((endchrlen = endchr(code, curoff)) > 0)
-				{
-					curoff += endchrlen;
-					col += endchrlen;
-					skip(code, line, col, file, curoff);
-				}
-				//Iterate over statements as long as it is an instruction start.
-				while (STATEMENT_start(h, code, curoff))
-				{
-					STATEMENT(h, root, code, line, col, curoff, file, errflag);
-					skip(code, line, col, file, curoff);
-					//Make sure at least one endchr is available unless no statement follows
-					if (!endchr(code, curoff) && STATEMENT_start(h, code, curoff))
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected either ';' or ','." << std::endl; }
-						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected either ';' or ','." << std::endl; }
-						errflag = true;
-					}
-					else
-					{
-						//Add endchr up until no semicolon is left
-						while ((endchrlen = endchr(code, curoff)) > 0)
-						{
-							curoff += endchrlen;
-							col += endchrlen;
-							skip(code, line, col, file, curoff);
-						}
-					}
-				}
-				//thisnode.length = curoff - thisnode.offset;
-				//root.children.push_back(thisnode);
-			}
-			//STATEMENT = ASSIGNMENT | BINARYEXPRESSION;
-			bool STATEMENT_start(helper &h, const char* code, size_t curoff) { return ASSIGNMENT_start(h, code, curoff) | BINARYEXPRESSION_start(h, code, curoff); }
-			void STATEMENT(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff,
-                           const std::string& file, bool &errflag)
-			{
-				//auto thisnode = astnode();
-				//thisnode.offset = curoff;
-				//thisnode.kind = sqfasttypes::STATEMENT;
-				//thisnode.file = file;
-				if (ASSIGNMENT_start(h, code, curoff))
-				{
-					ASSIGNMENT(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (BINARYEXPRESSION_start(h, code, curoff))
-				{
-					BINARYEXPRESSION(h, root, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "No viable alternative for STATEMENT." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No viable alternative for STATEMENT." << std::endl; }
-					errflag = true;
-				}
-				//thisnode.length = curoff - thisnode.offset;
-				//root.children.push_back(thisnode);
-			}
-			//ASSIGNMENT(2) = assidentifier '=' BINARYEXPRESSION | "private" assidentifier '=' BINARYEXPRESSION;
-			bool ASSIGNMENT_start(helper &h, const char* code, size_t curoff)
-			{
-				size_t len;
-				if (str_cmpi(code + curoff, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
-				{
-					curoff += compiletime::strlen("private");
-					skip(code, curoff);
-				}
-				if ((len = assidentifier(code, curoff)) > 0)
-				{
-					curoff += len;
-					skip(code, curoff);
-					return code[curoff] == '=' && code[curoff + 1] != '=';
-				}
-				else
-				{
-					return false;
-				}
-			}
-			void ASSIGNMENT(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.kind = sqfasttypes::ASSIGNMENT;
-				thisnode.offset = curoff;
-				thisnode.file = file;
-				size_t len;
-				bool assignlocal = false;
-				//check if prefixed by a 'private'
-				if (str_cmpi(code + curoff, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
-				{
-					curoff += compiletime::strlen("private");
-					col += compiletime::strlen("private");
-					skip(code, line, col, file, curoff);
-					assignlocal = true;
-					thisnode.kind = sqfasttypes::ASSIGNMENTLOCAL;
-				}
-				//receive the ident
-				len = assidentifier(code, curoff);
-				auto ident = std::string(code + curoff, code + curoff + len);
-
-				auto varnode = astnode();
-				varnode.offset = curoff;
-				varnode.length = len;
-				varnode.content = ident;
-				varnode.kind = sqfasttypes::VARIABLE;
-				varnode.col = col;
-				varnode.line = line;
-				varnode.file = file;
-				thisnode.children.emplace_back(std::move(varnode));
-
-				if (assignlocal && ident[0] != '_')
-				{
-					h.err() << h.dbgsegment(code, curoff, len) << "[ERR][L" << line << "|C" << col << "]\t" << "Private variables need to be prefixed with an underscore '_'." << std::endl;
-					errflag = true;
-				}
-				curoff += len;
-				skip(code, line, col, file, curoff);
-				//store the dbginf for the '='
-				//size_t dbgstart = curoff;
-				//size_t dbgcol = col;
-				//size_t dbgline = line;
-				thisnode.col = col;
-				thisnode.line = line;
-				//skip the '=' (is confirmed to be present in ASSIGNMENT_start)
-				curoff++;
-				col++;
-				skip(code, line, col, file, curoff);
-
-				if (BINARYEXPRESSION_start(h, code, curoff))
-				{
-					BINARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				thisnode.length = curoff - thisnode.offset;
-				root.children.emplace_back(std::move(thisnode));
-			}
-			//BINARYEXPRESSION = BEXP1;
-			//BEXP1 = BEXP2 [ boperator BEXP10 ];
-			//BEXP2 = BEXP3 [ boperator BEXP10 ];
-			//BEXP3 = BEXP4 [ boperator BEXP10 ];
-			//BEXP4 = BEXP5 [ boperator BEXP10 ];
-			//BEXP5 = BEXP6 [ boperator BEXP10 ];
-			//BEXP6 = BEXP7 [ boperator BEXP10 ];
-			//BEXP7 = BEXP8 [ boperator BEXP10 ];
-			//BEXP8 = BEXP9 [ boperator BEXP10 ];
-			//BEXP9 = BEXP10 [ boperator BEXP10 ];
-			//BEXP10 = PRIMARYEXPRESSION [ boperator BEXP10 ];
-			void bexp_orderfix(astnode& root, astnode thisnode, short plevel)
-			{
-				auto& othernodeRef = thisnode.children.back();
-				if (othernodeRef.children.size() == 3 && othernodeRef.kind == plevel)
-				{
-                    auto othernode = thisnode.children.back();
-					astnode* ptr = &othernode.children.front();
-					astnode* lptr = &othernode;
-					while (ptr->children.size() == 3 && ptr->kind == plevel)
-					{
-						lptr = ptr;
-						ptr = &ptr->children.front();
-					}
-
-					thisnode.children.pop_back();
-					thisnode.children.push_back(*ptr);
-					lptr->children.front() = thisnode;
-					root.children.push_back(othernode);
-				}
-				else
-				{
-					root.children.emplace_back(std::move(thisnode));
-				}
-			}
-			bool bexp10_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void bexp10(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BEXP10;
-				thisnode.file = file;
-                thisnode.line = line;
-				size_t oplen;
-				std::string op;
-				skip(code, line, col, file, curoff);
-				if (PRIMARYEXPRESSION_start(h, code, curoff))
-				{
-					PRIMARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::string(code + curoff, code + curoff + oplen), 10))
-				{
-					auto node = astnode();
-					node.content = op;
-					node.offset = curoff;
-					node.kind = sqfasttypes::BINARYOP;
-					node.col = col;
-					node.line = line;
-					node.length = oplen;
-					node.file = file;
-                    thisnode.children.emplace_back(std::move(node));
-					curoff += oplen;
-					skip(code, line, col, file, curoff);
-					if (bexp10_start(h, code, curoff))
-					{
-						bexp10(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						errflag = true;
-					}
-					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP10);
-				}
-				else
-				{
-                    //We won't need this node anymore. Just move all children to root
-                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
-				}
-			}
-			bool bexp9_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void bexp9(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BEXP9;
-				thisnode.file = file;
-                thisnode.line = line;
-				size_t oplen;
-				std::string op;
-				skip(code, line, col, file, curoff);
-				if (bexp10_start(h, code, curoff))
-				{
-					bexp10(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::string(code + curoff, code + curoff + oplen), 9))
-				{
-					auto node = astnode();
-					node.content = op;
-					node.offset = curoff;
-					node.kind = sqfasttypes::BINARYOP;
-					node.col = col;
-					node.line = line;
-					node.length = oplen;
-					node.file = file;
-					thisnode.children.emplace_back(std::move(node));
-					curoff += oplen;
-					skip(code, line, col, file, curoff);
-					if (bexp9_start(h, code, curoff))
-					{
-						bexp9(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						errflag = true;
-					}
-					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP9);
-				}
-				else
-				{
-                    //We won't need this node anymore. Just move all children to root
-                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
-				}
-			}
-			bool bexp8_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void bexp8(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BEXP8;
-				thisnode.file = file;
-                thisnode.line = line;
-				size_t oplen;
-				std::string op;
-				skip(code, line, col, file, curoff);
-				if (bexp9_start(h, code, curoff))
-				{
-					bexp9(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::string(code + curoff, code + curoff + oplen), 8))
-				{
-					auto node = astnode();
-					node.content = op;
-					node.offset = curoff;
-					node.kind = sqfasttypes::BINARYOP;
-					node.col = col;
-					node.line = line;
-					node.length = oplen;
-					node.file = file;
-					thisnode.children.emplace_back(std::move(node));
-					curoff += oplen;
-					skip(code, line, col, file, curoff);
-					if (bexp8_start(h, code, curoff))
-					{
-						bexp8(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						errflag = true;
-					}
-					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP8);
-				}
-				else
-				{
-                    //We won't need this node anymore. Just move all children to root
-                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
-				}
-			}
-			bool bexp7_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void bexp7(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BEXP7;
-				thisnode.file = file;
-                thisnode.line = line;
-				size_t oplen;
-				std::string op;
-				skip(code, line, col, file, curoff);
-				if (bexp8_start(h, code, curoff))
-				{
-					bexp8(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::string(code + curoff, code + curoff + oplen), 7))
-				{
-					auto node = astnode();
-					node.content = op;
-					node.offset = curoff;
-					node.kind = sqfasttypes::BINARYOP;
-					node.col = col;
-					node.line = line;
-					node.length = oplen;
-					node.file = file;
-					thisnode.children.emplace_back(std::move(node));
-					curoff += oplen;
-					skip(code, line, col, file, curoff);
-					if (bexp7_start(h, code, curoff))
-					{
-						bexp7(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						errflag = true;
-					}
-					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP7);
-				}
-				else
-				{
-                    //We won't need this node anymore. Just move all children to root
-                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
-				}
-			}
-			bool bexp6_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void bexp6(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BEXP6;
-				thisnode.file = file;
-                thisnode.line = line;
-				size_t oplen;
-				std::string op;
-				skip(code, line, col, file, curoff);
-				if (bexp7_start(h, code, curoff))
-				{
-					bexp7(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::string(code + curoff, code + curoff + oplen), 6))
-				{
-					auto node = astnode();
-					node.content = op;
-					node.offset = curoff;
-					node.kind = sqfasttypes::BINARYOP;
-					node.col = col;
-					node.line = line;
-					node.length = oplen;
-					node.file = file;
-					thisnode.children.emplace_back(std::move(node));
-					curoff += oplen;
-					skip(code, line, col, file, curoff);
-					if (bexp6_start(h, code, curoff))
-					{
-						bexp6(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						errflag = true;
-					}
-					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP6);
-				}
-				else
-				{
-                    //We won't need this node anymore. Just move all children to root
-                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
-				}
-			}
-			bool bexp5_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void bexp5(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BEXP5;
-				thisnode.file = file;
-                thisnode.line = line;
-				size_t oplen;
-				std::string op;
-				skip(code, line, col, file, curoff);
-				if (bexp6_start(h, code, curoff))
-				{
-					bexp6(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::string(code + curoff, code + curoff + oplen), 5))
-				{
-					auto node = astnode();
-					node.content = op;
-					node.offset = curoff;
-					node.kind = sqfasttypes::BINARYOP;
-					node.col = col;
-					node.line = line;
-					node.length = oplen;
-					node.file = file;
-					thisnode.children.emplace_back(std::move(node));
-					curoff += oplen;
-					skip(code, line, col, file, curoff);
-					if (bexp5_start(h, code, curoff))
-					{
-						bexp5(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						errflag = true;
-					}
-					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP5);
-				}
-				else
-				{
-                    //We won't need this node anymore. Just move all children to root
-                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
-				}
-			}
-			bool bexp4_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void bexp4(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BEXP4;
-				thisnode.file = file;
-                thisnode.line = line;
-				size_t oplen;
-				std::string op;
-				skip(code, line, col, file, curoff);
-				if (bexp5_start(h, code, curoff))
-				{
-					bexp5(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::string(code + curoff, code + curoff + oplen), 4))
-				{
-					auto node = astnode();
-					node.content = op;
-					node.offset = curoff;
-					node.kind = sqfasttypes::BINARYOP;
-					node.col = col;
-					node.line = line;
-					node.length = oplen;
-					node.file = file;
-					thisnode.children.emplace_back(std::move(node));
-					curoff += oplen;
-					skip(code, line, col, file, curoff);
-					if (bexp4_start(h, code, curoff))
-					{
-						bexp4(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						errflag = true;
-					}
-					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP4);
-				}
-				else
-				{
-                    //We won't need this node anymore. Just move all children to root
-                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
-				}
-			}
-			bool bexp3_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void bexp3(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BEXP3;
-				thisnode.file = file;
-                thisnode.line = line;
-				size_t oplen;
-				std::string op;
-				skip(code, line, col, file, curoff);
-				if (bexp4_start(h, code, curoff))
-				{
-					bexp4(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::string(code + curoff, code + curoff + oplen), 3))
-				{
-					auto node = astnode();
-					node.content = op;
-					node.offset = curoff;
-					node.kind = sqfasttypes::BINARYOP;
-					node.col = col;
-					node.line = line;
-					node.length = oplen;
-					node.file = file;
-					thisnode.children.emplace_back(std::move(node));
-					curoff += oplen;
-					skip(code, line, col, file, curoff);
-					if (bexp3_start(h, code, curoff))
-					{
-						bexp3(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						errflag = true;
-					}
-					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP3);
-				}
-				else
-				{
-                    //We won't need this node anymore. Just move all children to root
-                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
-				}
-			}
-			bool bexp2_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void bexp2(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BEXP2;
-                thisnode.file = file;
-                thisnode.line = line;
-				size_t oplen;
-				std::string op;
-				skip(code, line, col, file, curoff);
-				if (bexp3_start(h, code, curoff))
-				{
-					bexp3(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::string(code + curoff, code + curoff + oplen), 2))
-				{
-					auto node = astnode();
-					node.content = op;
-					node.offset = curoff;
-					node.kind = sqfasttypes::BINARYOP;
-					node.col = col;
-					node.line = line;
-					node.length = oplen;
-					node.file = file;
-					thisnode.children.emplace_back(std::move(node));
-					curoff += oplen;
-					skip(code, line, col, file, curoff);
-					if (bexp2_start(h, code, curoff))
-					{
-						bexp2(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						errflag = true;
-					}
-					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP2);
-				}
-				else
-				{
-                    //We won't need this node anymore. Just move all children to root
-                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
-				}
-			}
-			bool bexp1_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void bexp1(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = sqfasttypes::BEXP1;
-				thisnode.file = file;
-                thisnode.line = line;
-				size_t oplen;
-				std::string op;
-				skip(code, line, col, file, curoff);
-				if (bexp2_start(h, code, curoff))
-				{
-					bexp2(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if ((oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::string(code + curoff, code + curoff + oplen), 1))
-				{
-					auto node = astnode();
-					node.content = op;
-					node.offset = curoff;
-					node.kind = sqfasttypes::BINARYOP;
-					node.col = col;
-					node.line = line;
-					node.length = oplen;
-					node.file = file;
-					thisnode.children.emplace_back(std::move(node));
-					curoff += oplen;
-					skip(code, line, col, file, curoff);
-					if (bexp1_start(h, code, curoff))
-					{
-						bexp1(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Missing RARG for binary operator." << std::endl; }
-						errflag = true;
-					}
-					bexp_orderfix(root, std::move(thisnode), sqfasttypes::BEXP1);
-				}
-				else
-				{
-                    //We won't need this node anymore. Just move all children to root
-                    root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
-				}
-			}
-			bool BINARYEXPRESSION_start(helper &h, const char* code, size_t curoff) { return PRIMARYEXPRESSION_start(h, code, curoff); }
-			void BINARYEXPRESSION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				bexp1(h, root, code, line, col, curoff, std::move(file), errflag);
-				//auto thisnode = astnode();
-				//thisnode.offset = curoff;
-				//thisnode.kind = sqfasttypes::BINARYSTATEMENT;
-				//thisnode.file = file;
-				//size_t oplen;
-				//std::string op;
-				////Get all nodes for current expression
-				//while (true)
-				//{
-				//	skip(code, line, col, file, curoff);
-				//	if (thisnode.children.size() % 2 == 1 && (oplen = operator_(code, curoff)) > 0 && h.contains_binary(op = std::string(code + curoff, code /+/ curoff + oplen)))
-				//	{
-				//		auto node = astnode();
-				//		node.content = op;
-				//		node.offset = curoff;
-				//		node.kind = sqfasttypes::BINARYOP;
-				//		node.col = col;
-				//		node.line = line;
-				//		node.length = oplen;
-				//		node.file = file;
-				//		thisnode.children.push_back(node);
-				//		curoff += oplen;
-				//	}
-				//	else if (PRIMARYEXPRESSION_start(h, code, curoff))
-				//	{
-				//		PRIMARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag);
-				//	}
-				//	else
-				//	{
-				//		break;
-				//	}
-				//}
-				////Group the BinaryExpressions
-				//auto vec = thisnode.children;
-				//thisnode.children = std::vector<astnode>();
-				//std::reverse(vec.begin(), vec.end());
-				//auto curnode = astnode();
-				//curnode.kind = sqfasttypes::BINARYEXPRESSION;
-				//bool isOrig = true;
-				//while (!vec.empty())
-				//{
-				//	auto it = vec.back();
-				//	vec.pop_back();
-				//
-				//	curnode.children.push_back(it);
-				//	if (curnode.children.size() == (isOrig ? 3 : 2))
-				//	{
-				//		if (curnode.children.size() == (isOrig ? 3 : 2) && curnode.children[(isOrig ? 1 : 0)].kind != sqfasttypes::BINARYOP)
-				//		{
-				//			size_t i;
-				//			for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-				//			h.err() << h.dbgsegment(code, curnode.offset, curnode.length) << "[ERR][L" << curnode.line << "|C" << curnode.col << "]\t" /<< /"Expected binary operator." << std::endl;
-				//			errflag = true;
-				//		}
-				//		thisnode.children.push_back(curnode);
-				//		curnode = astnode();
-				//		curnode.kind = sqfasttypes::BINARYEXPRESSION;
-				//		isOrig = false;
-				//	}
-				//}
-				//if (curnode.children.size() == 1)
-				//{
-				//	auto tmp = curnode.children[0];
-				//	curnode = tmp;
-				//	thisnode.children.push_back(curnode);
-				//}
-				//else if (isOrig && curnode.children.size() == 2)
-				//{
-				//	size_t i;
-				//	for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-				//	h.err() << h.dbgsegment(code, curnode.children.back().offset, curnode.children.back().length) << "[ERR][L" << curnode.line << "|C" << //curnode.col << "]\t" << "Missing RARG for binary operator." << std::endl;
-				//	errflag = true;
-				//}
-				//else if (curnode.children.size() != 0)
-				//{
-				//	thisnode.children.push_back(curnode);
-				//}
-				//
-				////Exit if no sorting is required
-				//if (thisnode.children.size() <= 1)
-				//{
-				//	root.children.push_back(thisnode.children.size() == 1 ? thisnode.children.back() : thisnode);
-				//	return;
-				//}
-				////Sort according to precedence
-				//vec = thisnode.children;
-				//thisnode.children = std::vector<astnode>();
-				//std::reverse(vec.begin(), vec.end());
-				//
-				//curnode = vec.back();
-				//vec.pop_back();
-				//auto curprec = h.precedence(curnode.children[1].content);
-				//while (!vec.empty())
-				//{
-				//	auto node = vec.back();
-				//	vec.pop_back();
-				//	auto prec = h.precedence(node.children[0].content);
-				//	node.children.push_back(node.children[1]);
-				//	node.children[1] = node.children[0];
-				//	if (curprec < prec)
-				//	{
-				//		node.children[0] = curnode.children.back();
-				//		curnode.children.back() = node;
-				//	}
-				//	else
-				//	{
-				//		node.children[0] = curnode;
-				//		curnode = node;
-				//	}
-				//}
-				//thisnode.children.push_back(curnode);
-				//root.children.push_back(thisnode);
-			}
-			//BRACKETS = '(' BINARYEXPRESSION ')';
-			bool BRACKETS_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '('; }
-			void BRACKETS(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.kind = sqfasttypes::BRACKETS;
-				thisnode.offset = curoff;
-				thisnode.file = file;
-				curoff++;
-				col++;
-				skip(code, line, col, file, curoff);
-				if (BINARYEXPRESSION_start(h, code, curoff))
-				{
-					BINARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of BINARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if (code[curoff] == ')')
-				{
-					curoff++;
-					col++;
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected ')'." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected ')'." << std::endl; }
-					errflag = true;
-				}
-				thisnode.length = curoff - thisnode.offset;
-				root.children.emplace_back(std::move(thisnode));
-			}
-			//PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULAREXPRESSION | VARIABLE | STRING | CODE | BRACKETS | ARRAY;
-			bool PRIMARYEXPRESSION_start(helper &h, const char* code, size_t curoff) { return NUMBER_start(h, code, curoff) || UNARYEXPRESSION_start(h, code, curoff) || NULAREXPRESSION_start(h, code, curoff) || VARIABLE_start(h, code, curoff) || STRING_start(h, code, curoff) || CODE_start(h, code, curoff) || BRACKETS_start(h, code, curoff) || ARRAY_start(h, code, curoff); }
-			void PRIMARYEXPRESSION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff,
-                                   const std::string& file, bool &errflag)
-			{
-				//auto thisnode = astnode();
-				//thisnode.kind = sqfasttypes::PRIMARYEXPRESSION;
-				//thisnode.offset = curoff;
-				//thisnode.file = file;
-				if (NUMBER_start(h, code, curoff))
-				{
-					NUMBER(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (UNARYEXPRESSION_start(h, code, curoff))
-				{
-					UNARYEXPRESSION(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (NULAREXPRESSION_start(h, code, curoff))
-				{
-					NULAREXPRESSION(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (VARIABLE_start(h, code, curoff))
-				{
-					VARIABLE(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (STRING_start(h, code, curoff))
-				{
-					STRING(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (CODE_start(h, code, curoff))
-				{
-					CODE(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (BRACKETS_start(h, code, curoff))
-				{
-					BRACKETS(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (ARRAY_start(h, code, curoff))
-				{
-					ARRAY(h, root, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "No viable alternative for PRIMARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No viable alternative for PRIMARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				//thisnode.length = curoff - thisnode.offset;
-				//root.children.push_back(thisnode);
-			}
-			//NULAREXPRESSION = operator;
-			bool NULAREXPRESSION_start(helper &h, const char* code, size_t curoff) { auto oplen = operator_(code, curoff); return oplen > 0 ? h.contains_nular(std::string(code + curoff, code + curoff + oplen)) : false; }
-			void NULAREXPRESSION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.kind = sqfasttypes::NULAROP;
-				thisnode.file = std::move(file);
-				auto len = operator_(code, curoff);
-				auto ident = std::string(code + curoff, code + curoff + len);
-				thisnode.content = ident;
-				thisnode.length = len;
-				thisnode.offset = curoff;
-				thisnode.col = col;
-				thisnode.line = line;
-				curoff += len;
-				col += len;
-				root.children.emplace_back(std::move(thisnode));
-			}
-			//UNARYEXPRESSION = operator PRIMARYEXPRESSION;
-			bool UNARYEXPRESSION_start(helper &h, const char* code, size_t curoff) { auto oplen = operator_(code, curoff); return oplen > 0 ? h.contains_unary(std::string(code + curoff, code + curoff + oplen)) : false; }
-			void UNARYEXPRESSION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.kind = sqfasttypes::UNARYEXPRESSION;
-				thisnode.offset = curoff;
-				thisnode.file = file;
-                thisnode.col = col;
-                thisnode.line = line;
-				//size_t dbgstart = curoff;
-				//size_t dbgcol = col;
-				//size_t dbgline = line;
-
-				auto len = operator_(code, curoff);
-				auto ident = std::string(code + curoff, code + curoff + len);
-				auto opnode = astnode();
-				opnode.kind = sqfasttypes::UNARYOP;
-				opnode.offset = curoff;
-				opnode.length = len;
-				opnode.content = ident;
-				opnode.col = col;
-				opnode.file = file;
-				opnode.line = line;
-				thisnode.children.emplace_back(std::move(opnode));
-				curoff += len;
-				col += len;
-				skip(code, line, col, file, curoff);
-
-				if (PRIMARYEXPRESSION_start(h, code, curoff))
-				{
-					PRIMARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected start of PRIMARYEXPRESSION." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected start of PRIMARYEXPRESSION." << std::endl; }
-					errflag = true;
-				}
-				thisnode.length = curoff - thisnode.offset;
-				root.children.emplace_back(std::move(thisnode));
-			}
-			//NUMBER = ("0x" | '$' | '.') hexadecimal | scalar;
-			bool NUMBER_start(helper &h, const char* code, size_t curoff)
-			{
-				return  code[curoff] == '$' ||
-						(
-							code[curoff] == '.' &&
-							code[curoff + 1] >= '0' &&
-							code[curoff + 1] <= '9'
-						) ||
-						(code[curoff] >= '0' && code[curoff] <= '9'); }
-			void NUMBER(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, 
-                        const std::string &file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.kind = sqfasttypes::NUMBER;
-				thisnode.col = col;
-				thisnode.line = line;
-				thisnode.file = file;
-				if (code[curoff] == '$')
-				{
-					thisnode.kind = sqfasttypes::HEXNUMBER;
-					size_t i;
-					for (i = curoff + 1; (code[i] >= '0' && code[i] <= '9') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] >= 'a' && code[i] <= 'f'); i++);
-					auto ident = std::string(code + curoff + 1, code + i);
-					thisnode.content = ident;
-					thisnode.offset = curoff;
-					thisnode.length = i - curoff;
-					col += i - curoff;
-					curoff = i;
-				}
-				else if (code[curoff] == '0' && code[curoff + 1] == 'x')
-				{
-					thisnode.kind = sqfasttypes::HEXNUMBER;
-					size_t i;
-					for (i = curoff + 2; (code[i] >= '0' && code[i] <= '9') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] >= 'a' && code[i] <= 'f'); i++);
-					auto ident = std::string(code + curoff, code + i);
-					thisnode.content = ident;
-					thisnode.offset = curoff;
-					thisnode.length = i - curoff;
-					col += i - curoff;
-					curoff = i;
-				}
-				else
-				{
-					size_t i = curoff;
-					bool numhaddot = false;
-					unsigned short numhadexp = 0;
-					while (true)
-					{
-						if (code[i] >= '0' && code[i] <= '9')
-						{
-							i++;
-							continue;
-						}
-						else if (!numhaddot && code[i] == '.')
-						{
-							i++;
-							numhaddot = true;
-							continue;
-						}
-						else if (numhadexp == 0 && (code[i] == 'e' || code[i] == 'E'))
-						{
-							i++;
-							numhadexp++;
-							continue;
-						}
-						else if (numhadexp == 1 && (code[i] == '+' || code[i] == '-'))
-						{
-							i++;
-							numhadexp++;
-							continue;
-						}
-						else
-						{
-							break;
-						}
-
-					}
-					auto ident = std::string(code + curoff, code + i);
-					thisnode.content = ident;
-					thisnode.offset = curoff;
-					thisnode.length = i - curoff;
-					col += i - curoff;
-					curoff = i;
-				}
-				if (thisnode.content.empty())
-				{
-					errflag = true;
-					size_t i;
-					for (i = thisnode.offset; i < thisnode.offset + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, thisnode.offset, i - thisnode.offset) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Empty Number." << std::endl; }
-					else { h.err() << h.dbgsegment(code, thisnode.offset, i - thisnode.offset) << "[ERR][L" << line << "|C" << col << "]\t" << "Empty Number." << std::endl; }
-				}
-				root.children.emplace_back(std::move(thisnode));
-			}
-			//VARIABLE = identifier;
-			bool VARIABLE_start(helper &h, const char* code, size_t curoff) { auto len = identifier(code, curoff); return len > 0 && !h.contains_binary(std::string(code + curoff, code + curoff + len), 0); }
-			void VARIABLE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.kind = sqfasttypes::VARIABLE;
-				thisnode.file = std::move(file);
-				auto len = identifier(code, curoff);
-				auto ident = std::string(code + curoff, code + curoff + len);
-				thisnode.content = ident;
-				thisnode.length = len;
-				thisnode.offset = curoff;
-				thisnode.col = col;
-				thisnode.line = line;
-
-				curoff += len;
-				col += len;
-				root.children.emplace_back(std::move(thisnode));
-			}
-			//STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
-			bool STRING_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '\'' || code[curoff] == '"'; }
-			void STRING(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.kind = sqfasttypes::STRING;
-				thisnode.col = col;
-				thisnode.line = line;
-				thisnode.file = std::move(file);
-				size_t i;
-				auto startchr = code[curoff];
-				col++;
-				for (i = curoff + 1; code[i] != '\0' && (code[i] != startchr || code[i + 1] == startchr); i++)
-				{
-					if (code[i] == startchr)
-					{
-						col += 2;
-						i++;
-					}
-					else if (code[i] == '\n')
-					{
-						col = 0;
-						line++;
-					}
-					else
-					{
-						col++;
-					}
-				}
-				i++;
-				col++;
-				auto fullstring = std::string(code + curoff, code + i);
-				thisnode.content = fullstring;
-				thisnode.length = i - curoff;
-				thisnode.offset = curoff;
-				curoff = i;
-				root.children.emplace_back(std::move(thisnode));
-			}
-			//CODE = "{" SQF "}";
-			bool CODE_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '{'; }
-			void CODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.kind = sqfasttypes::CODE;
-				thisnode.offset = curoff;
-				thisnode.col = col;
-				thisnode.line = line;
-				thisnode.file = file;
-				curoff++;
-				col++;
-				skip(code, line, col, file, curoff);
-
-				if (SQF_start(h, code, curoff))
-				{
-					SQF(h, thisnode, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected SQF start." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected SQF start." << std::endl; }
-					errflag = true;
-				}
-
-				if (code[curoff] == '}')
-				{
-					curoff++;
-					col++;
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected '}'." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected '}'." << std::endl; }
-					errflag = true;
-				}
-				thisnode.length = curoff - thisnode.offset;
-				root.children.emplace_back(std::move(thisnode));
-			}
-			//ARRAY = '[' [ BINARYEXPRESSION { ',' BINARYEXPRESSION } ] ']';
-			bool ARRAY_start(helper &h, const char* code, size_t curoff) { return code[curoff] == '['; }
-			void ARRAY(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.kind = sqfasttypes::ARRAY;
-				thisnode.offset = curoff;
-				thisnode.col = col;
-				thisnode.line = line;
-				thisnode.file = file;
-				curoff++;
-				col++;
-				skip(code, line, col, file, curoff);
-				if (BINARYEXPRESSION_start(h, code, curoff))
-				{
-					BINARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag);
-					skip(code, line, col, file, curoff);
-					while (code[curoff] == ',')
-					{
-						col++;
-						curoff++;
-						skip(code, line, col, file, curoff);
-
-						if (BINARYEXPRESSION_start(h, code, curoff))
-						{
-							BINARYEXPRESSION(h, thisnode, code, line, col, curoff, file, errflag);
-							skip(code, line, col, file, curoff);
-						}
-						else
-						{
-							size_t i;
-							for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-							if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected BINARYEXPRESSION start." << std::endl; }
-							else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected BINARYEXPRESSION start." << std::endl; }
-							errflag = true;
-						}
-					}
-				}
-				if (code[curoff] == ']')
-				{
-					curoff++;
-					col++;
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Expected ']'." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected ']'." << std::endl; }
-					errflag = true;
-				}
-				thisnode.length = curoff - thisnode.offset;
-				thisnode.content = std::string(code + thisnode.offset, code + thisnode.offset + thisnode.length);
-				root.children.emplace_back(std::move(thisnode));
-			}
-
-			astnode parse_sqf(const char* codein, helper& h, bool &errflag, std::string file)
-			{
-				const char *code = codein;
-				size_t line = 1;
-				size_t col = 0;
-				size_t curoff = 0;
-				astnode node;
-				node.kind = sqfasttypes::SQF;
-				node.offset = 0;
-				node.content = codein;
-				node.file = file;
-				SQF(h, node, code, line, col, curoff, file, errflag);
-				node.length = curoff;
-				skip(codein, line, col, file, curoff);
-				if (!errflag && codein[curoff] != '\0') {
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					if (!file.empty()) { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "|" << file << "]\t" << "Reached EOF before finishing parsing." << std::endl; }
-					else { h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Reached EOF before finishing parsing." << std::endl; }
-					errflag = true;
-				}
-				return node;
-			}
-			const char * astkindname(short id)
-			{
-				switch (id)
-				{
-					case sqfasttypes::SQF: return "SQF";
-					case sqfasttypes::STATEMENT: return "STATEMENT";
-					case sqfasttypes::ASSIGNMENT: return "ASSIGNMENT";
-					case sqfasttypes::ASSIGNMENTLOCAL: return "ASSIGNMENTLOCA";
-					case sqfasttypes::BEXP1: return "BEXP1";
-					case sqfasttypes::BEXP2: return "BEXP2";
-					case sqfasttypes::BEXP3: return "BEXP3";
-					case sqfasttypes::BEXP4: return "BEXP4";
-					case sqfasttypes::BEXP5: return "BEXP5";
-					case sqfasttypes::BEXP6: return "BEXP6";
-					case sqfasttypes::BEXP7: return "BEXP7";
-					case sqfasttypes::BEXP8: return "BEXP8";
-					case sqfasttypes::BEXP9: return "BEXP9";
-					case sqfasttypes::BEXP10: return "BEXP10";
-					case sqfasttypes::BINARYEXPRESSION: return "BINARYEXPRESSION";
-					case sqfasttypes::BINARYOP: return "BINARYOP";
-					case sqfasttypes::BRACKETS: return "BRACKETS";
-					case sqfasttypes::UNARYOP: return "UNARYOP";
-					case sqfasttypes::PRIMARYEXPRESSION: return "PRIMARYEXPRESSION";
-					case sqfasttypes::NULAROP: return "NULAROP";
-					case sqfasttypes::UNARYEXPRESSION: return "UNARYEXPRESSION";
-					case sqfasttypes::HEXNUMBER: return "HEXNUMBER";
-					case sqfasttypes::NUMBER: return "NUMBER";
-					case sqfasttypes::VARIABLE: return "VARIABLE";
-					case sqfasttypes::STRING: return "STRING";
-					case sqfasttypes::CODE: return "CODE";
-					case sqfasttypes::ARRAY: return "ARRAY";
-					default: return "NA";
-				}
+				info.offset += endchrlen;
+				info.column += endchrlen;
+				skip(info);
 			}
 		}
+	}
+}
+//STATEMENT = ASSIGNMENT | BINARYEXPRESSION;
+bool sqf::parse::sqf::STATEMENT_start(size_t curoff) { return ASSIGNMENT_start(curoff) | BINARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::STATEMENT(astnode &root, position_info& info, bool &errflag)
+{
+	if (ASSIGNMENT_start(info.offset))
+	{
+		ASSIGNMENT(root, info, errflag);
+	}
+	else if (BINARYEXPRESSION_start(info.offset))
+	{
+		BINARYEXPRESSION(root, info, errflag);
+	}
+	else
+	{
+		log(err::NoViableAlternativeStatement(info));
+		errflag = true;
+	}
+	//thisnode.length = curoff - thisnode.offset;
+	//root.children.push_back(thisnode);
+}
+//ASSIGNMENT(2) = assidentifier '=' BINARYEXPRESSION | "private" assidentifier '=' BINARYEXPRESSION;
+bool sqf::parse::sqf::ASSIGNMENT_start(size_t curoff)
+{
+	size_t len;
+	if (str_cmpi(m_contents.data() + curoff, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
+	{
+		curoff += compiletime::strlen("private");
+		skip(curoff);
+	}
+	if ((len = assidentifier(curoff)) > 0)
+	{
+		curoff += len;
+		skip(curoff);
+		return m_contents[curoff] == '=' && m_contents[curoff + 1] != '=';
+	}
+	else
+	{
+		return false;
+	}
+}
+void sqf::parse::sqf::ASSIGNMENT(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.kind = (short)asttype::sqf::ASSIGNMENT;
+	thisnode.offset = info.offset;
+	thisnode.file = info.file;
+	size_t len;
+	bool assignlocal = false;
+	//check if prefixed by a 'private'
+	if (str_cmpi(m_contents.data() + info.offset, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
+	{
+		info.offset += compiletime::strlen("private");
+		info.column += compiletime::strlen("private");
+		skip(info);
+		assignlocal = true;
+		thisnode.kind = (short)asttype::sqf::ASSIGNMENTLOCAL;
+	}
+	//receive the ident
+	len = assidentifier(info.offset);
+	auto ident = std::string(m_contents.substr(info.offset, len));
+
+	auto varnode = astnode();
+	varnode.offset = info.offset;
+	varnode.length = len;
+	varnode.content = ident;
+	varnode.kind = (short)asttype::sqf::VARIABLE;
+	varnode.col = info.column;
+	varnode.line = info.line;
+	varnode.file = info.file;
+	thisnode.children.emplace_back(std::move(varnode));
+
+	if (assignlocal && ident[0] != '_')
+	{
+		log(err::MissingUnderscoreOnPrivateVariable(info, ident));
+	}
+	info.offset += len;
+	skip(info);
+	thisnode.col = info.column;
+	thisnode.line = info.line;
+	//skip the '=' (is confirmed to be present in ASSIGNMENT_start)
+	info.offset++;
+	info.column++;
+	skip(info);
+
+	if (BINARYEXPRESSION_start(info.offset))
+	{
+		BINARYEXPRESSION(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	thisnode.length = info.offset - thisnode.offset;
+	root.children.emplace_back(std::move(thisnode));
+}
+//BINARYEXPRESSION = BEXP1;
+//BEXP1 = BEXP2 [ boperator BEXP10 ];
+//BEXP2 = BEXP3 [ boperator BEXP10 ];
+//BEXP3 = BEXP4 [ boperator BEXP10 ];
+//BEXP4 = BEXP5 [ boperator BEXP10 ];
+//BEXP5 = BEXP6 [ boperator BEXP10 ];
+//BEXP6 = BEXP7 [ boperator BEXP10 ];
+//BEXP7 = BEXP8 [ boperator BEXP10 ];
+//BEXP8 = BEXP9 [ boperator BEXP10 ];
+//BEXP9 = BEXP10 [ boperator BEXP10 ];
+//BEXP10 = PRIMARYEXPRESSION [ boperator BEXP10 ];
+void sqf::parse::sqf::bexp_orderfix(astnode& root, astnode thisnode, short plevel)
+{
+	auto& othernodeRef = thisnode.children.back();
+	if (othernodeRef.children.size() == 3 && othernodeRef.kind == plevel)
+	{
+        auto othernode = thisnode.children.back();
+		astnode* ptr = &othernode.children.front();
+		astnode* lptr = &othernode;
+		while (ptr->children.size() == 3 && ptr->kind == plevel)
+		{
+			lptr = ptr;
+			ptr = &ptr->children.front();
+		}
+
+		thisnode.children.pop_back();
+		thisnode.children.push_back(*ptr);
+		lptr->children.front() = thisnode;
+		root.children.push_back(othernode);
+	}
+	else
+	{
+		root.children.emplace_back(std::move(thisnode));
+	}
+}
+bool sqf::parse::sqf::bexp10_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::bexp10(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.offset = info.offset;
+	thisnode.kind = (short)asttype::sqf::BEXP10;
+	thisnode.file = info.file;
+    thisnode.line = info.line;
+	size_t oplen;
+	std::string op;
+	skip(info);
+	if (PRIMARYEXPRESSION_start(info.offset))
+	{
+		PRIMARYEXPRESSION(thisnode, info, errflag);
+	}
+
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	skip(info);
+	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 10))
+	{
+		auto node = astnode();
+		node.content = op;
+		node.offset = info.offset;
+		node.kind = (short)asttype::sqf::BINARYOP;
+		node.col = info.column;
+		node.line = info.line;
+		node.length = oplen;
+		node.file = info.file;
+        thisnode.children.emplace_back(std::move(node));
+		info.offset += oplen;
+		skip(info);
+		if (bexp10_start(info.offset))
+		{
+			bexp10(thisnode, info, errflag);
+		}
+		else
+		{
+			log(err::MissingRightArgument(info, op));
+			errflag = true;
+		}
+		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP10);
+	}
+	else
+	{
+        //We won't need this node anymore. Just move all children to root
+        root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
+	}
+}
+bool sqf::parse::sqf::bexp9_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::bexp9(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.offset = info.offset;
+	thisnode.kind = (short)asttype::sqf::BEXP9;
+	thisnode.file = info.file;
+    thisnode.line = info.line;
+	size_t oplen;
+	std::string op;
+	skip(info);
+	if (bexp10_start(info.offset))
+	{
+		bexp10(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	skip(info);
+	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 9))
+	{
+		auto node = astnode();
+		node.content = op;
+		node.offset = info.offset;
+		node.kind = (short)asttype::sqf::BINARYOP;
+		node.col = info.column;
+		node.line = info.line;
+		node.length = oplen;
+		node.file = info.file;
+		thisnode.children.emplace_back(std::move(node));
+		info.offset += oplen;
+		skip(info);
+		if (bexp9_start(info.offset))
+		{
+			bexp9(thisnode, info, errflag);
+		}
+		else
+		{
+			log(err::MissingRightArgument(info, op));
+			errflag = true;
+		}
+		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP9);
+	}
+	else
+	{
+        //We won't need this node anymore. Just move all children to root
+        root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
+	}
+}
+bool sqf::parse::sqf::bexp8_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::bexp8(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.offset = info.offset;
+	thisnode.kind = (short)asttype::sqf::BEXP8;
+	thisnode.file = info.file;
+    thisnode.line = info.line;
+	size_t oplen;
+	std::string op;
+	skip(info);
+	if (bexp9_start(info.offset))
+	{
+		bexp9(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	skip(info);
+	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 8))
+	{
+		auto node = astnode();
+		node.content = op;
+		node.offset = info.offset;
+		node.kind = (short)asttype::sqf::BINARYOP;
+		node.col = info.column;
+		node.line = info.line;
+		node.length = oplen;
+		node.file = info.file;
+		thisnode.children.emplace_back(std::move(node));
+		info.offset += oplen;
+		skip(info);
+		if (bexp8_start(info.offset))
+		{
+			bexp8(thisnode, info, errflag);
+		}
+		else
+		{
+			log(err::MissingRightArgument(info, op));
+			errflag = true;
+		}
+		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP8);
+	}
+	else
+	{
+        //We won't need this node anymore. Just move all children to root
+        root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
+	}
+}
+bool sqf::parse::sqf::bexp7_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::bexp7(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.offset = info.offset;
+	thisnode.kind = (short)asttype::sqf::BEXP7;
+	thisnode.file = info.file;
+    thisnode.line = info.line;
+	size_t oplen;
+	std::string op;
+	skip(info);
+	if (bexp8_start(info.offset))
+	{
+		bexp8(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	skip(info);
+	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 7))
+	{
+		auto node = astnode();
+		node.content = op;
+		node.offset = info.offset;
+		node.kind = (short)asttype::sqf::BINARYOP;
+		node.col = info.column;
+		node.line = info.line;
+		node.length = oplen;
+		node.file = info.file;
+		thisnode.children.emplace_back(std::move(node));
+		info.offset += oplen;
+		skip(info);
+		if (bexp7_start(info.offset))
+		{
+			bexp7(thisnode, info, errflag);
+		}
+		else
+		{
+			log(err::MissingRightArgument(info, op));
+			errflag = true;
+		}
+		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP7);
+	}
+	else
+	{
+        //We won't need this node anymore. Just move all children to root
+        root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
+	}
+}
+bool sqf::parse::sqf::bexp6_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::bexp6(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.offset = info.offset;
+	thisnode.kind = (short)asttype::sqf::BEXP6;
+	thisnode.file = info.file;
+    thisnode.line = info.line;
+	size_t oplen;
+	std::string op;
+	skip(info);
+	if (bexp7_start(info.offset))
+	{
+		bexp7(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	skip(info);
+	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 6))
+	{
+		auto node = astnode();
+		node.content = op;
+		node.offset = info.offset;
+		node.kind = (short)asttype::sqf::BINARYOP;
+		node.col = info.column;
+		node.line = info.line;
+		node.length = oplen;
+		node.file = info.file;
+		thisnode.children.emplace_back(std::move(node));
+		info.offset += oplen;
+		skip(info);
+		if (bexp6_start(info.offset))
+		{
+			bexp6(thisnode, info, errflag);
+		}
+		else
+		{
+			log(err::MissingRightArgument(info, op));
+			errflag = true;
+		}
+		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP6);
+	}
+	else
+	{
+        //We won't need this node anymore. Just move all children to root
+        root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
+	}
+}
+bool sqf::parse::sqf::bexp5_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::bexp5(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.offset = info.offset;
+	thisnode.kind = (short)asttype::sqf::BEXP5;
+	thisnode.file = info.file;
+    thisnode.line = info.line;
+	size_t oplen;
+	std::string op;
+	skip(info);
+	if (bexp6_start(info.offset))
+	{
+		bexp6(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	skip(info);
+	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 5))
+	{
+		auto node = astnode();
+		node.content = op;
+		node.offset = info.offset;
+		node.kind = (short)asttype::sqf::BINARYOP;
+		node.col = info.column;
+		node.line = info.line;
+		node.length = oplen;
+		node.file = info.file;
+		thisnode.children.emplace_back(std::move(node));
+		info.offset += oplen;
+		skip(info);
+		if (bexp5_start(info.offset))
+		{
+			bexp5(thisnode, info, errflag);
+		}
+		else
+		{
+			log(err::MissingRightArgument(info, op));
+			errflag = true;
+		}
+		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP5);
+	}
+	else
+	{
+        //We won't need this node anymore. Just move all children to root
+        root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
+	}
+}
+bool sqf::parse::sqf::bexp4_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::bexp4(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.offset = info.offset;
+	thisnode.kind = (short)asttype::sqf::BEXP4;
+	thisnode.file = info.file;
+    thisnode.line = info.line;
+	size_t oplen;
+	std::string op;
+	skip(info);
+	if (bexp5_start(info.offset))
+	{
+		bexp5(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	skip(info);
+	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 4))
+	{
+		auto node = astnode();
+		node.content = op;
+		node.offset = info.offset;
+		node.kind = (short)asttype::sqf::BINARYOP;
+		node.col = info.column;
+		node.line = info.line;
+		node.length = oplen;
+		node.file = info.file;
+		thisnode.children.emplace_back(std::move(node));
+		info.offset += oplen;
+		skip(info);
+		if (bexp4_start(info.offset))
+		{
+			bexp4(thisnode, info, errflag);
+		}
+		else
+		{
+			log(err::MissingRightArgument(info, op));
+			errflag = true;
+		}
+		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP4);
+	}
+	else
+	{
+        //We won't need this node anymore. Just move all children to root
+        root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
+	}
+}
+bool sqf::parse::sqf::bexp3_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::bexp3(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.offset = info.offset;
+	thisnode.kind = (short)asttype::sqf::BEXP3;
+	thisnode.file = info.file;
+    thisnode.line = info.line;
+	size_t oplen;
+	std::string op;
+	skip(info);
+	if (bexp4_start(info.offset))
+	{
+		bexp4(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	skip(info);
+	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 3))
+	{
+		auto node = astnode();
+		node.content = op;
+		node.offset = info.offset;
+		node.kind = (short)asttype::sqf::BINARYOP;
+		node.col = info.column;
+		node.line = info.line;
+		node.length = oplen;
+		node.file = info.file;
+		thisnode.children.emplace_back(std::move(node));
+		info.offset += oplen;
+		skip(info);
+		if (bexp3_start(info.offset))
+		{
+			bexp3(thisnode, info, errflag);
+		}
+		else
+		{
+			log(err::MissingRightArgument(info, op));
+			errflag = true;
+		}
+		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP3);
+	}
+	else
+	{
+        //We won't need this node anymore. Just move all children to root
+        root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
+	}
+}
+bool sqf::parse::sqf::bexp2_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::bexp2(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.offset = info.offset;
+	thisnode.kind = (short)asttype::sqf::BEXP2;
+    thisnode.file = info.file;
+    thisnode.line = info.line;
+	size_t oplen;
+	std::string op;
+	skip(info);
+	if (bexp3_start(info.offset))
+	{
+		bexp3(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	skip(info);
+	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 2))
+	{
+		auto node = astnode();
+		node.content = op;
+		node.offset = info.offset;
+		node.kind = (short)asttype::sqf::BINARYOP;
+		node.col = info.column;
+		node.line = info.line;
+		node.length = oplen;
+		node.file = info.file;
+		thisnode.children.emplace_back(std::move(node));
+		info.offset += oplen;
+		skip(info);
+		if (bexp2_start(info.offset))
+		{
+			bexp2(thisnode, info, errflag);
+		}
+		else
+		{
+			log(err::MissingRightArgument(info, op));
+			errflag = true;
+		}
+		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP2);
+	}
+	else
+	{
+        //We won't need this node anymore. Just move all children to root
+        root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
+	}
+}
+bool sqf::parse::sqf::bexp1_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::bexp1(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.offset = info.offset;
+	thisnode.kind = (short)asttype::sqf::BEXP1;
+	thisnode.file = info.file;
+    thisnode.line = info.line;
+	size_t oplen;
+	std::string op;
+	skip(info);
+	if (bexp2_start(info.offset))
+	{
+		bexp2(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	skip(info);
+	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 1))
+	{
+		auto node = astnode();
+		node.content = op;
+		node.offset = info.offset;
+		node.kind = (short)asttype::sqf::BINARYOP;
+		node.col = info.column;
+		node.line = info.line;
+		node.length = oplen;
+		node.file = info.file;
+		thisnode.children.emplace_back(std::move(node));
+		info.offset += oplen;
+		skip(info);
+		if (bexp1_start(info.offset))
+		{
+			bexp1(thisnode, info, errflag);
+		}
+		else
+		{
+			log(err::MissingRightArgument(info, op));
+			errflag = true;
+		}
+		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP1);
+	}
+	else
+	{
+        //We won't need this node anymore. Just move all children to root
+        root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
+	}
+}
+bool sqf::parse::sqf::BINARYEXPRESSION_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void sqf::parse::sqf::BINARYEXPRESSION(astnode &root, position_info& info, bool &errflag)
+{
+	bexp1(root, info, errflag);
+}
+//BRACKETS = '(' BINARYEXPRESSION ')';
+bool sqf::parse::sqf::BRACKETS_start(size_t curoff) { return m_contents[curoff] == '('; }
+void sqf::parse::sqf::BRACKETS(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.kind = (short)asttype::sqf::BRACKETS;
+	thisnode.offset = info.offset;
+	thisnode.file = info.file;
+	info.offset++;
+	info.column++;
+	skip(info);
+	if (BINARYEXPRESSION_start(info.offset))
+	{
+		BINARYEXPRESSION(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedBinaryExpression(info));
+		errflag = true;
+	}
+	skip(info);
+	if (m_contents[info.offset] == ')')
+	{
+		info.offset++;
+		info.column++;
+	}
+	else
+	{
+		log(err::MissingRoundClosingBracket(info));
+		errflag = true;
+	}
+	thisnode.length = info.offset - thisnode.offset;
+	root.children.emplace_back(std::move(thisnode));
+}
+//PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULAREXPRESSION | VARIABLE | STRING | m_contents | BRACKETS | ARRAY;
+bool sqf::parse::sqf::PRIMARYEXPRESSION_start(size_t curoff) { return NUMBER_start(curoff) || UNARYEXPRESSION_start(curoff) || NULAREXPRESSION_start(curoff) || VARIABLE_start(curoff) || STRING_start(curoff) || CODE_start(curoff) || BRACKETS_start(curoff) || ARRAY_start(curoff); }
+void sqf::parse::sqf::PRIMARYEXPRESSION(astnode &root, position_info& info, bool &errflag)
+{
+	if (NUMBER_start(info.offset))
+	{
+		NUMBER(root, info, errflag);
+	}
+	else if (UNARYEXPRESSION_start(info.offset))
+	{
+		UNARYEXPRESSION(root, info, errflag);
+	}
+	else if (NULAREXPRESSION_start(info.offset))
+	{
+		NULAREXPRESSION(root, info, errflag);
+	}
+	else if (VARIABLE_start(info.offset))
+	{
+		VARIABLE(root, info, errflag);
+	}
+	else if (STRING_start(info.offset))
+	{
+		STRING(root, info, errflag);
+	}
+	else if (CODE_start(info.offset))
+	{
+		CODE(root, info, errflag);
+	}
+	else if (BRACKETS_start(info.offset))
+	{
+		BRACKETS(root, info, errflag);
+	}
+	else if (ARRAY_start(info.offset))
+	{
+		ARRAY(root, info, errflag);
+	}
+	else
+	{
+		log(err::NoViableAlternativePrimaryExpression(info));
+		errflag = true;
+	}
+	//thisnode.length = curoff - thisnode.offset;
+	//root.children.push_back(thisnode);
+}
+//NULAREXPRESSION = operator;
+bool sqf::parse::sqf::NULAREXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_nular(std::string(m_contents.substr(curoff, oplen))) : false; }
+void sqf::parse::sqf::NULAREXPRESSION(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.kind = (short)asttype::sqf::NULAROP;
+	thisnode.file = info.file;
+	auto len = operator_(info.offset);
+	auto ident = std::string(m_contents.substr(info.offset, len));
+	thisnode.content = ident;
+	thisnode.length = len;
+	thisnode.offset = info.offset;
+	thisnode.col = info.column;
+	thisnode.line = info.line;
+	info.offset += len;
+	info.column += len;
+	root.children.emplace_back(std::move(thisnode));
+}
+//UNARYEXPRESSION = operator PRIMARYEXPRESSION;
+bool sqf::parse::sqf::UNARYEXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_unary(std::string(m_contents.substr(curoff, oplen))) : false; }
+void sqf::parse::sqf::UNARYEXPRESSION(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.kind = (short)asttype::sqf::UNARYEXPRESSION;
+	thisnode.offset = info.offset;
+	thisnode.file = info.file;
+    thisnode.col = info.column;
+    thisnode.line = info.line;
+
+	auto len = operator_(info.offset);
+	auto ident = std::string(m_contents.substr(info.offset, len));
+	auto opnode = astnode();
+	opnode.kind = (short)asttype::sqf::UNARYOP;
+	opnode.offset = info.offset;
+	opnode.length = len;
+	opnode.content = ident;
+	opnode.col = info.column;
+	opnode.file = info.file;
+	opnode.line = info.line;
+	thisnode.children.emplace_back(std::move(opnode));
+	info.offset += len;
+	info.column += len;
+	skip(info);
+
+	if (PRIMARYEXPRESSION_start(info.offset))
+	{
+		PRIMARYEXPRESSION(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedPrimaryExpression(info));
+		errflag = true;
+	}
+	thisnode.length = info.offset - thisnode.offset;
+	root.children.emplace_back(std::move(thisnode));
+}
+//NUMBER = ("0x" | '$' | '.') hexadecimal | scalar;
+bool sqf::parse::sqf::NUMBER_start(size_t curoff)
+{
+	return  m_contents[curoff] == '$' ||
+			(
+				m_contents[curoff] == '.' &&
+				m_contents[curoff + 1] >= '0' &&
+				m_contents[curoff + 1] <= '9'
+			) ||
+			(m_contents[curoff] >= '0' && m_contents[curoff] <= '9'); }
+void sqf::parse::sqf::NUMBER(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.kind = (short)asttype::sqf::NUMBER;
+	thisnode.col = info.column;
+	thisnode.line = info.line;
+	thisnode.file = info.file;
+	if (m_contents[info.offset] == '$')
+	{
+		thisnode.kind = (short)asttype::sqf::HEXNUMBER;
+		size_t i;
+		for (i = info.offset + 1; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
+		auto ident = std::string(m_contents.substr(info.offset + 1, i));
+		thisnode.content = ident;
+		thisnode.offset = info.offset;
+		thisnode.length = i - info.offset;
+		info.column += i - info.offset;
+		info.offset = i;
+	}
+	else if (m_contents[info.offset] == '0' && m_contents[info.offset + 1] == 'x')
+	{
+		thisnode.kind = (short)asttype::sqf::HEXNUMBER;
+		size_t i;
+		for (i = info.offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
+		auto ident = std::string(m_contents.substr(info.offset, i));
+		thisnode.content = ident;
+		thisnode.offset = info.offset;
+		thisnode.length = i - info.offset;
+		info.column += i - info.offset;
+		info.offset = i;
+	}
+	else
+	{
+		size_t i = info.offset;
+		bool numhaddot = false;
+		unsigned short numhadexp = 0;
+		while (true)
+		{
+			if (m_contents[i] >= '0' && m_contents[i] <= '9')
+			{
+				i++;
+				continue;
+			}
+			else if (!numhaddot && m_contents[i] == '.')
+			{
+				i++;
+				numhaddot = true;
+				continue;
+			}
+			else if (numhadexp == 0 && (m_contents[i] == 'e' || m_contents[i] == 'E'))
+			{
+				i++;
+				numhadexp++;
+				continue;
+			}
+			else if (numhadexp == 1 && (m_contents[i] == '+' || m_contents[i] == '-'))
+			{
+				i++;
+				numhadexp++;
+				continue;
+			}
+			else
+			{
+				break;
+			}
+
+		}
+		auto ident = std::string(m_contents.substr(info.offset, i));
+		thisnode.content = ident;
+		thisnode.offset = info.offset;
+		thisnode.length = i - info.offset;
+		info.column += i - info.offset;
+		info.offset = i;
+	}
+	if (thisnode.content.empty())
+	{
+		log(err::EmptyNumber(info));
+		errflag = true;
+	}
+	root.children.emplace_back(std::move(thisnode));
+}
+//VARIABLE = identifier;
+bool sqf::parse::sqf::VARIABLE_start(size_t curoff) { auto len = identifier(curoff); return len > 0 && !m_contains_binary(std::string(m_contents.substr(curoff, len)), 0); }
+void sqf::parse::sqf::VARIABLE(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.kind = (short)asttype::sqf::VARIABLE;
+	thisnode.file = info.file;
+	auto len = identifier(info.offset);
+	auto ident = std::string(m_contents.substr(info.offset, len));
+	thisnode.content = ident;
+	thisnode.length = len;
+	thisnode.offset = info.offset;
+	thisnode.col = info.column;
+	thisnode.line = info.line;
+
+	info.offset += len;
+	info.column += len;
+	root.children.emplace_back(std::move(thisnode));
+}
+//STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
+bool sqf::parse::sqf::STRING_start(size_t curoff) { return m_contents[curoff] == '\'' || m_contents[curoff] == '"'; }
+void sqf::parse::sqf::STRING(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.kind = (short)asttype::sqf::STRING;
+	thisnode.col = info.column;
+	thisnode.line = info.line;
+	thisnode.file = info.file;
+	size_t i;
+	auto startchr = m_contents[info.offset];
+	info.column++;
+	for (i = info.offset + 1; m_contents[i] != '\0' && (m_contents[i] != startchr || m_contents[i + 1] == startchr); i++)
+	{
+		if (m_contents[i] == startchr)
+		{
+			info.column += 2;
+			i++;
+		}
+		else if (m_contents[i] == '\n')
+		{
+			info.column = 0;
+			info.line++;
+		}
+		else
+		{
+			info.column++;
+		}
+	}
+	i++;
+	info.column++;
+	auto fullstring = std::string(m_contents.substr(info.offset, i));
+	thisnode.content = fullstring;
+	thisnode.length = i - info.offset;
+	thisnode.offset = info.offset;
+	info.offset = i;
+	root.children.emplace_back(std::move(thisnode));
+}
+//CODE = "{" SQF "}";
+bool sqf::parse::sqf::CODE_start(size_t curoff) { return m_contents[curoff] == '{'; }
+void sqf::parse::sqf::CODE(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.kind = (short)asttype::sqf::CODE;
+	thisnode.offset = info.offset;
+	thisnode.col = info.column;
+	thisnode.line = info.line;
+	thisnode.file = info.file;
+	info.offset++;
+	info.column++;
+	skip(info);
+
+	if (SQF_start(info.offset))
+	{
+		SQF(thisnode, info, errflag);
+	}
+	else
+	{
+		log(err::ExpectedSQF(info));
+		errflag = true;
+	}
+
+	if (m_contents[info.offset] == '}')
+	{
+		info.offset++;
+		info.column++;
+	}
+	else
+	{
+		log(err::MissingCurlyClosingBracket(info));
+		errflag = true;
+	}
+	thisnode.length = info.offset - thisnode.offset;
+	root.children.emplace_back(std::move(thisnode));
+}
+//ARRAY = '[' [ BINARYEXPRESSION { ',' BINARYEXPRESSION } ] ']';
+bool sqf::parse::sqf::ARRAY_start(size_t curoff) { return m_contents[curoff] == '['; }
+void sqf::parse::sqf::ARRAY(astnode &root, position_info& info, bool &errflag)
+{
+	auto thisnode = astnode();
+	thisnode.kind = (short)asttype::sqf::ARRAY;
+	thisnode.offset = info.offset;
+	thisnode.col = info.column;
+	thisnode.line = info.line;
+	thisnode.file = info.file;
+	info.offset++;
+	info.column++;
+	skip(info);
+	if (BINARYEXPRESSION_start(info.offset))
+	{
+		BINARYEXPRESSION(thisnode, info, errflag);
+		skip(info);
+		while (m_contents[info.offset] == ',')
+		{
+			info.column++;
+			info.offset++;
+			skip(info);
+
+			if (BINARYEXPRESSION_start(info.offset))
+			{
+				BINARYEXPRESSION(thisnode, info, errflag);
+				skip(info);
+			}
+			else
+			{
+				log(err::ExpectedBinaryExpression(info));
+				errflag = true;
+			}
+		}
+	}
+	if (m_contents[info.offset] == ']')
+	{
+		info.offset++;
+		info.column++;
+	}
+	else
+	{
+		log(err::MissingSquareClosingBracket(info));
+		errflag = true;
+	}
+	thisnode.length = info.offset - thisnode.offset;
+	thisnode.content = std::string(m_contents.substr(thisnode.offset, thisnode.length));
+	root.children.emplace_back(std::move(thisnode));
+}
+
+::sqf::parse::astnode sqf::parse::sqf::parse_sqf(bool &errflag)
+{
+	position_info info = { 1, 0, 0, m_file };
+	astnode node;
+	node.kind = (short)asttype::sqf::SQF;
+	node.offset = 0;
+	node.content = m_contents;
+	node.file = m_file;
+	SQF(node, info, errflag);
+	node.length = info.offset;
+	skip(info);
+	if (!errflag && m_contents[info.offset] != '\0') {
+		log(err::EndOfFile(info));
+		errflag = true;
+	}
+	return node;
+}
+const char * sqf::parse::sqf::astkindname(short id)
+{
+	switch (id)
+	{
+		case (short)asttype::sqf::SQF: return "SQF";
+		case (short)asttype::sqf::STATEMENT: return "STATEMENT";
+		case (short)asttype::sqf::ASSIGNMENT: return "ASSIGNMENT";
+		case (short)asttype::sqf::ASSIGNMENTLOCAL: return "ASSIGNMENTLOCA";
+		case (short)asttype::sqf::BEXP1: return "BEXP1";
+		case (short)asttype::sqf::BEXP2: return "BEXP2";
+		case (short)asttype::sqf::BEXP3: return "BEXP3";
+		case (short)asttype::sqf::BEXP4: return "BEXP4";
+		case (short)asttype::sqf::BEXP5: return "BEXP5";
+		case (short)asttype::sqf::BEXP6: return "BEXP6";
+		case (short)asttype::sqf::BEXP7: return "BEXP7";
+		case (short)asttype::sqf::BEXP8: return "BEXP8";
+		case (short)asttype::sqf::BEXP9: return "BEXP9";
+		case (short)asttype::sqf::BEXP10: return "BEXP10";
+		case (short)asttype::sqf::BINARYEXPRESSION: return "BINARYEXPRESSION";
+		case (short)asttype::sqf::BINARYOP: return "BINARYOP";
+		case (short)asttype::sqf::BRACKETS: return "BRACKETS";
+		case (short)asttype::sqf::UNARYOP: return "UNARYOP";
+		case (short)asttype::sqf::PRIMARYEXPRESSION: return "PRIMARYEXPRESSION";
+		case (short)asttype::sqf::NULAROP: return "NULAROP";
+		case (short)asttype::sqf::UNARYEXPRESSION: return "UNARYEXPRESSION";
+		case (short)asttype::sqf::HEXNUMBER: return "HEXNUMBER";
+		case (short)asttype::sqf::NUMBER: return "NUMBER";
+		case (short)asttype::sqf::VARIABLE: return "VARIABLE";
+		case (short)asttype::sqf::STRING: return "STRING";
+		case (short)asttype::sqf::CODE: return "m_contents";
+		case (short)asttype::sqf::ARRAY: return "ARRAY";
+		default: return "NA";
 	}
 }

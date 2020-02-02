@@ -554,3 +554,59 @@ namespace logmessage::assembly {
 		return output;
 	}
 }
+
+namespace logmessage::sqf
+{
+	std::string ExpectedStatementTerminator::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string NoViableAlternativeStatement::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string MissingUnderscoreOnPrivateVariable::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string ExpectedBinaryExpression::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string MissingRightArgument::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string MissingRoundClosingBracket::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string MissingCurlyClosingBracket::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string MissingSquareClosingBracket::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string NoViableAlternativePrimaryExpression::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string ExpectedPrimaryExpression::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string EmptyNumber::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string ExpectedSQF::formatMessage() const
+	{
+		return std::string();
+	}
+	std::string EndOfFile::formatMessage() const
+	{
+		return std::string();
+	}
+}

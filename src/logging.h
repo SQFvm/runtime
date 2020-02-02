@@ -208,165 +208,277 @@ namespace logmessage {
     }
 	namespace assembly
 	{
-		class ParseBase : public LogMessageBase {
+		class AssemblyBase : public LogMessageBase {
 		public:
-			ParseBase(loglevel level, size_t errorCode, LogLocationInfo location) :
+			AssemblyBase(loglevel level, size_t errorCode, LogLocationInfo location) :
 				LogMessageBase(level, errorCode), location(std::move(location)) {}
 		protected:
 			LogLocationInfo location;
 		};
 
-		class ExpectedSemicolon : public ParseBase {
+		class ExpectedSemicolon : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 13;
 		public:
-			ExpectedSemicolon(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedSemicolon(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class NoViableAlternativeInstructions : public ParseBase {
+		class NoViableAlternativeInstructions : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 13;
 		public:
-			NoViableAlternativeInstructions(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			NoViableAlternativeInstructions(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class NoViableAlternativeArg : public ParseBase {
+		class NoViableAlternativeArg : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 15;
 		public:
-			NoViableAlternativeArg(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			NoViableAlternativeArg(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedEndStatement : public ParseBase {
+		class ExpectedEndStatement : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 16;
 		public:
-			ExpectedEndStatement(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedEndStatement(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedCallNular : public ParseBase {
+		class ExpectedCallNular : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 17;
 		public:
-			ExpectedCallNular(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedCallNular(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedNularOperator : public ParseBase {
+		class ExpectedNularOperator : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 18;
 		public:
-			ExpectedNularOperator(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedNularOperator(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class UnknownNularOperator : public ParseBase {
+		class UnknownNularOperator : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 19;
 			std::string_view operator_name;
 		public:
 			UnknownNularOperator(LogLocationInfo loc, std::string_view operator_name) :
-				ParseBase(level, errorCode, std::move(loc)), operator_name(operator_name) {}
+				AssemblyBase(level, errorCode, std::move(loc)), operator_name(operator_name) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedCallUnary : public ParseBase {
+		class ExpectedCallUnary : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 20;
 		public:
-			ExpectedCallUnary(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedCallUnary(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedUnaryOperator : public ParseBase {
+		class ExpectedUnaryOperator : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 13;
 		public:
-			ExpectedUnaryOperator(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedUnaryOperator(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class UnknownUnaryOperator : public ParseBase {
+		class UnknownUnaryOperator : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 21;
 			std::string_view operator_name;
 		public:
 			UnknownUnaryOperator(LogLocationInfo loc, std::string_view operator_name) :
-				ParseBase(level, errorCode, std::move(loc)), operator_name(operator_name) {}
+				AssemblyBase(level, errorCode, std::move(loc)), operator_name(operator_name) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedCallBinary : public ParseBase {
+		class ExpectedCallBinary : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 22;
 		public:
-			ExpectedCallBinary(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedCallBinary(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedBinaryOperator : public ParseBase {
+		class ExpectedBinaryOperator : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 23;
 		public:
-			ExpectedBinaryOperator(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedBinaryOperator(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class UnknownBinaryOperator : public ParseBase {
+		class UnknownBinaryOperator : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 24;
 			std::string_view operator_name;
 		public:
 			UnknownBinaryOperator(LogLocationInfo loc, std::string_view operator_name) :
-				ParseBase(level, errorCode, std::move(loc)), operator_name(operator_name) {}
+				AssemblyBase(level, errorCode, std::move(loc)), operator_name(operator_name) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedAssignTo : public ParseBase {
+		class ExpectedAssignTo : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 25;
 		public:
-			ExpectedAssignTo(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedAssignTo(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedVariableName : public ParseBase {
+		class ExpectedVariableName : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 26;
 		public:
-			ExpectedVariableName(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedVariableName(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedAssignToLocal : public ParseBase {
+		class ExpectedAssignToLocal : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 27;
 		public:
-			ExpectedAssignToLocal(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedAssignToLocal(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedGetVariable : public ParseBase {
+		class ExpectedGetVariable : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 28;
 		public:
-			ExpectedGetVariable(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedGetVariable(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedMakeArray : public ParseBase {
+		class ExpectedMakeArray : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 29;
 		public:
-			ExpectedMakeArray(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedMakeArray(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedInteger : public ParseBase {
+		class ExpectedInteger : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 30;
 		public:
-			ExpectedInteger(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedInteger(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedPush : public ParseBase {
+		class ExpectedPush : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 31;
 		public:
-			ExpectedPush(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedPush(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedTypeName : public ParseBase {
+		class ExpectedTypeName : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 32;
 		public:
-			ExpectedTypeName(LogLocationInfo loc) : ParseBase(level, errorCode, std::move(loc)) {}
+			ExpectedTypeName(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+	}
+	namespace sqf
+	{
+		class SqfBase : public LogMessageBase {
+		public:
+			SqfBase(loglevel level, size_t errorCode, LogLocationInfo location) :
+				LogMessageBase(level, errorCode), location(std::move(location)) {}
+		protected:
+			LogLocationInfo location;
+		};
+
+		class ExpectedStatementTerminator : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 33;
+		public:
+			ExpectedStatementTerminator(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class NoViableAlternativeStatement : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 34;
+		public:
+			NoViableAlternativeStatement(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MissingUnderscoreOnPrivateVariable : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 35;
+			std::string_view m_variable_name;
+		public:
+			MissingUnderscoreOnPrivateVariable(LogLocationInfo loc, std::string_view variable_name) :
+				SqfBase(level, errorCode, std::move(loc)),
+			m_variable_name(variable_name) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedBinaryExpression : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 36;
+		public:
+			ExpectedBinaryExpression(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MissingRightArgument : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 37;
+			std::string_view m_variable_name;
+		public:
+			MissingRightArgument(LogLocationInfo loc, std::string_view variable_name) :
+				SqfBase(level, errorCode, std::move(loc)),
+				m_variable_name(variable_name) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MissingRoundClosingBracket : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 38;
+		public:
+			MissingRoundClosingBracket(LogLocationInfo loc) :
+				SqfBase(level, errorCode, std::move(loc)){ }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MissingCurlyClosingBracket : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 39;
+		public:
+			MissingCurlyClosingBracket(LogLocationInfo loc) :
+				SqfBase(level, errorCode, std::move(loc)){ }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MissingSquareClosingBracket : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40;
+		public:
+			MissingSquareClosingBracket(LogLocationInfo loc) :
+				SqfBase(level, errorCode, std::move(loc)){ }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class NoViableAlternativePrimaryExpression : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 41;
+		public:
+			NoViableAlternativePrimaryExpression(LogLocationInfo loc) :
+				SqfBase(level, errorCode, std::move(loc)){ }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedPrimaryExpression : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 42;
+		public:
+			ExpectedPrimaryExpression(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class EmptyNumber : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 43;
+		public:
+			EmptyNumber(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedSQF : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 44;
+		public:
+			ExpectedSQF(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class EndOfFile : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 45;
+		public:
+			EndOfFile(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
 	}
