@@ -816,7 +816,7 @@ void sqf::parse::sqf::BRACKETS(astnode &root, position_info& info, bool &errflag
 	thisnode.length = info.offset - thisnode.offset;
 	root.children.emplace_back(std::move(thisnode));
 }
-//PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULAREXPRESSION | VARIABLE | STRING | m_contents | BRACKETS | ARRAY;
+//PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULAREXPRESSION | VARIABLE | STRING | CODE | BRACKETS | ARRAY;
 bool sqf::parse::sqf::PRIMARYEXPRESSION_start(size_t curoff) { return NUMBER_start(curoff) || UNARYEXPRESSION_start(curoff) || NULAREXPRESSION_start(curoff) || VARIABLE_start(curoff) || STRING_start(curoff) || CODE_start(curoff) || BRACKETS_start(curoff) || ARRAY_start(curoff); }
 void sqf::parse::sqf::PRIMARYEXPRESSION(astnode &root, position_info& info, bool &errflag)
 {
@@ -890,12 +890,12 @@ void sqf::parse::sqf::UNARYEXPRESSION(astnode &root, position_info& info, bool &
     thisnode.line = info.line;
 
 	auto len = operator_(info.offset);
-	auto ident = std::string(m_contents.substr(info.offset, len));
+	auto operatorname = std::string(m_contents.substr(info.offset, len));
 	auto opnode = astnode();
 	opnode.kind = (short)asttype::sqf::UNARYOP;
 	opnode.offset = info.offset;
 	opnode.length = len;
-	opnode.content = ident;
+	opnode.content = operatorname;
 	opnode.col = info.column;
 	opnode.file = info.file;
 	opnode.line = info.line;
@@ -910,7 +910,7 @@ void sqf::parse::sqf::UNARYEXPRESSION(astnode &root, position_info& info, bool &
 	}
 	else
 	{
-		log(err::ExpectedPrimaryExpression(info));
+		log(err::MissingRightArgument(info, operatorname));
 		errflag = true;
 	}
 	thisnode.length = info.offset - thisnode.offset;

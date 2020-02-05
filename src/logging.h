@@ -414,11 +414,11 @@ namespace logmessage {
 		class MissingRightArgument : public SqfBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 37;
-			std::string_view m_variable_name;
+			std::string_view m_operator_name;
 		public:
-			MissingRightArgument(LogLocationInfo loc, std::string_view variable_name) :
+			MissingRightArgument(LogLocationInfo loc, std::string_view operator_name) :
 				SqfBase(level, errorCode, std::move(loc)),
-				m_variable_name(variable_name) { }
+				m_operator_name(operator_name) { }
 			[[nodiscard]] std::string formatMessage() const override;
 		};
 		class MissingRoundClosingBracket : public SqfBase {
@@ -453,30 +453,23 @@ namespace logmessage {
 				SqfBase(level, errorCode, std::move(loc)){ }
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class ExpectedPrimaryExpression : public SqfBase {
-			static const loglevel level = loglevel::error;
-			static const size_t errorCode = 42;
-		public:
-			ExpectedPrimaryExpression(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
-			[[nodiscard]] std::string formatMessage() const override;
-		};
 		class EmptyNumber : public SqfBase {
 			static const loglevel level = loglevel::error;
-			static const size_t errorCode = 43;
+			static const size_t errorCode = 42;
 		public:
 			EmptyNumber(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
 		class ExpectedSQF : public SqfBase {
 			static const loglevel level = loglevel::error;
-			static const size_t errorCode = 44;
+			static const size_t errorCode = 43;
 		public:
 			ExpectedSQF(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
 		class EndOfFile : public SqfBase {
 			static const loglevel level = loglevel::error;
-			static const size_t errorCode = 45;
+			static const size_t errorCode = 44;
 		public:
 			EndOfFile(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;

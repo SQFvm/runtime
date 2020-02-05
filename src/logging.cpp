@@ -559,54 +559,165 @@ namespace logmessage::sqf
 {
 	std::string ExpectedStatementTerminator::formatMessage() const
 	{
-		return std::string();
+		auto output = location.format();
+		const auto message = "Expected Statement termination using `;` or `,`."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
 	}
 	std::string NoViableAlternativeStatement::formatMessage() const
 	{
-		return std::string();
+		auto output = location.format();
+		const auto message = "No viable alternative for Statement. Expected Assignment or Expression."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
 	}
 	std::string MissingUnderscoreOnPrivateVariable::formatMessage() const
 	{
-		return std::string();
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "Missing underscore (`_`) for private variable with '"sv.length()
+			+ m_variable_name.length()
+			+ "'."sv.length()
+		);
+
+		output.append("Missing underscore (`_`) for private variable with '"sv);
+		output.append(m_variable_name);
+		output.append("'."sv);
+		return output;
 	}
 	std::string ExpectedBinaryExpression::formatMessage() const
 	{
-		return std::string();
+		auto output = location.format();
+		const auto message = "Expected Expression."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
 	}
 	std::string MissingRightArgument::formatMessage() const
 	{
-		return std::string();
+		// m_operator_name
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "Missing right argument on operator '"sv.length()
+			+ m_operator_name.length()
+			+ "'."sv.length()
+		);
+
+		output.append("Missing right argument on operator '"sv);
+		output.append(m_operator_name);
+		output.append("'."sv);
+		return output;
 	}
 	std::string MissingRoundClosingBracket::formatMessage() const
 	{
-		return std::string();
+		auto output = location.format();
+		const auto message = "Missing round closing bracket (`)`)."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
 	}
 	std::string MissingCurlyClosingBracket::formatMessage() const
 	{
-		return std::string();
+		auto output = location.format();
+		const auto message = "Missing round curly bracket (`}`)."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
 	}
 	std::string MissingSquareClosingBracket::formatMessage() const
 	{
-		return std::string();
+		auto output = location.format();
+		const auto message = "Missing square closing bracket (`]`)."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
 	}
 	std::string NoViableAlternativePrimaryExpression::formatMessage() const
 	{
-		return std::string();
-	}
-	std::string ExpectedPrimaryExpression::formatMessage() const
-	{
-		return std::string();
+		auto output = location.format();
+		const auto message = "No viable alternative for Primary Expression. Expected NUMBER or UNARYEXPRESSION or NULAREXPRESSION or VARIABLE or STRING or CODE or BRACKETS or ARRAY."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
 	}
 	std::string EmptyNumber::formatMessage() const
 	{
-		return std::string();
+		auto output = location.format();
+		const auto message = "The materialized numeric value is empty."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
 	}
 	std::string ExpectedSQF::formatMessage() const
 	{
-		return std::string();
+		auto output = location.format();
+		const auto message = "Expected SQF."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
 	}
 	std::string EndOfFile::formatMessage() const
 	{
-		return std::string();
+		auto output = location.format();
+		const auto message = "Unexpected end-of-file reached."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
 	}
 }
