@@ -135,8 +135,41 @@ namespace sqf
 				m_info = position_info;
 			}
 
-			astnode parse_sqf(bool& errflag);
-			const char* astkindname(short id);
+			astnode parse(bool& errflag);
+			static const char* astkindname(short id)
+			{
+				switch (id)
+				{
+				case (short)asttype::sqf::SQF: return "SQF";
+				case (short)asttype::sqf::STATEMENT: return "STATEMENT";
+				case (short)asttype::sqf::ASSIGNMENT: return "ASSIGNMENT";
+				case (short)asttype::sqf::ASSIGNMENTLOCAL: return "ASSIGNMENTLOCA";
+				case (short)asttype::sqf::BEXP1: return "BEXP1";
+				case (short)asttype::sqf::BEXP2: return "BEXP2";
+				case (short)asttype::sqf::BEXP3: return "BEXP3";
+				case (short)asttype::sqf::BEXP4: return "BEXP4";
+				case (short)asttype::sqf::BEXP5: return "BEXP5";
+				case (short)asttype::sqf::BEXP6: return "BEXP6";
+				case (short)asttype::sqf::BEXP7: return "BEXP7";
+				case (short)asttype::sqf::BEXP8: return "BEXP8";
+				case (short)asttype::sqf::BEXP9: return "BEXP9";
+				case (short)asttype::sqf::BEXP10: return "BEXP10";
+				case (short)asttype::sqf::BINARYEXPRESSION: return "BINARYEXPRESSION";
+				case (short)asttype::sqf::BINARYOP: return "BINARYOP";
+				case (short)asttype::sqf::BRACKETS: return "BRACKETS";
+				case (short)asttype::sqf::UNARYOP: return "UNARYOP";
+				case (short)asttype::sqf::PRIMARYEXPRESSION: return "PRIMARYEXPRESSION";
+				case (short)asttype::sqf::NULAROP: return "NULAROP";
+				case (short)asttype::sqf::UNARYEXPRESSION: return "UNARYEXPRESSION";
+				case (short)asttype::sqf::HEXNUMBER: return "HEXNUMBER";
+				case (short)asttype::sqf::NUMBER: return "NUMBER";
+				case (short)asttype::sqf::VARIABLE: return "VARIABLE";
+				case (short)asttype::sqf::STRING: return "STRING";
+				case (short)asttype::sqf::CODE: return "m_contents";
+				case (short)asttype::sqf::ARRAY: return "ARRAY";
+				default: return "NA";
+				}
+			}
 		};
 	}
 }

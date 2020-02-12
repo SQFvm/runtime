@@ -453,17 +453,17 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 	execute_parsing_callbacks(full, node, evaction::enter);
 	switch (node.kind)
 	{
-		case sqf::parse::sqf::sqfasttypes::BEXP1:
-		case sqf::parse::sqf::sqfasttypes::BEXP2:
-		case sqf::parse::sqf::sqfasttypes::BEXP3:
-		case sqf::parse::sqf::sqfasttypes::BEXP4:
-		case sqf::parse::sqf::sqfasttypes::BEXP5:
-		case sqf::parse::sqf::sqfasttypes::BEXP6:
-		case sqf::parse::sqf::sqfasttypes::BEXP7:
-		case sqf::parse::sqf::sqfasttypes::BEXP8:
-		case sqf::parse::sqf::sqfasttypes::BEXP9:
-		case sqf::parse::sqf::sqfasttypes::BEXP10:
-		case sqf::parse::sqf::sqfasttypes::BINARYEXPRESSION:
+		case (short)sqf::parse::asttype::sqf::BEXP1:
+		case (short)sqf::parse::asttype::sqf::BEXP2:
+		case (short)sqf::parse::asttype::sqf::BEXP3:
+		case (short)sqf::parse::asttype::sqf::BEXP4:
+		case (short)sqf::parse::asttype::sqf::BEXP5:
+		case (short)sqf::parse::asttype::sqf::BEXP6:
+		case (short)sqf::parse::asttype::sqf::BEXP7:
+		case (short)sqf::parse::asttype::sqf::BEXP8:
+		case (short)sqf::parse::asttype::sqf::BEXP9:
+		case (short)sqf::parse::asttype::sqf::BEXP10:
+		case (short)sqf::parse::asttype::sqf::BINARYEXPRESSION:
 		{
 			navigate_sqf(full, stack, node.children[0]);
 			navigate_sqf(full, stack, node.children[2]);
@@ -472,7 +472,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			stack->push_back(inst);
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::UNARYEXPRESSION:
+		case (short)sqf::parse::asttype::sqf::UNARYEXPRESSION:
 		{
 			navigate_sqf(full, stack, node.children[1]);
 			auto inst = std::make_shared<sqf::inst::callunary>(sqf::commandmap::get().getrange_u(node.children[0].content));
@@ -480,14 +480,14 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			stack->push_back(inst);
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::NULAROP:
+		case (short)sqf::parse::asttype::sqf::NULAROP:
 		{
 			auto inst = std::make_shared<sqf::inst::callnular>(sqf::commandmap::get().get(node.content));
 			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::HEXNUMBER:
+		case (short)sqf::parse::asttype::sqf::HEXNUMBER:
 		{
 			try
 			{
@@ -504,7 +504,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			}
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::NUMBER:
+		case (short)sqf::parse::asttype::sqf::NUMBER:
 		{
 			try
 			{
@@ -521,14 +521,14 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			}
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::STRING:
+		case (short)sqf::parse::asttype::sqf::STRING:
 		{
 			auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::stringdata>(node.content, true)));
 			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::CODE:
+		case (short)sqf::parse::asttype::sqf::CODE:
 		{
 			auto cs = std::make_shared<sqf::callstack>(missionnamespace());
 			for (size_t i = 0; i < node.children.size(); i++)
@@ -547,7 +547,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			stack->push_back(inst);
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::ARRAY:
+		case (short)sqf::parse::asttype::sqf::ARRAY:
 		{
 			for (auto& subnode : node.children)
 			{
@@ -558,7 +558,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			stack->push_back(inst);
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::ASSIGNMENT:
+		case (short)sqf::parse::asttype::sqf::ASSIGNMENT:
 		{
 			navigate_sqf(full, stack, node.children[1]);
 			auto inst = std::make_shared<sqf::inst::assignto>(node.children[0].content);
@@ -566,7 +566,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			stack->push_back(inst);
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::ASSIGNMENTLOCAL:
+		case (short)sqf::parse::asttype::sqf::ASSIGNMENTLOCAL:
 		{
 			navigate_sqf(full, stack, node.children[1]);
 			auto inst = std::make_shared<sqf::inst::assigntolocal>(node.children[0].content);
@@ -574,7 +574,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			stack->push_back(inst);
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::VARIABLE:
+		case (short)sqf::parse::asttype::sqf::VARIABLE:
 		{
 			auto inst = std::make_shared<sqf::inst::getvariable>(node.content);
 			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
@@ -602,46 +602,46 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, sqf::p
 {
 	switch (node.kind)
 	{
-		case sqf::parse::sqf::sqfasttypes::BEXP1:
-		case sqf::parse::sqf::sqfasttypes::BEXP2:
-		case sqf::parse::sqf::sqfasttypes::BEXP3:
-		case sqf::parse::sqf::sqfasttypes::BEXP4:
-		case sqf::parse::sqf::sqfasttypes::BEXP5:
-		case sqf::parse::sqf::sqfasttypes::BEXP6:
-		case sqf::parse::sqf::sqfasttypes::BEXP7:
-		case sqf::parse::sqf::sqfasttypes::BEXP8:
-		case sqf::parse::sqf::sqfasttypes::BEXP9:
-		case sqf::parse::sqf::sqfasttypes::BEXP10:
-		case sqf::parse::sqf::sqfasttypes::BINARYEXPRESSION:
+		case (short)sqf::parse::asttype::sqf::BEXP1:
+		case (short)sqf::parse::asttype::sqf::BEXP2:
+		case (short)sqf::parse::asttype::sqf::BEXP3:
+		case (short)sqf::parse::asttype::sqf::BEXP4:
+		case (short)sqf::parse::asttype::sqf::BEXP5:
+		case (short)sqf::parse::asttype::sqf::BEXP6:
+		case (short)sqf::parse::asttype::sqf::BEXP7:
+		case (short)sqf::parse::asttype::sqf::BEXP8:
+		case (short)sqf::parse::asttype::sqf::BEXP9:
+		case (short)sqf::parse::asttype::sqf::BEXP10:
+		case (short)sqf::parse::asttype::sqf::BINARYEXPRESSION:
 		{
 			navigate_pretty_print_sqf(full, vm, node.children[0], depth);
 			vm->out() << ' ' << node.children[1].content << ' ';
 			navigate_pretty_print_sqf(full, vm, node.children[2], depth);
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::UNARYEXPRESSION:
+		case (short)sqf::parse::asttype::sqf::UNARYEXPRESSION:
 		{
 			vm->out() << node.children[0].content << ' ';
 			navigate_pretty_print_sqf(full, vm, node.children[1], depth);
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::NUMBER:
-		case sqf::parse::sqf::sqfasttypes::HEXNUMBER:
-		case sqf::parse::sqf::sqfasttypes::NULAROP:
-		case sqf::parse::sqf::sqfasttypes::STRING:
-		case sqf::parse::sqf::sqfasttypes::VARIABLE:
+		case (short)sqf::parse::asttype::sqf::NUMBER:
+		case (short)sqf::parse::asttype::sqf::HEXNUMBER:
+		case (short)sqf::parse::asttype::sqf::NULAROP:
+		case (short)sqf::parse::asttype::sqf::STRING:
+		case (short)sqf::parse::asttype::sqf::VARIABLE:
 		{
 			vm->out() << node.content;
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::BRACKETS:
+		case (short)sqf::parse::asttype::sqf::BRACKETS:
 		{
 			vm->out() << "(";
 			navigate_pretty_print_sqf(full, vm, node.children[0], depth);
 			vm->out() << ")";
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::CODE:
+		case (short)sqf::parse::asttype::sqf::CODE:
 		{
 			vm->out() << "{" << std::endl;
 			depth++;
@@ -655,7 +655,7 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, sqf::p
 			vm->out() << std::string(depth * 4, ' ') << "}";
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::ARRAY:
+		case (short)sqf::parse::asttype::sqf::ARRAY:
 		{
 			vm->out() << "[";
 			bool flag = false;
@@ -674,13 +674,13 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, sqf::p
 			vm->out() << "]";
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::ASSIGNMENT:
+		case (short)sqf::parse::asttype::sqf::ASSIGNMENT:
 		{
 			vm->out() << node.children[0].content << " = ";
 			navigate_pretty_print_sqf(full, vm, node.children[1], depth);
 		}
 		break;
-		case sqf::parse::sqf::sqfasttypes::ASSIGNMENTLOCAL:
+		case (short)sqf::parse::asttype::sqf::ASSIGNMENTLOCAL:
 		{
 			vm->out() << "private " << node.children[0].content << " = ";
 			navigate_pretty_print_sqf(full, vm, node.children[1], depth);
@@ -699,14 +699,14 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, sqf::p
 }
 sqf::parse::astnode sqf::virtualmachine::parse_sqf_cst(std::string_view code, bool& errorflag, std::string filename)
 {
-	auto h = sqf::parse::helper(merr, sqf::parse::dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
-	return sqf::parse::sqf::parse_sqf(code.data(), h, errorflag, std::move(filename));
+	auto parser = sqf::parse::sqf(todo-logger, contains_nular, contains_unary, contains_binary, precedence, code, filename);
+	return parser.parse(errorflag);
 }
 void sqf::virtualmachine::parse_sqf_tree(std::string_view code, std::stringstream* sstream)
 {
-	auto h = sqf::parse::helper(merr, sqf::parse::dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
-	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, "");
+	auto parser = sqf::parse::sqf(todo - logger, contains_nular, contains_unary, contains_binary, precedence, code, ""sv);
+	bool errorflag = false;
+	auto node = parser.parse(errorflag);
 	print_navigate_ast(sstream, node, sqf::parse::sqf::astkindname);
 }
 bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::string_view code, std::shared_ptr<sqf::callstack> cs, std::string filename)
@@ -716,36 +716,35 @@ bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 		cs = std::make_shared<sqf::callstack>(this->missionnamespace());
 		vmstck->push_back(cs);
 	}
-	auto h = sqf::parse::helper(&merr_buff, sqf::parse::dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
-	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, std::move(filename));
-	this->merrflag = h.err_hasdata();
-	if (!errflag)
+	auto parser = sqf::parse::sqf(todo - logger, contains_nular, contains_unary, contains_binary, precedence, code, filename);
+	bool errorflag = false;
+	auto node = parser.parse(errorflag);
+	if (!errorflag)
 	{
 		navigate_sqf(code.data(), cs, node);
-		errflag = this->err_hasdata();
+		errorflag = this->err_hasdata();
 	}
-	return errflag;
+	return errorflag;
 }
 void sqf::virtualmachine::pretty_print_sqf(std::string_view code)
 {
-	auto h = sqf::parse::helper(merr, sqf::parse::dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
-	bool errflag = false;
-	auto node = sqf::parse::sqf::parse_sqf(code.data(), h, errflag, "");
+	auto parser = sqf::parse::sqf(todo - logger, contains_nular, contains_unary, contains_binary, precedence, code, "");
+	bool errorflag = false;
+	auto node = parser.parse(errorflag);
 	if (!errflag)
 	{
 		navigate_pretty_print_sqf(code.data(), this, node, 0);
 	}
 }
-void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, astnode& node)
+void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, sqf::parse::astnode& node)
 {
-	auto kind = static_cast<sqf::parse::config::configasttypes::configasttypes>(node.kind);
+	auto kind = static_cast<sqf::parse::asttype::config>(node.kind);
 	switch (kind)
 	{
-	case sqf::parse::config::configasttypes::CONFIGNODE:
+	case sqf::parse::asttype::config::CONFIGNODE:
 	{
 		std::shared_ptr<sqf::configdata> curnode;
-		if (!node.children.empty() && node.children.front().kind == sqf::parse::config::configasttypes::CONFIGNODE_PARENTIDENT)
+		if (!node.children.empty() && node.children.front().kind == (short)sqf::parse::asttype::config::CONFIGNODE_PARENTIDENT)
 		{
 			curnode = std::make_shared<sqf::configdata>(parent, node.content, node.children.front().content);
 			for (size_t i = 1; i < node.children.size(); i++)
@@ -764,7 +763,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 		}
 		parent->push_back(sqf::value(curnode));
 	} break;
-	case sqf::parse::config::configasttypes::VALUENODE:
+	case sqf::parse::asttype::config::VALUENODE:
 	{
 		std::shared_ptr<sqf::configdata> curnode = std::make_shared<sqf::configdata>(parent, node.content);
 		for (auto& subnode : node.children)
@@ -773,19 +772,19 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 		}
 		parent->push_back(sqf::value(curnode));
 	} break;
-	case sqf::parse::config::configasttypes::STRING:
+	case sqf::parse::asttype::config::STRING:
 		parent->set_cfgvalue(sqf::value(node.content));
 		break;
-	case sqf::parse::config::configasttypes::NUMBER:
+	case sqf::parse::asttype::config::NUMBER:
 		parent->set_cfgvalue(sqf::value(std::stod(node.content)));
 		break;
-	case sqf::parse::config::configasttypes::HEXNUMBER:
+	case sqf::parse::asttype::config::HEXNUMBER:
 		parent->set_cfgvalue(sqf::value(std::stol(node.content, nullptr, 16)));
 		break;
-	case sqf::parse::config::configasttypes::LOCALIZATION:
+	case sqf::parse::asttype::config::LOCALIZATION:
 		parent->set_cfgvalue(sqf::value(node.content));
 		break;
-	case sqf::parse::config::configasttypes::ARRAY:
+	case sqf::parse::asttype::config::ARRAY:
 	{
 		std::vector<sqf::value> values;
 		for (auto& subnode : node.children)
@@ -795,7 +794,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 		}
 		parent->set_cfgvalue(sqf::value(values));
 	} break;
-	case sqf::parse::config::configasttypes::VALUE:
+	case sqf::parse::asttype::config::VALUE:
 		break;
 	default:
 	{
@@ -808,9 +807,9 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 }
 void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<configdata> parent)
 {
-	auto h = sqf::parse::helper(merr, sqf::parse::dbgsegment, contains_nular, contains_unary, contains_binary, precedence);
-	bool errflag = false;
-	auto node = sqf::parse::config::parse_config(code, h, errflag);
+	auto parser = sqf::parse::config(todo - logger, code, "");
+	bool errorflag = false;
+	auto node = parser.parse(errorflag);
 //#if defined(_DEBUG)
 //	static bool isinitial = true;
 //	if (isinitial)

@@ -64,7 +64,7 @@ namespace sqf
 			void VALUE(astnode &root, bool &errflag);
 
 
-
+		public:
 			config(
 				Logger logger,
 				std::string_view contents,
@@ -77,8 +77,25 @@ namespace sqf
 				m_info = position_info;
 			}
 
-			astnode parse_config(bool& errflag);
-			const char* astkindname(short id);
+			astnode parse(bool& errflag);
+			static const char* astkindname(short id)
+			{
+				switch (id)
+				{
+				case (short)asttype::config::NODELIST: return "NODELIST";
+				case (short)asttype::config::NODE: return "NODE";
+				case (short)asttype::config::CONFIGNODE: return "CONFIGNODE";
+				case (short)asttype::config::CONFIGNODE_PARENTIDENT: return "CONFIGNODE_PARENTIDENT";
+				case (short)asttype::config::VALUENODE: return "VALUENODE";
+				case (short)asttype::config::STRING: return "STRING";
+				case (short)asttype::config::NUMBER: return "NUMBER";
+				case (short)asttype::config::HEXNUMBER: return "HEXNUMBER";
+				case (short)asttype::config::LOCALIZATION: return "LOCALIZATION";
+				case (short)asttype::config::ARRAY: return "ARRAY";
+				case (short)asttype::config::VALUE: return "VALUE";
+				default: return "NA";
+				}
+			}
 		}
 	}
 }

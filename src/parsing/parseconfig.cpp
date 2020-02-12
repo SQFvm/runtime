@@ -545,7 +545,7 @@ namespace sqf
 		}
 
 
-		astnode config::parse_config(bool& errflag)
+		astnode config::parse(bool& errflag)
 		{
 			astnode node;
 			node.kind = (short)asttype::config::NODELIST;
@@ -560,24 +560,6 @@ namespace sqf
 			}
 			node.length = m_info.offset;
 			return node;
-		}
-		const char* config::astkindname(short id)
-		{
-			switch (id)
-			{
-			case (short)asttype::config::NODELIST: return "NODELIST";
-			case (short)asttype::config::NODE: return "NODE";
-			case (short)asttype::config::CONFIGNODE: return "CONFIGNODE";
-			case (short)asttype::config::CONFIGNODE_PARENTIDENT: return "CONFIGNODE_PARENTIDENT";
-			case (short)asttype::config::VALUENODE: return "VALUENODE";
-			case (short)asttype::config::STRING: return "STRING";
-			case (short)asttype::config::NUMBER: return "NUMBER";
-			case (short)asttype::config::HEXNUMBER: return "HEXNUMBER";
-			case (short)asttype::config::LOCALIZATION: return "LOCALIZATION";
-			case (short)asttype::config::ARRAY: return "ARRAY";
-			case (short)asttype::config::VALUE: return "VALUE";
-			default: return "NA";
-			}
 		}
 	}
 }
