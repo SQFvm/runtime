@@ -20,610 +20,563 @@ ARRAY = '{' [ VALUE { ',' VALUE } ] '}'
 VALUE = STRING | NUMBER | LOCALIZATION | ARRAY;
 */
 
+namespace err = logmessage::config;
 
 namespace sqf
 {
 	namespace parse
 	{
-		namespace config
+		void config::skip()
 		{
-			void skip(const char *code, size_t &curoff)
+			while (true)
 			{
-				while (true)
+				switch (m_contents[m_info.offset])
 				{
-					switch (code[curoff])
+				case ' ': m_info.offset++; m_info.column++; continue;
+				case '\t': m_info.offset++; m_info.column++; continue;
+				case '\r': m_info.offset++; m_info.column++; continue;
+				case '\n': m_info.offset++; m_info.line++; m_info.column = 0; continue;
+				case '#':
+					if ((m_contents[m_info.offset + 1] == 'l' || m_contents[m_info.offset + 1] == 'L') &&
+						(m_contents[m_info.offset + 2] == 'i' || m_contents[m_info.offset + 1] == 'I') &&
+						(m_contents[m_info.offset + 3] == 'n' || m_contents[m_info.offset + 1] == 'N') &&
+						(m_contents[m_info.offset + 4] == 'e' || m_contents[m_info.offset + 1] == 'E'))
 					{
-					case ' ': curoff++; continue;
-					case '\t': curoff++; continue;
-					case '\r': curoff++; continue;
-					case '\n': curoff++; continue;
-					default: return;
-					}
-				}
-			}
-			void skip(const char *code, size_t &line, size_t &col, std::string& file, size_t &curoff)
-			{
-				while (true)
-				{
-					switch (code[curoff])
-					{
-						case ' ': curoff++; col++; continue;
-						case '\t': curoff++; col++; continue;
-						case '\r': curoff++; col++; continue;
-						case '\n': curoff++; line++; col = 0; continue;
-						case '#':
-							if ((code[curoff + 1] == 'f' && code[curoff + 2] == 'i' && code[curoff + 3] == 'l' && code[curoff + 4] == 'e') ||
-								(code[curoff + 1] == 'F' && code[curoff + 2] == 'I' && code[curoff + 3] == 'L' && code[curoff + 4] == 'E'))
-							{
-								curoff += 4;
-								size_t start = curoff + 1;
-								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
+						m_info.offset += 6;
+						size_t start = m_info.offset;
+						for (; m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n' && m_contents[m_info.offset] != ' '; m_info.offset++);
+						auto str = std::string(m_contents.substr(start, m_info.offset - start));
+						m_info.line = static_cast<size_t>(std::stoul(str));
 
-								auto str = std::string(code + start, code + curoff);
-								file = str;
-								break;
-							}
-							else if ((code[curoff + 1] == 'l' && code[curoff + 2] == 'i' && code[curoff + 3] == 'n' && code[curoff + 4] == 'e') ||
-								(code[curoff + 1] == 'L' && code[curoff + 2] == 'I' && code[curoff + 3] == 'N' && code[curoff + 4] == 'E'))
-							{
-								curoff += 4;
-								size_t start = curoff + 1;
-								for (; code[curoff] != '\0' && code[curoff] != '\n'; curoff++);
-								auto str = std::string(code + start, code + curoff);
-								line = static_cast<size_t>(std::stoul(str));
-								break;
-							}
-						default: return;
-					}
-				}
-			}
-
-			//endchr = [,;];
-			size_t endchr(const char* code, size_t off) { return code[off] == ';' ? 1 : 0; }
-			//identifier = [_a-zA-Z0-9]*;
-			size_t identifier(const char* code, size_t off) { size_t i = off; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || (code[i] >= '0' && code[i] <= '9') || code[i] == '_'; i++) {}; return i - off; }
-			//operator_ = [-*+/a-zA-Z><=%_]+;
-			//ToDo: Add clearer non-alphabetical checks (-- should not be detected as SINGLE operator but rather as two operators)
-			size_t operator_(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'z') || (code[i] >= 'A' && code[i] <= 'Z') || code[i] == '+' || code[i] == '-' || code[i] == '*' || code[i] == '/' || code[i] == '>' || code[i] == '<' || code[i] == '=' || code[i] == '%' || code[i] == '_'; i++) {}; return i - off; }
-			//hexadecimal = [0-9a-fA-F]+;
-			size_t hexadecimal(const char* code, size_t off) { size_t i; for (i = off; (code[i] >= 'a' && code[i] <= 'f') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] >= '0' && code[i] <= '9'); i++) {}; return i - off; }
-			//scalarsub = [0-9]+;
-			size_t numsub(const char* code, size_t off) { size_t i; for (i = off; code[i] >= '0' && code[i] <= '9'; i++) {}; return i - off; }
-			//scalar = scalarsub(.scalarsub)?;
-			size_t num(const char* code, size_t off) { size_t i = off + numsub(code, off); if (code[off] == '.') i += numsub(code, off); return i - off; }
-			//anytext = (?![ \t\r\n;])+;
-			size_t anytext(const char* code, size_t off) { size_t i; for (i = off; code[i] != ' ' && code[i] != '\t' && code[i] != '\r' && code[i] != '\n' && code[i] != ';'; i++) {}; return i - off; }
-
-
-			//NODELIST = { NODE ';' { ';' } };
-			bool NODELIST_start(const char* code, size_t curoff) { return true; }
-			void NODELIST(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				//auto thisnode = astnode();
-				//thisnode.offset = curoff;
-				//thisnode.kind = configasttypes::NODELIST;
-				skip(code, line, col, file, curoff);
-				//Iterate over statements as long as it is an instruction start.
-				while (NODE_start(code, curoff))
-				{
-					NODE(h, root, code, line, col, curoff, file, errflag);
-					skip(code, line, col, file, curoff);
-					//Make sure at least one endchr is available unless no statement follows
-					if (!endchr(code, curoff) && NODE_start(code, curoff))
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected either ';' or ','." << std::endl;
-						errflag = true;
-					}
-					else
-					{
-						size_t endchrlen;
-						//Add endchr up until no semicolon is left
-						while ((endchrlen = endchr(code, curoff)) > 0)
+						for (; m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n' && m_contents[m_info.offset] == ' '; m_info.offset++);
+						if (m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n')
 						{
-							curoff += endchrlen;
-							col += endchrlen;
-							skip(code, line, col, file, curoff);
+							start = m_info.offset;
+							for (; m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n'; m_info.offset++);
+							auto str = std::string(m_contents.substr(start, m_info.offset - start));
+							m_info.file = str;
 						}
-					}
-				}
-				//thisnode.length = curoff - thisnode.offset;
-				//root.children.push_back(thisnode);
-			}
-			//NODE = CONFIGNODE | VALUENODE;
-			bool NODE_start(const char* code, size_t curoff) { return CONFIGNODE_start(code, curoff) || VALUENODE_start(code, curoff); }
-			void NODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const std::string &file, bool &errflag)
-			{
-				//auto thisnode = astnode();
-				//thisnode.offset = curoff;
-				//thisnode.kind = configasttypes::NODE;
-				if (CONFIGNODE_start(code, curoff))
-				{
-					CONFIGNODE(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (VALUENODE_start(code, curoff))
-				{
-					VALUENODE(h, root, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No viable alternative for NODE." << std::endl;
-					errflag = true;
-				}
-				//thisnode.length = curoff - thisnode.offset;
-				//root.children.push_back(thisnode);
-			}
-			//CONFIGNODE = 'class' ident [ ':' ident ] '{' NODELIST '}'
-			bool CONFIGNODE_start(const char* code, size_t curoff) { return str_cmpi(code + curoff, compiletime::strlen("class"), "class", compiletime::strlen("class")) == 0; }
-			void CONFIGNODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				size_t len;
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = configasttypes::CONFIGNODE;
-
-				curoff += compiletime::strlen("class");
-				col += compiletime::strlen("class");
-				skip(code, line, col, file, curoff);
-				std::string ident;
-				if ((len = identifier(code, curoff)) > 0)
-				{
-					ident = std::string(code + curoff, code + curoff + len);
-					thisnode.content = ident;
-					thisnode.line = line;
-					thisnode.file = file;
-					curoff += len;
-					col += len;
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected identifier." << std::endl;
-					errflag = true;
-				}
-				skip(code, line, col, file, curoff);
-				if (code[curoff] == ':')
-				{
-					curoff++;
-					col++;
-					skip(code, line, col, file, curoff);
-					if ((len = identifier(code, curoff)) > 0)
-					{
-						ident = std::string(code + curoff, code + curoff + len);
-						astnode parentidentnode;
-						parentidentnode.offset = curoff;
-						parentidentnode.length = len;
-						parentidentnode.line = line;
-						parentidentnode.file = file;
-						parentidentnode.content = ident;
-						parentidentnode.kind = configasttypes::CONFIGNODE_PARENTIDENT;
-						curoff += len;
-						col += len;
-						thisnode.children.push_back(parentidentnode);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected identifier." << std::endl;
-						errflag = true;
-					}
-					skip(code, line, col, file, curoff);
-				}
-				if (code[curoff] == '{')
-				{
-					curoff++;
-					col++;
-					skip(code, line, col, file, curoff);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected '{'." << std::endl;
-					errflag = true;
-				}
-				NODELIST(h, thisnode, code, line, col, curoff, file, errflag);
-				if (code[curoff] == '}')
-				{
-					curoff++;
-					col++;
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected '}'." << std::endl;
-					errflag = true;
-				}
-
-				thisnode.length = curoff - thisnode.offset;
-				root.children.push_back(thisnode);
-			}
-			//VALUENODE = ident ('=' (STRING | NUMBER | LOCALIZATION) | '[' ']' '=' ARRAY);
-			bool VALUENODE_start(const char* code, size_t curoff) { return identifier(code, curoff) > 0; }
-			void VALUENODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				size_t len;
-				bool isarr = false;
-				auto thisnode = astnode();
-				thisnode.offset = curoff;
-				thisnode.kind = configasttypes::VALUENODE;
-
-				if ((len = identifier(code, curoff)) > 0)
-				{
-					auto ident = std::string(code + curoff, code + curoff + len);
-					thisnode.content = ident;
-					thisnode.line = line;
-					thisnode.file = file;
-					curoff += len;
-					col += len;
-					skip(code, line, col, file, curoff);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected identifier." << std::endl;
-					errflag = true;
-				}
-
-				if (code[curoff] == '[')
-				{
-					isarr = true;
-					curoff++;
-					col++;
-					skip(code, line, col, file, curoff);
-					if (code[curoff] == ']')
-					{
-						curoff++;
-						col++;
-						skip(code, line, col, file, curoff);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected ']'." << std::endl;
-						errflag = true;
-					}
-				}
-				if (code[curoff] == '=')
-				{
-					curoff++;
-					col++;
-					skip(code, line, col, file, curoff);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected '='." << std::endl;
-					errflag = true;
-				}
-				
-				if (isarr)
-				{
-					if (ARRAY_start(code, curoff))
-					{
-						ARRAY(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else
-					{
-						size_t i;
-						for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-						h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected ARRAY." << std::endl;
-						errflag = true;
-					}
-				}
-				else
-				{
-					size_t tmp_line = line;
-					size_t tmp_col = col;
-					size_t tmp_off = curoff;
-					bool was_handled = false;
-					if (STRING_start(code, curoff))
-					{
-						was_handled = true;
-						STRING(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else if (NUMBER_start(code, curoff))
-					{
-						was_handled = true;
-						NUMBER(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					else if (LOCALIZATION_start(code, curoff))
-					{
-						was_handled = true;
-						LOCALIZATION(h, thisnode, code, line, col, curoff, file, errflag);
-					}
-					skip(code, line, col, file, curoff);
-					if (code[curoff] != ';')
-					{
-						if (was_handled)
-						{
-							thisnode.children.pop_back();
-						}
-						while (code[curoff] != ';' && code[curoff] != '\0')
-						{
-							curoff++;
-						}
-						auto magicstringnode = astnode();
-						magicstringnode.kind = configasttypes::STRING;
-						magicstringnode.col = tmp_col;
-						magicstringnode.line = tmp_line;
-						magicstringnode.file = file;
-						auto fullstring = std::string("\"").append(code + tmp_off, code + curoff).append("\"");
-						magicstringnode.content = fullstring;
-						magicstringnode.length = curoff - tmp_off;
-						magicstringnode.offset = tmp_off;
-						thisnode.children.push_back(magicstringnode);
-					}
-				}
-
-				thisnode.length = curoff - thisnode.offset;
-				root.children.push_back(thisnode);
-			}
-			//STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
-			bool STRING_start(const char* code, size_t curoff) { return code[curoff] == '"' ||code[curoff] == '\''; }
-			void STRING(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
-			{
-				auto thisnode = astnode();
-				thisnode.kind = configasttypes::STRING;
-				thisnode.col = col;
-				thisnode.line = line;
-				thisnode.file = std::move(file);
-				size_t i;
-				auto startchr = code[curoff];
-				col++;
-				for (i = curoff + 1; code[i] != '\0' && (code[i] != startchr || code[i + 1] == startchr); i++)
-				{
-					if (code[i] == startchr)
-					{
-						col++;
-						i++;
-					}
-					switch (code[i])
-					{
-					case '\n':
-						col = 0;
-						line++;
-						break;
-					default:
-						col++;
 						break;
 					}
+				default: return;
 				}
-				i++;
-				col++;
-				auto fullstring = std::string(code + curoff, code + i);
-				thisnode.content = fullstring;
-				thisnode.length = i - curoff;
-				thisnode.offset = curoff;
-				curoff = i;
-				root.children.push_back(thisnode);
 			}
-			//NUMBER = "0x" hexadecimal | [ '-' ]scalar;
-			bool NUMBER_start(const char* code, size_t curoff) { return code[curoff] == '-' || (code[curoff] >= '0' && code[curoff] <= '9'); }
-			void NUMBER(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
+		}
+
+		//endchr = [,;];
+		size_t config::endchr(size_t off) { return m_file[off] == ';' ? 1 : 0; }
+		//identifier = [_a-zA-Z0-9]*;
+		size_t config::identifier(size_t off) { size_t i = off; for (i = off; (m_file[i] >= 'a' && m_file[i] <= 'z') || (m_file[i] >= 'A' && m_file[i] <= 'Z') || (m_file[i] >= '0' && m_file[i] <= '9') || m_file[i] == '_'; i++) {}; return i - off; }
+		//operator_ = [-*+/a-zA-Z><=%_]+;
+		//ToDo: Add clearer non-alphabetical checks (-- should not be detected as SINGLE operator but rather as two operators)
+		size_t config::operator_(size_t off) { size_t i; for (i = off; (m_file[i] >= 'a' && m_file[i] <= 'z') || (m_file[i] >= 'A' && m_file[i] <= 'Z') || m_file[i] == '+' || m_file[i] == '-' || m_file[i] == '*' || m_file[i] == '/' || m_file[i] == '>' || m_file[i] == '<' || m_file[i] == '=' || m_file[i] == '%' || m_file[i] == '_'; i++) {}; return i - off; }
+		//hexadecimal = [0-9a-fA-F]+;
+		size_t config::hexadecimal(size_t off) { size_t i; for (i = off; (m_file[i] >= 'a' && m_file[i] <= 'f') || (m_file[i] >= 'A' && m_file[i] <= 'F') || (m_file[i] >= '0' && m_file[i] <= '9'); i++) {}; return i - off; }
+		//scalarsub = [0-9]+;
+		size_t config::numsub(size_t off) { size_t i; for (i = off; m_file[i] >= '0' && m_file[i] <= '9'; i++) {}; return i - off; }
+		//scalar = scalarsub(.scalarsub)?;
+		size_t config::num(size_t off) { size_t i = off + numsub(off); if (m_file[off] == '.') i += numsub(off); return i - off; }
+		//anytext = (?![ \t\r\n;])+;
+		size_t config::anytext(size_t off) { size_t i; for (i = off; m_file[i] != ' ' && m_file[i] != '\t' && m_file[i] != '\r' && m_file[i] != '\n' && m_file[i] != ';'; i++) {}; return i - off; }
+
+
+		//NODELIST = { NODE ';' { ';' } };
+		bool config::NODELIST_start(size_t off) { return true; }
+		void config::NODELIST(astnode& root, bool& errflag)
+		{
+			//auto thisnode = astnode();
+			//thisnode.offset = m_info.offset;
+			//thisnode.kind = (short)asttype::config::NODELIST;
+			skip();
+			//Iterate over statements as long as it is an instruction start.
+			while (NODE_start(m_info.offset))
 			{
-				auto thisnode = astnode();
-				thisnode.kind = configasttypes::NUMBER;
-				thisnode.col = col;
-				thisnode.line = line;
-				thisnode.file = std::move(file);
-				if (code[curoff] == '0' && code[curoff + 1] == 'x')
+				NODE(root, errflag);
+				skip();
+				//Make sure at least one endchr is available unless no statement follows
+				if (!endchr(m_info.offset) && NODE_start(m_info.offset))
 				{
-					thisnode.kind = configasttypes::HEXNUMBER;
-					size_t i;
-					for (i = curoff + 2; (code[i] >= '0' && code[i] <= '9') || (code[i] >= 'A' && code[i] <= 'F') || (code[i] >= 'a' && code[i] <= 'f'); i++);
-					auto ident = std::string(code + curoff, code + i);
-					thisnode.content = ident;
-					thisnode.offset = curoff;
-					thisnode.length = i - curoff;
-					col += i - curoff;
-					curoff = i;
+					log(err::ExpectedStatementTerminator(m_info));
+					errflag = true;
 				}
 				else
 				{
-					size_t i = curoff;
-					bool numhaddot = false;
-					unsigned short numhadexp = 0;
-					if (code[i] == '-')
+					size_t endchrlen;
+					//Add endchr up until no semicolon is left
+					while ((endchrlen = endchr(m_info.offset)) > 0)
 					{
-						i++;
+						m_info.offset += endchrlen;
+						m_info.column += endchrlen;
+						skip();
 					}
-					while (true)
-					{
-						if (code[i] >= '0' && code[i] <= '9')
-						{
-							i++;
-							continue;
-						}
-						else if (!numhaddot && code[i] == '.')
-						{
-							i++;
-							numhaddot = true;
-							continue;
-						}
-						else if (numhadexp == 0 && (code[i] == 'e' || code[i] == 'E'))
-						{
-							i++;
-							numhadexp++;
-							continue;
-						}
-						else if (numhadexp == 1 && (code[i] == '+' || code[i] == '-'))
-						{
-							i++;
-							numhadexp++;
-							continue;
-						}
-						else
-						{
-							break;
-						}
-
-					}
-					auto ident = std::string(code + curoff, code + i);
-					thisnode.content = ident;
-					thisnode.offset = curoff;
-					thisnode.length = i - curoff;
-					col += i - curoff;
-					curoff = i;
 				}
-				root.children.push_back(thisnode);
 			}
-			//LOCALIZATION = '$' ident;
-			bool LOCALIZATION_start(const char* code, size_t curoff) { return code[curoff] == '$'; }
-			void LOCALIZATION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
+			//thisnode.length = m_info.offset - thisnode.offset;
+			//root.children.push_back(thisnode);
+		}
+		//NODE = CONFIGNODE | VALUENODE;
+		bool config::NODE_start(size_t off) { return CONFIGNODE_start(off) || VALUENODE_start(off); }
+		void config::NODE(astnode& root, bool& errflag)
+		{
+			//auto thisnode = astnode();
+			//thisnode.offset = m_info.offset;
+			//thisnode.kind = (short)asttype::config::NODE;
+			if (CONFIGNODE_start(m_info.offset))
 			{
-				auto thisnode = astnode();
-				thisnode.kind = configasttypes::LOCALIZATION;
-				thisnode.file = std::move(file);
-				curoff++;
-				col++;
-				auto len = identifier(code, curoff);
-				auto ident = std::string(code + curoff, code + curoff + len);
+				CONFIGNODE(root, errflag);
+			}
+			else if (VALUENODE_start(m_info.offset))
+			{
+				VALUENODE(root, errflag);
+			}
+			else
+			{
+				log(err::NoViableAlternativeNode(m_info));
+				errflag = true;
+			}
+			//thisnode.length = m_info.offset - thisnode.offset;
+			//root.children.push_back(thisnode);
+		}
+		//CONFIGNODE = 'class' ident [ ':' ident ] '{' NODELIST '}'
+		bool config::CONFIGNODE_start(size_t off) { return str_cmpi(m_file.c_str() + off, compiletime::strlen("class"), "class", compiletime::strlen("class")) == 0; }
+		void config::CONFIGNODE(astnode& root, bool& errflag)
+		{
+			size_t len;
+			auto thisnode = astnode();
+			thisnode.offset = m_info.offset;
+			thisnode.kind = (short)asttype::config::CONFIGNODE;
+
+			m_info.offset += compiletime::strlen("class");
+			m_info.column += compiletime::strlen("class");
+			skip();
+			std::string ident;
+			if ((len = identifier(m_info.offset)) > 0)
+			{
+				ident = std::string(m_info.offset, len);
 				thisnode.content = ident;
-				thisnode.length = len;
-				thisnode.offset = curoff;
-				thisnode.col = col;
-				thisnode.line = line;
-
-				curoff += len;
-				col += len;
-				root.children.push_back(thisnode);
+				thisnode.line = m_info.line;
+				thisnode.file = m_info.file;
+				m_info.offset += len;
+				m_info.column += len;
 			}
-			//ARRAY = '{' [ VALUE { ',' VALUE } ] '}'
-			bool ARRAY_start(const char* code, size_t curoff) { return code[curoff] == '{'; }
-			void ARRAY(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag)
+			else
 			{
-				auto thisnode = astnode();
-				thisnode.kind = configasttypes::ARRAY;
-				thisnode.offset = curoff;
-				thisnode.col = col;
-				thisnode.line = line;
-				thisnode.file = file;
-				curoff++;
-				col++;
-				skip(code, line, col, file, curoff);
-				if (VALUE_start(code, curoff))
+				log(err::ExpectedIdentifier(m_info));
+				errflag = true;
+			}
+			skip();
+			if (m_file[m_info.offset] == ':')
+			{
+				m_info.offset++;
+				m_info.column++;
+				skip();
+				if ((len = identifier(m_info.offset)) > 0)
 				{
-					VALUE(h, thisnode, code, line, col, curoff, file, errflag);
-					skip(code, line, col, file, curoff);
-					while (code[curoff] == ',')
-					{
-						col++;
-						curoff++;
-						skip(code, line, col, file, curoff);
+					ident = std::string(m_info.offset, len);
+					astnode parentidentnode;
+					parentidentnode.offset = m_info.offset;
+					parentidentnode.length = len;
+					parentidentnode.line = m_info.line;
+					parentidentnode.file = m_info.file;
+					parentidentnode.content = ident;
+					parentidentnode.kind = (short)asttype::config::CONFIGNODE_PARENTIDENT;
+					m_info.offset += len;
+					m_info.column += len;
+					thisnode.children.push_back(parentidentnode);
+				}
+				else
+				{
+					log(err::ExpectedIdentifier(m_info));
+					errflag = true;
+				}
+				skip();
+			}
+			if (m_file[m_info.offset] == '{')
+			{
+				m_info.offset++;;
+				m_info.column++;
+				skip();
+			}
+			else
+			{
+				log(err::MissingCurlyOpeningBracket(m_info));
+				errflag = true;
+			}
+			NODELIST(thisnode, errflag);
+			if (m_file[m_info.offset] == '}')
+			{
+				m_info.offset++;;
+				m_info.column++;
+			}
+			else
+			{
+				log(err::MissingCurlyClosingBracket(m_info));
+				errflag = true;
+			}
 
-						if (VALUE_start(code, curoff))
-						{
-							VALUE(h, thisnode, code, line, col, curoff, file, errflag);
-							skip(code, line, col, file, curoff);
-						}
-						else
-						{
-							size_t i;
-							for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-							h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected VALUE start." << std::endl;
-							errflag = true;
-						}
+			thisnode.length = m_info.offset - thisnode.offset;
+			root.children.push_back(thisnode);
+		}
+		//VALUENODE = ident ('=' (STRING | NUMBER | LOCALIZATION) | '[' ']' '=' ARRAY);
+		bool config::VALUENODE_start(size_t off) { return identifier(off) > 0; }
+		void config::VALUENODE(astnode& root, bool& errflag)
+		{
+			size_t len;
+			bool isarr = false;
+			auto thisnode = astnode();
+			thisnode.offset = m_info.offset;
+			thisnode.kind = (short)asttype::config::VALUENODE;
+
+			if ((len = identifier(m_info.offset)) > 0)
+			{
+				auto ident = std::string(m_file.substr(m_info.offset, len));
+				thisnode.content = ident;
+				thisnode.line = m_info.line;
+				thisnode.file = m_info.file;
+				m_info.offset += len;
+				m_info.column += len;
+				skip();
+			}
+			else
+			{
+				log(err::ExpectedIdentifier(m_info));
+				errflag = true;
+			}
+
+			if (m_file[m_info.offset] == '[')
+			{
+				isarr = true;
+				m_info.offset++;;
+				m_info.column++;
+				skip();
+				if (m_file[m_info.offset] == ']')
+				{
+					m_info.offset++;;
+					m_info.column++;
+					skip();
+				}
+				else
+				{
+					log(err::MissingSquareClosingBracket(m_info));
+					errflag = true;
+				}
+			}
+			if (m_file[m_info.offset] == '=')
+			{
+				m_info.offset++;;
+				m_info.column++;
+				skip();
+			}
+			else
+			{
+				log(err::MissingEqualSign(m_info));
+				errflag = true;
+			}
+
+			if (isarr)
+			{
+				if (ARRAY_start(m_info.offset))
+				{
+					ARRAY(thisnode, errflag);
+				}
+				else
+				{
+					log(err::ExpectedArray(m_info));
+					errflag = true;
+				}
+			}
+			else
+			{
+				size_t tmp_line = m_info.line;
+				size_t tmp_col = m_info.column;
+				size_t tmp_off = m_info.offset;
+				bool was_handled = false;
+				if (STRING_start(m_info.offset))
+				{
+					was_handled = true;
+					STRING(thisnode, errflag);
+				}
+				else if (NUMBER_start(m_info.offset))
+				{
+					was_handled = true;
+					NUMBER(thisnode, errflag);
+				}
+				else if (LOCALIZATION_start(m_info.offset))
+				{
+					was_handled = true;
+					LOCALIZATION(thisnode, errflag);
+				}
+				skip();
+				if (m_file[m_info.offset] != ';')
+				{
+					if (was_handled)
+					{
+						thisnode.children.pop_back();
+					}
+					while (m_file[m_info.offset] != ';' && m_file[m_info.offset] != '\0')
+					{
+						m_info.offset++;;
+					}
+					auto magicstringnode = astnode();
+					magicstringnode.kind = (short)asttype::config::STRING;
+					magicstringnode.col = tmp_col;
+					magicstringnode.line = tmp_line;
+					magicstringnode.file = m_info.file;
+					auto fullstring = std::string("\"").append(m_file.substr(tmp_off, m_info.offset - tmp_off)).append("\"");
+					magicstringnode.content = fullstring;
+					magicstringnode.length = m_info.offset - tmp_off;
+					magicstringnode.offset = tmp_off;
+					thisnode.children.push_back(magicstringnode);
+				}
+			}
+
+			thisnode.length = m_info.offset - thisnode.offset;
+			root.children.push_back(thisnode);
+		}
+		//STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
+		bool config::STRING_start(size_t off) { return m_file[off] == '"' || m_file[off] == '\''; }
+		void config::STRING(astnode& root, bool& errflag)
+		{
+			auto thisnode = astnode();
+			thisnode.kind = (short)asttype::config::STRING;
+			thisnode.col = m_info.column;
+			thisnode.line = m_info.line;
+			thisnode.file = m_file;
+			size_t i;
+			auto startchr = m_file[m_info.offset];
+			m_info.column++;
+			for (i = m_info.offset + 1; m_file[i] != '\0' && (m_file[i] != startchr || m_file[i + 1] == startchr); i++)
+			{
+				if (m_file[i] == startchr)
+				{
+					m_info.column++;
+					i++;
+				}
+				switch (m_file[i])
+				{
+				case '\n':
+					m_info.column = 0;
+					m_info.line++;
+					break;
+				default:
+					m_info.column++;
+					break;
+				}
+			}
+			i++;
+			m_info.column++;
+			auto fullstring = std::string(m_info.offset, i);
+			thisnode.content = fullstring;
+			thisnode.length = i - m_info.offset;
+			thisnode.offset = m_info.offset;
+			m_info.offset = i;
+			root.children.push_back(thisnode);
+		}
+		//NUMBER = "0x" hexadecimal | [ '-' ]scalar;
+		bool config::NUMBER_start(size_t off) { return m_file[off] == '-' || (m_file[off] >= '0' && m_file[off] <= '9'); }
+		void config::NUMBER(astnode& root, bool& errflag)
+		{
+			auto thisnode = astnode();
+			thisnode.kind = (short)asttype::config::NUMBER;
+			thisnode.col = m_info.column;
+			thisnode.line = m_info.line;
+			thisnode.file = m_file;
+			if (m_file[m_info.offset] == '0' && m_file[m_info.offset + 1] == 'x')
+			{
+				thisnode.kind = (short)asttype::config::HEXNUMBER;
+				size_t i;
+				for (i = m_info.offset + 2; (m_file[i] >= '0' && m_file[i] <= '9') || (m_file[i] >= 'A' && m_file[i] <= 'F') || (m_file[i] >= 'a' && m_file[i] <= 'f'); i++);
+				auto ident = std::string(m_info.offset, i);
+				thisnode.content = ident;
+				thisnode.offset = m_info.offset;
+				thisnode.length = i - m_info.offset;
+				m_info.column += i - m_info.offset;
+				m_info.offset = i;
+			}
+			else
+			{
+				size_t i = m_info.offset;
+				bool numhaddot = false;
+				unsigned short numhadexp = 0;
+				if (m_file[i] == '-')
+				{
+					i++;
+				}
+				while (true)
+				{
+					if (m_file[i] >= '0' && m_file[i] <= '9')
+					{
+						i++;
+						continue;
+					}
+					else if (!numhaddot && m_file[i] == '.')
+					{
+						i++;
+						numhaddot = true;
+						continue;
+					}
+					else if (numhadexp == 0 && (m_file[i] == 'e' || m_file[i] == 'E'))
+					{
+						i++;
+						numhadexp++;
+						continue;
+					}
+					else if (numhadexp == 1 && (m_file[i] == '+' || m_file[i] == '-'))
+					{
+						i++;
+						numhadexp++;
+						continue;
+					}
+					else
+					{
+						break;
+					}
+
+				}
+				auto ident = std::string(m_info.offset, i);
+				thisnode.content = ident;
+				thisnode.offset = m_info.offset;
+				thisnode.length = i - m_info.offset;
+				m_info.column += i - m_info.offset;
+				m_info.offset = i;
+			}
+			root.children.push_back(thisnode);
+		}
+		//LOCALIZATION = '$' ident;
+		bool config::LOCALIZATION_start(size_t off) { return m_file[off] == '$'; }
+		void config::LOCALIZATION(astnode& root, bool& errflag)
+		{
+			auto thisnode = astnode();
+			thisnode.kind = (short)asttype::config::LOCALIZATION;
+			thisnode.file = m_file;
+			m_info.offset++;;
+			m_info.column++;
+			auto len = identifier(m_info.offset);
+			auto ident = std::string(m_info.offset, len);
+			thisnode.content = ident;
+			thisnode.length = len;
+			thisnode.offset = m_info.offset;
+			thisnode.col = m_info.column;
+			thisnode.line = m_info.line;
+
+			m_info.offset += len;
+			m_info.column += len;
+			root.children.push_back(thisnode);
+		}
+		//ARRAY = '{' [ VALUE { ',' VALUE } ] '}'
+		bool config::ARRAY_start(size_t off) { return m_file[off] == '{'; }
+		void config::ARRAY(astnode& root, bool& errflag)
+		{
+			auto thisnode = astnode();
+			thisnode.kind = (short)asttype::config::ARRAY;
+			thisnode.offset = m_info.offset;
+			thisnode.col = m_info.column;
+			thisnode.line = m_info.line;
+			thisnode.file = m_info.file;
+			m_info.offset++;;
+			m_info.column++;
+			skip();
+			if (VALUE_start(m_info.offset))
+			{
+				VALUE(thisnode, errflag);
+				skip();
+				while (m_file[m_info.offset] == ',')
+				{
+					m_info.column++;
+					m_info.offset++;;
+					skip();
+
+					if (VALUE_start(m_info.offset))
+					{
+						VALUE(thisnode, errflag);
+						skip();
+					}
+					else
+					{
+						log(err::ExpectedValue(m_info));
+						errflag = true;
 					}
 				}
-				if (code[curoff] == '}')
-				{
-					curoff++;
-					col++;
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "Expected '}'." << std::endl;
-					errflag = true;
-				}
-				thisnode.length = curoff - thisnode.offset;
-				thisnode.content = std::string(code + thisnode.offset, code + thisnode.offset + thisnode.length);
-				root.children.push_back(thisnode);
 			}
-			//VALUE = STRING | NUMBER | LOCALIZATION | ARRAY;
-			bool VALUE_start(const char* code, size_t curoff) { return STRING_start(code, curoff) || NUMBER_start(code, curoff) || LOCALIZATION_start(code, curoff) || ARRAY_start(code, curoff); }
-			void VALUE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const std::string &file, bool &errflag)
+			if (m_file[m_info.offset] == '}')
 			{
-				//auto thisnode = astnode();
-				//thisnode.offset = curoff;
-				//thisnode.kind = configasttypes::VALUE;
-				if (STRING_start(code, curoff))
-				{
-					STRING(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (NUMBER_start(code, curoff))
-				{
-					NUMBER(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (LOCALIZATION_start(code, curoff))
-				{
-					LOCALIZATION(h, root, code, line, col, curoff, file, errflag);
-				}
-				else if (ARRAY_start(code, curoff))
-				{
-					ARRAY(h, root, code, line, col, curoff, file, errflag);
-				}
-				else
-				{
-					size_t i;
-					for (i = curoff; i < curoff + 128 && std::iswalnum(code[i]); i++);
-					h.err() << h.dbgsegment(code, curoff, i - curoff) << "[ERR][L" << line << "|C" << col << "]\t" << "No viable alternative for VALUE." << std::endl;
-					errflag = true;
-				}
-				//thisnode.length = curoff - thisnode.offset;
-				//root.children.push_back(thisnode);
+				m_info.offset++;;
+				m_info.column++;
 			}
+			else
+			{
+				log(err::MissingCurlyClosingBracket(m_info));
+				errflag = true;
+			}
+			thisnode.length = m_info.offset - thisnode.offset;
+			thisnode.content = std::string(m_file.substr(thisnode.offset, thisnode.length));
+			root.children.push_back(thisnode);
+		}
+		//VALUE = STRING | NUMBER | LOCALIZATION | ARRAY;
+		bool config::VALUE_start(size_t off) { return STRING_start(off) || NUMBER_start(off) || LOCALIZATION_start(off) || ARRAY_start(off); }
+		void config::VALUE(astnode& root, bool& errflag)
+		{
+			//auto thisnode = astnode();
+			//thisnode.offset = m_info.offset;
+			//thisnode.kind = (short)asttype::config::VALUE;
+			if (STRING_start(m_info.offset))
+			{
+				STRING(root, errflag);
+			}
+			else if (NUMBER_start(m_info.offset))
+			{
+				NUMBER(root, errflag);
+			}
+			else if (LOCALIZATION_start(m_info.offset))
+			{
+				LOCALIZATION(root, errflag);
+			}
+			else if (ARRAY_start(m_info.offset))
+			{
+				ARRAY(root, errflag);
+			}
+			else
+			{
+				log(err::NoViableAlternativeValue(m_info));
+				errflag = true;
+			}
+			//thisnode.length = m_info.offset - thisnode.offset;
+			//root.children.push_back(thisnode);
+		}
 
 
-			astnode parse_config(std::string_view codein, helper& h, bool &errflag)
+		astnode config::parse_config(bool& errflag)
+		{
+			astnode node;
+			node.kind = (short)asttype::config::NODELIST;
+			node.offset = 0;
+			node.content = m_file;
+			NODELIST(node, errflag);
+			skip();
+			if (m_info.offset != m_file.length())
 			{
-				const char *code = codein.data();
-				size_t line = 1;
-				size_t col = 0;
-				size_t curoff = 0;
-				astnode node;
-				std::string file;
-				node.kind = configasttypes::NODELIST;
-				node.offset = 0;
-				node.content = codein;
-				NODELIST(h, node, code, line, col, curoff, "", errflag);
-				skip(code, line, col, file, curoff);
-				if (curoff != codein.length())
-				{
-					h.err() << h.dbgsegment(code, curoff, 1) << "[ERR][L" << line << "|C" << col << "]\t" << "Parsing config is done but not at EOF." << std::endl;
-					errflag = true;
-				}
-				node.length = curoff;
-				return node;
+				log(err::EndOfFileNotReached(m_info));
+				errflag = true;
 			}
-			const char * astkindname(short id)
+			node.length = m_info.offset;
+			return node;
+		}
+		const char* config::astkindname(short id)
+		{
+			switch (id)
 			{
-				switch (id)
-				{
-				case configasttypes::NODELIST: return "NODELIST";
-				case configasttypes::NODE: return "NODE";
-				case configasttypes::CONFIGNODE: return "CONFIGNODE";
-				case configasttypes::CONFIGNODE_PARENTIDENT: return "CONFIGNODE_PARENTIDENT";
-				case configasttypes::VALUENODE: return "VALUENODE";
-				case configasttypes::STRING: return "STRING";
-				case configasttypes::NUMBER: return "NUMBER";
-				case configasttypes::HEXNUMBER: return "HEXNUMBER";
-				case configasttypes::LOCALIZATION: return "LOCALIZATION";
-				case configasttypes::ARRAY: return "ARRAY";
-				case configasttypes::VALUE: return "VALUE";
-				default: return "NA";
-				}
+			case (short)asttype::config::NODELIST: return "NODELIST";
+			case (short)asttype::config::NODE: return "NODE";
+			case (short)asttype::config::CONFIGNODE: return "CONFIGNODE";
+			case (short)asttype::config::CONFIGNODE_PARENTIDENT: return "CONFIGNODE_PARENTIDENT";
+			case (short)asttype::config::VALUENODE: return "VALUENODE";
+			case (short)asttype::config::STRING: return "STRING";
+			case (short)asttype::config::NUMBER: return "NUMBER";
+			case (short)asttype::config::HEXNUMBER: return "HEXNUMBER";
+			case (short)asttype::config::LOCALIZATION: return "LOCALIZATION";
+			case (short)asttype::config::ARRAY: return "ARRAY";
+			case (short)asttype::config::VALUE: return "VALUE";
+			default: return "NA";
 			}
 		}
 	}

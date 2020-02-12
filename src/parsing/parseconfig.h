@@ -2,6 +2,8 @@
 #include <string>
 #include "astnode.h"
 #include "helper.h"
+#include "logging.h"
+#include "position_info.h"
 
 
 
@@ -9,57 +11,73 @@ namespace sqf
 {
 	namespace parse
 	{
-		namespace config
+		namespace asttype
 		{
-			namespace configasttypes
+			enum class config
 			{
-				enum configasttypes
-				{
-					NA = 0,
-					NODELIST,
-					NODE,
-					CONFIGNODE,
-					CONFIGNODE_PARENTIDENT,
-					VALUENODE,
-					STRING,
-					NUMBER,
-					HEXNUMBER,
-					LOCALIZATION,
-					ARRAY,
-					VALUE
-				};
+				NA = 0,
+				NODELIST,
+				NODE,
+				CONFIGNODE,
+				CONFIGNODE_PARENTIDENT,
+				VALUENODE,
+				STRING,
+				NUMBER,
+				HEXNUMBER,
+				LOCALIZATION,
+				ARRAY,
+				VALUE
+			};
+		}
+		class config : public CanLog
+		{
+			position_info m_info;
+			std::string_view m_contents;
+			std::string m_file;
+
+			void skip();
+
+			size_t endchr(size_t off);
+			size_t identifier(size_t off);
+			size_t operator_(size_t off);
+			size_t hexadecimal(size_t off);
+			size_t numsub(size_t off);
+			size_t num(size_t off);
+			size_t anytext(size_t off);
+			bool NODELIST_start(size_t curoff);
+			void NODELIST(astnode &root, bool &errflag);
+			bool NODE_start(size_t curoff);
+			void NODE(astnode &root, bool &errflag);
+			bool CONFIGNODE_start(size_t curoff);
+			void CONFIGNODE(astnode &root, bool &errflag);
+			bool VALUENODE_start(size_t curoff);
+			void VALUENODE(astnode &root, bool &errflag);
+			bool STRING_start(size_t curoff);
+			void STRING(astnode &root, bool &errflag);
+			bool NUMBER_start(size_t curoff);
+			void NUMBER(astnode &root, bool &errflag);
+			bool LOCALIZATION_start(size_t curoff);
+			void LOCALIZATION(astnode &root, bool &errflag);
+			bool ARRAY_start(size_t curoff);
+			void ARRAY(astnode &root, bool &errflag);
+			bool VALUE_start(size_t curoff);
+			void VALUE(astnode &root, bool &errflag);
+
+
+
+			config(
+				Logger logger,
+				std::string_view contents,
+				std::string_view file
+			) : CanLog(logger),
+				m_contents(contents),
+				m_file(file)
+			{
+				position_info position_info = { 1, 0, 0, m_file };
+				m_info = position_info;
 			}
-			void skip(const char *code, size_t &curoff);
-			void skip(const char *code, size_t &line, size_t &col, std::string& file, size_t &curoff);
 
-			size_t endchr(const char* code, size_t off);
-			size_t identifier(const char* code, size_t off);
-			size_t operator_(const char* code, size_t off);
-			size_t hexadecimal(const char* code, size_t off);
-			size_t numsub(const char* code, size_t off);
-			size_t num(const char* code, size_t off);
-			size_t anytext(const char* code, size_t off);
-			bool NODELIST_start(const char* code, size_t curoff);
-			void NODELIST(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
-			bool NODE_start(const char* code, size_t curoff);
-			void NODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const std::string& file, bool &errflag);
-			bool CONFIGNODE_start(const char* code, size_t curoff);
-			void CONFIGNODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
-			bool VALUENODE_start(const char* code, size_t curoff);
-			void VALUENODE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
-			bool STRING_start(const char* code, size_t curoff);
-			void STRING(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
-			bool NUMBER_start(const char* code, size_t curoff);
-			void NUMBER(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
-			bool LOCALIZATION_start(const char* code, size_t curoff);
-			void LOCALIZATION(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
-			bool ARRAY_start(const char* code, size_t curoff);
-			void ARRAY(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, std::string file, bool &errflag);
-			bool VALUE_start(const char* code, size_t curoff);
-			void VALUE(helper &h, astnode &root, const char* code, size_t &line, size_t &col, size_t &curoff, const std::string& file, bool &errflag);
-
-
-			astnode parse_config(std::string_view codein, helper& h, bool &errflag);
+			astnode parse_config(bool& errflag);
 			const char* astkindname(short id);
 		}
 	}

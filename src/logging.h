@@ -484,15 +484,100 @@ namespace logmessage {
 		protected:
 			LogLocationInfo location;
 		};
-
-		// To be replaced when config parser is rewritten
-		class ConfigErrorPlaceholder : public ConfigBase {
+		class ExpectedStatementTerminator : public ConfigBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 40001;
-			std::string m_errormessage;
 		public:
-			ConfigErrorPlaceholder(LogLocationInfo loc, std::string errormessage) : ConfigBase(level, errorCode, std::move(loc)), m_errormessage(errormessage) {}
-			[[nodiscard]] std::string formatMessage() const override { return m_errormessage; }
+			ExpectedStatementTerminator(LogLocationInfo loc) : ConfigBase(level, errorCode, std::move(loc)) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class NoViableAlternativeNode : public ConfigBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40002;
+		public:
+			NoViableAlternativeNode(LogLocationInfo loc) :
+				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedIdentifier : public ConfigBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40003;
+		public:
+			ExpectedIdentifier(LogLocationInfo loc) :
+				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MissingRoundClosingBracket : public ConfigBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40004;
+		public:
+			MissingRoundClosingBracket(LogLocationInfo loc) :
+				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MissingCurlyOpeningBracket : public ConfigBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40005;
+		public:
+			MissingCurlyOpeningBracket(LogLocationInfo loc) :
+				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MissingCurlyClosingBracket : public ConfigBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40006;
+		public:
+			MissingCurlyClosingBracket(LogLocationInfo loc) :
+				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MissingSquareClosingBracket : public ConfigBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40007;
+		public:
+			MissingSquareClosingBracket(LogLocationInfo loc) :
+				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MissingEqualSign : public ConfigBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40008;
+		public:
+			MissingEqualSign(LogLocationInfo loc) :
+				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedArray : public ConfigBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40009;
+		public:
+			ExpectedArray(LogLocationInfo loc) :
+				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedValue : public ConfigBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40010;
+		public:
+			ExpectedValue(LogLocationInfo loc) :
+				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class NoViableAlternativeValue : public ConfigBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40011;
+		public:
+			NoViableAlternativeValue(LogLocationInfo loc) :
+				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class EndOfFileNotReached : public ConfigBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 40012;
+		public:
+			EndOfFileNotReached(LogLocationInfo loc) :
+				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
 		};
 	}
 }

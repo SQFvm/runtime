@@ -645,7 +645,7 @@ namespace logmessage::sqf
 	std::string MissingCurlyClosingBracket::formatMessage() const
 	{
 		auto output = location.format();
-		const auto message = "Missing round curly bracket (`}`)."sv;
+		const auto message = "Missing curly closing bracket (`}`)."sv;
 
 		output.reserve(
 			output.length()
@@ -711,6 +711,180 @@ namespace logmessage::sqf
 	{
 		auto output = location.format();
 		const auto message = "Unexpected end-of-file reached."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+}
+
+namespace logmessage::config
+{
+	std::string ExpectedStatementTerminator::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected Statement termination using `;`."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NoViableAlternativeNode::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "No viable alternative for Statement. Expected Confignode or Valuenode."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedIdentifier::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected Identifier."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedIdentifier::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected Identifier."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string MissingRoundClosingBracket::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Missing round closing bracket (`)`)."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string MissingCurlyOpeningBracket::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Missing curly opening bracket (`{`)."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string MissingCurlyClosingBracket::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Missing curly closing bracket (`}`)."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string MissingSquareClosingBracket::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Missing square closing bracket (`]`)."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string MissingEqualSign::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Missing equal sign (`=`)."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedArray::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected Array."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedValue::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected Value."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NoViableAlternativeValue::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "No viable alternative for Value. Expected String or Number or Localization or Array."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string EndOfFileNotReached::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Parsing terminated before end of file was reached. "sv
+			"This usually means that your provided config contains errors that the parser could not catch. "sv;
 
 		output.reserve(
 			output.length()
