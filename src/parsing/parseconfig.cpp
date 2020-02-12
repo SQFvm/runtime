@@ -5,7 +5,6 @@
 #include <sstream>
 #include "astnode.h"
 #include "compiletime.h"
-#include "helper.h"
 #include "parseconfig.h"
 #include "string_op.h"
 /*
@@ -152,7 +151,7 @@ namespace sqf
 			std::string ident;
 			if ((len = identifier(m_info.offset)) > 0)
 			{
-				ident = std::string(m_info.offset, len);
+				ident = std::string(m_file.substr(m_info.offset, len));
 				thisnode.content = ident;
 				thisnode.line = m_info.line;
 				thisnode.file = m_info.file;
@@ -172,7 +171,7 @@ namespace sqf
 				skip();
 				if ((len = identifier(m_info.offset)) > 0)
 				{
-					ident = std::string(m_info.offset, len);
+					ident = std::string(m_file.substr(m_info.offset, len));
 					astnode parentidentnode;
 					parentidentnode.offset = m_info.offset;
 					parentidentnode.length = len;
@@ -365,7 +364,7 @@ namespace sqf
 			}
 			i++;
 			m_info.column++;
-			auto fullstring = std::string(m_info.offset, i);
+			auto fullstring = std::string(m_file.substr(m_info.offset, i));
 			thisnode.content = fullstring;
 			thisnode.length = i - m_info.offset;
 			thisnode.offset = m_info.offset;
@@ -386,7 +385,7 @@ namespace sqf
 				thisnode.kind = (short)asttype::config::HEXNUMBER;
 				size_t i;
 				for (i = m_info.offset + 2; (m_file[i] >= '0' && m_file[i] <= '9') || (m_file[i] >= 'A' && m_file[i] <= 'F') || (m_file[i] >= 'a' && m_file[i] <= 'f'); i++);
-				auto ident = std::string(m_info.offset, i);
+				auto ident = std::string(m_file.substr(m_info.offset, i));
 				thisnode.content = ident;
 				thisnode.offset = m_info.offset;
 				thisnode.length = i - m_info.offset;
@@ -433,7 +432,7 @@ namespace sqf
 					}
 
 				}
-				auto ident = std::string(m_info.offset, i);
+				auto ident = std::string(m_file.substr(m_info.offset, i));
 				thisnode.content = ident;
 				thisnode.offset = m_info.offset;
 				thisnode.length = i - m_info.offset;
@@ -452,7 +451,7 @@ namespace sqf
 			m_info.offset++;;
 			m_info.column++;
 			auto len = identifier(m_info.offset);
-			auto ident = std::string(m_info.offset, len);
+			auto ident = std::string(m_file.substr(m_info.offset, len));
 			thisnode.content = ident;
 			thisnode.length = len;
 			thisnode.offset = m_info.offset;

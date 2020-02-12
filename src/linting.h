@@ -1,5 +1,5 @@
 #pragma once
-#include "astnode.h"
+#include "parsing/astnode.h"
 #include <vector>
 #include <string>
 namespace sqf

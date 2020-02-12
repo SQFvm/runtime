@@ -9,9 +9,9 @@
 #include "virtualmachine.h"
 #include "parsing/astnode.h"
 #include "parsing/debugsegment.h"
-#include "helper.h"
 #include "parsing/parsesqf.h"
 #include "parsing/parseconfig.h"
+#include "parsing/parsepreprocessor.h"
 #include "instruction.h"
 #include "instassignto.h"
 #include "instassigntolocal.h"
@@ -54,7 +54,7 @@
 
 
 
-sqf::virtualmachine::virtualmachine(unsigned long long maxinst)
+sqf::virtualmachine::virtualmachine(Logger& logger, unsigned long long maxinst) : CanLog(logger)
 {
 	mout = &std::cout;
 	mwrn = &std::cerr;
@@ -699,12 +699,12 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, sqf::p
 }
 sqf::parse::astnode sqf::virtualmachine::parse_sqf_cst(std::string_view code, bool& errorflag, std::string filename)
 {
-	auto parser = sqf::parse::sqf(todo-logger, contains_nular, contains_unary, contains_binary, precedence, code, filename);
+	auto parser = sqf::parse::sqf(get_logger(), contains_nular, contains_unary, contains_binary, precedence, code, filename);
 	return parser.parse(errorflag);
 }
 void sqf::virtualmachine::parse_sqf_tree(std::string_view code, std::stringstream* sstream)
 {
-	auto parser = sqf::parse::sqf(todo - logger, contains_nular, contains_unary, contains_binary, precedence, code, ""sv);
+	auto parser = sqf::parse::sqf(get_logger(), contains_nular, contains_unary, contains_binary, precedence, code, ""sv);
 	bool errorflag = false;
 	auto node = parser.parse(errorflag);
 	print_navigate_ast(sstream, node, sqf::parse::sqf::astkindname);
@@ -716,7 +716,7 @@ bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 		cs = std::make_shared<sqf::callstack>(this->missionnamespace());
 		vmstck->push_back(cs);
 	}
-	auto parser = sqf::parse::sqf(todo - logger, contains_nular, contains_unary, contains_binary, precedence, code, filename);
+	auto parser = sqf::parse::sqf(get_logger(), contains_nular, contains_unary, contains_binary, precedence, code, filename);
 	bool errorflag = false;
 	auto node = parser.parse(errorflag);
 	if (!errorflag)
@@ -726,12 +726,18 @@ bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 	}
 	return errorflag;
 }
+std::string sqf::virtualmachine::preprocess(std::string input, bool& errflag, std::string filename)
+{
+	auto parser = sqf::parse::preprocessor(get_logger(), this);
+	auto parsedcontents = parser.parse(this, std::move(input), errflag, filename);
+	return parsedcontents;
+}
 void sqf::virtualmachine::pretty_print_sqf(std::string_view code)
 {
-	auto parser = sqf::parse::sqf(todo - logger, contains_nular, contains_unary, contains_binary, precedence, code, "");
+	auto parser = sqf::parse::sqf(get_logger(), contains_nular, contains_unary, contains_binary, precedence, code, "");
 	bool errorflag = false;
 	auto node = parser.parse(errorflag);
-	if (!errflag)
+	if (!errorflag)
 	{
 		navigate_pretty_print_sqf(code.data(), this, node, 0);
 	}
@@ -807,7 +813,7 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 }
 void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<configdata> parent)
 {
-	auto parser = sqf::parse::config(todo - logger, code, "");
+	auto parser = sqf::parse::config(get_logger(), code, "");
 	bool errorflag = false;
 	auto node = parser.parse(errorflag);
 //#if defined(_DEBUG)
@@ -821,7 +827,7 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 //	}
 //#endif
 
-	if (!errflag)
+	if (!errorflag)
 	{
 		navigate_config(code.data(), this, std::move(parent), node);
 	}

@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include "astnode.h"
-#include "helper.h"
 #include "logging.h"
 #include "position_info.h"
 
@@ -45,28 +44,28 @@ namespace sqf
 			size_t num(size_t off);
 			size_t anytext(size_t off);
 			bool NODELIST_start(size_t curoff);
-			void NODELIST(astnode &root, bool &errflag);
+			void NODELIST(astnode& root, bool& errflag);
 			bool NODE_start(size_t curoff);
-			void NODE(astnode &root, bool &errflag);
+			void NODE(astnode& root, bool& errflag);
 			bool CONFIGNODE_start(size_t curoff);
-			void CONFIGNODE(astnode &root, bool &errflag);
+			void CONFIGNODE(astnode& root, bool& errflag);
 			bool VALUENODE_start(size_t curoff);
-			void VALUENODE(astnode &root, bool &errflag);
+			void VALUENODE(astnode& root, bool& errflag);
 			bool STRING_start(size_t curoff);
-			void STRING(astnode &root, bool &errflag);
+			void STRING(astnode& root, bool& errflag);
 			bool NUMBER_start(size_t curoff);
-			void NUMBER(astnode &root, bool &errflag);
+			void NUMBER(astnode& root, bool& errflag);
 			bool LOCALIZATION_start(size_t curoff);
-			void LOCALIZATION(astnode &root, bool &errflag);
+			void LOCALIZATION(astnode& root, bool& errflag);
 			bool ARRAY_start(size_t curoff);
-			void ARRAY(astnode &root, bool &errflag);
+			void ARRAY(astnode& root, bool& errflag);
 			bool VALUE_start(size_t curoff);
-			void VALUE(astnode &root, bool &errflag);
+			void VALUE(astnode& root, bool& errflag);
 
 
 		public:
 			config(
-				Logger logger,
+				Logger& logger,
 				std::string_view contents,
 				std::string_view file
 			) : CanLog(logger),
@@ -96,6 +95,6 @@ namespace sqf
 				default: return "NA";
 				}
 			}
-		}
+		};
 	}
 }

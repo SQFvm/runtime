@@ -116,7 +116,7 @@ namespace sqf
 		public:
 
 			sqf(
-				Logger logger,
+				Logger& logger,
 				bool(*contains_nular)(std::string_view),
 				bool(*contains_unary)(std::string_view),
 				bool(*contains_binary)(std::string_view, short),

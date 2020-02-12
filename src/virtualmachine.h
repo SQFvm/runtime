@@ -14,6 +14,7 @@
 
 #include "dlops.h"
 #include "marker.h"
+#include "logging.h"
 #include "filesystem.h"
 #include "parsing/astnode.h"
 #include "parsing/macro.h"
@@ -36,7 +37,7 @@ namespace sqf
 		class client;
 		class server;
 	}
-	class virtualmachine
+	class virtualmachine : public CanLog
 	{
 	public:
 		enum class evaction
@@ -140,8 +141,9 @@ namespace sqf
 		void execute_helper_execution_abort();
 		bool execute_helper_execution_end();
 	public:
-		virtualmachine() : virtualmachine(0) {};
-		virtualmachine(unsigned long long maxinst);
+		virtualmachine() : virtualmachine(StdOutLogger(), 0) {};
+		virtualmachine(unsigned long long maxinst) : virtualmachine(StdOutLogger(), 0) {};
+		virtualmachine(Logger& logger, unsigned long long maxinst);
 		~virtualmachine();
 
 		void push_macro(sqf::parse::macro macro) { m_preprocessor_macros.push_back(macro); }
@@ -303,6 +305,8 @@ namespace sqf
 		// In all cases, the corresponding wrn_ and out_ methods
 		// Also should be checked in case they contain additional info.
 		bool parse_sqf(std::shared_ptr<sqf::vmstack>, std::string_view, std::shared_ptr<sqf::callstack>, std::string = "");
+
+		std::string preprocess(std::string input, bool& errflag, std::string filename);
 
 		sqf::parse::astnode parse_sqf_cst(std::string_view code, std::string filepath = "") { bool errflag = false; return parse_sqf_cst(code, errflag, filepath); }
         sqf::parse::astnode parse_sqf_cst(std::string_view code, bool& errorflag, std::string filepath = "");

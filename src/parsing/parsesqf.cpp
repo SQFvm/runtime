@@ -1,6 +1,5 @@
 #include "astnode.h"
 #include "compiletime.h"
-#include "helper.h"
 #include "parsesqf.h"
 #include "string_op.h"
 #include <algorithm>

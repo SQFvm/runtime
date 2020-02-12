@@ -7,7 +7,6 @@
 #include "vmstack.h"
 #include "configdata.h"
 #include "fileio.h"
-#include "parsepreprocessor.h"
 #include "git_sha1.h"
 #include "networking.h"
 #include "networking/network_server.h"
@@ -202,9 +201,6 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg disableClassnameCheckArg("c", "check-classnames", "Enables the config checking for eg. createVehicle.", false);
 	cmd.add(disableClassnameCheckArg);
 
-	TCLAP::SwitchArg disableMacroWarningsArg("", "disable-macro-warnings", "Disables the warning for duplicate defines and undefines without a corresponding define.\n", false);
-	cmd.add(disableMacroWarningsArg);
-
 	TCLAP::SwitchArg disableRuntimeWarningsArg("", "disable-runtime-warnings", "Disables the runtime warning messages raised by SQF-VM.\n", false);
 	cmd.add(disableRuntimeWarningsArg);
 
@@ -354,7 +350,6 @@ int main(int argc, char** argv)
 	bool verbose = verboseArg.getValue();
 
 
-	sqf::parse::preprocessor::settings::disable_warn_define = disableMacroWarningsArg.getValue();
 
 	sqf::virtualmachine vm;
 	sqf::commandmap::get().init();
@@ -518,7 +513,7 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
-			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
+			auto ppedStr = vm.preprocess(str, err, sanitized);
 			if (err)
 			{
 				vm.err_buffprint();
@@ -558,7 +553,7 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
-			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
+			auto ppedStr = vm.preprocess(str, err, sanitized);
 			if (err)
 			{
 				vm.err_buffprint();
@@ -607,7 +602,7 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
-			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
+			auto ppedStr = vm.preprocess(str, err, sanitized);
 			if (err)
 			{
 				vm.err_buffprint();
@@ -710,12 +705,7 @@ int main(int argc, char** argv)
 
 			auto input = sstream.str();
 			bool err = false;
-			auto inputAfterPP = sqf::parse::preprocessor::parse(
-				&vm,
-				input,
-				err,
-				(std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string()
-			);
+			auto inputAfterPP = vm.preprocess(input, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
 			if (err || vm.err_hasdata())
 			{
 				vm.err_buffprint();

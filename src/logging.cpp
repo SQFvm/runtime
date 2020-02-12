@@ -1,41 +1,26 @@
 #include "logging.h"
 #include "parsing/parsepreprocessor.h"
 #include "parsing/position_info.h"
+#include "parsing/astnode.h"
 #include "instruction.h"
+#include <iostream>
 using namespace std::string_view_literals;
 
-#pragma region Logger
-
-Logger::Logger(std::ostream& target): logTarget(target) {
+#pragma region StreamLogger
+StreamLogger::StreamLogger(std::ostream& target): logTarget(target) {
     std::fill(enabledWarningLevels.begin(), enabledWarningLevels.end(), true);
-
-#ifndef _DEBUG
-    setEnabled(loglevel::trace, false);
-#endif
 }
-
-void Logger::log(loglevel level, std::string_view message) {
+void StreamLogger::log(loglevel level, std::string_view message) {
     std::unique_lock lock(streamLock);
-
-    switch (level) {
-        case loglevel::fatal: logTarget << "[FAT]"; break;
-        case loglevel::error: logTarget << "[ERR]"; break;
-        case loglevel::warning: logTarget << "[WRN]"; break;
-        case loglevel::info: logTarget << "[INF]"; break;
-		case loglevel::verbose: logTarget << "[VBS]"; break;
-        case loglevel::trace: logTarget << "[TRC]"; break;
-        default: ;
-    }
-
-    logTarget << message;
+    logTarget << Logger::loglevelstring(level) << ' ' << message << std::endl;
 }
-
-
-void Logger::log(loglevel, const char* format, ...) {
-    
+#pragma endregion StreamLogger
+#pragma region StdOutLogger
+void StdOutLogger::log(loglevel level, std::string_view message) {
+	auto& logTarget = std::cout;
+    logTarget << Logger::loglevelstring(level) << ' ' << message << std::endl;
 }
-
-#pragma endregion Logger
+#pragma endregion StdOutLogger
 
 #pragma region LogLocationInfo
 
@@ -43,6 +28,11 @@ LogLocationInfo::LogLocationInfo(const sqf::parse::preprocessorfileinfo& info) {
     path = info.path;
     line = info.line;
     col = info.col;
+}
+LogLocationInfo::LogLocationInfo(const sqf::parse::astnode& node) {
+    path = node.file;
+    line = node.line;
+    col = node.col;
 }
 
 LogLocationInfo::LogLocationInfo(const sqf::parse::position_info& info)
@@ -763,19 +753,6 @@ namespace logmessage::config
 		output.append(message);
 		return output;
 	}
-	std::string ExpectedIdentifier::formatMessage() const
-	{
-		auto output = location.format();
-		const auto message = "Expected Identifier."sv;
-
-		output.reserve(
-			output.length()
-			+ message.length()
-		);
-
-		output.append(message);
-		return output;
-	}
 	std::string MissingRoundClosingBracket::formatMessage() const
 	{
 		auto output = location.format();
@@ -892,6 +869,25 @@ namespace logmessage::config
 		);
 
 		output.append(message);
+		return output;
+	}
+}
+namespace logmessage::linting
+{
+	std::string UnassignedVariable::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "Unassigned variable '"sv.length()
+			+ m_variable_name.length()
+			+ "'."sv.length()
+		);
+
+		output.append("Unassigned variable '"sv);
+		output.append(m_variable_name);
+		output.append("'."sv);
 		return output;
 	}
 }

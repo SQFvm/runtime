@@ -1,8 +1,10 @@
 #include "linting.h"
 #include "virtualmachine.h"
-#include "parsesqf.h"
+#include "parsing/parsesqf.h"
+#include "logging.h"
 #include <algorithm>
 
+namespace err = logmessage::linting;
 namespace sqf
 {
 	namespace linting
@@ -17,11 +19,12 @@ namespace sqf
 			std::vector<std::vector<std::string>> m_existing_variables2;
 			std::vector<std::string> m_operators;
 
-			void check(sqf::virtualmachine* vm, const char* code, const astnode& node, sqf::virtualmachine::evaction act)
+			void check(sqf::virtualmachine* vm, const char* code, const sqf::parse::astnode& node, sqf::virtualmachine::evaction act)
 			{
-				switch (node.kind)
+				auto kind = static_cast<sqf::parse::asttype::sqf>(node.kind);
+				switch (kind)
 				{
-				case sqf::parse::sqf::sqfasttypes::UNARYOP:
+				case sqf::parse::asttype::sqf::UNARYOP:
 					if (act == sqf::virtualmachine::evaction::enter)
 					{
 						std::string operatorname = node.content;
@@ -29,13 +32,13 @@ namespace sqf
 						m_operators.push_back(operatorname);
 					}
 					break;
-				case sqf::parse::sqf::sqfasttypes::UNARYEXPRESSION:
+				case sqf::parse::asttype::sqf::UNARYEXPRESSION:
 					if (act == sqf::virtualmachine::evaction::exit)
 					{
 						m_operators.pop_back();
 					}
 					break;
-				case sqf::parse::sqf::sqfasttypes::BINARYOP:
+				case sqf::parse::asttype::sqf::BINARYOP:
 					if (act == sqf::virtualmachine::evaction::enter)
 					{
 						std::string operatorname = node.content;
@@ -43,19 +46,19 @@ namespace sqf
 						m_operators.push_back(operatorname);
 					}
 					break;
-				case sqf::parse::sqf::sqfasttypes::BINARYEXPRESSION:
+				case sqf::parse::asttype::sqf::BINARYEXPRESSION:
 					if (act == sqf::virtualmachine::evaction::exit)
 					{
 						m_operators.pop_back();
 					}
 					break;
-				case sqf::parse::sqf::sqfasttypes::STRING:
+				case sqf::parse::asttype::sqf::STRING:
 					if (act == sqf::virtualmachine::evaction::enter)
 					{
 						auto operatorname = m_operators.back();
 						if (operatorname == "private" ||
 							operatorname == "for" ||
-							(operatorname == "params" && node.kind == sqf::parse::sqf::sqfasttypes::STRING))
+							(operatorname == "params" && kind == sqf::parse::asttype::sqf::STRING))
 						{
 							auto varname = node.content;
 							std::transform(varname.begin(), varname.end(), varname.begin(), [](unsigned char c) { return std::tolower(c); });
@@ -64,7 +67,7 @@ namespace sqf
 						}
 					}
 					break;
-				case sqf::parse::sqf::sqfasttypes::SQF:
+				case sqf::parse::asttype::sqf::SQF:
 					if (act == sqf::virtualmachine::evaction::enter)
 					{
 						m_existing_variables2.push_back({});
@@ -82,7 +85,7 @@ namespace sqf
 						m_existing_variables2.clear();
 					}
 					break;
-				case sqf::parse::sqf::sqfasttypes::CODE:
+				case sqf::parse::asttype::sqf::CODE:
 				{
 					if (act == sqf::virtualmachine::evaction::enter)
 					{
@@ -98,8 +101,8 @@ namespace sqf
 					}
 				}
 				break;
-				case sqf::parse::sqf::sqfasttypes::ASSIGNMENT:
-				case sqf::parse::sqf::sqfasttypes::ASSIGNMENTLOCAL:
+				case sqf::parse::asttype::sqf::ASSIGNMENT:
+				case sqf::parse::asttype::sqf::ASSIGNMENTLOCAL:
 				{
 					if (act != sqf::virtualmachine::evaction::enter)
 					{
@@ -116,7 +119,7 @@ namespace sqf
 					m_existing_variables2.back().push_back(varname);
 				}
 				break;
-				case sqf::parse::sqf::sqfasttypes::VARIABLE:
+				case sqf::parse::asttype::sqf::VARIABLE:
 				{
 					if (act != sqf::virtualmachine::evaction::enter)
 					{
@@ -132,7 +135,7 @@ namespace sqf
 					auto find_result = std::find(m_existing_variables.begin(), m_existing_variables.end(), varname);
 					if (find_result == m_existing_variables.end())
 					{
-						vm->wrn() << vm->dbgsegment(code, node.offset, node.length) << "[WRN][L" << node.line << "|C" << node.col << "]\t" << "Unassigned Variable Detected." << std::endl;
+						vm->log(err::UnassignedVariable(node, varname));
 					}
 				}
 				break;
@@ -147,7 +150,7 @@ namespace sqf
 			case sqf::linting::private_var_usage:
 			{
 				vm->register_callback([instance = private_var_usage_check()](
-					sqf::virtualmachine * vm, const char* code, const astnode & node, sqf::virtualmachine::evaction act) mutable -> void
+					sqf::virtualmachine * vm, const char* code, const sqf::parse::astnode& node, sqf::virtualmachine::evaction act) mutable -> void
 				{
 					instance.check(vm, code, node, act);
 				});

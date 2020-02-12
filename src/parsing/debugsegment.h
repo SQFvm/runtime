@@ -6,7 +6,7 @@ namespace sqf
 {
 	namespace parse
 	{
-		std::string dbgsegment(std::string_view view, size_t off, size_t length)
+		inline std::string dbgsegment(std::string_view view, size_t off, size_t length)
 		{
 			size_t i = off < 15 ? 0 : off - 15;
 			size_t len = 30 + length;

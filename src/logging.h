@@ -3,6 +3,9 @@
 #include <mutex>
 #include <utility>
 #include <vector>
+#include <string_view>
+
+using namespace std::string_view_literals;
 
 enum class loglevel {
     fatal,
@@ -16,6 +19,7 @@ enum class loglevel {
 namespace sqf {
     class instruction;
     namespace parse {
+		struct astnode;
 		class preprocessorfileinfo;
 		class position_info;
     }
@@ -25,6 +29,7 @@ class LogLocationInfo {
 public:
     LogLocationInfo() = default;
     LogLocationInfo(const sqf::parse::preprocessorfileinfo&);
+    LogLocationInfo(const sqf::parse::astnode&);
     LogLocationInfo(const sqf::parse::position_info&);
     LogLocationInfo(const sqf::instruction&);
 
@@ -55,32 +60,51 @@ protected:
     loglevel level = loglevel::verbose;
     size_t errorCode;
 };
-
 class Logger {
-    std::ostream& logTarget;
-    std::mutex streamLock;
-
-    std::vector<bool> enabledWarningLevels;
+protected:
+	std::vector<bool> enabledWarningLevels;
 public:
-    Logger(std::ostream& target);
+	[[nodiscard]] bool isEnabled(loglevel level) const {
+		return enabledWarningLevels[static_cast<size_t>(level)];
+	}
+	void setEnabled(loglevel level, bool isEnabled) {
+		enabledWarningLevels[static_cast<size_t>(level)] = isEnabled;
+	}
+	virtual void log(loglevel, std::string_view message) = 0;
+	static std::string_view loglevelstring(loglevel level)
+	{
+		switch (level) {
+		case loglevel::fatal: return "[FAT]"sv;
+		case loglevel::error: return "[ERR]"sv;
+		case loglevel::warning: return "[WRN]"sv;
+		case loglevel::info: return "[INF]"sv;
+		case loglevel::verbose: return "[VBS]"sv;
+		case loglevel::trace: return "[TRC]"sv;
+		default: return "[???]"sv;
+		}
+	}
+};
+class StreamLogger : public Logger {
+	std::ostream& logTarget;
+	std::mutex streamLock;
 
-    [[nodiscard]] bool isEnabled(loglevel level) const {
-        return enabledWarningLevels[static_cast<size_t>(level)];
-    }
+public:
+	StreamLogger(std::ostream& target);
 
-    void setEnabled(loglevel level, bool isEnabled) {
-        enabledWarningLevels[static_cast<size_t>(level)] = isEnabled;
-    }
+	void log(loglevel, std::string_view message);
+};
+class StdOutLogger : public Logger {
+public:
+	StdOutLogger() {}
 
-    void log(loglevel, std::string_view message);
-    void log(loglevel, const char* format, ...);
+	void log(loglevel, std::string_view message);
 };
 
 //Classes that can log, inherit from this
 class CanLog {
     Logger& m_logger;
 protected:
-	const Logger& get_logger() { return m_logger; }
+	Logger& get_logger() { return m_logger; }
 public:
     CanLog(Logger& logger) : m_logger(logger) {}
     void log(LogMessageBase&& message) const;
@@ -577,6 +601,26 @@ namespace logmessage {
 		public:
 			EndOfFileNotReached(LogLocationInfo loc) :
 				ConfigBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+	}
+	namespace linting
+	{
+		class LintingBase : public LogMessageBase {
+		public:
+			LintingBase(loglevel level, size_t errorCode, LogLocationInfo location) :
+				LogMessageBase(level, errorCode), location(std::move(location)) {}
+		protected:
+			LogLocationInfo location;
+		};
+		class UnassignedVariable : public LintingBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 50001;
+			std::string_view m_variable_name;
+		public:
+			UnassignedVariable(LogLocationInfo loc, std::string_view variable_name) :
+				LintingBase(level, errorCode, std::move(loc)),
+				m_variable_name(variable_name) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
 	}

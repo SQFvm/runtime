@@ -42,7 +42,7 @@ void sqf::parse::preprocessor::replace_stringify(
 		auto word_end = replace_find_wordend(local_fileinfo);
 		std::string word;
 		word.resize(word_end);
-		for (int i = 0; i < word_end; i++)
+		for (size_t i = 0; i < word_end; i++)
 		{
 			word[i] = local_fileinfo.next();
 		}
@@ -92,7 +92,7 @@ void sqf::parse::preprocessor::replace_concat(
 	auto word_end = replace_find_wordend(local_fileinfo);
 	std::string word;
 	word.resize(word_end);
-	for (int i = 0; i < word_end; i++)
+	for (size_t i = 0; i < word_end; i++)
 	{
 		word[i] = local_fileinfo.next();
 	}
@@ -259,7 +259,7 @@ std::string sqf::parse::preprocessor::replace(preprocessorfileinfo& original_fil
 			{
 				std::string word;
 				word.resize(word_end);
-				for (int i = 0; i < word_end; i++)
+				for (size_t i = 0; i < word_end; i++)
 				{
 					word[i] = local_fileinfo.next();
 				}

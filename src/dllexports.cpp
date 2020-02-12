@@ -4,7 +4,6 @@
 #include "value.h"
 #include "vmstack.h"
 #include "configdata.h"
-#include "parsepreprocessor.h"
 #include "Entry.h"
 #include <iostream>
 #include <sstream>
@@ -57,7 +56,7 @@ extern "C" {
 
 		bool err;
 		auto executable_path = get_working_dir();
-		auto inputAfterPP = sqf::parse::preprocessor::parse(sqfvm_virtualmachine.get(), code, err, "__libraryfeed.sqf");
+		auto inputAfterPP = sqfvm_virtualmachine->preprocess(code, err, "__libraryfeed.sqf");
 		if (!err)
 		{
 			sqfvm_virtualmachine->parse_sqf(inputAfterPP, "__libraryfeed.sqf");

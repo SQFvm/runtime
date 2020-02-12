@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <optional>
 
 namespace sqf
 {
@@ -211,7 +212,6 @@ namespace sqf
 			std::unordered_map<std::string, macro> m_macros;
 			bool m_errflag = false;
 			bool m_allowwrite = true;
-			bool m_allowwrite = true;
 			virtualmachine* m_vm;
 
 			void replace_stringify(
@@ -255,8 +255,8 @@ namespace sqf
 
 			void replace_skip(preprocessorfileinfo& fileinfo, std::stringstream& sstream);
 		public:
-			preprocessor(virtualmachine* vm, Logger& ref_logger) : CanLog(ref_logger), m_vm(vm) {}
-			std::string parse(sqf::virtualmachine* vm, std::string input, bool &errflag, std::string filename);
+			preprocessor(Logger& ref_logger, virtualmachine* vm) : CanLog(ref_logger), m_vm(vm) {}
+			std::string parse(::sqf::virtualmachine* vm, std::string input, bool &errflag, std::string filename);
 			bool inside_ppif_err_flag() { return m_inside_ppif_err_flag; }
 			bool inside_ppif() { return m_inside_ppf_tree.back(); }
 			bool errflag() { return m_errflag; }

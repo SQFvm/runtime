@@ -23,7 +23,7 @@
 #include "../Entry.h"
 #include "../sqfnamespace.h"
 #include "../fileio.h"
-#include "../parsepreprocessor.h"
+#include "../parsing/parsepreprocessor.h"
 #include "../git_sha1.h"
 #include <cmath>
 #include "booldata.h"
@@ -480,7 +480,7 @@ namespace
 			vm->wrn() << "From index (" << from << ") is less then 0." << std::endl;
 			return {};
 		}
-		if (to >= arr->size())
+		if (to >= (int)arr->size())
 		{
 			vm->wrn() << "To index (" << to << ") is larger then or equal to array size (" << arr->size() << ")then 0." << std::endl;
 			to = arr->size() - 1;
@@ -1337,7 +1337,7 @@ namespace
 		{
 			auto filecontents = load_file(res.value());
 			bool errflag = false;
-			auto parsedcontents = sqf::parse::preprocessor::parse(vm, filecontents, errflag, res.value());
+			auto parsedcontents = vm->preprocess(filecontents, errflag, res.value());
 			return parsedcontents;
 		}
 	}
@@ -1433,7 +1433,7 @@ namespace
 		{
 			auto filecontents = load_file(res.value());
 			bool errflag = false;
-			auto parsedcontents = sqf::parse::preprocessor::parse(vm, filecontents, errflag, res.value());
+			auto parsedcontents = vm->preprocess(filecontents, errflag, res.value());
 			auto cs = std::make_shared<callstack>(vm->active_vmstack()->stacks_top()->get_namespace());
 			auto script = std::make_shared<scriptdata>();
 			vm->parse_sqf(parsedcontents, cs);

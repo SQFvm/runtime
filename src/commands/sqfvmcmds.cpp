@@ -15,7 +15,7 @@
 #include "../arraydata.h"
 #include "../innerobj.h"
 #include "../objectdata.h"
-#include "../parsepreprocessor.h"
+#include "../parsing/parsepreprocessor.h"
 #include "../vmstack.h"
 #include "../sqfnamespace.h"
 #include "../callstack_sqftry.h"
@@ -295,7 +295,7 @@ namespace
 	{
 		auto content = right.as_string();
 		bool errflag = false;
-		auto ppres = sqf::parse::preprocessor::parse(vm, content, errflag, "__preprocess__.sqf");
+		auto ppres = vm->preprocess(content, errflag, "__preprocess__.sqf");
 		if (errflag)
 		{
 			return {};
