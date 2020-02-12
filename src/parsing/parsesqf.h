@@ -45,6 +45,7 @@ namespace sqf
 		class sqf : public CanLog
 		{
 		private:
+			position_info m_info;
 			std::string_view m_contents;
 			std::string m_file;
 			bool(*m_contains_nular)(std::string_view);
@@ -65,52 +66,52 @@ namespace sqf
 			size_t scalar(size_t off);
 			size_t anytext(size_t off);
 			bool SQF_start(size_t curoff);
-			void SQF(astnode& root, position_info& info, bool& errflag);
+			void SQF(astnode& root, bool& errflag);
 			bool STATEMENT_start(size_t curoff);
-			void STATEMENT(astnode& root, position_info& info, bool& errflag);
+			void STATEMENT(astnode& root, bool& errflag);
 			bool ASSIGNMENT_start(size_t curoff);
-			void ASSIGNMENT(astnode& root, position_info& info, bool& errflag);
+			void ASSIGNMENT(astnode& root, bool& errflag);
 			void bexp_orderfix(::sqf::parse::astnode& root, ::sqf::parse::astnode thisnode, short plevel);
 			bool bexp10_start(size_t curoff);
-			void bexp10(::sqf::parse::astnode& root, position_info& info, bool& errflag);
+			void bexp10(::sqf::parse::astnode& root, bool& errflag);
 			bool bexp9_start(size_t curoff);
-			void bexp9(::sqf::parse::astnode& root, position_info& info, bool& errflag);
+			void bexp9(::sqf::parse::astnode& root, bool& errflag);
 			bool bexp8_start(size_t curoff);
-			void bexp8(::sqf::parse::astnode& root, position_info& info, bool& errflag);
+			void bexp8(::sqf::parse::astnode& root, bool& errflag);
 			bool bexp7_start(size_t curoff);
-			void bexp7(::sqf::parse::astnode& root, position_info& info, bool& errflag);
+			void bexp7(::sqf::parse::astnode& root, bool& errflag);
 			bool bexp6_start(size_t curoff);
-			void bexp6(::sqf::parse::astnode& root, position_info& info, bool& errflag);
+			void bexp6(::sqf::parse::astnode& root, bool& errflag);
 			bool bexp5_start(size_t curoff);
-			void bexp5(::sqf::parse::astnode& root, position_info& info, bool& errflag);
+			void bexp5(::sqf::parse::astnode& root, bool& errflag);
 			bool bexp4_start(size_t curoff);
-			void bexp4(::sqf::parse::astnode& root, position_info& info, bool& errflag);
+			void bexp4(::sqf::parse::astnode& root, bool& errflag);
 			bool bexp3_start(size_t curoff);
-			void bexp3(::sqf::parse::astnode& root, position_info& info, bool& errflag);
+			void bexp3(::sqf::parse::astnode& root, bool& errflag);
 			bool bexp2_start(size_t curoff);
-			void bexp2(::sqf::parse::astnode& root, position_info& info, bool& errflag);
+			void bexp2(::sqf::parse::astnode& root, bool& errflag);
 			bool bexp1_start(size_t curoff);
-			void bexp1(::sqf::parse::astnode& root, position_info& info, bool& errflag);
+			void bexp1(::sqf::parse::astnode& root, bool& errflag);
 			bool BINARYEXPRESSION_start(size_t curoff);
-			void BINARYEXPRESSION(astnode& root, position_info& info, bool& errflag);
+			void BINARYEXPRESSION(astnode& root, bool& errflag);
 			bool BRACKETS_start(size_t curoff);
-			void BRACKETS(astnode& root, position_info& info, bool& errflag);
+			void BRACKETS(astnode& root, bool& errflag);
 			bool PRIMARYEXPRESSION_start(size_t curoff);
-			void PRIMARYEXPRESSION(astnode& root, position_info& info, bool& errflag);
+			void PRIMARYEXPRESSION(astnode& root, bool& errflag);
 			bool NULAREXPRESSION_start(size_t curoff);
-			void NULAREXPRESSION(astnode& root, position_info& info, bool& errflag);
+			void NULAREXPRESSION(astnode& root, bool& errflag);
 			bool UNARYEXPRESSION_start(size_t curoff);
-			void UNARYEXPRESSION(astnode& root, position_info& info, bool& errflag);
+			void UNARYEXPRESSION(astnode& root, bool& errflag);
 			bool NUMBER_start(size_t curoff);
-			void NUMBER(astnode& root, position_info& info, bool& errflag);
+			void NUMBER(astnode& root, bool& errflag);
 			bool VARIABLE_start(size_t curoff);
-			void VARIABLE(astnode& root, position_info& info, bool& errflag);
+			void VARIABLE(astnode& root, bool& errflag);
 			bool STRING_start(size_t curoff);
-			void STRING(astnode& root, position_info& info, bool& errflag);
+			void STRING(astnode& root, bool& errflag);
 			bool CODE_start(size_t curoff);
-			void CODE(astnode& root, position_info& info, bool& errflag);
+			void CODE(astnode& root, bool& errflag);
 			bool ARRAY_start(size_t curoff);
-			void ARRAY(astnode& root, position_info& info, bool& errflag);
+			void ARRAY(astnode& root, bool& errflag);
 
 		public:
 
@@ -128,7 +129,11 @@ namespace sqf
 				m_contains_binary(contains_binary),
 				m_precedence(precedence),
 				m_contents(contents),
-				m_file(file) {}
+				m_file(file)
+			{
+				position_info position_info = { 1, 0, 0, m_file };
+				m_info = position_info;
+			}
 
 			astnode parse_sqf(bool& errflag);
 			const char* astkindname(short id);

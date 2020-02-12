@@ -102,54 +102,54 @@ size_t sqf::parse::sqf::scalar(size_t off) { size_t i = off + scalarsub(off); if
 size_t sqf::parse::sqf::anytext(size_t off) { size_t i; for (i = off; m_contents[i] != ' ' && m_contents[i] != '\t' && m_contents[i] != '\r' && m_contents[i] != '\n' && m_contents[i] != ';'; i++) {}; return i - off; }
 //SQF = [ STATEMENT { endchr { endchr } STATEMENT } ]
 bool sqf::parse::sqf::SQF_start(size_t curoff) { return true; }
-void sqf::parse::sqf::SQF(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::SQF(astnode &root, bool &errflag)
 {
-	skip(info);
+	skip(m_info);
 	size_t endchrlen;
-	while ((endchrlen = endchr(info.offset)) > 0)
+	while ((endchrlen = endchr(m_info.offset)) > 0)
 	{
-		info.offset += endchrlen;
-		info.column += endchrlen;
-		skip(info);
+		m_info.offset += endchrlen;
+		m_info.column += endchrlen;
+		skip(m_info);
 	}
 	//Iterate over statements as long as it is an instruction start.
-	while (STATEMENT_start(info.offset))
+	while (STATEMENT_start(m_info.offset))
 	{
-		STATEMENT(root, info, errflag);
-		skip(info);
+		STATEMENT(root, errflag);
+		skip(m_info);
 		//Make sure at least one endchr is available unless no statement follows
-		if (!endchr(info.offset) && STATEMENT_start(info.offset))
+		if (!endchr(m_info.offset) && STATEMENT_start(m_info.offset))
 		{
-			log(err::ExpectedStatementTerminator(info));
+			log(err::ExpectedStatementTerminator(m_info));
 			errflag = true;
 		}
 		else
 		{
 			//Add endchr up until no semicolon is left
-			while ((endchrlen = endchr(info.offset)) > 0)
+			while ((endchrlen = endchr(m_info.offset)) > 0)
 			{
-				info.offset += endchrlen;
-				info.column += endchrlen;
-				skip(info);
+				m_info.offset += endchrlen;
+				m_info.column += endchrlen;
+				skip(m_info);
 			}
 		}
 	}
 }
 //STATEMENT = ASSIGNMENT | BINARYEXPRESSION;
 bool sqf::parse::sqf::STATEMENT_start(size_t curoff) { return ASSIGNMENT_start(curoff) | BINARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::STATEMENT(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::STATEMENT(astnode &root, bool &errflag)
 {
-	if (ASSIGNMENT_start(info.offset))
+	if (ASSIGNMENT_start(m_info.offset))
 	{
-		ASSIGNMENT(root, info, errflag);
+		ASSIGNMENT(root, errflag);
 	}
-	else if (BINARYEXPRESSION_start(info.offset))
+	else if (BINARYEXPRESSION_start(m_info.offset))
 	{
-		BINARYEXPRESSION(root, info, errflag);
+		BINARYEXPRESSION(root, errflag);
 	}
 	else
 	{
-		log(err::NoViableAlternativeStatement(info));
+		log(err::NoViableAlternativeStatement(m_info));
 		errflag = true;
 	}
 	//thisnode.length = curoff - thisnode.offset;
@@ -175,60 +175,60 @@ bool sqf::parse::sqf::ASSIGNMENT_start(size_t curoff)
 		return false;
 	}
 }
-void sqf::parse::sqf::ASSIGNMENT(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::ASSIGNMENT(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = (short)asttype::sqf::ASSIGNMENT;
-	thisnode.offset = info.offset;
-	thisnode.file = info.file;
+	thisnode.offset = m_info.offset;
+	thisnode.file = m_info.file;
 	size_t len;
 	bool assignlocal = false;
 	//check if prefixed by a 'private'
-	if (str_cmpi(m_contents.data() + info.offset, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
+	if (str_cmpi(m_contents.data() + m_info.offset, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
 	{
-		info.offset += compiletime::strlen("private");
-		info.column += compiletime::strlen("private");
-		skip(info);
+		m_info.offset += compiletime::strlen("private");
+		m_info.column += compiletime::strlen("private");
+		skip(m_info);
 		assignlocal = true;
 		thisnode.kind = (short)asttype::sqf::ASSIGNMENTLOCAL;
 	}
 	//receive the ident
-	len = assidentifier(info.offset);
-	auto ident = std::string(m_contents.substr(info.offset, len));
+	len = assidentifier(m_info.offset);
+	auto ident = std::string(m_contents.substr(m_info.offset, len));
 
 	auto varnode = astnode();
-	varnode.offset = info.offset;
+	varnode.offset = m_info.offset;
 	varnode.length = len;
 	varnode.content = ident;
 	varnode.kind = (short)asttype::sqf::VARIABLE;
-	varnode.col = info.column;
-	varnode.line = info.line;
-	varnode.file = info.file;
+	varnode.col = m_info.column;
+	varnode.line = m_info.line;
+	varnode.file = m_info.file;
 	thisnode.children.emplace_back(std::move(varnode));
 
 	if (assignlocal && ident[0] != '_')
 	{
-		log(err::MissingUnderscoreOnPrivateVariable(info, ident));
+		log(err::MissingUnderscoreOnPrivateVariable(m_info, ident));
 	}
-	info.offset += len;
-	skip(info);
-	thisnode.col = info.column;
-	thisnode.line = info.line;
+	m_info.offset += len;
+	skip(m_info);
+	thisnode.col = m_info.column;
+	thisnode.line = m_info.line;
 	//skip the '=' (is confirmed to be present in ASSIGNMENT_start)
-	info.offset++;
-	info.column++;
-	skip(info);
+	m_info.offset++;
+	m_info.column++;
+	skip(m_info);
 
-	if (BINARYEXPRESSION_start(info.offset))
+	if (BINARYEXPRESSION_start(m_info.offset))
 	{
-		BINARYEXPRESSION(thisnode, info, errflag);
+		BINARYEXPRESSION(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	thisnode.length = info.offset - thisnode.offset;
+	thisnode.length = m_info.offset - thisnode.offset;
 	root.children.emplace_back(std::move(thisnode));
 }
 //BINARYEXPRESSION = BEXP1;
@@ -267,47 +267,47 @@ void sqf::parse::sqf::bexp_orderfix(astnode& root, astnode thisnode, short pleve
 	}
 }
 bool sqf::parse::sqf::bexp10_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::bexp10(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::bexp10(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
-	thisnode.offset = info.offset;
+	thisnode.offset = m_info.offset;
 	thisnode.kind = (short)asttype::sqf::BEXP10;
-	thisnode.file = info.file;
-    thisnode.line = info.line;
+	thisnode.file = m_info.file;
+    thisnode.line = m_info.line;
 	size_t oplen;
 	std::string op;
-	skip(info);
-	if (PRIMARYEXPRESSION_start(info.offset))
+	skip(m_info);
+	if (PRIMARYEXPRESSION_start(m_info.offset))
 	{
-		PRIMARYEXPRESSION(thisnode, info, errflag);
+		PRIMARYEXPRESSION(thisnode, errflag);
 	}
 
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	skip(info);
-	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 10))
+	skip(m_info);
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 10))
 	{
 		auto node = astnode();
 		node.content = op;
-		node.offset = info.offset;
+		node.offset = m_info.offset;
 		node.kind = (short)asttype::sqf::BINARYOP;
-		node.col = info.column;
-		node.line = info.line;
+		node.col = m_info.column;
+		node.line = m_info.line;
 		node.length = oplen;
-		node.file = info.file;
+		node.file = m_info.file;
         thisnode.children.emplace_back(std::move(node));
-		info.offset += oplen;
-		skip(info);
-		if (bexp10_start(info.offset))
+		m_info.offset += oplen;
+		skip(m_info);
+		if (bexp10_start(m_info.offset))
 		{
-			bexp10(thisnode, info, errflag);
+			bexp10(thisnode, errflag);
 		}
 		else
 		{
-			log(err::MissingRightArgument(info, op));
+			log(err::MissingRightArgument(m_info, op));
 			errflag = true;
 		}
 		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP10);
@@ -319,46 +319,46 @@ void sqf::parse::sqf::bexp10(astnode &root, position_info& info, bool &errflag)
 	}
 }
 bool sqf::parse::sqf::bexp9_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::bexp9(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::bexp9(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
-	thisnode.offset = info.offset;
+	thisnode.offset = m_info.offset;
 	thisnode.kind = (short)asttype::sqf::BEXP9;
-	thisnode.file = info.file;
-    thisnode.line = info.line;
+	thisnode.file = m_info.file;
+    thisnode.line = m_info.line;
 	size_t oplen;
 	std::string op;
-	skip(info);
-	if (bexp10_start(info.offset))
+	skip(m_info);
+	if (bexp10_start(m_info.offset))
 	{
-		bexp10(thisnode, info, errflag);
+		bexp10(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	skip(info);
-	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 9))
+	skip(m_info);
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 9))
 	{
 		auto node = astnode();
 		node.content = op;
-		node.offset = info.offset;
+		node.offset = m_info.offset;
 		node.kind = (short)asttype::sqf::BINARYOP;
-		node.col = info.column;
-		node.line = info.line;
+		node.col = m_info.column;
+		node.line = m_info.line;
 		node.length = oplen;
-		node.file = info.file;
+		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
-		info.offset += oplen;
-		skip(info);
-		if (bexp9_start(info.offset))
+		m_info.offset += oplen;
+		skip(m_info);
+		if (bexp9_start(m_info.offset))
 		{
-			bexp9(thisnode, info, errflag);
+			bexp9(thisnode, errflag);
 		}
 		else
 		{
-			log(err::MissingRightArgument(info, op));
+			log(err::MissingRightArgument(m_info, op));
 			errflag = true;
 		}
 		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP9);
@@ -370,46 +370,46 @@ void sqf::parse::sqf::bexp9(astnode &root, position_info& info, bool &errflag)
 	}
 }
 bool sqf::parse::sqf::bexp8_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::bexp8(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::bexp8(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
-	thisnode.offset = info.offset;
+	thisnode.offset = m_info.offset;
 	thisnode.kind = (short)asttype::sqf::BEXP8;
-	thisnode.file = info.file;
-    thisnode.line = info.line;
+	thisnode.file = m_info.file;
+    thisnode.line = m_info.line;
 	size_t oplen;
 	std::string op;
-	skip(info);
-	if (bexp9_start(info.offset))
+	skip(m_info);
+	if (bexp9_start(m_info.offset))
 	{
-		bexp9(thisnode, info, errflag);
+		bexp9(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	skip(info);
-	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 8))
+	skip(m_info);
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 8))
 	{
 		auto node = astnode();
 		node.content = op;
-		node.offset = info.offset;
+		node.offset = m_info.offset;
 		node.kind = (short)asttype::sqf::BINARYOP;
-		node.col = info.column;
-		node.line = info.line;
+		node.col = m_info.column;
+		node.line = m_info.line;
 		node.length = oplen;
-		node.file = info.file;
+		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
-		info.offset += oplen;
-		skip(info);
-		if (bexp8_start(info.offset))
+		m_info.offset += oplen;
+		skip(m_info);
+		if (bexp8_start(m_info.offset))
 		{
-			bexp8(thisnode, info, errflag);
+			bexp8(thisnode, errflag);
 		}
 		else
 		{
-			log(err::MissingRightArgument(info, op));
+			log(err::MissingRightArgument(m_info, op));
 			errflag = true;
 		}
 		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP8);
@@ -421,46 +421,46 @@ void sqf::parse::sqf::bexp8(astnode &root, position_info& info, bool &errflag)
 	}
 }
 bool sqf::parse::sqf::bexp7_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::bexp7(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::bexp7(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
-	thisnode.offset = info.offset;
+	thisnode.offset = m_info.offset;
 	thisnode.kind = (short)asttype::sqf::BEXP7;
-	thisnode.file = info.file;
-    thisnode.line = info.line;
+	thisnode.file = m_info.file;
+    thisnode.line = m_info.line;
 	size_t oplen;
 	std::string op;
-	skip(info);
-	if (bexp8_start(info.offset))
+	skip(m_info);
+	if (bexp8_start(m_info.offset))
 	{
-		bexp8(thisnode, info, errflag);
+		bexp8(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	skip(info);
-	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 7))
+	skip(m_info);
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 7))
 	{
 		auto node = astnode();
 		node.content = op;
-		node.offset = info.offset;
+		node.offset = m_info.offset;
 		node.kind = (short)asttype::sqf::BINARYOP;
-		node.col = info.column;
-		node.line = info.line;
+		node.col = m_info.column;
+		node.line = m_info.line;
 		node.length = oplen;
-		node.file = info.file;
+		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
-		info.offset += oplen;
-		skip(info);
-		if (bexp7_start(info.offset))
+		m_info.offset += oplen;
+		skip(m_info);
+		if (bexp7_start(m_info.offset))
 		{
-			bexp7(thisnode, info, errflag);
+			bexp7(thisnode, errflag);
 		}
 		else
 		{
-			log(err::MissingRightArgument(info, op));
+			log(err::MissingRightArgument(m_info, op));
 			errflag = true;
 		}
 		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP7);
@@ -472,46 +472,46 @@ void sqf::parse::sqf::bexp7(astnode &root, position_info& info, bool &errflag)
 	}
 }
 bool sqf::parse::sqf::bexp6_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::bexp6(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::bexp6(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
-	thisnode.offset = info.offset;
+	thisnode.offset = m_info.offset;
 	thisnode.kind = (short)asttype::sqf::BEXP6;
-	thisnode.file = info.file;
-    thisnode.line = info.line;
+	thisnode.file = m_info.file;
+    thisnode.line = m_info.line;
 	size_t oplen;
 	std::string op;
-	skip(info);
-	if (bexp7_start(info.offset))
+	skip(m_info);
+	if (bexp7_start(m_info.offset))
 	{
-		bexp7(thisnode, info, errflag);
+		bexp7(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	skip(info);
-	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 6))
+	skip(m_info);
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 6))
 	{
 		auto node = astnode();
 		node.content = op;
-		node.offset = info.offset;
+		node.offset = m_info.offset;
 		node.kind = (short)asttype::sqf::BINARYOP;
-		node.col = info.column;
-		node.line = info.line;
+		node.col = m_info.column;
+		node.line = m_info.line;
 		node.length = oplen;
-		node.file = info.file;
+		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
-		info.offset += oplen;
-		skip(info);
-		if (bexp6_start(info.offset))
+		m_info.offset += oplen;
+		skip(m_info);
+		if (bexp6_start(m_info.offset))
 		{
-			bexp6(thisnode, info, errflag);
+			bexp6(thisnode, errflag);
 		}
 		else
 		{
-			log(err::MissingRightArgument(info, op));
+			log(err::MissingRightArgument(m_info, op));
 			errflag = true;
 		}
 		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP6);
@@ -523,46 +523,46 @@ void sqf::parse::sqf::bexp6(astnode &root, position_info& info, bool &errflag)
 	}
 }
 bool sqf::parse::sqf::bexp5_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::bexp5(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::bexp5(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
-	thisnode.offset = info.offset;
+	thisnode.offset = m_info.offset;
 	thisnode.kind = (short)asttype::sqf::BEXP5;
-	thisnode.file = info.file;
-    thisnode.line = info.line;
+	thisnode.file = m_info.file;
+    thisnode.line = m_info.line;
 	size_t oplen;
 	std::string op;
-	skip(info);
-	if (bexp6_start(info.offset))
+	skip(m_info);
+	if (bexp6_start(m_info.offset))
 	{
-		bexp6(thisnode, info, errflag);
+		bexp6(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	skip(info);
-	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 5))
+	skip(m_info);
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 5))
 	{
 		auto node = astnode();
 		node.content = op;
-		node.offset = info.offset;
+		node.offset = m_info.offset;
 		node.kind = (short)asttype::sqf::BINARYOP;
-		node.col = info.column;
-		node.line = info.line;
+		node.col = m_info.column;
+		node.line = m_info.line;
 		node.length = oplen;
-		node.file = info.file;
+		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
-		info.offset += oplen;
-		skip(info);
-		if (bexp5_start(info.offset))
+		m_info.offset += oplen;
+		skip(m_info);
+		if (bexp5_start(m_info.offset))
 		{
-			bexp5(thisnode, info, errflag);
+			bexp5(thisnode, errflag);
 		}
 		else
 		{
-			log(err::MissingRightArgument(info, op));
+			log(err::MissingRightArgument(m_info, op));
 			errflag = true;
 		}
 		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP5);
@@ -574,46 +574,46 @@ void sqf::parse::sqf::bexp5(astnode &root, position_info& info, bool &errflag)
 	}
 }
 bool sqf::parse::sqf::bexp4_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::bexp4(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::bexp4(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
-	thisnode.offset = info.offset;
+	thisnode.offset = m_info.offset;
 	thisnode.kind = (short)asttype::sqf::BEXP4;
-	thisnode.file = info.file;
-    thisnode.line = info.line;
+	thisnode.file = m_info.file;
+    thisnode.line = m_info.line;
 	size_t oplen;
 	std::string op;
-	skip(info);
-	if (bexp5_start(info.offset))
+	skip(m_info);
+	if (bexp5_start(m_info.offset))
 	{
-		bexp5(thisnode, info, errflag);
+		bexp5(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	skip(info);
-	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 4))
+	skip(m_info);
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 4))
 	{
 		auto node = astnode();
 		node.content = op;
-		node.offset = info.offset;
+		node.offset = m_info.offset;
 		node.kind = (short)asttype::sqf::BINARYOP;
-		node.col = info.column;
-		node.line = info.line;
+		node.col = m_info.column;
+		node.line = m_info.line;
 		node.length = oplen;
-		node.file = info.file;
+		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
-		info.offset += oplen;
-		skip(info);
-		if (bexp4_start(info.offset))
+		m_info.offset += oplen;
+		skip(m_info);
+		if (bexp4_start(m_info.offset))
 		{
-			bexp4(thisnode, info, errflag);
+			bexp4(thisnode, errflag);
 		}
 		else
 		{
-			log(err::MissingRightArgument(info, op));
+			log(err::MissingRightArgument(m_info, op));
 			errflag = true;
 		}
 		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP4);
@@ -625,46 +625,46 @@ void sqf::parse::sqf::bexp4(astnode &root, position_info& info, bool &errflag)
 	}
 }
 bool sqf::parse::sqf::bexp3_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::bexp3(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::bexp3(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
-	thisnode.offset = info.offset;
+	thisnode.offset = m_info.offset;
 	thisnode.kind = (short)asttype::sqf::BEXP3;
-	thisnode.file = info.file;
-    thisnode.line = info.line;
+	thisnode.file = m_info.file;
+    thisnode.line = m_info.line;
 	size_t oplen;
 	std::string op;
-	skip(info);
-	if (bexp4_start(info.offset))
+	skip(m_info);
+	if (bexp4_start(m_info.offset))
 	{
-		bexp4(thisnode, info, errflag);
+		bexp4(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	skip(info);
-	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 3))
+	skip(m_info);
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 3))
 	{
 		auto node = astnode();
 		node.content = op;
-		node.offset = info.offset;
+		node.offset = m_info.offset;
 		node.kind = (short)asttype::sqf::BINARYOP;
-		node.col = info.column;
-		node.line = info.line;
+		node.col = m_info.column;
+		node.line = m_info.line;
 		node.length = oplen;
-		node.file = info.file;
+		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
-		info.offset += oplen;
-		skip(info);
-		if (bexp3_start(info.offset))
+		m_info.offset += oplen;
+		skip(m_info);
+		if (bexp3_start(m_info.offset))
 		{
-			bexp3(thisnode, info, errflag);
+			bexp3(thisnode, errflag);
 		}
 		else
 		{
-			log(err::MissingRightArgument(info, op));
+			log(err::MissingRightArgument(m_info, op));
 			errflag = true;
 		}
 		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP3);
@@ -676,46 +676,46 @@ void sqf::parse::sqf::bexp3(astnode &root, position_info& info, bool &errflag)
 	}
 }
 bool sqf::parse::sqf::bexp2_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::bexp2(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::bexp2(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
-	thisnode.offset = info.offset;
+	thisnode.offset = m_info.offset;
 	thisnode.kind = (short)asttype::sqf::BEXP2;
-    thisnode.file = info.file;
-    thisnode.line = info.line;
+    thisnode.file = m_info.file;
+    thisnode.line = m_info.line;
 	size_t oplen;
 	std::string op;
-	skip(info);
-	if (bexp3_start(info.offset))
+	skip(m_info);
+	if (bexp3_start(m_info.offset))
 	{
-		bexp3(thisnode, info, errflag);
+		bexp3(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	skip(info);
-	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 2))
+	skip(m_info);
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 2))
 	{
 		auto node = astnode();
 		node.content = op;
-		node.offset = info.offset;
+		node.offset = m_info.offset;
 		node.kind = (short)asttype::sqf::BINARYOP;
-		node.col = info.column;
-		node.line = info.line;
+		node.col = m_info.column;
+		node.line = m_info.line;
 		node.length = oplen;
-		node.file = info.file;
+		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
-		info.offset += oplen;
-		skip(info);
-		if (bexp2_start(info.offset))
+		m_info.offset += oplen;
+		skip(m_info);
+		if (bexp2_start(m_info.offset))
 		{
-			bexp2(thisnode, info, errflag);
+			bexp2(thisnode, errflag);
 		}
 		else
 		{
-			log(err::MissingRightArgument(info, op));
+			log(err::MissingRightArgument(m_info, op));
 			errflag = true;
 		}
 		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP2);
@@ -727,46 +727,46 @@ void sqf::parse::sqf::bexp2(astnode &root, position_info& info, bool &errflag)
 	}
 }
 bool sqf::parse::sqf::bexp1_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::bexp1(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::bexp1(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
-	thisnode.offset = info.offset;
+	thisnode.offset = m_info.offset;
 	thisnode.kind = (short)asttype::sqf::BEXP1;
-	thisnode.file = info.file;
-    thisnode.line = info.line;
+	thisnode.file = m_info.file;
+    thisnode.line = m_info.line;
 	size_t oplen;
 	std::string op;
-	skip(info);
-	if (bexp2_start(info.offset))
+	skip(m_info);
+	if (bexp2_start(m_info.offset))
 	{
-		bexp2(thisnode, info, errflag);
+		bexp2(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	skip(info);
-	if ((oplen = operator_(info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(info.offset, oplen)), 1))
+	skip(m_info);
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 1))
 	{
 		auto node = astnode();
 		node.content = op;
-		node.offset = info.offset;
+		node.offset = m_info.offset;
 		node.kind = (short)asttype::sqf::BINARYOP;
-		node.col = info.column;
-		node.line = info.line;
+		node.col = m_info.column;
+		node.line = m_info.line;
 		node.length = oplen;
-		node.file = info.file;
+		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
-		info.offset += oplen;
-		skip(info);
-		if (bexp1_start(info.offset))
+		m_info.offset += oplen;
+		skip(m_info);
+		if (bexp1_start(m_info.offset))
 		{
-			bexp1(thisnode, info, errflag);
+			bexp1(thisnode, errflag);
 		}
 		else
 		{
-			log(err::MissingRightArgument(info, op));
+			log(err::MissingRightArgument(m_info, op));
 			errflag = true;
 		}
 		bexp_orderfix(root, std::move(thisnode), (short)asttype::sqf::BEXP1);
@@ -778,83 +778,83 @@ void sqf::parse::sqf::bexp1(astnode &root, position_info& info, bool &errflag)
 	}
 }
 bool sqf::parse::sqf::BINARYEXPRESSION_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void sqf::parse::sqf::BINARYEXPRESSION(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::BINARYEXPRESSION(astnode &root, bool &errflag)
 {
-	bexp1(root, info, errflag);
+	bexp1(root, errflag);
 }
 //BRACKETS = '(' BINARYEXPRESSION ')';
 bool sqf::parse::sqf::BRACKETS_start(size_t curoff) { return m_contents[curoff] == '('; }
-void sqf::parse::sqf::BRACKETS(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::BRACKETS(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = (short)asttype::sqf::BRACKETS;
-	thisnode.offset = info.offset;
-	thisnode.file = info.file;
-	info.offset++;
-	info.column++;
-	skip(info);
-	if (BINARYEXPRESSION_start(info.offset))
+	thisnode.offset = m_info.offset;
+	thisnode.file = m_info.file;
+	m_info.offset++;
+	m_info.column++;
+	skip(m_info);
+	if (BINARYEXPRESSION_start(m_info.offset))
 	{
-		BINARYEXPRESSION(thisnode, info, errflag);
+		BINARYEXPRESSION(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedBinaryExpression(info));
+		log(err::ExpectedBinaryExpression(m_info));
 		errflag = true;
 	}
-	skip(info);
-	if (m_contents[info.offset] == ')')
+	skip(m_info);
+	if (m_contents[m_info.offset] == ')')
 	{
-		info.offset++;
-		info.column++;
+		m_info.offset++;
+		m_info.column++;
 	}
 	else
 	{
-		log(err::MissingRoundClosingBracket(info));
+		log(err::MissingRoundClosingBracket(m_info));
 		errflag = true;
 	}
-	thisnode.length = info.offset - thisnode.offset;
+	thisnode.length = m_info.offset - thisnode.offset;
 	root.children.emplace_back(std::move(thisnode));
 }
 //PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULAREXPRESSION | VARIABLE | STRING | CODE | BRACKETS | ARRAY;
 bool sqf::parse::sqf::PRIMARYEXPRESSION_start(size_t curoff) { return NUMBER_start(curoff) || UNARYEXPRESSION_start(curoff) || NULAREXPRESSION_start(curoff) || VARIABLE_start(curoff) || STRING_start(curoff) || CODE_start(curoff) || BRACKETS_start(curoff) || ARRAY_start(curoff); }
-void sqf::parse::sqf::PRIMARYEXPRESSION(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::PRIMARYEXPRESSION(astnode &root, bool &errflag)
 {
-	if (NUMBER_start(info.offset))
+	if (NUMBER_start(m_info.offset))
 	{
-		NUMBER(root, info, errflag);
+		NUMBER(root, errflag);
 	}
-	else if (UNARYEXPRESSION_start(info.offset))
+	else if (UNARYEXPRESSION_start(m_info.offset))
 	{
-		UNARYEXPRESSION(root, info, errflag);
+		UNARYEXPRESSION(root, errflag);
 	}
-	else if (NULAREXPRESSION_start(info.offset))
+	else if (NULAREXPRESSION_start(m_info.offset))
 	{
-		NULAREXPRESSION(root, info, errflag);
+		NULAREXPRESSION(root, errflag);
 	}
-	else if (VARIABLE_start(info.offset))
+	else if (VARIABLE_start(m_info.offset))
 	{
-		VARIABLE(root, info, errflag);
+		VARIABLE(root, errflag);
 	}
-	else if (STRING_start(info.offset))
+	else if (STRING_start(m_info.offset))
 	{
-		STRING(root, info, errflag);
+		STRING(root, errflag);
 	}
-	else if (CODE_start(info.offset))
+	else if (CODE_start(m_info.offset))
 	{
-		CODE(root, info, errflag);
+		CODE(root, errflag);
 	}
-	else if (BRACKETS_start(info.offset))
+	else if (BRACKETS_start(m_info.offset))
 	{
-		BRACKETS(root, info, errflag);
+		BRACKETS(root, errflag);
 	}
-	else if (ARRAY_start(info.offset))
+	else if (ARRAY_start(m_info.offset))
 	{
-		ARRAY(root, info, errflag);
+		ARRAY(root, errflag);
 	}
 	else
 	{
-		log(err::NoViableAlternativePrimaryExpression(info));
+		log(err::NoViableAlternativePrimaryExpression(m_info));
 		errflag = true;
 	}
 	//thisnode.length = curoff - thisnode.offset;
@@ -862,58 +862,58 @@ void sqf::parse::sqf::PRIMARYEXPRESSION(astnode &root, position_info& info, bool
 }
 //NULAREXPRESSION = operator;
 bool sqf::parse::sqf::NULAREXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_nular(std::string(m_contents.substr(curoff, oplen))) : false; }
-void sqf::parse::sqf::NULAREXPRESSION(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::NULAREXPRESSION(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = (short)asttype::sqf::NULAROP;
-	thisnode.file = info.file;
-	auto len = operator_(info.offset);
-	auto ident = std::string(m_contents.substr(info.offset, len));
+	thisnode.file = m_info.file;
+	auto len = operator_(m_info.offset);
+	auto ident = std::string(m_contents.substr(m_info.offset, len));
 	thisnode.content = ident;
 	thisnode.length = len;
-	thisnode.offset = info.offset;
-	thisnode.col = info.column;
-	thisnode.line = info.line;
-	info.offset += len;
-	info.column += len;
+	thisnode.offset = m_info.offset;
+	thisnode.col = m_info.column;
+	thisnode.line = m_info.line;
+	m_info.offset += len;
+	m_info.column += len;
 	root.children.emplace_back(std::move(thisnode));
 }
 //UNARYEXPRESSION = operator PRIMARYEXPRESSION;
 bool sqf::parse::sqf::UNARYEXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_unary(std::string(m_contents.substr(curoff, oplen))) : false; }
-void sqf::parse::sqf::UNARYEXPRESSION(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::UNARYEXPRESSION(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = (short)asttype::sqf::UNARYEXPRESSION;
-	thisnode.offset = info.offset;
-	thisnode.file = info.file;
-    thisnode.col = info.column;
-    thisnode.line = info.line;
+	thisnode.offset = m_info.offset;
+	thisnode.file = m_info.file;
+    thisnode.col = m_info.column;
+    thisnode.line = m_info.line;
 
-	auto len = operator_(info.offset);
-	auto operatorname = std::string(m_contents.substr(info.offset, len));
+	auto len = operator_(m_info.offset);
+	auto operatorname = std::string(m_contents.substr(m_info.offset, len));
 	auto opnode = astnode();
 	opnode.kind = (short)asttype::sqf::UNARYOP;
-	opnode.offset = info.offset;
+	opnode.offset = m_info.offset;
 	opnode.length = len;
 	opnode.content = operatorname;
-	opnode.col = info.column;
-	opnode.file = info.file;
-	opnode.line = info.line;
+	opnode.col = m_info.column;
+	opnode.file = m_info.file;
+	opnode.line = m_info.line;
 	thisnode.children.emplace_back(std::move(opnode));
-	info.offset += len;
-	info.column += len;
-	skip(info);
+	m_info.offset += len;
+	m_info.column += len;
+	skip(m_info);
 
-	if (PRIMARYEXPRESSION_start(info.offset))
+	if (PRIMARYEXPRESSION_start(m_info.offset))
 	{
-		PRIMARYEXPRESSION(thisnode, info, errflag);
+		PRIMARYEXPRESSION(thisnode, errflag);
 	}
 	else
 	{
-		log(err::MissingRightArgument(info, operatorname));
+		log(err::MissingRightArgument(m_info, operatorname));
 		errflag = true;
 	}
-	thisnode.length = info.offset - thisnode.offset;
+	thisnode.length = m_info.offset - thisnode.offset;
 	root.children.emplace_back(std::move(thisnode));
 }
 //NUMBER = ("0x" | '$' | '.') hexadecimal | scalar;
@@ -926,40 +926,40 @@ bool sqf::parse::sqf::NUMBER_start(size_t curoff)
 				m_contents[curoff + 1] <= '9'
 			) ||
 			(m_contents[curoff] >= '0' && m_contents[curoff] <= '9'); }
-void sqf::parse::sqf::NUMBER(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::NUMBER(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = (short)asttype::sqf::NUMBER;
-	thisnode.col = info.column;
-	thisnode.line = info.line;
-	thisnode.file = info.file;
-	if (m_contents[info.offset] == '$')
+	thisnode.col = m_info.column;
+	thisnode.line = m_info.line;
+	thisnode.file = m_info.file;
+	if (m_contents[m_info.offset] == '$')
 	{
 		thisnode.kind = (short)asttype::sqf::HEXNUMBER;
 		size_t i;
-		for (i = info.offset + 1; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
-		auto ident = std::string(m_contents.substr(info.offset + 1, i));
+		for (i = m_info.offset + 1; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
+		auto ident = std::string(m_contents.substr(m_info.offset + 1, i));
 		thisnode.content = ident;
-		thisnode.offset = info.offset;
-		thisnode.length = i - info.offset;
-		info.column += i - info.offset;
-		info.offset = i;
+		thisnode.offset = m_info.offset;
+		thisnode.length = i - m_info.offset;
+		m_info.column += i - m_info.offset;
+		m_info.offset = i;
 	}
-	else if (m_contents[info.offset] == '0' && m_contents[info.offset + 1] == 'x')
+	else if (m_contents[m_info.offset] == '0' && m_contents[m_info.offset + 1] == 'x')
 	{
 		thisnode.kind = (short)asttype::sqf::HEXNUMBER;
 		size_t i;
-		for (i = info.offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
-		auto ident = std::string(m_contents.substr(info.offset, i));
+		for (i = m_info.offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
+		auto ident = std::string(m_contents.substr(m_info.offset, i));
 		thisnode.content = ident;
-		thisnode.offset = info.offset;
-		thisnode.length = i - info.offset;
-		info.column += i - info.offset;
-		info.offset = i;
+		thisnode.offset = m_info.offset;
+		thisnode.length = i - m_info.offset;
+		m_info.column += i - m_info.offset;
+		m_info.offset = i;
 	}
 	else
 	{
-		size_t i = info.offset;
+		size_t i = m_info.offset;
 		bool numhaddot = false;
 		unsigned short numhadexp = 0;
 		while (true)
@@ -993,177 +993,176 @@ void sqf::parse::sqf::NUMBER(astnode &root, position_info& info, bool &errflag)
 			}
 
 		}
-		auto ident = std::string(m_contents.substr(info.offset, i));
+		auto ident = std::string(m_contents.substr(m_info.offset, i));
 		thisnode.content = ident;
-		thisnode.offset = info.offset;
-		thisnode.length = i - info.offset;
-		info.column += i - info.offset;
-		info.offset = i;
+		thisnode.offset = m_info.offset;
+		thisnode.length = i - m_info.offset;
+		m_info.column += i - m_info.offset;
+		m_info.offset = i;
 	}
 	if (thisnode.content.empty())
 	{
-		log(err::EmptyNumber(info));
+		log(err::EmptyNumber(m_info));
 		errflag = true;
 	}
 	root.children.emplace_back(std::move(thisnode));
 }
 //VARIABLE = identifier;
 bool sqf::parse::sqf::VARIABLE_start(size_t curoff) { auto len = identifier(curoff); return len > 0 && !m_contains_binary(std::string(m_contents.substr(curoff, len)), 0); }
-void sqf::parse::sqf::VARIABLE(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::VARIABLE(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = (short)asttype::sqf::VARIABLE;
-	thisnode.file = info.file;
-	auto len = identifier(info.offset);
-	auto ident = std::string(m_contents.substr(info.offset, len));
+	thisnode.file = m_info.file;
+	auto len = identifier(m_info.offset);
+	auto ident = std::string(m_contents.substr(m_info.offset, len));
 	thisnode.content = ident;
 	thisnode.length = len;
-	thisnode.offset = info.offset;
-	thisnode.col = info.column;
-	thisnode.line = info.line;
+	thisnode.offset = m_info.offset;
+	thisnode.col = m_info.column;
+	thisnode.line = m_info.line;
 
-	info.offset += len;
-	info.column += len;
+	m_info.offset += len;
+	m_info.column += len;
 	root.children.emplace_back(std::move(thisnode));
 }
 //STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
 bool sqf::parse::sqf::STRING_start(size_t curoff) { return m_contents[curoff] == '\'' || m_contents[curoff] == '"'; }
-void sqf::parse::sqf::STRING(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::STRING(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = (short)asttype::sqf::STRING;
-	thisnode.col = info.column;
-	thisnode.line = info.line;
-	thisnode.file = info.file;
+	thisnode.col = m_info.column;
+	thisnode.line = m_info.line;
+	thisnode.file = m_info.file;
 	size_t i;
-	auto startchr = m_contents[info.offset];
-	info.column++;
-	for (i = info.offset + 1; m_contents[i] != '\0' && (m_contents[i] != startchr || m_contents[i + 1] == startchr); i++)
+	auto startchr = m_contents[m_info.offset];
+	m_info.column++;
+	for (i = m_info.offset + 1; m_contents[i] != '\0' && (m_contents[i] != startchr || m_contents[i + 1] == startchr); i++)
 	{
 		if (m_contents[i] == startchr)
 		{
-			info.column += 2;
+			m_info.column += 2;
 			i++;
 		}
 		else if (m_contents[i] == '\n')
 		{
-			info.column = 0;
-			info.line++;
+			m_info.column = 0;
+			m_info.line++;
 		}
 		else
 		{
-			info.column++;
+			m_info.column++;
 		}
 	}
 	i++;
-	info.column++;
-	auto fullstring = std::string(m_contents.substr(info.offset, i));
+	m_info.column++;
+	auto fullstring = std::string(m_contents.substr(m_info.offset, i));
 	thisnode.content = fullstring;
-	thisnode.length = i - info.offset;
-	thisnode.offset = info.offset;
-	info.offset = i;
+	thisnode.length = i - m_info.offset;
+	thisnode.offset = m_info.offset;
+	m_info.offset = i;
 	root.children.emplace_back(std::move(thisnode));
 }
 //CODE = "{" SQF "}";
 bool sqf::parse::sqf::CODE_start(size_t curoff) { return m_contents[curoff] == '{'; }
-void sqf::parse::sqf::CODE(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::CODE(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = (short)asttype::sqf::CODE;
-	thisnode.offset = info.offset;
-	thisnode.col = info.column;
-	thisnode.line = info.line;
-	thisnode.file = info.file;
-	info.offset++;
-	info.column++;
-	skip(info);
+	thisnode.offset = m_info.offset;
+	thisnode.col = m_info.column;
+	thisnode.line = m_info.line;
+	thisnode.file = m_info.file;
+	m_info.offset++;
+	m_info.column++;
+	skip(m_info);
 
-	if (SQF_start(info.offset))
+	if (SQF_start(m_info.offset))
 	{
-		SQF(thisnode, info, errflag);
+		SQF(thisnode, errflag);
 	}
 	else
 	{
-		log(err::ExpectedSQF(info));
+		log(err::ExpectedSQF(m_info));
 		errflag = true;
 	}
 
-	if (m_contents[info.offset] == '}')
+	if (m_contents[m_info.offset] == '}')
 	{
-		info.offset++;
-		info.column++;
+		m_info.offset++;
+		m_info.column++;
 	}
 	else
 	{
-		log(err::MissingCurlyClosingBracket(info));
+		log(err::MissingCurlyClosingBracket(m_info));
 		errflag = true;
 	}
-	thisnode.length = info.offset - thisnode.offset;
+	thisnode.length = m_info.offset - thisnode.offset;
 	root.children.emplace_back(std::move(thisnode));
 }
 //ARRAY = '[' [ BINARYEXPRESSION { ',' BINARYEXPRESSION } ] ']';
 bool sqf::parse::sqf::ARRAY_start(size_t curoff) { return m_contents[curoff] == '['; }
-void sqf::parse::sqf::ARRAY(astnode &root, position_info& info, bool &errflag)
+void sqf::parse::sqf::ARRAY(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = (short)asttype::sqf::ARRAY;
-	thisnode.offset = info.offset;
-	thisnode.col = info.column;
-	thisnode.line = info.line;
-	thisnode.file = info.file;
-	info.offset++;
-	info.column++;
-	skip(info);
-	if (BINARYEXPRESSION_start(info.offset))
+	thisnode.offset = m_info.offset;
+	thisnode.col = m_info.column;
+	thisnode.line = m_info.line;
+	thisnode.file = m_info.file;
+	m_info.offset++;
+	m_info.column++;
+	skip(m_info);
+	if (BINARYEXPRESSION_start(m_info.offset))
 	{
-		BINARYEXPRESSION(thisnode, info, errflag);
-		skip(info);
-		while (m_contents[info.offset] == ',')
+		BINARYEXPRESSION(thisnode, errflag);
+		skip(m_info);
+		while (m_contents[m_info.offset] == ',')
 		{
-			info.column++;
-			info.offset++;
-			skip(info);
+			m_info.column++;
+			m_info.offset++;
+			skip(m_info);
 
-			if (BINARYEXPRESSION_start(info.offset))
+			if (BINARYEXPRESSION_start(m_info.offset))
 			{
-				BINARYEXPRESSION(thisnode, info, errflag);
-				skip(info);
+				BINARYEXPRESSION(thisnode, errflag);
+				skip(m_info);
 			}
 			else
 			{
-				log(err::ExpectedBinaryExpression(info));
+				log(err::ExpectedBinaryExpression(m_info));
 				errflag = true;
 			}
 		}
 	}
-	if (m_contents[info.offset] == ']')
+	if (m_contents[m_info.offset] == ']')
 	{
-		info.offset++;
-		info.column++;
+		m_info.offset++;
+		m_info.column++;
 	}
 	else
 	{
-		log(err::MissingSquareClosingBracket(info));
+		log(err::MissingSquareClosingBracket(m_info));
 		errflag = true;
 	}
-	thisnode.length = info.offset - thisnode.offset;
+	thisnode.length = m_info.offset - thisnode.offset;
 	thisnode.content = std::string(m_contents.substr(thisnode.offset, thisnode.length));
 	root.children.emplace_back(std::move(thisnode));
 }
 
 ::sqf::parse::astnode sqf::parse::sqf::parse_sqf(bool &errflag)
 {
-	position_info info = { 1, 0, 0, m_file };
 	astnode node;
 	node.kind = (short)asttype::sqf::SQF;
 	node.offset = 0;
 	node.content = m_contents;
 	node.file = m_file;
-	SQF(node, info, errflag);
-	node.length = info.offset;
-	skip(info);
-	if (!errflag && m_contents[info.offset] != '\0') {
-		log(err::EndOfFile(info));
+	SQF(node, errflag);
+	node.length = m_info.offset;
+	skip(m_info);
+	if (!errflag && m_contents[m_info.offset] != '\0') {
+		log(err::EndOfFile(m_info));
 		errflag = true;
 	}
 	return node;
