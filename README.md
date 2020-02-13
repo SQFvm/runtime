@@ -7,7 +7,7 @@ __SQF-VM is a fully working and open-source Virtual Machine for the scripting la
 [![GitHub stars](https://img.shields.io/github/stars/SQFvm/vm)](https://github.com/SQFvm/vm/stargazers)
 [![Github All Releases](https://img.shields.io/github/downloads/SQFvm/vm/total)](https://github.com/SQFvm/vm/releases)
 [![Build Status](https://travis-ci.org/SQFvm/vm.svg?branch=master)](https://travis-ci.org/SQFvm/vm)
-[![Discord](https://img.shields.io/discord/365800217871908864)](https://discord.gg/eP4QgTr)
+[![Discord](https://img.shields.io/discord/365800217871908864)](https://discord.gg/vpdwJtG)
 
 ### Cloning
 When cloning this repository, you have to do a recursive clone by doing the following: `git clone https://github.com/SQFvm/vm.git --recursive`.
@@ -43,7 +43,7 @@ If you already have cloned without the `--recursive`, you have to perform `git s
 ### Links
 
 [Website (Download)](https://x39.io/projects?project=SQF-VM)
-[Discord Invite](https://discord.gg/b5qCUCK)
+[Discord Invite](https://discord.gg/vpdwJtG)
 
 ### Issue / Pull Request Template
 
