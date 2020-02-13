@@ -158,11 +158,19 @@ void sqf::parse::sqf::STATEMENT(astnode &root, bool &errflag)
 bool sqf::parse::sqf::ASSIGNMENT_start(size_t curoff)
 {
 	size_t len;
+#if defined(SQFVM_ARMA2_SYNTAX)
+	if (str_cmpi(m_contents.data() + curoff, compiletime::strlen("local"), "local", compiletime::strlen("local")) == 0)
+	{
+		curoff += compiletime::strlen("local");
+		skip(curoff);
+	}
+#else
 	if (str_cmpi(m_contents.data() + curoff, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
 	{
 		curoff += compiletime::strlen("private");
 		skip(curoff);
 	}
+#endif
 	if ((len = assidentifier(curoff)) > 0)
 	{
 		curoff += len;
@@ -182,6 +190,17 @@ void sqf::parse::sqf::ASSIGNMENT(astnode &root, bool &errflag)
 	thisnode.file = m_info.file;
 	size_t len;
 	bool assignlocal = false;
+#if defined(SQFVM_ARMA2_SYNTAX)
+	//check if prefixed by a 'local'
+	if (str_cmpi(m_contents.data() + m_info.offset, compiletime::strlen("local"), "local", compiletime::strlen("local")) == 0)
+	{
+		m_info.offset += compiletime::strlen("local");
+		m_info.column += compiletime::strlen("local");
+		skip(m_info);
+		assignlocal = true;
+		thisnode.kind = (short)asttype::sqf::ASSIGNMENTLOCAL;
+}
+#else
 	//check if prefixed by a 'private'
 	if (str_cmpi(m_contents.data() + m_info.offset, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
 	{
@@ -191,6 +210,7 @@ void sqf::parse::sqf::ASSIGNMENT(astnode &root, bool &errflag)
 		assignlocal = true;
 		thisnode.kind = (short)asttype::sqf::ASSIGNMENTLOCAL;
 	}
+#endif
 	//receive the ident
 	len = assidentifier(m_info.offset);
 	auto ident = std::string(m_contents.substr(m_info.offset, len));
