@@ -798,6 +798,7 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+
 		class NegativeIndex : public RuntimeBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60011;
@@ -896,6 +897,7 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+
 		class SuspensionInUnscheduledEnvironment : public RuntimeBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60021;
@@ -1006,6 +1008,7 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+
 		class ExtensionNotTerminatingCallExtensionBufferString : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60031;
@@ -1095,6 +1098,232 @@ namespace logmessage {
 			static const size_t errorCode = 60039;
 		public:
 			ReturningEmptyScriptHandle(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ReturningErrorCode : public RuntimeBase {
+			static const loglevel level = loglevel::verbose;
+			static const size_t errorCode = 60040;
+			std::string_view m_error_code;
+		public:
+			ReturningErrorCode(LogLocationInfo loc, std::string_view error_code) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_error_code(error_code)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+
+		class ExpectedSubArrayTypeMissmatch : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60041;
+			std::vector<size_t> m_position;
+			std::vector<::sqf::type> m_expected;
+			::sqf::type m_got;
+		public:
+			ExpectedSubArrayTypeMissmatch(LogLocationInfo loc, std::vector<size_t> position, std::vector<::sqf::type> expected, ::sqf::type got) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_position(position),
+				m_expected(expected),
+				m_got(got)
+			{}
+			template<size_t size>
+			ExpectedSubArrayTypeMissmatch(LogLocationInfo loc, std::array<size_t, size> position, ::sqf::type expected, ::sqf::type got) :
+				ExpectedSubArrayTypeMissmatch(loc, position, std::array<::sqf::type, 1> { expected }, got)
+			{}
+			template<size_t size1, size_t size2>
+			ExpectedSubArrayTypeMissmatch(LogLocationInfo loc, std::array<size_t, size1> position, std::array<::sqf::type, size2> expected, ::sqf::type got) :
+				ExpectedSubArrayTypeMissmatch(loc, std::vector(position.begin(), position.end), std::vector(expected.begin(), expected.end), got)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedSubArrayTypeMissmatchWeak : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60042;
+			std::vector<size_t> m_position;
+			std::vector<::sqf::type> m_expected;
+			::sqf::type m_got;
+		public:
+			ExpectedSubArrayTypeMissmatchWeak(LogLocationInfo loc, std::vector<size_t> position, std::vector<::sqf::type> expected, ::sqf::type got) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_position(position),
+				m_expected(expected),
+				m_got(got)
+			{}
+			template<size_t size>
+			ExpectedSubArrayTypeMissmatchWeak(LogLocationInfo loc, std::array<size_t, size> position, ::sqf::type expected, ::sqf::type got) :
+				ExpectedSubArrayTypeMissmatchWeak(loc, position, std::array<::sqf::type, 1> { expected }, got)
+			{}
+			template<size_t size1, size_t size2>
+			ExpectedSubArrayTypeMissmatchWeak(LogLocationInfo loc, std::array<size_t, size1> position, std::array<::sqf::type, size2> expected, ::sqf::type got) :
+				ExpectedSubArrayTypeMissmatchWeak(loc, std::vector(position.begin(), position.end), std::vector(expected.begin(), expected.end), got)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ErrorMessage : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60043;
+			std::string_view m_source;
+			std::string m_message;
+		public:
+			ErrorMessage(LogLocationInfo loc, std::string_view source, std::string message) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_source(source),
+				m_message(message)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class FileSystemDisabled : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60044;
+		public:
+			FileSystemDisabled(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class NetworkingDisabled : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60045;
+		public:
+			NetworkingDisabled(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class AlreadyConnected : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60046;
+		public:
+			AlreadyConnected(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class NetworkingFormatMissmatch : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60047;
+			std::string_view m_provided;
+		public:
+			NetworkingFormatMissmatch(LogLocationInfo loc, std::string_view provided) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_provided(provided)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class FailedToEstablishConnection : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60048;
+		public:
+			FailedToEstablishConnection(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedArrayToHaveElements : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60049;
+		public:
+			ExpectedArrayToHaveElements(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedArrayToHaveElementsWeak : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60050;
+		public:
+			ExpectedArrayToHaveElementsWeak(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+
+		class ClipboardDisabled : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60051;
+		public:
+			ClipboardDisabled(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class FailedToCopyToClipboard : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60052;
+		public:
+			FailedToCopyToClipboard(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class FormatInvalidPlaceholder : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60053;
+			char m_placeholder;
+			size_t m_index;
+		public:
+			FormatInvalidPlaceholder(LogLocationInfo loc, char placeholder, size_t index) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_placeholder(placeholder),
+				m_index(index)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ZeroDivisor : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60054;
+		public:
+			ZeroDivisor(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MarkerNotExisting : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60055;
+			std::string_view m_marker_name;
+		public:
+			MarkerNotExisting(LogLocationInfo loc, std::string_view marker_name) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_marker_name(marker_name)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ReturningDefaultArray : public RuntimeBase {
+			static const loglevel level = loglevel::verbose;
+			static const size_t errorCode = 60056;
+			size_t m_size;
+		public:
+			ReturningDefaultArray(LogLocationInfo loc, size_t size) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_size(size)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ReturningScalarZero : public RuntimeBase {
+			static const loglevel level = loglevel::verbose;
+			static const size_t errorCode = 60057;
+		public:
+			ReturningScalarZero(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedNonNullValue : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60058;
+		public:
+			ExpectedNonNullValue(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedNonNullValueWeak: public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60059;
+		public:
+			ExpectedNonNullValueWeak(LogLocationInfo loc) :
 				RuntimeBase(level, errorCode, std::move(loc))
 			{}
 			[[nodiscard]] std::string formatMessage() const override;

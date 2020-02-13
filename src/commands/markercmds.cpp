@@ -9,6 +9,7 @@
 #include "../innerobj.h"
 #include <string>
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -27,7 +28,8 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		return marker->get_type_sqf();
@@ -38,11 +40,9 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
-			auto arr = std::make_shared<arraydata>(2);
-			arr->push_back(0);
-			arr->push_back(0);
-			return value(arr);
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::ReturningDefaultArray(*vm->current_instruction(), 2));
+			return std::array<value, 2> { 0, 0 };
 		}
 		return marker->get_size_sqf();
 	}
@@ -52,7 +52,8 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		return marker->get_color_sqf();
@@ -63,12 +64,9 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
-			auto arr = std::make_shared<arraydata>(3);
-			arr->push_back(0);
-			arr->push_back(0);
-			arr->push_back(0);
-			return value(arr);
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::ReturningDefaultArray(*vm->current_instruction(), 3));
+			return std::array<value, 3> { 0, 0 };
 		}
 		return marker->get_pos_sqf();
 	}
@@ -78,7 +76,8 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		return marker->get_brush_sqf();
@@ -89,7 +88,8 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		return marker->get_text_sqf();
@@ -100,7 +100,8 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::ReturningScalarZero(*vm->current_instruction()));
 			return 0;
 		}
 		return marker->get_direction_sqf();
@@ -111,7 +112,8 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		return marker->get_shape_sqf();
@@ -122,7 +124,8 @@ namespace
 		auto marker = vm->get_marker(name);
 		if (!marker)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return 0;
 		}
 		return marker->get_alpha_sqf();
@@ -138,7 +141,8 @@ namespace
 			auto objdata = arr->at(1).data<sqf::objectdata>();
 			if (objdata->is_null())
 			{
-				vm->wrn() << "Provided object is null." << std::endl;
+				vm->logmsg(err::ExpectedNonNullValueWeak(*vm->current_instruction()));
+				vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 				return {};
 			}
 			auto obj = objdata->obj();
@@ -193,7 +197,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), mname));
 			return {};
 		}
 		auto shapename = right.as_string();
@@ -225,7 +229,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), mname));
 			return {};
 		}
 		auto brushname = right.as_string();
@@ -249,7 +253,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), mname));
 			return {};
 		}
 		auto arr = right.data<arraydata>();
@@ -266,7 +270,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), mname));
 			return {};
 		}
 		auto tname = right.as_string();
@@ -290,7 +294,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), mname));
 			return {};
 		}
 		auto text = right.as_string();
@@ -303,7 +307,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), mname));
 			return {};
 		}
 		auto dir = right.as_float();
@@ -316,7 +320,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), mname));
 			return {};
 		}
 		auto colorname = right.as_string();
@@ -340,7 +344,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
 			return {};
 		}
 		auto arr = right.data<arraydata>();
@@ -357,7 +361,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->wrn() << "Provided marker name does not exist." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
 			return {};
 		}
 		auto alpha = right.as_float();

@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cstdlib>
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -35,48 +36,17 @@ namespace
 	value createvehicle_array(virtualmachine* vm, value::cref right)
 	{
 		auto arr = right.data<arraydata>();
-		if (arr->size() != 5)
+		if (!arr->check_type(vm, std::array<sqf::type, 5>{ STRING, ARRAY, ARRAY, STRING, }))
 		{
-			vm->err() << "Array was expected to have exactly 5 elements. Got " << arr->size() << '.' << std::endl;
-			return {};
-		}
-		//Type
-		if (arr->at(0).dtype() != STRING)
-		{
-			vm->err() << "Element 0 in input array was expected to be of type STRING. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
 			return {};
 		}
 		auto type = arr->at(0).as_string();
-		//Position
-		if (arr->at(1).dtype() != ARRAY)
-		{
-			vm->err() << "Element 1 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
-			return {};
-		}
 		auto position = arr->at(1).data<arraydata>();
 		if (!position->check_type(vm, SCALAR, 3))
 		{
 			return {};
 		}
-		//Markers
-		if (arr->at(2).dtype() != ARRAY)
-		{
-			vm->err() << "Element 2 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
-			return {};
-		}
-		//Placement Radius
-		if (arr->at(3).dtype() != SCALAR)
-		{
-			vm->err() << "Element 3 in input array was expected to be of type SCALAR. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
-			return {};
-		}
 		auto radius = arr->at(3).as_double();
-		//SPECIAL
-		if (arr->at(4).dtype() != STRING)
-		{
-			vm->err() << "Element 4 in input array was expected to be of type STRING. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
-			return {};
-		}
 		if (vm->perform_classname_checks())
 		{
 			auto configBin = sqf::configdata::configFile().data<sqf::configdata>();
@@ -98,18 +68,13 @@ namespace
 	{
 		auto type = left.as_string();
 		auto position = right.data<arraydata>();
-		if (position->size() != 3)
+		if (!position->check_type(vm, sqf::SCALAR, 3))
 		{
-			vm->err() << "Input array was expected to have 3 elements of type SCALAR. Got " << position->size() << '.' << std::endl;
 			return {};
 		}
-		for (size_t i = 0; i < 3; i++)
+		if (!position->check_type(vm, sqf::SCALAR, 3))
 		{
-			if (position->at(i).dtype() != SCALAR)
-			{
-				vm->err() << "Element " << i << " of input array was expected to be of type SCALAR. Got " << type_str(position->at(i).dtype()) << '.' << std::endl;
-				return {};
-			}
+			return {};
 		}
 		if (vm->perform_classname_checks())
 		{
@@ -134,7 +99,7 @@ namespace
 		auto veh = right.data<objectdata>();
 		if (veh->is_null())
 		{
-			vm->wrn() << "Attempt to delete NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValueWeak(*vm->current_instruction()));
 			return {};
 		}
 		veh->obj()->destroy(vm);
@@ -145,7 +110,7 @@ namespace
 		auto veh = right.data<objectdata>();
 		if (veh->is_null())
 		{
-			vm->err() << "Object is null." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		auto pos = veh->obj()->pos();
@@ -160,23 +125,11 @@ namespace
 		auto veh = left.data<objectdata>();
 		if (veh->is_null())
 		{
-			vm->wrn() << "Object is null." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValueWeak(*vm->current_instruction()));
 			return {};
 		}
 		auto position = right.data<arraydata>();
-		if (position->size() != 3)
-		{
-			vm->err() << "Input array was expected to have 3 elements of type SCALAR. Got " << position->size() << '.' << std::endl;
-			return {};
-		}
-		for (size_t i = 0; i < 3; i++)
-		{
-			if (position->at(i).dtype() != SCALAR)
-			{
-				vm->err() << "Element " << i << " of input array was expected to be of type SCALAR. Got " << type_str(position->at(i).dtype()) << '.' << std::endl;
-				return {};
-			}
-		}
+		position->check_type(vm, sqf::type::SCALAR, 3);
 		auto inner = veh->obj();
 		inner->posx(position->at(0).as_double());
 		inner->posy(position->at(1).as_double());
@@ -188,7 +141,7 @@ namespace
 		auto veh = right.data<objectdata>();
 		if (veh->is_null())
 		{
-			vm->err() << "Object is null." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		auto vel = veh->obj()->vel();
@@ -203,23 +156,11 @@ namespace
 		auto veh = left.data<objectdata>();
 		if (veh->is_null())
 		{
-			vm->wrn() << "Object is null." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValueWeak(*vm->current_instruction()));
 			return {};
 		}
 		auto velocity = right.data<arraydata>();
-		if (velocity->size() != 3)
-		{
-			vm->err() << "Input array was expected to have 3 elements of type SCALAR. Got " << velocity->size() << '.' << std::endl;
-			return {};
-		}
-		for (size_t i = 0; i < 3; i++)
-		{
-			if (velocity->at(i).dtype() != SCALAR)
-			{
-				vm->err() << "Element " << i << " of input array was expected to be of type SCALAR. Got " << type_str(velocity->at(i).dtype()) << '.' << std::endl;
-				return {};
-			}
-		}
+		velocity->check_type(vm, sqf::type::SCALAR, 3);
 		auto inner = veh->obj();
 		inner->velx(velocity->at(0).as_double());
 		inner->vely(velocity->at(1).as_double());
@@ -269,49 +210,18 @@ namespace
 	{
 		auto grp = left.data<groupdata>();
 		auto arr = right.data<arraydata>();
-
-		if (arr->size() != 5)
+		
+		if (arr->check_type(vm, std::array<sqf::type, 5> { STRING, ARRAY, ARRAY, SCALAR, STRING }))
 		{
-			vm->err() << "Array was expected to have exactly 5 elements. Got " << arr->size() << '.' << std::endl;
-			return {};
-		}
-		//Type
-		if (arr->at(0).dtype() != STRING)
-		{
-			vm->err() << "Element 0 in input array was expected to be of type STRING. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
 			return {};
 		}
 		auto type = arr->at(0).as_string();
-		//Position
-		if (arr->at(1).dtype() != ARRAY)
-		{
-			vm->err() << "Element 1 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
-			return {};
-		}
 		auto position = arr->at(1).data<arraydata>();
 		if (!position->check_type(vm, SCALAR, 3))
 		{
 			return {};
 		}
-		//Markers
-		if (arr->at(2).dtype() != ARRAY)
-		{
-			vm->err() << "Element 2 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
-			return {};
-		}
-		//Placement Radius
-		if (arr->at(3).dtype() != SCALAR)
-		{
-			vm->err() << "Element 3 in input array was expected to be of type SCALAR. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
-			return {};
-		}
 		auto radius = arr->at(3).as_double();
-		//SPECIAL
-		if (arr->at(4).dtype() != STRING)
-		{
-			vm->err() << "Element 4 in input array was expected to be of type STRING. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
-			return {};
-		}
 		if (vm->perform_classname_checks())
 		{
 			auto configBin = sqf::configdata::configFile().data<sqf::configdata>();
@@ -339,7 +249,7 @@ namespace
 
 		if (arr->size() < 2)
 		{
-			vm->err() << "Array was expected to have at least 2 elements. Got " << arr->size() << '.' << std::endl;
+			vm->logmsg(err::ExpectedMinimumArraySizeMissmatch(*vm->current_instruction(), 2, arr->size()));
 			return {};
 		}
 		//Position
@@ -435,7 +345,7 @@ namespace
 		auto r = right.data<arraydata>();
 		if (l->is_null())
 		{
-			vm->err() << "Left value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		if (!r->check_type(vm, SCALAR, 2, 3))
@@ -450,7 +360,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		if (!l->check_type(vm, SCALAR, 2, 3))
@@ -465,12 +375,12 @@ namespace
 		auto r = right.data<objectdata>();
 		if (l->is_null())
 		{
-			vm->err() << "Left value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		return l->obj()->distance3d(r->obj());
@@ -491,7 +401,7 @@ namespace
 		auto r = right.data<arraydata>();
 		if (l->is_null())
 		{
-			vm->err() << "Left value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		if (!r->check_type(vm, SCALAR, 2, 3))
@@ -506,7 +416,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		if (!l->check_type(vm, SCALAR, 2, 3))
@@ -521,12 +431,12 @@ namespace
 		auto r = right.data<objectdata>();
 		if (l->is_null())
 		{
-			vm->err() << "Left value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		return l->obj()->distance2d(r->obj());
@@ -550,7 +460,7 @@ namespace
 		auto arr = right.data<arraydata>();
 		if (arr->size() != 3 && arr->size() != 4)
 		{
-			vm->err() << "Input array was expected to contain either 3 or 4 elements. Got " << arr->size() << '.' << std::endl;
+			vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), 3, 4, arr->size()));
 			return {};
 		}
 		std::array<double, 3> position {0, 0, 0};
@@ -567,7 +477,7 @@ namespace
 		{
 			if (arr->at(0).data<objectdata>()->is_null())
 			{
-				vm->err() << "Input array element 0 is NULL object." << std::endl;
+				vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 				return {};
 			}
 			position = arr->at(0).data<objectdata>()->obj()->pos();
@@ -694,7 +604,7 @@ namespace
 		auto obj = right.data<objectdata>();
 		if (obj->is_null())
 		{
-			vm->err() << "Left value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		auto str = left.as_string();
@@ -761,7 +671,7 @@ namespace
 		auto r = right.as_float();
 		if (l->is_null())
 		{
-			vm->err() << "Left value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		l->obj()->damage(r);
@@ -772,7 +682,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		return r->obj()->damage();
@@ -782,7 +692,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->wrn() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValueWeak(*vm->current_instruction()));
 			return false;
 		}
 		return r->obj()->alive();
@@ -792,7 +702,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		auto arr = std::make_shared<arraydata>();
@@ -825,7 +735,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		auto obj = r->obj();
@@ -849,7 +759,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		return value(r->obj()->parent_object());
@@ -859,7 +769,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		auto obj = r->obj();
@@ -875,7 +785,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		auto obj = r->obj();
@@ -891,7 +801,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		auto obj = r->obj();
@@ -907,7 +817,7 @@ namespace
 		auto l = left.data<objectdata>();
 		if (l->is_null())
 		{
-			vm->err() << "Left value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		if (l->obj()->is_vehicle())
@@ -918,7 +828,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		if (!r->obj()->is_vehicle())
@@ -945,7 +855,7 @@ namespace
 		auto r = right.data<objectdata>();
 		if (r->is_null())
 		{
-			vm->err() << "Right value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		if (!r->obj()->is_vehicle())
@@ -960,7 +870,7 @@ namespace
 		auto l = left.data<objectdata>();
 		if (l->is_null())
 		{
-			vm->err() << "Left value provided is NULL object." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		if (l->obj()->is_vehicle())

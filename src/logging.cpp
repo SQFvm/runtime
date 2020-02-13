@@ -921,6 +921,7 @@ namespace logmessage::runtime
 		sstream << num;
 		return sstream.str();
 	}
+	// one, two, three, [...], 13, 14, 15, [...]
 	std::string to_cardinal_string(size_t num)
 	{
 		switch (num)
@@ -958,6 +959,7 @@ namespace logmessage::runtime
 			break;
 		}
 	}
+	// first, second, third, [...], 13., 14., 15., [...]
 	std::string to_ordinal_string(size_t num)
 	{
 		switch (num)
@@ -995,6 +997,8 @@ namespace logmessage::runtime
 			break;
 		}
 	}
+
+
 	std::string Stacktrace::formatMessage() const
 	{
 		auto output = location.format();
@@ -1020,58 +1024,6 @@ namespace logmessage::runtime
 		return output;
 	}
 	std::string ExpectedArraySizeMissmatch::formatMessage() const
-	{
-		if (m_expected_min == m_expected_max)
-		{
-			auto output = location.format();
-			auto expected_min = to_cardinal_string(m_expected_min);
-			auto got = to_cardinal_string(m_got);
-
-			output.reserve(
-				output.length()
-				+ "Array was expected to have "sv.length()
-				+ expected_min.length()
-				+ " elements but has "sv.length()
-				+ got.length()
-				+ "."sv.length()
-			);
-
-			output.append("Array was expected to have "sv);
-			output.append(expected_min);
-			output.append(" elements but has "sv);
-			output.append(got);
-			output.append("."sv);
-			return output;
-		}
-		else
-		{
-			auto output = location.format();
-			auto expected_min = to_cardinal_string(m_expected_min);
-			auto expected_max = to_cardinal_string(m_expected_max);
-			auto got = to_cardinal_string(m_got);
-
-			output.reserve(
-				output.length()
-				+ "Array was expected to have "sv.length()
-				+ expected_min.length()
-				+ " to "sv.length()
-				+ expected_max.length()
-				+ " elements but has "sv.length()
-				+ got.length()
-				+ "."sv.length()
-			);
-
-			output.append("Array was expected to have "sv);
-			output.append(expected_min);
-			output.append(" to "sv);
-			output.append(expected_max);
-			output.append(" elements but has "sv);
-			output.append(got);
-			output.append("."sv);
-			return output;
-		}
-	}
-	std::string ExpectedArraySizeMissmatchWeak::formatMessage() const
 	{
 		if (m_expected_min == m_expected_max)
 		{
@@ -1241,6 +1193,7 @@ namespace logmessage::runtime
 		sstream << " but got "sv;
 		sstream << got;
 		sstream << "."sv;
+		return sstream.str();
 	}
 	std::string ExpectedArrayTypeMissmatchWeak::formatMessage() const
 	{
@@ -1264,6 +1217,7 @@ namespace logmessage::runtime
 		sstream << " but got "sv;
 		sstream << got;
 		sstream << "."sv;
+		return sstream.str();
 	}
 	std::string IndexOutOfRange::formatMessage() const
 	{
@@ -1309,6 +1263,7 @@ namespace logmessage::runtime
 		output.append("."sv);
 		return output;
 	}
+
 	std::string NegativeIndex::formatMessage() const
 	{
 		auto output = location.format();
@@ -1453,6 +1408,7 @@ namespace logmessage::runtime
 		output.append(message);
 		return output;
 	}
+
 	std::string SuspensionInUnscheduledEnvironment::formatMessage() const
 	{
 		auto output = location.format();
@@ -1628,6 +1584,7 @@ namespace logmessage::runtime
 		output.append("' is not terminating the RVExtensionVersion buffer with a '\0'."sv);
 		return output;
 	}
+
 	std::string ExtensionNotTerminatingCallExtensionBufferString::formatMessage() const
 	{
 		auto output = location.format();
@@ -1761,6 +1718,335 @@ namespace logmessage::runtime
 	{
 		auto output = location.format();
 		const auto message = "Returning empty script handle."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ReturningErrorCode::formatMessage() const
+	{
+		auto output = location.format();
+		auto error_code = m_error_code;
+
+		output.reserve(
+			output.length()
+			+ "Returning error code "sv.length()
+			+ error_code.length()
+		);
+
+		output.append("Returning error code "sv);
+		output.append(error_code);
+		return output;
+	}
+
+	std::string ExpectedSubArrayTypeMissmatch::formatMessage() const
+	{
+		std::stringstream sstream;
+		auto output = location.format();
+		auto got = ::sqf::type_str(m_got);
+		sstream << "Expected the subarray at index "sv;
+		bool flag = false;
+		for (const auto& it : m_position)
+		{
+			if (flag)
+			{
+				sstream << " -> ";
+			}
+			flag = true;
+			sstream << to_ordinal_string(it);
+		}
+		sstream << " element of the array to be of the type "sv;
+		flag = false;
+		for (const auto& it : m_expected)
+		{
+			if (flag)
+			{
+				sstream << " or ";
+			}
+			flag = true;
+			sstream << ::sqf::type_str(it);
+		}
+		sstream << " but got "sv;
+		sstream << got;
+		sstream << "."sv;
+		return sstream.str();
+	}
+	std::string ExpectedSubArrayTypeMissmatchWeak::formatMessage() const
+	{
+		std::stringstream sstream;
+		auto output = location.format();
+		auto got = ::sqf::type_str(m_got);
+		sstream << "Expected the subarray at index "sv;
+		bool flag = false;
+		for (const auto& it : m_position)
+		{
+			if (flag)
+			{
+				sstream << " -> ";
+			}
+			flag = true;
+			sstream << to_ordinal_string(it);
+		}
+		sstream << " element of the array to be of the type "sv;
+		flag = false;
+		for (const auto& it : m_expected)
+		{
+			if (flag)
+			{
+				sstream << " or ";
+			}
+			flag = true;
+			sstream << ::sqf::type_str(it);
+		}
+		sstream << " but got "sv;
+		sstream << got;
+		sstream << "."sv;
+		return sstream.str();
+	}
+	std::string ErrorMessage::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "["sv.length()
+			+ m_source.length()
+			+ "] "sv.length()
+			+ m_message.length()
+		);
+
+		output.append("["sv);
+		output.append(m_source);
+		output.append("] "sv);
+		output.append(m_message);
+		return output;
+	}
+	std::string FileSystemDisabled::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Filesystem disabled."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NetworkingDisabled::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Networking disabled."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string AlreadyConnected::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Failed to establish connection as one is existing already."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NetworkingFormatMissmatch::formatMessage() const
+	{
+		auto output = location.format();
+		
+
+		output.reserve(
+			output.length()
+			+ "The provided format '"sv.length()
+			+ m_provided.length()
+			+ "' was not matching the expected format 'ADDRESS:PORT'."sv.length()
+		);
+
+		output.append("The provided format '"sv);
+		output.append(m_provided);
+		output.append("' was not matching the expected format."sv);
+		return output;
+	}
+	std::string FailedToEstablishConnection::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Failed to establish connection for unknown reason."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedArrayToHaveElements::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected array to have elements."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedArrayToHaveElementsWeak::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Expected array to have elements."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+
+	std::string ClipboardDisabled::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Clipboard disabled."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string FailedToCopyToClipboard::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Failed to copy to clipboard."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string FormatInvalidPlaceholder::formatMessage() const
+	{
+		auto output = location.format();
+		auto index = to_cardinal_string(m_index);
+
+		output.reserve(
+			output.length()
+			+ "The placeholder '"sv.length()
+			+ 1
+			+ "' is no valid placeholder at index"sv.length()
+			+ index.length()
+			+ "."sv.length()
+		);
+
+		output.append("The placeholder '"sv);
+		output.append(&m_placeholder, &m_placeholder);
+		output.append("' is no valid placeholder at index"sv);
+		output.append(index);
+		output.append("."sv);
+		return output;
+	}
+	std::string ZeroDivisor::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Zero divisor."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string MarkerNotExisting::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "The marker '"sv.length()
+			+ m_marker_name.length()
+			+ "' is not existing."sv.length()
+		);
+
+		output.append("The marker '"sv);
+		output.append(m_marker_name);
+		output.append("' is not existing."sv);
+		return output;
+	}
+	std::string ReturningDefaultArray::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "Returning default array ["sv.length()
+			+ (m_size * 3 - 2)
+			+ "]."sv.length()
+		);
+
+		output.append("Returning default array ["sv);
+		output.append("0"sv);
+		for (size_t i = 1; i < m_size; i++)
+		{
+			output.append(", 0"sv);
+		}
+		output.append("]."sv);
+		return output;
+	}
+	std::string ReturningScalarZero::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Returning zero (0)."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedNonNullValue::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Provided value is null."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedNonNullValueWeak::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Provided value is null."sv;
 
 		output.reserve(
 			output.length()
