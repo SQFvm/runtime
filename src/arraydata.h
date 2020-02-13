@@ -19,7 +19,6 @@ namespace sqf
 	{
 	private:
 		std::vector<value> mvalue;
-		bool check_type(virtualmachine*, const sqf::type*, size_t) const;
 		bool check_type(virtualmachine*, const sqf::type*, size_t, size_t) const;
 		bool recursion_test_helper(std::vector<std::shared_ptr<arraydata>>& visited);
 	protected:
@@ -69,7 +68,7 @@ namespace sqf
 		bool check_type(virtualmachine*, sqf::type, size_t min, size_t max) const;
 		template<size_t size>
 		bool check_type(virtualmachine* vm, const std::array<sqf::type, size>& arr) const { return check_type(vm, arr.data(), size); }
-        bool check_type(virtualmachine* vm, const std::vector<sqf::type>& vec) const { return check_type(vm, vec.data(), vec.size()); }
+        bool check_type(virtualmachine* vm, const std::vector<sqf::type>& vec) const { return check_type(vm, vec.data(), vec.size(), vec.size()); }
 		template<size_t size>
         bool check_type(virtualmachine* vm, const std::array<sqf::type, size>& arr, size_t optionalstart) const { return check_type(vm, arr.data(), size, optionalstart); }
 

@@ -4,6 +4,9 @@
 #include <utility>
 #include <vector>
 #include <string_view>
+#include <memory>
+#include <array>
+#include "type.h"
 
 using namespace std::string_view_literals;
 
@@ -105,9 +108,10 @@ class CanLog {
     Logger& m_logger;
 protected:
 	Logger& get_logger() { return m_logger; }
+    void log(LogMessageBase& message) const;
+    void log(LogMessageBase&& message) const;
 public:
     CanLog(Logger& logger) : m_logger(logger) {}
-    void log(LogMessageBase&& message) const;
 };
 
 
@@ -393,6 +397,13 @@ namespace logmessage {
 			ExpectedTypeName(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+		class NumberOutOfRange : public AssemblyBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 20022;
+		public:
+			NumberOutOfRange(LogLocationInfo loc) : AssemblyBase(level, errorCode, std::move(loc)) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
 	}
 	namespace sqf
 	{
@@ -621,6 +632,277 @@ namespace logmessage {
 			UnassignedVariable(LogLocationInfo loc, std::string_view variable_name) :
 				LintingBase(level, errorCode, std::move(loc)),
 				m_variable_name(variable_name) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+	}
+	namespace runtime
+	{
+		class RuntimeBase : public LogMessageBase {
+		public:
+			RuntimeBase(loglevel level, size_t errorCode, LogLocationInfo location) :
+				LogMessageBase(level, errorCode), location(std::move(location)) {}
+		protected:
+			LogLocationInfo location;
+		};
+		class Stacktrace : public RuntimeBase {
+			static const loglevel level = loglevel::fatal;
+			static const size_t errorCode = 60001;
+			std::string m_stacktrace;
+		public:
+			Stacktrace(LogLocationInfo loc, std::string stacktrace) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_stacktrace(stacktrace)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MaximumInstructionCountReached : public RuntimeBase {
+			static const loglevel level = loglevel::fatal;
+			static const size_t errorCode = 60002;
+			size_t m_maximum_instruction_count;
+		public:
+			MaximumInstructionCountReached(LogLocationInfo loc, size_t maximum_instruction_count) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_maximum_instruction_count(maximum_instruction_count)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedArraySizeMissmatch : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60003;
+			size_t m_expected_min;
+			size_t m_expected_max;
+			size_t m_got;
+		public:
+			ExpectedArraySizeMissmatch(LogLocationInfo loc, size_t expected, size_t got) :
+				ExpectedArraySizeMissmatch(loc, expected, expected, got)
+			{}
+			ExpectedArraySizeMissmatch(LogLocationInfo loc, size_t expected_min, size_t expected_max, size_t got) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_expected_min(expected_min),
+				m_expected_max(expected_max),
+				m_got(got)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedArraySizeMissmatchWeak : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60004;
+			size_t m_expected_min;
+			size_t m_expected_max;
+			size_t m_got;
+		public:
+			ExpectedArraySizeMissmatchWeak(LogLocationInfo loc, size_t expected, size_t got) :
+				ExpectedArraySizeMissmatchWeak(loc, expected, expected, got)
+			{}
+			ExpectedArraySizeMissmatchWeak(LogLocationInfo loc, size_t expected_min, size_t expected_max, size_t got) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_expected_min(expected_min),
+				m_expected_max(expected_max),
+				m_got(got)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedMinimumArraySizeMissmatch : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60005;
+			size_t m_expected;
+			size_t m_got;
+		public:
+			ExpectedMinimumArraySizeMissmatch(LogLocationInfo loc, size_t expected, size_t got) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_expected(expected),
+				m_got(got)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedMinimumArraySizeMissmatchWeak : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60006;
+			size_t m_expected;
+			size_t m_got;
+		public:
+			ExpectedMinimumArraySizeMissmatchWeak(LogLocationInfo loc, size_t expected, size_t got) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_expected(expected),
+				m_got(got)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedArrayTypeMissmatch : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60007;
+			size_t m_position;
+			std::vector<::sqf::type> m_expected;
+			::sqf::type m_got;
+		public:
+			ExpectedArrayTypeMissmatch(LogLocationInfo loc, size_t position, std::vector<::sqf::type> expected, ::sqf::type got) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_position(position),
+				m_expected(expected),
+				m_got(got)
+			{}
+			ExpectedArrayTypeMissmatch(LogLocationInfo loc, size_t position, ::sqf::type expected, ::sqf::type got) :
+				ExpectedArrayTypeMissmatch(loc, position, std::array<::sqf::type, 1> { expected }, got)
+			{}
+			template<size_t size>
+			ExpectedArrayTypeMissmatch(LogLocationInfo loc, size_t position, std::array<::sqf::type, size> expected, ::sqf::type got) :
+				ExpectedArrayTypeMissmatch(loc, position, std::vector(expected.begin(), expected.end), got)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExpectedArrayTypeMissmatchWeak : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60008;
+			size_t m_position;
+			std::vector<::sqf::type> m_expected;
+			::sqf::type m_got;
+		public:
+			ExpectedArrayTypeMissmatchWeak(LogLocationInfo loc, size_t position, std::vector<::sqf::type> expected, ::sqf::type got) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_position(position),
+				m_expected(expected),
+				m_got(got)
+			{}
+			ExpectedArrayTypeMissmatchWeak(LogLocationInfo loc, size_t position, ::sqf::type expected, ::sqf::type got) :
+				ExpectedArrayTypeMissmatchWeak(loc, position, std::array<::sqf::type, 1> { expected }, got)
+			{}
+			template<size_t size>
+			ExpectedArrayTypeMissmatchWeak(LogLocationInfo loc, size_t position, std::array<::sqf::type, size> expected, ::sqf::type got) :
+				ExpectedArrayTypeMissmatchWeak(loc, position, std::vector(expected.begin(), expected.end), got)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class IndexOutOfRange : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60009;
+			size_t m_range;
+			size_t m_index;
+		public:
+			IndexOutOfRange(LogLocationInfo loc, size_t range, size_t index) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_range(range),
+				m_index(index)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class IndexOutOfRangeWeak : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60010;
+			size_t m_range;
+			size_t m_index;
+		public:
+			IndexOutOfRangeWeak(LogLocationInfo loc, size_t range, size_t index) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_range(range),
+				m_index(index)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class NegativeIndex : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60011;
+		public:
+			NegativeIndex(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class NegativeIndexWeak : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60012;
+		public:
+			NegativeIndexWeak(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class IndexEqualsRange : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60013;
+			size_t m_range;
+			size_t m_index;
+		public:
+			IndexEqualsRange(LogLocationInfo loc, size_t range, size_t index) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_range(range),
+				m_index(index)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ReturningNil : public RuntimeBase {
+			static const loglevel level = loglevel::verbose;
+			static const size_t errorCode = 60014;
+		public:
+			ReturningNil(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ReturningEmptyArray : public RuntimeBase {
+			static const loglevel level = loglevel::verbose;
+			static const size_t errorCode = 60015;
+		public:
+			ReturningEmptyArray(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class NegativeSize : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60016;
+		public:
+			NegativeSize(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class NegativeSizeWeak: public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60017;
+		public:
+			NegativeSizeWeak(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ArrayRecursion: public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60018;
+		public:
+			ArrayRecursion(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class InfoMessage: public RuntimeBase {
+			static const loglevel level = loglevel::info;
+			static const size_t errorCode = 60019;
+			std::string_view m_source;
+			std::string m_message;
+		public:
+			InfoMessage(LogLocationInfo loc, std::string_view source, std::string message) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_source(source),
+				m_message(message)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class SuspensionDisabled : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60020;
+		public:
+			SuspensionDisabled(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class SuspensionInUnscheduledEnvironment : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60021;
+		public:
+			SuspensionInUnscheduledEnvironment(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
 	}

@@ -4,6 +4,7 @@
 #include "parsing/astnode.h"
 #include "instruction.h"
 #include <iostream>
+#include <sstream>
 using namespace std::string_view_literals;
 
 #pragma region StreamLogger
@@ -77,6 +78,14 @@ std::string LogLocationInfo::format() const {
 
 #pragma endregion LogLocationInfo
 
+void CanLog::log(LogMessageBase& message) const {
+    if (!m_logger.isEnabled(message.getLevel())) return;
+	m_logger.log(message.getLevel(), message.formatMessage());
+
+
+    //log(logmessage::preprocessor::ArgCountMissmatch(LogLocationInfo()));
+
+}
 void CanLog::log(LogMessageBase&& message) const {
     if (!m_logger.isEnabled(message.getLevel())) return;
 	m_logger.log(message.getLevel(), message.formatMessage());
@@ -543,6 +552,19 @@ namespace logmessage::assembly {
 		output.append(message);
 		return output;
 	}
+	std::string NumberOutOfRange::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Number out of range. Creating NaN value."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
 }
 
 namespace logmessage::sqf
@@ -861,7 +883,7 @@ namespace logmessage::config
 	{
 		auto output = location.format();
 		const auto message = "Parsing terminated before end of file was reached. "sv
-			"This usually means that your provided config contains errors that the parser could not catch. "sv;
+			"This usually means that your provided config contains errors that the parser could not catch."sv;
 
 		output.reserve(
 			output.length()
@@ -888,6 +910,530 @@ namespace logmessage::linting
 		output.append("Unassigned variable '"sv);
 		output.append(m_variable_name);
 		output.append("'."sv);
+		return output;
+	}
+}
+namespace logmessage::runtime
+{
+	std::string to_string(size_t num)
+	{
+		std::stringstream sstream;
+		sstream << num;
+		return sstream.str();
+	}
+	std::string to_cardinal_string(size_t num)
+	{
+		switch (num)
+		{
+		case 0:
+			return "zero";
+		case 1:
+			return "one";
+		case 2:
+			return "two";
+		case 3:
+			return "three";
+		case 4:
+			return "four";
+		case 5:
+			return "five";
+		case 6:
+			return "six";
+		case 7:
+			return "seven";
+		case 8:
+			return "eight";
+		case 9:
+			return "nine";
+		case 10:
+			return "ten";
+		case 11:
+			return "eleven";
+		case 12:
+			return "twelve";
+		default:
+			std::stringstream sstream;
+			sstream << num;
+			return sstream.str();
+			break;
+		}
+	}
+	std::string to_ordinal_string(size_t num)
+	{
+		switch (num)
+		{
+		case 0:
+			return "none";
+		case 1:
+			return "first";
+		case 2:
+			return "second";
+		case 3:
+			return "third";
+		case 4:
+			return "fourth";
+		case 5:
+			return "fifth";
+		case 6:
+			return "sixth";
+		case 7:
+			return "seventh";
+		case 8:
+			return "eighth";
+		case 9:
+			return "ninth";
+		case 10:
+			return "tenth";
+		case 11:
+			return "eleventh";
+		case 12:
+			return "twelfth";
+		default:
+			std::stringstream sstream;
+			sstream << num << '.';
+			return sstream.str();
+			break;
+		}
+	}
+	std::string Stacktrace::formatMessage() const
+	{
+		auto output = location.format();
+		output.reserve(m_stacktrace.length());
+		output.append(m_stacktrace);
+		return output;
+	}
+	std::string MaximumInstructionCountReached::formatMessage() const
+	{
+		auto output = location.format();
+		auto maximum_instruction_count = to_cardinal_string(m_maximum_instruction_count);
+
+		output.reserve(
+			output.length()
+			+ "Maxium instruction count of "sv.length()
+			+ maximum_instruction_count.length()
+			+ " reached."sv.length()
+		);
+
+		output.append("Maxium instruction count of "sv);
+		output.append(maximum_instruction_count);
+		output.append(" reached."sv);
+		return output;
+	}
+	std::string ExpectedArraySizeMissmatch::formatMessage() const
+	{
+		if (m_expected_min == m_expected_max)
+		{
+			auto output = location.format();
+			auto expected_min = to_cardinal_string(m_expected_min);
+			auto got = to_cardinal_string(m_got);
+
+			output.reserve(
+				output.length()
+				+ "Array was expected to have "sv.length()
+				+ expected_min.length()
+				+ " elements but has "sv.length()
+				+ got.length()
+				+ "."sv.length()
+			);
+
+			output.append("Array was expected to have "sv);
+			output.append(expected_min);
+			output.append(" elements but has "sv);
+			output.append(got);
+			output.append("."sv);
+			return output;
+		}
+		else
+		{
+			auto output = location.format();
+			auto expected_min = to_cardinal_string(m_expected_min);
+			auto expected_max = to_cardinal_string(m_expected_max);
+			auto got = to_cardinal_string(m_got);
+
+			output.reserve(
+				output.length()
+				+ "Array was expected to have "sv.length()
+				+ expected_min.length()
+				+ " to "sv.length()
+				+ expected_max.length()
+				+ " elements but has "sv.length()
+				+ got.length()
+				+ "."sv.length()
+			);
+
+			output.append("Array was expected to have "sv);
+			output.append(expected_min);
+			output.append(" to "sv);
+			output.append(expected_max);
+			output.append(" elements but has "sv);
+			output.append(got);
+			output.append("."sv);
+			return output;
+		}
+	}
+	std::string ExpectedArraySizeMissmatchWeak::formatMessage() const
+	{
+		if (m_expected_min == m_expected_max)
+		{
+			auto output = location.format();
+			auto expected_min = to_cardinal_string(m_expected_min);
+			auto got = to_cardinal_string(m_got);
+
+			output.reserve(
+				output.length()
+				+ "Array was expected to have "sv.length()
+				+ expected_min.length()
+				+ " elements but has "sv.length()
+				+ got.length()
+				+ "."sv.length()
+			);
+
+			output.append("Array was expected to have "sv);
+			output.append(expected_min);
+			output.append(" elements but has "sv);
+			output.append(got);
+			output.append("."sv);
+			return output;
+		}
+		else
+		{
+			auto output = location.format();
+			auto expected_min = to_cardinal_string(m_expected_min);
+			auto expected_max = to_cardinal_string(m_expected_max);
+			auto got = to_cardinal_string(m_got);
+
+			output.reserve(
+				output.length()
+				+ "Array was expected to have "sv.length()
+				+ expected_min.length()
+				+ " to "sv.length()
+				+ expected_max.length()
+				+ " elements but has "sv.length()
+				+ got.length()
+				+ "."sv.length()
+			);
+
+			output.append("Array was expected to have "sv);
+			output.append(expected_min);
+			output.append(" to "sv);
+			output.append(expected_max);
+			output.append(" elements but has "sv);
+			output.append(got);
+			output.append("."sv);
+			return output;
+		}
+	}
+	std::string ExpectedMinimumArraySizeMissmatch::formatMessage() const
+	{
+		auto output = location.format();
+		auto expected = to_cardinal_string(m_expected);
+		auto got = to_cardinal_string(m_got);
+
+		output.reserve(
+			output.length()
+			+ "Array was expected to have at least "sv.length()
+			+ expected.length()
+			+ " elements but has "sv.length()
+			+ got.length()
+			+ "."sv.length()
+		);
+
+		output.append("Array was expected to have at least "sv);
+		output.append(expected);
+		output.append(" elements but has "sv);
+		output.append(got);
+		output.append("."sv);
+		return output;
+	}
+	std::string ExpectedMinimumArraySizeMissmatchWeak::formatMessage() const
+	{
+		auto output = location.format();
+		auto expected = to_cardinal_string(m_expected);
+		auto got = to_cardinal_string(m_got);
+
+		output.reserve(
+			output.length()
+			+ "Array was expected to have at least "sv.length()
+			+ expected.length()
+			+ " elements but has "sv.length()
+			+ got.length()
+			+ "."sv.length()
+		);
+
+		output.append("Array was expected to have at least "sv);
+		output.append(expected);
+		output.append(" elements but has "sv);
+		output.append(got);
+		output.append("."sv);
+		return output;
+	}
+	std::string ExpectedArraySizeMissmatchWeak::formatMessage() const
+	{
+		auto output = location.format();
+		auto expected = to_cardinal_string(m_expected);
+		auto got = to_cardinal_string(m_got);
+
+		output.reserve(
+			output.length()
+			+ "Array was expected to have "sv.length()
+			+ expected.length()
+			+ " elements but has "sv.length()
+			+ got.length()
+			+ "."sv.length()
+		);
+
+		output.append("Array was expected to have "sv);
+		output.append(expected);
+		output.append(" elements but has "sv);
+		output.append(got);
+		output.append("."sv);
+		return output;
+	}
+	std::string ExpectedArrayTypeMissmatch::formatMessage() const
+	{
+		std::stringstream sstream;
+		auto output = location.format();
+		auto position = to_ordinal_string(m_position);
+		auto got = ::sqf::type_str(m_got);
+		sstream << "Expected the "sv;
+		sstream << position;
+		sstream << " element of the array to be of the type "sv;
+		bool flag = false;
+		for (const auto& it : m_expected)
+		{
+			if (flag)
+			{
+				sstream << " or ";
+			}
+			flag = true;
+			sstream << ::sqf::type_str(it);
+		}
+		sstream << " but got "sv;
+		sstream << got;
+		sstream << "."sv;
+	}
+	std::string ExpectedArrayTypeMissmatchWeak::formatMessage() const
+	{
+		std::stringstream sstream;
+		auto output = location.format();
+		auto position = to_ordinal_string(m_position);
+		auto got = ::sqf::type_str(m_got);
+		sstream << "Expected the "sv;
+		sstream << position;
+		sstream << " element of the array to be of the type "sv;
+		bool flag = false;
+		for (const auto& it : m_expected)
+		{
+			if (flag)
+			{
+				sstream << " or ";
+			}
+			flag = true;
+			sstream << ::sqf::type_str(it);
+		}
+		sstream << " but got "sv;
+		sstream << got;
+		sstream << "."sv;
+	}
+	std::string IndexOutOfRange::formatMessage() const
+	{
+		auto output = location.format();
+		auto range = to_cardinal_string(m_range);
+		auto index = to_cardinal_string(m_index);
+
+		output.reserve(
+			output.length()
+			+ "The requested index "sv.length()
+			+ index.length()
+			+ " exceeds the available range of "sv.length()
+			+ range.length()
+			+ "."sv.length()
+		);
+
+		output.append("The requested index "sv);
+		output.append(index);
+		output.append(" exceeds the available range of "sv);
+		output.append(range);
+		output.append("."sv);
+		return output;
+	}
+	std::string IndexOutOfRangeWeak::formatMessage() const
+	{
+		auto output = location.format();
+		auto range = to_cardinal_string(m_range);
+		auto index = to_cardinal_string(m_index);
+
+		output.reserve(
+			output.length()
+			+ "The requested index "sv.length()
+			+ index.length()
+			+ " exceeds the available range of "sv.length()
+			+ range.length()
+			+ "."sv.length()
+		);
+
+		output.append("The requested index "sv);
+		output.append(index);
+		output.append(" exceeds the available range of "sv);
+		output.append(range);
+		output.append("."sv);
+		return output;
+	}
+	std::string NegativeIndex::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "The requested index is negative."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NegativeIndexWeak::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "The requested index is negative."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string IndexEqualsRange::formatMessage() const
+	{
+		auto output = location.format();
+		auto range = to_cardinal_string(m_range);
+		auto index = to_cardinal_string(m_index);
+
+		output.reserve(
+			output.length()
+			+ "The requested index "sv.length()
+			+ index.length()
+			+ " is equal to the available range of "sv.length()
+			+ range.length()
+			+ "."sv.length()
+		);
+
+		output.append("The requested index "sv);
+		output.append(index);
+		output.append(" is equal to the available range of "sv);
+		output.append(range);
+		output.append("."sv);
+		return output;
+	}
+	std::string ReturningNil::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Returning nil."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ReturningEmptyArray::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Returning empty array."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NegativeSize::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "The requested size is negative."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NegativeSizeWeak::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "The requested size is negative."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ArrayRecursion::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Array recursion."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string InfoMessage::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "["sv.length()
+			+ m_source.length()
+			+ "] "sv.length()
+			+ m_message.length()
+		);
+
+		output.append("["sv);
+		output.append(m_source);
+		output.append("] "sv);
+		output.append(m_message);
+		return output;
+	}
+	std::string SuspensionDisabled::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Suspension disabled."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string SuspensionInUnscheduledEnvironment::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Cannot suspend in non-scheduled environment."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
 		return output;
 	}
 }

@@ -56,15 +56,10 @@
 
 sqf::virtualmachine::virtualmachine(Logger& logger, unsigned long long maxinst) : CanLog(logger)
 {
-	mout = &std::cout;
-	mwrn = &std::cerr;
-	merr = &std::cerr;
 	m_instructions_count = 0;
 	m_max_instructions = maxinst;
 	m_main_vmstack = std::make_shared<vmstack>();
 	m_active_vmstack = m_main_vmstack;
-	merrflag = false;
-	mwrnflag = false;
 	mmissionnamespace = std::make_shared<sqf::sqfnamespace>("missionNamespace");
 	muinamespace = std::make_shared< sqf::sqfnamespace>("uiNamespace");
 	mparsingnamespace = std::make_shared<sqf::sqfnamespace>("parsingNamespace");
@@ -73,6 +68,8 @@ sqf::virtualmachine::virtualmachine(Logger& logger, unsigned long long maxinst) 
 	m_exit_flag = false;
 	m_allow_suspension = true;
 	m_allow_networking = true;
+	m_status = vmstatus::empty;
+	m_runtime_error = false;
 	mplayer_obj = innerobj::create(this, "CAManBase", false);
 	m_created_timestamp = system_time();
 	m_current_time = system_time();
@@ -126,10 +123,7 @@ bool sqf::virtualmachine::execute_helper_execution_end()
 }
 sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 {
-	out_buffprint();
-	wrn_buffprint();
-	err_buffprint();
-	execresult res;
+	execresult res = execresult::invalid;
 	bool expected = false;
 	switch (action)
 	{
@@ -303,21 +297,16 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 		res = execresult::action_error;
 		break;
 	}
-
-	out_buffprint();
-	wrn_buffprint();
-	err_buffprint();
 	return res;
 }
 bool sqf::virtualmachine::performexecute(size_t exitAfter)
 {
-	std::shared_ptr<sqf::instruction> inst;
 	while (
 		!m_exit_flag &&
 		exitAfter != 0 &&
 		!m_active_vmstack->asleep() &&
 		!m_active_vmstack->terminate() &&
-		(inst = m_active_vmstack->pop_back_instruction(this)).get() &&
+		(m_current_instruction = m_active_vmstack->pop_back_instruction(this)).get() &&
 		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend &&
 		m_status == sqf::virtualmachine::vmstatus::running
 		)
@@ -329,15 +318,13 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 		}
 		if (m_max_instructions != 0 && m_max_instructions == m_instructions_count)
 		{
-			err() << "MAX INST COUNT REACHED (" << m_max_instructions << ")" << std::endl;
-			(*merr) << inst->dbginf("RNT") << merr_buff.str();
-            err_clear();
+			logmsg(logmessage::runtime::MaximumInstructionCountReached(*m_current_instruction, m_max_instructions));
 			return false;
 		}
 #ifdef DEBUG_VM_ASSEMBLY
-		(*mout) << inst->to_string() << std::endl;
+		(*mout) << m_current_instruction->to_string() << std::endl;
 #endif
-		inst->execute(this);
+		m_current_instruction->execute(this);
 #ifdef DEBUG_VM_ASSEMBLY
 		bool success;
 		std::vector<sqf::value> vals;
@@ -356,29 +343,32 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 			m_active_vmstack->pushval(it);
 		}
 #endif
-		if (merrflag)
+		if (m_runtime_error)
 		{
+			m_runtime_error = false;
 			// Try to find a callstack_sqftry
 			auto res = std::find_if(m_active_vmstack->stacks_begin(), m_active_vmstack->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
 				return cs->can_recover();
 			});
 			if (res == m_active_vmstack->stacks_end())
 			{
-				(*merr) << inst->dbginf("RNT") << merr_buff.str();
-                err_clear();
-				//Only for non-scheduled (and thus the mainstack)
+				m_runtime_error = false;
+				// Only for non-scheduled (and thus the mainstack)
 				if (!m_active_vmstack->scheduled())
 				{
-					this->err() << "Stacktrace:" << std::endl;
+					// ToDo: Move stackdump into its own file and then use that in logging message instead of std::string
+					std::stringstream sstream;
+					sstream << "Stacktrace:" << std::endl;
 					auto stackdump = m_active_vmstack->dump_callstack_diff({});
 					int i = 1;
 					for (auto& it : stackdump)
 					{
-						this->err() << i++ << ":\tnamespace: " << it.namespace_used->get_name()
+						sstream << i++ << ":\tnamespace: " << it.namespace_used->get_name()
 							<< "\tscopename: " << it.scope_name
 							<< "\tcallstack: " << it.callstack_name
 							<< std::endl << it.dbginf << std::endl;
 					}
+					log(logmessage::runtime::Stacktrace(*m_current_instruction, sstream.str()));
 					return false;
 				}
 			}
@@ -404,20 +394,9 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 				{
 					m_active_vmstack->drop_callstack();
 				}
-				sqftry->except(merr_buff.str(), sqfarr);
-                err_clear();
+				sqftry->except(sqfarr);
 			}
 		}
-		
-		if (mwrnflag)
-		{
-			if (mwrnenabled)
-			{
-				(*mwrn) << inst->dbginf("WRN") << mwrn_buff.str();
-			}
-			wrn_clear();
-		}
-        out_buffprint();
 	}
 	return true;
 }
@@ -448,7 +427,7 @@ short precedence(std::string_view s)
 	}
 	return srange->begin()->get()->precedence();
 }
-void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const sqf::parse::astnode& node)
+void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const sqf::parse::astnode& node, bool& errorflag)
 {
 	execute_parsing_callbacks(full, node, evaction::enter);
 	switch (node.kind)
@@ -465,8 +444,8 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 		case (short)sqf::parse::asttype::sqf::BEXP10:
 		case (short)sqf::parse::asttype::sqf::BINARYEXPRESSION:
 		{
-			navigate_sqf(full, stack, node.children[0]);
-			navigate_sqf(full, stack, node.children[2]);
+			navigate_sqf(full, stack, node.children[0], errorflag);
+			navigate_sqf(full, stack, node.children[2], errorflag);
 			auto inst = std::make_shared<sqf::inst::callbinary>(sqf::commandmap::get().getrange_b(node.children[1].content));
 			inst->setdbginf(node.children[1].line, node.children[1].col, node.file, sqf::parse::dbgsegment(full, node.children[1].offset, node.children[1].length));
 			stack->push_back(inst);
@@ -474,7 +453,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 		break;
 		case (short)sqf::parse::asttype::sqf::UNARYEXPRESSION:
 		{
-			navigate_sqf(full, stack, node.children[1]);
+			navigate_sqf(full, stack, node.children[1], errorflag);
 			auto inst = std::make_shared<sqf::inst::callunary>(sqf::commandmap::get().getrange_u(node.children[0].content));
 			inst->setdbginf(node.children[0].line, node.children[0].col, node.file, sqf::parse::dbgsegment(full, node.children[0].offset, node.children[0].length));
 			stack->push_back(inst);
@@ -499,7 +478,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			{
 				auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::scalardata>(std::nanf(""))));
 				inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-				wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
+				log(logmessage::assembly::NumberOutOfRange(*inst));
 				stack->push_back(inst);
 			}
 		}
@@ -516,7 +495,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 			{
 				auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::scalardata>(std::nanf(""))));
 				inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-				wrn() << inst->dbginf("WRN") << "Number out of range. Creating NaN element." << std::endl;
+				log(logmessage::assembly::NumberOutOfRange(*inst));
 				stack->push_back(inst);
 			}
 		}
@@ -540,7 +519,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 					cs->push_back(inst);
 				}
 				auto subnode = node.children[i];
-				navigate_sqf(full, cs, subnode);
+				navigate_sqf(full, cs, subnode, errorflag);
 			}
 			auto inst = std::make_shared<sqf::inst::push>(sqf::value(cs));
 			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
@@ -551,7 +530,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 		{
 			for (auto& subnode : node.children)
 			{
-				navigate_sqf(full, stack, subnode);
+				navigate_sqf(full, stack, subnode, errorflag);
 			}
 			auto inst = std::make_shared<sqf::inst::makearray>(node.children.size());
 			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
@@ -560,7 +539,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 		break;
 		case (short)sqf::parse::asttype::sqf::ASSIGNMENT:
 		{
-			navigate_sqf(full, stack, node.children[1]);
+			navigate_sqf(full, stack, node.children[1], errorflag);
 			auto inst = std::make_shared<sqf::inst::assignto>(node.children[0].content);
 			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
@@ -568,7 +547,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 		break;
 		case (short)sqf::parse::asttype::sqf::ASSIGNMENTLOCAL:
 		{
-			navigate_sqf(full, stack, node.children[1]);
+			navigate_sqf(full, stack, node.children[1], errorflag);
 			auto inst = std::make_shared<sqf::inst::assigntolocal>(node.children[0].content);
 			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
 			stack->push_back(inst);
@@ -592,13 +571,13 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 					stack->push_back(inst);
 				}
 				auto subnode = node.children[i];
-				navigate_sqf(full, stack, subnode);
+				navigate_sqf(full, stack, subnode, errorflag);
 			}
 		}
 	}
 	execute_parsing_callbacks(full, node, evaction::exit);
 }
-void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, sqf::parse::astnode& node, size_t depth)
+void navigate_pretty_print_sqf(std::stringstream& sstream, const char* full, sqf::virtualmachine* vm, sqf::parse::astnode& node, size_t depth)
 {
 	switch (node.kind)
 	{
@@ -614,15 +593,15 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, sqf::p
 		case (short)sqf::parse::asttype::sqf::BEXP10:
 		case (short)sqf::parse::asttype::sqf::BINARYEXPRESSION:
 		{
-			navigate_pretty_print_sqf(full, vm, node.children[0], depth);
-			vm->out() << ' ' << node.children[1].content << ' ';
-			navigate_pretty_print_sqf(full, vm, node.children[2], depth);
+			navigate_pretty_print_sqf(sstream, full, vm, node.children[0], depth);
+			sstream << ' ' << node.children[1].content << ' ';
+			navigate_pretty_print_sqf(sstream, full, vm, node.children[2], depth);
 		}
 		break;
 		case (short)sqf::parse::asttype::sqf::UNARYEXPRESSION:
 		{
-			vm->out() << node.children[0].content << ' ';
-			navigate_pretty_print_sqf(full, vm, node.children[1], depth);
+			sstream << node.children[0].content << ' ';
+			navigate_pretty_print_sqf(sstream, full, vm, node.children[1], depth);
 		}
 		break;
 		case (short)sqf::parse::asttype::sqf::NUMBER:
@@ -631,68 +610,68 @@ void navigate_pretty_print_sqf(const char* full, sqf::virtualmachine* vm, sqf::p
 		case (short)sqf::parse::asttype::sqf::STRING:
 		case (short)sqf::parse::asttype::sqf::VARIABLE:
 		{
-			vm->out() << node.content;
+			sstream << node.content;
 		}
 		break;
 		case (short)sqf::parse::asttype::sqf::BRACKETS:
 		{
-			vm->out() << "(";
-			navigate_pretty_print_sqf(full, vm, node.children[0], depth);
-			vm->out() << ")";
+			sstream << "(";
+			navigate_pretty_print_sqf(sstream, full, vm, node.children[0], depth);
+			sstream << ")";
 		}
 		break;
 		case (short)sqf::parse::asttype::sqf::CODE:
 		{
-			vm->out() << "{" << std::endl;
+			sstream << "{" << std::endl;
 			depth++;
 			for (auto& subnode : node.children)
 			{
-				vm->out() << std::string(depth * 4, ' ');
-				navigate_pretty_print_sqf(full, vm, subnode, depth);
-				vm->out() << ";" << std::endl;
+				sstream << std::string(depth * 4, ' ');
+				navigate_pretty_print_sqf(sstream, full, vm, subnode, depth);
+				sstream << ";" << std::endl;
 			}
 			depth--;
-			vm->out() << std::string(depth * 4, ' ') << "}";
+			sstream << std::string(depth * 4, ' ') << "}";
 		}
 		break;
 		case (short)sqf::parse::asttype::sqf::ARRAY:
 		{
-			vm->out() << "[";
+			sstream << "[";
 			bool flag = false;
 			for (auto& subnode : node.children)
 			{
 				if (flag)
 				{
-					vm->out() << ", ";
+					sstream << ", ";
 				}
 				else
 				{
 					flag = true;
 				}
-				navigate_pretty_print_sqf(full, vm, subnode, depth);
+				navigate_pretty_print_sqf(sstream, full, vm, subnode, depth);
 			}
-			vm->out() << "]";
+			sstream << "]";
 		}
 		break;
 		case (short)sqf::parse::asttype::sqf::ASSIGNMENT:
 		{
-			vm->out() << node.children[0].content << " = ";
-			navigate_pretty_print_sqf(full, vm, node.children[1], depth);
+			sstream << node.children[0].content << " = ";
+			navigate_pretty_print_sqf(sstream, full, vm, node.children[1], depth);
 		}
 		break;
 		case (short)sqf::parse::asttype::sqf::ASSIGNMENTLOCAL:
 		{
-			vm->out() << "private " << node.children[0].content << " = ";
-			navigate_pretty_print_sqf(full, vm, node.children[1], depth);
+			sstream << "private " << node.children[0].content << " = ";
+			navigate_pretty_print_sqf(sstream, full, vm, node.children[1], depth);
 		}
 		break;
 		default:
 		{
 			for (auto& subnode : node.children)
 			{
-				vm->out() << std::string(depth, '\t');
-				navigate_pretty_print_sqf(full, vm, subnode, depth);
-				vm->out() << ";" << std::endl;
+				sstream << std::string(depth, '\t');
+				navigate_pretty_print_sqf(sstream, full, vm, subnode, depth);
+				sstream << ";" << std::endl;
 			}
 		}
 	}
@@ -721,8 +700,7 @@ bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 	auto node = parser.parse(errorflag);
 	if (!errorflag)
 	{
-		navigate_sqf(code.data(), cs, node);
-		errorflag = this->err_hasdata();
+		navigate_sqf(code.data(), cs, node, errorflag);
 	}
 	return errorflag;
 }
@@ -732,14 +710,16 @@ std::string sqf::virtualmachine::preprocess(std::string input, bool& errflag, st
 	auto parsedcontents = parser.parse(this, std::move(input), errflag, filename);
 	return parsedcontents;
 }
-void sqf::virtualmachine::pretty_print_sqf(std::string_view code)
+std::string sqf::virtualmachine::pretty_print_sqf(std::string_view code)
 {
 	auto parser = sqf::parse::sqf(get_logger(), contains_nular, contains_unary, contains_binary, precedence, code, "");
 	bool errorflag = false;
 	auto node = parser.parse(errorflag);
 	if (!errorflag)
 	{
-		navigate_pretty_print_sqf(code.data(), this, node, 0);
+		std::stringstream sstream;
+		navigate_pretty_print_sqf(sstream, code.data(), this, node, 0);
+		return sstream.str();
 	}
 }
 void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, sqf::parse::astnode& node)

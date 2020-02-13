@@ -58,6 +58,7 @@ namespace sqf
 		};
 		enum class execresult
 		{
+			invalid = -1,
 			OK,
 			action_error,
 			runtime_error
@@ -77,16 +78,6 @@ namespace sqf
 		std::shared_ptr<sqf::vmstack> m_main_vmstack;
 		std::shared_ptr<sqf::vmstack> m_active_vmstack;
 		std::list<std::shared_ptr<scriptdata>> mspawns;
-		std::basic_ostream<char, std::char_traits<char>>* mout;
-		std::basic_ostream<char, std::char_traits<char>>* merr;
-		std::basic_ostream<char, std::char_traits<char>>* mwrn;
-		std::stringstream mout_buff;
-		std::stringstream merr_buff;
-		std::stringstream mwrn_buff;
-		bool moutflag = false;
-		bool merrflag = false;
-		bool mwrnflag = false;
-		bool mwrnenabled = true;
 		std::vector<size_t> mfreeobjids;
 		std::vector<std::shared_ptr<innerobj>> mobjlist;
 		std::shared_ptr<innerobj> mplayer_obj;
@@ -97,11 +88,13 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> mprofilenamespace;
 
 		std::map<std::string, sqf::marker> mmarkers;
+		std::shared_ptr<sqf::instruction> m_current_instruction;
 
 		std::map<int, size_t> mgroupidcounter;
 		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
 		std::atomic<bool> m_run_atomic;
 		vmstatus m_status;
+		bool m_runtime_error;
 
 		/*
 		 * Executes the currently configured setting up to the provided instruction count.
@@ -124,7 +117,7 @@ namespace sqf
 		std::vector<std::function<void(virtualmachine*, const char* text, const sqf::parse::astnode&, evaction)>> m_parsing_callbacks;
 
 	private:
-		void navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const sqf::parse::astnode& node);
+		void navigate_sqf(const char* full, std::shared_ptr<sqf::callstack> stack, const sqf::parse::astnode& node, bool& errorflag);
 		void handle_networking();
 		bool performexecute(size_t exitAfter = ~0);
 		void execute_parsing_callbacks(const char* text, const sqf::parse::astnode& node, evaction act)
@@ -152,7 +145,8 @@ namespace sqf
 		std::chrono::system_clock::time_point get_created_timestamp() const { return m_created_timestamp; }
 		std::chrono::system_clock::time_point get_current_time() const { return m_current_time; }
 		void set_current_time(std::chrono::system_clock::time_point value) { m_current_time = value; }
-
+		
+		std::shared_ptr<sqf::instruction> current_instruction() const { return m_current_instruction; }
 		std::shared_ptr<innerobj> player_obj() const { return mplayer_obj; }
 		void player_obj(std::shared_ptr<innerobj> val) { mplayer_obj = std::move(val); }
 		std::shared_ptr<sqf::vmstack> active_vmstack() { return m_active_vmstack; }
@@ -162,6 +156,17 @@ namespace sqf
 		std::shared_ptr<sqf::sqfnamespace> uinamespace() const { return muinamespace; }
 		std::shared_ptr<sqf::sqfnamespace> parsingnamespace() const { return mparsingnamespace; }
 		std::shared_ptr<sqf::sqfnamespace> profilenamespace() const { return mprofilenamespace; }
+
+		inline void logmsg(LogMessageBase&& message)
+		{
+			log(message);
+			if (message.getLevel() >= loglevel::error)
+			{
+				m_runtime_error = true;
+			}
+		}
+
+		vmstatus status() const { return m_status; }
 
 		void register_callback(std::function<void(virtualmachine*, const char* text, const sqf::parse::astnode&, evaction)> callback)
 		{
@@ -200,52 +205,6 @@ namespace sqf
 		void disable_networking() { m_allow_networking = false; }
 		// Checks wether or not networking got disabled
 		bool allow_networking() { return m_allow_networking; }
-
-		std::stringstream& out() { moutflag = true; return mout_buff; }
-		void out(std::basic_ostream<char, std::char_traits<char>>* strm) { mout = strm; }
-		void out_buffprint(bool force = false)
-		{
-			if (!moutflag && !force)
-				return;
-			(*mout) << mout_buff.str();
-			out_clear();
-		}
-		void out_clear() { mout_buff.str({}); moutflag = false; }
-		bool out_hasdata() const { return moutflag; }
-
-		std::stringstream& err() { merrflag = true; return merr_buff; }
-		void err(std::basic_ostream<char, std::char_traits<char>>* strm) { merr = strm; }
-		void err_buffprint(bool force = false)
-		{
-			if (!merrflag && !force)
-				return;
-			(*merr) << merr_buff.str();
-			err_clear();
-		}
-		void err_clear() { merr_buff.str({}); merrflag = false; }
-		bool err_hasdata() const { return merrflag; }
-
-		std::stringstream& wrn()
-		{
-			mwrnflag = true;
-			return mwrn_buff;
-		}
-		void wrn(std::basic_ostream<char, std::char_traits<char>>* strm) { mwrn = strm; }
-		void wrn_buffprint(bool force = false)
-		{
-			if (!mwrnflag && !force)
-				return;
-			if (mwrnenabled)
-			{
-				(*mwrn) << mwrn_buff.str();
-			}
-			wrn_clear();
-		}
-		void wrn_clear() { mwrn_buff.str({}); mwrnflag = false; }
-		bool wrn_hasdata() const { return mwrnflag; }
-		bool wrn_enabled() const { return mwrnenabled; }
-		void wrn_enabled(bool flag) { mwrnenabled = flag; }
-
 		void set_max_instructions(unsigned long long value) { m_max_instructions = value; }
 
 
@@ -263,7 +222,6 @@ namespace sqf
 		void remove_marker(std::string key) { mmarkers.erase(key); }
 		const std::map<std::string, sqf::marker>& get_markers() const { return mmarkers; }
 
-		void parse_assembly(std::string_view);
 		// Parses the provided code and prints the resulting
 		// SQF-tree out into provided std::stringstream pointer
 		void parse_sqf_tree(std::string_view, std::stringstream*);
@@ -310,10 +268,8 @@ namespace sqf
 
 		sqf::parse::astnode parse_sqf_cst(std::string_view code, std::string filepath = "") { bool errflag = false; return parse_sqf_cst(code, errflag, filepath); }
         sqf::parse::astnode parse_sqf_cst(std::string_view code, bool& errorflag, std::string filepath = "");
-		void pretty_print_sqf(std::string_view code);
+		std::string pretty_print_sqf(std::string_view code);
 		void parse_config(std::string_view, std::shared_ptr<configdata>);
-		bool errflag() const { return merrflag; }
-		bool wrnflag() const { return mwrnflag; }
 		std::vector<std::shared_ptr<dlops>>& libraries() { return mlibraries; }
 		bool allow_suspension() const { return m_allow_suspension; }
 		void allow_suspension(bool flag) { m_allow_suspension = flag; }

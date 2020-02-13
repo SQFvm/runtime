@@ -22,6 +22,7 @@
 #include "parseassembly.h"
 #ifndef DISABLE_DEBUG_SEGMENT
 #include "debugsegment.h"
+#include <scalardata.h>
 #endif // !DISABLE_DEBUG_SEGMENT
 
 
@@ -502,12 +503,24 @@ void sqf::parse::assembly::push(position_info& info)
 	}
 	if (textlen > 0)
 	{
-		auto data = std::string(m_contents.substr(info.offset - textlen, textlen));
-		auto inst = std::make_shared<sqf::inst::push>(sqf::value(sqf::convert(std::make_shared<sqf::stringdata>(data, true), pushtype)));
+		try
+		{
+			auto data = std::string(m_contents.substr(info.offset - textlen, textlen));
+			auto inst = std::make_shared<sqf::inst::push>(sqf::value(sqf::convert(std::make_shared<sqf::stringdata>(data, true), pushtype)));
 #ifndef DISABLE_DEBUG_SEGMENT
-		inst->setdbginf(identline, identcol, std::string(),  sqf::parse::dbgsegment(m_contents, identstart, compiletime::strlen("push")));
+			inst->setdbginf(identline, identcol, std::string(),  sqf::parse::dbgsegment(m_contents, identstart, compiletime::strlen("push")));
 #endif // !DISABLE_DEBUG_SEGMENT
-		m_vm->active_vmstack()->push_back(m_vm, inst);
+			m_vm->active_vmstack()->push_back(m_vm, inst);
+		}
+		catch (std::out_of_range&)
+		{
+			auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::scalardata>(std::nanf(""))));
+#ifndef DISABLE_DEBUG_SEGMENT
+			inst->setdbginf(identline, identcol, std::string(), sqf::parse::dbgsegment(m_contents, identstart, compiletime::strlen("push")));
+#endif // !DISABLE_DEBUG_SEGMENT
+			m_vm->active_vmstack()->push_back(m_vm, inst);
+			log(err::NumberOutOfRange(info));
+		}
 	}
 }	
 void sqf::parse::assembly::parse()

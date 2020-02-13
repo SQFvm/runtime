@@ -50,7 +50,7 @@ typedef int(__stdcall *RVExtensionRegisterCallback)(RVExtensionRegisterCallback_
 #error UNSUPPORTED PLATFORM
 #endif
 
-
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -134,7 +134,7 @@ namespace
 		auto arr = right.as_vector();
 		if (arr.size() != 2)
 		{
-			vm->err() << "Expected 2 elements in array." << std::endl;
+			vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), 2, arr.size()));
 			return {};
 		}
 		auto el0 = arr[0];
@@ -143,7 +143,7 @@ namespace
 		{
 			if (el1.dtype() != type::CODE)
 			{
-				vm->wrn() << "Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), 1, sqf::type::CODE, el1.dtype()));
 			}
 			if (el0.dtype() == type::CODE)
 			{
@@ -153,7 +153,7 @@ namespace
 			}
 			else
 			{
-				vm->err() << "Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, sqf::type::CODE, el0.dtype()));
 				return {};
 			}
 		}
@@ -161,7 +161,7 @@ namespace
 		{
 			if (el0.dtype() != type::CODE)
 			{
-				vm->wrn() << "Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), 0, sqf::type::CODE, el0.dtype()));
 			}
 			if (el1.dtype() == type::CODE)
 			{
@@ -171,7 +171,7 @@ namespace
 			}
 			else
 			{
-				vm->err() << "Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 1, sqf::type::CODE, el1.dtype()));
 				return {};
 			}
 		}
@@ -287,12 +287,12 @@ namespace
 
 		if (static_cast<int>(arr.size()) < index || index < 0)
 		{
-			vm->err() << "Index out of range." << std::endl;
+			vm->logmsg(err::IndexOutOfRange(*vm->current_instruction(), arr.size(), index));
 			return {};
 		}
 		if (arr.size() == index)
 		{
-			vm->wrn() << "Index equals range. Returning nil." << std::endl;
+			vm->logmsg(err::IndexEqualsRange(*vm->current_instruction(), arr.size(), index));
 			return {};
 		}
 		return arr[index];
@@ -301,14 +301,18 @@ namespace
 	{
 		auto arr = left.as_vector();
 		auto flag = right.as_bool();
+		if (arr.size() != 2)
+		{
+			vm->logmsg(err::ExpectedArraySizeMissmatchWeak(*vm->current_instruction(), 2, arr.size()));
+		}
 		if ((!flag && arr.size() < 2) || arr.size() < 1)
 		{
-			vm->wrn() << "Array should have at least two elements. Returning ni" << std::endl;
+			vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 			return {};
 		}
 		else if (flag && arr.size() < 2)
 		{
-			vm->wrn() << "Array should have at least two elements." << std::endl;
+			vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 			return {};
 		}
 
@@ -320,36 +324,43 @@ namespace
 		auto arr = right.as_vector();
 		if (arr.size() < 1)
 		{
-			vm->err() << "Array was expected to have at least a single element." << std::endl;
+			vm->logmsg(err::ExpectedMinimumArraySizeMissmatch(*vm->current_instruction(), 1, arr.size()));
 			return {};
+		}
+		else if (arr.size() != 2)
+		{
+			vm->logmsg(err::ExpectedArraySizeMissmatchWeak(*vm->current_instruction(), 2, arr.size()));
 		}
 		if (arr[0].dtype() != type::SCALAR)
 		{
-			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0].dtype()) << '.' << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 1, sqf::type::SCALAR, arr[0].dtype()));
 			return {};
 		}
 		int start = static_cast<int>(std::round(arr[0].as_float()));
 		if (start < 0)
 		{
-			vm->wrn() << "Start index is smaller then 0. Returning empty array." << std::endl;
+			vm->logmsg(err::NegativeIndexWeak(*vm->current_instruction()));
+			vm->logmsg(err::ReturningEmptyArray(*vm->current_instruction()));
 			return value(std::make_shared<sqf::arraydata>());
 		}
 		if (start > static_cast<int>(vec.size()))
 		{
-			vm->wrn() << "Start index is larger then string length. Returning empty array." << std::endl;
+			vm->logmsg(err::IndexOutOfRangeWeak(*vm->current_instruction(), vec.size(), start));
+			vm->logmsg(err::ReturningEmptyArray(*vm->current_instruction()));
 			return value(std::make_shared<sqf::arraydata>());
 		}
 		if (arr.size() >= 2)
 		{
 			if (arr[1].dtype() != type::SCALAR)
 			{
-				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[1].dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 1, sqf::type::SCALAR, arr[1].dtype()));
 				return {};
 			}
 			int length = static_cast<int>(std::round(arr[1].as_float()));
 			if (length < 0)
 			{
-				vm->wrn() << "Length is smaller then 0. Returning empty array." << std::endl;
+				vm->logmsg(err::NegativeIndexWeak(*vm->current_instruction()));
+				vm->logmsg(err::ReturningEmptyArray(*vm->current_instruction()));
                 return value(std::make_shared<sqf::arraydata>());
 			}
 
@@ -384,7 +395,7 @@ namespace
         auto type = (*arr)[0].dtype();
         if (type != sqf::STRING && type != sqf::SCALAR && type != sqf::ARRAY)
         {
-            vm->err() << "sort only accepts arrays of elements of type String, Number or Array." << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, std::array<sqf::type, 3>{ sqf::type::STRING, sqf::type::SCALAR, sqf::type::ARRAY }, type));
             return {};
         }
         if (!arr->check_type(vm, type, arr->size(), arr->size()))
@@ -454,7 +465,7 @@ namespace
 	{
 		if (right.as_int() < 0)
 		{
-			vm->err() << "New size cannot be smaller then 0." << std::endl;
+			vm->logmsg(err::NegativeSize(*vm->current_instruction()));
 			return {};
 		}
 		left.data<arraydata>()->resize(right.as_int());
@@ -494,7 +505,7 @@ namespace
 		auto newindex = arr->size();
 		if (!arr->push_back(value(right)))
 		{
-			vm->err() << "Array recursion detected." << std::endl;
+			vm->logmsg(err::ArrayRecursion(*vm->current_instruction()));
 			return {};
 		}
 		return newindex;
@@ -508,7 +519,7 @@ namespace
 		{
 			if (!arr->push_back(value(right)))
 			{
-				vm->err() << "Array recursion detected." << std::endl;
+				vm->logmsg(err::ArrayRecursion(*vm->current_instruction()));
 				return {};
 			}
 		}
@@ -551,7 +562,8 @@ namespace
 			auto it = arr[i];
 			if (it.dtype() != sqf::type::STRING)
 			{
-				vm->err() << "Index position " << i << " was expected to be of type 'STRING' but was '" << sqf::type_str(it.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), i, sqf::type::STRING, it.dtype()));
+				errflag = true;
 			}
 		}
 		if (errflag)
@@ -588,19 +600,19 @@ namespace
 	value hint_string(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_string();
-		vm->out() << "[HINT]\t" << r << std::endl;
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "HINT"sv, r));
 		return {};
 	}
 	value hint_text(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_string();
-		vm->out() << "[HINT]\t" << r << std::endl;
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "HINT"sv, r));
 		return {};
 	}
 	value systemchat_string(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_string();
-		vm->out() << "[CHAT]\tSYSTEM: " << r << std::endl;
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "SYSTEM-CHAT"sv, r));
 		return {};
 	}
 
@@ -710,14 +722,14 @@ namespace
 		}
 		if (params[0].dtype() != sqf::type::SCALAR)
 		{
-			vm->err() << "Index position 0 was expected to be of type 'SCALAR' but was '" << sqf::type_str(params[0].dtype()) << "'." << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, sqf::type::SCALAR, params[0].dtype()));
 			return {};
 		}
 
 		auto index = params[0].as_int();
 		if (index < 0)
 		{
-			vm->err() << "Index position 0 was expected to be greater than or equal to 0 but was " << index << "." << std::endl;
+			vm->logmsg(err::NegativeIndex(*vm->current_instruction()));
 			return {};
 		}
 		auto val = params[1];
@@ -730,7 +742,7 @@ namespace
 		if (!arr->recursion_test())
 		{
 			(*arr)[index] = oldval;
-			vm->err() << "Array recursion detected." << std::endl;
+			vm->logmsg(err::ArrayRecursion(*vm->current_instruction()));
 			return {};
 		}
 		return {};
@@ -817,6 +829,7 @@ namespace
 		auto index = right.as_int();
 		if (index < 0 || index >= static_cast<int>(l->size()))
 		{
+			vm->logmsg(err::IndexOutOfRangeWeak(*vm->current_instruction(), l->size(), index));
 			vm->wrn() << "Array index out of bounds." << std::endl;
 			return {};
 		}
@@ -863,7 +876,7 @@ namespace
 				{
 					max = 0;
 				}
-				vm->wrn() << "Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), i, std::array<sqf::type, 2>{sqf::type::SCALAR, sqf::type::BOOL}, tmp.dtype()));
 			}
 		}
 		return max;
@@ -895,7 +908,7 @@ namespace
 				{
 					min = 0;
 				}
-				vm->wrn() << "Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), i, std::array<sqf::type, 2>{sqf::type::SCALAR, sqf::type::BOOL}, tmp.dtype()));
 			}
 		}
 		return min;
@@ -1295,12 +1308,12 @@ namespace
 	{
 		if (!vm->allow_suspension())
 		{
-			vm->err() << "Sleeping is disabled." << std::endl;
+			vm->logmsg(err::SuspensionDisabled(*vm->current_instruction()));
 			return {};
 		}
 		if (!vm->active_vmstack()->scheduled())
 		{
-			vm->err() << "Cannot suspend in non-scheduled environment." << std::endl;
+			vm->logmsg(err::SuspensionInUnscheduledEnvironment(*vm->current_instruction()));
 			return {};
 		}
 		auto duration = std::chrono::duration<float>(right.as_float());
