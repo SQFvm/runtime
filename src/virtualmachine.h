@@ -16,6 +16,7 @@
 #include "marker.h"
 #include "filesystem.h"
 #include "astnode.h"
+#include "breakpoint.h"
 #include "macro.h"
 
 
@@ -101,6 +102,8 @@ namespace sqf
 		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
 		std::atomic<bool> m_run_atomic;
 		vmstatus m_status;
+
+		std::vector<sqf::diagnostics::breakpoint> m_breakpoints;
 
 		/*
 		 * Executes the currently configured setting up to the provided instruction count.
@@ -246,13 +249,26 @@ namespace sqf
 
 		void set_max_instructions(unsigned long long value) { m_max_instructions = value; }
 
+		void push_back(sqf::diagnostics::breakpoint breakpoint)
+		{
+			m_breakpoints.push_back(breakpoint);
+		}
+		std::vector<sqf::diagnostics::breakpoint>::iterator breakpoints_begin()
+		{
+			m_breakpoints.begin();
+		}
+		std::vector<sqf::diagnostics::breakpoint>::iterator breakpoints_end()
+		{
+			m_breakpoints.end();
+		}
+
 
 		execresult execute(execaction action);
 		static std::string dbgsegment(const char* full, size_t off, size_t length);
 		void exit_flag(bool flag) { m_exit_flag = flag; }
 		void exit_flag(bool flag, int exitcode) { m_exit_flag = flag; m_exit_code = exitcode; }
 		bool exit_flag() const { return m_exit_flag; }
-		int exit_code()const { return m_exit_code; }
+		int exit_code() const { return m_exit_code; }
 
 		bool perform_classname_checks() const { return m_perform_classname_checks; }
 		void perform_classname_checks(bool f) { m_perform_classname_checks = f; }

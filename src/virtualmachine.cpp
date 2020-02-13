@@ -316,11 +316,22 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 		exitAfter != 0 &&
 		!m_active_vmstack->asleep() &&
 		!m_active_vmstack->terminate() &&
+		m_status == sqf::virtualmachine::vmstatus::running &&
 		(inst = m_active_vmstack->pop_back_instruction(this)).get() &&
-		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend &&
-		m_status == sqf::virtualmachine::vmstatus::running
+		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend
 		)
 	{
+		// Check if breakpoint was hit
+		{
+			auto line = inst->line();
+			for (const auto& breakpoint : m_breakpoints)
+			{
+				if (breakpoint.is_enabled() && breakpoint.line() == line)
+				{
+					return true;
+				}
+			}
+		}
 		m_instructions_count++;
 		if (exitAfter > 0)
 		{
