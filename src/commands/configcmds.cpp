@@ -9,6 +9,7 @@
 #include <algorithm>
 
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -37,7 +38,8 @@ namespace
 		auto index = right.as_int();
 		if (index >= static_cast<int>(cd->size()) || index < 0)
 		{
-			vm->wrn() << "Provided index out of config range. Index: " << index << ", ConfigName: " << (cd->is_null() ? "configNull" : cd->name()) << '.' << std::endl;
+			vm->logmsg(err::IndexOutOfRangeWeak(*vm->current_instruction(), cd->size(), index));
+			vm->logmsg(err::ReturningConfigNull(*vm->current_instruction()));
 			return configdata::configNull();
 		}
 		return (*cd)[index];

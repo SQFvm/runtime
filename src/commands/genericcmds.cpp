@@ -483,17 +483,18 @@ namespace
 		auto arr = left.data<arraydata>();
 		if (from > to)
 		{
-			vm->wrn() << "From index (" << from << ") is larger then to index (" << to << ")." << std::endl;
+			vm->logmsg(err::StartIndexExceedsToIndexWeak(*vm->current_instruction(), from, to));
 			to = from;
 		}
 		if (from < 0)
 		{
-			vm->wrn() << "From index (" << from << ") is less then 0." << std::endl;
+			vm->logmsg(err::NegativeIndexWeak(*vm->current_instruction()));
+			vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 			return {};
 		}
 		if (to >= (int)arr->size())
 		{
-			vm->wrn() << "To index (" << to << ") is larger then or equal to array size (" << arr->size() << ")then 0." << std::endl;
+			vm->logmsg(err::IndexOutOfRangeWeak(*vm->current_instruction(), arr->size(), to));
 			to = arr->size() - 1;
 		}
 		arr->erase(arr->begin() + from, arr->begin() + to + 1);
@@ -635,7 +636,7 @@ namespace
 		auto valswtch = vm->active_vmstack()->get_variable(MAGIC_SWITCH);
 		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
-			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
+			vm->logmsg(err::MagicVariableTypeMissmatch(*vm->current_instruction(), MAGIC_SWITCH, sqf::type::SWITCH, valswtch.dtype()));
 			return {};
 		}
 		auto swtch = valswtch.data<switchdata>();
@@ -651,7 +652,7 @@ namespace
 		auto valswtch = vm->active_vmstack()->get_variable(MAGIC_SWITCH);
 		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
-			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
+			vm->logmsg(err::MagicVariableTypeMissmatch(*vm->current_instruction(), MAGIC_SWITCH, sqf::type::SWITCH, valswtch.dtype()));
 			return {};
 		}
 		auto swtch = valswtch.data<switchdata>();
@@ -702,11 +703,11 @@ namespace
 		auto r = right.data<scriptdata>();
 		if (r->stack()->terminate())
 		{
-			vm->wrn() << "Scripthandle terminated twice." << std::endl;
+			vm->logmsg(err::ScriptHandleAlreadyTerminated(*vm->current_instruction()));
 		}
 		if (r->hasfinished())
 		{
-			vm->wrn() << "Scripthandle already done." << std::endl;
+			vm->logmsg(err::ScriptHandleAlreadyFinished(*vm->current_instruction()));
 		}
 		r->stack()->terminate(true);
 		return {};
@@ -717,7 +718,7 @@ namespace
 		auto params = right.as_vector();
 		if (params.size() != 2)
 		{
-			vm->err() << "Expected 2 elements in array, got " << params.size() << ". Returning NIL." << std::endl;
+			vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), 2, params.size()));
 			return {};
 		}
 		if (params[0].dtype() != sqf::type::SCALAR)
@@ -827,10 +828,14 @@ namespace
 	{
 		auto l = left.data<arraydata>();
 		auto index = right.as_int();
-		if (index < 0 || index >= static_cast<int>(l->size()))
+		if (index >= static_cast<int>(l->size()))
 		{
 			vm->logmsg(err::IndexOutOfRangeWeak(*vm->current_instruction(), l->size(), index));
-			vm->wrn() << "Array index out of bounds." << std::endl;
+			return {};
+		}
+		else if (index < 0)
+		{
+			vm->logmsg(err::NegativeIndexWeak(*vm->current_instruction()));
 			return {};
 		}
 		auto val = l->at(index);
@@ -914,6 +919,14 @@ namespace
 		return min;
 	}
 
+	std::string from_char_array(const char* arr, size_t max_size)
+	{
+		const char* start = arr;
+		size_t i;
+		for (i = 0; i < max_size && arr[i] != '\0'; i++);
+		return std::string(start, arr + (i == max_size ? i - 1 : i));
+	}
+
 	std::shared_ptr<dlops> helpermethod_callextension_loadlibrary(virtualmachine* vm, std::string name)
 	{
 		static char buffer[CALLEXTVERSIONBUFFSIZE + 1] = { 0 };
@@ -936,19 +949,19 @@ namespace
 			reinterpret_cast<RVExtensionVersion>(sym)(buffer, CALLEXTVERSIONBUFFSIZE);
 			if (buffer[CALLEXTVERSIONBUFFSIZE - 1] != '\0')
 			{
-				vm->wrn() << "Library '" << name << "' is not terminating RVExtensionVersion output buffer with a '\\0'!" << std::endl;
+				vm->logmsg(err::ExtensionNotTerminatingVersionString(*vm->current_instruction(), name));
 			}
-			vm->out() << "[RPT]\tCallExtension loaded: '" << name << "' [" << buffer <<  ']' << std::endl;
+			vm->logmsg(err::ExtensionLoaded(*vm->current_instruction(), name, from_char_array(buffer, CALLEXTVERSIONBUFFSIZE)));
 		}
 		else
 		{
-			vm->out() << "[RPT]\tCallExtension loaded: '" << name << '\'' << std::endl;
+			vm->logmsg(err::ExtensionLoaded(*vm->current_instruction(), name, "NOT AVAILABLE"));
 		}
 		if (dl->try_resolve("RVExtensionRegisterCallback", &sym))
 		{
 			auto method = reinterpret_cast<RVExtensionRegisterCallback>(sym);
-			
-			vm->out() << "[RPT]\tRegistered 'ExtensionCallback' with '" << name << '\'' << std::endl;
+			// ToDo: Create a way to actually execute this callback
+			// vm->out() << "[RPT]\tRegistered 'ExtensionCallback' with '" << name << '\'' << std::endl;
 		}
 		return dl;
 	}
@@ -958,7 +971,8 @@ namespace
 		auto libname = left.as_string();
 		if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
 		{
-			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
+			vm->logmsg(err::LibraryNameContainsPath(*vm->current_instruction(), libname));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		try
@@ -972,13 +986,15 @@ namespace
 			method(buffer, CALLEXTBUFFSIZE, right.as_string().c_str());
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
-				vm->wrn() << "Library '" << libname << "' is not terminating RVExtension output buffer with a '\\0'!" << std::endl;
+				vm->logmsg(err::ExtensionNotTerminatingCallExtensionBufferString(*vm->current_instruction(), libname));
+				buffer[CALLEXTBUFFSIZE - 1] = '\0';
 			}
 			return buffer;
 		}
 		catch (const std::runtime_error& ex)
 		{
-			vm->wrn() << "Could not complete command execution due to error with library '" << libname << "' (RVExtension): " << ex.what() << std::endl;
+			vm->logmsg(err::ExtensionRuntimeError(*vm->current_instruction(), libname, ex.what()));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 	}
@@ -988,7 +1004,8 @@ namespace
 		auto libname = left.as_string();
 		if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
 		{
-			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
+			vm->logmsg(err::LibraryNameContainsPath(*vm->current_instruction(), libname));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		auto rvec = right.data<arraydata>();
@@ -999,12 +1016,12 @@ namespace
 		}
 		if (rvec->at(0).dtype() != type::STRING)
 		{
-			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(rvec->at(0).dtype()) << "'." << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, sqf::type::STRING, rvec->at(0).dtype()));
 			return {};
 		}
 		if (rvec->at(1).dtype() != type::ARRAY)
 		{
-			vm->err() << "Index position 1 was expected to be of type 'STRING' but was '" << sqf::type_str(rvec->at(1).dtype()) << "'." << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 1, sqf::type::STRING, rvec->at(1).dtype()));
 			return {};
 		}
 
@@ -1049,12 +1066,15 @@ namespace
 			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0).as_string().c_str(), argvec.data(), static_cast<int>(argvec.size()));
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
-				vm->wrn() << "Library '" << libname << "' is not terminating RVExtensionArgs output buffer with a '\\0'!" << std::endl;
+				vm->logmsg(err::ExtensionNotTerminatingCallExtensionBufferString(*vm->current_instruction(), libname));
+				buffer[CALLEXTBUFFSIZE - 1] = '\0';
 			}
 			return std::vector<value>{ buffer, res, 0 };
 		}
 		catch (const std::runtime_error& ex)
 		{
+			vm->logmsg(err::ExtensionRuntimeError(*vm->current_instruction(), libname, ex.what()));
+			// ToDo: Execution Hint like: vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			vm->wrn() << "Could not complete command execution due to error with library '" << libname << "' (RVExtensionArgs): " << ex.what() << std::endl;
 			return std::vector<value>{ "", 0, 501 };
 		}
@@ -1075,7 +1095,7 @@ namespace
 		size_t i = 0;
 		bool flag;
 		
-		if(!fels.empty())
+		if (!fels.empty())
 		{
 			//validation step
 			if (fels.size() >= 1 && fels.at(0).dtype() != sqf::SCALAR)
@@ -1330,7 +1350,8 @@ namespace
 		auto res = vm->get_filesystem().try_get_physical_path(right.as_string());
 		if (!res.has_value())
 		{
-			vm->wrn() << "File '" << right.as_string() << "' Not Found." << std::endl;
+			vm->logmsg(err::FileNotFound(*vm->current_instruction(), right.as_string()));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		else
@@ -1343,7 +1364,8 @@ namespace
 		auto res = vm->get_filesystem().try_get_physical_path(right.as_string());
 		if (!res.has_value())
 		{
-			vm->wrn() << "File '" << right.as_string() << "' Not Found." << std::endl;
+			vm->logmsg(err::FileNotFound(*vm->current_instruction(), right.as_string()));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		else
@@ -1363,7 +1385,7 @@ namespace
 		}
 		else
 		{
-			vm->err() << "scopeName already set." << std::endl;
+			vm->logmsg(err::ScopeNameAlreadySet(*vm->current_instruction()));
 		}
 		return {};
 	}
@@ -1376,7 +1398,7 @@ namespace
 		}
 		else
 		{
-			vm->wrn() << "scriptName already set." << std::endl;
+			vm->logmsg(err::ScriptNameAlreadySet(*vm->current_instruction()));
 		}
 		return {};
 	}
@@ -1438,7 +1460,8 @@ namespace
 		auto res = vm->get_filesystem().try_get_physical_path(right.as_string());
 		if (!res.has_value())
 		{
-			vm->wrn() << "File '" << right.as_string() << "' Not Found." << std::endl;
+			vm->logmsg(err::FileNotFound(*vm->current_instruction(), right.as_string()));
+			vm->logmsg(err::ReturningEmptyScriptHandle(*vm->current_instruction()));
 			auto script = std::make_shared<scriptdata>();
 			return value(script);
 		}

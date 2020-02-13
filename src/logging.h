@@ -905,6 +905,200 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+		class ReturningConfigNull : public RuntimeBase {
+			static const loglevel level = loglevel::verbose;
+			static const size_t errorCode = 60022;
+		public:
+			ReturningConfigNull(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class AssertFailed : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60023;
+		public:
+			AssertFailed(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class StartIndexExceedsToIndex : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60024;
+			size_t m_from;
+			size_t m_to;
+		public:
+			StartIndexExceedsToIndex(LogLocationInfo loc, size_t from, size_t to) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_from(from),
+				m_to(to)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class StartIndexExceedsToIndexWeak : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60025;
+			size_t m_from;
+			size_t m_to;
+		public:
+			StartIndexExceedsToIndexWeak(LogLocationInfo loc, size_t from, size_t to) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_from(from),
+				m_to(to)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MagicVariableTypeMissmatch : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60026;
+			std::string_view m_variable_name;
+			::sqf::type m_expected;
+			::sqf::type m_got;
+		public:
+			MagicVariableTypeMissmatch(LogLocationInfo loc, std::string_view variable_name, ::sqf::type expected, ::sqf::type got) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_variable_name(variable_name),
+				m_expected(expected),
+				m_got(got)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ScriptHandleAlreadyTerminated : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60027;
+		public:
+			ScriptHandleAlreadyTerminated(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ScriptHandleAlreadyFinished : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60028;
+		public:
+			ScriptHandleAlreadyFinished(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExtensionLoaded : public RuntimeBase {
+			static const loglevel level = loglevel::verbose;
+			static const size_t errorCode = 60029;
+			std::string_view m_extension_name;
+			std::string m_version;
+		public:
+			ExtensionLoaded(LogLocationInfo loc, std::string_view extension_name, std::string version) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_extension_name(extension_name),
+				m_version(version)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExtensionNotTerminatingVersionString : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60030;
+			std::string_view m_extension_name;
+		public:
+			ExtensionNotTerminatingVersionString(LogLocationInfo loc, std::string_view extension_name) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_extension_name(extension_name)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExtensionNotTerminatingCallExtensionBufferString : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60031;
+			std::string_view m_extension_name;
+		public:
+			ExtensionNotTerminatingCallExtensionBufferString(LogLocationInfo loc, std::string_view extension_name) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_extension_name(extension_name)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExtensionNotTerminatingCallExtensionArgBufferString : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60032;
+			std::string_view m_extension_name;
+		public:
+			ExtensionNotTerminatingCallExtensionArgBufferString(LogLocationInfo loc, std::string_view extension_name) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_extension_name(extension_name)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class LibraryNameContainsPath : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60033;
+			std::string_view m_extension_name;
+		public:
+			LibraryNameContainsPath(LogLocationInfo loc, std::string_view extension_name) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_extension_name(extension_name)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ReturningEmptyString : public RuntimeBase {
+			static const loglevel level = loglevel::verbose;
+			static const size_t errorCode = 60034;
+		public:
+			ReturningEmptyString(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ExtensionRuntimeError : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60035;
+			std::string_view m_extension_name;
+			std::string_view m_what;
+		public:
+			ExtensionRuntimeError(LogLocationInfo loc, std::string_view extension_name, std::string_view what) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_extension_name(extension_name),
+				m_what(what)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class FileNotFound : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60036;
+			std::string_view m_filename;
+		public:
+			FileNotFound(LogLocationInfo loc, std::string_view filename) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_filename(filename)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ScopeNameAlreadySet : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60037;
+		public:
+			ScopeNameAlreadySet(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ScriptNameAlreadySet : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60038;
+		public:
+			ScriptNameAlreadySet(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ReturningEmptyScriptHandle : public RuntimeBase {
+			static const loglevel level = loglevel::verbose;
+			static const size_t errorCode = 60039;
+		public:
+			ReturningEmptyScriptHandle(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
 	}
 }
 

@@ -1123,6 +1123,58 @@ namespace logmessage::runtime
 			return output;
 		}
 	}
+	std::string ExpectedArraySizeMissmatchWeak::formatMessage() const
+	{
+		if (m_expected_min == m_expected_max)
+		{
+			auto output = location.format();
+			auto expected_min = to_cardinal_string(m_expected_min);
+			auto got = to_cardinal_string(m_got);
+
+			output.reserve(
+				output.length()
+				+ "Array was expected to have "sv.length()
+				+ expected_min.length()
+				+ " elements but has "sv.length()
+				+ got.length()
+				+ "."sv.length()
+			);
+
+			output.append("Array was expected to have "sv);
+			output.append(expected_min);
+			output.append(" elements but has "sv);
+			output.append(got);
+			output.append("."sv);
+			return output;
+		}
+		else
+		{
+			auto output = location.format();
+			auto expected_min = to_cardinal_string(m_expected_min);
+			auto expected_max = to_cardinal_string(m_expected_max);
+			auto got = to_cardinal_string(m_got);
+
+			output.reserve(
+				output.length()
+				+ "Array was expected to have "sv.length()
+				+ expected_min.length()
+				+ " to "sv.length()
+				+ expected_max.length()
+				+ " elements but has "sv.length()
+				+ got.length()
+				+ "."sv.length()
+			);
+
+			output.append("Array was expected to have "sv);
+			output.append(expected_min);
+			output.append(" to "sv);
+			output.append(expected_max);
+			output.append(" elements but has "sv);
+			output.append(got);
+			output.append("."sv);
+			return output;
+		}
+	}
 	std::string ExpectedMinimumArraySizeMissmatch::formatMessage() const
 	{
 		auto output = location.format();
@@ -1161,28 +1213,6 @@ namespace logmessage::runtime
 		);
 
 		output.append("Array was expected to have at least "sv);
-		output.append(expected);
-		output.append(" elements but has "sv);
-		output.append(got);
-		output.append("."sv);
-		return output;
-	}
-	std::string ExpectedArraySizeMissmatchWeak::formatMessage() const
-	{
-		auto output = location.format();
-		auto expected = to_cardinal_string(m_expected);
-		auto got = to_cardinal_string(m_got);
-
-		output.reserve(
-			output.length()
-			+ "Array was expected to have "sv.length()
-			+ expected.length()
-			+ " elements but has "sv.length()
-			+ got.length()
-			+ "."sv.length()
-		);
-
-		output.append("Array was expected to have "sv);
 		output.append(expected);
 		output.append(" elements but has "sv);
 		output.append(got);
@@ -1427,6 +1457,310 @@ namespace logmessage::runtime
 	{
 		auto output = location.format();
 		const auto message = "Cannot suspend in non-scheduled environment."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ReturningConfigNull::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Returning config null."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string AssertFailed::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Assertion Failed."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string StartIndexExceedsToIndex::formatMessage() const
+	{
+		auto output = location.format();
+		auto from = to_cardinal_string(m_from);
+		auto to = to_cardinal_string(m_to);
+
+		output.reserve(
+			output.length()
+			+ "Start index "sv.length()
+			+ from.length()
+			+ " exceeds end index "sv.length()
+			+ to.length()
+			+ "."sv.length()
+		);
+
+		output.append("Start index "sv);
+		output.append(from);
+		output.append(" exceeds end index "sv);
+		output.append(to);
+		output.append("."sv);
+		return output;
+	}
+	std::string StartIndexExceedsToIndexWeak::formatMessage() const
+	{
+		auto output = location.format();
+		auto from = to_cardinal_string(m_from);
+		auto to = to_cardinal_string(m_to);
+
+		output.reserve(
+			output.length()
+			+ "Start index "sv.length()
+			+ from.length()
+			+ " exceeds end index "sv.length()
+			+ to.length()
+			+ "."sv.length()
+		);
+
+		output.append("Start index "sv);
+		output.append(from);
+		output.append(" exceeds end index "sv);
+		output.append(to);
+		output.append("."sv);
+		return output;
+	}
+	std::string MagicVariableTypeMissmatch::formatMessage() const
+	{
+		auto output = location.format();
+		auto variable_name = m_variable_name;
+		auto expected = ::sqf::type_str(m_expected);
+		auto got = ::sqf::type_str(m_got);
+
+		output.reserve(
+			output.length()
+			+ "The Magic variable '"sv.length()
+			+ variable_name.length()
+			+ "' was expected to be of the type "sv.length()
+			+ expected.length()
+			+ " but is "sv.length()
+			+ got.length()
+			+ "."sv.length()
+		);
+
+		output.append("The Magic variable '"sv);
+		output.append(variable_name);
+		output.append("' was expected to be of the type "sv);
+		output.append(expected);
+		output.append(" but is "sv);
+		output.append(got);
+		output.append("."sv);
+		return output;
+	}
+	std::string ScriptHandleAlreadyTerminated::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Scripthandle already terminated."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ScriptHandleAlreadyFinished::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Scripthandle already finished."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExtensionLoaded::formatMessage() const
+	{
+		auto output = location.format();
+		auto extension_name = m_extension_name;
+		auto version = m_version;
+
+		output.reserve(
+			output.length()
+			+ "Loaded extension '"sv.length()
+			+ extension_name.length()
+			+ "' with version "sv.length()
+			+ version.length()
+			+ "."sv.length()
+		);
+
+		output.append("Loaded extension '"sv);
+		output.append(extension_name);
+		output.append("' with version "sv);
+		output.append(version);
+		output.append("."sv);
+		return output;
+	}
+	std::string ExtensionNotTerminatingVersionString::formatMessage() const
+	{
+		auto output = location.format();
+		auto extension_name = m_extension_name;
+
+		output.reserve(
+			output.length()
+			+ "Extension '"sv.length()
+			+ extension_name.length()
+			+ "' is not terminating the RVExtensionVersion buffer with a '\0'."sv.length()
+		);
+
+		output.append("Extension '"sv);
+		output.append(extension_name);
+		output.append("' is not terminating the RVExtensionVersion buffer with a '\0'."sv);
+		return output;
+	}
+	std::string ExtensionNotTerminatingCallExtensionBufferString::formatMessage() const
+	{
+		auto output = location.format();
+		auto extension_name = m_extension_name;
+
+		output.reserve(
+			output.length()
+			+ "Extension '"sv.length()
+			+ extension_name.length()
+			+ "' is not terminating the RVExtension buffer with a '\0'."sv.length()
+		);
+
+		output.append("Extension '"sv);
+		output.append(extension_name);
+		output.append("' is not terminating the RVExtension buffer with a '\0'."sv);
+		return output;
+	}
+	std::string ExtensionNotTerminatingCallExtensionArgBufferString::formatMessage() const
+	{
+		auto output = location.format();
+		auto extension_name = m_extension_name;
+
+		output.reserve(
+			output.length()
+			+ "Extension '"sv.length()
+			+ extension_name.length()
+			+ "' is not terminating the RVExtensionArgs buffer with a '\0'."sv.length()
+		);
+
+		output.append("Extension '"sv);
+		output.append(extension_name);
+		output.append("' is not terminating the RVExtensionArgs buffer with a '\0'."sv);
+		return output;
+	}
+	std::string LibraryNameContainsPath::formatMessage() const
+	{
+		auto output = location.format();
+		auto extension_name = m_extension_name;
+
+		output.reserve(
+			output.length()
+			+ "The extension name '"sv.length()
+			+ extension_name.length()
+			+ "' is not valid as it contains path characters."sv.length()
+		);
+
+		output.append("The extension name '"sv);
+		output.append(extension_name);
+		output.append("' is not valid as it contains path characters."sv);
+		return output;
+	}
+	std::string ReturningEmptyString::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Returning empty string."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExtensionRuntimeError::formatMessage() const
+	{
+		auto output = location.format();
+		auto extension_name = m_extension_name;
+		auto what = m_what;
+
+		output.reserve(
+			output.length()
+			+ "Extension '"sv.length()
+			+ extension_name.length()
+			+ "' caused a runtime exception with the contents '"sv.length()
+			+ what.length()
+			+ "'."sv.length()
+		);
+
+		output.append("Extension '"sv);
+		output.append(extension_name);
+		output.append("' caused a runtime exception with the contents '"sv);
+		output.append(what);
+		output.append("'."sv);
+		return output;
+	}
+	std::string FileNotFound::formatMessage() const
+	{
+		auto output = location.format();
+		auto filename = m_filename;
+
+		output.reserve(
+			output.length()
+			+ "File '"sv.length()
+			+ filename.length()
+			+ "' could not be located."sv.length()
+		);
+
+		output.append("File '"sv);
+		output.append(filename);
+		output.append("' could not be located."sv);
+		return output;
+	}
+	std::string ScopeNameAlreadySet::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Scropename already set."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ScriptNameAlreadySet::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Scriptname already set."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ReturningEmptyScriptHandle::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Returning empty script handle."sv;
 
 		output.reserve(
 			output.length()
