@@ -25,7 +25,8 @@ namespace
 		auto obj = right.data<objectdata>();
 		if (obj->is_null())
 		{
-			vm->wrn() << "Attempt to get typeOf a NULL OBJECT has been made." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValueWeak(*vm->current_instruction()));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		else
@@ -54,7 +55,8 @@ namespace
 			auto vehConfig = cfgVehicles.data<sqf::configdata>()->navigate(type);
 			if (vehConfig.data<configdata>()->is_null())
 			{
-				vm->wrn() << "The config entry for '" << type << "' could not be located in `ConfigBin >> CfgVehicles`." << std::endl;
+				vm->logmsg(err::ConfigEntryNotFoundWeak(*vm->current_instruction(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
+				vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 				return {};
 			}
 		}
@@ -83,7 +85,8 @@ namespace
 			auto vehConfig = cfgVehicles.data<sqf::configdata>()->navigate(type);
 			if (vehConfig.data<configdata>()->is_null())
 			{
-				vm->wrn() << "The config entry for '" << type << "' could not be located in `ConfigBin >> CfgVehicles`." << std::endl;
+				vm->logmsg(err::ConfigEntryNotFoundWeak(*vm->current_instruction(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
+				vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 				return {};
 			}
 		}
@@ -172,7 +175,7 @@ namespace
 		auto obj = left.data<objectdata>()->obj();
 		if (obj->is_vehicle())
 		{
-			vm->err() << "Attempt to execute doMove on a vehicle. The operator doMove can only be executed on Units." << std::endl;
+			vm->logmsg(err::ExpectedUnit(*vm->current_instruction()));
 			return {};
 		}
 		setpos_object_array(vm, left, right);
@@ -186,12 +189,12 @@ namespace
 		{
 			if (arr->at(i).dtype() != OBJECT)
 			{
-				vm->err() << "Element " << i << " of left input array was expected to be of type OBJECT. Got " << type_str(arr->at(i).dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), i, sqf::type::OBJECT, arr->at(i).dtype()));
 				errflag = true;
 			}
 			else if (arr->at(i).data<objectdata>()->obj()->is_vehicle())
 			{
-				vm->err() << "Attempt to execute doMove on a vehicle. The operator doMove can only be executed on Units." << std::endl;
+				vm->logmsg(err::ExpectedUnit(*vm->current_instruction()));
 				errflag = true;
 			}
 		}
@@ -229,7 +232,8 @@ namespace
 			auto vehConfig = cfgVehicles.data<sqf::configdata>()->navigate(type);
 			if (vehConfig.data<configdata>()->is_null())
 			{
-				vm->wrn() << "The config entry for '" << type << "' could not be located in `ConfigBin >> CfgVehicles`." << std::endl;
+				vm->logmsg(err::ConfigEntryNotFoundWeak(*vm->current_instruction(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
+				vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 				return {};
 			}
 		}
@@ -255,7 +259,7 @@ namespace
 		//Position
 		if (arr->at(0).dtype() != ARRAY)
 		{
-			vm->err() << "Element 0 in input array was expected to be of type ARRAY. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, sqf::type::ARRAY, arr->at(0).dtype()));
 			return {};
 		}
 		auto position = arr->at(0).data<arraydata>();
@@ -266,7 +270,7 @@ namespace
 		//Group
 		if (arr->at(1).dtype() != GROUP)
 		{
-			vm->err() << "Element 1 in input array was expected to be of type GROUP. Got " << type_str(arr->at(1).dtype()) << '.' << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 1, sqf::type::GROUP, arr->at(1).dtype()));
 			return {};
 		}
 		auto grp = arr->at(1).data<groupdata>();
@@ -277,7 +281,7 @@ namespace
 		{
 			if (arr->at(2).dtype() != STRING)
 			{
-				vm->err() << "Element 2 in input array was expected to be of type STRING. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 2, sqf::type::STRING, arr->at(2).dtype()));
 				return {};
 			}
 			else
@@ -290,7 +294,7 @@ namespace
 		{
 			if (arr->at(3).dtype() != SCALAR)
 			{
-				vm->err() << "Element 3 in input array was expected to be of type SCALAR. Got " << type_str(arr->at(3).dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 3, sqf::type::SCALAR, arr->at(3).dtype()));
 				return {};
 			}
 			else
@@ -303,7 +307,7 @@ namespace
 		{
 			if (arr->at(4).dtype() != STRING)
 			{
-				vm->err() << "Element 4 in input array was expected to be of type STRING. Got " << type_str(arr->at(4).dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 4, sqf::type::STRING, arr->at(4).dtype()));
 				return {};
 			}
 			else
@@ -318,7 +322,8 @@ namespace
 			auto vehConfig = cfgVehicles.data<sqf::configdata>()->navigate(type);
 			if (vehConfig.data<configdata>()->is_null())
 			{
-				vm->wrn() << "The config entry for '" << type << "' could not be located in `ConfigBin >> CfgVehicles`." << std::endl;
+				vm->logmsg(err::ConfigEntryNotFoundWeak(*vm->current_instruction(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
+				vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 				return {};
 			}
 		}
@@ -484,26 +489,26 @@ namespace
 		}
 		else
 		{
-			vm->err() << "Input array element 0 was expected to be of type ARRAY or OBJECT. Got " << type_str(arr->at(0).dtype()) << '.' << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, std::array<sqf::type, 2> { sqf::type::ARRAY, sqf::type::OBJECT }, arr->at(0).dtype()));
 			return {};
 		}
 		if (arr->at(1).dtype() != ARRAY)
 		{
-			vm->err() << "Input array element 1 was expected to be of type ARRAY. Got " << type_str(arr->at(1).dtype()) << '.' << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 1, sqf::type::ARRAY, arr->at(1).dtype()));
 			return {};
 		}
 		auto filterarr = arr->at(1).data<arraydata>();
 		for (size_t i = 0; i < filterarr->size(); i++)
 		{
 			if (filterarr->at(i).dtype() != STRING)
+				vm->logmsg(err::ExpectedSubArrayTypeMissmatch(*vm->current_instruction(), std::array<size_t, 2> { 1, i }, sqf::type::STRING, filterarr->at(i).dtype()));
 			{
-				vm->err() << "Input array element 1 contains non-string element at array index " << i << ". Got " << type_str(filterarr->at(i).dtype()) << '.' << std::endl;
 				return {};
 			}
 		}
 		if (arr->at(2).dtype() != SCALAR)
 		{
-			vm->err() << "Input array element 2 was expected to be of type SCALAR. Got " << type_str(arr->at(2).dtype()) << '.' << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 2, sqf::type::SCALAR, arr->at(2).dtype()));
 			return {};
 		}
 		auto radius = arr->at(2).as_double();
@@ -512,7 +517,7 @@ namespace
 		{
 			if (arr->at(3).dtype() != sqf::BOOL)
 			{
-				vm->err() << "Input array element 3 was expected to be of type BOOLEAN. Got " << type_str(arr->at(3).dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 4, sqf::type::BOOL, arr->at(3).dtype()));
 				return {};
 			}
 			is2ddistance = arr->at(3).as_bool();
@@ -651,8 +656,9 @@ namespace
 		auto node = conf->navigate(classname).data<configdata>();
 		if (node->is_null())
 		{
-			//ToDo: Check if isKindOf really does not errors here
-			vm->wrn() << "Class '" << classname << "' was not found in " << conf->name() << "." << std::endl;
+			// ToDo: Check if isKindOf really does not errors here
+			vm->logmsg(err::ConfigEntryNotFoundWeak(*vm->current_instruction(), std::array<std::string, 2> { conf->name() }, classname));
+			vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 			return false;
 		}
 		else
@@ -709,7 +715,8 @@ namespace
 		auto obj = r->obj();
 		if (!obj->is_vehicle())
 		{
-			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			vm->logmsg(err::ExpectedVehicleWeak(*vm->current_instruction()));
+			vm->logmsg(err::ReturningEmptyArray(*vm->current_instruction()));
 			return value(arr);
 		}
 		if (!obj->driver()->is_null())
@@ -741,7 +748,7 @@ namespace
 		auto obj = r->obj();
 		if (!obj->is_vehicle())
 		{
-			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			vm->logmsg(err::ExpectedVehicleWeak(*vm->current_instruction()));
 			return right;
 		}
 		auto parent = obj->parent_object();
@@ -775,7 +782,7 @@ namespace
 		auto obj = r->obj();
 		if (!obj->is_vehicle())
 		{
-			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			vm->logmsg(err::ExpectedVehicleWeak(*vm->current_instruction()));
 			return right;
 		}
 		return value(obj->driver());
@@ -791,7 +798,7 @@ namespace
 		auto obj = r->obj();
 		if (!obj->is_vehicle())
 		{
-			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			vm->logmsg(err::ExpectedVehicleWeak(*vm->current_instruction()));
 			return right;
 		}
 		return value(obj->commander());
@@ -807,7 +814,7 @@ namespace
 		auto obj = r->obj();
 		if (!obj->is_vehicle())
 		{
-			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			vm->logmsg(err::ExpectedVehicleWeak(*vm->current_instruction()));
 			return right;
 		}
 		return value(obj->gunner());
@@ -822,7 +829,8 @@ namespace
 		}
 		if (l->obj()->is_vehicle())
 		{
-			vm->wrn() << "Right value provided is a vehicle object." << std::endl;
+			vm->logmsg(err::ExpectedUnitWeak(*vm->current_instruction()));
+			vm->logmsg(err::ReturningFalse(*vm->current_instruction()));
 			return false;
 		}
 		auto r = right.data<objectdata>();
@@ -833,7 +841,8 @@ namespace
 		}
 		if (!r->obj()->is_vehicle())
 		{
-			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
+			vm->logmsg(err::ExpectedUnitWeak(*vm->current_instruction()));
+			vm->logmsg(err::ReturningFalse(*vm->current_instruction()));
 			return false;
 		}
 		auto veh = r->obj();
@@ -858,11 +867,6 @@ namespace
 			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
-		if (!r->obj()->is_vehicle())
-		{
-			vm->wrn() << "Right value provided is not a vehicle object." << std::endl;
-			return false;
-		}
 		return r->obj()->varname();
 	}
 	value setvehiclevarname_object_string(virtualmachine* vm, value::cref left, value::cref right)
@@ -872,11 +876,6 @@ namespace
 		{
 			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
-		}
-		if (l->obj()->is_vehicle())
-		{
-			vm->wrn() << "Right value provided is a vehicle object." << std::endl;
-			return false;
 		}
 		auto r = right.as_string();
 		l->obj()->varname(r);

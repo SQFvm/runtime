@@ -318,7 +318,7 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 		}
 		if (m_max_instructions != 0 && m_max_instructions == m_instructions_count)
 		{
-			logmsg(logmessage::runtime::MaximumInstructionCountReached(*m_current_instruction, m_max_instructions));
+			logmsg(logmessage::runtime::MaximumInstructionCountReached(*m_current_instruction, static_cast<size_t>(m_max_instructions)));
 			return false;
 		}
 #ifdef DEBUG_VM_ASSEMBLY
@@ -721,6 +721,7 @@ std::string sqf::virtualmachine::pretty_print_sqf(std::string_view code)
 		navigate_pretty_print_sqf(sstream, code.data(), this, node, 0);
 		return sstream.str();
 	}
+	return "";
 }
 void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<sqf::configdata> parent, sqf::parse::astnode& node)
 {

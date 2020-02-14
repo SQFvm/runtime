@@ -915,6 +915,12 @@ namespace logmessage::linting
 }
 namespace logmessage::runtime
 {
+	std::string to_string(double num)
+	{
+		std::stringstream sstream;
+		sstream << num;
+		return sstream.str();
+	}
 	std::string to_string(size_t num)
 	{
 		std::stringstream sstream;
@@ -2054,6 +2060,471 @@ namespace logmessage::runtime
 		);
 
 		output.append(message);
+		return output;
+	}
+	std::string ConfigEntryNotFound::formatMessage() const
+	{
+		auto output = location.format();
+		size_t size = 0;
+		for (const auto& it : m_config_path)
+		{
+			size += it.length();
+		}
+		size += (m_config_path.size() - 1) * 4;
+		output.reserve(
+			output.length()
+			+ "No config entry with the name '"sv.length()
+			+ m_config_name.length()
+			+ "' could be located at path "sv.length()
+			+ size
+			+ "."sv.length()
+		);
+
+		output.append("No config entry with the name '"sv);
+		output.append(m_config_name);
+		output.append("' could be located at path "sv);
+		bool flag = false;
+		for (const auto& it : m_config_path)
+		{
+			if (flag)
+			{
+				output.append(" >> ");
+			}
+			flag = true;
+			output.append(it);
+		}
+		output.append("."sv);
+		return output;
+	}
+
+	std::string ConfigEntryNotFoundWeak::formatMessage() const
+	{
+		auto output = location.format();
+		size_t size = 0;
+		for (const auto& it : m_config_path)
+		{
+			size += it.length();
+		}
+		size += (m_config_path.size() - 1) * 4;
+		output.reserve(
+			output.length()
+			+ "No config entry with the name '"sv.length()
+			+ m_config_name.length()
+			+ "' could be located at path "sv.length()
+			+ size
+			+ "."sv.length()
+		);
+
+		output.append("No config entry with the name '"sv);
+		output.append(m_config_name);
+		output.append("' could be located at path "sv);
+		bool flag = false;
+		for (const auto& it : m_config_path)
+		{
+			if (flag)
+			{
+				output.append(" >> ");
+			}
+			flag = true;
+			output.append(it);
+		}
+		output.append("."sv);
+		return output;
+	}
+	std::string ExpectedVehicle::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Provided object was expected to be a vehicle, got unit."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedVehicleWeak::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Provided object was expected to be a vehicle, got unit."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedUnit::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Provided object was expected to be a unit, got vehicle."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ExpectedUnitWeak::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Provided object was expected to be a unit, got vehicle."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ReturningFalse::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Returning false."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string MarkerAlreadyExisting::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "The marker '"sv.length()
+			+ m_marker_name.length()
+			+ "' is not existing."sv.length()
+		);
+
+		output.append("The marker '"sv);
+		output.append(m_marker_name);
+		output.append("' is not existing."sv);
+		return output;
+	}
+	std::string InvalidMarkershape::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "Invalid marker-shape name '"sv.length()
+			+ m_shape_name.length()
+			+ "' provided. Valid ones are: ICON, RECTANGLE, ELLIPSE, POLYLINE."sv.length()
+		);
+
+		output.append("Invalid marker-shape name '"sv);
+		output.append(m_shape_name);
+		output.append("' provided. Valid ones are: ICON, RECTANGLE, ELLIPSE, POLYLINE."sv);
+		return output;
+	}
+	std::string TypeMissmatch::formatMessage() const
+	{
+		auto output = location.format();
+		auto expected = ::sqf::type_str(m_expected);
+		auto got = ::sqf::type_str(m_got);
+
+		output.reserve(
+			output.length()
+			+ "Expected the type "sv.length()
+			+ expected.length()
+			+ " but got "sv.length()
+			+ got.length()
+			+ "."sv.length()
+		);
+
+		output.append("Expected the type "sv);
+		output.append(expected);
+		output.append(" but got"sv);
+		output.append(got);
+		output.append("."sv);
+		return output;
+	}
+	std::string TypeMissmatchWeak::formatMessage() const
+	{
+		auto output = location.format();
+		auto expected = ::sqf::type_str(m_expected);
+		auto got = ::sqf::type_str(m_got);
+
+		output.reserve(
+			output.length()
+			+ "Expected the type "sv.length()
+			+ expected.length()
+			+ " but got "sv.length()
+			+ got.length()
+			+ "."sv.length()
+		);
+
+		output.append("Expected the type "sv);
+		output.append(expected);
+		output.append(" but got"sv);
+		output.append(got);
+		output.append("."sv);
+		return output;
+	}
+
+	std::string VariableNotFound::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "A variable with the name '"sv.length()
+			+ m_variable_name.length()
+			+ "' could not be found."sv.length()
+		);
+
+		output.append("A variable with the name '"sv);
+		output.append(m_variable_name);
+		output.append("' could not be found.");
+		return output;
+	}
+	std::string StackCorruptionMissingValues::formatMessage() const
+	{
+		auto output = location.format();
+		auto expected = to_cardinal_string(m_expected);
+		auto got = to_cardinal_string(m_got);
+
+		output.reserve(
+			output.length()
+			+ "Stack-Corruption detected. Expected "sv.length()
+			+ expected.length()
+			+ " values on value stack but got "sv.length()
+			+ got.length()
+			+ "."sv.length()
+		);
+
+		output.append("Stack-Corruption detected. Expected "sv);
+		output.append(expected);
+		output.append(" values on value stack but got "sv);
+		output.append(got);
+		output.append("."sv);
+		return output;
+	}
+	std::string NoValueFoundForRightArgument::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "No value found on value stack for right argument."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NoValueFoundForRightArgumentWeak::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "No value found on value stack for right argument."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NoValueFoundForLeftArgument::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "No value found on value stack for left argument."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NoValueFoundForLeftArgumentWeak::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "No value found on value stack for left argument."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string UnknownInputTypeCombinationBinary::formatMessage() const
+	{
+		auto output = location.format();
+
+		if (m_left_got == ::sqf::type::NA)
+		{
+			auto right_got = ::sqf::type_str(m_right_got);
+			output.reserve(
+				output.length()
+				+ "Unknown input combination "sv.length()
+				+ m_operator.length()
+				+ " "sv.length()
+				+ right_got.length()
+				+ "."sv.length()
+			);
+
+			output.append("Unknown input combination "sv);
+			output.append(m_operator);
+			output.append(" "sv);
+			output.append(right_got);
+			output.append("."sv);
+			return output;
+		}
+		else
+		{
+			auto left_got = ::sqf::type_str(m_left_got);
+			auto right_got = ::sqf::type_str(m_right_got);
+			output.reserve(
+				output.length()
+				+ "Unknown input combination "sv.length()
+				+ left_got.length()
+				+ " "sv.length()
+				+ m_operator.length()
+				+ " "sv.length()
+				+ right_got.length()
+				+ "."sv.length()
+			);
+
+			output.append("Unknown input combination "sv);
+			output.append(left_got);
+			output.append(" "sv);
+			output.append(m_operator);
+			output.append(" "sv);
+			output.append(right_got);
+			output.append("."sv);
+			return output;
+		}
+	}
+	std::string FoundNoValue::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "No value found on value stack."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string CallstackFoundNoValue::formatMessage() const
+	{
+		auto output = location.format();
+		auto callstack_name = m_callstack_name;
+
+		output.reserve(
+			output.length()
+			+ "Callstack "sv.length()
+			+ callstack_name.length()
+			+ " found no value."sv.length()
+		);
+
+		output.append("Callstack "sv);
+		output.append(callstack_name);
+		output.append(" found no value."sv);
+		return output;
+	}
+	std::string CallstackFoundNoValueWeak::formatMessage() const
+	{
+		auto output = location.format();
+		auto callstack_name = m_callstack_name;
+
+		output.reserve(
+			output.length()
+			+ "Callstack "sv.length()
+			+ callstack_name.length()
+			+ " found no value."sv.length()
+		);
+
+		output.append("Callstack "sv);
+		output.append(callstack_name);
+		output.append(" found no value."sv);
+		return output;
+	}
+	std::string GroupNotEmpty::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "Group '"sv.length()
+			+ m_group_name.length()
+			+ "' is not empty."sv.length()
+		);
+
+		output.append("Group '"sv);
+		output.append(m_group_name);
+		output.append(" is not empty."sv);
+		return output;
+	}
+	std::string ForStepVariableTypeMissmatch::formatMessage() const
+	{
+		auto output = location.format();
+		auto expected = ::sqf::type_str(m_expected);
+		auto got = ::sqf::type_str(m_got);
+
+		output.reserve(
+			output.length()
+			+ "ForStep variable '"sv.length()
+			+ m_variable_name.length()
+			+ "' was expected to be of type "sv.length()
+			+ expected.length()
+			+ " but got "sv.length()
+			+ got.length()
+			+ "."sv.length()
+		);
+
+		output.append("ForStep variable '"sv);
+		output.append(m_variable_name);
+		output.append("' was expected to be of type "sv);
+		output.append(expected);
+		output.append(" but got "sv);
+		output.append(got);
+		output.append("."sv);
+		return output;
+	}
+	std::string ForStepNoWorkShouldBeDone::formatMessage() const
+	{
+		auto output = location.format();
+		auto step = to_string(m_step);
+		auto from = to_string(m_from);
+		auto to = to_string(m_to);
+
+		output.reserve(
+			output.length()
+			+ "ForStep with stepsize "sv.length()
+			+ step.length()
+			+ " will not do anything as the range is from "sv.length()
+			+ from.length()
+			+ " to "sv.length()
+			+ to.length()
+			+ "."sv.length()
+		);
+
+		output.append("ForStep with stepsize "sv);
+		output.append(step);
+		output.append(" will not do anything as the range is from "sv);
+		output.append(from);
+		output.append(" to "sv);
+		output.append(to);
+		output.append("."sv);
 		return output;
 	}
 }

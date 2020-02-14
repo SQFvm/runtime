@@ -201,9 +201,6 @@ int main(int argc, char** argv)
 	TCLAP::SwitchArg disableClassnameCheckArg("c", "check-classnames", "Enables the config checking for eg. createVehicle.", false);
 	cmd.add(disableClassnameCheckArg);
 
-	TCLAP::SwitchArg disableRuntimeWarningsArg("", "disable-runtime-warnings", "Disables the runtime warning messages raised by SQF-VM.\n", false);
-	cmd.add(disableRuntimeWarningsArg);
-
 
 	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. " RELPATHHINT "\n"
 		"An allowed location, is a location SQF-VM will be allowed to load files from."
@@ -361,7 +358,6 @@ int main(int argc, char** argv)
 	}
 
 	vm.perform_classname_checks(disableClassnameCheck);
-	vm.wrn_enabled(!disableRuntimeWarningsArg.getValue());
 	
 	if (maxInstructionsArg.getValue() != 0)
 	{
@@ -423,13 +419,13 @@ int main(int argc, char** argv)
 	for (auto& f : commandDummyNular.getValue())
 	{
 		sqf::commandmap::get().add(sqf::nular(f, "DUMMY", [](sqf::virtualmachine* vm) -> sqf::value {
-			vm->err() << "DUMMY" << std::endl; return {};
+			vm->logmsg(logmessage::runtime::ErrorMessage(*vm->current_instruction(), "DUMMY", "DUMMY"));  return {};
 		}));
 	}
 	for (auto& f : commandDummyUnary.getValue())
 	{
 		sqf::commandmap::get().add(sqf::unary(f, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref r) -> sqf::value {
-			vm->err() << "DUMMY" << std::endl; return {};
+			vm->logmsg(logmessage::runtime::ErrorMessage(*vm->current_instruction(), "DUMMY", "DUMMY")); return {};
 		}));
 	}
 	for (auto& f : commandDummyBinary.getValue())
@@ -444,7 +440,7 @@ int main(int argc, char** argv)
 		auto precedence = f.substr(0, split_index);
 		auto name = f.substr(split_index + 1);
 		sqf::commandmap::get().add(sqf::binary(std::stoi(precedence), name, sqf::type::ANY, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref l, sqf::value::cref r) -> sqf::value {
-			vm->err() << "DUMMY" << std::endl; return {};
+			vm->logmsg(logmessage::runtime::ErrorMessage(*vm->current_instruction(), "DUMMY", "DUMMY")); return {};
 		}));
 	}
 
@@ -484,7 +480,6 @@ int main(int argc, char** argv)
 			}
 			auto str = load_file(f);
 			vm.pretty_print_sqf(str);
-			vm.out_buffprint();
 		}
 		catch (const std::runtime_error& ex)
 		{
@@ -514,17 +509,6 @@ int main(int argc, char** argv)
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
 			auto ppedStr = vm.preprocess(str, err, sanitized);
-			if (err)
-			{
-				vm.err_buffprint();
-				vm.err_clear();
-			}
-			else
-			{
-				vm.out() << ppedStr;
-				vm.out_buffprint();
-				vm.out_clear();
-			}
 		}
 		catch (const std::runtime_error& ex)
 		{
@@ -554,12 +538,7 @@ int main(int argc, char** argv)
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
 			auto ppedStr = vm.preprocess(str, err, sanitized);
-			if (err)
-			{
-				vm.err_buffprint();
-				vm.err_clear();
-			}
-			else
+			if (!err)
 			{
 				if (verbose)
 				{
@@ -603,12 +582,7 @@ int main(int argc, char** argv)
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
 			auto ppedStr = vm.preprocess(str, err, sanitized);
-			if (err)
-			{
-				vm.err_buffprint();
-				vm.err_clear();
-			}
-			else
+			if (!err)
 			{
 				if (verbose)
 				{
@@ -629,9 +603,6 @@ int main(int argc, char** argv)
 		{
 			std::cout << "Exiting due to error." << std::endl;
 		}
-		vm.err_buffprint();
-		vm.wrn_buffprint();
-		vm.out_buffprint();
 		if (!automated)
 		{
 			std::string line;
@@ -706,11 +677,7 @@ int main(int argc, char** argv)
 			auto input = sstream.str();
 			bool err = false;
 			auto inputAfterPP = vm.preprocess(input, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
-			if (err || vm.err_hasdata())
-			{
-				vm.err_buffprint();
-			}
-			else
+			if (!err)
 			{
 				if (noAssemblyCreation)
 				{

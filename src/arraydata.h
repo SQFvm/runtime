@@ -67,7 +67,7 @@ namespace sqf
 		bool check_type(virtualmachine* vm, sqf::type t, size_t len) const { return check_type(vm, t, len, len); }
 		bool check_type(virtualmachine*, sqf::type, size_t min, size_t max) const;
 		template<size_t size>
-		bool check_type(virtualmachine* vm, const std::array<sqf::type, size>& arr) const { return check_type(vm, arr.data(), size); }
+		bool check_type(virtualmachine* vm, const std::array<sqf::type, size>& arr) const { return check_type(vm, arr.data(), size, size); }
         bool check_type(virtualmachine* vm, const std::vector<sqf::type>& vec) const { return check_type(vm, vec.data(), vec.size(), vec.size()); }
 		template<size_t size>
         bool check_type(virtualmachine* vm, const std::array<sqf::type, size>& arr, size_t optionalstart) const { return check_type(vm, arr.data(), size, optionalstart); }

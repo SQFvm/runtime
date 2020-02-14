@@ -24,7 +24,7 @@
 	auto val = vm->active_vmstack()->pop_back_value(success);
 	if (!success)
 	{
-		vm->err() << "waituntil callstack found no value." << std::endl;
+		vm->logmsg(logmessage::runtime::CallstackFoundNoValue(*vm->current_instruction(), "waituntil"sv));
 		return done;
 	}
 	else if (val.dtype() == type::BOOL)
@@ -38,13 +38,13 @@
 			{
 				if (!vm->active_vmstack()->scheduled())
 				{
-					vm->wrn() << "waitUntil in non-scheduled code." << std::endl;
+					vm->logmsg(logmessage::runtime::SuspensionInUnscheduledEnvironment(*vm->current_instruction()));
 				}
 				return suspend;
 			}
 			else
 			{
-				vm->err() << "Suspension not allowed." << std::endl;
+				vm->logmsg(logmessage::runtime::SuspensionDisabled(*vm->current_instruction()));
 				return done;
 			}
 		}
@@ -56,13 +56,13 @@
 	}
 	else if (val.dtype() == type::NOTHING)
 	{
-		vm->wrn() << "waituntil value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+		vm->logmsg(logmessage::runtime::TypeMissmatch(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
 		push_back(value());
 		return done;
 	}
 	else
 	{
-		vm->err() << "waituntil value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+		vm->logmsg(logmessage::runtime::TypeMissmatch(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
 		return done;
 	}
 	return do_next(vm);

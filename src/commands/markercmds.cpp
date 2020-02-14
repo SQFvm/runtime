@@ -170,7 +170,8 @@ namespace
 		}
 		if (vm->get_marker(name))
 		{
-			vm->wrn() << "Provided marker name is already existing." << std::endl;
+			vm->logmsg(err::MarkerAlreadyExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		auto m = marker();
@@ -187,7 +188,7 @@ namespace
 		}
 		else
 		{
-			vm->wrn() << "Attempt to delete a non-existing marker has been made." << std::endl;
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
 		}
 		return {};
 	}
@@ -219,7 +220,7 @@ namespace
 		}
 		else
 		{
-			vm->err() << "Invalid marker shape was provided." << std::endl;
+			vm->logmsg(err::InvalidMarkershape(*vm->current_instruction(), shapename));
 		}
 		return {};
 	}
@@ -240,7 +241,7 @@ namespace
 			auto brushConfig = cfgVehicles.data<sqf::configdata>()->navigate(brushname);
 			if (brushConfig.data<configdata>()->is_null())
 			{
-				vm->wrn() << "The config entry '" << brushname << "' could not be located in `ConfigBin >> CfgMarkerBrushes`." << std::endl;
+				vm->logmsg(err::ConfigEntryNotFoundWeak(*vm->current_instruction(), std::array<std::string, 2> { "ConfigBin", "CfgMarkers" }, brushname));
 				return {};
 			}
 		}
@@ -281,7 +282,8 @@ namespace
 			auto typeConfig = cfgVehicles.data<sqf::configdata>()->navigate(tname);
 			if (typeConfig.data<configdata>()->is_null())
 			{
-				vm->wrn() << "The config entry '" << tname << "' could not be located in `ConfigBin >> CfgMarkers`." << std::endl;
+				vm->logmsg(err::ConfigEntryNotFoundWeak(*vm->current_instruction(), std::array<std::string, 2> { "ConfigBin", "CfgMarkers" }, tname));
+				vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 				return {};
 			}
 		}
@@ -331,7 +333,8 @@ namespace
 			auto colorConfig = cfgVehicles.data<sqf::configdata>()->navigate(colorname);
 			if (colorConfig.data<configdata>()->is_null())
 			{
-				vm->wrn() << "The config entry '" << colorname << "' could not be located in `ConfigBin >> CfgMarkerColors`." << std::endl;
+				vm->logmsg(err::ConfigEntryNotFoundWeak(*vm->current_instruction(), std::array<std::string, 2> { "ConfigBin", "CfgMarkers" }, colorname));
+				vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 				return {};
 			}
 		}
@@ -344,7 +347,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), mname));
 			return {};
 		}
 		auto arr = right.data<arraydata>();
@@ -361,7 +364,7 @@ namespace
 		auto m = vm->get_marker(mname);
 		if (!m)
 		{
-			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), name));
+			vm->logmsg(err::MarkerNotExisting(*vm->current_instruction(), mname));
 			return {};
 		}
 		auto alpha = right.as_float();

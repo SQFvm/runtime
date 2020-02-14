@@ -135,7 +135,7 @@ namespace sqf
 					auto find_result = std::find(m_existing_variables.begin(), m_existing_variables.end(), varname);
 					if (find_result == m_existing_variables.end())
 					{
-						vm->log(err::UnassignedVariable(node, varname));
+						vm->logmsg(err::UnassignedVariable(node, varname));
 					}
 				}
 				break;
