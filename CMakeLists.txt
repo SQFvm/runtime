@@ -42,16 +42,23 @@ find_package(Threads)
 
 
 option(SQFVM_BUILD_EXECUTABLE "BUILD EXECUTABLE" ON)
+option(SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD "BUILD ARMA2 EXECUTABLE" ON)
 option(SQFVM_BUILD_LIBRARY "BUILD LIBRARY" ON)
 option(SQFVM_BUILD_STATIC_LIBRARY "BUILD STATIC LIBRARY" ON)
 option(SQFVM_BUILD_STATIC_LIBRARY_NC "BUILD STATIC LIBRARY WITHOUT COMMANDS" ON)
-option(SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD "BUILD ARMA2 COMPATIBLE EXECUTABLE" ON)
 
 
 if (SQFVM_BUILD_EXECUTABLE)
     add_executable(sqfvm ${vm_src})
     target_link_libraries(sqfvm ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
     target_include_directories(sqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
+endif ()
+
+if (SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD)
+    add_executable(sqfvm_a2 ${vm_src})
+    target_link_libraries(sqfvm_a2 ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
+    target_include_directories(sqfvm_a2 PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    target_compile_definitions(sqfvm_a2 PUBLIC SQFVM_ARMA2_SYNTAX)
 endif ()
 
 
@@ -86,11 +93,4 @@ if (SQFVM_BUILD_STATIC_LIBRARY_NC)
     target_compile_definitions(slibsqfvm PUBLIC DISABLE_CLIPBOARD)
     target_include_directories(slibsqfvm_nc PUBLIC ${PROJECT_SOURCE_DIR}/src)
     SET_TARGET_PROPERTIES(slibsqfvm_nc PROPERTIES PREFIX "")
-endif ()
-
-if (SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD)
-    add_executable(sqfvm_a2 ${vm_src})
-    target_link_libraries(sqfvm_a2 ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
-    target_include_directories(sqfvm_a2 PUBLIC ${PROJECT_SOURCE_DIR}/src)
-    target_compile_definitions(sqfvm_a2 PUBLIC SQFVM_ARMA2_SYNTAX)
 endif ()
