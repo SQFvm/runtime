@@ -5,6 +5,7 @@
 
 #include "callstack.h"
 #include "string_op.h"
+#include "stackdump.h"
 #include <chrono>
 
 namespace sqf
@@ -23,19 +24,9 @@ namespace sqf
 		bool m_is_asleep;
 		bool m_terminate;
 	public:
-		struct stackdump
-		{
-			std::shared_ptr<sqf::sqfnamespace> namespace_used;
-			size_t line;
-			size_t column;
-			std::string file;
-			std::string dbginf;
-			std::string callstack_name;
-			std::string scope_name;
-		};
 		// Creates a stackdump from current top-callstack to the target callstack.
 		// If no target is provided, whole callstack will be dumped.
-		std::vector<sqf::vmstack::stackdump> dump_callstack_diff(std::shared_ptr<sqf::callstack> target);
+		std::vector<sqf::diagnostics::stackdump> dump_callstack_diff(std::shared_ptr<sqf::callstack> target);
 
 		vmstack() :
 			m_script_name(""),
