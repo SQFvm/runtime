@@ -1,15 +1,20 @@
 #pragma once
+#include <string>
 
-namespace sqf::diagnostics
+namespace sqf
 {
-	struct stackdump
+	class sqfnamespace;
+	namespace diagnostic
 	{
-		std::shared_ptr<sqf::sqfnamespace> namespace_used;
-		size_t line;
-		size_t column;
-		std::string file;
-		std::string dbginf;
-		std::string callstack_name;
-		std::string scope_name;
-	};
+		struct stackdump
+		{
+			std::shared_ptr<sqf::sqfnamespace> namespace_used;
+			size_t line;
+			size_t column;
+			std::string file;
+			std::string dbginf;
+			std::string callstack_name;
+			std::string scope_name;
+		};
+	}
 }
