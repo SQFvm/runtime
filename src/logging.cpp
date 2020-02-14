@@ -7,15 +7,6 @@
 #include <sstream>
 using namespace std::string_view_literals;
 
-#pragma region StreamLogger
-StreamLogger::StreamLogger(std::ostream& target) : Logger(), logTarget(target) {
-    std::fill(enabledWarningLevels.begin(), enabledWarningLevels.end(), true);
-}
-void StreamLogger::log(loglevel level, std::string_view message) {
-    std::unique_lock lock(streamLock);
-    logTarget << Logger::loglevelstring(level) << ' ' << message << std::endl;
-}
-#pragma endregion StreamLogger
 #pragma region StdOutLogger
 void StdOutLogger::log(loglevel level, std::string_view message) {
 	auto& logTarget = std::cout;

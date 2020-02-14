@@ -88,15 +88,6 @@ public:
 		}
 	}
 };
-class StreamLogger : public Logger {
-	std::ostream& logTarget;
-	std::mutex streamLock;
-
-public:
-	StreamLogger(std::ostream& target);
-
-	virtual void log(loglevel, std::string_view message) override;
-};
 class StdOutLogger : public Logger {
 public:
 	StdOutLogger() : Logger() {}
