@@ -73,6 +73,7 @@ endif ()
 if (SQFVM_BUILD_STATIC_LIBRARY)
 
     list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/Entry.cpp")
+    list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/dllexports.h")
     list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/dllexports.cpp")
 
     add_library(slibsqfvm STATIC ${vm_src})
@@ -87,6 +88,7 @@ if (SQFVM_BUILD_STATIC_LIBRARY_NC)
 	)
 
     list(REMOVE_ITEM vm_src_nc "${PROJECT_SOURCE_DIR}/src/Entry.cpp")
+    list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/dllexports.h")
     list(REMOVE_ITEM vm_src_nc "${PROJECT_SOURCE_DIR}/src/dllexports.cpp")
 
     add_library(slibsqfvm_nc STATIC ${vm_src_nc})
