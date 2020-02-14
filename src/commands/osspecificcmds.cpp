@@ -12,6 +12,7 @@
 #include "../cmd.h"
 #include "../virtualmachine.h"
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -21,14 +22,16 @@ namespace
 		auto data = (std::string)right;
 		if (!OpenClipboard(NULL))
 		{
-			vm->wrn() << "Failed to access clipboard." << std::endl;
+			//vm->wrn() << "Failed to access clipboard." << std::endl;
+			vm->logmsg(err::FailedToCopyToClipboard(*vm->current_instruction()));
 			return {};
 		}
 		EmptyClipboard();
 		HGLOBAL hClipboardData = GlobalAlloc(GMEM_DDESHARE, data.length() + 1);
 		if (hClipboardData == NULL)
 		{
-			vm->wrn() << "Failed to allocate clipboard." << std::endl;
+			//vm->wrn() << "Failed to allocate clipboard." << std::endl;
+			vm->logmsg(err::FailedToCopyToClipboard(*vm->current_instruction()));
 			return {};
 		}
 		char* pchData = (char*)GlobalLock(hClipboardData);
@@ -38,7 +41,7 @@ namespace
 		CloseClipboard();
 
 #else
-		vm->wrn() << "Clipboard-Access is not available." << std::endl;
+		vm->logmsg(err::ClipboardDisabled(*vm->current_instruction()));
 #endif
 		return {};
 

@@ -10,7 +10,7 @@ void sqf::inst::assignto::execute(virtualmachine* vm) const
 	auto val = vm->active_vmstack()->pop_back_value(flag);
 	if (!flag)
 	{
-		vm->err() << "assignTo could not receive a value." << std::endl;
+		vm->logmsg(logmessage::runtime::FoundNoValue(*vm->current_instruction()));
 		return;
 	}
 	if (mvarname[0] == '_')

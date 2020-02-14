@@ -35,7 +35,7 @@ sqf::callstack_isnil::callstack_isnil(std::shared_ptr<sqf::sqfnamespace> ns, sqf
 	else
 	{
 		drop_values();
-		vm->wrn() << "isNil callstack found no value." << std::endl;
+		vm->logmsg(logmessage::runtime::CallstackFoundNoValueWeak(*vm->current_instruction(), "isNil"sv));
 	}
 	return done;
 }

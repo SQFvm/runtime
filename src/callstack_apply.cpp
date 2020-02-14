@@ -29,7 +29,7 @@
 		auto val = vm->active_vmstack()->pop_back_value(success);
 		if (!success)
 		{
-			vm->err() << "apply callstack found no value." << std::endl;
+			vm->logmsg(logmessage::runtime::CallstackFoundNoValue(*vm->current_instruction(), "apply"sv));
 		}
 		else
 		{
@@ -51,7 +51,7 @@
 			auto val = vm->active_vmstack()->pop_back_value(success);
 			if (!success)
 			{
-				vm->err() << "apply callstack found no value." << std::endl;
+				vm->logmsg(logmessage::runtime::CallstackFoundNoValue(*vm->current_instruction(), "apply"sv));
 			}
 			else
 			{

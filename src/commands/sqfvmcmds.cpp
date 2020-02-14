@@ -15,7 +15,7 @@
 #include "../arraydata.h"
 #include "../innerobj.h"
 #include "../objectdata.h"
-#include "../parsepreprocessor.h"
+#include "../parsing/parsepreprocessor.h"
 #include "../vmstack.h"
 #include "../sqfnamespace.h"
 #include "../callstack_sqftry.h"
@@ -32,6 +32,7 @@
 #include <cmath>
 #include <locale>
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -201,9 +202,13 @@ namespace
 				continue;
 			auto cmd = pair.second;
 			if (cmd->desc().empty())
-				vm->out() << "NULAR '" << pair.first << "'\t<" << cmd->name() << ">" << std::endl;
+			{
+				sstream << "NULAR '" << pair.first << "'\t<" << cmd->name() << ">" << std::endl;
+			}
 			else
-				vm->out() << "NULAR '" << pair.first << "'\t<" << cmd->name() << ">\t" << cmd->desc() << std::endl;
+			{
+				sstream << "NULAR '" << pair.first << "'\t<" << cmd->name() << ">\t" << cmd->desc() << std::endl;
+			}
 			wasfound = true;
 		}
 		for (auto& pair : commandmap::get().all_u())
@@ -214,9 +219,9 @@ namespace
 			for (auto& cmd : *cmds)
 			{
 				if (!cmd->desc().empty())
-					vm->out() << "UNARY '" << pair.first << "'\t<" << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">\t" << cmd->desc() << std::endl;
+					sstream << "UNARY '" << pair.first << "'\t<" << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">\t" << cmd->desc() << std::endl;
 				else
-					vm->out() << "UNARY '" << pair.first << "'\t<" << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">" << std::endl;
+					sstream << "UNARY '" << pair.first << "'\t<" << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">" << std::endl;
 				wasfound = true;
 			}
 		}
@@ -228,16 +233,17 @@ namespace
 			for (auto& cmd : *cmds)
 			{
 				if (!cmd->desc().empty())
-					vm->out() << "BINARY '" << pair.first << "'\t<" << sqf::type_str(cmd->ltype()) << " " << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">\t" << cmd->desc() << std::endl;
+					sstream << "BINARY '" << pair.first << "'\t<" << sqf::type_str(cmd->ltype()) << " " << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">\t" << cmd->desc() << std::endl;
 				else
-					vm->out() << "BINARY '" << pair.first << "'\t<" << sqf::type_str(cmd->ltype()) << " " << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">" << std::endl;
+					sstream << "BINARY '" << pair.first << "'\t<" << sqf::type_str(cmd->ltype()) << " " << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">" << std::endl;
 			}
 			wasfound = true;
 		}
 		if (!wasfound)
 		{
-			vm->out() << "Could not find any command with that name." << std::endl;
+			sstream << "Could not find any command with that name." << std::endl;
 		}
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "HELP", sstream.str()));
 		return {};
 	}
 	value configparse___string(virtualmachine* vm, value::cref right)
@@ -295,7 +301,7 @@ namespace
 	{
 		auto content = right.as_string();
 		bool errflag = false;
-		auto ppres = sqf::parse::preprocessor::parse(vm, content, errflag, "__preprocess__.sqf");
+		auto ppres = vm->preprocess(content, errflag, "__preprocess__.sqf");
 		if (errflag)
 		{
 			return {};
@@ -336,7 +342,7 @@ namespace
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 		if (vm->get_filesystem().disallow())
 		{
-			vm->wrn() << "FILE SYSTEM IS DISABLED" << std::endl;
+			vm->logmsg(err::FileSystemDisabled(*vm->current_instruction()));
 			return sqf::value(std::make_shared<arraydata>());
 		}
 #endif
@@ -395,20 +401,20 @@ namespace
 	{
 		if (!vm->allow_networking())
 		{
-			vm->wrn() << "NETWORKING DISABLED!" << std::endl;
+			vm->logmsg(err::NetworkingDisabled(*vm->current_instruction()));
 			return false;
 		}
 		networking_init();
 		if (vm->is_networking_set())
 		{
-			vm->err() << "Already connected to something." << std::endl;
+			vm->logmsg(err::AlreadyConnected(*vm->current_instruction()));
 			return {};
 		}
 		auto s = right.as_string();
 		auto index = s.find(':');
 		if (index == std::string::npos)
 		{
-			vm->err() << "Invalid input format." << std::endl;
+			vm->logmsg(err::NetworkingFormatMissmatch(*vm->current_instruction(), s));
 			return {};
 		}
 		auto address = s.substr(0, index);
@@ -416,7 +422,7 @@ namespace
 		SOCKET socket;
 		if (networking_create_client(address.c_str(), port.c_str(), &socket))
 		{
-			vm->wrn() << "Something moved wrong during creation of the client socket." << std::endl;
+			vm->logmsg(err::FailedToEstablishConnection(*vm->current_instruction()));
 			return false;
 		}
 		vm->set_networking(std::make_shared<networking::client>(socket));

@@ -47,12 +47,10 @@ test_fnc_testPassed = {
 };
 
 test_fnc_testFailed = {
-    params ["___name___", "___desc___", "___index___", "___reason___"];
+    params ["___name___", "___desc___", "___index___"];
     private _msg1 = format ["Test !FAILED! '%1' - %2  %3", ___name___, ___index___ + 1, trim__ ___desc___];
-    private _msg2 = format ["    Reason: %1", trim__ ___reason___];
     systemChat _msg1;
-    systemChat _msg2;
-    ___failed___ pushBack [_msg1, _msg2];
+    ___failed___ pushBack _msg1;
     testsFailed = testsFailed + 1;
 };
 
@@ -200,8 +198,7 @@ diag_log format ["    %1", ___currentDirectory___];
 } forEach allFiles__ [".sqf"];
 diag_log format ["%1 out of %2 tests passed.", testsPassed, testsIndex];
 {
-    diag_log (_x select 0);
-    diag_log (_x select 1);
+    diag_log _x;
 } foreach ___failed___;
 if (fatalError) then
 {

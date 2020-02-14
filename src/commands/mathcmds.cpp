@@ -10,6 +10,7 @@
 #include <array>
 #include <iomanip>
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -30,7 +31,7 @@ namespace
 		auto r = (right.as_double());
 		if (r == 0)
 		{
-			vm->wrn() << "Zero Divisor" << std::endl;
+			vm->logmsg(err::ZeroDivisor(*vm->current_instruction()));
 			return 0;
 		}
 		return (left.as_double()) / r;

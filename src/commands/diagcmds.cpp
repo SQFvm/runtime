@@ -3,13 +3,14 @@
 #include "../cmd.h"
 #include "../virtualmachine.h"
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
 	value diag_log_any(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_string();
-		vm->out() << "[DIAG]\t" << r << std::endl;
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "DIAG_LOG", r));
 		return {};
 	}
 	value diag_tickTime_(virtualmachine* vm)
@@ -24,7 +25,7 @@ namespace
 	{
 		if (!right.as_bool())
 		{
-			vm->err() << "Assert failed." << std::endl;
+			vm->logmsg(err::AssertFailed(*vm->current_instruction()));
 		}
 		return right;
 	}

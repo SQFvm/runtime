@@ -56,7 +56,7 @@ namespace
 		}
 		else
 		{
-			vm->wrn() << "Attempt to delete a non-empty group was made. GroupID: " << grp->groupid() << '.' << std::endl;
+			vm->logmsg(logmessage::runtime::GroupNotEmpty(*vm->current_instruction(), grp->groupid()));
 		}
 		return {};
 	}

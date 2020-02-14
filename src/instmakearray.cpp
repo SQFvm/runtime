@@ -15,7 +15,7 @@ void sqf::inst::makearray::execute(virtualmachine* vm) const
 		vec[i] = vm->active_vmstack()->pop_back_value(flag);
 		if (!flag)
 		{
-			vm->err() << "Missing elements on value stack. Expected " << msize << ", got " << msize - i << std::endl;
+			vm->logmsg(logmessage::runtime::StackCorruptionMissingValues(*this, msize, msize - i));
 			break;
 		}
 	}

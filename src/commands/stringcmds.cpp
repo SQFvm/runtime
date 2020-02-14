@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cmath>
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -32,36 +33,39 @@ namespace
 		auto arr = right.as_vector();
 		if (arr.empty())
 		{
-			vm->err() << "Array was expected to have at least a single element." << std::endl;
+			vm->logmsg(err::ExpectedArrayToHaveElements(*vm->current_instruction()));
 			return {};
 		}
 		if (arr[0].dtype() != type::SCALAR)
 		{
-			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0].dtype()) << '.' << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, sqf::type::SCALAR, arr[0].dtype()));
 			return {};
 		}
 		int start = static_cast<int>(std::round(arr[0].as_float()));
 		if (start < 0)
 		{
-			vm->wrn() << "Start index is smaller then 0. Returning empty string." << std::endl;
+			vm->logmsg(err::NegativeIndexWeak(*vm->current_instruction()));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		if (start >= static_cast<int>(str.length()))
 		{
-			vm->wrn() << "Start index is larger then string length. Returning empty string." << std::endl;
+			vm->logmsg(err::IndexOutOfRangeWeak(*vm->current_instruction(), str.length(), start));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		if (arr.size() >= 2)
 		{
 			if (arr[1].dtype() != type::SCALAR)
 			{
-				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[1].dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 1, sqf::type::SCALAR, arr[1].dtype()));
 				return {};
 			}
 			int length = static_cast<int>(std::round(arr[1].as_float()));
 			if (length < 0)
 			{
-				vm->wrn() << "Length is smaller then 0. Returning empty string." << std::endl;
+				vm->logmsg(err::NegativeIndexWeak(*vm->current_instruction()));
+				vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 				return "";
 			}
 			return str.substr(start, length);
@@ -73,12 +77,14 @@ namespace
 		auto r = right.as_vector();
 		if (r.empty())
 		{
-			vm->wrn() << "Empty array passed." << std::endl;
+			vm->logmsg(err::ExpectedArrayToHaveElementsWeak(*vm->current_instruction()));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		if (r[0].dtype() != type::STRING)
 		{
-			vm->wrn() << "First element of array was expected to be of type STRING." << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), 0, sqf::type::STRING, r[0].dtype()));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		auto format = r[0].as_string();
@@ -92,19 +98,15 @@ namespace
 
 			if (!(format[newoff] >= '0' && format[newoff] <= '9'))
 			{
-				vm->wrn() << '\'' << format[newoff] << "' is no valid placeholder at string index " << newoff << '.' << std::endl;
+				vm->logmsg(err::FormatInvalidPlaceholder(*vm->current_instruction(), format[newoff], newoff));
 				newoff++;
 			}
 			else
 			{
 				auto num = std::stoi(format.substr(newoff));
-				if (num <= 0)
+				if (num >= static_cast<int>(r.size()))
 				{
-					vm->wrn() << "Invalid placeholder index " << num << " provided at string index " << newoff << '.' << std::endl;
-				}
-				else if(num >= static_cast<int>(r.size()))
-				{
-					vm->wrn() << "Placeholder index " << num << " provided at string index " << newoff << " is out of range." << std::endl;
+					vm->logmsg(err::IndexOutOfRangeWeak(*vm->current_instruction(), r.size(), num));
 				}
 				else if (r[num].dtype() == STRING)
 				{
@@ -144,7 +146,7 @@ namespace
 			}
 			else
 			{
-				vm->err() << "Element " << i << " of input array was not of type SCALAR. Got " << sqf::type_str(val.dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), i, sqf::type::SCALAR, val.dtype()));
 			}
 		}
 		return sstream.str();

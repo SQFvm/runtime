@@ -45,7 +45,7 @@
 		{
 			if (previous_current_index)
 			{
-				vm->err() << "configClasses callstack found no value." << std::endl;
+				vm->logmsg(logmessage::runtime::CallstackFoundNoValue(*vm->current_instruction(), "configClasses"sv));
 			}
 		}
 		else if (val.dtype() == type::BOOL)
@@ -57,7 +57,7 @@
 		}
 		else
 		{
-			vm->err() << "configClasses value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+			vm->logmsg(logmessage::runtime::TypeMissmatch(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
 		}
 
 		// set the "is done" flag to true
@@ -76,7 +76,7 @@
 			auto val = vm->active_vmstack()->pop_back_value(success);
 			if (!success)
 			{
-				vm->err() << "configClasses callstack found no value." << std::endl;
+				vm->logmsg(logmessage::runtime::CallstackFoundNoValue(*vm->current_instruction(), "configClasses"sv));
 			}
 			else if (val.dtype() == type::BOOL)
 			{
@@ -87,7 +87,7 @@
 			}
 			else
 			{
-				vm->err() << "configClasses value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+				vm->logmsg(logmessage::runtime::TypeMissmatch(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
 			}
 		}
 		set_variable("_x", val);

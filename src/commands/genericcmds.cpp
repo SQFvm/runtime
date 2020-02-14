@@ -23,7 +23,7 @@
 #include "../Entry.h"
 #include "../sqfnamespace.h"
 #include "../fileio.h"
-#include "../parsepreprocessor.h"
+#include "../parsing/parsepreprocessor.h"
 #include "../git_sha1.h"
 #include <cmath>
 #include "booldata.h"
@@ -50,7 +50,7 @@ typedef int(__stdcall *RVExtensionRegisterCallback)(RVExtensionRegisterCallback_
 #error UNSUPPORTED PLATFORM
 #endif
 
-
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -134,7 +134,7 @@ namespace
 		auto arr = right.as_vector();
 		if (arr.size() != 2)
 		{
-			vm->err() << "Expected 2 elements in array." << std::endl;
+			vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), 2, arr.size()));
 			return {};
 		}
 		auto el0 = arr[0];
@@ -143,7 +143,7 @@ namespace
 		{
 			if (el1.dtype() != type::CODE)
 			{
-				vm->wrn() << "Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), 1, sqf::type::CODE, el1.dtype()));
 			}
 			if (el0.dtype() == type::CODE)
 			{
@@ -153,7 +153,7 @@ namespace
 			}
 			else
 			{
-				vm->err() << "Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, sqf::type::CODE, el0.dtype()));
 				return {};
 			}
 		}
@@ -161,7 +161,7 @@ namespace
 		{
 			if (el0.dtype() != type::CODE)
 			{
-				vm->wrn() << "Expected element 0 of array to be of type 'CODE' but was '" << sqf::type_str(el0.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), 0, sqf::type::CODE, el0.dtype()));
 			}
 			if (el1.dtype() == type::CODE)
 			{
@@ -171,7 +171,7 @@ namespace
 			}
 			else
 			{
-				vm->err() << "Expected element 1 of array to be of type 'CODE' but was '" << sqf::type_str(el1.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 1, sqf::type::CODE, el1.dtype()));
 				return {};
 			}
 		}
@@ -287,12 +287,12 @@ namespace
 
 		if (static_cast<int>(arr.size()) < index || index < 0)
 		{
-			vm->err() << "Index out of range." << std::endl;
+			vm->logmsg(err::IndexOutOfRange(*vm->current_instruction(), arr.size(), index));
 			return {};
 		}
 		if (arr.size() == index)
 		{
-			vm->wrn() << "Index equals range. Returning nil." << std::endl;
+			vm->logmsg(err::IndexEqualsRange(*vm->current_instruction(), arr.size(), index));
 			return {};
 		}
 		return arr[index];
@@ -301,14 +301,18 @@ namespace
 	{
 		auto arr = left.as_vector();
 		auto flag = right.as_bool();
+		if (arr.size() != 2)
+		{
+			vm->logmsg(err::ExpectedArraySizeMissmatchWeak(*vm->current_instruction(), 2, arr.size()));
+		}
 		if ((!flag && arr.size() < 2) || arr.size() < 1)
 		{
-			vm->wrn() << "Array should have at least two elements. Returning ni" << std::endl;
+			vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 			return {};
 		}
 		else if (flag && arr.size() < 2)
 		{
-			vm->wrn() << "Array should have at least two elements." << std::endl;
+			vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 			return {};
 		}
 
@@ -320,36 +324,43 @@ namespace
 		auto arr = right.as_vector();
 		if (arr.size() < 1)
 		{
-			vm->err() << "Array was expected to have at least a single element." << std::endl;
+			vm->logmsg(err::ExpectedMinimumArraySizeMissmatch(*vm->current_instruction(), 1, arr.size()));
 			return {};
+		}
+		else if (arr.size() != 2)
+		{
+			vm->logmsg(err::ExpectedArraySizeMissmatchWeak(*vm->current_instruction(), 2, arr.size()));
 		}
 		if (arr[0].dtype() != type::SCALAR)
 		{
-			vm->err() << "First element of array was expected to be SCALAR, got " << sqf::type_str(arr[0].dtype()) << '.' << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 1, sqf::type::SCALAR, arr[0].dtype()));
 			return {};
 		}
 		int start = static_cast<int>(std::round(arr[0].as_float()));
 		if (start < 0)
 		{
-			vm->wrn() << "Start index is smaller then 0. Returning empty array." << std::endl;
+			vm->logmsg(err::NegativeIndexWeak(*vm->current_instruction()));
+			vm->logmsg(err::ReturningEmptyArray(*vm->current_instruction()));
 			return value(std::make_shared<sqf::arraydata>());
 		}
 		if (start > static_cast<int>(vec.size()))
 		{
-			vm->wrn() << "Start index is larger then string length. Returning empty array." << std::endl;
+			vm->logmsg(err::IndexOutOfRangeWeak(*vm->current_instruction(), vec.size(), start));
+			vm->logmsg(err::ReturningEmptyArray(*vm->current_instruction()));
 			return value(std::make_shared<sqf::arraydata>());
 		}
 		if (arr.size() >= 2)
 		{
 			if (arr[1].dtype() != type::SCALAR)
 			{
-				vm->err() << "Second element of array was expected to be SCALAR, got " << sqf::type_str(arr[1].dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 1, sqf::type::SCALAR, arr[1].dtype()));
 				return {};
 			}
 			int length = static_cast<int>(std::round(arr[1].as_float()));
 			if (length < 0)
 			{
-				vm->wrn() << "Length is smaller then 0. Returning empty array." << std::endl;
+				vm->logmsg(err::NegativeIndexWeak(*vm->current_instruction()));
+				vm->logmsg(err::ReturningEmptyArray(*vm->current_instruction()));
                 return value(std::make_shared<sqf::arraydata>());
 			}
 
@@ -384,7 +395,7 @@ namespace
         auto type = (*arr)[0].dtype();
         if (type != sqf::STRING && type != sqf::SCALAR && type != sqf::ARRAY)
         {
-            vm->err() << "sort only accepts arrays of elements of type String, Number or Array." << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, std::array<sqf::type, 3>{ sqf::type::STRING, sqf::type::SCALAR, sqf::type::ARRAY }, type));
             return {};
         }
         if (!arr->check_type(vm, type, arr->size(), arr->size()))
@@ -454,7 +465,7 @@ namespace
 	{
 		if (right.as_int() < 0)
 		{
-			vm->err() << "New size cannot be smaller then 0." << std::endl;
+			vm->logmsg(err::NegativeSize(*vm->current_instruction()));
 			return {};
 		}
 		left.data<arraydata>()->resize(right.as_int());
@@ -472,17 +483,18 @@ namespace
 		auto arr = left.data<arraydata>();
 		if (from > to)
 		{
-			vm->wrn() << "From index (" << from << ") is larger then to index (" << to << ")." << std::endl;
+			vm->logmsg(err::StartIndexExceedsToIndexWeak(*vm->current_instruction(), from, to));
 			to = from;
 		}
 		if (from < 0)
 		{
-			vm->wrn() << "From index (" << from << ") is less then 0." << std::endl;
+			vm->logmsg(err::NegativeIndexWeak(*vm->current_instruction()));
+			vm->logmsg(err::ReturningNil(*vm->current_instruction()));
 			return {};
 		}
-		if (to >= arr->size())
+		if (to >= (int)arr->size())
 		{
-			vm->wrn() << "To index (" << to << ") is larger then or equal to array size (" << arr->size() << ")then 0." << std::endl;
+			vm->logmsg(err::IndexOutOfRangeWeak(*vm->current_instruction(), arr->size(), to));
 			to = arr->size() - 1;
 		}
 		arr->erase(arr->begin() + from, arr->begin() + to + 1);
@@ -494,7 +506,7 @@ namespace
 		auto newindex = arr->size();
 		if (!arr->push_back(value(right)))
 		{
-			vm->err() << "Array recursion detected." << std::endl;
+			vm->logmsg(err::ArrayRecursion(*vm->current_instruction()));
 			return {};
 		}
 		return newindex;
@@ -508,7 +520,7 @@ namespace
 		{
 			if (!arr->push_back(value(right)))
 			{
-				vm->err() << "Array recursion detected." << std::endl;
+				vm->logmsg(err::ArrayRecursion(*vm->current_instruction()));
 				return {};
 			}
 		}
@@ -551,7 +563,8 @@ namespace
 			auto it = arr[i];
 			if (it.dtype() != sqf::type::STRING)
 			{
-				vm->err() << "Index position " << i << " was expected to be of type 'STRING' but was '" << sqf::type_str(it.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), i, sqf::type::STRING, it.dtype()));
+				errflag = true;
 			}
 		}
 		if (errflag)
@@ -588,19 +601,19 @@ namespace
 	value hint_string(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_string();
-		vm->out() << "[HINT]\t" << r << std::endl;
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "HINT"sv, r));
 		return {};
 	}
 	value hint_text(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_string();
-		vm->out() << "[HINT]\t" << r << std::endl;
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "HINT"sv, r));
 		return {};
 	}
 	value systemchat_string(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_string();
-		vm->out() << "[CHAT]\tSYSTEM: " << r << std::endl;
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "SYSTEM-CHAT"sv, r));
 		return {};
 	}
 
@@ -623,7 +636,7 @@ namespace
 		auto valswtch = vm->active_vmstack()->get_variable(MAGIC_SWITCH);
 		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
-			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
+			vm->logmsg(err::MagicVariableTypeMissmatch(*vm->current_instruction(), MAGIC_SWITCH, sqf::type::SWITCH, valswtch.dtype()));
 			return {};
 		}
 		auto swtch = valswtch.data<switchdata>();
@@ -639,7 +652,7 @@ namespace
 		auto valswtch = vm->active_vmstack()->get_variable(MAGIC_SWITCH);
 		if (valswtch.dtype() != sqf::type::SWITCH)
 		{
-			vm->err() << "Magic variable '___switch' is not of type 'SWITCH' but was '" << sqf::type_str(valswtch.dtype()) << "'.";
+			vm->logmsg(err::MagicVariableTypeMissmatch(*vm->current_instruction(), MAGIC_SWITCH, sqf::type::SWITCH, valswtch.dtype()));
 			return {};
 		}
 		auto swtch = valswtch.data<switchdata>();
@@ -690,11 +703,11 @@ namespace
 		auto r = right.data<scriptdata>();
 		if (r->stack()->terminate())
 		{
-			vm->wrn() << "Scripthandle terminated twice." << std::endl;
+			vm->logmsg(err::ScriptHandleAlreadyTerminated(*vm->current_instruction()));
 		}
 		if (r->hasfinished())
 		{
-			vm->wrn() << "Scripthandle already done." << std::endl;
+			vm->logmsg(err::ScriptHandleAlreadyFinished(*vm->current_instruction()));
 		}
 		r->stack()->terminate(true);
 		return {};
@@ -705,19 +718,19 @@ namespace
 		auto params = right.as_vector();
 		if (params.size() != 2)
 		{
-			vm->err() << "Expected 2 elements in array, got " << params.size() << ". Returning NIL." << std::endl;
+			vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), 2, params.size()));
 			return {};
 		}
 		if (params[0].dtype() != sqf::type::SCALAR)
 		{
-			vm->err() << "Index position 0 was expected to be of type 'SCALAR' but was '" << sqf::type_str(params[0].dtype()) << "'." << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, sqf::type::SCALAR, params[0].dtype()));
 			return {};
 		}
 
 		auto index = params[0].as_int();
 		if (index < 0)
 		{
-			vm->err() << "Index position 0 was expected to be greater than or equal to 0 but was " << index << "." << std::endl;
+			vm->logmsg(err::NegativeIndex(*vm->current_instruction()));
 			return {};
 		}
 		auto val = params[1];
@@ -730,7 +743,7 @@ namespace
 		if (!arr->recursion_test())
 		{
 			(*arr)[index] = oldval;
-			vm->err() << "Array recursion detected." << std::endl;
+			vm->logmsg(err::ArrayRecursion(*vm->current_instruction()));
 			return {};
 		}
 		return {};
@@ -815,9 +828,14 @@ namespace
 	{
 		auto l = left.data<arraydata>();
 		auto index = right.as_int();
-		if (index < 0 || index >= static_cast<int>(l->size()))
+		if (index >= static_cast<int>(l->size()))
 		{
-			vm->wrn() << "Array index out of bounds." << std::endl;
+			vm->logmsg(err::IndexOutOfRangeWeak(*vm->current_instruction(), l->size(), index));
+			return {};
+		}
+		else if (index < 0)
+		{
+			vm->logmsg(err::NegativeIndexWeak(*vm->current_instruction()));
 			return {};
 		}
 		auto val = l->at(index);
@@ -863,7 +881,7 @@ namespace
 				{
 					max = 0;
 				}
-				vm->wrn() << "Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), i, std::array<sqf::type, 2>{sqf::type::SCALAR, sqf::type::BOOL}, tmp.dtype()));
 			}
 		}
 		return max;
@@ -895,10 +913,18 @@ namespace
 				{
 					min = 0;
 				}
-				vm->wrn() << "Index position " << i << " was expected to be of type 'SCALAR' or 'BOOL' but was '" << sqf::type_str(tmp.dtype()) << "'." << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), i, std::array<sqf::type, 2>{sqf::type::SCALAR, sqf::type::BOOL}, tmp.dtype()));
 			}
 		}
 		return min;
+	}
+
+	std::string from_char_array(const char* arr, size_t max_size)
+	{
+		const char* start = arr;
+		size_t i;
+		for (i = 0; i < max_size && arr[i] != '\0'; i++);
+		return std::string(start, arr + (i == max_size ? i - 1 : i));
 	}
 
 	std::shared_ptr<dlops> helpermethod_callextension_loadlibrary(virtualmachine* vm, std::string name)
@@ -923,19 +949,19 @@ namespace
 			reinterpret_cast<RVExtensionVersion>(sym)(buffer, CALLEXTVERSIONBUFFSIZE);
 			if (buffer[CALLEXTVERSIONBUFFSIZE - 1] != '\0')
 			{
-				vm->wrn() << "Library '" << name << "' is not terminating RVExtensionVersion output buffer with a '\\0'!" << std::endl;
+				vm->logmsg(err::ExtensionNotTerminatingVersionString(*vm->current_instruction(), name));
 			}
-			vm->out() << "[RPT]\tCallExtension loaded: '" << name << "' [" << buffer <<  ']' << std::endl;
+			vm->logmsg(err::ExtensionLoaded(*vm->current_instruction(), name, from_char_array(buffer, CALLEXTVERSIONBUFFSIZE)));
 		}
 		else
 		{
-			vm->out() << "[RPT]\tCallExtension loaded: '" << name << '\'' << std::endl;
+			vm->logmsg(err::ExtensionLoaded(*vm->current_instruction(), name, "NOT AVAILABLE"));
 		}
 		if (dl->try_resolve("RVExtensionRegisterCallback", &sym))
 		{
 			auto method = reinterpret_cast<RVExtensionRegisterCallback>(sym);
-			
-			vm->out() << "[RPT]\tRegistered 'ExtensionCallback' with '" << name << '\'' << std::endl;
+			// ToDo: Create a way to actually execute this callback
+			// vm->out() << "[RPT]\tRegistered 'ExtensionCallback' with '" << name << '\'' << std::endl;
 		}
 		return dl;
 	}
@@ -945,7 +971,8 @@ namespace
 		auto libname = left.as_string();
 		if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
 		{
-			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
+			vm->logmsg(err::LibraryNameContainsPath(*vm->current_instruction(), libname));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		try
@@ -959,13 +986,15 @@ namespace
 			method(buffer, CALLEXTBUFFSIZE, right.as_string().c_str());
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
-				vm->wrn() << "Library '" << libname << "' is not terminating RVExtension output buffer with a '\\0'!" << std::endl;
+				vm->logmsg(err::ExtensionNotTerminatingCallExtensionBufferString(*vm->current_instruction(), libname));
+				buffer[CALLEXTBUFFSIZE - 1] = '\0';
 			}
 			return buffer;
 		}
 		catch (const std::runtime_error& ex)
 		{
-			vm->wrn() << "Could not complete command execution due to error with library '" << libname << "' (RVExtension): " << ex.what() << std::endl;
+			vm->logmsg(err::ExtensionRuntimeError(*vm->current_instruction(), libname, ex.what()));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 	}
@@ -975,36 +1004,44 @@ namespace
 		auto libname = left.as_string();
 		if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
 		{
-			vm->wrn() << "Library name '" << libname << "' is not supported due to containing path characters." << std::endl;
+			vm->logmsg(err::LibraryNameContainsPath(*vm->current_instruction(), libname));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		auto rvec = right.data<arraydata>();
 		if (rvec->size() < 2)
 		{
-			vm->wrn() << "Expected 2 elements in array, got " << rvec->size() << ". Returning error code PARAMS_ERROR_TOO_MANY_ARGS(201)." << std::endl;
+			vm->logmsg(err::ExpectedArraySizeMissmatchWeak(*vm->current_instruction(), 2, rvec->size()));
+			vm->logmsg(err::ReturningErrorCode(*vm->current_instruction(), "PARAMS_ERROR_TOO_MANY_ARGS(201)"sv));
 			return std::vector<value> { "", 0, 201 };
+		}
+		else if (rvec->size() > 2)
+		{
+			vm->logmsg(err::ExpectedArraySizeMissmatchWeak(*vm->current_instruction(), 2, rvec->size()));
 		}
 		if (rvec->at(0).dtype() != type::STRING)
 		{
-			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(rvec->at(0).dtype()) << "'." << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, sqf::type::STRING, rvec->at(0).dtype()));
 			return {};
 		}
 		if (rvec->at(1).dtype() != type::ARRAY)
 		{
-			vm->err() << "Index position 1 was expected to be of type 'STRING' but was '" << sqf::type_str(rvec->at(1).dtype()) << "'." << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 1, sqf::type::STRING, rvec->at(1).dtype()));
 			return {};
 		}
 
 		auto arr = rvec->at(1).data<arraydata>();
 		if (arr->size() > RVARGSLIMIT)
 		{
-			vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_SIZE(101) error with '" << libname << "' (RVExtensionArgs)" << std::endl;
+			vm->logmsg(err::ExpectedArraySizeMissmatchWeak(*vm->current_instruction(), 0, RVARGSLIMIT, arr->size()));
+			vm->logmsg(err::ReturningErrorCode(*vm->current_instruction(), "SYNTAX_ERROR_WRONG_PARAMS_SIZE(101)"sv));
 			return std::vector<value> { "", 0, 101 };
 		}
 		std::vector<std::string> argstringvec;
 
-		for (const auto& at : *arr) 
+		for (size_t i = 0; i < arr->size(); i++)
 		{
+			const auto& at = arr->at(i);
 			switch (at.dtype())
 			{
 			case type::BOOL:
@@ -1014,7 +1051,8 @@ namespace
 				argstringvec.push_back(at.as_string());
 				break;
 			default:
-				vm->wrn() << "callExtension SYNTAX_ERROR_WRONG_PARAMS_TYPE(102) error with '" << libname << "' (RVExtensionArgs)" << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), i, std::array<sqf::type, 4> {type::BOOL, type::STRING, type::SCALAR, type::ARRAY}, at.dtype()));
+				vm->logmsg(err::ReturningErrorCode(*vm->current_instruction(), "SYNTAX_ERROR_WRONG_PARAMS_TYPE(102)"sv));
 				return std::vector<value>{ "", 0, 102 };
 			}
 		}
@@ -1036,63 +1074,67 @@ namespace
 			auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0).as_string().c_str(), argvec.data(), static_cast<int>(argvec.size()));
 			if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
 			{
-				vm->wrn() << "Library '" << libname << "' is not terminating RVExtensionArgs output buffer with a '\\0'!" << std::endl;
+				vm->logmsg(err::ExtensionNotTerminatingCallExtensionBufferString(*vm->current_instruction(), libname));
+				buffer[CALLEXTBUFFSIZE - 1] = '\0';
 			}
 			return std::vector<value>{ buffer, res, 0 };
 		}
 		catch (const std::runtime_error& ex)
 		{
-			vm->wrn() << "Could not complete command execution due to error with library '" << libname << "' (RVExtensionArgs): " << ex.what() << std::endl;
+			vm->logmsg(err::ExtensionRuntimeError(*vm->current_instruction(), libname, ex.what()));
+			vm->logmsg(err::ReturningErrorCode(*vm->current_instruction(), "501"sv));
 			return std::vector<value>{ "", 0, 501 };
 		}
 	}
+	
 	value param_any_array(virtualmachine* vm, value::cref src, value::cref trgt)
 	{
-		std::shared_ptr<sqf::arraydata> elements;
-		if (src.dtype())
-		{
-			elements = src.data<sqf::arraydata>();
-		}
+		// Transform source to arraydata if type is not arraydata
+		std::shared_ptr<sqf::arraydata> input_values;
+		if (src.dtype() == sqf::type::ARRAY)
+		{ input_values = src.data<sqf::arraydata>(); }
 		else
 		{
-			elements = std::make_shared<arraydata>();
-			elements->push_back(src);
+			input_values = std::make_shared<arraydata>();
+			input_values->push_back(src);
 		}
-		auto fels = trgt.as_vector(); //#TODO don't copy
+
+
+		auto params_descriptors = trgt.as_vector(); //#TODO don't copy
 		size_t i = 0;
 		bool flag;
 		
-		if(!fels.empty())
+		if (!params_descriptors.empty())
 		{
-			//validation step
-			if (fels.size() >= 1 && fels.at(0).dtype() != sqf::SCALAR)
+			// validation step
+			if (params_descriptors.size() >= 1 && params_descriptors.at(0).dtype() != sqf::SCALAR)
 			{
-				vm->err() << "Param element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2).dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, sqf::type::SCALAR, params_descriptors.at(0).dtype()));
 				return {};
 			}
 			else
 			{
-				i = fels.at(0).as_int();
+				i = params_descriptors.at(0).as_int();
 			}
-			if (fels.size() >= 3 && fels.at(2).dtype() != sqf::ARRAY)
+			if (params_descriptors.size() >= 3 && params_descriptors.at(2).dtype() != sqf::ARRAY)
 			{
-				vm->err() << "Param element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2).dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, sqf::type::ARRAY, params_descriptors.at(2).dtype()));
 				return {};
 			}
-			if (fels.size() >= 4 && (fels.at(3).dtype() != sqf::ARRAY && fels.at(3).dtype() != sqf::SCALAR))
+			if (params_descriptors.size() >= 4 && (params_descriptors.at(3).dtype() != sqf::ARRAY && params_descriptors.at(3).dtype() != sqf::SCALAR))
 			{
-				vm->err() << "Param element " << i << " is required to have its fourth element to be of type " << type_str(ARRAY) << " or " << type_str(SCALAR) << ". Got " << sqf::type_str(fels.at(2).dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 0, std::array<sqf::type, 2> { sqf::type::ARRAY, sqf::type::SCALAR }, params_descriptors.at(3).dtype()));
 				return {};
 			}
-			else if (fels.size() >= 4 && fels.at(3).dtype() == sqf::ARRAY)
+			else if (params_descriptors.size() >= 4 && params_descriptors.at(3).dtype() == sqf::ARRAY)
 			{
-				auto tmp = fels.at(3).data<arraydata>();
+				auto tmp = params_descriptors.at(3).data<arraydata>();
 				flag = false;
 				for (size_t j = 0; j < tmp->size(); j++)
 				{
 					if (tmp->at(j).dtype() != sqf::SCALAR)
 					{
-						vm->err() << "Param element " << i << " and its inner " << j << ". element was expected to be of type " << type_str(SCALAR) << ". Got " << sqf::type_str(tmp->at(j).dtype()) << '.' << std::endl;
+						vm->logmsg(err::ExpectedSubArrayTypeMissmatch(*vm->current_instruction(), std::array<size_t, 2> { 3, j }, sqf::type::SCALAR, tmp->at(j).dtype()));
 						flag = true;
 						continue;
 					}
@@ -1103,14 +1145,14 @@ namespace
 				}
 			}
 
-			if (i < elements->size())
+			if (i < input_values->size())
 			{
-				auto el = elements->at(i);
-				if (fels.size() >= 3 && !fels.at(2).data<arraydata>()->empty())
+				auto current_input_value = input_values->at(i);
+				if (params_descriptors.size() >= 3 && !params_descriptors.at(2).data<arraydata>()->empty())
 				{
-					auto tmp = fels.at(2).data<arraydata>();
+					auto tmp = params_descriptors.at(2).data<arraydata>();
 
-					auto found = std::find_if(tmp->begin(), tmp->end(), [type = el.dtype()](value::cref val) {
+					auto found = std::find_if(tmp->begin(), tmp->end(), [type = current_input_value.dtype()](value::cref val) {
 						return type == val.dtype();
 					});
 
@@ -1118,38 +1160,47 @@ namespace
 
 					if (!flag)
 					{
-						vm->wrn() << "Element " << i << " is not matching provided expected data types. Got " << sqf::type_str(el.dtype()) << '.' << std::endl;
-						return fels.at(1);
+						std::vector<sqf::type> types;
+						for (const auto& it : *tmp)
+						{
+							types.push_back(it.dtype());
+						}
+						vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), i, types, current_input_value.dtype()));
+						return params_descriptors.at(1);
 					}
 				}
-				if (fels.size() >= 4 && el.dtype() == sqf::ARRAY)
+				if (params_descriptors.size() >= 4 && current_input_value.dtype() == sqf::ARRAY)
 				{
 					flag = true;
-					if (fels.at(2).dtype() == sqf::ARRAY)
-					{
-						auto tmp = fels.at(2).data<arraydata>();
-
-						auto found = std::find_if(tmp->begin(), tmp->end(), [type = el.dtype()](value::cref val) {
+					auto tmp = params_descriptors.at(2).data<arraydata>();
+					
+					if (params_descriptors.at(2).dtype() == sqf::ARRAY)
+					{// Check available datatypes
+						auto found = std::find_if(tmp->begin(), tmp->end(), [type = current_input_value.dtype()](value::cref val) {
 							return type == val.dtype();
 						});
-
 						flag = found != tmp->end();
 					}
-					else if (el.data<arraydata>()->size() != fels.at(3).as_int())
-					{
+					else if (current_input_value.data<arraydata>()->size() != params_descriptors.at(3).as_int())
+					{ // Check available datatypes
 						flag = false;
 					}
 					if (!flag)
 					{
-						vm->wrn() << "Element " << i << " is not matching expected data types. Got " << sqf::type_str(el.dtype()) << '.' << std::endl;
-						return fels.at(1);
+						std::vector<sqf::type> types;
+						for (const auto& it : *tmp)
+						{
+							types.push_back(it.dtype());
+						}
+						vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), i, types, current_input_value.dtype()));
+						return params_descriptors.at(1);
 					}
 				}
-				return el;
+				return current_input_value;
 			}
 			else
 			{
-				return fels.size() == 2 ? fels.at(1) : value();
+				return params_descriptors.size() == 2 ? params_descriptors.at(1) : value();
 			}
 		}
 		return {};
@@ -1173,47 +1224,47 @@ namespace
 		for (size_t i = 0; i < format->size(); i++)
 		{
 			auto fel = format->at(i);
-			std::vector<sqf::value> fels;
+			std::vector<sqf::value> params_descriptors;
 			if (fel.dtype() == sqf::ARRAY)
 			{
-				fels = fel.as_vector();
+				params_descriptors = fel.as_vector();
 			}
 			else
 			{
-				fels = { fel };
+				params_descriptors = { fel };
 			}
 			//validation step
-			if (fels.empty() || fels.at(0).dtype() != sqf::STRING)
+			if (params_descriptors.empty() || params_descriptors.at(0).dtype() != sqf::STRING)
 			{
 				if (fel.dtype() == sqf::ARRAY)
-				{
-					vm->err() << "Params element " << i << " was expected to be a " << type_str(STRING) << " or an " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(0).dtype()) << '.' << std::endl;
+				{ // Empty Array
+					vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), 1, 4, 0));
 				}
 				else
-				{
-					vm->err() << "Params element " << i << " was expected to have the first element be a " << type_str(STRING) << ". Got " << sqf::type_str(fels.at(0).dtype()) << '.' << std::endl;
+				{ // Non-Valid value
+					vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), i, std::array<sqf::type, 2> { sqf::type::STRING, sqf::type::ARRAY }, fel.dtype()));
 				}
 				continue;
 			}
-			if (fels.size() >= 3 && fels.at(2).dtype() != sqf::ARRAY)
+			if (params_descriptors.size() >= 3 && params_descriptors.at(2).dtype() != sqf::ARRAY)
 			{
-				vm->err() << "Params element " << i << " is required to have its third element to be of type " << type_str(ARRAY) << ". Got " << sqf::type_str(fels.at(2).dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedSubArrayTypeMissmatch(*vm->current_instruction(), std::array<size_t, 2> { i, 2 }, sqf::type::ARRAY, params_descriptors.at(2).dtype()));
 				continue;
 			}
-			if (fels.size() >= 4 && (fels.at(3).dtype() != sqf::ARRAY && fels.at(3).dtype() != sqf::SCALAR))
+			if (params_descriptors.size() >= 4 && (params_descriptors.at(3).dtype() != sqf::ARRAY && params_descriptors.at(3).dtype() != sqf::SCALAR))
 			{
-				vm->err() << "Params element " << i << " is required to have its fourth element to be of type " << type_str(ARRAY) << " or " << type_str(SCALAR) << ". Got " << sqf::type_str(fels.at(2).dtype()) << '.' << std::endl;
+				vm->logmsg(err::ExpectedSubArrayTypeMissmatch(*vm->current_instruction(), std::array<size_t, 2> { i, 3 }, std::array<sqf::type, 2> { sqf::type::SCALAR, sqf::type::ARRAY }, params_descriptors.at(2).dtype()));
 				continue;
 			}
-			else if (fels.size() >= 4 && fels.at(3).dtype() == sqf::ARRAY)
+			else if (params_descriptors.size() >= 4 && params_descriptors.at(3).dtype() == sqf::ARRAY)
 			{
-				auto tmp = fels.at(3).data<arraydata>();
+				auto tmp = params_descriptors.at(3).data<arraydata>();
 				flag = false;
 				for (size_t j = 0; j < tmp->size(); j++)
 				{
 					if (tmp->at(j).dtype() != sqf::SCALAR)
 					{
-						vm->err() << "Params element " << i << " and its inner " << j << ". element was expected to be of type " << type_str(SCALAR) << ". Got " << sqf::type_str(tmp->at(j).dtype()) << '.' << std::endl;
+						vm->logmsg(err::ExpectedSubArrayTypeMissmatch(*vm->current_instruction(), std::array<size_t, 3> { i, 3, j }, sqf::type::SCALAR, tmp->at(j).dtype()));
 						flag = true;
 						continue;
 					}
@@ -1226,12 +1277,12 @@ namespace
 
 			if (i < elements->size())
 			{
-				auto el = elements->at(i);
-				if (fels.size() >= 3 && !fels.at(2).data<arraydata>()->empty())
+				auto current_input_value = elements->at(i);
+				if (params_descriptors.size() >= 3 && !params_descriptors.at(2).data<arraydata>()->empty())
 				{
-					auto tmp = fels.at(2).data<arraydata>();
+					auto tmp = params_descriptors.at(2).data<arraydata>();
 
-					auto found = std::find_if(tmp->begin(), tmp->end(), [type = el.dtype()](value::cref val) {
+					auto found = std::find_if(tmp->begin(), tmp->end(), [type = current_input_value.dtype()](value::cref val) {
 						return type == val.dtype();
 					});
 
@@ -1239,38 +1290,47 @@ namespace
 
 					if (!flag)
 					{
-						vm->wrn() << "Element " << i << " is not matching provided expected data types. Got " << sqf::type_str(el.dtype()) << '.' << std::endl;
-						return fels.at(1);
+						std::vector<sqf::type> types;
+						for (const auto& it : *tmp)
+						{
+							types.push_back(it.dtype());
+						}
+						vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), i, types, current_input_value.dtype()));
+						return params_descriptors.at(1);
 					}
 				}
-				if (fels.size() >= 4 && el.dtype() == sqf::ARRAY)
+				if (params_descriptors.size() >= 4 && current_input_value.dtype() == sqf::ARRAY)
 				{
 					flag = true;
-					if (fels.at(2).dtype() == sqf::ARRAY)
+					auto tmp = params_descriptors.at(2).data<arraydata>();
+					if (params_descriptors.at(2).dtype() == sqf::ARRAY)
 					{
-						auto tmp = fels.at(2).data<arraydata>();
-
-						auto found = std::find_if(tmp->begin(),tmp->end(), [type = el.dtype()](value::cref val) {
+						auto found = std::find_if(tmp->begin(),tmp->end(), [type = current_input_value.dtype()](value::cref val) {
 							return type == val.dtype();
 						});
 
 						flag = found != tmp->end();
 					}
-					else if (el.data<arraydata>()->size() != fels.at(3).as_int())
+					else if (current_input_value.data<arraydata>()->size() != params_descriptors.at(3).as_int())
 					{
 						flag = false;
 					}
 					if (!flag)
 					{
-						vm->wrn() << "Element " << i << " is not matching expected data types. Got " << sqf::type_str(el.dtype()) << '.' << std::endl;
-						return fels.at(1);
+						std::vector<sqf::type> types;
+						for (const auto& it : *tmp)
+						{
+							types.push_back(it.dtype());
+						}
+						vm->logmsg(err::ExpectedArrayTypeMissmatchWeak(*vm->current_instruction(), i, types, current_input_value.dtype()));
+						return params_descriptors.at(1);
 					}
 				}
-				vm->active_vmstack()->stacks_top()->set_variable(fels.at(0).as_string(), el);
+				vm->active_vmstack()->stacks_top()->set_variable(params_descriptors.at(0).as_string(), current_input_value);
 			}
 			else
 			{
-				vm->active_vmstack()->stacks_top()->set_variable(fels.at(0).as_string(), fels.size() >= 2 ? fels.at(1) : value());
+				vm->active_vmstack()->stacks_top()->set_variable(params_descriptors.at(0).as_string(), params_descriptors.size() >= 2 ? params_descriptors.at(1) : value());
 			}
 		}
 		return {};
@@ -1286,6 +1346,9 @@ namespace
 		}
 		return params_array_array(vm, _this, right);
 	}
+
+
+
 	value selectrandom_array(virtualmachine* vm, value::cref right)
 	{
 		auto arr = right.data<arraydata>();
@@ -1295,12 +1358,12 @@ namespace
 	{
 		if (!vm->allow_suspension())
 		{
-			vm->err() << "Sleeping is disabled." << std::endl;
+			vm->logmsg(err::SuspensionDisabled(*vm->current_instruction()));
 			return {};
 		}
 		if (!vm->active_vmstack()->scheduled())
 		{
-			vm->err() << "Cannot suspend in non-scheduled environment." << std::endl;
+			vm->logmsg(err::SuspensionInUnscheduledEnvironment(*vm->current_instruction()));
 			return {};
 		}
 		auto duration = std::chrono::duration<float>(right.as_float());
@@ -1317,7 +1380,8 @@ namespace
 		auto res = vm->get_filesystem().try_get_physical_path(right.as_string());
 		if (!res.has_value())
 		{
-			vm->wrn() << "File '" << right.as_string() << "' Not Found." << std::endl;
+			vm->logmsg(err::FileNotFound(*vm->current_instruction(), right.as_string()));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		else
@@ -1330,14 +1394,15 @@ namespace
 		auto res = vm->get_filesystem().try_get_physical_path(right.as_string());
 		if (!res.has_value())
 		{
-			vm->wrn() << "File '" << right.as_string() << "' Not Found." << std::endl;
+			vm->logmsg(err::FileNotFound(*vm->current_instruction(), right.as_string()));
+			vm->logmsg(err::ReturningEmptyString(*vm->current_instruction()));
 			return "";
 		}
 		else
 		{
 			auto filecontents = load_file(res.value());
 			bool errflag = false;
-			auto parsedcontents = sqf::parse::preprocessor::parse(vm, filecontents, errflag, res.value());
+			auto parsedcontents = vm->preprocess(filecontents, errflag, res.value());
 			return parsedcontents;
 		}
 	}
@@ -1350,7 +1415,7 @@ namespace
 		}
 		else
 		{
-			vm->err() << "scopeName already set." << std::endl;
+			vm->logmsg(err::ScopeNameAlreadySet(*vm->current_instruction()));
 		}
 		return {};
 	}
@@ -1363,7 +1428,7 @@ namespace
 		}
 		else
 		{
-			vm->wrn() << "scriptName already set." << std::endl;
+			vm->logmsg(err::ScriptNameAlreadySet(*vm->current_instruction()));
 		}
 		return {};
 	}
@@ -1396,7 +1461,7 @@ namespace
 		});
 		if (res == vm->active_vmstack()->stacks_end())
 		{
-			vm->err() << right.tosqf();
+			vm->logmsg(err::ErrorMessage(*vm->current_instruction(), "THROW", right.tosqf()));
 		}
 		else
 		{
@@ -1425,7 +1490,8 @@ namespace
 		auto res = vm->get_filesystem().try_get_physical_path(right.as_string());
 		if (!res.has_value())
 		{
-			vm->wrn() << "File '" << right.as_string() << "' Not Found." << std::endl;
+			vm->logmsg(err::FileNotFound(*vm->current_instruction(), right.as_string()));
+			vm->logmsg(err::ReturningEmptyScriptHandle(*vm->current_instruction()));
 			auto script = std::make_shared<scriptdata>();
 			return value(script);
 		}
@@ -1433,7 +1499,7 @@ namespace
 		{
 			auto filecontents = load_file(res.value());
 			bool errflag = false;
-			auto parsedcontents = sqf::parse::preprocessor::parse(vm, filecontents, errflag, res.value());
+			auto parsedcontents = vm->preprocess(filecontents, errflag, res.value());
 			auto cs = std::make_shared<callstack>(vm->active_vmstack()->stacks_top()->get_namespace());
 			auto script = std::make_shared<scriptdata>();
 			vm->parse_sqf(parsedcontents, cs);
