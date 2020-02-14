@@ -313,7 +313,7 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 	{
 		// Check if breakpoint was hit
 		{
-			auto line = inst->line();
+			auto line = m_current_instruction->line();
 			for (const auto& breakpoint : m_breakpoints)
 			{
 				if (breakpoint.is_enabled() && breakpoint.line() == line)

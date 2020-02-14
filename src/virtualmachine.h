@@ -215,11 +215,11 @@ namespace sqf
 		}
 		std::vector<sqf::diagnostics::breakpoint>::iterator breakpoints_begin()
 		{
-			m_breakpoints.begin();
+			return m_breakpoints.begin();
 		}
 		std::vector<sqf::diagnostics::breakpoint>::iterator breakpoints_end()
 		{
-			m_breakpoints.end();
+			return m_breakpoints.end();
 		}
 
 
