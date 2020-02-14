@@ -29,7 +29,7 @@ namespace sqf::parse
 	class config : public CanLog
 	{
 		position_info m_info;
-		std::string_view m_contents;
+		std::string m_contents;
 		std::string m_file;
 
 		void skip();

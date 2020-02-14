@@ -134,8 +134,7 @@ namespace sqf
 		void execute_helper_execution_abort();
 		bool execute_helper_execution_end();
 	public:
-		virtualmachine() : virtualmachine(StdOutLogger(), 0) {};
-		virtualmachine(unsigned long long maxinst) : virtualmachine(StdOutLogger(), 0) {};
+		virtualmachine(Logger& logger) : virtualmachine(logger, 0) {};
 		virtualmachine(Logger& logger, unsigned long long maxinst);
 		~virtualmachine();
 
@@ -160,7 +159,7 @@ namespace sqf
 		inline void logmsg(LogMessageBase&& message)
 		{
 			log(message);
-			if (message.getLevel() >= loglevel::error)
+			if (message.getLevel() <= loglevel::error)
 			{
 				m_runtime_error = true;
 			}

@@ -348,7 +348,8 @@ int main(int argc, char** argv)
 
 
 
-	sqf::virtualmachine vm;
+	StdOutLogger logger;
+	sqf::virtualmachine vm(logger);
 	sqf::commandmap::get().init();
 	netserver* srv = nullptr;
 

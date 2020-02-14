@@ -957,7 +957,7 @@ void sqf::parse::sqf::NUMBER(astnode &root, bool &errflag)
 		thisnode.kind = (short)asttype::sqf::HEXNUMBER;
 		size_t i;
 		for (i = m_info.offset + 1; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
-		auto ident = std::string(m_contents.substr(m_info.offset + 1, i));
+		auto ident = std::string(m_contents.substr(m_info.offset + 1, i - m_info.offset));
 		thisnode.content = ident;
 		thisnode.offset = m_info.offset;
 		thisnode.length = i - m_info.offset;
@@ -969,7 +969,7 @@ void sqf::parse::sqf::NUMBER(astnode &root, bool &errflag)
 		thisnode.kind = (short)asttype::sqf::HEXNUMBER;
 		size_t i;
 		for (i = m_info.offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
-		auto ident = std::string(m_contents.substr(m_info.offset, i));
+		auto ident = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
 		thisnode.content = ident;
 		thisnode.offset = m_info.offset;
 		thisnode.length = i - m_info.offset;
@@ -1076,7 +1076,7 @@ void sqf::parse::sqf::STRING(astnode &root, bool &errflag)
 	}
 	i++;
 	m_info.column++;
-	auto fullstring = std::string(m_contents.substr(m_info.offset, i));
+	auto fullstring = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
 	thisnode.content = fullstring;
 	thisnode.length = i - m_info.offset;
 	thisnode.offset = m_info.offset;

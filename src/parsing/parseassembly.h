@@ -49,7 +49,7 @@ namespace sqf
 		public:
 		private:
 			virtualmachine* m_vm;
-			std::string_view m_contents;
+			std::string m_contents;
 			std::string m_file;
 
 			void skip(position_info& info);

@@ -13,6 +13,7 @@ class exportstarget : public Logger
 	// Inherited via Logger
 	virtual void log(loglevel level, std::string_view message) override;
 public:
+	exportstarget() : Logger() {}
 	std::string str() { return m_sstream.str(); }
 	void clear() { m_sstream.str(""); }
 };

@@ -44,7 +44,7 @@ namespace sqf::parse
 	{
 	private:
 		position_info m_info;
-		std::string_view m_contents;
+		std::string m_contents;
 		std::string m_file;
 		bool(*m_contains_nular)(std::string_view);
 		bool(*m_contains_unary)(std::string_view);

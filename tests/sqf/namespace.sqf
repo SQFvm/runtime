@@ -23,14 +23,14 @@ private _vars = allVariables missionNamespace;
     ["assertException",  { player getVariable [true, "test"] }, []],
 
 	["assertEqual",  { allVariables objNull }, []],
-    ["assertEqual",  { objNull getVariable "don'texist" }, []],
-	//["assertEqual",  { objNull setVariable ["nstest", true] }], //#TODO this fails for some reason
-    ["assertEqual",  { objNull getVariable "nstest" }, []],
-    ["assertEqual",  { objNull getVariable ["nstest", false] }, []],
-    ["assertEqual",  { objNull getVariable ["don'texist", false] }, []],
-    ["assertEqual",  { objNull getVariable [false] }, []],
-    ["assertEqual",  { objNull setVariable [false] }, []],
-    ["assertEqual",  { objNull setVariable ["test"] }, []]
+    ["assertisNil",  { objNull getVariable "don'texist" }],
+	["assertisNil",  { objNull setVariable ["nstest", true] }],
+    ["assertisNil",  { objNull getVariable "nstest" }],
+    ["assertisNil",  { objNull getVariable ["nstest", false] }],
+    ["assertisNil",  { objNull getVariable ["don'texist", false] }],
+    ["assertisNil",  { objNull getVariable [false] }],
+    ["assertisNil",  { objNull setVariable [false] }],
+    ["assertisNil",  { objNull setVariable ["test"] }]
 
 
 

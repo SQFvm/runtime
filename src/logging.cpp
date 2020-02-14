@@ -8,7 +8,7 @@
 using namespace std::string_view_literals;
 
 #pragma region StreamLogger
-StreamLogger::StreamLogger(std::ostream& target): logTarget(target) {
+StreamLogger::StreamLogger(std::ostream& target) : Logger(), logTarget(target) {
     std::fill(enabledWarningLevels.begin(), enabledWarningLevels.end(), true);
 }
 void StreamLogger::log(loglevel level, std::string_view message) {
@@ -64,7 +64,7 @@ std::string LogLocationInfo::format() const {
 
     output.append("[L"sv);
     output.append(std::to_string(line));
-    output.append("[C"sv);
+    output.append("|C"sv);
     output.append(std::to_string(col));
     if (!path.empty()) {
         output.append("|"sv);

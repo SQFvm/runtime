@@ -67,6 +67,7 @@ class Logger {
 protected:
 	std::vector<bool> enabledWarningLevels;
 public:
+	Logger() : enabledWarningLevels({ true, true, true, true, true, true }) {}
 	[[nodiscard]] bool isEnabled(loglevel level) const {
 		return enabledWarningLevels[static_cast<size_t>(level)];
 	}
@@ -98,7 +99,7 @@ public:
 };
 class StdOutLogger : public Logger {
 public:
-	StdOutLogger() {}
+	StdOutLogger() : Logger() {}
 
 	virtual void log(loglevel, std::string_view message) override;
 };
@@ -786,7 +787,7 @@ namespace logmessage {
 			[[nodiscard]] std::string formatMessage() const override;
 		};
 		class IndexOutOfRangeWeak : public RuntimeBase {
-			static const loglevel level = loglevel::error;
+			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60010;
 			size_t m_range;
 			size_t m_index;
@@ -1457,7 +1458,7 @@ namespace logmessage {
 			[[nodiscard]] std::string formatMessage() const override;
 		};
 		class VariableNotFound : public RuntimeBase {
-			static const loglevel level = loglevel::error;
+			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60070;
 			std::string_view m_variable_name;
 		public:
