@@ -4,7 +4,7 @@
 namespace sqf
 {
 	class sqfnamespace;
-	namespace diagnostic
+	namespace diagnostics
 	{
 		struct stackdump
 		{
