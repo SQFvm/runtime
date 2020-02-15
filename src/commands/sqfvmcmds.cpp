@@ -433,6 +433,41 @@ namespace
 		vm->release_networking();
 		return {};
 	}
+	value vmctrl___string(virtualmachine* vm, value::cref right)
+	{
+		auto str = right.as_string();
+
+		if (str == "abort")
+		{
+			vm->execute(sqf::virtualmachine::execaction::abort);
+		}
+		else if (str == "assembly_step")
+		{
+			vm->execute(sqf::virtualmachine::execaction::assembly_step);
+		}
+		else if (str == "leave_scope")
+		{
+			vm->execute(sqf::virtualmachine::execaction::leave_scope);
+		}
+		else if (str == "reset_run_atomic")
+		{
+			vm->execute(sqf::virtualmachine::execaction::reset_run_atomic);
+		}
+		else if (str == "start")
+		{
+			vm->execute(sqf::virtualmachine::execaction::start);
+		}
+		else if (str == "stop")
+		{
+			vm->execute(sqf::virtualmachine::execaction::stop);
+		}
+		else
+		{
+			// ToDo: Create custom log message for enum errors
+			vm->logmsg(err::ErrorMessage(*vm->current_instruction(), "vmctrl", "exec unknown"));
+		}
+		return {};
+	}
 	value provide___code_string(virtualmachine* vm, value::cref left, value::cref right)
 	{
 		auto arr = right.data<arraydata>();
@@ -530,6 +565,7 @@ void sqf::commandmap::initsqfvmcmds()
 	add(unary("prettysqf__", sqf::type::CODE, "Takes provided SQF code and pretty-prints it to output.", pretty___code));
 	add(unary("prettysqf__", sqf::type::STRING, "Takes provided SQF code and pretty-prints it to output.", prettysqf___string));
 	add(nular("exit__", "Exits the VM execution immediately. Will not notify debug interface when used.", exit___));
+	add(unary("vmctrl__", sqf::type::STRING, "Executes the provided SQF-VM exection action.", vmctrl___string));
 	add(unary("exitcode__", sqf::type::SCALAR, "Exits the VM execution immediately. Will not notify debug interface when used. Allows to pass an exit code to the VM.", exit___scalar));
 	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
 	add(nular("respawn__", "'Respawns' the player object.", respawn___));
