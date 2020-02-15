@@ -145,7 +145,22 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 					break;
 				}
 			}
-			if (flag)
+			if (m_status == vmstatus::requested_abort)
+			{
+				while (this->m_main_vmstack->stacks_size() != 0)
+				{
+					this->m_main_vmstack->drop_callstack();
+				}
+				for (auto& it : mspawns)
+				{
+					while (it->stack()->stacks_size() != 0)
+					{
+						it->stack()->drop_callstack();
+					}
+				}
+				mspawns.clear();
+			}
+			else if (flag)
 			{
 				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
 				res = execresult::OK;
@@ -202,12 +217,27 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 				}
 				mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished() || it->stack()->terminate(); });
 			}
-			if (flag)
+			if (m_status == vmstatus::requested_abort)
+			{
+				while (this->m_main_vmstack->stacks_size() != 0)
+				{
+					this->m_main_vmstack->drop_callstack();
+				}
+				for (auto& it : mspawns)
+				{
+					while (it->stack()->stacks_size() != 0)
+					{
+						it->stack()->drop_callstack();
+					}
+				}
+				mspawns.clear();
+			}
+			else if (flag)
 			{
 				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
 				res = execresult::OK;
 			}
-			else
+			else 
 			{
 				m_status = vmstatus::halt_error;
 				res = execresult::runtime_error;
@@ -223,12 +253,27 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 		if (m_run_atomic.compare_exchange_weak(expected, true, std::memory_order::memory_order_seq_cst, std::memory_order::memory_order_seq_cst))
 		{
 			m_exit_flag = false;
-			if (performexecute(1))
+			if (m_status == vmstatus::requested_abort)
+			{
+				while (this->m_main_vmstack->stacks_size() != 0)
+				{
+					this->m_main_vmstack->drop_callstack();
+				}
+				for (auto& it : mspawns)
+				{
+					while (it->stack()->stacks_size() != 0)
+					{
+						it->stack()->drop_callstack();
+					}
+				}
+				mspawns.clear();
+			}
+			else if (performexecute(1))
 			{
 				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
 				res = execresult::OK;
 			}
-			else
+			else 
 			{
 				m_status = vmstatus::halt_error;
 				res = execresult::runtime_error;
