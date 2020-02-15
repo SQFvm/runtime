@@ -21,23 +21,21 @@
 #include <execinfo.h>
 #endif
 
-
-extern "C" {
-
-	std::string get_working_dir()
-	{
+std::string get_working_dir()
+{
 #if defined(_WIN32) || defined(_WIN64)
-		char buffer[MAX_PATH];
-		_getcwd(buffer, MAX_PATH);
-		return std::string(buffer);
+	char buffer[MAX_PATH];
+	_getcwd(buffer, MAX_PATH);
+	return std::string(buffer);
 #elif defined(__GNUC__)
-		char buffer[PATH_MAX];
-		getcwd(buffer, PATH_MAX);
-		return std::string(buffer);
+	char buffer[PATH_MAX];
+	getcwd(buffer, PATH_MAX);
+	return std::string(buffer);
 #else
 #error "NO IMPLEMENTATION AVAILABLE"
 #endif
-	}
+}
+extern "C" {
 	DLLEXPORT_PREFIX void sqfvm_init(unsigned long long limit)
 	{
 		sqfvm_virtualmachine = std::make_shared<sqf::virtualmachine>(sqfvm_exportstarget, limit);
@@ -52,7 +50,20 @@ extern "C" {
 	{
 		std::stringstream sstream;
 		bool err;
-		auto executable_path = get_working_dir();
+		std::string executable_path;
+		{
+#if defined(_WIN32) || defined(_WIN64)
+			char buffer[MAX_PATH];
+			_getcwd(buffer, MAX_PATH);
+			executable_path = sqf::filesystem::sanitize(buffer);
+#elif defined(__GNUC__)
+			char buffer[PATH_MAX];
+			getcwd(buffer, PATH_MAX);
+			executable_path = sqf::filesystem::sanitize(buffer);
+#else
+#error "NO IMPLEMENTATION AVAILABLE"
+#endif
+		}
 		auto inputAfterPP = sqfvm_virtualmachine->preprocess(code, err, "__libraryfeed.sqf");
 		if (!err)
 		{

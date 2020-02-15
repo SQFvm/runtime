@@ -92,21 +92,6 @@ int console_width()
 }
 
 
-std::string get_working_dir()
-{
-#if defined(_WIN32) || defined(_WIN64)
-	char buffer[MAX_PATH];
-	_getcwd(buffer, MAX_PATH);
-	return std::string(buffer);
-#elif defined(__GNUC__)
-	char buffer[PATH_MAX];
-	getcwd(buffer, PATH_MAX);
-	return std::string(buffer);
-#else
-#error "NO IMPLEMENTATION AVAILABLE"
-#endif
-}
-
 bool isInLoadFileCliMode = false;
 
 std::string arg_file_actual_path(std::string executable_path, std::string f)
@@ -144,8 +129,20 @@ int main(int argc, char** argv)
 	sigaction(SIGSEGV, &action_SIGSEGV, NULL);
 #endif
 
-
-	auto executable_path = sqf::filesystem::sanitize(get_working_dir());
+	std::string executable_path; 
+	{
+#if defined(_WIN32) || defined(_WIN64)
+		char buffer[MAX_PATH];
+		_getcwd(buffer, MAX_PATH);
+		executable_path = sqf::filesystem::sanitize(buffer);
+#elif defined(__GNUC__)
+		char buffer[PATH_MAX];
+		getcwd(buffer, PATH_MAX);
+		executable_path = sqf::filesystem::sanitize(buffer);
+#else
+#error "NO IMPLEMENTATION AVAILABLE"
+#endif
+	}
 	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', std::string{VERSION_FULL} + " (" + g_GIT_SHA1 + ")\n");
 
 	TCLAP::ValueArg<std::string> cliFileArg("", "cli-file", "Allows to provide a file from which to load arguments from. If passed, all other arguments will be ignored! Each argument needs to be separated by line-feed. " RELPATHHINT, false, "", "PATH");
