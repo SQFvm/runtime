@@ -137,8 +137,8 @@ namespace sqf
 		void execute_helper_execution_abort();
 		bool execute_helper_execution_end();
 	public:
-		virtualmachine(Logger& logger) : virtualmachine(logger, 0) {};
 		virtualmachine(Logger& logger, unsigned long long maxinst);
+		virtualmachine(Logger& logger) : virtualmachine(logger, 0) {};
 		~virtualmachine();
 
 		void push_macro(sqf::parse::macro macro) { m_preprocessor_macros.push_back(macro); }
