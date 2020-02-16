@@ -541,16 +541,17 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 		case (short)sqf::parse::asttype::sqf::CODE:
 		{
 			auto cs = std::make_shared<sqf::callstack>(missionnamespace());
+			sqf::parse::astnode previous_node;
 			for (size_t i = 0; i < node.children.size(); i++)
 			{
 				if (i != 0)
 				{
 					auto inst = std::make_shared<sqf::inst::endstatement>();
-					inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
+					inst->setdbginf(previous_node.line, previous_node.col + previous_node.length, previous_node.file, sqf::parse::dbgsegment(full, previous_node.offset, previous_node.length));
 					cs->push_back(inst);
 				}
-				auto subnode = node.children[i];
-				navigate_sqf(full, cs, subnode, errorflag);
+				previous_node = node.children[i];
+				navigate_sqf(full, cs, previous_node, errorflag);
 			}
 			auto inst = std::make_shared<sqf::inst::push>(sqf::value(cs));
 			inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
@@ -593,16 +594,17 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 		break;
 		default:
 		{
+			sqf::parse::astnode previous_node;
 			for (size_t i = 0; i < node.children.size(); i++)
 			{
 				if (i != 0)
 				{
 					auto inst = std::make_shared<sqf::inst::endstatement>();
-					inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
+					inst->setdbginf(previous_node.line, previous_node.col + previous_node.length, previous_node.file, sqf::parse::dbgsegment(full, previous_node.offset, previous_node.length));
 					stack->push_back(inst);
 				}
-				auto subnode = node.children[i];
-				navigate_sqf(full, stack, subnode, errorflag);
+				previous_node = node.children[i];
+				navigate_sqf(full, stack, previous_node, errorflag);
 			}
 		}
 	}
