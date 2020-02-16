@@ -148,18 +148,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			}
 			if (m_status == vmstatus::requested_abort)
 			{
-				while (this->m_main_vmstack->stacks_size() != 0)
-				{
-					this->m_main_vmstack->drop_callstack();
-				}
-				for (auto& it : mspawns)
-				{
-					while (it->stack()->stacks_size() != 0)
-					{
-						it->stack()->drop_callstack();
-					}
-				}
-				mspawns.clear();
+				execute_helper_execution_abort();
 				m_status = vmstatus::empty;
 			}
 			else if (flag)
@@ -221,18 +210,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			}
 			if (m_status == vmstatus::requested_abort)
 			{
-				while (this->m_main_vmstack->stacks_size() != 0)
-				{
-					this->m_main_vmstack->drop_callstack();
-				}
-				for (auto& it : mspawns)
-				{
-					while (it->stack()->stacks_size() != 0)
-					{
-						it->stack()->drop_callstack();
-					}
-				}
-				mspawns.clear();
+				execute_helper_execution_abort();
 				m_status = vmstatus::empty;
 			}
 			else if (flag)
@@ -259,18 +237,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			m_status = vmstatus::running;
 			if (m_status == vmstatus::requested_abort)
 			{
-				while (this->m_main_vmstack->stacks_size() != 0)
-				{
-					this->m_main_vmstack->drop_callstack();
-				}
-				for (auto& it : mspawns)
-				{
-					while (it->stack()->stacks_size() != 0)
-					{
-						it->stack()->drop_callstack();
-					}
-				}
-				mspawns.clear();
+				execute_helper_execution_abort();
 				m_status = vmstatus::empty;
 			}
 			else if (performexecute(1))
@@ -321,7 +288,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 				res = execresult::OK;
 			}
 		}
-		else if (m_status == vmstatus::halt_error)
+		else if (m_status == vmstatus::halt_error || m_status == vmstatus::halted)
 		{
 			if (m_run_atomic.compare_exchange_weak(expected, true, std::memory_order::memory_order_seq_cst, std::memory_order::memory_order_seq_cst))
 			{
