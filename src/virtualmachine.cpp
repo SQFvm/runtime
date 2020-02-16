@@ -159,6 +159,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 					}
 				}
 				mspawns.clear();
+				m_status = vmstatus::empty;
 			}
 			else if (flag)
 			{
@@ -231,6 +232,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 					}
 				}
 				mspawns.clear();
+				m_status = vmstatus::empty;
 			}
 			else if (flag)
 			{
@@ -267,6 +269,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 					}
 				}
 				mspawns.clear();
+				m_status = vmstatus::empty;
 			}
 			else if (performexecute(1))
 			{
