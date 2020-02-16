@@ -222,6 +222,10 @@ namespace sqf
 		{
 			return m_breakpoints.end();
 		}
+		std::vector<sqf::diagnostics::breakpoint>::iterator breakpoints_erase(std::vector<sqf::diagnostics::breakpoint>::iterator first, std::vector<sqf::diagnostics::breakpoint>::iterator last)
+		{
+			return m_breakpoints.erase(first, last);
+		}
 
 
 		execresult execute(execaction action);

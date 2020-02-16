@@ -25,7 +25,7 @@ namespace sqf
 			std::size_t line() const { return m_line; }
 			void line(std::size_t value) { m_line = value; }
 
-			std::string file() const { return m_file; }
+			const std::string file() const { return m_file; }
 			void file(std::string value) { m_file = value; }
 
 			// std::string condition() const { return m_condition; }
