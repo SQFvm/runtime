@@ -74,6 +74,7 @@ sqf::virtualmachine::virtualmachine(Logger& logger, unsigned long long maxinst) 
 	m_created_timestamp = system_time();
 	m_current_time = system_time();
 	m_run_atomic = false;
+	m_last_breakpoint_line_hit = -1;
 }
 sqf::virtualmachine::~virtualmachine()
 {
@@ -328,17 +329,6 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend
 		)
 	{
-		// Check if breakpoint was hit
-		{
-			auto line = m_current_instruction->line();
-			for (const auto& breakpoint : m_breakpoints)
-			{
-				if (breakpoint.is_enabled() && breakpoint.line() == line)
-				{
-					return true;
-				}
-			}
-		}
 		m_instructions_count++;
 		if (exitAfter > 0)
 		{
@@ -423,6 +413,19 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 					m_active_vmstack->drop_callstack();
 				}
 				sqftry->except(sqfarr);
+			}
+		}
+		// Check if breakpoint was hit
+		{
+			auto line = m_current_instruction->line();
+			for (const auto& breakpoint : m_breakpoints)
+			{
+				if (breakpoint.is_enabled() && breakpoint.line() == line)
+				{
+					m_last_breakpoint_line_hit = line;
+					m_status = vmstatus::halted;
+					return true;
+				}
 			}
 		}
 	}

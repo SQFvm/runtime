@@ -109,6 +109,7 @@ namespace sqf
 		bool m_allow_suspension;
 		bool m_perform_classname_checks;
 		bool m_allow_networking;
+		int m_last_breakpoint_line_hit;
 		sqf::filesystem m_filesystem;
 		std::chrono::system_clock::time_point m_created_timestamp;
 		std::chrono::system_clock::time_point m_current_time;
