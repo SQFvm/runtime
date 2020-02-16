@@ -42,7 +42,7 @@ namespace sqf::parse
 					m_info.offset += 6;
 					size_t start = m_info.offset;
 					for (; m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n' && m_contents[m_info.offset] != ' '; m_info.offset++);
-					auto str = std::string(m_contents.substr(start, m_info.offset - start));
+					auto str = std::string(m_contents_actual.substr(start, m_info.offset - start));
 					m_info.line = static_cast<size_t>(std::stoul(str));
 
 					for (; m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n' && m_contents[m_info.offset] == ' '; m_info.offset++);
@@ -50,7 +50,7 @@ namespace sqf::parse
 					{
 						start = m_info.offset;
 						for (; m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n'; m_info.offset++);
-						auto str = std::string(m_contents.substr(start, m_info.offset - start));
+						auto str = std::string(m_contents_actual.substr(start, m_info.offset - start));
 						m_info.file = str;
 					}
 					break;
@@ -149,7 +149,7 @@ namespace sqf::parse
 		std::string ident;
 		if ((len = identifier(m_info.offset)) > 0)
 		{
-			ident = std::string(m_contents.substr(m_info.offset, len));
+			ident = std::string(m_contents_actual.substr(m_info.offset, len));
 			thisnode.content = ident;
 			thisnode.line = m_info.line;
 			thisnode.file = m_info.file;
@@ -169,7 +169,7 @@ namespace sqf::parse
 			skip();
 			if ((len = identifier(m_info.offset)) > 0)
 			{
-				ident = std::string(m_contents.substr(m_info.offset, len));
+				ident = std::string(m_contents_actual.substr(m_info.offset, len));
 				astnode parentidentnode;
 				parentidentnode.offset = m_info.offset;
 				parentidentnode.length = len;
@@ -226,7 +226,7 @@ namespace sqf::parse
 
 		if ((len = identifier(m_info.offset)) > 0)
 		{
-			auto ident = std::string(m_contents.substr(m_info.offset, len));
+			auto ident = std::string(m_contents_actual.substr(m_info.offset, len));
 			thisnode.content = ident;
 			thisnode.line = m_info.line;
 			thisnode.file = m_info.file;
@@ -319,7 +319,7 @@ namespace sqf::parse
 				magicstringnode.col = tmp_col;
 				magicstringnode.line = tmp_line;
 				magicstringnode.file = m_info.file;
-				auto fullstring = std::string("\"").append(m_contents.substr(tmp_off, m_info.offset - tmp_off)).append("\"");
+				auto fullstring = std::string("\"").append(m_contents_actual.substr(tmp_off, m_info.offset - tmp_off)).append("\"");
 				magicstringnode.content = fullstring;
 				magicstringnode.length = m_info.offset - tmp_off;
 				magicstringnode.offset = tmp_off;
@@ -362,7 +362,7 @@ namespace sqf::parse
 		}
 		i++;
 		m_info.column++;
-		auto fullstring = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
+		auto fullstring = std::string(m_contents_actual.substr(m_info.offset, i - m_info.offset));
 		thisnode.content = fullstring;
 		thisnode.length = i - m_info.offset;
 		thisnode.offset = m_info.offset;
@@ -383,7 +383,7 @@ namespace sqf::parse
 			thisnode.kind = (short)asttype::config::HEXNUMBER;
 			size_t i;
 			for (i = m_info.offset + 2; (m_file[i] >= '0' && m_file[i] <= '9') || (m_file[i] >= 'A' && m_file[i] <= 'F') || (m_file[i] >= 'a' && m_file[i] <= 'f'); i++);
-			auto ident = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
+			auto ident = std::string(m_contents_actual.substr(m_info.offset, i - m_info.offset));
 			thisnode.content = ident;
 			thisnode.offset = m_info.offset;
 			thisnode.length = i - m_info.offset;
@@ -430,7 +430,7 @@ namespace sqf::parse
 				}
 
 			}
-			auto ident = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
+			auto ident = std::string(m_contents_actual.substr(m_info.offset, i - m_info.offset));
 			thisnode.content = ident;
 			thisnode.offset = m_info.offset;
 			thisnode.length = i - m_info.offset;
@@ -449,7 +449,7 @@ namespace sqf::parse
 		m_info.offset++;;
 		m_info.column++;
 		auto len = identifier(m_info.offset);
-		auto ident = std::string(m_contents.substr(m_info.offset, len));
+		auto ident = std::string(m_contents_actual.substr(m_info.offset, len));
 		thisnode.content = ident;
 		thisnode.length = len;
 		thisnode.offset = m_info.offset;
@@ -506,7 +506,7 @@ namespace sqf::parse
 			errflag = true;
 		}
 		thisnode.length = m_info.offset - thisnode.offset;
-		thisnode.content = std::string(m_contents.substr(thisnode.offset, thisnode.length));
+		thisnode.content = std::string(m_contents_actual.substr(thisnode.offset, thisnode.length));
 		root.children.push_back(thisnode);
 	}
 	//VALUE = STRING | NUMBER | LOCALIZATION | ARRAY;

@@ -44,7 +44,7 @@ void sqf::parse::sqf::skip(position_info& info)
 				info.offset += 6;
 				size_t start = info.offset;
 				for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n' && m_contents[info.offset] != ' '; info.offset++);
-				auto str = std::string(m_contents.substr(start, info.offset - start));
+				auto str = std::string(m_contents_actual.substr(start, info.offset - start));
 				info.line = static_cast<size_t>(std::stoul(str));
 
 				for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n' && m_contents[info.offset] == ' '; info.offset++);
@@ -52,7 +52,7 @@ void sqf::parse::sqf::skip(position_info& info)
 				{
 					start = info.offset;
 					for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n'; info.offset++);
-					auto str = std::string(m_contents.substr(start, info.offset - start));
+					auto str = std::string(m_contents_actual.substr(start, info.offset - start));
 					info.file = str;
 				}
 				break;
@@ -165,7 +165,7 @@ bool sqf::parse::sqf::ASSIGNMENT_start(size_t curoff)
 		skip(curoff);
 	}
 #else
-	if (str_cmpi(m_contents.data() + curoff, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
+	if (str_cmpi(m_contents + curoff, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
 	{
 		curoff += compiletime::strlen("private");
 		skip(curoff);
@@ -192,7 +192,7 @@ void sqf::parse::sqf::ASSIGNMENT(astnode &root, bool &errflag)
 	bool assignlocal = false;
 #if defined(SQFVM_ARMA2_SYNTAX)
 	//check if prefixed by a 'local'
-	if (str_cmpi(m_contents.data() + m_info.offset, compiletime::strlen("local"), "local", compiletime::strlen("local")) == 0)
+	if (str_cmpi(m_contents + m_info.offset, compiletime::strlen("local"), "local", compiletime::strlen("local")) == 0)
 	{
 		m_info.offset += compiletime::strlen("local");
 		m_info.column += compiletime::strlen("local");
@@ -202,7 +202,7 @@ void sqf::parse::sqf::ASSIGNMENT(astnode &root, bool &errflag)
 }
 #else
 	//check if prefixed by a 'private'
-	if (str_cmpi(m_contents.data() + m_info.offset, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
+	if (str_cmpi(m_contents + m_info.offset, compiletime::strlen("private"), "private", compiletime::strlen("private")) == 0)
 	{
 		m_info.offset += compiletime::strlen("private");
 		m_info.column += compiletime::strlen("private");
@@ -213,7 +213,7 @@ void sqf::parse::sqf::ASSIGNMENT(astnode &root, bool &errflag)
 #endif
 	//receive the ident
 	len = assidentifier(m_info.offset);
-	auto ident = std::string(m_contents.substr(m_info.offset, len));
+	auto ident = std::string(m_contents_actual.substr(m_info.offset, len));
 
 	auto varnode = astnode();
 	varnode.offset = m_info.offset;
@@ -307,7 +307,7 @@ void sqf::parse::sqf::bexp10(astnode &root, bool &errflag)
 		errflag = true;
 	}
 	skip(m_info);
-	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 10))
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents_actual.substr(m_info.offset, oplen)), 10))
 	{
 		auto node = astnode();
 		node.content = op;
@@ -358,7 +358,7 @@ void sqf::parse::sqf::bexp9(astnode &root, bool &errflag)
 		errflag = true;
 	}
 	skip(m_info);
-	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 9))
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents_actual.substr(m_info.offset, oplen)), 9))
 	{
 		auto node = astnode();
 		node.content = op;
@@ -409,7 +409,7 @@ void sqf::parse::sqf::bexp8(astnode &root, bool &errflag)
 		errflag = true;
 	}
 	skip(m_info);
-	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 8))
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents_actual.substr(m_info.offset, oplen)), 8))
 	{
 		auto node = astnode();
 		node.content = op;
@@ -460,7 +460,7 @@ void sqf::parse::sqf::bexp7(astnode &root, bool &errflag)
 		errflag = true;
 	}
 	skip(m_info);
-	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 7))
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents_actual.substr(m_info.offset, oplen)), 7))
 	{
 		auto node = astnode();
 		node.content = op;
@@ -511,7 +511,7 @@ void sqf::parse::sqf::bexp6(astnode &root, bool &errflag)
 		errflag = true;
 	}
 	skip(m_info);
-	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 6))
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents_actual.substr(m_info.offset, oplen)), 6))
 	{
 		auto node = astnode();
 		node.content = op;
@@ -562,7 +562,7 @@ void sqf::parse::sqf::bexp5(astnode &root, bool &errflag)
 		errflag = true;
 	}
 	skip(m_info);
-	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 5))
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents_actual.substr(m_info.offset, oplen)), 5))
 	{
 		auto node = astnode();
 		node.content = op;
@@ -613,7 +613,7 @@ void sqf::parse::sqf::bexp4(astnode &root, bool &errflag)
 		errflag = true;
 	}
 	skip(m_info);
-	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 4))
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents_actual.substr(m_info.offset, oplen)), 4))
 	{
 		auto node = astnode();
 		node.content = op;
@@ -664,7 +664,7 @@ void sqf::parse::sqf::bexp3(astnode &root, bool &errflag)
 		errflag = true;
 	}
 	skip(m_info);
-	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 3))
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents_actual.substr(m_info.offset, oplen)), 3))
 	{
 		auto node = astnode();
 		node.content = op;
@@ -715,7 +715,7 @@ void sqf::parse::sqf::bexp2(astnode &root, bool &errflag)
 		errflag = true;
 	}
 	skip(m_info);
-	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 2))
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents_actual.substr(m_info.offset, oplen)), 2))
 	{
 		auto node = astnode();
 		node.content = op;
@@ -766,7 +766,7 @@ void sqf::parse::sqf::bexp1(astnode &root, bool &errflag)
 		errflag = true;
 	}
 	skip(m_info);
-	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 1))
+	if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents_actual.substr(m_info.offset, oplen)), 1))
 	{
 		auto node = astnode();
 		node.content = op;
@@ -880,14 +880,14 @@ void sqf::parse::sqf::PRIMARYEXPRESSION(astnode &root, bool &errflag)
 	//root.children.push_back(thisnode);
 }
 //NULAREXPRESSION = operator;
-bool sqf::parse::sqf::NULAREXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_nular(std::string(m_contents.substr(curoff, oplen))) : false; }
+bool sqf::parse::sqf::NULAREXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_nular(std::string(m_contents_actual.substr(curoff, oplen))) : false; }
 void sqf::parse::sqf::NULAREXPRESSION(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = (short)asttype::sqf::NULAROP;
 	thisnode.file = m_info.file;
 	auto len = operator_(m_info.offset);
-	auto ident = std::string(m_contents.substr(m_info.offset, len));
+	auto ident = std::string(m_contents_actual.substr(m_info.offset, len));
 	thisnode.content = ident;
 	thisnode.length = len;
 	thisnode.offset = m_info.offset;
@@ -898,7 +898,7 @@ void sqf::parse::sqf::NULAREXPRESSION(astnode &root, bool &errflag)
 	root.children.emplace_back(std::move(thisnode));
 }
 //UNARYEXPRESSION = operator PRIMARYEXPRESSION;
-bool sqf::parse::sqf::UNARYEXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_unary(std::string(m_contents.substr(curoff, oplen))) : false; }
+bool sqf::parse::sqf::UNARYEXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_unary(std::string(m_contents_actual.substr(curoff, oplen))) : false; }
 void sqf::parse::sqf::UNARYEXPRESSION(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
@@ -909,7 +909,7 @@ void sqf::parse::sqf::UNARYEXPRESSION(astnode &root, bool &errflag)
     thisnode.line = m_info.line;
 
 	auto len = operator_(m_info.offset);
-	auto operatorname = std::string(m_contents.substr(m_info.offset, len));
+	auto operatorname = std::string(m_contents_actual.substr(m_info.offset, len));
 	auto opnode = astnode();
 	opnode.kind = (short)asttype::sqf::UNARYOP;
 	opnode.offset = m_info.offset;
@@ -957,7 +957,7 @@ void sqf::parse::sqf::NUMBER(astnode &root, bool &errflag)
 		thisnode.kind = (short)asttype::sqf::HEXNUMBER;
 		size_t i;
 		for (i = m_info.offset + 1; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
-		auto ident = std::string(m_contents.substr(m_info.offset + 1, i - m_info.offset));
+		auto ident = std::string(m_contents_actual.substr(m_info.offset + 1, i - m_info.offset));
 		thisnode.content = ident;
 		thisnode.offset = m_info.offset;
 		thisnode.length = i - m_info.offset;
@@ -969,7 +969,7 @@ void sqf::parse::sqf::NUMBER(astnode &root, bool &errflag)
 		thisnode.kind = (short)asttype::sqf::HEXNUMBER;
 		size_t i;
 		for (i = m_info.offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
-		auto ident = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
+		auto ident = std::string(m_contents_actual.substr(m_info.offset, i - m_info.offset));
 		thisnode.content = ident;
 		thisnode.offset = m_info.offset;
 		thisnode.length = i - m_info.offset;
@@ -1012,7 +1012,7 @@ void sqf::parse::sqf::NUMBER(astnode &root, bool &errflag)
 			}
 
 		}
-		auto ident = std::string(m_contents.substr(m_info.offset, i));
+		auto ident = std::string(m_contents_actual.substr(m_info.offset, i));
 		thisnode.content = ident;
 		thisnode.offset = m_info.offset;
 		thisnode.length = i - m_info.offset;
@@ -1027,14 +1027,14 @@ void sqf::parse::sqf::NUMBER(astnode &root, bool &errflag)
 	root.children.emplace_back(std::move(thisnode));
 }
 //VARIABLE = identifier;
-bool sqf::parse::sqf::VARIABLE_start(size_t curoff) { auto len = identifier(curoff); return len > 0 && !m_contains_binary(std::string(m_contents.substr(curoff, len)), 0); }
+bool sqf::parse::sqf::VARIABLE_start(size_t curoff) { auto len = identifier(curoff); return len > 0 && !m_contains_binary(std::string(m_contents_actual.substr(curoff, len)), 0); }
 void sqf::parse::sqf::VARIABLE(astnode &root, bool &errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = (short)asttype::sqf::VARIABLE;
 	thisnode.file = m_info.file;
 	auto len = identifier(m_info.offset);
-	auto ident = std::string(m_contents.substr(m_info.offset, len));
+	auto ident = std::string(m_contents_actual.substr(m_info.offset, len));
 	thisnode.content = ident;
 	thisnode.length = len;
 	thisnode.offset = m_info.offset;
@@ -1076,7 +1076,7 @@ void sqf::parse::sqf::STRING(astnode &root, bool &errflag)
 	}
 	i++;
 	m_info.column++;
-	auto fullstring = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
+	auto fullstring = std::string(m_contents_actual.substr(m_info.offset, i - m_info.offset));
 	thisnode.content = fullstring;
 	thisnode.length = i - m_info.offset;
 	thisnode.offset = m_info.offset;
@@ -1166,7 +1166,7 @@ void sqf::parse::sqf::ARRAY(astnode &root, bool &errflag)
 		errflag = true;
 	}
 	thisnode.length = m_info.offset - thisnode.offset;
-	thisnode.content = std::string(m_contents.substr(thisnode.offset, thisnode.length));
+	thisnode.content = std::string(m_contents_actual.substr(thisnode.offset, thisnode.length));
 	root.children.emplace_back(std::move(thisnode));
 }
 

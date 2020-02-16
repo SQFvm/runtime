@@ -44,7 +44,8 @@ namespace sqf::parse
 	{
 	private:
 		position_info m_info;
-		std::string m_contents;
+		const char* m_contents;
+		std::string m_contents_actual;
 		std::string m_file;
 		bool(*m_contains_nular)(std::string_view);
 		bool(*m_contains_unary)(std::string_view);
@@ -126,9 +127,10 @@ namespace sqf::parse
 			m_contains_unary(contains_unary),
 			m_contains_binary(contains_binary),
 			m_precedence(precedence),
-			m_contents(contents),
+			m_contents_actual(contents),
 			m_file(file)
 		{
+			m_contents = m_contents_actual.c_str();
 			position_info position_info = { 1, 0, 0, m_file };
 			m_info = position_info;
 		}

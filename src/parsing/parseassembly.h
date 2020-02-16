@@ -49,7 +49,8 @@ namespace sqf
 		public:
 		private:
 			virtualmachine* m_vm;
-			std::string m_contents;
+			const char* m_contents;
+			std::string m_contents_actual;
 			std::string m_file;
 
 			void skip(position_info& info);
@@ -104,8 +105,10 @@ namespace sqf
 			assembly(virtualmachine* vm, Logger& ref_logger, std::string_view contents, std::string file) :
 				CanLog(ref_logger),
 				m_vm(vm),
-				m_contents(contents),
-				m_file(file) {}
+				m_contents_actual(contents),
+				m_file(file) {
+				m_contents = m_contents_actual.c_str();
+			}
 			void parse();
 		};
 	}

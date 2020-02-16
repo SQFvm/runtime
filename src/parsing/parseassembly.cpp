@@ -49,7 +49,7 @@ void sqf::parse::assembly::skip(position_info& info)
 				info.offset += 6;
 				size_t start = info.offset;
 				for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n' && m_contents[info.offset] != ' '; info.offset++);
-				auto str = std::string(m_contents.substr(start, info.offset - start));
+				auto str = std::string(m_contents_actual.substr(start, info.offset - start));
 				info.line = static_cast<size_t>(std::stoul(str));
 
 				for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n' && m_contents[info.offset] == ' '; info.offset++);
@@ -57,7 +57,7 @@ void sqf::parse::assembly::skip(position_info& info)
 				{
 					start = info.offset;
 					for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n'; info.offset++);
-					auto str = std::string(m_contents.substr(start, info.offset - start));
+					auto str = std::string(m_contents_actual.substr(start, info.offset - start));
 					info.file = str;
 				}
 				break;
@@ -164,7 +164,7 @@ void sqf::parse::assembly::arg(position_info& info)
 	}
 }
 //ENDSTATEMENT = "endStatement"
-bool sqf::parse::assembly::endstatement_start(size_t off) { return str_cmpi(m_contents.data() + off, compiletime::strlen("endStatement"), "endStatement", compiletime::strlen("endStatement")) == 0; }
+bool sqf::parse::assembly::endstatement_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("endStatement"), "endStatement", compiletime::strlen("endStatement")) == 0; }
 void sqf::parse::assembly::endstatement(position_info& info)
 {
 	if (endstatement_start(info.offset))
@@ -185,7 +185,7 @@ void sqf::parse::assembly::endstatement(position_info& info)
 	}
 }
 //CALLUNARY = "callUnary" command
-bool sqf::parse::assembly::callunary_start(size_t off) { return str_cmpi(m_contents.data() + off, compiletime::strlen("callUnary"), "callUnary", compiletime::strlen("callUnary")) == 0; }
+bool sqf::parse::assembly::callunary_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("callUnary"), "callUnary", compiletime::strlen("callUnary")) == 0; }
 void sqf::parse::assembly::callunary(position_info& info)
 {
 	size_t identstart = info.offset;
@@ -209,7 +209,7 @@ void sqf::parse::assembly::callunary(position_info& info)
 	}
 	else
 	{
-		std::string cmdname = std::string(m_contents.substr(info.offset, cmdlen));
+		std::string cmdname = std::string(m_contents_actual.substr(info.offset, cmdlen));
 		auto cmdrange = sqf::commandmap::get().getrange_u(cmdname);
 		if (cmdrange->empty())
 		{
@@ -229,7 +229,7 @@ void sqf::parse::assembly::callunary(position_info& info)
 	}
 }
 //CALLBINARY = "callBinary" command
-bool sqf::parse::assembly::callbinary_start(size_t off) { return str_cmpi(m_contents.data() + off, compiletime::strlen("callBinary"), "callBinary", compiletime::strlen("callBinary")) == 0; }
+bool sqf::parse::assembly::callbinary_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("callBinary"), "callBinary", compiletime::strlen("callBinary")) == 0; }
 void sqf::parse::assembly::callbinary(position_info& info)
 {
 	size_t identstart = info.offset;
@@ -253,7 +253,7 @@ void sqf::parse::assembly::callbinary(position_info& info)
 	}
 	else
 	{
-		std::string cmdname = std::string(m_contents.substr(info.offset, cmdlen));
+		std::string cmdname = std::string(m_contents_actual.substr(info.offset, cmdlen));
 		auto cmdrange = sqf::commandmap::get().getrange_b(cmdname);
 		if (cmdrange->empty())
 		{
@@ -273,7 +273,7 @@ void sqf::parse::assembly::callbinary(position_info& info)
 	}
 }
 //ASSIGNTO = "assignTo" anytext
-bool sqf::parse::assembly::assignto_start(size_t off) { return str_cmpi(m_contents.data() + off, compiletime::strlen("assignTo"), "assignTo", compiletime::strlen("assignTo")) == 0; }
+bool sqf::parse::assembly::assignto_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("assignTo"), "assignTo", compiletime::strlen("assignTo")) == 0; }
 void sqf::parse::assembly::assignto(position_info& info)
 {
 	size_t identstart = info.offset;
@@ -297,7 +297,7 @@ void sqf::parse::assembly::assignto(position_info& info)
 	}
 	else
 	{
-		std::string variable_name = std::string(m_contents.substr(info.offset, textlen));
+		std::string variable_name = std::string(m_contents_actual.substr(info.offset, textlen));
 		auto inst = std::make_shared<sqf::inst::assignto>(variable_name);
 #ifndef DISABLE_DEBUG_SEGMENT
 		inst->setdbginf(identline, identcol, std::string(),  sqf::parse::dbgsegment(m_contents, identstart, compiletime::strlen("assignTo")));
@@ -309,7 +309,7 @@ void sqf::parse::assembly::assignto(position_info& info)
 	}
 }
 //ASSIGNTOLOCAL = "assignToLocal" anytext
-bool sqf::parse::assembly::assigntolocal_start(size_t off) { return str_cmpi(m_contents.data() + off, compiletime::strlen("assignToLoca"), "assignToLoca", compiletime::strlen("assignToLoca")) == 0; }
+bool sqf::parse::assembly::assigntolocal_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("assignToLoca"), "assignToLoca", compiletime::strlen("assignToLoca")) == 0; }
 void sqf::parse::assembly::assigntolocal(position_info& info)
 {
 	size_t identstart = info.offset;
@@ -333,7 +333,7 @@ void sqf::parse::assembly::assigntolocal(position_info& info)
 	}
 	else
 	{
-		std::string variable_name = std::string(m_contents.substr(info.offset, textlen));
+		std::string variable_name = std::string(m_contents_actual.substr(info.offset, textlen));
 		auto inst = std::make_shared<sqf::inst::assigntolocal>(variable_name);
 #ifndef DISABLE_DEBUG_SEGMENT
 		inst->setdbginf(identline, identcol, std::string(), sqf::parse::dbgsegment(m_contents, identstart, compiletime::strlen("assignToLoca")));
@@ -346,7 +346,7 @@ void sqf::parse::assembly::assigntolocal(position_info& info)
 	}
 }
 //CALLNULAR = "callNular" command
-bool sqf::parse::assembly::callnular_start(size_t off) { return str_cmpi(m_contents.data() + off, compiletime::strlen("callNular"), "callNular", compiletime::strlen("callNular")) == 0; }
+bool sqf::parse::assembly::callnular_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("callNular"), "callNular", compiletime::strlen("callNular")) == 0; }
 void sqf::parse::assembly::callnular(position_info& info)
 {
 	size_t identstart = info.offset;
@@ -370,7 +370,7 @@ void sqf::parse::assembly::callnular(position_info& info)
 	}
 	else
 	{
-		std::string cmdname = std::string(m_contents.substr(info.offset, cmdlen));
+		std::string cmdname = std::string(m_contents_actual.substr(info.offset, cmdlen));
 		auto cmd = sqf::commandmap::get().get(cmdname);
 		if (!cmd.get())
 		{
@@ -390,7 +390,7 @@ void sqf::parse::assembly::callnular(position_info& info)
 	}
 }
 //GETVARIABLE = "getVariable" anytext
-bool sqf::parse::assembly::getvariable_start(size_t off) { return str_cmpi(m_contents.data() + off, compiletime::strlen("getVariable"), "getVariable", compiletime::strlen("getVariable")) == 0; }
+bool sqf::parse::assembly::getvariable_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("getVariable"), "getVariable", compiletime::strlen("getVariable")) == 0; }
 void sqf::parse::assembly::getvariable(position_info& info)
 {
 	size_t identstart = info.offset;
@@ -414,7 +414,7 @@ void sqf::parse::assembly::getvariable(position_info& info)
 	}
 	else
 	{
-		std::string variable_name = std::string(m_contents.substr(info.offset, textlen));
+		std::string variable_name = std::string(m_contents_actual.substr(info.offset, textlen));
 		auto inst = std::make_shared<sqf::inst::getvariable>(variable_name);
 #ifndef DISABLE_DEBUG_SEGMENT
 		inst->setdbginf(identline, identcol, std::string(),  sqf::parse::dbgsegment(m_contents, identstart, compiletime::strlen("getVariable")));
@@ -426,7 +426,7 @@ void sqf::parse::assembly::getvariable(position_info& info)
 	}
 }
 //MAKEARRAY = "makeArray" anytext
-bool sqf::parse::assembly::makearray_start(size_t off) { return str_cmpi(m_contents.data() + off, compiletime::strlen("makeArray"), "makeArray", compiletime::strlen("makeArray")) == 0; }
+bool sqf::parse::assembly::makearray_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("makeArray"), "makeArray", compiletime::strlen("makeArray")) == 0; }
 void sqf::parse::assembly::makearray(position_info& info)
 {
 	size_t identstart = info.offset;
@@ -450,7 +450,7 @@ void sqf::parse::assembly::makearray(position_info& info)
 	}
 	else
 	{
-		std::string integer_str = std::string(m_contents.substr(info.offset, intlen));
+		std::string integer_str = std::string(m_contents_actual.substr(info.offset, intlen));
 		auto inst = std::make_shared<sqf::inst::makearray>(static_cast<size_t>(std::stoul(integer_str)));
 #ifndef DISABLE_DEBUG_SEGMENT
 		inst->setdbginf(identline, identcol, std::string(),  sqf::parse::dbgsegment(m_contents, identstart, compiletime::strlen("makeArray")));
@@ -462,7 +462,7 @@ void sqf::parse::assembly::makearray(position_info& info)
 	}
 }
 //PUSH = "push" type { anytext }
-bool sqf::parse::assembly::push_start(size_t off) { return str_cmpi(m_contents.data() + off, compiletime::strlen("push"), "push", compiletime::strlen("push")) == 0; }
+bool sqf::parse::assembly::push_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("push"), "push", compiletime::strlen("push")) == 0; }
 void sqf::parse::assembly::push(position_info& info)
 {
 	size_t identstart = info.offset;
@@ -487,7 +487,7 @@ void sqf::parse::assembly::push(position_info& info)
 	}
 	else
 	{
-		pushtype = sqf::parsetype(std::string(m_contents.substr(info.offset, typelen)));
+		pushtype = sqf::parsetype(std::string(m_contents_actual.substr(info.offset, typelen)));
 		info.offset += typelen;
 		info.column += typelen;
 		skip(info);
@@ -505,7 +505,7 @@ void sqf::parse::assembly::push(position_info& info)
 	{
 		try
 		{
-			auto data = std::string(m_contents.substr(info.offset - textlen, textlen));
+			auto data = std::string(m_contents_actual.substr(info.offset - textlen, textlen));
 			auto inst = std::make_shared<sqf::inst::push>(sqf::value(sqf::convert(std::make_shared<sqf::stringdata>(data, true), pushtype)));
 #ifndef DISABLE_DEBUG_SEGMENT
 			inst->setdbginf(identline, identcol, std::string(),  sqf::parse::dbgsegment(m_contents, identstart, compiletime::strlen("push")));
