@@ -159,7 +159,7 @@ bool sqf::parse::sqf::ASSIGNMENT_start(size_t curoff)
 {
 	size_t len;
 #if defined(SQFVM_ARMA2_SYNTAX)
-	if (str_cmpi(m_contents.data() + curoff, compiletime::strlen("local"), "local", compiletime::strlen("local")) == 0)
+	if (str_cmpi(m_contents + curoff, compiletime::strlen("local"), "local", compiletime::strlen("local")) == 0)
 	{
 		curoff += compiletime::strlen("local");
 		skip(curoff);
