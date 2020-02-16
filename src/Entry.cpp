@@ -696,21 +696,7 @@ int main(int argc, char** argv)
 			std::cout << "Executing..." << std::endl;
 			std::cout << std::string(console_width(), '-') << std::endl;
 		}
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
-		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::start);
 		if (!noExecutePrintArg.getValue())
 		{
 			std::cout << std::string(console_width(), '-') << std::endl;
