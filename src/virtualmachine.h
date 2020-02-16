@@ -71,7 +71,8 @@ namespace sqf
 			running,
 			requested_halt,
 			halt_error,
-			requested_abort
+			requested_abort,
+			evaluating
 		};
 	private:
 		unsigned long long m_instructions_count;
@@ -96,6 +97,7 @@ namespace sqf
 		std::atomic<bool> m_run_atomic;
 		vmstatus m_status;
 		bool m_runtime_error;
+		bool m_evaluate_halt;
 
 		std::vector<sqf::diagnostics::breakpoint> m_breakpoints;
 
@@ -293,6 +295,16 @@ namespace sqf
 		std::vector<std::shared_ptr<dlops>>& libraries() { return mlibraries; }
 		bool allow_suspension() const { return m_allow_suspension; }
 		void allow_suspension(bool flag) { m_allow_suspension = flag; }
+
+
+		// DO NOT USE FROM WITHIN COMMANDS!
+		// Executing this method will request a temporary halt of the vm, to then execute
+		// whatever is passed in view until the end.
+		// A deadlock thus will happen, where the command would wait for itself
+		// to return to start evaluating the expression!
+		//
+		// If you need to execute from within a command, pass "request_halt = false"
+		value evaluate_expression(std::string_view view, bool& success, bool request_halt = true);
 
 		filesystem& get_filesystem() { return m_filesystem; }
 

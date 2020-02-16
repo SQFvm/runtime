@@ -60,6 +60,7 @@ sqf::virtualmachine::virtualmachine(Logger& logger, unsigned long long maxinst) 
 	m_max_instructions = maxinst;
 	m_main_vmstack = std::make_shared<vmstack>();
 	m_active_vmstack = m_main_vmstack;
+	m_evaluate_halt = false;
 	mmissionnamespace = std::make_shared<sqf::sqfnamespace>("missionNamespace");
 	muinamespace = std::make_shared< sqf::sqfnamespace>("uiNamespace");
 	mparsingnamespace = std::make_shared<sqf::sqfnamespace>("parsingNamespace");
@@ -329,6 +330,15 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend
 		)
 	{
+		if (m_evaluate_halt)
+		{
+			m_status = vmstatus::evaluating;
+			while (m_evaluate_halt);
+			if (m_status == vmstatus::evaluating)
+			{
+				m_status = vmstatus::running;
+			}
+		}
 		m_instructions_count++;
 		if (exitAfter > 0)
 		{
@@ -844,6 +854,64 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 	if (!errorflag)
 	{
 		navigate_config(code.data(), this, std::move(parent), node);
+	}
+}
+::sqf::value sqf::virtualmachine::evaluate_expression(std::string_view view, bool& success, bool request_halt)
+{
+	auto stack = std::make_shared<sqf::vmstack>();
+	if (request_halt)
+	{
+		m_evaluate_halt = true;
+		while (m_status != vmstatus::evaluating);
+	}
+	if (parse_sqf(m_active_vmstack, view, nullptr, "EVAL__"))
+	{
+		auto current_active = m_active_vmstack;
+		try
+		{
+			m_active_vmstack = stack;
+			std::shared_ptr<sqf::instruction> inst;
+			while (!m_active_vmstack->empty() && (inst = m_active_vmstack->pop_back_instruction(this)).get() && !m_runtime_error)
+			{
+				inst->execute(this);
+			}
+			m_active_vmstack = current_active;
+		}
+		catch (const std::exception& ex)
+		{
+			if (request_halt)
+			{
+				m_evaluate_halt = false;
+			}
+		}
+		if (m_runtime_error)
+		{
+			if (request_halt)
+			{
+				m_evaluate_halt = false;
+			}
+			m_runtime_error = false;
+			success = false;
+			return {};
+		}
+		else
+		{
+			if (request_halt)
+			{
+				m_evaluate_halt = false;
+			}
+			success = true;
+			return stack->last_value();
+		}
+	}
+	else
+	{
+		if (request_halt)
+		{
+			m_evaluate_halt = false;
+		}
+		success = false;
+		return {};
 	}
 }
 size_t sqf::virtualmachine::push_obj(std::shared_ptr<sqf::innerobj> obj)

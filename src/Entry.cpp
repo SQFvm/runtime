@@ -673,6 +673,9 @@ int main(int argc, char** argv)
 
 			std::cout << std::endl;
 
+			bool flag;
+			std::cout << vm.evaluate_expression("1", flag).tosqf() << " - " << flag << std::endl;
+
 			auto input = sstream.str();
 			bool err = false;
 			auto inputAfterPP = vm.preprocess(input, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
