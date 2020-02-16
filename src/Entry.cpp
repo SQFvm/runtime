@@ -347,6 +347,7 @@ int main(int argc, char** argv)
 
 	StdOutLogger logger;
 	sqf::virtualmachine vm(logger);
+	vm.parse_sqf_cst("\" ", "test");
 	sqf::commandmap::get().init();
 	netserver* srv = nullptr;
 
@@ -695,7 +696,21 @@ int main(int argc, char** argv)
 			std::cout << "Executing..." << std::endl;
 			std::cout << std::string(console_width(), '-') << std::endl;
 		}
-		result = vm.execute(sqf::virtualmachine::execaction::start);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
+		result = vm.execute(sqf::virtualmachine::execaction::assembly_step);
 		if (!noExecutePrintArg.getValue())
 		{
 			std::cout << std::string(console_width(), '-') << std::endl;

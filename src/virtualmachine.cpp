@@ -133,6 +133,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			m_exit_flag = false;
 			auto scopeNum = m_active_vmstack->stacks_size() - 1;
 			bool flag = true;
+			m_status = vmstatus::running;
 			while (m_status == vmstatus::running && !execute_helper_execution_end())
 			{
 				flag = performexecute(1);
@@ -255,6 +256,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 		if (m_run_atomic.compare_exchange_weak(expected, true, std::memory_order::memory_order_seq_cst, std::memory_order::memory_order_seq_cst))
 		{
 			m_exit_flag = false;
+			m_status = vmstatus::running;
 			if (m_status == vmstatus::requested_abort)
 			{
 				while (this->m_main_vmstack->stacks_size() != 0)
