@@ -862,7 +862,7 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 	if (request_halt)
 	{
 		m_evaluate_halt = true;
-		while (m_status != vmstatus::evaluating);
+		while (m_status == vmstatus::running);
 	}
 	if (parse_sqf(m_active_vmstack, view, nullptr, "EVAL__"))
 	{
