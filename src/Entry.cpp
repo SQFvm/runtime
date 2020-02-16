@@ -347,7 +347,6 @@ int main(int argc, char** argv)
 
 	StdOutLogger logger;
 	sqf::virtualmachine vm(logger);
-	vm.parse_sqf_cst("\" ", "test");
 	sqf::commandmap::get().init();
 	netserver* srv = nullptr;
 
@@ -673,8 +672,6 @@ int main(int argc, char** argv)
 
 			std::cout << std::endl;
 
-			bool flag;
-			std::cout << vm.evaluate_expression("1", flag).tosqf() << " - " << flag << std::endl;
 
 			auto input = sstream.str();
 			bool err = false;

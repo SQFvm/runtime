@@ -745,7 +745,7 @@ bool sqf::virtualmachine::parse_sqf(std::shared_ptr<sqf::vmstack> vmstck, std::s
 	{
 		navigate_sqf(code.data(), cs, node, errorflag);
 	}
-	return errorflag;
+	return !errorflag;
 }
 std::string sqf::virtualmachine::preprocess(std::string input, bool& errflag, std::string filename)
 {
@@ -864,7 +864,7 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 		m_evaluate_halt = true;
 		while (m_status == vmstatus::running);
 	}
-	if (parse_sqf(m_active_vmstack, view, nullptr, "EVAL__"))
+	if (parse_sqf(stack, view, {}, "EVAL__"))
 	{
 		auto current_active = m_active_vmstack;
 		try
