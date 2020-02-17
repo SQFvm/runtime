@@ -319,6 +319,7 @@ void sqf::parse::sqf::bexp10(astnode &root, bool &errflag)
 		node.file = m_info.file;
         thisnode.children.emplace_back(std::move(node));
 		m_info.offset += oplen;
+		m_info.column += oplen;
 		skip(m_info);
 		if (bexp10_start(m_info.offset))
 		{
@@ -370,6 +371,7 @@ void sqf::parse::sqf::bexp9(astnode &root, bool &errflag)
 		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
 		m_info.offset += oplen;
+		m_info.column += oplen;
 		skip(m_info);
 		if (bexp9_start(m_info.offset))
 		{
@@ -421,6 +423,7 @@ void sqf::parse::sqf::bexp8(astnode &root, bool &errflag)
 		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
 		m_info.offset += oplen;
+		m_info.column += oplen;
 		skip(m_info);
 		if (bexp8_start(m_info.offset))
 		{
@@ -472,6 +475,7 @@ void sqf::parse::sqf::bexp7(astnode &root, bool &errflag)
 		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
 		m_info.offset += oplen;
+		m_info.column += oplen;
 		skip(m_info);
 		if (bexp7_start(m_info.offset))
 		{
@@ -523,6 +527,7 @@ void sqf::parse::sqf::bexp6(astnode &root, bool &errflag)
 		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
 		m_info.offset += oplen;
+		m_info.column += oplen;
 		skip(m_info);
 		if (bexp6_start(m_info.offset))
 		{
@@ -574,6 +579,7 @@ void sqf::parse::sqf::bexp5(astnode &root, bool &errflag)
 		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
 		m_info.offset += oplen;
+		m_info.column += oplen;
 		skip(m_info);
 		if (bexp5_start(m_info.offset))
 		{
@@ -625,6 +631,7 @@ void sqf::parse::sqf::bexp4(astnode &root, bool &errflag)
 		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
 		m_info.offset += oplen;
+		m_info.column += oplen;
 		skip(m_info);
 		if (bexp4_start(m_info.offset))
 		{
@@ -676,6 +683,7 @@ void sqf::parse::sqf::bexp3(astnode &root, bool &errflag)
 		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
 		m_info.offset += oplen;
+		m_info.column += oplen;
 		skip(m_info);
 		if (bexp3_start(m_info.offset))
 		{
@@ -727,6 +735,7 @@ void sqf::parse::sqf::bexp2(astnode &root, bool &errflag)
 		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
 		m_info.offset += oplen;
+		m_info.column += oplen;
 		skip(m_info);
 		if (bexp2_start(m_info.offset))
 		{
@@ -778,6 +787,7 @@ void sqf::parse::sqf::bexp1(astnode &root, bool &errflag)
 		node.file = m_info.file;
 		thisnode.children.emplace_back(std::move(node));
 		m_info.offset += oplen;
+		m_info.column += oplen;
 		skip(m_info);
 		if (bexp1_start(m_info.offset))
 		{
