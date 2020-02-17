@@ -604,8 +604,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 				if (i != 0)
 				{
 					auto inst = std::make_shared<sqf::inst::endstatement>();
-					inst->setdbginf(stack->instruction_queue().back()->line(), stack->instruction_queue().back()->col(), stack->instruction_queue().back()->file(),
-						sqf::parse::dbgsegment(full, previous_node.offset, previous_node.length));
+					inst->setdbginf(previous_node.line, previous_node.col + previous_node.length, previous_node.file, sqf::parse::dbgsegment(full, previous_node.offset, previous_node.length));
 					cs->push_back(inst);
 				}
 				previous_node = node.children[i];
@@ -658,8 +657,7 @@ void sqf::virtualmachine::navigate_sqf(const char* full, std::shared_ptr<sqf::ca
 				if (i != 0)
 				{
 					auto inst = std::make_shared<sqf::inst::endstatement>();
-					inst->setdbginf(stack->instruction_queue().back()->line(), stack->instruction_queue().back()->col(), stack->instruction_queue().back()->file(),
-						sqf::parse::dbgsegment(full, previous_node.offset, previous_node.length));
+					inst->setdbginf(previous_node.line, previous_node.col + previous_node.length, previous_node.file, sqf::parse::dbgsegment(full, previous_node.offset, previous_node.length));
 					stack->push_back(inst);
 				}
 				previous_node = node.children[i];
