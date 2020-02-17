@@ -214,6 +214,9 @@ void sqf::parse::sqf::ASSIGNMENT(astnode &root, bool &errflag)
 	//receive the ident
 	len = assidentifier(m_info.offset);
 	auto ident = std::string(m_contents_actual.substr(m_info.offset, len));
+	thisnode.length = len;
+	thisnode.line = m_info.line;
+	thisnode.col = m_info.column;
 
 	auto varnode = astnode();
 	varnode.offset = m_info.offset;
@@ -232,8 +235,6 @@ void sqf::parse::sqf::ASSIGNMENT(astnode &root, bool &errflag)
 	m_info.offset += len;
 	m_info.column += len;
 	skip(m_info);
-	thisnode.col = m_info.column;
-	thisnode.line = m_info.line;
 	//skip the '=' (is confirmed to be present in ASSIGNMENT_start)
 	m_info.offset++;
 	m_info.column++;
