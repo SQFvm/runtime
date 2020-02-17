@@ -279,7 +279,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 					current_line = this->current_instruction()->line();
 					current_file = this->current_instruction()->file();
 				}
-				if (this->current_instruction()->line() != current_line && this->current_instruction()->file() != current_file)
+				if (this->current_instruction()->line() != current_line || this->current_instruction()->file() != current_file)
 				{
 					break;
 				}
