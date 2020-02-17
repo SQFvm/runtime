@@ -7,9 +7,16 @@ void sqf::parse::print_navigate_ast(std::basic_ostream<char, std::char_traits<ch
 {
 	if (level == 0)
 	{
-		*outstreamptr << "Node Type;Offset;Length;Content" << std::endl;
+		*outstreamptr << "Node Type;Offset;Length;Line;Column;Content" << std::endl;
 	}
-	*outstreamptr << std::string(level, '\t') << astkindname(node.kind) << ';' << node.offset << ';' << node.length << ';' << node.content << std::endl;
+	*outstreamptr << std::string(level, '\t') <<
+		astkindname(node.kind) << ';' <<
+		node.offset << ';' <<
+		node.length << ';' <<
+		node.line << ';' <<
+		node.col << ';' <<
+		node.content <<
+		std::endl;
 	for (auto& it : node.children)
 	{
 		print_navigate_ast(outstreamptr, it, astkindname, level + 1);
