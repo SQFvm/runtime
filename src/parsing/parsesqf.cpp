@@ -230,6 +230,7 @@ void sqf::parse::sqf::ASSIGNMENT(astnode &root, bool &errflag)
 		log(err::MissingUnderscoreOnPrivateVariable(m_info, ident));
 	}
 	m_info.offset += len;
+	m_info.column += len;
 	skip(m_info);
 	thisnode.col = m_info.column;
 	thisnode.line = m_info.line;
