@@ -52,6 +52,7 @@ namespace sqf
 			stop,
 			abort,
 			assembly_step,
+			line_step,
 			leave_scope,
 			// Special execaction to reset the run_atomic flag in case of
 			// exception being thrown by the virtualmachine execution method.

@@ -259,6 +259,53 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			res = execresult::action_error;
 		}
 		break;
+	case sqf::virtualmachine::execaction::line_step:
+		if (m_run_atomic.compare_exchange_weak(expected, true, std::memory_order::memory_order_seq_cst, std::memory_order::memory_order_seq_cst))
+		{
+			m_exit_flag = false;
+			size_t current_line = ~0;
+			std::string current_file;
+			bool flag = true;
+			m_status = vmstatus::running;
+			while (m_status == vmstatus::running && !execute_helper_execution_end())
+			{
+				flag = performexecute(1);
+				if (!flag)
+				{
+					break;
+				}
+				if (current_line == ~0)
+				{
+					current_line = this->current_instruction()->line();
+					current_file = this->current_instruction()->file();
+				}
+				if (this->current_instruction()->line() != current_line && this->current_instruction()->file() != current_file)
+				{
+					break;
+				}
+			}
+			if (m_status == vmstatus::requested_abort)
+			{
+				execute_helper_execution_abort();
+				m_status = vmstatus::empty;
+			}
+			else if (flag)
+			{
+				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
+				res = execresult::OK;
+			}
+			else
+			{
+				m_status = vmstatus::halt_error;
+				res = execresult::runtime_error;
+			}
+			m_run_atomic = false;
+		}
+		else
+		{
+			res = execresult::action_error;
+		}
+		break;
 
 
 
