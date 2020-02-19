@@ -11,6 +11,7 @@
 #include "networking.h"
 #include "networking/network_server.h"
 #include "linting.h"
+#include "interactive_helper.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -197,6 +198,14 @@ int main(int argc, char** argv)
 
 	TCLAP::SwitchArg disableClassnameCheckArg("c", "check-classnames", "Enables the config checking for eg. createVehicle.", false);
 	cmd.add(disableClassnameCheckArg);
+
+	TCLAP::SwitchArg interactiveArg("", "interactive", "Starts into the interactive mode. Interactive mode will run the VM in a separate thread, allowing you "
+		"to control the behavior via basic commands.", false);
+	cmd.add(interactiveArg);
+
+	TCLAP::SwitchArg suppressWelcomeArg("", "suppress-welcome", "Suppresses the welcome message during execution.", false);
+	cmd.add(suppressWelcomeArg);
+
 
 
 	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. " RELPATHHINT "\n"
@@ -647,79 +656,104 @@ int main(int argc, char** argv)
 			return -1;
 		}
 	}
-
-	do
-	{
-		if (!automated)
+	if (interactiveArg.getValue())
+	{ // Interactive Mode
+		if (!suppressWelcomeArg.getValue())
 		{
-			//Prompt user to type in code.
-			int i = 1;
-			printf("Please enter your SQF code.\n"
-				"To get info about a command, use the `help__` operator.\n"
-				"For a list of all implemented commands, use the `cmds__` operator.\n"
-				"For a list of all SQF-VM internal commands, use the `vm__` operator.\n"
-				"To run the code, Press [ENTER] twice.\n"
-				"To exit, use the `exit__` command.\n"
-				"If you enjoy this tool, consider donating: https://paypal.me/X39\n");
-			std::string line;
-			std::stringstream sstream;
-			do
+			std::cout << "You can disable this message using `--suppress-welcome`." << std::endl 
+				<< "Welcome to Interactive mode." << std::endl
+				<< "In interactive, you can control the behavior of the VM, using the input." << std::endl
+				<< "Quick Command Reference:" << std::endl
+				<< "h, help -> Displays help to a specific command." << std::endl
+				<< "cmds    -> Lists all commands available." << std::endl;
+		}
+		interactive_helper helper(vm);
+		helper.init();
+		if (!suppressWelcomeArg.getValue())
+		{
+			std::cout << "You can disable this message using `--suppress-welcome`." << std::endl;
+			helper.print_welcome();
+		}
+		helper.run();
+	}
+	else
+	{ // Default Mode
+		do
+		{
+			if (!automated)
 			{
-				printf("%d:\t", i++);
-				std::getline(std::cin, line);
-				sstream << line << std::endl;
-			} while (!line.empty());
-
-			std::cout << std::endl;
-
-
-			auto input = sstream.str();
-			bool err = false;
-			auto inputAfterPP = vm.preprocess(input, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
-			if (!err)
-			{
-				if (noAssemblyCreation)
+				//Prompt user to type in code.
+				int i = 1;
+				if (!suppressWelcomeArg.getValue())
 				{
-					vm.parse_sqf_cst(inputAfterPP, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+					printf("You can disable this message using `--suppress-welcome`.\n"
+						"Please enter your SQF code.\n"
+						"To get info about a command, use the `help__` operator.\n"
+						"For a list of all implemented commands, use the `cmds__` operator.\n"
+						"For a list of all SQF-VM internal commands, use the `vm__` operator.\n"
+						"To run the code, Press [ENTER] twice.\n"
+						"To exit, use the `exit__` command.\n"
+						"If you enjoy this tool, consider donating: https://paypal.me/X39\n");
+				}
+				std::string line;
+				std::stringstream sstream;
+				do
+				{
+					printf("%d:\t", i++);
+					std::getline(std::cin, line);
+					sstream << line << std::endl;
+				} while (!line.empty());
+
+				std::cout << std::endl;
+
+
+				auto input = sstream.str();
+				bool err = false;
+				auto inputAfterPP = vm.preprocess(input, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+				if (!err)
+				{
+					if (noAssemblyCreation)
+					{
+						vm.parse_sqf_cst(inputAfterPP, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+					}
+					else
+					{
+						err = vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+					}
+				}
+			}
+
+
+			sqf::virtualmachine::execresult result;
+			if (!noExecutePrintArg.getValue())
+			{
+				std::cout << "Executing..." << std::endl;
+				std::cout << std::string(console_width(), '-') << std::endl;
+			}
+			result = vm.execute(sqf::virtualmachine::execaction::start);
+			if (!noExecutePrintArg.getValue())
+			{
+				std::cout << std::string(console_width(), '-') << std::endl;
+			}
+			if (result != sqf::virtualmachine::execresult::OK)
+			{
+				vm.execute(sqf::virtualmachine::execaction::abort);
+			}
+			if (!noWorkPrintArg.getValue())
+			{
+				auto val = vm.active_vmstack()->last_value();
+				if (val.data())
+				{
+					std::cout << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.as_string() << std::endl;
 				}
 				else
 				{
-					err = vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+					std::cout << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
 				}
+				std::wcout << std::endl;
 			}
-		}
-
-
-		sqf::virtualmachine::execresult result;
-		if (!noExecutePrintArg.getValue())
-		{
-			std::cout << "Executing..." << std::endl;
-			std::cout << std::string(console_width(), '-') << std::endl;
-		}
-		result = vm.execute(sqf::virtualmachine::execaction::start);
-		if (!noExecutePrintArg.getValue())
-		{
-			std::cout << std::string(console_width(), '-') << std::endl;
-		}
-		if (result != sqf::virtualmachine::execresult::OK)
-		{
-			vm.execute(sqf::virtualmachine::execaction::abort);
-		}
-		if (!noWorkPrintArg.getValue())
-		{
-			auto val = vm.active_vmstack()->last_value();
-			if (val.data())
-			{
-				std::cout << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.as_string() << std::endl;
-			}
-			else
-			{
-				std::cout << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
-			}
-			std::wcout << std::endl;
-		}
-
-	} while (!automated && !vm.exit_flag());
+		} while (!automated && !vm.exit_flag());
+	}
 
 	if (vm.is_networking_set())
 	{
