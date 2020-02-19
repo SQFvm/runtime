@@ -365,6 +365,19 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 	}
 	return res;
 }
+bool sqf::virtualmachine::is_breakpoint_hit(std::shared_ptr<sqf::instruction> instruction)
+{
+	auto line = instruction->line();
+	for (const auto& breakpoint : m_breakpoints)
+	{
+		if (breakpoint.is_enabled() && breakpoint.line() == line && m_last_breakpoint_line_hit != line)
+		{
+			m_last_breakpoint_line_hit = line;
+			m_status = vmstatus::halted;
+			return true;
+		}
+	}
+}
 bool sqf::virtualmachine::performexecute(size_t exitAfter)
 {
 	while (
@@ -377,6 +390,19 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 		m_active_vmstack->stacks_top()->previous_nextresult() != sqf::callstack::nextinstres::suspend
 		)
 	{
+		// Check if breakpoint was hit
+		{
+			auto line = m_current_instruction->line();
+			for (const auto& breakpoint : m_breakpoints)
+			{
+				if (breakpoint.is_enabled() && breakpoint.line() == line)
+				{
+					m_last_breakpoint_line_hit = line;
+					m_status = vmstatus::halted;
+					return true;
+				}
+			}
+		}
 		if (m_evaluate_halt)
 		{
 			m_status = vmstatus::evaluating;
@@ -470,19 +496,6 @@ bool sqf::virtualmachine::performexecute(size_t exitAfter)
 					m_active_vmstack->drop_callstack();
 				}
 				sqftry->except(sqfarr);
-			}
-		}
-		// Check if breakpoint was hit
-		{
-			auto line = m_current_instruction->line();
-			for (const auto& breakpoint : m_breakpoints)
-			{
-				if (breakpoint.is_enabled() && breakpoint.line() == line)
-				{
-					m_last_breakpoint_line_hit = line;
-					m_status = vmstatus::halted;
-					return true;
-				}
 			}
 		}
 	}
@@ -914,18 +927,21 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 	if (parse_sqf(stack, view, {}, "EVAL__"))
 	{
 		auto current_active = m_active_vmstack;
+		auto actual_current_inst = m_current_instruction;
 		try
 		{
 			m_active_vmstack = stack;
-			std::shared_ptr<sqf::instruction> inst;
-			while (!m_active_vmstack->empty() && (inst = m_active_vmstack->pop_back_instruction(this)).get() && !m_runtime_error)
+			while (!m_active_vmstack->empty() && (m_current_instruction = m_active_vmstack->pop_back_instruction(this)).get() && !m_runtime_error)
 			{
-				inst->execute(this);
+				m_current_instruction->execute(this);
 			}
 			m_active_vmstack = current_active;
+			m_current_instruction = actual_current_inst;
 		}
 		catch (const std::exception& ex)
 		{
+			m_active_vmstack = current_active;
+			m_current_instruction = actual_current_inst;
 			if (request_halt)
 			{
 				m_evaluate_halt = false;

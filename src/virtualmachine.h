@@ -140,6 +140,7 @@ namespace sqf
 		}
 		void execute_helper_execution_abort();
 		bool execute_helper_execution_end();
+		bool is_breakpoint_hit(std::shared_ptr<sqf::instruction> instruction);
 	public:
 		virtualmachine(Logger& logger, unsigned long long maxinst);
 		virtualmachine(Logger& logger) : virtualmachine(logger, 0) {};
