@@ -377,6 +377,7 @@ bool sqf::virtualmachine::is_breakpoint_hit(std::shared_ptr<sqf::instruction> in
 			return true;
 		}
 	}
+	return false;
 }
 bool sqf::virtualmachine::performexecute(size_t exitAfter)
 {
