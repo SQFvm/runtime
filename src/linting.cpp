@@ -3,6 +3,7 @@
 #include "parsing/parsesqf.h"
 #include "logging.h"
 #include <algorithm>
+#include <locale>
 
 namespace err = logmessage::linting;
 namespace sqf
