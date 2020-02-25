@@ -75,6 +75,7 @@ if (SQFVM_BUILD_STATIC_LIBRARY_NC)
 
 	file(GLOB vm_src_nc
 		"${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c"
+        "${PROJECT_SOURCE_DIR}/src/networking/*.h" "${PROJECT_SOURCE_DIR}/src/networking/*.cpp" "${PROJECT_SOURCE_DIR}/src/networking/*.c"
 	)
 
     list(REMOVE_ITEM vm_src_nc "${PROJECT_SOURCE_DIR}/src/Entry.cpp")
