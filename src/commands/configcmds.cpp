@@ -10,6 +10,7 @@
 #include <algorithm>
 
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -38,7 +39,8 @@ namespace
 		auto index = right.as_int();
 		if (index >= static_cast<int>(cd->size()) || index < 0)
 		{
-			vm->wrn() << "Provided index out of config range. Index: " << index << ", ConfigName: " << (cd->is_null() ? "configNull" : cd->name()) << '.' << std::endl;
+			vm->logmsg(err::IndexOutOfRangeWeak(*vm->current_instruction(), cd->size(), index));
+			vm->logmsg(err::ReturningConfigNull(*vm->current_instruction()));
 			return configdata::configNull();
 		}
 		return (*cd)[index];
@@ -117,7 +119,7 @@ namespace
 		auto condition = std::make_shared<codedata>(condition_stack);
 
 		auto cs = std::make_shared<sqf::callstack_configclasses>(vm->active_vmstack()->stacks_top()->get_namespace(), config, condition);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 	value configproperties_array(virtualmachine* vm, value::cref right)
@@ -137,7 +139,7 @@ namespace
 		auto condition = std::make_shared<codedata>(condition_stack);
 
 		auto cs = std::make_shared<sqf::callstack_configproperties>(vm->active_vmstack()->stacks_top()->get_namespace(), config, condition, include_inherited);
-		vm->active_vmstack()->pushcallstack(cs);
+		vm->active_vmstack()->push_back(cs);
 		return {};
 	}
 }

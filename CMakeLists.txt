@@ -25,6 +25,7 @@ file(GLOB vm_src
     "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c"
     "${PROJECT_SOURCE_DIR}/src/commands/*.h" "${PROJECT_SOURCE_DIR}/src/commands/*.cpp" "${PROJECT_SOURCE_DIR}/src/commands/*.c"
     "${PROJECT_SOURCE_DIR}/src/networking/*.h" "${PROJECT_SOURCE_DIR}/src/networking/*.cpp" "${PROJECT_SOURCE_DIR}/src/networking/*.c"
+    "${PROJECT_SOURCE_DIR}/src/parsing/*.h" "${PROJECT_SOURCE_DIR}/src/parsing/*.cpp" "${PROJECT_SOURCE_DIR}/src/parsing/*.c"
     "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp"
 )
 
@@ -41,6 +42,7 @@ find_package(Threads)
 
 
 option(SQFVM_BUILD_EXECUTABLE "BUILD EXECUTABLE" ON)
+option(SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD "BUILD ARMA2 EXECUTABLE" ON)
 option(SQFVM_BUILD_LIBRARY "BUILD LIBRARY" ON)
 option(SQFVM_BUILD_STATIC_LIBRARY "BUILD STATIC LIBRARY" ON)
 option(SQFVM_BUILD_STATIC_LIBRARY_NC "BUILD STATIC LIBRARY WITHOUT COMMANDS" ON)
@@ -50,6 +52,13 @@ if (SQFVM_BUILD_EXECUTABLE)
     add_executable(sqfvm ${vm_src})
     target_link_libraries(sqfvm ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
     target_include_directories(sqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
+endif ()
+
+if (SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD)
+    add_executable(sqfvm_a2 ${vm_src})
+    target_link_libraries(sqfvm_a2 ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
+    target_include_directories(sqfvm_a2 PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    target_compile_definitions(sqfvm_a2 PUBLIC SQFVM_ARMA2_SYNTAX)
 endif ()
 
 
@@ -64,6 +73,7 @@ endif ()
 if (SQFVM_BUILD_STATIC_LIBRARY)
 
     list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/Entry.cpp")
+    list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/dllexports.h")
     list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/dllexports.cpp")
 
     add_library(slibsqfvm STATIC ${vm_src})
@@ -79,6 +89,7 @@ if (SQFVM_BUILD_STATIC_LIBRARY_NC)
 	)
 
     list(REMOVE_ITEM vm_src_nc "${PROJECT_SOURCE_DIR}/src/Entry.cpp")
+    list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/dllexports.h")
     list(REMOVE_ITEM vm_src_nc "${PROJECT_SOURCE_DIR}/src/dllexports.cpp")
 
     add_library(slibsqfvm_nc STATIC ${vm_src_nc})

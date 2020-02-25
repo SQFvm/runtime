@@ -42,4 +42,4 @@ only_commits:
 test_script:
 - cmd: |-
     cd c:\projects\vm
-    .\build\Release\sqfvm.exe -a --no-execute-print --disable-runtime-warnings --load . -i tests\runTests.sqf
+    .\build\Release\sqfvm.exe -a --no-execute-print --load . -i tests\runTests.sqf

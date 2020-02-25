@@ -29,10 +29,10 @@
     if (m_current_index > 0)
     {
         bool success;
-        auto val = vm->active_vmstack()->popval(success);
+        auto val = vm->active_vmstack()->pop_back_value(success);
         if (!success)
         {
-            vm->wrn() << "count callstack found no value." << std::endl;
+			vm->logmsg(logmessage::runtime::CallstackFoundNoValue(*vm->current_instruction(), "count"sv));
         }
         else if (val.dtype() == type::BOOL)
         {
@@ -43,11 +43,11 @@
         }
         else if (val.dtype() == type::NOTHING)
         {
-            vm->wrn() << "count value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+			vm->logmsg(logmessage::runtime::TypeMissmatchWeak(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
         }
         else
         {
-            vm->err() << "count value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+			vm->logmsg(logmessage::runtime::TypeMissmatch(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
         }
     }
 

@@ -13,6 +13,7 @@
 #include <algorithm>
 
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -24,7 +25,8 @@ namespace
 			auto obj = right.data<objectdata>();
 			if (obj->is_null())
 			{
-				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
+				vm->logmsg(err::ExpectedNonNullValueWeak(*vm->current_instruction()));
+				vm->logmsg(err::ReturningEmptyArray(*vm->current_instruction()));
 				return value(std::make_shared<arraydata>());
 			}
 			r = std::dynamic_pointer_cast<varscope>(obj->obj());
@@ -58,8 +60,9 @@ namespace
 			auto obj = left.data<objectdata>();
 			if (obj->is_null())
 			{
-				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
-				return value(std::make_shared<arraydata>());
+				vm->logmsg(err::ExpectedNonNullValueWeak(*vm->current_instruction()));
+				vm->logmsg(err::ReturningNil(*vm->current_instruction()));
+				return {};
 			}
 			l = std::dynamic_pointer_cast<varscope>(obj->obj());
 		}
@@ -78,8 +81,9 @@ namespace
 			auto obj = left.data<objectdata>();
 			if (obj->is_null())
 			{
-				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
-				return value(std::make_shared<arraydata>());
+				vm->logmsg(err::ExpectedNonNullValueWeak(*vm->current_instruction()));
+				vm->logmsg(err::ReturningNil(*vm->current_instruction()));
+				return {};
 			}
 			l = std::dynamic_pointer_cast<varscope>(obj->obj());
 		}
@@ -90,12 +94,12 @@ namespace
 		auto r = right.as_vector();
 		if (r.size() != 2)
 		{
-			vm->err() << "Expected 2 elements in array, got " << r.size() << ". Returning NIL." << std::endl;
+			vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), 2, r.size()));
 			return {};
 		}
 		if (r[0].dtype() != sqf::type::STRING)
 		{
-			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(r[0].dtype()) << "'." << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 2, sqf::type::STRING, r[0].dtype()));
 			return {};
 		}
 		bool success = false;
@@ -117,8 +121,9 @@ namespace
 			auto obj = left.data<objectdata>();
 			if (obj->is_null())
 			{
-				vm->wrn() << "Attempted to use command on NULL object." << std::endl;
-				return value(std::make_shared<arraydata>());
+				vm->logmsg(err::ExpectedNonNullValueWeak(*vm->current_instruction()));
+				vm->logmsg(err::ReturningNil(*vm->current_instruction()));
+				return {};
 			}
 			l = std::dynamic_pointer_cast<varscope>(obj->obj());
 		}
@@ -129,13 +134,13 @@ namespace
 		auto r = right.as_vector();
 		if (r.size() != 2 && r.size() != 3)
 		{
-			vm->err() << "Expected 2 elements in array, got " << r.size() << ". Returning NIL." << std::endl;
+			vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), 2, r.size()));
 			return {};
 		}
 		//Third element is ignored due to no networking in sqf-vm
 		if (r[0].dtype() != sqf::type::STRING)
 		{
-			vm->err() << "Index position 0 was expected to be of type 'STRING' but was '" << sqf::type_str(r[0].dtype()) << "'." << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), 2, sqf::type::STRING, r[0].dtype()));
 			return {};
 		}
 		auto val = r[1];

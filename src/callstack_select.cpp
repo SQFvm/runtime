@@ -25,10 +25,10 @@
 	{
 		// Receive the last result from the value stack
 		bool success;
-		auto val = vm->active_vmstack()->popval(success);
+		auto val = vm->active_vmstack()->pop_back_value(success);
 		if (!success)
 		{
-			vm->err() << "select callstack found no value." << std::endl;
+			vm->logmsg(logmessage::runtime::CallstackFoundNoValue(*vm->current_instruction(), "select"sv));
 		}
 		else if (val.dtype() == type::BOOL)
 		{
@@ -39,11 +39,11 @@
 		}
 		else if (val.dtype() == type::NOTHING)
 		{
-			vm->wrn() << "select value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+			vm->logmsg(logmessage::runtime::TypeMissmatchWeak(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
 		}
 		else
 		{
-			vm->err() << "select value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+			vm->logmsg(logmessage::runtime::TypeMissmatch(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
 		}
 		// set the "is done" flag to true
 		m_is_done = true;
@@ -58,10 +58,10 @@
 		if (m_current_index > 0)
 		{
 			bool success;
-			auto val = vm->active_vmstack()->popval(success);
+			auto val = vm->active_vmstack()->pop_back_value(success);
 			if (!success)
 			{
-				vm->err() << "select callstack found no value." << std::endl;
+				vm->logmsg(logmessage::runtime::CallstackFoundNoValue(*vm->current_instruction(), "select"sv));
 			}
 			else if (val.dtype() == type::BOOL)
 			{
@@ -72,11 +72,11 @@
 			}
 			else if (val.dtype() == type::NOTHING)
 			{
-				vm->wrn() << "select value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+				vm->logmsg(logmessage::runtime::TypeMissmatchWeak(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
 			}
 			else
 			{
-				vm->err() << "select value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+				vm->logmsg(logmessage::runtime::TypeMissmatch(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
 			}
 		}
 		set_variable("_x", (*m_input_array)[m_current_index++]);

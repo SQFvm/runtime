@@ -26,10 +26,10 @@
 	{
 		// Receive the last result from the value stack
 		bool success;
-		auto val = vm->active_vmstack()->popval(success);
+		auto val = vm->active_vmstack()->pop_back_value(success);
 		if (!success)
 		{
-			vm->err() << "apply callstack found no value." << std::endl;
+			vm->logmsg(logmessage::runtime::CallstackFoundNoValue(*vm->current_instruction(), "apply"sv));
 		}
 		else
 		{
@@ -48,10 +48,10 @@
 		if (m_current_index > 0)
 		{
 			bool success;
-			auto val = vm->active_vmstack()->popval(success);
+			auto val = vm->active_vmstack()->pop_back_value(success);
 			if (!success)
 			{
-				vm->err() << "apply callstack found no value." << std::endl;
+				vm->logmsg(logmessage::runtime::CallstackFoundNoValue(*vm->current_instruction(), "apply"sv));
 			}
 			else
 			{

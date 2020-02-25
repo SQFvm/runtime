@@ -4,16 +4,16 @@
 #include "callstack.h"
 #include "instruction.h"
 
-std::vector<sqf::vmstack::stackdump> sqf::vmstack::dump_callstack_diff(std::shared_ptr<sqf::callstack> target)
+std::vector<sqf::diagnostics::stackdump> sqf::vmstack::dump_callstack_diff(std::shared_ptr<sqf::callstack> target)
 {
-	std::vector<sqf::vmstack::stackdump> vec;
+	std::vector<sqf::diagnostics::stackdump> vec;
 
 	auto start = this->m_stacks.rbegin();
 	for (auto it = start; it != this->m_stacks.rend(); it++)
 	{
 		auto inst = (*it)->current_instruction();
 
-		stackdump dump;
+		sqf::diagnostics::stackdump dump;
 		dump.namespace_used = (*it)->get_namespace();
 		if (inst)
 		{
@@ -41,7 +41,7 @@ std::vector<sqf::vmstack::stackdump> sqf::vmstack::dump_callstack_diff(std::shar
 	return vec;
 }
 
-void sqf::vmstack::pushinst(sqf::virtualmachine * vm, std::shared_ptr<instruction> inst)
+void sqf::vmstack::push_back(sqf::virtualmachine * vm, std::shared_ptr<instruction> inst)
 {
 	if (m_stacks.empty())
 	{

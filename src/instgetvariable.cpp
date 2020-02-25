@@ -18,7 +18,7 @@ void sqf::inst::getvariable::execute(virtualmachine* vm) const
 	}
 	if (!success)
 	{
-		vm->wrn() << "Could not find variable with the name '" << mvarname << "'" << std::endl;
+		vm->logmsg(logmessage::runtime::VariableNotFound(*this, mvarname));
 	}
-	vm->active_vmstack()->pushval(val);
+	vm->active_vmstack()->push_back(val);
 }

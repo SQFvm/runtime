@@ -7,10 +7,11 @@
 #include "vmstack.h"
 #include "configdata.h"
 #include "fileio.h"
-#include "parsepreprocessor.h"
 #include "git_sha1.h"
 #include "networking.h"
 #include "networking/network_server.h"
+#include "linting.h"
+#include "interactive_helper.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -21,7 +22,6 @@
 #include <string_view>
 
 #include "dllexports.h"
-#include "debugger.h"
 #include <csignal>
 #ifdef _WIN32
 #include <windows.h>
@@ -79,7 +79,10 @@ int console_width()
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	int columns;
 
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+	{
+		return 80;
+	}
 	columns = csbi.srWindow.Right - csbi.srWindow.Left;
 	return columns;
 #else
@@ -89,21 +92,6 @@ int console_width()
 #endif
 }
 
-
-std::string get_working_dir()
-{
-#if defined(_WIN32) || defined(_WIN64)
-	char buffer[MAX_PATH];
-	_getcwd(buffer, MAX_PATH);
-	return std::string(buffer);
-#elif defined(__GNUC__)
-	char buffer[PATH_MAX];
-	getcwd(buffer, PATH_MAX);
-	return std::string(buffer);
-#else
-#error "NO IMPLEMENTATION AVAILABLE"
-#endif
-}
 
 bool isInLoadFileCliMode = false;
 
@@ -142,8 +130,20 @@ int main(int argc, char** argv)
 	sigaction(SIGSEGV, &action_SIGSEGV, NULL);
 #endif
 
-
-	auto executable_path = sqf::filesystem::sanitize(get_working_dir());
+	std::string executable_path; 
+	{
+#if defined(_WIN32) || defined(_WIN64)
+		char buffer[MAX_PATH];
+		_getcwd(buffer, MAX_PATH);
+		executable_path = sqf::filesystem::sanitize(buffer);
+#elif defined(__GNUC__)
+		char buffer[PATH_MAX];
+		getcwd(buffer, PATH_MAX);
+		executable_path = sqf::filesystem::sanitize(buffer);
+#else
+#error "NO IMPLEMENTATION AVAILABLE"
+#endif
+	}
 	TCLAP::CmdLine cmd("Emulates the ArmA-Series SQF environment.", ' ', std::string{VERSION_FULL} + " (" + g_GIT_SHA1 + ")\n");
 
 	TCLAP::ValueArg<std::string> cliFileArg("", "cli-file", "Allows to provide a file from which to load arguments from. If passed, all other arguments will be ignored! Each argument needs to be separated by line-feed. " RELPATHHINT, false, "", "PATH");
@@ -193,20 +193,19 @@ int main(int argc, char** argv)
 	TCLAP::ValueArg<int> serverArg("s", "server", "Causes the SQF-VM to start a network server that allows other SQF-VM instances to connecto to it via remoteConnect__.", false, 0, "PORT");
 	cmd.add(serverArg);
 
-	TCLAP::ValueArg<int> debuggerArg("d", "debugger", "Causes the SQF-VM to start a network server that allows to attach a single debugger to it.", false, 0, "PORT");
-	cmd.add(debuggerArg);
-
 	TCLAP::ValueArg<int> maxInstructionsArg("m", "max-instructions", "Sets the maximum ammount of instructions to execute before a hard exit may occur. Setting this to 0 will disable the limit.", false, 0, "NUMBER");
 	cmd.add(maxInstructionsArg);
 
 	TCLAP::SwitchArg disableClassnameCheckArg("c", "check-classnames", "Enables the config checking for eg. createVehicle.", false);
 	cmd.add(disableClassnameCheckArg);
 
-	TCLAP::SwitchArg disableMacroWarningsArg("", "disable-macro-warnings", "Disables the warning for duplicate defines and undefines without a corresponding define.\n", false);
-	cmd.add(disableMacroWarningsArg);
+	TCLAP::SwitchArg interactiveArg("", "interactive", "Starts into the interactive mode. Interactive mode will run the VM in a separate thread, allowing you "
+		"to control the behavior via basic commands.", false);
+	cmd.add(interactiveArg);
 
-	TCLAP::SwitchArg disableRuntimeWarningsArg("", "disable-runtime-warnings", "Disables the runtime warning messages raised by SQF-VM.\n", false);
-	cmd.add(disableRuntimeWarningsArg);
+	TCLAP::SwitchArg suppressWelcomeArg("", "suppress-welcome", "Suppresses the welcome message during execution.", false);
+	cmd.add(suppressWelcomeArg);
+
 
 
 	TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. " RELPATHHINT "\n"
@@ -225,9 +224,11 @@ int main(int argc, char** argv)
 	cmd.add(verboseArg);
 
 	TCLAP::SwitchArg parseOnlyArg("", "parse-only", "Disables all code execution entirely and performs only the parsing & assembly generation tasks. "
-		"Note that this also will prevent the debugger to start. "
 		"To disable assembly generation too, refer to --no-assembly-creation.", false);
 	cmd.add(parseOnlyArg);
+
+	TCLAP::SwitchArg lintPrivateVarExistingArg("", "lint-private-var-usage", "Adds the 'private_var_usage' lint check to the SQF-VM SQF Parser. Note that this check requires assembly generation.", false);
+	cmd.add(lintPrivateVarExistingArg);
 
 	TCLAP::SwitchArg noWorkPrintArg("", "no-work-print", "Disables the printing of all values which are on the work stack.", false);
 	cmd.add(noWorkPrintArg);
@@ -351,17 +352,19 @@ int main(int argc, char** argv)
 	bool noLoadExecDir = noLoadExecDirArg.getValue();
 	bool verbose = verboseArg.getValue();
 
-	auto debugger_port = debuggerArg.getValue();
 
-	sqf::parse::preprocessor::settings::disable_warn_define = disableMacroWarningsArg.getValue();
 
-	sqf::virtualmachine vm;
+	StdOutLogger logger;
+	sqf::virtualmachine vm(logger);
 	sqf::commandmap::get().init();
 	netserver* srv = nullptr;
-	sqf::debugger* dbg = nullptr;
+
+	if (lintPrivateVarExistingArg.getValue())
+	{
+		sqf::linting::add_to(&vm, sqf::linting::check::private_var_usage);
+	}
 
 	vm.perform_classname_checks(disableClassnameCheck);
-	vm.wrn_enabled(!disableRuntimeWarningsArg.getValue());
 	
 	if (maxInstructionsArg.getValue() != 0)
 	{
@@ -423,13 +426,13 @@ int main(int argc, char** argv)
 	for (auto& f : commandDummyNular.getValue())
 	{
 		sqf::commandmap::get().add(sqf::nular(f, "DUMMY", [](sqf::virtualmachine* vm) -> sqf::value {
-			vm->err() << "DUMMY" << std::endl; return {};
+			vm->logmsg(logmessage::runtime::ErrorMessage(*vm->current_instruction(), "DUMMY", "DUMMY"));  return {};
 		}));
 	}
 	for (auto& f : commandDummyUnary.getValue())
 	{
 		sqf::commandmap::get().add(sqf::unary(f, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref r) -> sqf::value {
-			vm->err() << "DUMMY" << std::endl; return {};
+			vm->logmsg(logmessage::runtime::ErrorMessage(*vm->current_instruction(), "DUMMY", "DUMMY")); return {};
 		}));
 	}
 	for (auto& f : commandDummyBinary.getValue())
@@ -444,7 +447,7 @@ int main(int argc, char** argv)
 		auto precedence = f.substr(0, split_index);
 		auto name = f.substr(split_index + 1);
 		sqf::commandmap::get().add(sqf::binary(std::stoi(precedence), name, sqf::type::ANY, sqf::type::ANY, "DUMMY", [](sqf::virtualmachine* vm, sqf::value::cref l, sqf::value::cref r) -> sqf::value {
-			vm->err() << "DUMMY" << std::endl; return {};
+			vm->logmsg(logmessage::runtime::ErrorMessage(*vm->current_instruction(), "DUMMY", "DUMMY")); return {};
 		}));
 	}
 
@@ -454,11 +457,11 @@ int main(int argc, char** argv)
 		auto eqIndex = d.find('=');
 		if (eqIndex == std::string::npos)
 		{
-			vm.push_back_preprocessor_define(d);
+			vm.push_macro({ d , "__commandline" });
 		}
 		else
 		{
-			vm.push_back_preprocessor_define(d.substr(0, eqIndex), d.substr(eqIndex + 1));
+			vm.push_macro({ d.substr(0, eqIndex), d.substr(eqIndex + 1), "__commandline" });
 		}
 	}
 
@@ -484,7 +487,6 @@ int main(int argc, char** argv)
 			}
 			auto str = load_file(f);
 			vm.pretty_print_sqf(str);
-			vm.out_buffprint();
 		}
 		catch (const std::runtime_error& ex)
 		{
@@ -513,18 +515,7 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
-			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
-			if (err)
-			{
-				vm.err_buffprint();
-				vm.err_clear();
-			}
-			else
-			{
-				vm.out() << ppedStr;
-				vm.out_buffprint();
-				vm.out_clear();
-			}
+			auto ppedStr = vm.preprocess(str, err, sanitized);
 		}
 		catch (const std::runtime_error& ex)
 		{
@@ -553,13 +544,8 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
-			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
-			if (err)
-			{
-				vm.err_buffprint();
-				vm.err_clear();
-			}
-			else
+			auto ppedStr = vm.preprocess(str, err, sanitized);
+			if (!err)
 			{
 				if (verbose)
 				{
@@ -602,13 +588,8 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
-			auto ppedStr = sqf::parse::preprocessor::parse(&vm, str, err, sanitized);
-			if (err)
-			{
-				vm.err_buffprint();
-				vm.err_clear();
-			}
-			else
+			auto ppedStr = vm.preprocess(str, err, sanitized);
+			if (!err)
 			{
 				if (verbose)
 				{
@@ -629,9 +610,6 @@ int main(int argc, char** argv)
 		{
 			std::cout << "Exiting due to error." << std::endl;
 		}
-		vm.err_buffprint();
-		vm.wrn_buffprint();
-		vm.out_buffprint();
 		if (!automated)
 		{
 			std::string line;
@@ -678,114 +656,105 @@ int main(int argc, char** argv)
 			return -1;
 		}
 	}
-
-	if (debugger_port > 0)
-	{
-		networking_init();
-		dbg = new sqf::debugger((srv = new netserver(debugger_port)));
-		vm.dbg(dbg);
-		std::cout << "Waiting for client to connect..." << std::endl;
-		try
+	if (interactiveArg.getValue())
+	{ // Interactive Mode
+		if (!suppressWelcomeArg.getValue())
 		{
-			srv->wait_accept();
-			std::cout << "Client connected!" << std::endl;
+			std::cout << "You can disable this message using `--suppress-welcome`." << std::endl 
+				<< "Welcome to Interactive mode." << std::endl
+				<< "In interactive, you can control the behavior of the VM, using the input." << std::endl
+				<< "Quick Command Reference:" << std::endl
+				<< "h, help -> Displays help to a specific command." << std::endl
+				<< "cmds    -> Lists all commands available." << std::endl;
 		}
-		catch (const std::runtime_error& err)
+		interactive_helper helper(vm);
+		helper.init();
+		if (!suppressWelcomeArg.getValue())
 		{
-			std::cout << err.what() << std::endl;
+			std::cout << "You can disable this message using `--suppress-welcome`." << std::endl;
+			helper.print_welcome();
 		}
+		helper.run();
 	}
-	do
-	{
-		if (!automated)
+	else
+	{ // Default Mode
+		do
 		{
-			//Prompt user to type in code.
-			int i = 1;
-			printf("Please enter your SQF code.\n"
-				"To get info about a command, use the `help__` operator.\n"
-				"For a list of all implemented commands, use the `cmds__` operator.\n"
-				"For a list of all SQF-VM internal commands, use the `vm__` operator.\n"
-				"To run the code, Press [ENTER] twice.\n"
-				"To exit, use the `exit__` command.\n"
-				"If you enjoy this tool, consider donating: https://paypal.me/X39\n");
-			std::string line;
-			std::stringstream sstream;
-			do
+			if (!automated)
 			{
-				printf("%d:\t", i++);
-				std::getline(std::cin, line);
-				sstream << line << std::endl;
-			} while (!line.empty());
-
-			std::cout << std::endl;
-
-			auto input = sstream.str();
-			bool err = false;
-			auto inputAfterPP = sqf::parse::preprocessor::parse(
-				&vm,
-				input,
-				err,
-				(std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string()
-			);
-			if (err || vm.err_hasdata())
-			{
-				vm.err_buffprint();
-			}
-			else
-			{
-				if (noAssemblyCreation)
+				//Prompt user to type in code.
+				int i = 1;
+				if (!suppressWelcomeArg.getValue())
 				{
-					vm.parse_sqf_cst(inputAfterPP, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+					printf("You can disable this message using `--suppress-welcome`.\n"
+						"Please enter your SQF code.\n"
+						"To get info about a command, use the `help__` operator.\n"
+						"For a list of all implemented commands, use the `cmds__` operator.\n"
+						"For a list of all SQF-VM internal commands, use the `vm__` operator.\n"
+						"To run the code, Press [ENTER] twice.\n"
+						"To exit, use the `exit__` command.\n"
+						"If you enjoy this tool, consider donating: https://paypal.me/X39\n");
+				}
+				std::string line;
+				std::stringstream sstream;
+				do
+				{
+					printf("%d:\t", i++);
+					std::getline(std::cin, line);
+					sstream << line << std::endl;
+				} while (!line.empty());
+
+				std::cout << std::endl;
+
+
+				auto input = sstream.str();
+				bool err = false;
+				auto inputAfterPP = vm.preprocess(input, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+				if (!err)
+				{
+					if (noAssemblyCreation)
+					{
+						vm.parse_sqf_cst(inputAfterPP, err, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+					}
+					else
+					{
+						err = vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+					}
+				}
+			}
+
+
+			sqf::virtualmachine::execresult result;
+			if (!noExecutePrintArg.getValue())
+			{
+				std::cout << "Executing..." << std::endl;
+				std::cout << std::string(console_width(), '-') << std::endl;
+			}
+			result = vm.execute(sqf::virtualmachine::execaction::start);
+			if (!noExecutePrintArg.getValue())
+			{
+				std::cout << std::string(console_width(), '-') << std::endl;
+			}
+			if (result != sqf::virtualmachine::execresult::OK)
+			{
+				vm.execute(sqf::virtualmachine::execaction::abort);
+			}
+			if (!noWorkPrintArg.getValue())
+			{
+				auto val = vm.active_vmstack()->last_value();
+				if (val.data())
+				{
+					std::cout << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.as_string() << std::endl;
 				}
 				else
 				{
-					err = vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+					std::cout << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
 				}
+				std::wcout << std::endl;
 			}
-		}
-
-
-		if (noExecutePrintArg.getValue())
-		{
-			vm.execute();
-		}
-		else
-		{
-			std::cout << "Executing..." << std::endl;
-			std::cout << std::string(console_width(), '-') << std::endl;
-			vm.execute();
-			std::cout << std::string(console_width(), '-') << std::endl;
-		}
-		if (!noWorkPrintArg.getValue())
-		{
-			auto val = vm.active_vmstack()->last_value();
-			if (val.data())
-			{
-				std::cout << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.as_string() << std::endl;
-			}
-			else
-			{
-				std::cout << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
-			}
-			std::wcout << std::endl;
-		}
-
-	} while (!automated && !vm.exit_flag());
-
-	
-	if (debugger_port > 0)
-	{
-		if (dbg)
-		{
-			delete dbg;
-			dbg = nullptr;
-		}
-		if (srv)
-		{
-			delete srv;
-			srv = nullptr;
-		}
+		} while (!automated && !vm.exit_flag());
 	}
+
 	if (vm.is_networking_set())
 	{
 		vm.release_networking();

@@ -5,6 +5,7 @@
 
 #include "callstack.h"
 #include "string_op.h"
+#include "stackdump.h"
 #include <chrono>
 
 namespace sqf
@@ -18,24 +19,14 @@ namespace sqf
 		std::vector<std::shared_ptr<sqf::callstack>> m_stacks;
 		std::chrono::system_clock::time_point m_wakeup_stamp;
 		std::string m_script_name;
-		sqf::value mlast_value;
+		sqf::value m_last_value;
 		bool m_is_scheduled;
 		bool m_is_asleep;
 		bool m_terminate;
 	public:
-		struct stackdump
-		{
-			std::shared_ptr<sqf::sqfnamespace> namespace_used;
-			size_t line;
-			size_t column;
-			std::string file;
-			std::string dbginf;
-			std::string callstack_name;
-			std::string scope_name;
-		};
 		// Creates a stackdump from current top-callstack to the target callstack.
 		// If no target is provided, whole callstack will be dumped.
-		std::vector<sqf::vmstack::stackdump> dump_callstack_diff(std::shared_ptr<sqf::callstack> target);
+		std::vector<sqf::diagnostics::stackdump> dump_callstack_diff(std::shared_ptr<sqf::callstack> target);
 
 		vmstack() :
 			m_script_name(""),
@@ -52,12 +43,12 @@ namespace sqf
 		{
 		}
 
-		void pushinst(sqf::virtualmachine* vm, std::shared_ptr<instruction> inst);
+		void push_back(sqf::virtualmachine* vm, std::shared_ptr<instruction> inst);
 		const std::string& script_name() const { return m_script_name; }
 		void script_name(std::string val) { if (m_script_name.empty()) { m_script_name = std::move(val); } }
 		bool terminate() { return m_terminate; }
 		void terminate(bool flag) { m_terminate = flag; }
-		std::shared_ptr<instruction> popinst(sqf::virtualmachine* vm)
+		std::shared_ptr<instruction> pop_back_instruction(sqf::virtualmachine* vm)
 		{
 			if (m_stacks.empty())
 				return std::shared_ptr<sqf::instruction>();
@@ -78,15 +69,15 @@ namespace sqf
 			auto res = m_stacks.back()->next(vm);
 			if (res == callstack::done || res == callstack::exitwith)
 			{
-				return popinst(vm);
+				return pop_back_instruction(vm);
 			}
 			return m_stacks.back()->current_instruction();
 		}
-		void pushcallstack(std::shared_ptr<sqf::callstack> cs) { m_stacks.emplace_back(std::move(cs)); mlast_value = {}; }
+		void push_back(std::shared_ptr<sqf::callstack> cs) { m_stacks.emplace_back(std::move(cs)); m_last_value = {}; }
 
 		/// Will only be set when all stacks have been emptied.
 		/// Contains the value returned by the last callstack if available.
-		sqf::value last_value() { return mlast_value; }
+		sqf::value last_value() { return m_last_value; }
 
 		/// Drops the top-most callstack and puts the last value
 		/// from its value stack onto the lower callstack.
@@ -101,7 +92,7 @@ namespace sqf
 				{
 					if (m_stacks.empty())
 					{
-						mlast_value = value;
+						m_last_value = value;
 					}
 					else
 					{
@@ -154,13 +145,14 @@ namespace sqf
 
 		std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator stacks_begin() { return m_stacks.rbegin(); }
 		std::vector<std::shared_ptr<sqf::callstack>>::reverse_iterator stacks_end() { return m_stacks.rend(); }
+		size_t stacks_size() { return m_stacks.size(); }
 		std::shared_ptr<sqf::callstack> stacks_top() { return m_stacks.back(); }
 
-		void pushval(value val)
+		void push_back(value val)
 		{
 			m_stacks.back()->push_back(std::move(val));
 		}
-		value popval(bool &success)
+		value pop_back_value(bool &success)
 		{
 			if (m_stacks.empty())
 			{
@@ -169,7 +161,7 @@ namespace sqf
 			}
 			return m_stacks.back()->pop_back_value(success);
 		}
-		value peekval()
+		value peek_value()
 		{
 			if (m_stacks.empty())
 			{
@@ -180,9 +172,9 @@ namespace sqf
 
 		value get_variable(std::string_view varname) { bool flag = false; return get_variable(varname, flag); }
 		value get_variable(std::string_view varname, bool& ref_success);
-		bool isempty() const { return m_stacks.empty(); }
-		bool isscheduled() const { return m_is_scheduled; }
-		bool isasleep() const { return m_is_asleep; }
+		bool empty() const { return m_stacks.empty(); }
+		bool scheduled() const { return m_is_scheduled; }
+		bool asleep() const { return m_is_asleep; }
 		void wakeup() { m_is_asleep = false; }
 		std::chrono::system_clock::time_point get_wakeupstamp() const { return m_wakeup_stamp; }
 		void sleep(std::chrono::milliseconds ms);

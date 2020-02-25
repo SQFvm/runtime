@@ -5,6 +5,8 @@
 #include <sstream>
 #include <algorithm>
 
+namespace err = logmessage::runtime;
+
 sqf::arraydata sqf::arraydata::deep_copy() const
 {
 	std::vector<value> arr_copy;
@@ -123,11 +125,11 @@ bool sqf::arraydata::check_type(virtualmachine * vm, sqf::type t, size_t min, si
 	{
 		if (min == max)
 		{
-			vm->err() << "Array was expected to have " << min << " elements of type " << type_str(t) << ". Got " << size() << '.' << std::endl;
+			vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), min, size()));
 		}
 		else
 		{
-			vm->err() << "Array was expected to have " << min << " to " << max << " elements of type " << type_str(t) << ". Got " << size() << '.' << std::endl;
+			vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), min, max, size()));
 		}
 		return false;
 	}
@@ -135,61 +137,32 @@ bool sqf::arraydata::check_type(virtualmachine * vm, sqf::type t, size_t min, si
 	{
 		if (at(i).dtype() != t)
 		{
-			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(t) << ". Got " << type_str(at(i).dtype()) << '.' << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), i, t, at(i).dtype()));
 			errflag = false;
 		}
 	}
 	return errflag;
 }
-bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size_t len) const
+bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size_t min, size_t max) const
 {
 	bool errflag = true;
-	if (size() != len)
+	if (size() < min || size() > max)
 	{
-		vm->err() << "Array was expected to have " << len << " elements of type combination { ";
-		for (size_t i = 0; i < len; i++)
+		if (min == max)
 		{
-			if (i > 0)
-			{
-				vm->err() << ", ";
-			}
-			vm->err() << type_str(arr[i]);
+			vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), min, size()));
 		}
-		vm->err() << " }. Got " << size() << '.' << std::endl;
-		return false;
-	}
-	for (size_t i = 0; i < len; i++)
-	{
-		if (at(i).dtype() != arr[i])
+		else
 		{
-			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(arr[i]) << ". Got " << type_str(at(i).dtype()) << '.' << std::endl;
-			errflag = false;
+			vm->logmsg(err::ExpectedArraySizeMissmatch(*vm->current_instruction(), min, max, size()));
 		}
-	}
-	return errflag;
-}
-bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size_t len, size_t optionalstart) const
-{
-	bool errflag = true;
-	if (size() != len && size() < optionalstart)
-	{
-		vm->err() << "Array was expected to have at least " << optionalstart << " elements with a maximum of " << len << " and the type combination { ";
-		for (size_t i = 0; i < len; i++)
-		{
-			if (i > 0)
-			{
-				vm->err() << ", ";
-			}
-			vm->err() << type_str(arr[i]);
-		}
-		vm->err() << " }. Got " << size() << '.' << std::endl;
 		return false;
 	}
 	for (size_t i = 0; i < size(); i++)
 	{
 		if (at(i).dtype() != arr[i])
 		{
-			vm->err() << "Element " << i << " of array was expected to be of type " << type_str(arr[i]) << ". Got " << type_str(at(i).dtype()) << '.' << std::endl;
+			vm->logmsg(err::ExpectedArrayTypeMissmatch(*vm->current_instruction(), i, arr[i], at(i).dtype()));
 			errflag = false;
 		}
 	}
