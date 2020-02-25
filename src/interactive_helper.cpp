@@ -4,6 +4,7 @@
 #include <thread>
 #include <string>
 #include <iostream>
+#include <cstring>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
