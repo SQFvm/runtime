@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #ifdef _WIN32
 // Required due to some headers using WinSock2.h
 // & some headers requiring windows.h
@@ -456,3 +457,5 @@ void sqf::commandmap::initsqfvmcmds()
 	add(unary("remoteConnect__", sqf::type::STRING, "Connects this as a client to the provided endpoint. Endpoint is expected to have the format ADDRESS:PORT. Returns TRUE on success, false if it failed. Note that IP-Address is required, not DNS names (eg. use '127.0.0.1' instead of 'localhost').", remoteConnect___));
 	add(nular("closeConnection__", "Closes the connection previously opened using remoteConnect__.", closeconnection___));
 }
+
+#endif

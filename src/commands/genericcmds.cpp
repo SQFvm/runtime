@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
@@ -1507,3 +1508,5 @@ void sqf::commandmap::initgenericcmds()
 	add(unary("try", type::CODE, "Defines a try-catch structure. This sets up an exception handling block.", try_code));
 	add(binary(4, "catch", type::EXCEPTION, type::CODE, "Processes code when an exception is thrown in a try block. The exception caught can be found in the _exception variable.", catch_exception_code));
 }
+
+#endif

@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
@@ -400,3 +401,5 @@ void sqf::commandmap::initmathcmds()
 
 
 }
+
+#endif

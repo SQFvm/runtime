@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../configdata.h"
 #include "../cmd.h"
@@ -162,3 +163,5 @@ void sqf::commandmap::initconfigcmds()
 	add(binary(4, "configClasses", type::STRING, type::CONFIG, "Returns an array of config entries which meet criteria in condition code. Command iterates through all available config sub classes of the given config class. Current looked at config is stored in _x variable (similar to alternative count command implementation). Condition has to return true in order for the looked at config to be added to the resulting array. Slightly faster than configProperties, but doesn't account for config properties or inherited entries.", configclasses_code_config));
 	add(unary("configProperties", type::ARRAY, "Returns an array of config entries which meet criteria in condition code. Command iterates through available classes and config properties for given config entry. If 3rd param is true the search also includes inherited properties. Current looked at config is stored in _x variable (similar to alternative count command implementation). Condition has to return true in order for the looked at property to be added to the resulting array. A bit slower than configClasses but allows to access inherited entires.", configproperties_array));
 }
+
+#endif

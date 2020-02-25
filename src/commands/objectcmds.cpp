@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
@@ -988,3 +989,5 @@ void sqf::commandmap::initobjectcmds()
 	add(binary(4, "in", type::OBJECT, type::OBJECT, "Checks whether unit is in vehicle.", in_object_object));
 
 }
+
+#endif

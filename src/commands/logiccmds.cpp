@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
@@ -149,3 +150,4 @@ void sqf::commandmap::initlogiccmds()
 	add(binary(4, "isEqualTo", sqf::type::ANY, sqf::type::ANY, "Check if one value is equal to another. Both values need to be of the same type.", isequalto_any_any));
 	add(binary(4, "isEqualType", sqf::type::ANY, sqf::type::ANY, "Compares 2 values by their type. A much faster alternative to typeName a == typeName b.", isequaltype_any_any));
 }
+#endif

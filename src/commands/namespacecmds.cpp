@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
@@ -167,3 +168,5 @@ void sqf::commandmap::initnamespacecmds()
 	add(binary(4, "getVariable", type::GROUP, type::ARRAY, "Return the value of variable in the provided variable space. First element is expected to be the variable name as string. Returns second array item if variable is undefined.", getVariable_namespace_array));
 	add(binary(4, "setVariable", type::GROUP, type::ARRAY, "Sets a variable to given value in the provided variable space. First element is expected to be the variable name as string. Second element is expected to be anything.", setVariable_namespace_array));
 }
+
+#endif

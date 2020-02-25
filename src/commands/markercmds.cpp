@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../cmd.h"
 #include "../commandmap.h"
 #include "../value.h"
@@ -406,3 +407,4 @@ void sqf::commandmap::initmarkercmds()
 	add(binary(4, "setMarkerAlphaLocal", type::STRING, type::SCALAR, "Sets the local markers alpha.", setmarkeralpha_string_scalar));
 
 }
+#endif

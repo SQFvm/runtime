@@ -83,6 +83,7 @@ if (SQFVM_BUILD_STATIC_LIBRARY_NC)
 
     add_library(slibsqfvm_nc STATIC ${vm_src_nc})
     target_compile_definitions(slibsqfvm PUBLIC DISABLE_CLIPBOARD)
+    target_compile_definitions(slibsqfvm PUBLIC NO_COMMANDS)
     target_include_directories(slibsqfvm_nc PUBLIC ${PROJECT_SOURCE_DIR}/src)
     SET_TARGET_PROPERTIES(slibsqfvm_nc PROPERTIES PREFIX "")
 endif ()

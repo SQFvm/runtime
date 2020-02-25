@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
@@ -96,3 +97,5 @@ void sqf::commandmap::initgroupcmds()
 	add(unary("isNull", type::GROUP, "Checks whether the tested item is Null.", isnull_group));
 	add(unary("side", type::GROUP, "Returns the side of a group.", side_group));
 }
+
+#endif

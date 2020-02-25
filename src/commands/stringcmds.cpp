@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
@@ -260,3 +261,5 @@ void sqf::commandmap::initstringcmds()
 		"Splits given string str into an array of tokens according to given delimiters. "
 		"In addition, if empty string "" is used for delimiters, str is split by each character.", splitstring_string_string));
 }
+
+#endif

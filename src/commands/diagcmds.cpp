@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
@@ -54,3 +55,5 @@ void sqf::commandmap::initdiagcmdss()
 	add(nular("halt", "Halts the execution if a debugger is attached. If not, warning is logged and execution continues.", halt_));
 
 }
+
+#endif

@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #ifdef _WIN32
 // Required due to some headers using WinSock2.h
 // & some headers requiring windows.h
@@ -48,3 +49,5 @@ void sqf::commandmap::initosspecificcmds()
 {
 	add(unary("copyToClipboard", type::STRING, "Copy text string to the clipboard.", copytoclipboard_string)); /* STRING */
 }
+
+#endif

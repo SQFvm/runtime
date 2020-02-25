@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
@@ -2095,3 +2096,4 @@ void sqf::commandmap::initunimplemented()
 	add(nular("get3deniconsvisible", "", [](virtualmachine* vm) -> value { vm->err() << "NOT IMPLEMENTED (get3deniconsvisible)." << std::endl; return {}; }));
 	add(nular("isstreamfriendlyuienabled", "", [](virtualmachine* vm) -> value { vm->err() << "NOT IMPLEMENTED (isstreamfriendlyuienabled)." << std::endl; return {}; }));
 }
+#endif
