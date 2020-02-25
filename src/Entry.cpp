@@ -658,15 +658,6 @@ int main(int argc, char** argv)
 	}
 	if (interactiveArg.getValue())
 	{ // Interactive Mode
-		if (!suppressWelcomeArg.getValue())
-		{
-			std::cout << "You can disable this message using `--suppress-welcome`." << std::endl 
-				<< "Welcome to Interactive mode." << std::endl
-				<< "In interactive, you can control the behavior of the VM, using the input." << std::endl
-				<< "Quick Command Reference:" << std::endl
-				<< "h, help -> Displays help to a specific command." << std::endl
-				<< "cmds    -> Lists all commands available." << std::endl;
-		}
 		interactive_helper helper(vm);
 		helper.init();
 		if (!suppressWelcomeArg.getValue())
