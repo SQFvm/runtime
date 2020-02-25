@@ -254,6 +254,18 @@ namespace logmessage::preprocessor {
         return output;
     }
 
+    std::string EmptyArgument::formatMessage() const {
+        auto output = location.format();
+        const auto message = "Empty argument passed to macro."sv;
+
+        output.reserve(
+            output.length() 
+            + message.length()
+        );
+
+        output.append(message);
+        return output;
+    }
 }
 
 namespace logmessage::assembly {

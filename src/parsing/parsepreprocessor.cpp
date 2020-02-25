@@ -440,6 +440,11 @@ std::string sqf::parse::preprocessor::handle_macro(preprocessorfileinfo& local_f
 						auto handled_param = handle_arg(copy, original_fileinfo, local_fileinfo.off, param_map);
 						params.emplace_back(std::move(handled_param));
 					}
+					else
+					{
+						params.emplace_back("");
+						log(err::EmptyArgument(original_fileinfo));
+					}
 					local_fileinfo.next();
 					lastargstart = local_fileinfo.off;
 				}
