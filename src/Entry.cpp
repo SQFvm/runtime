@@ -153,7 +153,7 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> inputArg("i", "input", "Loads provided file from disk. File-Type is determined using default file extensions (sqf, cpp, hpp, pbo). " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(inputArg);
 
-	TCLAP::MultiArg<std::string> inputSqfArg("", "input-sqf", "Loads provided SQF file from disk. Will be executed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
+	TCLAP::MultiArg<std::string> inputSqfArg("", "input-sqf", "Loads provided SQF file from disk. Will be executed before files, added using '--input'. Executed from left to right. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(inputSqfArg);
 
 	TCLAP::MultiArg<std::string> inputConfigArg("", "input-config", "Loads provided config file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
@@ -162,7 +162,7 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> inputPboArg("", "input-pbo", "Loads provided PBO file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(inputPboArg);
 
-	TCLAP::MultiArg<std::string> sqfArg("", "sqf", "Loads provided sqf-code directly into the VM. Input is not getting preprocessed!", false, "CODE");
+	TCLAP::MultiArg<std::string> sqfArg("", "sqf", "Loads provided sqf-code directly into the VM. Input is not getting preprocessed! Will be processed AFTER `--input-sqf`.", false, "CODE");
 	cmd.add(sqfArg);
 
 	TCLAP::MultiArg<std::string> configArg("", "config", "Loads provided config-code directly into the VM. Input is not getting preprocessed!", false, "CODE");
@@ -347,6 +347,10 @@ int main(int argc, char** argv)
 			std::cerr << "The file extension '" << ext << "' is not understandible. Consider using '--input-sqf' for example, to explicitly add your file." << std::endl;
 		}
 	}
+
+	std::reverse(sqf_files.begin(), sqf_files.end());
+	std::reverse(config_files.begin(), config_files.end());
+	std::reverse(pbo_files.begin(), pbo_files.end());
 
 	bool disableClassnameCheck = disableClassnameCheckArg.getValue();
 	bool noLoadExecDir = noLoadExecDirArg.getValue();
@@ -568,7 +572,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	//Load & merge all config-files provided via arg.
+	// Load & merge all config-files provided via arg.
 	for (auto& f : config_files)
 	{
 		auto sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / f).lexically_normal()).string();
@@ -620,13 +624,13 @@ int main(int argc, char** argv)
 		return errflag ? -1 : 0;
 	}
 
-	//Load all sqf-code provided via arg.
-	for (auto& raw : sqfArg.getValue())
+	// Load all sqf-code provided via arg.
+	for (auto& raw = sqfArg.getValue().rbegin(); raw != sqfArg.getValue().rend(); raw++)
 	{
-		vm.parse_sqf(raw);
+		vm.parse_sqf(*raw);
 	}
 
-	//Load & merge all config-code provided via arg.
+	// Load & merge all config-code provided via arg.
 	for (auto& raw : configArg.getValue())
 	{
 		vm.parse_config(raw, sqf::configdata::configFile().data<sqf::configdata>());
