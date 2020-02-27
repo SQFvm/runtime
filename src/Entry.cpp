@@ -557,7 +557,7 @@ int main(int argc, char** argv)
 				}
 				else
 				{
-					errflag = vm.parse_sqf(ppedStr, f);
+					errflag = !vm.parse_sqf(ppedStr, f);
 				}
 			}
 		}
@@ -709,7 +709,7 @@ int main(int argc, char** argv)
 					}
 					else
 					{
-						err = vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+						err = !vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
 					}
 				}
 			}
