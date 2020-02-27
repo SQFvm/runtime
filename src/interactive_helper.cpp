@@ -289,7 +289,7 @@ void interactive_helper::init()
 				break;
 			}
 		});
-	register_command(std::array{ "ls"s, "locals"s, "vars" },
+	register_command(std::array{ "ls"s, "locals"s, "vars"s },
 		"Lists all local variables.\n"
 		"Affected by Enacted Script.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
