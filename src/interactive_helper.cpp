@@ -260,8 +260,8 @@ void interactive_helper::init()
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				}
 				long enacted = interactive.get_active_script();
-				auto& it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
-					[enacted](const std::shared_ptr<sqf::scriptdata> scriptdata) -> bool {
+				auto it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
+					[enacted](const std::shared_ptr<sqf::scriptdata>& scriptdata) -> bool {
 						return scriptdata->script_id() == (size_t)enacted;
 					});
 				if (it == interactive.vm().scripts_end())
@@ -304,8 +304,8 @@ void interactive_helper::init()
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				}
 				long enacted = interactive.get_active_script();
-				auto& it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
-					[enacted](const std::shared_ptr<sqf::scriptdata> scriptdata) -> bool {
+				auto it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
+					[enacted](const std::shared_ptr<sqf::scriptdata>& scriptdata) -> bool {
 						return scriptdata->script_id() == (size_t)enacted;
 					});
 				if (it == interactive.vm().scripts_end())
