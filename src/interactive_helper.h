@@ -42,7 +42,7 @@ public:
 	}
 	~interactive_helper()
 	{
-		delete[buffer_size] m_buffer;
+		delete[] m_buffer;
 	}
 
 	void init();
