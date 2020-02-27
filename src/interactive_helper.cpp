@@ -37,6 +37,11 @@ void interactive_helper::virtualmachine_thread()
 			case sqf::virtualmachine::vmstatus::halt_error:
 				std::cout << "VM Error!" << std::endl;
 				break;
+			case sqf::virtualmachine::vmstatus::running:
+			case sqf::virtualmachine::vmstatus::requested_halt:
+			case sqf::virtualmachine::vmstatus::requested_abort:
+			case sqf::virtualmachine::vmstatus::evaluating:
+				break;
 			}
 		}
 	}
@@ -314,10 +319,10 @@ void interactive_helper::init()
 					enacted = -1;
 					std::cout << "Enacted script " << enacted << " no longer available. Changing to Currently Active." << std::endl;
 				}
-				auto& vmstack = enacted == -1 ? interactive.vm().active_vmstack() :
+				auto vmstack = enacted == -1 ? interactive.vm().active_vmstack() :
 					enacted == 0 ? interactive.vm().main_vmstack() :
 					(*it)->vmstack();
-				for (auto& cs = vmstack->stacks_begin(); cs != vmstack->stacks_end(); ++cs)
+				for (auto cs = vmstack->stacks_begin(); cs != vmstack->stacks_end(); ++cs)
 				{
 					if ((*cs)->get_variable_map().empty())
 					{
@@ -386,7 +391,7 @@ void interactive_helper::init()
 			std::cout << i++ << ":\tCurrently Active" << std::endl;
 			std::cout << i++ << ":\tMain Instance" << std::endl;
 
-			for (auto& it = interactive.vm().scripts_begin(); it != interactive.vm().scripts_end(); ++it)
+			for (auto it = interactive.vm().scripts_begin(); it != interactive.vm().scripts_end(); ++it)
 			{
 				std::cout << (*it)->script_id() << ":\t" << (*it)->vmstack()->script_name() << std::endl;
 			}
@@ -409,7 +414,7 @@ void interactive_helper::init()
 			}
 			else
 			{
-				auto& it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
+				auto it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
 					[i](const std::shared_ptr<sqf::scriptdata> scriptdata) -> bool {
 						return scriptdata->script_id() == (size_t)i;
 					});

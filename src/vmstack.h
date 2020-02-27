@@ -61,6 +61,8 @@ namespace sqf
 			case callstack::done:
 				drop_callstack();
 				break;
+			default:
+				break;
 			}
 
 			if (m_stacks.empty())
