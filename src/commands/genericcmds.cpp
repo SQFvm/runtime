@@ -439,6 +439,8 @@ namespace
                         if (a_elem.as_double() < b_elem.as_double()) return sort_flag;
                         if (a_elem.as_double() > b_elem.as_double()) return !sort_flag;
                         break;
+					default:
+						break;
                     };
                 }
                 return false;
@@ -455,6 +457,8 @@ namespace
                 if (a.as_double() > b.as_double()) return !sort_flag;
                 return false;
             }
+			default:
+				break;
             };
 
             return false;

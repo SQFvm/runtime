@@ -141,6 +141,8 @@ namespace sqf
 					}
 				}
 				break;
+				default:
+					break;
 				}
 			}
 		};

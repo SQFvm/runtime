@@ -7,7 +7,7 @@
 namespace sqf
 {
 	class vmstack;
-	class scriptdata : public data
+	class scriptdata : public data, public std::enable_shared_from_this<scriptdata>
 	{
 	private:
 		std::shared_ptr<sqf::vmstack> m_vmstack;
