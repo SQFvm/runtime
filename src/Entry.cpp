@@ -162,7 +162,7 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> inputPboArg("", "input-pbo", "Loads provided PBO file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(inputPboArg);
 
-	TCLAP::MultiArg<std::string> sqfArg("", "sqf", "Loads provided sqf-code directly into the VM. Input is not getting preprocessed! Will be processed AFTER `--input-sqf`.", false, "CODE");
+	TCLAP::MultiArg<std::string> sqfArg("", "sqf", "Loads provided sqf-code directly into the VM. Input is not getting preprocessed! Will be processed AFTER `--input-sqf` and thus executed before any file.", false, "CODE");
 	cmd.add(sqfArg);
 
 	TCLAP::MultiArg<std::string> configArg("", "config", "Loads provided config-code directly into the VM. Input is not getting preprocessed!", false, "CODE");
@@ -425,6 +425,7 @@ int main(int argc, char** argv)
 			std::cout << "Mapped '" << virtSanitized << "' onto '" << physSanitized << "'." << std::endl;
 		}
 	}
+	
 
 	// Prepare Dummy-Commands
 	for (auto& f : commandDummyNular.getValue())
