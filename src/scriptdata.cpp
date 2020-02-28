@@ -9,7 +9,6 @@ sqf::scriptdata::scriptdata()
 	m_script_id = ++scriptnum;
 	m_vmstack = std::make_shared<sqf::vmstack>(true);
 	auto cs = std::make_shared<callstack>();
-	cs->set_variable("_thisScript", { shared_from_this() });
 	m_vmstack->push_back(cs);
 }
 
