@@ -7,7 +7,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MACOSX_RPATH 1)
 
 # Enable multithreaded compilation in MSVC
-add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
+if(MSVC)
+  add_definitions(/MP)
+endif()
 
 # Add the filesystem library if we are building on Clang or GCC
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
