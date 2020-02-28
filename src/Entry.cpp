@@ -626,7 +626,7 @@ int main(int argc, char** argv)
 	}
 
 	// Load all sqf-code provided via arg.
-	for (auto& raw = sqfArg.getValue().rbegin(); raw != sqfArg.getValue().rend(); raw++)
+	for (auto raw = sqfArg.getValue().rbegin(); raw != sqfArg.getValue().rend(); raw++)
 	{
 		vm.parse_sqf(*raw);
 	}
