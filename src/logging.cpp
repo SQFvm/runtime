@@ -2248,7 +2248,7 @@ namespace logmessage::runtime
 
 		output.append("Expected the type "sv);
 		output.append(expected);
-		output.append(" but got"sv);
+		output.append(" but got "sv);
 		output.append(got);
 		output.append("."sv);
 		return output;
@@ -2270,7 +2270,7 @@ namespace logmessage::runtime
 
 		output.append("Expected the type "sv);
 		output.append(expected);
-		output.append(" but got"sv);
+		output.append(" but got "sv);
 		output.append(got);
 		output.append("."sv);
 		return output;
