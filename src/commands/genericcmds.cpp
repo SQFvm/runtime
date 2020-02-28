@@ -693,6 +693,7 @@ namespace
 	{
 		auto code = right.data<codedata>();
 		auto script = std::make_shared<scriptdata>();
+		script->vmstack()->stacks_top()->set_variable("_thisScript", value(script));
 		code->loadinto(vm, script->vmstack());
 		vm->push_spawn(script);
 		script->vmstack()->stacks_top()->set_variable("_this", value(left));
@@ -1498,6 +1499,7 @@ namespace
 			vm->logmsg(err::FileNotFound(*vm->current_instruction(), right.as_string()));
 			vm->logmsg(err::ReturningEmptyScriptHandle(*vm->current_instruction()));
 			auto script = std::make_shared<scriptdata>();
+			script->vmstack()->stacks_top()->set_variable("_thisScript", value(script));
 			return value(script);
 		}
 		else
@@ -1507,6 +1509,7 @@ namespace
 			auto parsedcontents = vm->preprocess(filecontents, errflag, res.value());
 			auto cs = std::make_shared<callstack>(vm->active_vmstack()->stacks_top()->get_namespace());
 			auto script = std::make_shared<scriptdata>();
+			script->vmstack()->stacks_top()->set_variable("_thisScript", value(script));
 			vm->parse_sqf(parsedcontents, cs);
 			script->vmstack()->push_back(cs);
 			vm->push_spawn(script);
