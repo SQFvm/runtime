@@ -548,16 +548,16 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 		auto parsedFile = parse_file(otherfinfo);
 		output.reserve(
 			parsedFile.size() + compiletime::strlen("\n") +
-			compiletime::strlen("#line  ") + lineInfo.size() + fileinfo.path.size() + compiletime::strlen("\n")
+			compiletime::strlen("#line  \"") + lineInfo.size() + fileinfo.path.size() + compiletime::strlen("\"\n")
 		);
 		output.reserve(
-			compiletime::strlen("#line 0 ") + otherfinfo.path.size() + compiletime::strlen("\n") +
+			compiletime::strlen("#line 0 \"") + otherfinfo.path.size() + compiletime::strlen("\"\n") +
 			parsedFile.size() + compiletime::strlen("\n") +
-			compiletime::strlen("#line ") + lineInfo.size() + compiletime::strlen(" ") + fileinfo.path.size() + compiletime::strlen("\n")
+			compiletime::strlen("#line ") + lineInfo.size() + compiletime::strlen(" \"") + fileinfo.path.size() + compiletime::strlen("\"\n")
 		);
-		output.append("#line 0 "); output.append(otherfinfo.path); output.append("\n");
+		output.append("#line 0 \""); output.append(otherfinfo.path); output.append("\"\n");
 		output.append(parsedFile); output.append("\n");
-		output.append("#line "); output.append(lineInfo); output.append(" "); output.append(fileinfo.path); output.append("\n");
+		output.append("#line "); output.append(lineInfo); output.append(" \""); output.append(fileinfo.path); output.append("\"\n");
 		return output;
 	}
 	else if (inst == "DEFINE")
@@ -741,7 +741,7 @@ std::string sqf::parse::preprocessor::parse_file(preprocessorfileinfo& fileinfo)
 	std::stringstream sstream;
 	std::stringstream wordstream;
 	std::unordered_map<std::string, std::string> empty_parammap;
-	sstream << "#line 0 " << fileinfo.path << std::endl;
+	sstream << "#line 0 \"" << fileinfo.path << "\"\n";
 	bool was_new_line = true;
 	bool is_in_string = false;
 	while ((c = fileinfo.next()) != '\0')
