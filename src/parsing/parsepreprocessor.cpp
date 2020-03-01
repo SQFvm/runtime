@@ -490,17 +490,33 @@ std::string sqf::parse::preprocessor::handle_macro(preprocessorfileinfo& local_f
 	return replace(original_fileinfo, m, params);
 #endif
 }
+
+namespace {
+    const std::string WHITESPACE = " \t";
+
+    std::string_view ltrim(std::string_view s)
+    {
+        size_t start = s.find_first_not_of(WHITESPACE);
+        return (start == std::string_view::npos) ? "" : s.substr(start);
+    }
+
+    std::string_view rtrim(std::string_view s)
+    {
+        size_t end = s.find_last_not_of(WHITESPACE);
+        return (end == std::string_view::npos) ? "" : s.substr(0, end + 1);
+    }
+
+    std::string_view trim(std::string_view s)
+    {
+        return rtrim(ltrim(s));
+    }
+}
+
 std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& fileinfo)
 {
 	bool was_new_line = true;
 	auto inst = fileinfo.get_word();
-	auto line = fileinfo.get_line(true);
-	line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) -> bool {
-		return c != ' ' && c != '\t';
-	}));
-	line.erase(std::find_if(line.rbegin(), line.rend(), [](char c) -> bool {
-		return c != ' ' && c != '\t';
-	}).base(), line.end());
+    std::string line{trim(fileinfo.get_line(true))};
 	std::transform(inst.begin(), inst.end(), inst.begin(), ::toupper);
 	if (inst == "INCLUDE")
 	{ // #include "file/path"
@@ -595,7 +611,7 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 				{
 					log(err::MacroDefinedTwice(fileinfo, m.name));
 				}
-				m.content = line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex); //Special magic for '#define macro\'
+				m.content = trim(line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex)); //Special magic for '#define macro\'
 				m.hasargs = false;
 			}
 			else
@@ -620,20 +636,14 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 						ended = true;
 						arg_index = bracketsEndIndex;
 					}
-					auto arg = line.substr(arg_start_index, arg_index - arg_start_index);
-					arg.erase(arg.begin(), std::find_if(arg.begin(), arg.end(), [](char c) -> bool {
-						return c != '\t' && c != ' ';
-					}));
-					arg.erase(std::find_if(arg.rbegin(), arg.rend(), [](char c) -> bool {
-						return c != '\t' && c != ' ';
-					}).base(), arg.end());
+					std::string arg{trim(line.substr(arg_start_index, arg_index - arg_start_index))};
 					if (!arg.empty())
 					{
 						m.args.emplace_back(std::move(arg));
 						arg_start_index = arg_index + 1;
 					}
 				}
-				m.content = line.length() <= bracketsEndIndex + 2 ? "" : line.substr(bracketsEndIndex + 2);
+				m.content = trim(line.length() <= bracketsEndIndex + 1 ? "" : line.substr(bracketsEndIndex + 1));
 					
 			}
 		}
@@ -647,7 +657,7 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 			return "\n";
 		}
 			
-		auto res = m_macros.find(line);
+		auto res = m_macros.find(static_cast<std::string>(line));
 		if (res == m_macros.end())
 		{
 			log(err::MacroNotFound(fileinfo, line));
@@ -670,7 +680,7 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 		{
 			inside_ppif(true);
 		}
-		auto res = m_macros.find(line);
+		auto res = m_macros.find(static_cast<std::string>(line));
 		if (res == m_macros.end())
 		{
 			m_allowwrite = false;
@@ -693,7 +703,7 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 		{
 			inside_ppif(true);
 		}
-		auto res = m_macros.find(line);
+		auto res = m_macros.find(static_cast<std::string>(line));
 		if (res == m_macros.end())
 		{
 			m_allowwrite = true;
@@ -909,16 +919,16 @@ std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string
 		macro.callback = file_macro_callback;
 		m_macros["__FILE__"] = macro;
 	}
-	{
-		macro macro;
-		macro.line = 0;
-		macro.column = 0;
-		macro.content = VERSION_FULL;
-		macro.filepath = "";
-		macro.hasargs = false;
-		macro.name = "_SQF_VM";
-		m_macros["_SQF_VM"] = macro;
-	}
+	//{
+	//	macro macro;
+	//	macro.line = 0;
+	//	macro.column = 0;
+	//	macro.content = VERSION_FULL;
+	//	macro.filepath = "";
+	//	macro.hasargs = false;
+	//	macro.name = "_SQF_VM";
+	//	m_macros["_SQF_VM"] = macro;
+	//}
 	{
 		macro macro;
 		macro.line = 0;
