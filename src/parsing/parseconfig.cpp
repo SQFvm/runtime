@@ -1,6 +1,7 @@
 #include <cwctype>
 #include <utility>
 #include <vector>
+#include <cstring>
 #include <string>
 #include <sstream>
 #include "astnode.h"
@@ -550,7 +551,7 @@ namespace sqf::parse
 		node.content = m_contents;
 		NODELIST(node, errflag);
 		skip();
-		if (m_info.offset != strlen(m_contents))
+		if (m_info.offset != std::strlen(m_contents))
 		{
 			log(err::EndOfFileNotReached(m_info));
 			errflag = true;
