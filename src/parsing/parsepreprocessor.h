@@ -107,6 +107,22 @@ namespace sqf
 						while ((c = _next()) != '\0' && c != '\n');
 					}
 				}
+				if (c == '\\')
+				{
+					auto pc1 = peek(0);
+					auto pc2 = peek(1);
+					if (pc1 == '\r' && pc2 == '\n')
+					{
+						_next();
+						_next();
+						return next();
+					}
+					else if (pc1 == '\n')
+					{
+						_next();
+						return next();
+					}
+				}
 				if (c == '"')
 				{
 					is_in_string = !is_in_string;
