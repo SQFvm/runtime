@@ -362,7 +362,7 @@ namespace sqf::parse
 		}
 		i++;
 		m_info.column++;
-		auto fullstring = std::string(m_contents_actual.substr(m_info.offset, i - m_info.offset));
+		auto fullstring = i - m_info.offset - 2 < 0 ? "" : std::string(m_contents_actual.substr(m_info.offset + 1, i - m_info.offset - 2));
 		thisnode.content = fullstring;
 		thisnode.length = i - m_info.offset;
 		thisnode.offset = m_info.offset;
