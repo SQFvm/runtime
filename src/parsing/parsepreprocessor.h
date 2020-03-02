@@ -97,7 +97,7 @@ namespace sqf
 							{
 								_next();
 								is_in_block_comment = false;
-								c = _next();
+								c = next();
 								break;
 							}
 						}
