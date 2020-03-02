@@ -308,7 +308,6 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 		break;
 
 
-
 	case sqf::virtualmachine::execaction::stop:
 		if (m_status != vmstatus::running)
 		{
@@ -896,9 +895,13 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 	}
 	}
 }
-void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<configdata> parent)
+bool sqf::virtualmachine::parse_config(std::string_view code, std::string_view file)
 {
-	auto parser = sqf::parse::config(get_logger(), code, "");
+	return parse_config(code, file, sqf::configdata::configFile().data<sqf::configdata>());
+}
+bool sqf::virtualmachine::parse_config(std::string_view code, std::string_view file, std::shared_ptr<configdata> parent)
+{
+	auto parser = sqf::parse::config(get_logger(), code, file);
 	bool errorflag = false;
 	auto node = parser.parse(errorflag);
 //#if defined(_DEBUG)
@@ -916,6 +919,7 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 	{
 		navigate_config(code.data(), this, std::move(parent), node);
 	}
+	return !errorflag;
 }
 ::sqf::value sqf::virtualmachine::evaluate_expression(std::string_view view, bool& success, bool request_halt)
 {
