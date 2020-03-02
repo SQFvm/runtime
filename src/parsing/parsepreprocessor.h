@@ -271,7 +271,7 @@ namespace sqf
 
 			void replace_skip(preprocessorfileinfo& fileinfo, std::stringstream& sstream);
 		public:
-			preprocessor(Logger& ref_logger, virtualmachine* vm) : CanLog(ref_logger), m_vm(vm) {}
+			preprocessor(Logger& ref_logger, virtualmachine* vm);
 			std::string parse(::sqf::virtualmachine* vm, std::string input, bool &errflag, std::string filename);
 			bool inside_ppif_err_flag() { return m_inside_ppif_err_flag; }
 			bool inside_ppif() { return m_inside_ppf_tree.back(); }

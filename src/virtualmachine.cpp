@@ -919,10 +919,11 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 }
 ::sqf::value sqf::virtualmachine::evaluate_expression(std::string_view view, bool& success, bool request_halt)
 {
+	while (m_evaluate_halt);
 	auto stack = std::make_shared<sqf::vmstack>();
+	m_evaluate_halt = true;
 	if (request_halt)
 	{
-		m_evaluate_halt = true;
 		while (m_status == vmstatus::running);
 	}
 	if (parse_sqf(stack, view, {}, "EVAL__"))
@@ -943,37 +944,25 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 		{
 			m_active_vmstack = current_active;
 			m_current_instruction = actual_current_inst;
-			if (request_halt)
-			{
-				m_evaluate_halt = false;
-			}
+			m_evaluate_halt = false;
 		}
 		if (m_runtime_error)
 		{
-			if (request_halt)
-			{
-				m_evaluate_halt = false;
-			}
+			m_evaluate_halt = false;
 			m_runtime_error = false;
 			success = false;
 			return {};
 		}
 		else
 		{
-			if (request_halt)
-			{
-				m_evaluate_halt = false;
-			}
+			m_evaluate_halt = false;
 			success = true;
 			return stack->last_value();
 		}
 	}
 	else
 	{
-		if (request_halt)
-		{
-			m_evaluate_halt = false;
-		}
+		m_evaluate_halt = false;
 		success = false;
 		return {};
 	}
