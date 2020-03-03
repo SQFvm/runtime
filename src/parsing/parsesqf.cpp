@@ -2,6 +2,7 @@
 #include "compiletime.h"
 #include "parsesqf.h"
 #include "string_op.h"
+#include "stringmanip.h"
 #include <algorithm>
 #include <cwctype>
 #include <utility>
@@ -53,7 +54,7 @@ void sqf::parse::sqf::skip(position_info& info)
 					start = info.offset;
 					for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n'; info.offset++);
 					auto str = std::string(m_contents_actual.substr(start, info.offset - start));
-					info.file = str;
+					info.file = strip_quotes(str);
 				}
 				break;
 			}
