@@ -35,4 +35,5 @@ before_install:
   - eval "${MATRIX_EVAL}"
 script:
   - cmake .
-  - make
+  - make -j4
+  - ./sqfvm -a --no-execute-print --load . -i tests\runTests.sqf
