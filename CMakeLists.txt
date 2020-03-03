@@ -7,12 +7,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MACOSX_RPATH 1)
 
 # Enable multithreaded compilation in MSVC
-if(MSVC)
+if (MSVC)
   add_definitions(/MP)
 endif()
 
 # Add the filesystem library if we are building on Clang or GCC
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(ST_CXXFS_LIBS stdc++fs)
 endif()
 
@@ -84,19 +84,12 @@ if (SQFVM_BUILD_STATIC_LIBRARY)
 endif ()
 
 if (SQFVM_BUILD_STATIC_LIBRARY_NC)
-
-	file(GLOB vm_src_nc
-		"${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c"
-        "${PROJECT_SOURCE_DIR}/src/networking/*.h" "${PROJECT_SOURCE_DIR}/src/networking/*.cpp" "${PROJECT_SOURCE_DIR}/src/networking/*.c"
-	)
-
-    list(REMOVE_ITEM vm_src_nc "${PROJECT_SOURCE_DIR}/src/Entry.cpp")
+    list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/Entry.cpp")
     list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/dllexports.h")
-    list(REMOVE_ITEM vm_src_nc "${PROJECT_SOURCE_DIR}/src/dllexports.cpp")
+    list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/dllexports.cpp")
 
-    add_library(slibsqfvm_nc STATIC ${vm_src_nc})
-    target_compile_definitions(slibsqfvm PUBLIC DISABLE_CLIPBOARD)
-    target_compile_definitions(slibsqfvm PUBLIC NO_COMMANDS)
+    add_library(slibsqfvm_nc STATIC ${vm_src})
+    target_compile_definitions(slibsqfvm_nc PUBLIC NO_COMMANDS)
     target_include_directories(slibsqfvm_nc PUBLIC ${PROJECT_SOURCE_DIR}/src)
     SET_TARGET_PROPERTIES(slibsqfvm_nc PROPERTIES PREFIX "")
 endif ()

@@ -10,6 +10,7 @@
 #include "fileio.h"
 #include "Entry.h"
 #include "logging.h"
+#include "value.h"
 #include <iostream>
 
 //#define PRINT_MACRO_CHAIN
@@ -894,9 +895,26 @@ std::string file_macro_callback(
 {
 	return '"' + original_fileinfo->path + '"';
 }
-std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string input, bool & errflag, std::string filename)
+std::string eval_macro_callback(
+	const sqf::parse::macro& m,
+	const sqf::parse::preprocessorfileinfo* local_fileinfo,
+	const sqf::parse::preprocessorfileinfo* original_fileinfo,
+	const std::vector<std::string>& params,
+	sqf::virtualmachine* vm)
 {
-	m_vm = vm;
+	if (params.empty())
+	{
+		return "";
+	}
+	bool success = false;
+	// Cannot wait for stop here as either we are most of the time already 
+	// running inside the VM and thus cannot give way for the evaluate_expression method.
+	// ToDo: Fix "edge case" where the user uses a running VM to preprocess a file that contains __EVAL to not break the SQF-VM execution.
+	auto res = vm->evaluate_expression(params[0], success, false);
+	return success ? res.tosqf() : "";
+}
+sqf::parse::preprocessor::preprocessor(Logger& ref_logger, virtualmachine* vm) : CanLog(ref_logger), m_vm(vm)
+{
 	{
 		macro macro;
 		macro.line = 0;
@@ -919,16 +937,40 @@ std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string
 		macro.callback = file_macro_callback;
 		m_macros["__FILE__"] = macro;
 	}
-	//{
-	//	macro macro;
-	//	macro.line = 0;
-	//	macro.column = 0;
-	//	macro.content = VERSION_FULL;
-	//	macro.filepath = "";
-	//	macro.hasargs = false;
-	//	macro.name = "_SQF_VM";
-	//	m_macros["_SQF_VM"] = macro;
-	//}
+	{
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = "";
+		macro.filepath = "";
+		macro.hasargs = true;
+		macro.args = { "EXPRESSION" };
+		macro.callback = eval_macro_callback;
+		macro.name = "__EXEC";
+		m_macros["__EXEC"] = macro;
+	}
+	{
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = "";
+		macro.filepath = "";
+		macro.hasargs = true;
+		macro.args = { "EXPRESSION" };
+		macro.callback = eval_macro_callback;
+		macro.name = "__EVAL";
+		m_macros["__EVAL"] = macro;
+	}
+	{
+		macro macro;
+		macro.line = 0;
+		macro.column = 0;
+		macro.content = VERSION_FULL;
+		macro.filepath = "";
+		macro.hasargs = false;
+		macro.name = "_SQF_VM";
+		m_macros["_SQF_VM"] = macro;
+	}
 	{
 		macro macro;
 		macro.line = 0;
@@ -963,6 +1005,10 @@ std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string
 	{
 		m_macros[macro.name] = macro;
 	}
+}
+std::string sqf::parse::preprocessor::parse(sqf::virtualmachine* vm, std::string input, bool & errflag, std::string filename)
+{
+	m_vm = vm;
 	preprocessorfileinfo fileinfo;
 	fileinfo.content = std::move(input);
 	fileinfo.path = std::move(filename);

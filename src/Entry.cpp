@@ -600,7 +600,7 @@ int main(int argc, char** argv)
 				{
 					std::cout << "Parsing file '" << sanitized << std::endl;
 				}
-				vm.parse_config(ppedStr, sqf::configdata::configFile().data<sqf::configdata>());
+				vm.parse_config(ppedStr, sanitized);
 			}
 		}
 		catch (const std::runtime_error& ex)
@@ -628,13 +628,13 @@ int main(int argc, char** argv)
 	// Load all sqf-code provided via arg.
 	for (auto raw = sqfArg.getValue().rbegin(); raw != sqfArg.getValue().rend(); raw++)
 	{
-		vm.parse_sqf(*raw);
+		vm.parse_sqf(*raw, "__commandline");
 	}
 
 	// Load & merge all config-code provided via arg.
 	for (auto& raw : configArg.getValue())
 	{
-		vm.parse_config(raw, sqf::configdata::configFile().data<sqf::configdata>());
+		vm.parse_config(raw, "__commandline");
 	}
 	if (serverArg.isSet())
 	{

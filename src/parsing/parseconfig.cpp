@@ -1,6 +1,7 @@
 #include <cwctype>
 #include <utility>
 #include <vector>
+#include <cstring>
 #include <string>
 #include <sstream>
 #include "astnode.h"
@@ -62,20 +63,20 @@ namespace sqf::parse
 	}
 
 	//endchr = [,;];
-	size_t config::endchr(size_t off) { return m_file[off] == ';' ? 1 : 0; }
+	size_t config::endchr(size_t off) { return m_contents[off] == ';' ? 1 : 0; }
 	//identifier = [_a-zA-Z0-9]*;
-	size_t config::identifier(size_t off) { size_t i = off; for (i = off; (m_file[i] >= 'a' && m_file[i] <= 'z') || (m_file[i] >= 'A' && m_file[i] <= 'Z') || (m_file[i] >= '0' && m_file[i] <= '9') || m_file[i] == '_'; i++) {}; return i - off; }
+	size_t config::identifier(size_t off) { size_t i = off; for (i = off; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'; i++) {}; return i - off; }
 	//operator_ = [-*+/a-zA-Z><=%_]+;
 	//ToDo: Add clearer non-alphabetical checks (-- should not be detected as SINGLE operator but rather as two operators)
-	size_t config::operator_(size_t off) { size_t i; for (i = off; (m_file[i] >= 'a' && m_file[i] <= 'z') || (m_file[i] >= 'A' && m_file[i] <= 'Z') || m_file[i] == '+' || m_file[i] == '-' || m_file[i] == '*' || m_file[i] == '/' || m_file[i] == '>' || m_file[i] == '<' || m_file[i] == '=' || m_file[i] == '%' || m_file[i] == '_'; i++) {}; return i - off; }
+	size_t config::operator_(size_t off) { size_t i; for (i = off; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || m_contents[i] == '+' || m_contents[i] == '-' || m_contents[i] == '*' || m_contents[i] == '/' || m_contents[i] == '>' || m_contents[i] == '<' || m_contents[i] == '=' || m_contents[i] == '%' || m_contents[i] == '_'; i++) {}; return i - off; }
 	//hexadecimal = [0-9a-fA-F]+;
-	size_t config::hexadecimal(size_t off) { size_t i; for (i = off; (m_file[i] >= 'a' && m_file[i] <= 'f') || (m_file[i] >= 'A' && m_file[i] <= 'F') || (m_file[i] >= '0' && m_file[i] <= '9'); i++) {}; return i - off; }
+	size_t config::hexadecimal(size_t off) { size_t i; for (i = off; (m_contents[i] >= 'a' && m_contents[i] <= 'f') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= '0' && m_contents[i] <= '9'); i++) {}; return i - off; }
 	//scalarsub = [0-9]+;
-	size_t config::numsub(size_t off) { size_t i; for (i = off; m_file[i] >= '0' && m_file[i] <= '9'; i++) {}; return i - off; }
+	size_t config::numsub(size_t off) { size_t i; for (i = off; m_contents[i] >= '0' && m_contents[i] <= '9'; i++) {}; return i - off; }
 	//scalar = scalarsub(.scalarsub)?;
-	size_t config::num(size_t off) { size_t i = off + numsub(off); if (m_file[off] == '.') i += numsub(off); return i - off; }
+	size_t config::num(size_t off) { size_t i = off + numsub(off); if (m_contents[off] == '.') i += numsub(off); return i - off; }
 	//anytext = (?![ \t\r\n;])+;
-	size_t config::anytext(size_t off) { size_t i; for (i = off; m_file[i] != ' ' && m_file[i] != '\t' && m_file[i] != '\r' && m_file[i] != '\n' && m_file[i] != ';'; i++) {}; return i - off; }
+	size_t config::anytext(size_t off) { size_t i; for (i = off; m_contents[i] != ' ' && m_contents[i] != '\t' && m_contents[i] != '\r' && m_contents[i] != '\n' && m_contents[i] != ';'; i++) {}; return i - off; }
 
 
 	//NODELIST = { NODE ';' { ';' } };
@@ -136,7 +137,7 @@ namespace sqf::parse
 		//root.children.push_back(thisnode);
 	}
 	//CONFIGNODE = 'class' ident [ ':' ident ] '{' NODELIST '}'
-	bool config::CONFIGNODE_start(size_t off) { return str_cmpi(m_file.c_str() + off, compiletime::strlen("class"), "class", compiletime::strlen("class")) == 0; }
+	bool config::CONFIGNODE_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("class"), "class", compiletime::strlen("class")) == 0; }
 	void config::CONFIGNODE(astnode & root, bool& errflag)
 	{
 		size_t len;
@@ -163,7 +164,7 @@ namespace sqf::parse
 			errflag = true;
 		}
 		skip();
-		if (m_file[m_info.offset] == ':')
+		if (m_contents[m_info.offset] == ':')
 		{
 			m_info.offset++;
 			m_info.column++;
@@ -189,7 +190,7 @@ namespace sqf::parse
 			}
 			skip();
 		}
-		if (m_file[m_info.offset] == '{')
+		if (m_contents[m_info.offset] == '{')
 		{
 			m_info.offset++;;
 			m_info.column++;
@@ -201,7 +202,7 @@ namespace sqf::parse
 			errflag = true;
 		}
 		NODELIST(thisnode, errflag);
-		if (m_file[m_info.offset] == '}')
+		if (m_contents[m_info.offset] == '}')
 		{
 			m_info.offset++;;
 			m_info.column++;
@@ -241,13 +242,13 @@ namespace sqf::parse
 			errflag = true;
 		}
 
-		if (m_file[m_info.offset] == '[')
+		if (m_contents[m_info.offset] == '[')
 		{
 			isarr = true;
 			m_info.offset++;;
 			m_info.column++;
 			skip();
-			if (m_file[m_info.offset] == ']')
+			if (m_contents[m_info.offset] == ']')
 			{
 				m_info.offset++;;
 				m_info.column++;
@@ -259,7 +260,7 @@ namespace sqf::parse
 				errflag = true;
 			}
 		}
-		if (m_file[m_info.offset] == '=')
+		if (m_contents[m_info.offset] == '=')
 		{
 			m_info.offset++;;
 			m_info.column++;
@@ -305,13 +306,13 @@ namespace sqf::parse
 				LOCALIZATION(thisnode, errflag);
 			}
 			skip();
-			if (m_file[m_info.offset] != ';')
+			if (m_contents[m_info.offset] != ';')
 			{
 				if (was_handled)
 				{
 					thisnode.children.pop_back();
 				}
-				while (m_file[m_info.offset] != ';' && m_file[m_info.offset] != '\0')
+				while (m_contents[m_info.offset] != ';' && m_contents[m_info.offset] != '\0')
 				{
 					m_info.offset++;;
 				}
@@ -332,7 +333,7 @@ namespace sqf::parse
 		root.children.push_back(thisnode);
 	}
 	//STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
-	bool config::STRING_start(size_t off) { return m_file[off] == '"' || m_file[off] == '\''; }
+	bool config::STRING_start(size_t off) { return m_contents[off] == '"' || m_contents[off] == '\''; }
 	void config::STRING(astnode & root, bool& errflag)
 	{
 		auto thisnode = astnode();
@@ -341,16 +342,16 @@ namespace sqf::parse
 		thisnode.line = m_info.line;
 		thisnode.file = m_file;
 		size_t i;
-		auto startchr = m_file[m_info.offset];
+		auto startchr = m_contents[m_info.offset];
 		m_info.column++;
-		for (i = m_info.offset + 1; m_file[i] != '\0' && (m_file[i] != startchr || m_file[i + 1] == startchr); i++)
+		for (i = m_info.offset + 1; m_contents[i] != '\0' && (m_contents[i] != startchr || m_contents[i + 1] == startchr); i++)
 		{
-			if (m_file[i] == startchr)
+			if (m_contents[i] == startchr)
 			{
 				m_info.column++;
 				i++;
 			}
-			switch (m_file[i])
+			switch (m_contents[i])
 			{
 			case '\n':
 				m_info.column = 0;
@@ -363,7 +364,7 @@ namespace sqf::parse
 		}
 		i++;
 		m_info.column++;
-		auto fullstring = std::string(m_contents_actual.substr(m_info.offset, i - m_info.offset));
+		auto fullstring = i - m_info.offset - 2 < 0 ? "" : std::string(m_contents_actual.substr(m_info.offset + 1, i - m_info.offset - 2));
 		thisnode.content = fullstring;
 		thisnode.length = i - m_info.offset;
 		thisnode.offset = m_info.offset;
@@ -371,7 +372,7 @@ namespace sqf::parse
 		root.children.push_back(thisnode);
 	}
 	//NUMBER = "0x" hexadecimal | [ '-' ]scalar;
-	bool config::NUMBER_start(size_t off) { return m_file[off] == '-' || (m_file[off] >= '0' && m_file[off] <= '9'); }
+	bool config::NUMBER_start(size_t off) { return m_contents[off] == '-' || (m_contents[off] >= '0' && m_contents[off] <= '9'); }
 	void config::NUMBER(astnode & root, bool& errflag)
 	{
 		auto thisnode = astnode();
@@ -379,11 +380,11 @@ namespace sqf::parse
 		thisnode.col = m_info.column;
 		thisnode.line = m_info.line;
 		thisnode.file = m_file;
-		if (m_file[m_info.offset] == '0' && m_file[m_info.offset + 1] == 'x')
+		if (m_contents[m_info.offset] == '0' && m_contents[m_info.offset + 1] == 'x')
 		{
 			thisnode.kind = (short)asttype::config::HEXNUMBER;
 			size_t i;
-			for (i = m_info.offset + 2; (m_file[i] >= '0' && m_file[i] <= '9') || (m_file[i] >= 'A' && m_file[i] <= 'F') || (m_file[i] >= 'a' && m_file[i] <= 'f'); i++);
+			for (i = m_info.offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
 			auto ident = std::string(m_contents_actual.substr(m_info.offset, i - m_info.offset));
 			thisnode.content = ident;
 			thisnode.offset = m_info.offset;
@@ -396,30 +397,30 @@ namespace sqf::parse
 			size_t i = m_info.offset;
 			bool numhaddot = false;
 			unsigned short numhadexp = 0;
-			if (m_file[i] == '-')
+			if (m_contents[i] == '-')
 			{
 				i++;
 			}
 			while (true)
 			{
-				if (m_file[i] >= '0' && m_file[i] <= '9')
+				if (m_contents[i] >= '0' && m_contents[i] <= '9')
 				{
 					i++;
 					continue;
 				}
-				else if (!numhaddot && m_file[i] == '.')
+				else if (!numhaddot && m_contents[i] == '.')
 				{
 					i++;
 					numhaddot = true;
 					continue;
 				}
-				else if (numhadexp == 0 && (m_file[i] == 'e' || m_file[i] == 'E'))
+				else if (numhadexp == 0 && (m_contents[i] == 'e' || m_contents[i] == 'E'))
 				{
 					i++;
 					numhadexp++;
 					continue;
 				}
-				else if (numhadexp == 1 && (m_file[i] == '+' || m_file[i] == '-'))
+				else if (numhadexp == 1 && (m_contents[i] == '+' || m_contents[i] == '-'))
 				{
 					i++;
 					numhadexp++;
@@ -441,7 +442,7 @@ namespace sqf::parse
 		root.children.push_back(thisnode);
 	}
 	//LOCALIZATION = '$' ident;
-	bool config::LOCALIZATION_start(size_t off) { return m_file[off] == '$'; }
+	bool config::LOCALIZATION_start(size_t off) { return m_contents[off] == '$'; }
 	void config::LOCALIZATION(astnode & root, bool& errflag)
 	{
 		auto thisnode = astnode();
@@ -462,7 +463,7 @@ namespace sqf::parse
 		root.children.push_back(thisnode);
 	}
 	//ARRAY = '{' [ VALUE { ',' VALUE } ] '}'
-	bool config::ARRAY_start(size_t off) { return m_file[off] == '{'; }
+	bool config::ARRAY_start(size_t off) { return m_contents[off] == '{'; }
 	void config::ARRAY(astnode & root, bool& errflag)
 	{
 		auto thisnode = astnode();
@@ -478,7 +479,7 @@ namespace sqf::parse
 		{
 			VALUE(thisnode, errflag);
 			skip();
-			while (m_file[m_info.offset] == ',')
+			while (m_contents[m_info.offset] == ',')
 			{
 				m_info.column++;
 				m_info.offset++;;
@@ -496,7 +497,7 @@ namespace sqf::parse
 				}
 			}
 		}
-		if (m_file[m_info.offset] == '}')
+		if (m_contents[m_info.offset] == '}')
 		{
 			m_info.offset++;;
 			m_info.column++;
@@ -548,10 +549,10 @@ namespace sqf::parse
 		astnode node;
 		node.kind = (short)asttype::config::NODELIST;
 		node.offset = 0;
-		node.content = m_file;
+		node.content = m_contents;
 		NODELIST(node, errflag);
 		skip();
-		if (m_info.offset != m_file.length())
+		if (m_info.offset != std::strlen(m_contents))
 		{
 			log(err::EndOfFileNotReached(m_info));
 			errflag = true;
