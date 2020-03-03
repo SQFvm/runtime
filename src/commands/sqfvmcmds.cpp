@@ -338,7 +338,7 @@ namespace
 		}
 		return value(sqfarr);
 	}
-	value allfiles___(virtualmachine* vm, value::cref right)
+	value allfiles___array(virtualmachine* vm, value::cref right)
 	{
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 		if (vm->get_filesystem().disallow())
@@ -361,10 +361,16 @@ namespace
 				++i)
 			{
 				bool skip = false;
-				for (auto& ext : *arr) {
-					if (i->is_directory() || i->path().extension().compare(ext.as_string()))
+				for (auto& ext : *arr)
+				{
+					if (i->is_directory())
 					{
 						skip = true;
+						break;
+					}
+					if (!(i->path().extension().compare(ext.as_string())))
+					{
+						skip = false;
 						break;
 					}
 				}
@@ -575,7 +581,7 @@ void sqf::commandmap::initsqfvmcmds()
 	add(unary("assembly__", sqf::type::STRING, "returns an array, containing the assembly instructions as string.", assembly___string));
 	add(binary(4, "except__", sqf::type::CODE, sqf::type::CODE, "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'. A callstack is available in '_callstack'.", except___code_code));
 	add(nular("callstack__", "Returns an array containing the whole callstack.", callstack___));
-	add(unary("allFiles__", sqf::type::ARRAY, "Returns all files available in currently loaded paths with the given file extensions.", allfiles___));
+	add(unary("allFiles__", sqf::type::ARRAY, "Returns all files available in currently loaded paths with the given file extensions.", allfiles___array));
 	add(nular("pwd__", "Current path determined by current instruction.", pwd___));
 	add(nular("currentDirectory__", "Current directory determined by current instruction.", currentDirectory___));
 	add(unary("trim__", sqf::type::STRING, "Trims provided strings start and end.", trim___));
