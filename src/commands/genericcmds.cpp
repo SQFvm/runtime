@@ -439,6 +439,8 @@ namespace
                         if (a_elem.as_double() < b_elem.as_double()) return sort_flag;
                         if (a_elem.as_double() > b_elem.as_double()) return !sort_flag;
                         break;
+					default:
+						break;
                     };
                 }
                 return false;
@@ -455,6 +457,8 @@ namespace
                 if (a.as_double() > b.as_double()) return !sort_flag;
                 return false;
             }
+			default:
+				break;
             };
 
             return false;
@@ -689,28 +693,29 @@ namespace
 	{
 		auto code = right.data<codedata>();
 		auto script = std::make_shared<scriptdata>();
-		code->loadinto(vm, script->stack());
+		script->vmstack()->stacks_top()->set_variable("_thisScript", value(script));
+		code->loadinto(vm, script->vmstack());
 		vm->push_spawn(script);
-		script->stack()->stacks_top()->set_variable("_this", value(left));
+		script->vmstack()->stacks_top()->set_variable("_this", value(left));
 		return value(script);
 	}
 	value scriptdone_script(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.data<scriptdata>();
-        return r->hasfinished();
+        return r->is_done();
 	}
 	value terminate_script(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.data<scriptdata>();
-		if (r->stack()->terminate())
+		if (r->vmstack()->terminate())
 		{
 			vm->logmsg(err::ScriptHandleAlreadyTerminated(*vm->current_instruction()));
 		}
-		if (r->hasfinished())
+		if (r->is_done())
 		{
 			vm->logmsg(err::ScriptHandleAlreadyFinished(*vm->current_instruction()));
 		}
-		r->stack()->terminate(true);
+		r->vmstack()->terminate(true);
 		return {};
 	}
 	value set_array_array(virtualmachine* vm, value::cref left, value::cref right)
@@ -1494,6 +1499,7 @@ namespace
 			vm->logmsg(err::FileNotFound(*vm->current_instruction(), right.as_string()));
 			vm->logmsg(err::ReturningEmptyScriptHandle(*vm->current_instruction()));
 			auto script = std::make_shared<scriptdata>();
+			script->vmstack()->stacks_top()->set_variable("_thisScript", value(script));
 			return value(script);
 		}
 		else
@@ -1503,10 +1509,11 @@ namespace
 			auto parsedcontents = vm->preprocess(filecontents, errflag, res.value());
 			auto cs = std::make_shared<callstack>(vm->active_vmstack()->stacks_top()->get_namespace());
 			auto script = std::make_shared<scriptdata>();
+			script->vmstack()->stacks_top()->set_variable("_thisScript", value(script));
 			vm->parse_sqf(parsedcontents, cs);
-			script->stack()->push_back(cs);
+			script->vmstack()->push_back(cs);
 			vm->push_spawn(script);
-			script->stack()->stacks_top()->set_variable("_this", left);
+			script->vmstack()->stacks_top()->set_variable("_this", left);
 			return value(script);
 		}
 	}

@@ -97,7 +97,7 @@ namespace sqf
 							{
 								_next();
 								is_in_block_comment = false;
-								c = _next();
+								c = next();
 								break;
 							}
 						}
@@ -105,6 +105,22 @@ namespace sqf
 					else if (pc == '/')
 					{
 						while ((c = _next()) != '\0' && c != '\n');
+					}
+				}
+				if (c == '\\')
+				{
+					auto pc1 = peek(0);
+					auto pc2 = peek(1);
+					if (pc1 == '\r' && pc2 == '\n')
+					{
+						_next();
+						_next();
+						return next();
+					}
+					else if (pc1 == '\n')
+					{
+						_next();
+						return next();
 					}
 				}
 				if (c == '"')
@@ -255,7 +271,7 @@ namespace sqf
 
 			void replace_skip(preprocessorfileinfo& fileinfo, std::stringstream& sstream);
 		public:
-			preprocessor(Logger& ref_logger, virtualmachine* vm) : CanLog(ref_logger), m_vm(vm) {}
+			preprocessor(Logger& ref_logger, virtualmachine* vm);
 			std::string parse(::sqf::virtualmachine* vm, std::string input, bool &errflag, std::string filename);
 			bool inside_ppif_err_flag() { return m_inside_ppif_err_flag; }
 			bool inside_ppif() { return m_inside_ppf_tree.back(); }

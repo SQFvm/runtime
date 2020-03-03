@@ -254,6 +254,18 @@ namespace logmessage::preprocessor {
         return output;
     }
 
+    std::string EmptyArgument::formatMessage() const {
+        auto output = location.format();
+        const auto message = "Empty argument passed to macro."sv;
+
+        output.reserve(
+            output.length() 
+            + message.length()
+        );
+
+        output.append(message);
+        return output;
+    }
 }
 
 namespace logmessage::assembly {
@@ -2236,7 +2248,7 @@ namespace logmessage::runtime
 
 		output.append("Expected the type "sv);
 		output.append(expected);
-		output.append(" but got"sv);
+		output.append(" but got "sv);
 		output.append(got);
 		output.append("."sv);
 		return output;
@@ -2258,7 +2270,7 @@ namespace logmessage::runtime
 
 		output.append("Expected the type "sv);
 		output.append(expected);
-		output.append(" but got"sv);
+		output.append(" but got "sv);
 		output.append(got);
 		output.append("."sv);
 		return output;

@@ -237,6 +237,10 @@ bool sqf::codedata::equals(std::shared_ptr<data> d) const
 				return false;
 			}
 		}break;
+		case sqf::instruction::endstatement:
+		{
+			return true;
+		}break;
 		}
 	}
 	return true;

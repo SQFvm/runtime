@@ -225,6 +225,15 @@ namespace logmessage {
             [[nodiscard]] std::string formatMessage() const override;
         };
 
+        class EmptyArgument : public PreprocBase {
+            static const loglevel level = loglevel::warning;
+            static const size_t errorCode = 10013;
+        public:
+			EmptyArgument(LogLocationInfo loc) :
+                PreprocBase(level, errorCode, std::move(loc)) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
     }
 	namespace assembly
 	{

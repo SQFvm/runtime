@@ -33,6 +33,8 @@ build:
   project: c:\projects\vm\build\sqfvm.sln
   verbosity: minimal
   parallel: true
+cache:
+  - build
 only_commits:
   files:
     - CMakeLists.txt

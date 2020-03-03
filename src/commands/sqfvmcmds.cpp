@@ -251,7 +251,7 @@ namespace
 	{
 		auto str = right.as_string();
 		auto cd = std::make_shared<sqf::configdata>();
-		vm->parse_config(str, cd);
+		vm->parse_config(str, "__configparse___string", cd);
 		return value(cd);
 	}
 	value merge___config_config(virtualmachine* vm, value::cref left, value::cref right)
@@ -302,7 +302,7 @@ namespace
 	{
 		auto content = right.as_string();
 		bool errflag = false;
-		auto ppres = vm->preprocess(content, errflag, "__preprocess__.sqf");
+		auto ppres = vm->preprocess(content, errflag, "__preprocess__");
 		if (errflag)
 		{
 			return {};

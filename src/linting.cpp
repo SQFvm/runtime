@@ -4,6 +4,7 @@
 #include "logging.h"
 #include <algorithm>
 #include <locale>
+#include <cctype>
 
 namespace err = logmessage::linting;
 namespace sqf
@@ -140,6 +141,8 @@ namespace sqf
 					}
 				}
 				break;
+				default:
+					break;
 				}
 			}
 		};

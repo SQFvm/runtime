@@ -75,7 +75,7 @@ size_t sqf::parse::assembly::anytext(size_t off) { size_t i; for (i = off; m_con
 //type = [a-zA-Z]+;
 size_t sqf::parse::assembly::type(size_t off) { size_t i; for (i = off; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z'); i++) {}; return i - off; }
 //integer = [0-9]+;
-size_t sqf::parse::assembly::integer(size_t off) { size_t i; for (i = off; (m_contents[i] >= '0' && m_contents[i] <= '9'); i++); return i - off; }
+size_t sqf::parse::assembly::integer(size_t off) { size_t i; for (i = off; (m_contents[i] >= '0' && m_contents[i] <= '9'); i++) { /*EMPTY*/ } return i - off; }
 //semicolon = ';';
 size_t sqf::parse::assembly::semicolon(size_t off) { return m_contents[off] == ';' ? 1 : 0; }
 //ASSEMBLY = { INSTRUCTIONS ';' { ';' } };

@@ -1,9 +1,13 @@
 #include "interactive_helper.h"
 #include "virtualmachine.h"
+#include "scriptdata.h"
+#include "sqfnamespace.h"
 #include "vmstack.h"
+#include "callstack.h"
 #include <thread>
 #include <string>
 #include <iostream>
+#include <cstring>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -33,6 +37,11 @@ void interactive_helper::virtualmachine_thread()
 			case sqf::virtualmachine::vmstatus::halt_error:
 				std::cout << "VM Error!" << std::endl;
 				break;
+			case sqf::virtualmachine::vmstatus::running:
+			case sqf::virtualmachine::vmstatus::requested_halt:
+			case sqf::virtualmachine::vmstatus::requested_abort:
+			case sqf::virtualmachine::vmstatus::evaluating:
+				break;
 			}
 		}
 	}
@@ -40,7 +49,6 @@ void interactive_helper::virtualmachine_thread()
 
 void interactive_helper::init()
 {
-
 	register_command(std::array{ "cmds"s, "commands"s }, "Displays all commands and their description.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
 			std::cout << "Syntax: COMMAND ARGUMENTS [ENTER]" << std::endl;
@@ -243,7 +251,8 @@ void interactive_helper::init()
 			}
 		});
 	register_command(std::array{ "cs"s, "callstack"s },
-		"Receives the callstack from the current active vmstack and displays it.",
+		"Receives the callstack from the current active vmstack and displays it.\n"
+		"Affected by Enacted Script.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
 			switch (interactive.vm().status())
 			{
@@ -255,8 +264,76 @@ void interactive_helper::init()
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				}
-				auto stackdump = interactive.vm().active_vmstack()->dump_callstack_diff({});
-				// ToDo: Print
+				long enacted = interactive.get_active_script();
+				auto it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
+					[enacted](const std::shared_ptr<sqf::scriptdata>& scriptdata) -> bool {
+						return scriptdata->script_id() == (size_t)enacted;
+					});
+				if (it == interactive.vm().scripts_end())
+				{
+					interactive.set_active_script(-1);
+					enacted = -1;
+					std::cout << "Enacted script " << enacted << " no longer available. Changing to Currently Active." << std::endl;
+				}
+				auto stackdump = enacted == -1 ? interactive.vm().active_vmstack()->dump_callstack_diff({}) :
+					enacted == 0 ? interactive.vm().main_vmstack()->dump_callstack_diff({}) :
+					(*it)->vmstack()->dump_callstack_diff({});
+				int i = 1;
+				for (const auto& it : stackdump)
+				{
+					std::cout << i++ << ":\tnamespace: " << it.namespace_used->get_name()
+						<< "\tscopename: " << it.scope_name
+						<< "\tcallstack: " << it.callstack_name
+						<< std::endl << it.dbginf << std::endl;
+				}
+				interactive.set_start_vm();
+			}
+			break;
+			default:
+				interactive.vm().execute(sqf::virtualmachine::execaction::line_step);
+				break;
+			}
+		});
+	register_command(std::array{ "ls"s, "locals"s, "vars"s },
+		"Lists all local variables.\n"
+		"Affected by Enacted Script.",
+		[](interactive_helper& interactive, std::string_view arg) -> void {
+			switch (interactive.vm().status())
+			{
+			case sqf::virtualmachine::vmstatus::running:
+			case sqf::virtualmachine::vmstatus::evaluating:
+			{
+				interactive.set_pause_vm();
+				while (interactive.vm().status() == sqf::virtualmachine::vmstatus::running || interactive.vm().status() == sqf::virtualmachine::vmstatus::evaluating)
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				}
+				long enacted = interactive.get_active_script();
+				auto it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
+					[enacted](const std::shared_ptr<sqf::scriptdata>& scriptdata) -> bool {
+						return scriptdata->script_id() == (size_t)enacted;
+					});
+				if (it == interactive.vm().scripts_end())
+				{
+					interactive.set_active_script(-1);
+					enacted = -1;
+					std::cout << "Enacted script " << enacted << " no longer available. Changing to Currently Active." << std::endl;
+				}
+				auto vmstack = enacted == -1 ? interactive.vm().active_vmstack() :
+					enacted == 0 ? interactive.vm().main_vmstack() :
+					(*it)->vmstack();
+				for (auto cs = vmstack->stacks_begin(); cs != vmstack->stacks_end(); ++cs)
+				{
+					if ((*cs)->get_variable_map().empty())
+					{
+						continue;
+					}
+					std::cout << (cs - vmstack->stacks_begin()) << ": " << (*cs)->get_name() << std::endl;
+					for (auto& pair : (*cs)->get_variable_map())
+					{
+						std::cout << "    - '" << pair.first << "' -> " << pair.second.tosqf();
+					}
+				}
 				interactive.set_start_vm();
 			}
 			break;
@@ -307,18 +384,62 @@ void interactive_helper::init()
 		[](interactive_helper& interactive, std::string_view arg) -> void {
 			interactive.set_exit();
 		});
+	register_command(std::array{ "scripts"s, "list-scripts"s },
+		"Displays a list of all script instances currently running and their reference number.",
+		[](interactive_helper& interactive, std::string_view arg) -> void {
+			int i = -1;
+			std::cout << i++ << ":\tCurrently Active" << std::endl;
+			std::cout << i++ << ":\tMain Instance" << std::endl;
+
+			for (auto it = interactive.vm().scripts_begin(); it != interactive.vm().scripts_end(); ++it)
+			{
+				std::cout << (*it)->script_id() << ":\t" << (*it)->vmstack()->script_name() << std::endl;
+			}
+		});
+	register_command(std::array{ "ss"s, "set-script"s },
+		"Sets the script to enact to the provided number.\n"
+		"Example: `ss -1`\n",
+		[](interactive_helper& interactive, std::string_view arg) -> void {
+
+			long i = std::stoll(arg.data());
+			if (i == -1)
+			{
+				interactive.set_active_script(i);
+				std::cout << "Setting enacted script to 'Currently Active'." << std::endl;
+			}
+			else if (i == 0)
+			{
+				interactive.set_active_script(i);
+				std::cout << "Setting enacted script to 'Main Instance'." << std::endl;
+			}
+			else
+			{
+				auto it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
+					[i](const std::shared_ptr<sqf::scriptdata> scriptdata) -> bool {
+						return scriptdata->script_id() == (size_t)i;
+					});
+				if (it == interactive.vm().scripts_end())
+				{
+					interactive.set_active_script(-1);
+					std::cout << "Cannot set enacted script to " << i << " (Not Found). Setting to Currently Active." << std::endl;
+				}
+				else
+				{
+					interactive.set_active_script(i);
+					std::cout << "Setting enacted script to '" << (*it)->vmstack()->script_name() << "'." << std::endl;
+				}
+			}
+		});
 }
 void interactive_helper::run()
 {
-	const size_t buffer_size = 16384;
-	char buffer[buffer_size];
 	std::thread thread(&interactive_helper::virtualmachine_thread, this);
 	while (!m_exit)
 	{
 		std::cout << "> ";
-		std::cin.getline(buffer, buffer_size);
-		auto end = std::strlen(buffer);
-		std::string_view line(buffer, end);
+		std::cin.getline(m_buffer, buffer_size);
+		auto end = std::strlen(m_buffer);
+		std::string_view line(m_buffer, end);
 
 		auto split = line.find(' ');
 		std::string_view command;
@@ -328,7 +449,7 @@ void interactive_helper::run()
 		}
 		else
 		{
-			command = std::string_view(buffer, split);
+			command = std::string_view(m_buffer, split);
 		}
 		auto res = std::find_if(m_cmds.begin(), m_cmds.end(),
 			[command](const interactive_helper::command& cmd) -> bool {

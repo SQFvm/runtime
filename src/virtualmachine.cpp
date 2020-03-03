@@ -104,11 +104,11 @@ void sqf::virtualmachine::release_networking()
 void sqf::virtualmachine::execute_helper_execution_abort()
 {
 	while (!m_main_vmstack->empty()) { m_main_vmstack->drop_callstack(); }
-	for (auto& it : mspawns)
+	for (auto& it : m_scripts)
 	{
-		while (!it->stack()->empty()) { it->stack()->drop_callstack(); }
+		while (!it->vmstack()->empty()) { it->vmstack()->drop_callstack(); }
 	}
-	mspawns.clear();
+	m_scripts.clear();
 }
 bool sqf::virtualmachine::execute_helper_execution_end()
 {
@@ -117,7 +117,7 @@ bool sqf::virtualmachine::execute_helper_execution_end()
 		execute_helper_execution_abort();
 		return true;
 	}
-	if (this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0)
+	if (this->m_main_vmstack->stacks_size() == 0 && this->m_scripts.size() == 0)
 	{
 		return true;
 	}
@@ -155,7 +155,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			}
 			else if (flag)
 			{
-				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
+				m_status = this->m_main_vmstack->stacks_size() == 0 && this->m_scripts.size() == 0 ? vmstatus::empty : vmstatus::halted;
 				res = execresult::OK;
 			}
 			else
@@ -188,9 +188,9 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 				{
 					break;
 				}
-				for (auto& it : mspawns)
+				for (auto& it : m_scripts)
 				{
-					m_active_vmstack = it->stack();
+					m_active_vmstack = it->vmstack();
 					if (m_active_vmstack->asleep())
 					{
 						if (m_active_vmstack->get_wakeupstamp() <= virtualmachine::system_time())
@@ -208,7 +208,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 						break;
 					}
 				}
-				mspawns.remove_if([](std::shared_ptr<scriptdata> it) { return it->hasfinished() || it->stack()->terminate(); });
+				m_scripts.remove_if([](std::shared_ptr<scriptdata> it) { return it->is_done() || it->vmstack()->terminate(); });
 			}
 			if (m_status == vmstatus::requested_abort)
 			{
@@ -217,7 +217,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			}
 			else if (flag)
 			{
-				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
+				m_status = this->m_main_vmstack->stacks_size() == 0 && this->m_scripts.size() == 0 ? vmstatus::empty : vmstatus::halted;
 				res = execresult::OK;
 			}
 			else 
@@ -244,7 +244,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			}
 			else if (performexecute(1))
 			{
-				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
+				m_status = this->m_main_vmstack->stacks_size() == 0 && this->m_scripts.size() == 0 ? vmstatus::empty : vmstatus::halted;
 				res = execresult::OK;
 			}
 			else 
@@ -291,7 +291,7 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			}
 			else if (flag)
 			{
-				m_status = this->m_main_vmstack->stacks_size() == 0 && this->mspawns.size() == 0 ? vmstatus::empty : vmstatus::halted;
+				m_status = this->m_main_vmstack->stacks_size() == 0 && this->m_scripts.size() == 0 ? vmstatus::empty : vmstatus::halted;
 				res = execresult::OK;
 			}
 			else
@@ -306,7 +306,6 @@ sqf::virtualmachine::execresult sqf::virtualmachine::execute(execaction action)
 			res = execresult::action_error;
 		}
 		break;
-
 
 
 	case sqf::virtualmachine::execaction::stop:
@@ -896,9 +895,13 @@ void navigate_config(const char* full, sqf::virtualmachine* vm, std::shared_ptr<
 	}
 	}
 }
-void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<configdata> parent)
+bool sqf::virtualmachine::parse_config(std::string_view code, std::string_view file)
 {
-	auto parser = sqf::parse::config(get_logger(), code, "");
+	return parse_config(code, file, sqf::configdata::configFile().data<sqf::configdata>());
+}
+bool sqf::virtualmachine::parse_config(std::string_view code, std::string_view file, std::shared_ptr<configdata> parent)
+{
+	auto parser = sqf::parse::config(get_logger(), code, file);
 	bool errorflag = false;
 	auto node = parser.parse(errorflag);
 //#if defined(_DEBUG)
@@ -916,13 +919,15 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 	{
 		navigate_config(code.data(), this, std::move(parent), node);
 	}
+	return !errorflag;
 }
 ::sqf::value sqf::virtualmachine::evaluate_expression(std::string_view view, bool& success, bool request_halt)
 {
+	while (m_evaluate_halt);
 	auto stack = std::make_shared<sqf::vmstack>();
+	m_evaluate_halt = true;
 	if (request_halt)
 	{
-		m_evaluate_halt = true;
 		while (m_status == vmstatus::running);
 	}
 	if (parse_sqf(stack, view, {}, "EVAL__"))
@@ -943,37 +948,25 @@ void sqf::virtualmachine::parse_config(std::string_view code, std::shared_ptr<co
 		{
 			m_active_vmstack = current_active;
 			m_current_instruction = actual_current_inst;
-			if (request_halt)
-			{
-				m_evaluate_halt = false;
-			}
+			m_evaluate_halt = false;
 		}
 		if (m_runtime_error)
 		{
-			if (request_halt)
-			{
-				m_evaluate_halt = false;
-			}
+			m_evaluate_halt = false;
 			m_runtime_error = false;
 			success = false;
 			return {};
 		}
 		else
 		{
-			if (request_halt)
-			{
-				m_evaluate_halt = false;
-			}
+			m_evaluate_halt = false;
 			success = true;
 			return stack->last_value();
 		}
 	}
 	else
 	{
-		if (request_halt)
-		{
-			m_evaluate_halt = false;
-		}
+		m_evaluate_halt = false;
 		success = false;
 		return {};
 	}

@@ -153,7 +153,7 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> inputArg("i", "input", "Loads provided file from disk. File-Type is determined using default file extensions (sqf, cpp, hpp, pbo). " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(inputArg);
 
-	TCLAP::MultiArg<std::string> inputSqfArg("", "input-sqf", "Loads provided SQF file from disk. Will be executed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
+	TCLAP::MultiArg<std::string> inputSqfArg("", "input-sqf", "Loads provided SQF file from disk. Will be executed before files, added using '--input'. Executed from left to right. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(inputSqfArg);
 
 	TCLAP::MultiArg<std::string> inputConfigArg("", "input-config", "Loads provided config file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
@@ -162,7 +162,7 @@ int main(int argc, char** argv)
 	TCLAP::MultiArg<std::string> inputPboArg("", "input-pbo", "Loads provided PBO file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 	cmd.add(inputPboArg);
 
-	TCLAP::MultiArg<std::string> sqfArg("", "sqf", "Loads provided sqf-code directly into the VM. Input is not getting preprocessed!", false, "CODE");
+	TCLAP::MultiArg<std::string> sqfArg("", "sqf", "Loads provided sqf-code directly into the VM. Input is not getting preprocessed! Will be processed AFTER `--input-sqf` and thus executed before any file.", false, "CODE");
 	cmd.add(sqfArg);
 
 	TCLAP::MultiArg<std::string> configArg("", "config", "Loads provided config-code directly into the VM. Input is not getting preprocessed!", false, "CODE");
@@ -348,6 +348,10 @@ int main(int argc, char** argv)
 		}
 	}
 
+	std::reverse(sqf_files.begin(), sqf_files.end());
+	std::reverse(config_files.begin(), config_files.end());
+	std::reverse(pbo_files.begin(), pbo_files.end());
+
 	bool disableClassnameCheck = disableClassnameCheckArg.getValue();
 	bool noLoadExecDir = noLoadExecDirArg.getValue();
 	bool verbose = verboseArg.getValue();
@@ -421,6 +425,7 @@ int main(int argc, char** argv)
 			std::cout << "Mapped '" << virtSanitized << "' onto '" << physSanitized << "'." << std::endl;
 		}
 	}
+	
 
 	// Prepare Dummy-Commands
 	for (auto& f : commandDummyNular.getValue())
@@ -557,7 +562,7 @@ int main(int argc, char** argv)
 				}
 				else
 				{
-					errflag = vm.parse_sqf(ppedStr, f);
+					errflag = !vm.parse_sqf(ppedStr, f);
 				}
 			}
 		}
@@ -568,7 +573,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	//Load & merge all config-files provided via arg.
+	// Load & merge all config-files provided via arg.
 	for (auto& f : config_files)
 	{
 		auto sanitized = std::filesystem::absolute((std::filesystem::path(executable_path) / f).lexically_normal()).string();
@@ -595,7 +600,7 @@ int main(int argc, char** argv)
 				{
 					std::cout << "Parsing file '" << sanitized << std::endl;
 				}
-				vm.parse_config(ppedStr, sqf::configdata::configFile().data<sqf::configdata>());
+				vm.parse_config(ppedStr, sanitized);
 			}
 		}
 		catch (const std::runtime_error& ex)
@@ -620,16 +625,16 @@ int main(int argc, char** argv)
 		return errflag ? -1 : 0;
 	}
 
-	//Load all sqf-code provided via arg.
-	for (auto& raw : sqfArg.getValue())
+	// Load all sqf-code provided via arg.
+	for (auto raw = sqfArg.getValue().rbegin(); raw != sqfArg.getValue().rend(); raw++)
 	{
-		vm.parse_sqf(raw);
+		vm.parse_sqf(*raw, "__commandline");
 	}
 
-	//Load & merge all config-code provided via arg.
+	// Load & merge all config-code provided via arg.
 	for (auto& raw : configArg.getValue())
 	{
-		vm.parse_config(raw, sqf::configdata::configFile().data<sqf::configdata>());
+		vm.parse_config(raw, "__commandline");
 	}
 	if (serverArg.isSet())
 	{
@@ -658,15 +663,6 @@ int main(int argc, char** argv)
 	}
 	if (interactiveArg.getValue())
 	{ // Interactive Mode
-		if (!suppressWelcomeArg.getValue())
-		{
-			std::cout << "You can disable this message using `--suppress-welcome`." << std::endl 
-				<< "Welcome to Interactive mode." << std::endl
-				<< "In interactive, you can control the behavior of the VM, using the input." << std::endl
-				<< "Quick Command Reference:" << std::endl
-				<< "h, help -> Displays help to a specific command." << std::endl
-				<< "cmds    -> Lists all commands available." << std::endl;
-		}
 		interactive_helper helper(vm);
 		helper.init();
 		if (!suppressWelcomeArg.getValue())
@@ -718,7 +714,7 @@ int main(int argc, char** argv)
 					}
 					else
 					{
-						err = vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
+						err = !vm.parse_sqf(inputAfterPP, (std::filesystem::path(executable_path) / "__commandlinefeed.sqf").string());
 					}
 				}
 			}

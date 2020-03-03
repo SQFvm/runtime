@@ -80,7 +80,7 @@ namespace sqf
 		unsigned long long m_max_instructions;
 		std::shared_ptr<sqf::vmstack> m_main_vmstack;
 		std::shared_ptr<sqf::vmstack> m_active_vmstack;
-		std::list<std::shared_ptr<scriptdata>> mspawns;
+		std::list<std::shared_ptr<scriptdata>> m_scripts;
 		std::vector<size_t> mfreeobjids;
 		std::vector<std::shared_ptr<innerobj>> mobjlist;
 		std::shared_ptr<innerobj> mplayer_obj;
@@ -158,6 +158,8 @@ namespace sqf
 		void player_obj(std::shared_ptr<innerobj> val) { mplayer_obj = std::move(val); }
 		std::shared_ptr<sqf::vmstack> active_vmstack() { return m_active_vmstack; }
 		std::shared_ptr<sqf::vmstack> active_vmstack() const { return m_active_vmstack; }
+		std::shared_ptr<sqf::vmstack> main_vmstack() { return m_main_vmstack; }
+		std::shared_ptr<sqf::vmstack> main_vmstack() const { return m_main_vmstack; }
 		const std::vector<std::shared_ptr<innerobj>>& get_objlist() const { return mobjlist; }
 		std::shared_ptr<sqf::sqfnamespace> missionnamespace() const { return mmissionnamespace; }
 		std::shared_ptr<sqf::sqfnamespace> uinamespace() const { return muinamespace; }
@@ -231,6 +233,14 @@ namespace sqf
 			return m_breakpoints.erase(first, last);
 		}
 
+		std::list<std::shared_ptr<scriptdata>>::iterator scripts_begin()
+		{
+			return m_scripts.begin();
+		}
+		std::list<std::shared_ptr<scriptdata>>::iterator scripts_end()
+		{
+			return m_scripts.end();
+		}
 
 		execresult execute(execaction action);
 		void exit_flag(bool flag) { m_exit_flag = flag; }
@@ -293,7 +303,9 @@ namespace sqf
 		sqf::parse::astnode parse_sqf_cst(std::string_view code, std::string filepath = "") { bool errflag = false; return parse_sqf_cst(code, errflag, filepath); }
         sqf::parse::astnode parse_sqf_cst(std::string_view code, bool& errorflag, std::string filepath = "");
 		std::string pretty_print_sqf(std::string_view code);
-		void parse_config(std::string_view, std::shared_ptr<configdata>);
+		bool parse_config(std::string_view code) { return parse_config(code, ""); }
+		bool parse_config(std::string_view code, std::string_view file);
+		bool parse_config(std::string_view code, std::string_view file, std::shared_ptr<configdata> config);
 		std::vector<std::shared_ptr<dlops>>& libraries() { return mlibraries; }
 		bool allow_suspension() const { return m_allow_suspension; }
 		void allow_suspension(bool flag) { m_allow_suspension = flag; }
@@ -316,7 +328,7 @@ namespace sqf
 		std::string get_group_id(std::shared_ptr<sqf::sidedata>);
 		void push_group(std::shared_ptr<sqf::groupdata>);
 		void drop_group(std::shared_ptr<sqf::groupdata>);
-		void push_spawn(std::shared_ptr<scriptdata> scrpt) { mspawns.push_back(scrpt); }
+		void push_spawn(std::shared_ptr<scriptdata> scrpt) { m_scripts.push_back(scrpt); }
 		static std::chrono::system_clock::time_point system_time();
 	};
 }
