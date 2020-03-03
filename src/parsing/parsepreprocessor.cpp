@@ -491,17 +491,33 @@ std::string sqf::parse::preprocessor::handle_macro(preprocessorfileinfo& local_f
 	return replace(original_fileinfo, m, params);
 #endif
 }
+
+namespace {
+    const std::string WHITESPACE = " \t";
+
+    std::string_view ltrim(std::string_view s)
+    {
+        size_t start = s.find_first_not_of(WHITESPACE);
+        return (start == std::string_view::npos) ? "" : s.substr(start);
+    }
+
+    std::string_view rtrim(std::string_view s)
+    {
+        size_t end = s.find_last_not_of(WHITESPACE);
+        return (end == std::string_view::npos) ? "" : s.substr(0, end + 1);
+    }
+
+    std::string_view trim(std::string_view s)
+    {
+        return rtrim(ltrim(s));
+    }
+}
+
 std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& fileinfo)
 {
 	bool was_new_line = true;
 	auto inst = fileinfo.get_word();
-	auto line = fileinfo.get_line(true);
-	line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) -> bool {
-		return c != ' ' && c != '\t';
-	}));
-	line.erase(std::find_if(line.rbegin(), line.rend(), [](char c) -> bool {
-		return c != ' ' && c != '\t';
-	}).base(), line.end());
+    std::string line{trim(fileinfo.get_line(true))};
 	std::transform(inst.begin(), inst.end(), inst.begin(), ::toupper);
 	if (inst == "INCLUDE")
 	{ // #include "file/path"
@@ -549,16 +565,16 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 		auto parsedFile = parse_file(otherfinfo);
 		output.reserve(
 			parsedFile.size() + compiletime::strlen("\n") +
-			compiletime::strlen("#line  ") + lineInfo.size() + fileinfo.path.size() + compiletime::strlen("\n")
+			compiletime::strlen("#line  \"") + lineInfo.size() + fileinfo.path.size() + compiletime::strlen("\"\n")
 		);
 		output.reserve(
-			compiletime::strlen("#line 0 ") + otherfinfo.path.size() + compiletime::strlen("\n") +
+			compiletime::strlen("#line 0 \"") + otherfinfo.path.size() + compiletime::strlen("\"\n") +
 			parsedFile.size() + compiletime::strlen("\n") +
-			compiletime::strlen("#line ") + lineInfo.size() + compiletime::strlen(" ") + fileinfo.path.size() + compiletime::strlen("\n")
+			compiletime::strlen("#line ") + lineInfo.size() + compiletime::strlen(" \"") + fileinfo.path.size() + compiletime::strlen("\"\n")
 		);
-		output.append("#line 0 "); output.append(otherfinfo.path); output.append("\n");
+		output.append("#line 0 \""); output.append(otherfinfo.path); output.append("\"\n");
 		output.append(parsedFile); output.append("\n");
-		output.append("#line "); output.append(lineInfo); output.append(" "); output.append(fileinfo.path); output.append("\n");
+		output.append("#line "); output.append(lineInfo); output.append(" \""); output.append(fileinfo.path); output.append("\"\n");
 		return output;
 	}
 	else if (inst == "DEFINE")
@@ -596,7 +612,7 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 				{
 					log(err::MacroDefinedTwice(fileinfo, m.name));
 				}
-				m.content = line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex); //Special magic for '#define macro\'
+				m.content = trim(line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex)); //Special magic for '#define macro\'
 				m.hasargs = false;
 			}
 			else
@@ -621,20 +637,14 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 						ended = true;
 						arg_index = bracketsEndIndex;
 					}
-					auto arg = line.substr(arg_start_index, arg_index - arg_start_index);
-					arg.erase(arg.begin(), std::find_if(arg.begin(), arg.end(), [](char c) -> bool {
-						return c != '\t' && c != ' ';
-					}));
-					arg.erase(std::find_if(arg.rbegin(), arg.rend(), [](char c) -> bool {
-						return c != '\t' && c != ' ';
-					}).base(), arg.end());
+					std::string arg{trim(line.substr(arg_start_index, arg_index - arg_start_index))};
 					if (!arg.empty())
 					{
 						m.args.emplace_back(std::move(arg));
 						arg_start_index = arg_index + 1;
 					}
 				}
-				m.content = line.length() <= bracketsEndIndex + 2 ? "" : line.substr(bracketsEndIndex + 2);
+				m.content = trim(line.length() <= bracketsEndIndex + 1 ? "" : line.substr(bracketsEndIndex + 1));
 					
 			}
 		}
@@ -648,7 +658,7 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 			return "\n";
 		}
 			
-		auto res = m_macros.find(line);
+		auto res = m_macros.find(static_cast<std::string>(line));
 		if (res == m_macros.end())
 		{
 			log(err::MacroNotFound(fileinfo, line));
@@ -671,7 +681,7 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 		{
 			inside_ppif(true);
 		}
-		auto res = m_macros.find(line);
+		auto res = m_macros.find(static_cast<std::string>(line));
 		if (res == m_macros.end())
 		{
 			m_allowwrite = false;
@@ -694,7 +704,7 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 		{
 			inside_ppif(true);
 		}
-		auto res = m_macros.find(line);
+		auto res = m_macros.find(static_cast<std::string>(line));
 		if (res == m_macros.end())
 		{
 			m_allowwrite = true;
@@ -742,7 +752,7 @@ std::string sqf::parse::preprocessor::parse_file(preprocessorfileinfo& fileinfo)
 	std::stringstream sstream;
 	std::stringstream wordstream;
 	std::unordered_map<std::string, std::string> empty_parammap;
-	sstream << "#line 0 " << fileinfo.path << std::endl;
+	sstream << "#line 0 \"" << fileinfo.path << "\"\n";
 	bool was_new_line = true;
 	bool is_in_string = false;
 	while ((c = fileinfo.next()) != '\0')

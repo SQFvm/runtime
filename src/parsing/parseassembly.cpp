@@ -20,6 +20,7 @@
 #include "stringdata.h"
 #include "value.h"
 #include "parseassembly.h"
+#include "stringmanip.h"
 #ifndef DISABLE_DEBUG_SEGMENT
 #include "debugsegment.h"
 #include <scalardata.h>
@@ -58,7 +59,7 @@ void sqf::parse::assembly::skip(position_info& info)
 					start = info.offset;
 					for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n'; info.offset++);
 					auto str = std::string(m_contents_actual.substr(start, info.offset - start));
-					info.file = str;
+					info.file = strip_quotes(str);
 				}
 				break;
 			}
