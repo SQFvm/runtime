@@ -360,12 +360,11 @@ namespace
 				i != std::filesystem::recursive_directory_iterator();
 				++i)
 			{
-				bool skip = false;
+				bool skip = true;
 				for (auto& ext : *arr)
 				{
 					if (i->is_directory())
 					{
-						skip = true;
 						break;
 					}
 					if (!(i->path().extension().compare(ext.as_string())))
