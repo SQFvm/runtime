@@ -76,8 +76,8 @@ namespace sqf
 					if (is_in_block_comment && c == '*' && pc == '/')
 					{
 						_next();
-						c = _next();
 						is_in_block_comment = false;
+						c = next();
 						return c;
 					}
 					else if (pc == '*' || is_in_block_comment)
