@@ -88,18 +88,19 @@ std::optional<std::filesystem::path> sqf::filesystem::resolvePath(std::filesyste
 
 std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string_view virt, std::string_view current)
 {
-	if (virt.empty())
-	{
-		return {};
-	}
+    if (virt.empty())
+    {
+        return {};
+    }
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
-	if (mdisallow)
-	{
-		return {};
-	}
+    if (mdisallow)
+    {
+        return {};
+    }
 #endif
-	std::string virtMapping;
+    std::string virtMapping;
     if (virt.front() != '\\' && virt.front() != '/') { //It's a local path
+    local_path:
         auto parentDirectory = std::filesystem::path(current).parent_path(); //Get parent of current file
         auto wantedFile = (parentDirectory / virt).lexically_normal();
 
@@ -113,23 +114,27 @@ std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string_vi
                 return {}; //boundary violation
         }
 
-		if (std::filesystem::exists(wantedFile))
-		{
-			auto absolute = std::filesystem::absolute(wantedFile);
-			return absolute.string();
-		}
+        if (std::filesystem::exists(wantedFile))
+        {
+            auto absolute = std::filesystem::absolute(wantedFile);
+            return absolute.string();
+        }
         return {}; //file doesn't exist
-    } else { //global path
+    }
+    else { //global path
         auto resolved = resolvePath(virt);
         if (resolved) {
             if (std::filesystem::exists(*resolved))
-			{
-				auto absolute = std::filesystem::absolute(*resolved);
-				return absolute.string();
-			}
+            {
+                auto absolute = std::filesystem::absolute(*resolved);
+                return absolute.string();
+            }
             return {}; //file doesn't exist
         }
-        return {}; //can't resolve file
+        else
+        {
+            goto local_path; // Handle normally
+        }
     }
 }
 

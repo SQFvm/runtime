@@ -7,6 +7,7 @@
 #include "astnode.h"
 #include "compiletime.h"
 #include "parseconfig.h"
+#include "stringmanip.h"
 #include "string_op.h"
 /*
 NODELIST = { NODE ';' { ';' } };
@@ -52,7 +53,7 @@ namespace sqf::parse
 						start = m_info.offset;
 						for (; m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n'; m_info.offset++);
 						auto str = std::string(m_contents_actual.substr(start, m_info.offset - start));
-						m_info.file = str;
+						m_info.file = strip_quotes(str);
 					}
 					break;
 				}
