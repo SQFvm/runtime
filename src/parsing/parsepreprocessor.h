@@ -111,13 +111,7 @@ namespace sqf
 				{
 					auto pc1 = peek(0);
 					auto pc2 = peek(1);
-					if (pc1 == '\r' && pc2 == '\n')
-					{
-						_next();
-						_next();
-						return next();
-					}
-					else if (pc1 == '\n')
+					if ((pc1 == '\r' && pc2 == '\n') || pc1 == '\n')
 					{
 						_next();
 						return next();
