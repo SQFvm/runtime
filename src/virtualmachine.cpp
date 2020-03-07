@@ -921,6 +921,13 @@ bool sqf::virtualmachine::parse_config(std::string_view code, std::string_view f
 	}
 	return !errorflag;
 }
+sqf::parse::astnode sqf::virtualmachine::parse_config_cst(std::string_view code, bool& errorflag, std::string filepath = "")
+{
+	auto parser = sqf::parse::config(get_logger(), code, filepath);
+	bool errorflag = false;
+	auto node = parser.parse(errorflag);
+	return node;
+}
 ::sqf::value sqf::virtualmachine::evaluate_expression(std::string_view view, bool& success, bool request_halt)
 {
 	while (m_evaluate_halt);
