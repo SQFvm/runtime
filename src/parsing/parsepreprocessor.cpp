@@ -564,15 +564,11 @@ std::string sqf::parse::preprocessor::parse_ppinstruction(preprocessorfileinfo& 
 		auto lineInfo = std::to_string(fileinfo.line - 1);
 		auto parsedFile = parse_file(otherfinfo);
 		output.reserve(
-			parsedFile.size() + compiletime::strlen("\n") +
-			compiletime::strlen("#line  \"") + lineInfo.size() + fileinfo.path.size() + compiletime::strlen("\"\n")
-		);
-		output.reserve(
-			compiletime::strlen("#line 0 \"") + otherfinfo.path.size() + compiletime::strlen("\"\n") +
+			compiletime::strlen("#line 1 \"") + otherfinfo.path.size() + compiletime::strlen("\"\n") +
 			parsedFile.size() + compiletime::strlen("\n") +
 			compiletime::strlen("#line ") + lineInfo.size() + compiletime::strlen(" \"") + fileinfo.path.size() + compiletime::strlen("\"\n")
 		);
-		output.append("#line 0 \""); output.append(otherfinfo.path); output.append("\"\n");
+		output.append("#line 1 \""); output.append(otherfinfo.path); output.append("\"\n");
 		output.append(parsedFile); output.append("\n");
 		output.append("#line "); output.append(lineInfo); output.append(" \""); output.append(fileinfo.path); output.append("\"\n");
 		return output;
