@@ -135,7 +135,7 @@ void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 			continue;
 		auto subcd = val.data<configdata>();
 		auto othercd = cd->navigate_unsafe(subcd->m_name);
-		if (othercd.dtype() != type::NOTHING)
+		if (othercd.dtype() != type::NOTHING && !othercd.data<configdata>()->is_null())
 		{
 			subcd->mergeinto(othercd.data<configdata>());
 		}
