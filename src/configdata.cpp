@@ -135,12 +135,14 @@ void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 			continue;
 		auto subcd = val.data<configdata>();
 		auto othercd = cd->navigate_unsafe(subcd->m_name);
-		if (othercd.dtype() != type::NOTHING && !othercd.data<configdata>()->is_null())
+		auto otherconfdata = othercd.data<configdata>();
+		if (othercd.dtype() != type::NOTHING && !otherconfdata->is_null())
 		{
-			subcd->mergeinto(othercd.data<configdata>());
+			subcd->mergeinto(otherconfdata);
 		}
 		else
 		{
+			subcd->m_logical_parent = cd;
 			cd->push_back(val);
 		}
 	}
