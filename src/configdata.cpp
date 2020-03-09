@@ -12,7 +12,7 @@ sqf::value sqf::configdata::inherited_parent_unsafe() const
 		// try to find parent
 		auto res = lockparent->navigate_unsafe(m_inherited_parent_name);
 		// check result
-		if (res.data<configdata>().get() != this)
+		if (res.dtype() == sqf::type::CONFIG && !res.data<configdata>()->is_null() && res.data<configdata>().get() != this)
 		{ // hit, return parent
 			return res;
 		}
