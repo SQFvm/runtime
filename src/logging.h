@@ -510,6 +510,16 @@ namespace logmessage {
 			EndOfFile(LogLocationInfo loc) : SqfBase(level, errorCode, std::move(loc)) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+		class InvalidStartOfGlobalVariable : public SqfBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 30013;
+			std::string_view m_variable_name;
+		public:
+			InvalidStartOfGlobalVariable(LogLocationInfo loc, std::string_view variable_name) :
+				SqfBase(level, errorCode, std::move(loc)),
+				m_variable_name(variable_name) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
 	}
 	namespace config
 	{

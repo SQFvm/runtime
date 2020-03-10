@@ -67,15 +67,10 @@ void sqf::parse::sqf::skip(position_info& info)
 size_t sqf::parse::sqf::endchr(size_t off) { return m_contents[off] == ';' || m_contents[off] == ',' ? 1 : 0; }
 //identifier = [_a-zA-Z][_a-zA-Z0-9]*;
 size_t sqf::parse::sqf::identifier(size_t off) { size_t i = off; if (!((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || m_contents[i] == '_')) return 0; for (i = off + 1; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'; i++) {}; return i - off; }
-//identifier = [_a-zA-Z][_a-zA-Z0-9]+;
+//identifier = [_a-zA-Z0-9]+;
 size_t sqf::parse::sqf::assidentifier(size_t off)
 {
 	size_t i = off;
-	if (!((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || m_contents[i] == '_'))
-	{
-		return 0;
-	}
-
 	for (i++; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'; i++);
 	return i - off;
 }
@@ -232,6 +227,10 @@ void sqf::parse::sqf::ASSIGNMENT(astnode &root, bool &errflag)
 	if (assignlocal && ident[0] != '_')
 	{
 		log(err::MissingUnderscoreOnPrivateVariable(m_info, ident));
+	}
+	if (ident[0] >= '0' && ident[0] <= '9')
+	{
+		log(err::InvalidStartOfGlobalVariable(m_info, ident));
 	}
 	m_info.offset += len;
 	m_info.column += len;

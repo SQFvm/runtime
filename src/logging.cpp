@@ -735,6 +735,22 @@ namespace logmessage::sqf
 		output.append(message);
 		return output;
 	}
+	std::string InvalidStartOfGlobalVariable::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "Provided variable name '"sv.length()
+			+ m_variable_name.length()
+			+ "' cannot be used in code."sv.length()
+		);
+
+		output.append("Provided variable name '"sv);
+		output.append(m_variable_name);
+		output.append("' cannot be used in code."sv);
+		return output;
+	}
 }
 
 namespace logmessage::config
