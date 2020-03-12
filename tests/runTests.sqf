@@ -132,8 +132,10 @@ private ___failed___ = [];
 diag_log "Loading tests from:";
 diag_log format ["    %1", ___currentDirectory___];
 
-{  
-    if (_x find "runTests" == -1) then {
+private ___sqf_test_dir = currentDirectory__ + "\" + "sqf";
+private ___preprocessor_test_dir = currentDirectory__ + "\" + "preprocess";
+{
+    if (_x select [0, count ___sqf_test_dir] == ___sqf_test_dir) then {
         if (count _x > ___currentDirectoryLength___) then {
             if (_x select [0, ___currentDirectoryLength___] == ___currentDirectory___) then
             {
@@ -192,6 +194,30 @@ diag_log format ["    %1", ___currentDirectory___];
                     ___exceptions___ pushBack _msg;
                     fatalError = true;
                 };
+            };
+        };
+    } else {
+        if (_x select [0, count ___preprocessor_test_dir] == ___preprocessor_test_dir) then {
+            {
+                private ___fpath___ = _x;
+                private ___code___ = { preprocess__ loadFile ___fpath___ };
+                private ___expected___ = loadFile ((_x select [0, count _x - 3]) + "txt");
+                systemChat ___fpath___;
+                systemChat ((_x select [0, count _x - 3]) + "txt");
+                systemChat preprocess__ loadFile ___fpath___;
+                systemChat loadFile ((_x select [0, count _x - 3]) + "txt");
+                
+                private ___name___ = _x select [___currentDirectoryLength___];
+                private ___tests___ = call compile preprocessFileLineNumbers _x;
+                [___name___, ___code___, "", 0, ___expected___] call test_fnc_assertEqual;
+                testsIndex = testsIndex + 1;
+            }
+            except__
+            {
+                private _msg = format ["Exception during test execution of %1: %2", ___name___, _exception];
+                diag_log _msg;
+                ___exceptions___ pushBack _msg;
+                fatalError = true;
             };
         };
     };
