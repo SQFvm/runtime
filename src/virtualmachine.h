@@ -306,7 +306,7 @@ namespace sqf
 		bool parse_config(std::string_view code) { return parse_config(code, ""); }
 		bool parse_config(std::string_view code, std::string_view file);
 		bool parse_config(std::string_view code, std::string_view file, std::shared_ptr<configdata> config);
-		sqf::parse::astnode parse_config_cst(std::string_view code, std::string filepath = "") { bool errflag = false; return parse_sqf_cst(code, errflag, filepath); }
+		sqf::parse::astnode parse_config_cst(std::string_view code, std::string filepath = "") { bool errflag = false; return parse_config_cst(code, errflag, filepath); }
 		sqf::parse::astnode parse_config_cst(std::string_view code, bool& errorflag, std::string filepath = "");
 		std::vector<std::shared_ptr<dlops>>& libraries() { return mlibraries; }
 		bool allow_suspension() const { return m_allow_suspension; }
