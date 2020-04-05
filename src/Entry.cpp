@@ -491,7 +491,7 @@ int main(int argc, char** argv)
 				std::cout << "Loading file '" << f << "' to pretty print..." << std::endl;
 			}
 			auto str = load_file(f);
-			vm.pretty_print_sqf(str);
+			std::cout << vm.pretty_print_sqf(str) << std::endl;
 		}
 		catch (const std::runtime_error& ex)
 		{
