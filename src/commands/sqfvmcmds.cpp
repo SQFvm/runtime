@@ -274,13 +274,14 @@ namespace
 	{
 		auto code = right.data<codedata>();
 		auto str = code->tosqf();
-		vm->pretty_print_sqf(str);
+
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "PRETTY", vm->pretty_print_sqf(str)));
 		return {};
 	}
 	value prettysqf___string(virtualmachine* vm, value::cref right)
 	{
 		auto str = right.as_string();
-		vm->pretty_print_sqf(str);
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "PRETTY", vm->pretty_print_sqf(str)));
 		return {};
 	}
 	value exit___(virtualmachine* vm)
