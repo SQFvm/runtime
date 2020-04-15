@@ -246,6 +246,10 @@ namespace
 		}
 		return values;
 	}
+	value parsenumber_string(virtualmachine* vm, value::cref right)
+	{
+		return value(strtof(right.as_string().c_str(), nullptr));
+	}
 }
 void sqf::commandmap::initstringcmds()
 {
@@ -262,6 +266,7 @@ void sqf::commandmap::initstringcmds()
 	add(binary(4, "splitString", type::STRING, type::STRING, "An SQF version of C++ strtok. "
 		"Splits given string str into an array of tokens according to given delimiters. "
 		"In addition, if empty string "" is used for delimiters, str is split by each character.", splitstring_string_string));
+	add(unary("parseNumber", sqf::type::STRING, "Converts the supplied String into a Scalar.", parsenumber_string));
 }
 
 #endif
