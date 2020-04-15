@@ -61,6 +61,11 @@ if (SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD)
     target_link_libraries(sqfvm_a2 ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
     target_include_directories(sqfvm_a2 PUBLIC ${PROJECT_SOURCE_DIR}/src)
     target_compile_definitions(sqfvm_a2 PUBLIC SQFVM_ARMA2_SYNTAX)
+    target_compile_options(sqfvm PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
 endif ()
 
 
@@ -69,6 +74,11 @@ if (SQFVM_BUILD_LIBRARY)
     add_library(libsqfvm SHARED ${vm_src})
     target_compile_definitions(libsqfvm PUBLIC DISABLE_CLIPBOARD)
     target_include_directories(libsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    target_compile_options(sqfvm PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
     SET_TARGET_PROPERTIES(libsqfvm PROPERTIES PREFIX "")
 endif ()
 
@@ -80,6 +90,11 @@ if (SQFVM_BUILD_STATIC_LIBRARY)
 
     add_library(slibsqfvm STATIC ${vm_src})
     target_include_directories(slibsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    target_compile_options(sqfvm PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
     SET_TARGET_PROPERTIES(slibsqfvm PROPERTIES PREFIX "")
 endif ()
 
@@ -91,5 +106,10 @@ if (SQFVM_BUILD_STATIC_LIBRARY_NC)
     add_library(slibsqfvm_nc STATIC ${vm_src})
     target_compile_definitions(slibsqfvm_nc PUBLIC NO_COMMANDS)
     target_include_directories(slibsqfvm_nc PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    target_compile_options(sqfvm PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
     SET_TARGET_PROPERTIES(slibsqfvm_nc PROPERTIES PREFIX "")
 endif ()
