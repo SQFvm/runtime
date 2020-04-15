@@ -9,8 +9,8 @@ namespace sqf
 	class instruction
 	{
 	private:
-		size_t mline;
-		size_t mcol;
+		size_t mline = 0;
+		size_t mcol = 0;
 		std::string mfile;
 		std::string msegment;
 	public:
