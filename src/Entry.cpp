@@ -521,6 +521,7 @@ int main(int argc, char** argv)
 				std::cout << "Preprocessing file '" << sanitized << std::endl;
 			}
 			auto ppedStr = vm.preprocess(str, err, sanitized);
+			std::cout << ppedStr << std::endl;
 		}
 		catch (const std::runtime_error& ex)
 		{
