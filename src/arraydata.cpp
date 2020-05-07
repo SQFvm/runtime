@@ -169,22 +169,33 @@ bool sqf::arraydata::check_type(virtualmachine * vm, const sqf::type * arr, size
 	return errflag;
 }
 
-bool sqf::arraydata::recursion_test_helper(std::vector<std::shared_ptr<arraydata>>& visited)
+bool sqf::arraydata::recursion_test_helper(std::vector<std::shared_ptr<arraydata>>& tree)
 {
 	for (auto& it : this->mvalue)
 	{
 		if (it.dtype() == type::ARRAY)
 		{
+			// Get child
 			auto arr = it.data<arraydata>();
-			if (std::find(visited.begin(), visited.end(), arr) != visited.end())
+
+			// Check if child was visited already
+			if (std::find(tree.begin(), tree.end(), arr) != tree.end())
+			{
+				// Child already was visited, recursion test failed.
+				return false;
+			}
+
+			// Add child to visited list
+			tree.push_back(arr);
+
+			// Check child recursion
+			if (!arr->recursion_test_helper(tree))
 			{
 				return false;
 			}
-			visited.push_back(arr);
-			if (!arr->recursion_test_helper(visited))
-			{
-				return false;
-			}
+
+			// Remove child from visited list
+			tree.pop_back();
 		}
 	}
 	return true;
