@@ -1,81 +1,61 @@
 #pragma once
-#include <typeinfo>
 #include <string>
-#include <vector>
-#include <array>
 #include <memory>
+#include "data.h"
 
-#include "type.h"
+
 
 namespace sqf
 {
-	class callstack;
-	class data;
-	class value
+	namespace runtime
 	{
-	public:
-        using cref = const value&;
-	private:
-		std::shared_ptr<sqf::data> mdata;
-	public:
-		template<size_t size>
-		value(std::array<value, size> arr) : value(std::vector(arr.begin(), arr.end())) {}
-		value(std::vector<value>);
-		value(std::string);
-		value(char* str) : value(std::string(str)) {}
-		value(const char* str) : value(std::string(str)) {}
-		value(float);
-		value(double);
-		value(char);
-		value(short);
-		value(int);
-		value(long);
-		value(bool);
-		value(size_t);
-		value(std::shared_ptr<callstack>);
-		value();
-	    value(std::shared_ptr<sqf::data> d) { mdata = std::move(d); }
-		//#TODO add a is_nil() function instead of comparing dtype
-		explicit operator float() const;
-		explicit operator double() const;
-		explicit operator char() const;
-		explicit operator short() const;
-		explicit operator int() const;
-		explicit operator long() const;
-		//explicit operator bool() const;
-		explicit operator std::string() const;
-		explicit operator std::vector<sqf::value>() const;
-        explicit operator type() const { return dtype(); };
+		class value
+		{
+		public:
+			using cref = const value&;
+		private:
+			std::shared_ptr<sqf::runtime::data> m_data;
+		public:
+			value();
+			value(std::shared_ptr<sqf::runtime::data> d) : m_data(std::move(d)) { }
 
-		float as_float() const { return static_cast<float>(*this); }
-		double as_double() const { return static_cast<double>(*this); }
-		char as_char() const { return static_cast<char>(*this); }
-		short as_short() const { return static_cast<short>(*this); }
-		int as_int() const { return static_cast<int>(*this); }
-		long as_long() const { return static_cast<long>(*this); }
-		bool as_bool() const;
-		std::string as_string() const { return static_cast<std::string>(*this); }
-		std::vector<sqf::value> as_vector() const { return static_cast<std::vector<sqf::value>>(*this); }
-        type dtype() const;
-		std::shared_ptr<sqf::data> data() const { return mdata; }
+			explicit operator type() const { return m_data ? m_data->type() : t_nothing(); };
 
-		///Tries to convert to T, if it fails it returns nullptr
-		template <class T>
-		std::shared_ptr<T> data_try_as() const {
-			static_assert(std::is_base_of<sqf::data, T>::value, "value::data_try_as<T>() can only convert to sqf::data types");
-			return std::dynamic_pointer_cast<T>(mdata);
-		}
-		template<class T>
-		std::shared_ptr<T> data() const {
-			static_assert(std::is_base_of<sqf::data, T>::value, "value::data<T>() can only convert to sqf::data types");
-			return std::static_pointer_cast<T>(mdata);
-		}
 
-        bool equals(value::cref v) const;
-        bool equals_exact(value::cref v) const;
+			/// <summary>
+			/// Returns the m_data member.
+			/// </summary>
+			/// <returns></returns>
+			std::shared_ptr<sqf::runtime::data> data() const { return mdata; }
 
-        std::string tosqf() const;
-
-        void convert(type type);
-	};
+			/// <summary>
+			/// Attempts to convert the data-member to the provided data type.
+			/// Will use std::dynamic_pointer_cast.
+			/// </summary>
+			/// <remark>
+			/// If it can be ensured that this will be the correct type, use sqf::runtime::value::data<T>.
+			/// </remarks>
+			/// <typeparam name="T"></typeparam>
+			/// <returns></returns>
+			template <class T>
+			std::shared_ptr<T> data_try() const {
+				static_assert(std::is_base_of<sqf::runtime::data, T>::value, "value::data_try_as<T>() can only convert to sqf::runtime::data types");
+				return std::dynamic_pointer_cast<T>(m_data);
+			}
+			/// <summary>
+			/// Converts the data-member to the provided data type.
+			/// Will use std::static_pointer_cast.
+			/// </summary>
+			/// <remark>
+			/// If in doubt of the correct type, use sqf::runtime::value::data_try<T>.
+			/// </remarks>
+			/// <typeparam name="T"></typeparam>
+			/// <returns></returns>
+			template<class T>
+			std::shared_ptr<T> data() const {
+				static_assert(std::is_base_of<sqf::runtime::data, T>::value, "value::data<T>() can only convert to sqf::runtime::data types");
+				return std::static_pointer_cast<T>(m_data);
+			}
+		};
+	}
 }

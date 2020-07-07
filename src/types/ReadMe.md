@@ -1,0 +1,13 @@
+# Folder Info
+Contains the implementations & definitions of the various (sqf::runtime::type)[404] sqf uses.
+
+# Implementation Requirements for classes
+
+| Level  |      Applies To      |                          Requirement                         |
+| ------ | -------------------- | ------------------------------------------------------------ |
+|  MUST  |          *           | MUST reside in namespace `sqf::types` or lower               |
+| SHOULD |          *           | SHOULD be declared in-header as much as possible and viable. |
+|  MUST  | `sqf::runtime::type` | MUST be prefixed with `t_`                                   |
+|  MUST  | `sqf::runtime::data` | MUST be prefixed with `d_`                                   |
+|  MUST  | `sqf::runtime::data` | MUST be contained with a corresponding `sqf::runtime::type`  |
+| SHOULD | `sqf::runtime::data` | SHOULD provide operator overload for `sqf::runtime::value`   |
