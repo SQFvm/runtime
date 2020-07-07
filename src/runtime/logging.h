@@ -743,21 +743,21 @@ namespace logmessage {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60007;
 			size_t m_position;
-			std::vector<::sqf::type> m_expected;
-			::sqf::type m_got;
+			std::vector<::sqf::runtime::type> m_expected;
+			::sqf::runtime::type m_got;
 		public:
-			ExpectedArrayTypeMissmatch(LogLocationInfo loc, size_t position, std::vector<::sqf::type> expected, ::sqf::type got) :
+			ExpectedArrayTypeMissmatch(LogLocationInfo loc, size_t position, std::vector<::sqf::runtime::type> expected, ::sqf::runtime::type got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_position(position),
 				m_expected(expected),
 				m_got(got)
 			{}
-			ExpectedArrayTypeMissmatch(LogLocationInfo loc, size_t position, ::sqf::type expected, ::sqf::type got) :
-				ExpectedArrayTypeMissmatch(loc, position, std::array<::sqf::type, 1> { expected }, got)
+			ExpectedArrayTypeMissmatch(LogLocationInfo loc, size_t position, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
+				ExpectedArrayTypeMissmatch(loc, position, std::array<::sqf::runtime::type, 1> { expected }, got)
 			{}
 			template<size_t size>
-			ExpectedArrayTypeMissmatch(LogLocationInfo loc, size_t position, std::array<::sqf::type, size> expected, ::sqf::type got) :
-				ExpectedArrayTypeMissmatch(loc, position, std::vector<::sqf::type>(expected.begin(), expected.end()), got)
+			ExpectedArrayTypeMissmatch(LogLocationInfo loc, size_t position, std::array<::sqf::runtime::type, size> expected, ::sqf::runtime::type got) :
+				ExpectedArrayTypeMissmatch(loc, position, std::vector<::sqf::runtime::type>(expected.begin(), expected.end()), got)
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
@@ -765,21 +765,21 @@ namespace logmessage {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60008;
 			size_t m_position;
-			std::vector<::sqf::type> m_expected;
-			::sqf::type m_got;
+			std::vector<::sqf::runtime::type> m_expected;
+			::sqf::runtime::type m_got;
 		public:
-			ExpectedArrayTypeMissmatchWeak(LogLocationInfo loc, size_t position, std::vector<::sqf::type> expected, ::sqf::type got) :
+			ExpectedArrayTypeMissmatchWeak(LogLocationInfo loc, size_t position, std::vector<::sqf::runtime::type> expected, ::sqf::runtime::type got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_position(position),
 				m_expected(expected),
 				m_got(got)
 			{}
-			ExpectedArrayTypeMissmatchWeak(LogLocationInfo loc, size_t position, ::sqf::type expected, ::sqf::type got) :
-				ExpectedArrayTypeMissmatchWeak(loc, position, std::array<::sqf::type, 1> { expected }, got)
+			ExpectedArrayTypeMissmatchWeak(LogLocationInfo loc, size_t position, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
+				ExpectedArrayTypeMissmatchWeak(loc, position, std::array<::sqf::runtime::type, 1> { expected }, got)
 			{}
 			template<size_t size>
-			ExpectedArrayTypeMissmatchWeak(LogLocationInfo loc, size_t position, std::array<::sqf::type, size> expected, ::sqf::type got) :
-				ExpectedArrayTypeMissmatchWeak(loc, position, std::vector<::sqf::type>(expected.begin(), expected.end()), got)
+			ExpectedArrayTypeMissmatchWeak(LogLocationInfo loc, size_t position, std::array<::sqf::runtime::type, size> expected, ::sqf::runtime::type got) :
+				ExpectedArrayTypeMissmatchWeak(loc, position, std::vector<::sqf::runtime::type>(expected.begin(), expected.end()), got)
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
@@ -966,10 +966,10 @@ namespace logmessage {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60026;
 			std::string_view m_variable_name;
-			::sqf::type m_expected;
-			::sqf::type m_got;
+			::sqf::runtime::type m_expected;
+			::sqf::runtime::type m_got;
 		public:
-			MagicVariableTypeMissmatch(LogLocationInfo loc, std::string_view variable_name, ::sqf::type expected, ::sqf::type got) :
+			MagicVariableTypeMissmatch(LogLocationInfo loc, std::string_view variable_name, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_variable_name(variable_name),
 				m_expected(expected),
@@ -1129,22 +1129,22 @@ namespace logmessage {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60041;
 			std::vector<size_t> m_position;
-			std::vector<::sqf::type> m_expected;
-			::sqf::type m_got;
+			std::vector<::sqf::runtime::type> m_expected;
+			::sqf::runtime::type m_got;
 		public:
-			ExpectedSubArrayTypeMissmatch(LogLocationInfo loc, std::vector<size_t> position, std::vector<::sqf::type> expected, ::sqf::type got) :
+			ExpectedSubArrayTypeMissmatch(LogLocationInfo loc, std::vector<size_t> position, std::vector<::sqf::runtime::type> expected, ::sqf::runtime::type got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_position(position),
 				m_expected(expected),
 				m_got(got)
 			{}
 			template<size_t size>
-			ExpectedSubArrayTypeMissmatch(LogLocationInfo loc, std::array<size_t, size> position, ::sqf::type expected, ::sqf::type got) :
-				ExpectedSubArrayTypeMissmatch(loc, position, std::array<::sqf::type, 1> { expected }, got)
+			ExpectedSubArrayTypeMissmatch(LogLocationInfo loc, std::array<size_t, size> position, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
+				ExpectedSubArrayTypeMissmatch(loc, position, std::array<::sqf::runtime::type, 1> { expected }, got)
 			{}
 			template<size_t size1, size_t size2>
-			ExpectedSubArrayTypeMissmatch(LogLocationInfo loc, std::array<size_t, size1> position, std::array<::sqf::type, size2> expected, ::sqf::type got) :
-				ExpectedSubArrayTypeMissmatch(loc, std::vector<size_t>(position.begin(), position.end()), std::vector<::sqf::type>(expected.begin(), expected.end()), got)
+			ExpectedSubArrayTypeMissmatch(LogLocationInfo loc, std::array<size_t, size1> position, std::array<::sqf::runtime::type, size2> expected, ::sqf::runtime::type got) :
+				ExpectedSubArrayTypeMissmatch(loc, std::vector<size_t>(position.begin(), position.end()), std::vector<::sqf::runtime::type>(expected.begin(), expected.end()), got)
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
@@ -1152,22 +1152,22 @@ namespace logmessage {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60042;
 			std::vector<size_t> m_position;
-			std::vector<::sqf::type> m_expected;
-			::sqf::type m_got;
+			std::vector<::sqf::runtime::type> m_expected;
+			::sqf::runtime::type m_got;
 		public:
-			ExpectedSubArrayTypeMissmatchWeak(LogLocationInfo loc, std::vector<size_t> position, std::vector<::sqf::type> expected, ::sqf::type got) :
+			ExpectedSubArrayTypeMissmatchWeak(LogLocationInfo loc, std::vector<size_t> position, std::vector<::sqf::runtime::type> expected, ::sqf::runtime::type got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_position(position),
 				m_expected(expected),
 				m_got(got)
 			{}
 			template<size_t size>
-			ExpectedSubArrayTypeMissmatchWeak(LogLocationInfo loc, std::array<size_t, size> position, ::sqf::type expected, ::sqf::type got) :
-				ExpectedSubArrayTypeMissmatchWeak(loc, position, std::array<::sqf::type, 1> { expected }, got)
+			ExpectedSubArrayTypeMissmatchWeak(LogLocationInfo loc, std::array<size_t, size> position, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
+				ExpectedSubArrayTypeMissmatchWeak(loc, position, std::array<::sqf::runtime::type, 1> { expected }, got)
 			{}
 			template<size_t size1, size_t size2>
-			ExpectedSubArrayTypeMissmatchWeak(LogLocationInfo loc, std::array<size_t, size1> position, std::array<::sqf::type, size2> expected, ::sqf::type got) :
-				ExpectedSubArrayTypeMissmatchWeak(loc, std::vector<size_t>(position.begin(), position.end()), std::vector<::sqf::type>(expected.begin(), expected.end()), got)
+			ExpectedSubArrayTypeMissmatchWeak(LogLocationInfo loc, std::array<size_t, size1> position, std::array<::sqf::runtime::type, size2> expected, ::sqf::runtime::type got) :
+				ExpectedSubArrayTypeMissmatchWeak(loc, std::vector<size_t>(position.begin(), position.end()), std::vector<::sqf::runtime::type>(expected.begin(), expected.end()), got)
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
@@ -1444,10 +1444,10 @@ namespace logmessage {
 		class TypeMissmatch : public RuntimeBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60068;
-			::sqf::type m_expected;
-			::sqf::type m_got;
+			::sqf::runtime::type m_expected;
+			::sqf::runtime::type m_got;
 		public:
-			TypeMissmatch(LogLocationInfo loc, ::sqf::type expected, ::sqf::type got) :
+			TypeMissmatch(LogLocationInfo loc, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_expected(expected),
 				m_got(got)
@@ -1457,10 +1457,10 @@ namespace logmessage {
 		class TypeMissmatchWeak : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60069;
-			::sqf::type m_expected;
-			::sqf::type m_got;
+			::sqf::runtime::type m_expected;
+			::sqf::runtime::type m_got;
 		public:
-			TypeMissmatchWeak(LogLocationInfo loc, ::sqf::type expected, ::sqf::type got) :
+			TypeMissmatchWeak(LogLocationInfo loc, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_expected(expected),
 				m_got(got)
@@ -1532,19 +1532,13 @@ namespace logmessage {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60076;
 			std::string_view m_operator;
-			::sqf::type m_left_got;
-			::sqf::type m_right_got;
+			::sqf::runtime::type m_left_got;
+			::sqf::runtime::type m_right_got;
 		public:
-			UnknownInputTypeCombinationBinary(LogLocationInfo loc, ::sqf::type left_got, std::string_view op, ::sqf::type right_got) :
+			UnknownInputTypeCombinationBinary(LogLocationInfo loc, ::sqf::runtime::type left_got, std::string_view op, ::sqf::runtime::type right_got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_operator(op),
 				m_left_got(left_got),
-				m_right_got(right_got)
-			{}
-			UnknownInputTypeCombinationBinary(LogLocationInfo loc, std::string_view op, ::sqf::type right_got) :
-				RuntimeBase(level, errorCode, std::move(loc)),
-				m_operator(op),
-				m_left_got(::sqf::type::NA),
 				m_right_got(right_got)
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
@@ -1596,10 +1590,10 @@ namespace logmessage {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60081;
 			std::string_view m_variable_name;
-			::sqf::type m_expected;
-			::sqf::type m_got;
+			::sqf::runtime::type m_expected;
+			::sqf::runtime::type m_got;
 		public:
-			ForStepVariableTypeMissmatch(LogLocationInfo loc, std::string_view variable_name, ::sqf::type expected, ::sqf::type got) :
+			ForStepVariableTypeMissmatch(LogLocationInfo loc, std::string_view variable_name, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_variable_name(variable_name),
 				m_expected(expected),

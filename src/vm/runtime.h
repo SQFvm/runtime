@@ -78,6 +78,7 @@ namespace sqf
 	private:
 		unsigned long long m_instructions_count;
 		unsigned long long m_max_instructions;
+
 		std::shared_ptr<sqf::vmstack> m_main_vmstack;
 		std::shared_ptr<sqf::vmstack> m_active_vmstack;
 		std::list<std::shared_ptr<scriptdata>> m_scripts;
