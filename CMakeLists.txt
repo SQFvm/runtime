@@ -25,6 +25,13 @@ include_directories("${PROJECT_SOURCE_DIR}/include/tclap-1.2.2/include")
 
 file(GLOB vm_src 
     "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c"
+    "${PROJECT_SOURCE_DIR}/src/export/*.h" "${PROJECT_SOURCE_DIR}/src/export/*.cpp" "${PROJECT_SOURCE_DIR}/src/export/*.c"
+    "${PROJECT_SOURCE_DIR}/src/types/*.h" "${PROJECT_SOURCE_DIR}/src/types/*.cpp" "${PROJECT_SOURCE_DIR}/src/types/*.c"
+    "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c"
+    "${PROJECT_SOURCE_DIR}/src/parser-config/*.h" "${PROJECT_SOURCE_DIR}/src/parser-config/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser-config/*.c"
+    "${PROJECT_SOURCE_DIR}/src/parser-preproc/*.h" "${PROJECT_SOURCE_DIR}/src/parser-preproc/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser-preproc/*.c"
+    "${PROJECT_SOURCE_DIR}/src/parser-sqf/*.h" "${PROJECT_SOURCE_DIR}/src/parser-sqf/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser-sqf/*.c"
+    "${PROJECT_SOURCE_DIR}/src/filesystem/*.h" "${PROJECT_SOURCE_DIR}/src/filesystem/*.cpp" "${PROJECT_SOURCE_DIR}/src/filesystem/*.c"
     "${PROJECT_SOURCE_DIR}/src/runtime/*.h" "${PROJECT_SOURCE_DIR}/src/runtime/*.cpp" "${PROJECT_SOURCE_DIR}/src/runtime/*.c"
     "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.h" "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.cpp" "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.c"
     "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp"
