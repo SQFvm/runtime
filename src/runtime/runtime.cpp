@@ -1,5 +1,6 @@
 #include "runtime.h"
 #include "diagnostics/stacktrace.h"
+#include "diagnostics/d_stacktrace.h"
 
 #include <optional>
 
@@ -75,19 +76,23 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime* runtime, 
 
 			if (res != context->frames_rend())
 			{ // We found a recoverable frame
+
 				// Push Stacktrace to value-stack
-				context->push_value({}); // ToDo: Create StackTrace value
+				context->push_value({ std::make_shared<sqf::types::d_stacktrace>(stacktrace) });
+
 				// Pop all frames between result and current_frame
 				size_t frames_to_pop = res - context->frames_rbegin();
 				for (size_t i = 0; i < frames_to_pop; i++)
 				{
 					context->pop_frame();
 				}
+
 				// Recover from exception
 				res->recover_runtime_error(*context);
 			}
 			else
 			{ // No recover frame available, exit method
+				
 				runtime->__logmsg(logmessage::runtime::Stacktrace((*instruction)->diag_info(), stacktrace));
 				return sqf::runtime::runtime::result::runtime_error;
 			}
