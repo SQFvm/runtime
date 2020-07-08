@@ -108,7 +108,7 @@ namespace sqf
 
 			// Returns true, if no recursion is present.
 			// Returns false, if current array state contains a recursion.
-			bool recursion_test() { std::vector<std::shared_ptr<d_array>> vec; return recursion_test_helper(vec); }
+			bool recursion_test() { std::vector<std::shared_ptr<d_array>> vec; return recursion_test_(vec); }
 
 
 
@@ -122,7 +122,8 @@ namespace sqf
 			std::vector<sqf::runtime::value>::iterator begin() { return m_value.begin(); }
 			std::vector<sqf::runtime::value>::iterator end() { return m_value.end(); }
 
-			std::vector<sqf::runtime::value>::iterator erase(std::vector<value>::iterator begin, std::vector<value>::iterator end) { return m_value.erase(begin, end); }
+			std::vector<sqf::runtime::value>::iterator erase(std::vector<sqf::runtime::value>::iterator begin, std::vector<sqf::runtime::value>::iterator end)
+			{ return m_value.erase(begin, end); }
 
 			//#TODO emplace back
 			bool push_back(sqf::runtime::value val) { m_value.push_back(std::move(val)); if (!recursion_test()) { m_value.pop_back(); return false; } return true; }
@@ -148,7 +149,7 @@ namespace sqf
 			}
 			void erase_at(size_t position)
 			{
-				m_value.erase(mvalue.begin() + position);
+				m_value.erase(m_value.begin() + position);
 			}
 
 			sqf::runtime::type type() const override { return cexp_type(); }
@@ -156,17 +157,10 @@ namespace sqf
 
 			operator std::vector<sqf::runtime::value>()
 			{
-				std::vector<sqf::runtime::value> vec = value.m_value;
+				std::vector<sqf::runtime::value> vec = m_value;
 				return vec;
 			}
 		};
-		operator std::vector<sqf::runtime::value>(sqf::runtime::value::cref value)
-		{
-			auto data = value.data_try<d_array>();
-			if (!data) { return {}; }
-			std::vector<sqf::runtime::value> vec = data;
-			return vec;
-		}
 
 		static double distance3dsqr(const std::shared_ptr<sqf::types::d_array>& l, const std::shared_ptr<sqf::types::d_array>& r);
 		static double distance3dsqr(const d_array* l, const d_array* r);

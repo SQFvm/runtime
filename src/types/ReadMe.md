@@ -10,4 +10,4 @@ Contains the implementations & definitions of the various (sqf::runtime::type)[4
 |  MUST  | `sqf::runtime::type` | MUST be prefixed with `t_`                                   |
 |  MUST  | `sqf::runtime::data` | MUST be prefixed with `d_`                                   |
 |  MUST  | `sqf::runtime::data` | MUST be contained with a corresponding `sqf::runtime::type`  |
-| SHOULD | `sqf::runtime::data` | SHOULD provide operator overload for `sqf::runtime::value`   |
+| SHOULD | `sqf::runtime::data` | SHOULD provide operator overloads for `sqf::runtime::value`  |

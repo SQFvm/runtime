@@ -32,11 +32,11 @@ namespace sqf
 
 			std::string to_string_sqf() const override
 			{
-				return flag ? "true" : "false";
+				return m_value ? "true" : "false";
 			}
 			std::string to_string() const override
 			{
-				return flag ? "true" : "false";
+				return m_value ? "true" : "false";
 			}
 
 			sqf::runtime::type type() const override { return cexp_type(); }
@@ -46,14 +46,8 @@ namespace sqf
 
 			operator bool()
 			{
-				return value.m_value;
+				return m_value;
 			}
 		};
-		operator bool(sqf::runtime::value::cref value)
-		{
-			auto data = value.data_try<d_boolean>();
-			if (!data) { return {}; }
-			return data->value();
-		}
 	}
 }

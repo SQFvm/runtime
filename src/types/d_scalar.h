@@ -37,14 +37,8 @@ namespace sqf
 			sqf::runtime::type type() const override { return cexp_type(); }
 			float value() const { return m_value; }
 			void value(float f) { m_value = f; }
-			operator float() { return value.m_value; }
+			operator float() { return m_value; }
 			static void set_decimals(int val) { s_decimals = val; }
 		};
-		operator float(sqf::runtime::value::cref value)
-		{
-			auto data = value.data_try<d_scalar>();
-			if (!data) { return {}; }
-			return data->value();
-		}
 	}
 }

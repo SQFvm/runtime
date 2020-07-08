@@ -20,7 +20,7 @@ namespace sqf
 		class d_string : public sqf::runtime::data
 		{
 		public:
-			static constexpr sqf::runtime::type cexp_type() { return sqf::runtime::t_boolean(); }
+			static constexpr sqf::runtime::type cexp_type() { return sqf::runtime::t_string(); }
 		private:
 			std::string m_value;
 		protected:
@@ -73,17 +73,17 @@ namespace sqf
 			static d_string from_sqf(std::string_view sview)
 			{
 				size_t count = 0;
-				char start = s[0];
+				char start = sview[0];
 				if (sview.length() == 0) { return {}; }
 				if (start != '"' && start != '\'') { return {}; }
-				if (s.length() == 2) { return {}; }
+				if (sview.length() == 2) { return {}; }
 
 				std::vector<char> arr;
-				arr.reserve(s.size());
-				for (size_t i = 1; i < s.length() - 1; i++)
+				arr.reserve(sview.size());
+				for (size_t i = 1; i < sview.length() - 1; i++)
 				{
-					char c = s[i];
-					if (c == start && s[i + 1] == start) //quote type
+					char c = sview[i];
+					if (c == start && sview[i + 1] == start) //quote type
 					{
 						i++;
 					}
@@ -95,20 +95,8 @@ namespace sqf
 			std::string value() const { return m_value; }
 			void value(std::string string) { m_value = string; }
 
-			operator std::string() { return value.m_value; }
-			operator std::string_view() { return value.m_value; }
+			operator std::string() { return m_value; }
+			operator std::string_view() { return m_value; }
 		};
-		operator std::string(sqf::runtime::value::cref value)
-		{
-			auto data = value.data_try<d_string>();
-			if (!data) { return {}; }
-			return data->value();
-		}
-		operator std::string_view(sqf::runtime::value::cref value)
-		{
-			auto data = value.data_try<d_string>();
-			if (!data) { return {}; }
-			return data->value();
-		}
 	}
 }
