@@ -44,10 +44,10 @@ namespace sqf::runtime
 		struct configuration
 		{
 			/// <summary>
-			/// Allows to set an upper-limit to the VM instructions that may be exeucted.
+			/// Allows to set a maximum to VM runtime
 			/// Ignored if 0.
 			/// </summary>
-			unsigned long long max_instructions;
+			std::chrono::milliseconds max_runtime;
 
 			/// <summary>
 			/// If true, all sleeps are ignored.
@@ -91,16 +91,21 @@ namespace sqf::runtime
 
 	private:
 		std::vector<sqf::runtime::diagnostics::breakpoint> m_breakpoints;
-		int m_last_breakpoint_line_hit;
-		unsigned long long m_instructions_count;
+		sqf::runtime::diagnostics::breakpoint m_last_breakpoint_hit;
 	public:
 		std::vector<sqf::runtime::context>::iterator active_context() const { return m_active_context; };
+		const std::vector<sqf::runtime::diagnostics::breakpoint>& breakpoints() const { return m_breakpoints; }
+		std::vector<sqf::runtime::diagnostics::breakpoint>& breakpoints() { return m_breakpoints; }
 
+		void breakpoint_hit(sqf::runtime::diagnostics::breakpoint breakpoint) { m_last_breakpoint_hit = breakpoint; m_is_halt_requested = true; }
 
 #pragma endregion
 
 	private:
 		configuration m_configuration;
+		std::chrono::system_clock::time_point m_runtime_timestamp;
+		bool m_runtime_error;
+
 		std::vector<sqf::runtime::context> m_contexts;
 		std::vector<sqf::runtime::context>::iterator m_active_context;
 
@@ -109,12 +114,43 @@ namespace sqf::runtime
 
 
 	public:
-		runtime() = default;
+		runtime(Logger& logger, configuration config) :
+			CanLog(logger),
+			m_state(state::halted),
+			m_exit_code(0),
+			m_is_exit_requested(false),
+			m_is_halt_requested(false),
+			m_last_breakpoint_hit(-1, {}),
+			m_configuration(config),
+			m_runtime_error(false)
+		{
+		}
 
 		void push_back(sqf::runtime::context context) { m_contexts.push_back(context); }
 		sqf::runtime::runtime::result execute(sqf::runtime::runtime::action action);
+		const sqf::runtime::runtime::configuration configuration() const { return m_configuration; }
+		std::chrono::system_clock::time_point runtime_timestamp() { return m_runtime_timestamp; }
+		void runtime_timestamp_reset() { m_runtime_timestamp = std::chrono::system_clock::now(); }
 
 
 
+
+		/// <summary>
+		/// Breaks encapsulation to provide access to local-logger of runtime.
+		/// </summary>
+		/// <remarks>
+		/// Should not be used outside of non-runtime-related operations (eg. Normal program IO)
+		/// and only inside of actual rutime-related operations (eg. operators)
+		/// </remarks>
+		/// <param name="message"></param>
+		inline void __logmsg(LogMessageBase&& message)
+		{
+			log(message);
+			if (message.getLevel() <= loglevel::error)
+			{
+				m_runtime_error = true;
+			}
+		}
+		inline bool& __runtime_error() { return m_runtime_error; }
 	};
 }

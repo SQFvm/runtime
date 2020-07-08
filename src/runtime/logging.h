@@ -19,22 +19,15 @@ enum class loglevel {
     trace
 };
 
-namespace sqf {
-    class instruction;
-    namespace parse {
-		struct astnode;
-		class preprocessorfileinfo;
-		class position_info;
-    }
+namespace sqf::runtime::diagnostics
+{
+	class diag_info;
 }
 
 class LogLocationInfo {
 public:
     LogLocationInfo() = default;
-    LogLocationInfo(const sqf::parse::preprocessorfileinfo&);
-    LogLocationInfo(const sqf::parse::astnode&);
-    LogLocationInfo(const sqf::parse::position_info&);
-    LogLocationInfo(const sqf::instruction&);
+    LogLocationInfo(const sqf::runtime::diagnostics::diag_info&);
 
     std::string path;
     size_t line;
@@ -666,14 +659,14 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class MaximumInstructionCountReached : public RuntimeBase {
+		class MaximumRuntimeReached : public RuntimeBase {
 			static const loglevel level = loglevel::fatal;
 			static const size_t errorCode = 60002;
-			size_t m_maximum_instruction_count;
+			std::chrono::milliseconds m_maximum_runtime;
 		public:
-			MaximumInstructionCountReached(LogLocationInfo loc, size_t maximum_instruction_count) :
+			MaximumRuntimeReached(LogLocationInfo loc, std::chrono::milliseconds duration) :
 				RuntimeBase(level, errorCode, std::move(loc)),
-				m_maximum_instruction_count(maximum_instruction_count)
+				m_maximum_runtime(duration)
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};

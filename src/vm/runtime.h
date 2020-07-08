@@ -96,7 +96,6 @@ namespace sqf
 
 		std::map<int, size_t> mgroupidcounter;
 		std::map<int, std::vector<std::shared_ptr<groupdata>>> mgroups;
-		std::atomic<bool> m_run_atomic;
 		vmstatus m_status;
 		bool m_runtime_error;
 		bool m_evaluate_halt;

@@ -1,8 +1,7 @@
 #include "logging.h"
-#include "parsing/parsepreprocessor.h"
-#include "parsing/position_info.h"
-#include "parsing/astnode.h"
-#include "instruction.h"
+
+#include "diagnostics/diag_info.h"
+
 #include <iostream>
 #include <sstream>
 using namespace std::string_view_literals;
@@ -15,29 +14,11 @@ void StdOutLogger::log(loglevel level, std::string_view message) {
 #pragma endregion StdOutLogger
 
 #pragma region LogLocationInfo
-
-LogLocationInfo::LogLocationInfo(const sqf::parse::preprocessorfileinfo& info) {
-    path = info.path;
-    line = info.line;
-    col = info.col;
-}
-LogLocationInfo::LogLocationInfo(const sqf::parse::astnode& node) {
-    path = node.file;
-    line = node.line;
-    col = node.col;
-}
-
-LogLocationInfo::LogLocationInfo(const sqf::parse::position_info& info)
+LogLocationInfo::LogLocationInfo(const sqf::runtime::diagnostics::diag_info& info)
 {
-	path = info.file;
-	line = info.line;
-	col = info.column;
-}
-
-LogLocationInfo::LogLocationInfo(const sqf::instruction& info) {
-    path = info.file();
-    line = info.line();
-    col = info.col();
+	path = info.file();
+	line = info.line();
+	col =  info.column();
 }
 
 std::string LogLocationInfo::format() const {
@@ -1031,21 +1012,21 @@ namespace logmessage::runtime
 		output.append(m_stacktrace);
 		return output;
 	}
-	std::string MaximumInstructionCountReached::formatMessage() const
+	std::string MaximumRuntimeReached::formatMessage() const
 	{
 		auto output = location.format();
-		auto maximum_instruction_count = to_cardinal_string(m_maximum_instruction_count);
+		auto maximum_runtime = to_cardinal_string(m_maximum_runtime.count());
 
 		output.reserve(
 			output.length()
-			+ "Maxium instruction count of "sv.length()
-			+ maximum_instruction_count.length()
-			+ " reached."sv.length()
+			+ "Maxium runtime of "sv.length()
+			+ maximum_runtime.length()
+			+ "ms reached."sv.length()
 		);
 
-		output.append("Maxium instruction count of "sv);
-		output.append(maximum_instruction_count);
-		output.append(" reached."sv);
+		output.append("Maxium runtime of "sv);
+		output.append(maximum_runtime);
+		output.append("ms reached."sv);
 		return output;
 	}
 	std::string ExpectedArraySizeMissmatch::formatMessage() const

@@ -4,126 +4,117 @@
 
 static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime* runtime, size_t exit_after)
 {
-	while (
-		!runtime->is_exit_requested() &&
-		exit_after != 0 &&
-		!runtime->active_context()->suspended() &&
-		runtime->runtime_state() == sqf::runtime::runtime::state::running)
+	auto context = runtime->active_context();
+	auto& runtime_error = runtime->__runtime_error();
+	while (true)
 	{
-		bool success;
-		//auto instruction = runtime->active_context()->current_frame().next(runtime->active_context());
+		if (runtime->is_exit_requested()) { return sqf::runtime::runtime::result::ok; }
+		if (exit_after == 0) { return sqf::runtime::runtime::result::ok; }
+		if (context->suspended()) { return sqf::runtime::runtime::result::ok; }
+		if (context->empty()) { return sqf::runtime::runtime::result::ok; }
+		if (runtime->runtime_state() != sqf::runtime::runtime::state::running) { return sqf::runtime::runtime::result::ok; }
 
+		auto context = runtime->active_context();
+		auto result = context->current_frame().next(*context);
 
-		/*
-				// Check if breakpoint was hit
+		if (result == sqf::runtime::frame::result::done)
+		{ // frame is done executing. Pop it from context and rerun.
+			context->pop_back();
+			continue;
+		}
+		auto instruction = context->current_frame().current();
+
+		if (runtime->configuration().max_runtime != std::chrono::milliseconds::zero() &&
+			runtime->configuration().max_runtime + runtime->runtime_timestamp() < std::chrono::system_clock::now())
+		{
+			runtime->__logmsg(logmessage::runtime::MaximumRuntimeReached((*instruction)->diag_info(), runtime->configuration().max_runtime));
+			runtime->exit(0);
+			return sqf::runtime::runtime::result::ok;
+		}
+
+		// Check if breakpoint was hit
+		{
+			auto dinf = (*instruction)->diag_info();
+			for (const auto& breakpoint : runtime->breakpoints())
+			{
+				if (breakpoint.is_enabled() && breakpoint.line() == dinf.line() && breakpoint.file() == dinf.file())
 				{
-					auto line = m_current_instruction->line();
-					for (const auto& breakpoint : m_breakpoints)
+					runtime->breakpoint_hit(breakpoint);
+					context->current_frame().previous(); // Unput instruction
+					return sqf::runtime::runtime::result::ok;
+				}
+			}
+		}
+		
+		//if (m_evaluate_halt)
+		//{
+		//	m_status = vmstatus::evaluating;
+		//	while (m_evaluate_halt);
+		//	if (m_status == vmstatus::evaluating)
+		//	{
+		//		m_status = vmstatus::running;
+		//	}
+		//}
+		if (exit_after > 0)
+		{
+			exit_after--;
+		}
+		(*instruction)->execute(runtime);
+
+		if (runtime_error)
+		{
+			runtime_error = false;
+			// Try to find a callstack_sqftry
+			auto res = std::find_if(m_active_vmstack->stacks_begin(), m_active_vmstack->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
+				return cs->can_recover();
+				});
+			if (res == m_active_vmstack->stacks_end())
+			{
+				runtime_error = false;
+				// Only for non-scheduled (and thus the mainstack)
+				if (!m_active_vmstack->scheduled())
+				{
+					// ToDo: Move stackdump into its own file and then use that in logging message instead of std::string
+					std::stringstream sstream;
+					sstream << "Stacktrace:" << std::endl;
+					auto stackdump = m_active_vmstack->dump_callstack_diff({});
+					int i = 1;
+					for (auto& it : stackdump)
 					{
-						if (breakpoint.is_enabled() && breakpoint.line() == line)
-						{
-							m_last_breakpoint_line_hit = line;
-							m_status = vmstatus::halted;
-							return true;
-						}
+						sstream << i++ << ":\tnamespace: " << it.namespace_used->get_name()
+							<< "\tscopename: " << it.scope_name
+							<< "\tcallstack: " << it.callstack_name
+							<< std::endl << it.dbginf << std::endl;
 					}
-				}
-				if (m_evaluate_halt)
-				{
-					m_status = vmstatus::evaluating;
-					while (m_evaluate_halt);
-					if (m_status == vmstatus::evaluating)
-					{
-						m_status = vmstatus::running;
-					}
-				}
-				m_instructions_count++;
-				if (exitAfter > 0)
-				{
-					exitAfter--;
-				}
-				if (m_max_instructions != 0 && m_max_instructions == m_instructions_count)
-				{
-					logmsg(logmessage::runtime::MaximumInstructionCountReached(*m_current_instruction, static_cast<size_t>(m_max_instructions)));
+					log(logmessage::runtime::Stacktrace(*m_current_instruction, sstream.str()));
 					return false;
 				}
-		#ifdef DEBUG_VM_ASSEMBLY
-				(*mout) << m_current_instruction->to_string() << std::endl;
-		#endif
-				m_current_instruction->execute(this);
-		#ifdef DEBUG_VM_ASSEMBLY
-				bool success;
-				std::vector<sqf::value> vals;
-				do {
-					auto val = m_active_vmstack->popval(success);
-					if (success)
-					{
-						vals.push_back(val);
-						std::cout << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.tosqf() << std::endl;
-					}
-				} while (success);
-				while (!vals.empty())
+			}
+			else
+			{
+				auto sqftry = std::dynamic_pointer_cast<sqf::callstack_sqftry>(*res);
+				auto stackdump = m_active_vmstack->dump_callstack_diff(sqftry);
+				auto sqfarr = std::make_shared<arraydata>();
+				for (auto& it : stackdump)
 				{
-					auto it = vals.back();
-					vals.pop_back();
-					m_active_vmstack->pushval(it);
+					std::vector<sqf::value> vec = {
+							sqf::value(it.namespace_used->get_name()),
+							sqf::value(it.scope_name),
+							sqf::value(it.callstack_name),
+							sqf::value(it.line),
+							sqf::value(it.column),
+							sqf::value(it.file),
+							sqf::value(it.dbginf)
+					};
+					sqfarr->push_back(sqf::value(std::make_shared<arraydata>(vec)));
 				}
-		#endif
-				if (m_runtime_error)
+				while (m_active_vmstack->stacks_top() != sqftry)
 				{
-					m_runtime_error = false;
-					// Try to find a callstack_sqftry
-					auto res = std::find_if(m_active_vmstack->stacks_begin(), m_active_vmstack->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
-						return cs->can_recover();
-						});
-					if (res == m_active_vmstack->stacks_end())
-					{
-						m_runtime_error = false;
-						// Only for non-scheduled (and thus the mainstack)
-						if (!m_active_vmstack->scheduled())
-						{
-							// ToDo: Move stackdump into its own file and then use that in logging message instead of std::string
-							std::stringstream sstream;
-							sstream << "Stacktrace:" << std::endl;
-							auto stackdump = m_active_vmstack->dump_callstack_diff({});
-							int i = 1;
-							for (auto& it : stackdump)
-							{
-								sstream << i++ << ":\tnamespace: " << it.namespace_used->get_name()
-									<< "\tscopename: " << it.scope_name
-									<< "\tcallstack: " << it.callstack_name
-									<< std::endl << it.dbginf << std::endl;
-							}
-							log(logmessage::runtime::Stacktrace(*m_current_instruction, sstream.str()));
-							return false;
-						}
-					}
-					else
-					{
-						auto sqftry = std::dynamic_pointer_cast<sqf::callstack_sqftry>(*res);
-						auto stackdump = m_active_vmstack->dump_callstack_diff(sqftry);
-						auto sqfarr = std::make_shared<arraydata>();
-						for (auto& it : stackdump)
-						{
-							std::vector<sqf::value> vec = {
-									sqf::value(it.namespace_used->get_name()),
-									sqf::value(it.scope_name),
-									sqf::value(it.callstack_name),
-									sqf::value(it.line),
-									sqf::value(it.column),
-									sqf::value(it.file),
-									sqf::value(it.dbginf)
-							};
-							sqfarr->push_back(sqf::value(std::make_shared<arraydata>(vec)));
-						}
-						while (m_active_vmstack->stacks_top() != sqftry)
-						{
-							m_active_vmstack->drop_callstack();
-						}
-						sqftry->except(sqfarr);
-					}
+					m_active_vmstack->drop_callstack();
 				}
-			*/
+				sqftry->except(sqfarr);
+			}
+		}
 	}
 	return sqf::runtime::runtime::result::ok;
 }

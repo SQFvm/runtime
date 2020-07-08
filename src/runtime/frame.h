@@ -48,18 +48,24 @@ namespace sqf::runtime
 	private:
 		sqf::runtime::instruction_set m_instruction_set;
 		sqf::runtime::instruction_set::reverse_iterator m_iterator;
-		sqf::runtime::frame::behavior m_enter_behavior;
-		sqf::runtime::frame::behavior m_exit_behavior;
+		sqf::runtime::frame::behavior* m_enter_behavior;
+		sqf::runtime::frame::behavior* m_exit_behavior;
 	public:
-		frame(sqf::runtime::frame::behavior enter_behavior, sqf::runtime::instruction_set instruction_set) : frame(enter_behavior, instruction_set, {}) {}
-		frame(sqf::runtime::instruction_set instruction_set, sqf::runtime::frame::behavior exit_behavior) : frame({}, instruction_set, exit_behavior) {}
+		frame(sqf::runtime::frame::behavior* enter_behavior, sqf::runtime::instruction_set instruction_set) : frame(enter_behavior, instruction_set, {}) {}
+		frame(sqf::runtime::instruction_set instruction_set, sqf::runtime::frame::behavior* exit_behavior) : frame({}, instruction_set, exit_behavior) {}
 		frame(sqf::runtime::instruction_set instruction_set) : frame({}, instruction_set, {}) {}
-		frame(sqf::runtime::frame::behavior enter_behavior, sqf::runtime::instruction_set instruction_set, sqf::runtime::frame::behavior exit_behavior) :
+		frame(sqf::runtime::frame::behavior* enter_behavior, sqf::runtime::instruction_set instruction_set, sqf::runtime::frame::behavior* exit_behavior) :
 			m_instruction_set(instruction_set),
 			m_iterator(instruction_set.rbegin()),
 			m_enter_behavior(enter_behavior),
 			m_exit_behavior(exit_behavior)
 		{}
+
+		~frame()
+		{
+			if (m_enter_behavior) { delete m_enter_behavior; }
+			if (m_exit_behavior) { delete m_exit_behavior; }
+		}
 
 		sqf::runtime::instruction_set::reverse_iterator peek() const { bool flag; return peek(flag); }
 		sqf::runtime::instruction_set::reverse_iterator peek(bool& success) const
@@ -70,7 +76,7 @@ namespace sqf::runtime
 		}
 
 
-		sqf::runtime::instruction_set::reverse_iterator current() const { m_iterator; }
+		sqf::runtime::instruction_set::reverse_iterator current() const { return m_iterator; }
 
 		/// <summary>
 		/// Moves current to next instruction.
@@ -88,8 +94,39 @@ namespace sqf::runtime
 		/// <returns>Enum value describing the success state of the operation.</returns>
 		result next(context& context)
 		{
-			if (m_iterator == m_instruction_set.rbegin()) { m_enter_behavior.enact(context, *this); }
-			return next();
+			if (m_iterator == m_instruction_set.rbegin())
+			{
+				switch (m_enter_behavior->enact(context, *this))
+				{
+				case behavior::result::seek_end:
+					m_iterator = m_instruction_set.rend();
+					break;
+				case behavior::result::seek_start:
+					m_iterator = m_instruction_set.rbegin();
+					break;
+				}
+			}
+			if (m_iterator != m_instruction_set.rend())
+			{
+				auto res = next();
+				if (m_iterator == m_instruction_set.rend())
+				{
+					switch (m_enter_behavior->enact(context, *this))
+					{
+					case behavior::result::seek_end:
+						m_iterator = m_instruction_set.rend();
+						return result::done;
+					case behavior::result::seek_start:
+						m_iterator = m_instruction_set.rbegin();
+						return next();
+					}
+				}
+				return res;
+			}
+			else
+			{
+				return next();
+			}
 		}
 		/// <summary>
 		/// Reversed sqf::runtime::frame::next().
@@ -102,16 +139,5 @@ namespace sqf::runtime
 			if (m_iterator == m_instruction_set.rbegin()) { return result::done; }
 			return --m_iterator == m_instruction_set.rbegin() ? result::done : result::ok;
 		}
-		/// <summary>
-		/// Reversed sqf::runtime::frame::next().
-		/// Moves current to previous instruction.
-		/// </summary>
-		/// <returns>Enum value describing the success state of the operation.</returns>
-		result previous(context& context)
-		{
-			if (m_iterator == m_instruction_set.rbegin()) { m_enter_behavior.enact(context, *this); }
-			return previous();
-		}
-
 	};
 }
