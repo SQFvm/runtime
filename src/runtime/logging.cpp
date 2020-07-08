@@ -1,7 +1,5 @@
 #include "logging.h"
 
-#include "diagnostics/diag_info.h"
-
 #include <iostream>
 #include <sstream>
 using namespace std::string_view_literals;
@@ -1007,10 +1005,17 @@ namespace logmessage::runtime
 
 	std::string Stacktrace::formatMessage() const
 	{
-		auto output = location.format();
-		output.reserve(m_stacktrace.length());
-		output.append(m_stacktrace);
-		return output;
+		std::stringstream sstream;
+		sstream << location.format()  << "Stacktrace:" << std::endl;
+		int i = 1;
+		for (auto& frame : m_stacktrace.frames)
+		{
+			sstream << i++ << ":\tnamespace: " << frame.namespace_used->get_name()
+				<< "\tscopename: " << it.scope_name
+				<< "\tcallstack: " << it.callstack_name
+				<< std::endl << it.dbginf << std::endl;
+		}
+		return sstream.str();
 	}
 	std::string MaximumRuntimeReached::formatMessage() const
 	{

@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include "frame.h"
+#include "value.h"
 
 namespace sqf::runtime
 {
@@ -10,6 +11,7 @@ namespace sqf::runtime
 	{
 	private:
 		std::vector<sqf::runtime::frame> m_frames;
+		std::vector<sqf::runtime::value::cref> m_values;
 		bool m_suspended;
 		std::chrono::system_clock::time_point m_wakeup_timestamp;
 
@@ -29,8 +31,14 @@ namespace sqf::runtime
 		bool empty() const { return m_frames.empty(); }
 		size_t size() const { return m_frames.size(); }
 		void clear() { m_frames.clear(); }
-		void push_back(sqf::runtime::frame frame) { m_frames.push_back(frame); }
-		void pop_back() { m_frames.pop_back(); }
+		void push_frame(sqf::runtime::frame frame) { m_frames.push_back(frame); }
+		void push_value(sqf::runtime::value::cref value) { m_values.push_back(value); }
+		sqf::runtime::frame pop_frame() { auto frame = m_frames.back(); m_frames.pop_back(); return frame; }
+		sqf::runtime::value::cref pop_value() { if (m_values.empty()) { return {}; } else { auto value = m_values.back(); m_values.pop_back(); return value; } }
+		sqf::runtime::value::cref peek_value() { if (m_values.empty()) { return {}; } else { return m_values.back(); } }
+
+		std::vector<sqf::runtime::frame>::reverse_iterator frames_rbegin() { return m_frames.rbegin(); }
+		std::vector<sqf::runtime::frame>::reverse_iterator frames_rend() { return m_frames.rend(); }
 
 
 		frame& current_frame() { return m_frames.back(); }

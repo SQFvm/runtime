@@ -1,4 +1,5 @@
 #include "runtime.h"
+#include "diagnostics/stacktrace.h"
 
 #include <optional>
 
@@ -19,7 +20,7 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime* runtime, 
 
 		if (result == sqf::runtime::frame::result::done)
 		{ // frame is done executing. Pop it from context and rerun.
-			context->pop_back();
+			context->pop_frame();
 			continue;
 		}
 		auto instruction = context->current_frame().current();
@@ -64,55 +65,31 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime* runtime, 
 		if (runtime_error)
 		{
 			runtime_error = false;
-			// Try to find a callstack_sqftry
-			auto res = std::find_if(m_active_vmstack->stacks_begin(), m_active_vmstack->stacks_end(), [](std::shared_ptr<sqf::callstack> cs) -> bool {
-				return cs->can_recover();
-				});
-			if (res == m_active_vmstack->stacks_end())
-			{
-				runtime_error = false;
-				// Only for non-scheduled (and thus the mainstack)
-				if (!m_active_vmstack->scheduled())
+			// Build Stacktrace
+			std::vector<sqf::runtime::frame> stacktrace_frames(context->frames_rbegin(), context->frames_rend());
+			sqf::runtime::diagnostics::stacktrace stacktrace(stacktrace_frames);
+
+			// Try to find a frame that has recover behavior for runtime error
+			auto res = std::find_if(context->frames_rbegin(), context->frames_rend(),
+				[](sqf::runtime::frame& frame) -> bool { return frame.can_recover_runtime_error(); });
+
+			if (res != context->frames_rend())
+			{ // We found a recoverable frame
+				// Push Stacktrace to value-stack
+				context->push_value({}); // ToDo: Create StackTrace value
+				// Pop all frames between result and current_frame
+				size_t frames_to_pop = res - context->frames_rbegin();
+				for (size_t i = 0; i < frames_to_pop; i++)
 				{
-					// ToDo: Move stackdump into its own file and then use that in logging message instead of std::string
-					std::stringstream sstream;
-					sstream << "Stacktrace:" << std::endl;
-					auto stackdump = m_active_vmstack->dump_callstack_diff({});
-					int i = 1;
-					for (auto& it : stackdump)
-					{
-						sstream << i++ << ":\tnamespace: " << it.namespace_used->get_name()
-							<< "\tscopename: " << it.scope_name
-							<< "\tcallstack: " << it.callstack_name
-							<< std::endl << it.dbginf << std::endl;
-					}
-					log(logmessage::runtime::Stacktrace(*m_current_instruction, sstream.str()));
-					return false;
+					context->pop_frame();
 				}
+				// Recover from exception
+				res->recover_runtime_error(*context);
 			}
 			else
-			{
-				auto sqftry = std::dynamic_pointer_cast<sqf::callstack_sqftry>(*res);
-				auto stackdump = m_active_vmstack->dump_callstack_diff(sqftry);
-				auto sqfarr = std::make_shared<arraydata>();
-				for (auto& it : stackdump)
-				{
-					std::vector<sqf::value> vec = {
-							sqf::value(it.namespace_used->get_name()),
-							sqf::value(it.scope_name),
-							sqf::value(it.callstack_name),
-							sqf::value(it.line),
-							sqf::value(it.column),
-							sqf::value(it.file),
-							sqf::value(it.dbginf)
-					};
-					sqfarr->push_back(sqf::value(std::make_shared<arraydata>(vec)));
-				}
-				while (m_active_vmstack->stacks_top() != sqftry)
-				{
-					m_active_vmstack->drop_callstack();
-				}
-				sqftry->except(sqfarr);
+			{ // No recover frame available, exit method
+				runtime->__logmsg(logmessage::runtime::Stacktrace((*instruction)->diag_info(), stacktrace));
+				return sqf::runtime::runtime::result::runtime_error;
 			}
 		}
 	}

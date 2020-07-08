@@ -25,13 +25,23 @@ namespace sqf::runtime
 				/// <summary>
 				/// Tells that Frame should seek to end.
 				/// </summary>
-				seek_end
+				seek_end,
+				/// <summary>
+				/// Tells that the active instruction_set should be changed to the one
+				/// provided by this behavior.
+				/// </summary>
+				exchange
 			};
-			virtual result enact(sqf::runtime::context& context, const sqf::runtime::frame& frame) { return result::ok; }
+			virtual sqf::runtime::instruction_set get_instruction_set() = 0;
+			virtual result enact(sqf::runtime::context& context, const sqf::runtime::frame& frame) = 0;
 			behavior() = default;
 		};
 		enum class result
 		{
+			/// <summary>
+			/// Something moved wrong
+			/// </summary>
+			error = -1,
 			/// <summary>
 			/// Tells that the current instruction-set is done.
 			/// Will always be returned once last instruction was reached.
@@ -48,23 +58,44 @@ namespace sqf::runtime
 	private:
 		sqf::runtime::instruction_set m_instruction_set;
 		sqf::runtime::instruction_set::reverse_iterator m_iterator;
-		sqf::runtime::frame::behavior* m_enter_behavior;
-		sqf::runtime::frame::behavior* m_exit_behavior;
+		std::shared_ptr<behavior> m_enter_behavior;
+		std::shared_ptr<behavior> m_exit_behavior;
+		std::shared_ptr<behavior> m_error_behavior;
 	public:
-		frame(sqf::runtime::frame::behavior* enter_behavior, sqf::runtime::instruction_set instruction_set) : frame(enter_behavior, instruction_set, {}) {}
-		frame(sqf::runtime::instruction_set instruction_set, sqf::runtime::frame::behavior* exit_behavior) : frame({}, instruction_set, exit_behavior) {}
-		frame(sqf::runtime::instruction_set instruction_set) : frame({}, instruction_set, {}) {}
-		frame(sqf::runtime::frame::behavior* enter_behavior, sqf::runtime::instruction_set instruction_set, sqf::runtime::frame::behavior* exit_behavior) :
+		frame() : frame({}, {}, {}, {}) {}
+		frame(std::shared_ptr<behavior> enter_behavior, sqf::runtime::instruction_set instruction_set) : frame(enter_behavior, instruction_set, {}, {}) {}
+		frame(sqf::runtime::instruction_set instruction_set, std::shared_ptr<behavior> exit_behavior) : frame({}, instruction_set, exit_behavior, {}) {}
+		frame(sqf::runtime::instruction_set instruction_set) : frame({}, instruction_set, {}, {}) {}
+		frame(std::shared_ptr<behavior> enter_behavior,
+			  sqf::runtime::instruction_set instruction_set,
+			  std::shared_ptr<behavior> exit_behavior,
+			  std::shared_ptr<behavior> error_behavior)
+			:
 			m_instruction_set(instruction_set),
 			m_iterator(instruction_set.rbegin()),
 			m_enter_behavior(enter_behavior),
-			m_exit_behavior(exit_behavior)
+			m_exit_behavior(exit_behavior),
+			m_error_behavior(error_behavior)
 		{}
 
-		~frame()
+		bool can_recover_runtime_error() { return m_error_behavior != nullptr; }
+		result recover_runtime_error(context& context)
 		{
-			if (m_enter_behavior) { delete m_enter_behavior; }
-			if (m_exit_behavior) { delete m_exit_behavior; }
+			if (!m_error_behavior) { return result::error; }
+			switch (m_error_behavior->enact(context, *this))
+			{
+			case behavior::result::seek_end:
+				m_iterator = m_instruction_set.rend();
+				return result::done;
+			case behavior::result::seek_start:
+				m_iterator = m_instruction_set.rbegin();
+				return result::ok;
+			case behavior::result::exchange:
+				m_instruction_set = m_enter_behavior->get_instruction_set();
+				m_iterator = m_instruction_set.rbegin();
+				return result::ok;
+			}
+			return result::ok;
 		}
 
 		sqf::runtime::instruction_set::reverse_iterator peek() const { bool flag; return peek(flag); }
@@ -104,6 +135,10 @@ namespace sqf::runtime
 				case behavior::result::seek_start:
 					m_iterator = m_instruction_set.rbegin();
 					break;
+				case behavior::result::exchange:
+					m_instruction_set = m_enter_behavior->get_instruction_set();
+					m_iterator = m_instruction_set.rbegin();
+					break;
 				}
 			}
 			if (m_iterator != m_instruction_set.rend())
@@ -117,6 +152,10 @@ namespace sqf::runtime
 						m_iterator = m_instruction_set.rend();
 						return result::done;
 					case behavior::result::seek_start:
+						m_iterator = m_instruction_set.rbegin();
+						return next();
+					case behavior::result::exchange:
+						m_instruction_set = m_enter_behavior->get_instruction_set();
 						m_iterator = m_instruction_set.rbegin();
 						return next();
 					}

@@ -7,6 +7,8 @@
 #include <memory>
 #include <array>
 #include "type.h"
+#include "diagnostics/diag_info.h"
+#include "diagnostics/stacktrace.h"
 
 using namespace std::string_view_literals;
 
@@ -18,11 +20,6 @@ enum class loglevel {
     verbose,
     trace
 };
-
-namespace sqf::runtime::diagnostics
-{
-	class diag_info;
-}
 
 class LogLocationInfo {
 public:
@@ -651,9 +648,9 @@ namespace logmessage {
 		class Stacktrace : public RuntimeBase {
 			static const loglevel level = loglevel::fatal;
 			static const size_t errorCode = 60001;
-			std::string m_stacktrace;
+			::sqf::runtime::diagnostics::stacktrace m_stacktrace;
 		public:
-			Stacktrace(LogLocationInfo loc, std::string stacktrace) :
+			Stacktrace(LogLocationInfo loc, ::sqf::runtime::diagnostics::stacktrace stacktrace) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_stacktrace(stacktrace)
 			{}
