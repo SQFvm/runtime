@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <string>
 
-namespace sqf::filesystem
+namespace sqf::fileio
 {
 	class fileio_default : public sqf::runtime::fileio
 	{

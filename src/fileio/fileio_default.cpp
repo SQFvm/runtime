@@ -2,11 +2,12 @@
 
 using namespace std::literals::string_literals;
 
-void sqf::filesystem::fileio_default::add_path_mapping_internal(std::filesystem::path virt, std::filesystem::path phy)
+void sqf::fileio::fileio_default::add_path_mapping_internal(std::filesystem::path virt, std::filesystem::path phy)
 {
     std::vector<std::string> virtElements;
 
-    for (auto& el : virt) { //Split path into elements
+    for (auto& el : virt)
+    { //Split path into elements
         if (el.string().empty())
         {
             continue;
@@ -17,9 +18,11 @@ void sqf::filesystem::fileio_default::add_path_mapping_internal(std::filesystem:
     auto found = m_virtualphysicalmap.find(virtElements[0]);
     auto curIter = m_virtualphysicalmap.end();
     bool first = true;
-    for (auto& it : virtElements) {
-        if (first) { //first element
-            first = false; //this is ugly. But comparing iterators doesn't work
+    for (auto& it : virtElements)
+    {
+        if (first)
+        { // first element
+            first = false; // this is ugly. But comparing iterators doesn't work
             curIter = m_virtualphysicalmap.find(it);
             if (curIter == m_virtualphysicalmap.end())
                 curIter = m_virtualphysicalmap.insert({ it, pathElement{} }).first;
@@ -34,7 +37,7 @@ void sqf::filesystem::fileio_default::add_path_mapping_internal(std::filesystem:
     curIter->second.physicalPath = phy;
 }
 
-std::optional<sqf::runtime::fileio::pathinfo> sqf::filesystem::fileio_default::resolve_virtual(std::string_view virtual_) const
+std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::fileio_default::resolve_virtual(std::string_view virtual_) const
 {
     std::filesystem::path virt(virtual_);
     std::vector<std::string> virtElements;
@@ -102,7 +105,7 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::filesystem::fileio_default::r
     return info;
 }
 
-std::optional<sqf::runtime::fileio::pathinfo> sqf::filesystem::fileio_default::get_info(std::string_view virt, sqf::runtime::fileio::pathinfo current) const
+std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::fileio_default::get_info(std::string_view virt, sqf::runtime::fileio::pathinfo current) const
 {
     if (virt.empty())
     {
@@ -160,7 +163,7 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::filesystem::fileio_default::g
     }
 }
 
-void sqf::filesystem::fileio_default::add_mapping(std::string_view physical, std::string_view virtual_)
+void sqf::fileio::fileio_default::add_mapping(std::string_view physical, std::string_view virtual_)
 {
     if (!virtual_.empty() && (virtual_.front() == '/' || virtual_.front() == '\\'))
     {
@@ -177,7 +180,7 @@ void sqf::filesystem::fileio_default::add_mapping(std::string_view physical, std
     add_path_mapping_internal(s_virtual, s_physical);
 }
 
-std::string sqf::filesystem::fileio_default::read_file(sqf::runtime::fileio::pathinfo info) const
+std::string sqf::fileio::fileio_default::read_file(sqf::runtime::fileio::pathinfo info) const
 {
     auto res = sqf::runtime::fileio::read_file(info.physical);
     return *res;

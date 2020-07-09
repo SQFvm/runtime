@@ -46,6 +46,7 @@ namespace sqf::runtime
 		/// <returns>The contents of the file. Optional will be empty if file does not exist or could not be opened for any other reason.</returns>
 		static std::optional<std::string> read_file(std::string physical_path) { return read_file(std::string_view(physical_path)); }
 	public:
+		virtual ~fileio() = 0;
 		/// <summary>
 		/// Method to receive path informations of a new path.
 		/// </summary>
@@ -73,5 +74,14 @@ namespace sqf::runtime
 		/// </summary>
 		/// <param name="physical">Physical path to search inside.</param>
 		void add_mapping_auto(std::string_view physical);
+	};
+	class fileio_disabled : public fileio
+	{
+	public:
+		virtual ~fileio_disabled() override {}
+		// Inherited via fileio
+		virtual std::optional<sqf::runtime::fileio::pathinfo> get_info(std::string_view view, sqf::runtime::fileio::pathinfo current) const override { return {}; }
+		virtual void add_mapping(std::string_view physical, std::string_view virtual_) override { }
+		virtual std::string read_file(sqf::runtime::fileio::pathinfo info) const override { return {}; }
 	};
 }
