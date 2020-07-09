@@ -107,47 +107,24 @@ namespace sqf::runtime
 #pragma region storage
 
     public:
-        class datastorage
-        {
-        public:
-            /// <summary>
-            /// Special method called upon destruction of the runtime and before
-            /// the destructor is called.
-            /// </summary>
-            virtual void cleanup() {};
-            /// <summary>
-            /// Special method called upon creation inside of the runtime.
-            /// </summary>
-            virtual void initialize() {};
-        };
+        class datastorage { };
     private:
-        std::unordered_map<std::type_index, datastorage*> m_data_storage;
-        void storage_destructor()
-        {
-            for (auto kvp : m_data_storage)
-            {
-                kvp.second->cleanup();
-                delete kvp.second;
-            }
-        }
+        std::unordered_map<std::type_index, std::unique_ptr<datastorage>> m_data_storage;
     public:
         template<class TSource, class TStorage>
         TStorage& storage()
         {
             static_assert(std::is_base_of<datastorage, TStorage>::value,
                 "sqf::runtime::runtime::storage<TSource, TStorage>() expects TStorage to be a derivative of sqf::runtime::runtime::datastorage.");
-            std::type_index key(typeid(T));
+            std::type_index key(typeid(TSource));
             auto res = m_data_storage.find(key);
             if (res == m_data_storage.end())
             {
-                auto p = new TStorage();
-                p->initialize();
-                m_data_storage[key] = p;
-                return *p;
+                return *(m_data_storage[key] = std::make_unique<TStorage>());
             }
             else
             {
-                return *static_cast<TStorage*>(*res);
+                return *res->second;
             }
         }
 
@@ -177,11 +154,6 @@ namespace sqf::runtime
             m_configuration(config),
             m_runtime_error(false)
         {
-        }
-
-        ~runtime()
-        {
-            storage_destructor();
         }
 
         void push_back(sqf::runtime::context context) { m_contexts.push_back(context); }
