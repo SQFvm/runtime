@@ -6,14 +6,14 @@
 
 static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime* runtime, size_t exit_after)
 {
-	auto context = runtime->active_context();
+	auto active_context = runtime->active_context();
 	auto& runtime_error = runtime->__runtime_error();
 	while (true)
 	{
 		if (runtime->is_exit_requested()) { return sqf::runtime::runtime::result::ok; }
 		if (exit_after == 0) { return sqf::runtime::runtime::result::ok; }
-		if (context->suspended()) { return sqf::runtime::runtime::result::ok; }
-		if (context->empty()) { return sqf::runtime::runtime::result::ok; }
+		if (active_context->suspended()) { return sqf::runtime::runtime::result::ok; }
+		if (active_context->empty()) { return sqf::runtime::runtime::result::ok; }
 		if (runtime->runtime_state() != sqf::runtime::runtime::state::running) { return sqf::runtime::runtime::result::ok; }
 
 		auto context = runtime->active_context();

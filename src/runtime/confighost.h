@@ -94,11 +94,11 @@ namespace sqf::runtime
 
 			iterator_factory iterate(confighost& host) { return iterator_factory(*this, host); }
 
-			std::optional<config> navigate(confighost& host, std::string_view name)
+			std::optional<config> navigate(confighost& host, std::string_view target_name)
 			{
 				for (auto& it : iterate(host))
 				{
-					if (it.name.compare(name))
+					if (it.name.compare(target_name))
 					{
 						return it;
 					}
