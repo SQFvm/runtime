@@ -12,7 +12,7 @@
 
 namespace sqf::runtime
 {
-    class runtime : public CanLog
+    class runtime final : public CanLog
     {
     public:
         enum class action
@@ -107,7 +107,11 @@ namespace sqf::runtime
 #pragma region storage
 
     public:
-        class datastorage { };
+        class datastorage
+        {
+        public:
+            virtual ~datastorage() = 0;
+        };
     private:
         std::unordered_map<std::type_index, std::unique_ptr<datastorage>> m_data_storage;
     public:

@@ -7,7 +7,7 @@
 
 namespace sqf::runtime
 {
-	class context
+	class context final
 	{
 	private:
 		std::vector<sqf::runtime::frame> m_frames;

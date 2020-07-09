@@ -9,7 +9,7 @@ namespace sqf::runtime
 	/// <summary>
 	/// A way to represent a "mutable" instruction set.
 	/// </summary>
-	class instruction_set
+	class instruction_set final
 	{
 	public:
 		using iterator = std::vector<sqf::runtime::instruction::sptr>::const_iterator;

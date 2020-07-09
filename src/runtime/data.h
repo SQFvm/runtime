@@ -19,6 +19,7 @@ namespace sqf::runtime
 		/// <param name="invariant">Wether operation should be case sensitive (false) or not (true)</param>
 		/// <returns>The result of the comparison</returns>
 		virtual bool do_equals(std::shared_ptr<data> other, bool invariant) const = 0;
+
 	public:
 
 		/// <summary>
