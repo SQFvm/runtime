@@ -18,7 +18,7 @@ namespace sqf
 		class d_scalar : public sqf::runtime::data
 		{
 		public:
-			static constexpr sqf::runtime::type cexp_type() { return sqf::runtime::t_scalar(); }
+			static sqf::runtime::type cexp_type() { return sqf::runtime::t_scalar(); }
 		private:
 			float m_value;
 			inline static int s_decimals = 0;

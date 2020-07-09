@@ -10,7 +10,7 @@ namespace sqf::runtime
 	class value_scope
 	{
 	private:
-		std::unordered_map<std::string, sqf::runtime::value::cref> m_map;
+		std::unordered_map<std::string, sqf::runtime::value> m_map;
 	public:
 		value_scope() = default;
 

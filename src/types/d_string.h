@@ -20,7 +20,7 @@ namespace sqf
 		class d_string : public sqf::runtime::data
 		{
 		public:
-			static constexpr sqf::runtime::type cexp_type() { return sqf::runtime::t_string(); }
+			static sqf::runtime::type cexp_type() { return sqf::runtime::t_string(); }
 		private:
 			std::string m_value;
 		protected:

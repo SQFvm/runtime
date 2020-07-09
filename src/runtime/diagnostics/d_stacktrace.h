@@ -18,7 +18,7 @@ namespace sqf
 		class d_stacktrace : public sqf::runtime::data
 		{
 		public:
-			static constexpr sqf::runtime::type cexp_type() { return sqf::runtime::t_stacktrace(); }
+			static sqf::runtime::type cexp_type() { return sqf::runtime::t_stacktrace(); }
 		private:
 			sqf::runtime::diagnostics::stacktrace m_value;
 		protected:

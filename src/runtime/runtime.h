@@ -6,6 +6,8 @@
 #include <chrono>
 #include <atomic>
 #include <vector>
+#include <typeinfo>
+#include <typeindex>
 
 namespace sqf::runtime
 {
@@ -101,6 +103,55 @@ namespace sqf::runtime
 
 #pragma endregion
 
+#pragma region storage
+
+	public:
+		class datastorage
+		{
+		public:
+			/// <summary>
+			/// Special method called upon destruction of the runtime and before
+			/// the destructor is called.
+			/// </summary>
+			virtual void cleanup() {};
+			/// <summary>
+			/// Special method called upon creation inside of the runtime.
+			/// </summary>
+			virtual void initialize() {};
+		};
+	private:
+		std::unordered_map<std::type_index, datastorage*> m_data_storage;
+		void storage_destructor()
+		{
+			for (auto kvp : m_data_storage)
+			{
+				kvp.second->cleanup();
+				delete kvp.second;
+			}
+		}
+	public:
+		template<class TSource, class TStorage>
+		TStorage& storage()
+		{
+			static_assert(std::is_base_of<datastorage, TStorage>::value,
+				"sqf::runtime::runtime::storage<TSource, TStorage>() expects TStorage to be a derivative of sqf::runtime::runtime::datastorage.");
+			std::type_index key(typeid(T));
+			auto res = m_data_storage.find(key);
+			if (res == m_data_storage.end())
+			{
+				auto p = new TStorage();
+				p->initialize();
+				m_data_storage[key] = p;
+				return *p;
+			}
+			else
+			{
+				return *static_cast<TStorage*>(*res);
+			}
+		}
+
+#pragma endregion
+
 	private:
 		configuration m_configuration;
 		std::chrono::system_clock::time_point m_runtime_timestamp;
@@ -120,10 +171,15 @@ namespace sqf::runtime
 			m_exit_code(0),
 			m_is_exit_requested(false),
 			m_is_halt_requested(false),
-			m_last_breakpoint_hit(-1, {}),
+			m_last_breakpoint_hit(~((size_t)0), {}),
 			m_configuration(config),
 			m_runtime_error(false)
 		{
+		}
+
+		~runtime()
+		{
+			storage_destructor();
 		}
 
 		void push_back(sqf::runtime::context context) { m_contexts.push_back(context); }

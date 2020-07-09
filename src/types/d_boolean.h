@@ -18,7 +18,7 @@ namespace sqf
 		class d_boolean : public sqf::runtime::data
 		{
 		public:
-			static constexpr sqf::runtime::type cexp_type() { return sqf::runtime::t_boolean(); }
+			static sqf::runtime::type cexp_type() { return sqf::runtime::t_boolean(); }
 		private:
 			bool m_value;
 		protected:

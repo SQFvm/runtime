@@ -26,6 +26,9 @@ namespace sqf::runtime
 		/// <returns></returns>
 		std::shared_ptr<sqf::runtime::data> data() const { return m_data; }
 
+		template<class TData, typename TValue>
+		TValue data_as() { return (TValue)(data<TData>()->value()); }
+
 		/// <summary>
 		/// Attempts to convert the data-member to the provided data type.
 		/// Will use std::dynamic_pointer_cast.

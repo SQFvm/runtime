@@ -22,7 +22,7 @@ namespace sqf
 		class d_array : public sqf::runtime::data
 		{
 		public:
-			static constexpr sqf::runtime::type cexp_type() { return sqf::runtime::t_array(); }
+			static sqf::runtime::type cexp_type() { return sqf::runtime::t_array(); }
 		private:
 			std::vector<sqf::runtime::value> m_value;
 			bool recursion_test_(std::vector<std::shared_ptr<d_array>>& visited)
@@ -162,27 +162,27 @@ namespace sqf
 			}
 		};
 
-		static double distance3dsqr(const std::shared_ptr<sqf::types::d_array>& l, const std::shared_ptr<sqf::types::d_array>& r);
-		static double distance3dsqr(const d_array* l, const d_array* r);
-		static double distance3dsqr(std::array<double, 3> l, std::array<double, 3> r)
+		float distance3dsqr(const std::shared_ptr<sqf::types::d_array>& l, const std::shared_ptr<sqf::types::d_array>& r);
+		float distance3dsqr(const d_array* l, const d_array* r);
+		float distance3dsqr(std::array<float, 3> l, std::array<float, 3> r)
 		{
 			return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2) + std::pow(l[2] - r[2], 2);
 		}
-		static double distance3d(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
-		static double distance3d(const d_array* l, const d_array* r);
-		static double distance3d(std::array<double, 3> l, std::array<double, 3> r)
+		float distance3d(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
+		float distance3d(const d_array* l, const d_array* r);
+		float distance3d(std::array<float, 3> l, std::array<float, 3> r)
 		{
 			return std::sqrt(distance3dsqr(l, r));
 		}
-		static double distance2dsqr(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
-		static double distance2dsqr(const d_array* l, const d_array* r);
-		static double distance2dsqr(std::array<double, 2> l, std::array<double, 2> r)
+		float distance2dsqr(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
+		float distance2dsqr(const d_array* l, const d_array* r);
+		float distance2dsqr(std::array<float, 2> l, std::array<float, 2> r)
 		{
 			return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2);
 		}
-		static double distance2d(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
-		static double distance2d(const d_array* l, const d_array* r);
-		static double distance2d(std::array<double, 2> l, std::array<double, 2> r)
+		float distance2d(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
+		float distance2d(const d_array* l, const d_array* r);
+		float distance2d(std::array<float, 2> l, std::array<float, 2> r)
 		{
 			return std::sqrt(distance2dsqr(l, r));
 		}
