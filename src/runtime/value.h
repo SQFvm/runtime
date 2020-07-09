@@ -17,7 +17,7 @@ namespace sqf::runtime
 		value();
 		value(std::shared_ptr<sqf::runtime::data> d) : m_data(std::move(d)) { }
 
-		explicit operator type() const { return m_data ? m_data->type() : t_nothing(); };
+		explicit operator type() const { return m_data ? m_data->type() : sqf::types::t_nothing(); };
 
 
 		/// <summary>

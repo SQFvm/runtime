@@ -1187,7 +1187,7 @@ namespace logmessage::runtime
 		std::stringstream sstream;
 		auto output = location.format();
 		auto position = to_ordinal_string(m_position);
-		auto got = ::sqf::type_str(m_got);
+		auto got = m_got.to_string();
 		sstream << "Expected the "sv;
 		sstream << position;
 		sstream << " element of the array to be of the type "sv;
@@ -1199,7 +1199,7 @@ namespace logmessage::runtime
 				sstream << " or ";
 			}
 			flag = true;
-			sstream << ::sqf::type_str(it);
+			sstream << it.to_string();
 		}
 		sstream << " but got "sv;
 		sstream << got;
@@ -1211,7 +1211,7 @@ namespace logmessage::runtime
 		std::stringstream sstream;
 		auto output = location.format();
 		auto position = to_ordinal_string(m_position);
-		auto got = ::sqf::type_str(m_got);
+		auto got = m_got.to_string();
 		sstream << "Expected the "sv;
 		sstream << position;
 		sstream << " element of the array to be of the type "sv;
@@ -1223,7 +1223,7 @@ namespace logmessage::runtime
 				sstream << " or ";
 			}
 			flag = true;
-			sstream << ::sqf::type_str(it);
+			sstream << it.to_string();
 		}
 		sstream << " but got "sv;
 		sstream << got;
@@ -1507,8 +1507,8 @@ namespace logmessage::runtime
 	{
 		auto output = location.format();
 		auto variable_name = m_variable_name;
-		auto expected = ::sqf::type_str(m_expected);
-		auto got = ::sqf::type_str(m_got);
+		auto expected = m_expected.to_string();
+		auto got = m_got.to_string();
 
 		output.reserve(
 			output.length()
@@ -1758,7 +1758,7 @@ namespace logmessage::runtime
 	{
 		std::stringstream sstream;
 		auto output = location.format();
-		auto got = ::sqf::type_str(m_got);
+		auto got = m_got.to_string();
 		sstream << "Expected the subarray at index "sv;
 		bool flag = false;
 		for (const auto& it : m_position)
@@ -1779,7 +1779,7 @@ namespace logmessage::runtime
 				sstream << " or ";
 			}
 			flag = true;
-			sstream << ::sqf::type_str(it);
+			sstream << it.to_string();
 		}
 		sstream << " but got "sv;
 		sstream << got;
@@ -1790,7 +1790,7 @@ namespace logmessage::runtime
 	{
 		std::stringstream sstream;
 		auto output = location.format();
-		auto got = ::sqf::type_str(m_got);
+		auto got = m_got.to_string();
 		sstream << "Expected the subarray at index "sv;
 		bool flag = false;
 		for (const auto& it : m_position)
@@ -1811,7 +1811,7 @@ namespace logmessage::runtime
 				sstream << " or ";
 			}
 			flag = true;
-			sstream << ::sqf::type_str(it);
+			sstream << it.to_string();
 		}
 		sstream << " but got "sv;
 		sstream << got;
@@ -2236,8 +2236,8 @@ namespace logmessage::runtime
 	std::string TypeMissmatch::formatMessage() const
 	{
 		auto output = location.format();
-		auto expected = ::sqf::type_str(m_expected);
-		auto got = ::sqf::type_str(m_got);
+		auto expected = m_expected.to_string();
+		auto got = m_got.to_string();
 
 		output.reserve(
 			output.length()
@@ -2258,8 +2258,8 @@ namespace logmessage::runtime
 	std::string TypeMissmatchWeak::formatMessage() const
 	{
 		auto output = location.format();
-		auto expected = ::sqf::type_str(m_expected);
-		auto got = ::sqf::type_str(m_got);
+		auto expected = m_expected.to_string();
+		auto got = m_got.to_string();
 
 		output.reserve(
 			output.length()
@@ -2372,9 +2372,9 @@ namespace logmessage::runtime
 	{
 		auto output = location.format();
 
-		if (m_left_got == ::sqf::type::NA)
+		if (m_left_got.is<::sqf::types::t_nothing>())
 		{
-			auto right_got = ::sqf::type_str(m_right_got);
+			auto right_got = m_right_got.to_string();
 			output.reserve(
 				output.length()
 				+ "Unknown input combination "sv.length()
@@ -2393,8 +2393,8 @@ namespace logmessage::runtime
 		}
 		else
 		{
-			auto left_got = ::sqf::type_str(m_left_got);
-			auto right_got = ::sqf::type_str(m_right_got);
+			auto left_got = m_left_got.to_string();
+			auto right_got = m_right_got.to_string();
 			output.reserve(
 				output.length()
 				+ "Unknown input combination "sv.length()
@@ -2482,8 +2482,8 @@ namespace logmessage::runtime
 	std::string ForStepVariableTypeMissmatch::formatMessage() const
 	{
 		auto output = location.format();
-		auto expected = ::sqf::type_str(m_expected);
-		auto got = ::sqf::type_str(m_got);
+		auto expected = m_expected.to_string();
+		auto got = m_got.to_string();
 
 		output.reserve(
 			output.length()
