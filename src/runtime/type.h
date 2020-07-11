@@ -14,6 +14,19 @@ namespace sqf
 
 	namespace runtime
 	{
+		/*
+		template<typename family>
+		struct type_family
+		{
+			template<typename type>
+			uint32_t get_identifier() -> member<type>;
+    
+			private:
+			static inline uint32_t counter = 0u;
+			template<typename type>
+			static inline uint32_t member= counter++;
+		}
+		*/
 		class type;
 		class type
 		{

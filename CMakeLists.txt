@@ -33,6 +33,7 @@ file(GLOB vm_src
     "${PROJECT_SOURCE_DIR}/src/parser-sqf/*.h" "${PROJECT_SOURCE_DIR}/src/parser-sqf/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser-sqf/*.c"
     "${PROJECT_SOURCE_DIR}/src/fileio/*.h" "${PROJECT_SOURCE_DIR}/src/fileio/*.cpp" "${PROJECT_SOURCE_DIR}/src/fileio/*.c"
     "${PROJECT_SOURCE_DIR}/src/runtime/*.h" "${PROJECT_SOURCE_DIR}/src/runtime/*.cpp" "${PROJECT_SOURCE_DIR}/src/runtime/*.c"
+    "${PROJECT_SOURCE_DIR}/src/runtime/parser/*.h" "${PROJECT_SOURCE_DIR}/src/runtime/parser/*.cpp" "${PROJECT_SOURCE_DIR}/src/runtime/parser/*.c"
     "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.h" "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.cpp" "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.c"
     "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp"
 )
