@@ -61,6 +61,7 @@ namespace sqf::runtime
 		std::shared_ptr<behavior> m_enter_behavior;
 		std::shared_ptr<behavior> m_exit_behavior;
 		std::shared_ptr<behavior> m_error_behavior;
+		std::shared_ptr<sqf::runtime::value_scope> m_globals_value_scope;
 	public:
 		frame() : frame({}, {}, {}, {}) {}
 		frame(std::shared_ptr<behavior> enter_behavior, sqf::runtime::instruction_set instruction_set) : frame(enter_behavior, instruction_set, {}, {}) {}
@@ -108,6 +109,8 @@ namespace sqf::runtime
 
 
 		sqf::runtime::instruction_set::reverse_iterator current() const { return m_iterator; }
+		std::shared_ptr<sqf::runtime::value_scope> globals_value_scope() const { return m_globals_value_scope; }
+		void globals_value_scope(std::shared_ptr<sqf::runtime::value_scope> scope) { m_globals_value_scope = scope; }
 
 		/// <summary>
 		/// Moves current to next instruction.

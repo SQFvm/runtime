@@ -4,19 +4,19 @@
 
 #include <optional>
 
-static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime* runtime, size_t exit_after)
+static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, size_t exit_after)
 {
-	auto active_context = runtime->active_context();
-	auto& runtime_error = runtime->__runtime_error();
+	auto active_context = runtime.active_context();
+	auto& runtime_error = runtime.__runtime_error();
 	while (true)
 	{
-		if (runtime->is_exit_requested()) { return sqf::runtime::runtime::result::ok; }
+		if (runtime.is_exit_requested()) { return sqf::runtime::runtime::result::ok; }
 		if (exit_after == 0) { return sqf::runtime::runtime::result::ok; }
 		if (active_context->suspended()) { return sqf::runtime::runtime::result::ok; }
 		if (active_context->empty()) { return sqf::runtime::runtime::result::ok; }
-		if (runtime->runtime_state() != sqf::runtime::runtime::state::running) { return sqf::runtime::runtime::result::ok; }
+		if (runtime.runtime_state() != sqf::runtime::runtime::state::running) { return sqf::runtime::runtime::result::ok; }
 
-		auto context = runtime->active_context();
+		auto context = runtime.active_context();
 		auto result = context->current_frame().next(*context);
 
 		if (result == sqf::runtime::frame::result::done)
@@ -26,22 +26,22 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime* runtime, 
 		}
 		auto instruction = context->current_frame().current();
 
-		if (runtime->configuration().max_runtime != std::chrono::milliseconds::zero() &&
-			runtime->configuration().max_runtime + runtime->runtime_timestamp() < std::chrono::system_clock::now())
+		if (runtime.configuration().max_runtime != std::chrono::milliseconds::zero() &&
+			runtime.configuration().max_runtime + runtime.runtime_timestamp() < std::chrono::system_clock::now())
 		{
-			runtime->__logmsg(logmessage::runtime::MaximumRuntimeReached((*instruction)->diag_info(), runtime->configuration().max_runtime));
-			runtime->exit(0);
+			runtime.__logmsg(logmessage::runtime::MaximumRuntimeReached((*instruction)->diag_info(), runtime.configuration().max_runtime));
+			runtime.exit(0);
 			return sqf::runtime::runtime::result::ok;
 		}
 
 		// Check if breakpoint was hit
 		{
 			auto dinf = (*instruction)->diag_info();
-			for (const auto& breakpoint : runtime->breakpoints())
+			for (const auto& breakpoint : runtime.breakpoints())
 			{
-				if (breakpoint.is_enabled() && breakpoint.line() == dinf.line() && breakpoint.file() == dinf.file())
+				if (breakpoint.is_enabled() && breakpoint.line() == dinf.line && breakpoint.file() == dinf.file)
 				{
-					runtime->breakpoint_hit(breakpoint);
+					runtime.breakpoint_hit(breakpoint);
 					context->current_frame().previous(); // Unput instruction
 					return sqf::runtime::runtime::result::ok;
 				}
@@ -93,7 +93,7 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime* runtime, 
 			else
 			{ // No recover frame available, exit method
 				
-				runtime->__logmsg(logmessage::runtime::Stacktrace((*instruction)->diag_info(), stacktrace));
+				runtime.__logmsg(logmessage::runtime::Stacktrace((*instruction)->diag_info(), stacktrace));
 				return sqf::runtime::runtime::result::runtime_error;
 			}
 		}
@@ -116,7 +116,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 			m_state = state::running;
 			while (!m_is_exit_requested && !m_is_halt_requested && !m_contexts.size() == 0)
 			{
-				res = execute_do(this, 1);
+				res = execute_do(*this, 1);
 				if (res != result::ok)
 				{
 					break;
@@ -168,7 +168,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 					if (m_active_context->wakeup_timestamp() <= std::chrono::system_clock::now())
 					{
 						m_active_context->unsuspend();
-						res = execute_do(this, 150);
+						res = execute_do(*this, 150);
 					}
 					else
 					{
@@ -177,7 +177,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 				}
 				else
 				{
-					res = execute_do(this, 150);
+					res = execute_do(*this, 150);
 				}
 				switch (res)
 				{
@@ -227,7 +227,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 			m_is_exit_requested = false;
 			m_is_halt_requested = false;
 			m_state = state::running;
-			res = execute_do(this, 1);
+			res = execute_do(*this, 1);
 			switch (res)
 			{
 			case sqf::runtime::runtime::result::empty:
@@ -275,7 +275,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 					}
 				}
 
-				res = execute_do(this, 1);
+				res = execute_do(*this, 1);
 				if (res != result::ok)
 				{
 					break;
