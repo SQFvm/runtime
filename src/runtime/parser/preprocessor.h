@@ -1,11 +1,11 @@
 #pragma once
 #include "../fileio.h"
+#include "../runtime.h"
 
 namespace sqf
 {
 	namespace runtime
 	{
-		class runtime;
 		namespace parser
 		{
 			class preprocessor
@@ -22,7 +22,7 @@ namespace sqf
 		{
 			public:
 				virtual ~passthrough() override { return; };
-				virtual std::string preprocess(::sqf::runtime::runtime & runtime, ::sqf::runtime::fileio::pathinfo pathinfo) override;
+				virtual std::string preprocess(::sqf::runtime::runtime& runtime, ::sqf::runtime::fileio::pathinfo pathinfo) override { return runtime.fileio().read_file(pathinfo); }
 		};
 	}
 }
