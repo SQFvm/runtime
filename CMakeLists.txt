@@ -29,7 +29,7 @@ file(GLOB vm_src
     "${PROJECT_SOURCE_DIR}/src/types/*.h" "${PROJECT_SOURCE_DIR}/src/types/*.cpp" "${PROJECT_SOURCE_DIR}/src/types/*.c"
     "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c"
     "${PROJECT_SOURCE_DIR}/src/parser/config/*.h" "${PROJECT_SOURCE_DIR}/src/parser/config/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser/config/*.c"
-    "${PROJECT_SOURCE_DIR}/src/parser/preproc/*.h" "${PROJECT_SOURCE_DIR}/src/parser/preproc/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser/preproc/*.c"
+    "${PROJECT_SOURCE_DIR}/src/parser/preprocessor/*.h" "${PROJECT_SOURCE_DIR}/src/parser/preprocessor/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser/preprocessor/*.c"
     "${PROJECT_SOURCE_DIR}/src/parser/sqf/*.h" "${PROJECT_SOURCE_DIR}/src/parser/sqf/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser/sqf/*.c"
     "${PROJECT_SOURCE_DIR}/src/opcodes/*.h" "${PROJECT_SOURCE_DIR}/src/opcodes/*.cpp" "${PROJECT_SOURCE_DIR}/src/opcodes/*.c"
     "${PROJECT_SOURCE_DIR}/src/fileio/*.h" "${PROJECT_SOURCE_DIR}/src/fileio/*.cpp" "${PROJECT_SOURCE_DIR}/src/fileio/*.c"
