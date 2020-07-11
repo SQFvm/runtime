@@ -1,0 +1,32 @@
+#include "instassignto.h"
+#include "virtualmachine.h"
+#include "vmstack.h"
+#include "callstack.h"
+#include "sqfnamespace.h"
+
+void sqf::inst::assign_to::execute(virtualmachine* vm) const
+{
+	bool flag;
+	auto val = vm->active_vmstack()->pop_back_value(flag);
+	if (!flag)
+	{
+		vm->logmsg(logmessage::runtime::FoundNoValue(*vm->current_instruction()));
+		return;
+	}
+	if (mvarname[0] == '_')
+	{
+		for (auto it = vm->active_vmstack()->stacks_begin(); it != vm->active_vmstack()->stacks_end(); ++it)
+		{
+			if (it->get()->has_variable(mvarname))
+			{
+				it->get()->set_variable(mvarname, val);
+				return;
+			}
+		}
+		vm->active_vmstack()->stacks_top()->set_variable(mvarname, val);
+	}
+	else
+	{
+		vm->active_vmstack()->stacks_top()->get_namespace()->set_variable(mvarname, val);
+	}
+}
