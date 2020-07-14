@@ -31,6 +31,7 @@ namespace sqf::runtime
 		std::string m_description;
 		callback m_callback;
 	public:
+		sqfop_binary(key key, std::string description, callback callback) : m_key(key), m_description(description), m_callback(callback) {}
 		std::string_view name() const { return m_key.name; }
 		std::string_view description() const { return m_description; }
 		short precedence() const { return m_key.precedence; }
@@ -60,6 +61,7 @@ namespace sqf::runtime
 
 		callback m_callback;
 	public:
+		sqfop_unary(key key, std::string description, callback callback) : m_key(key), m_description(description), m_callback(callback) {}
 		std::string_view name() const { return m_key.name; }
 		std::string_view description() const { return m_description; }
 		sqf::runtime::type right_type() const { return m_key.right_type; }
@@ -86,11 +88,46 @@ namespace sqf::runtime
 
 		callback m_callback;
 	public:
+		sqfop_nular(key key, std::string description, callback callback) : m_key(key), m_description(description), m_callback(callback) {}
 		std::string_view name() const { return m_key.name; }
 		std::string_view description() const { return m_description; }
 		value execute(sqf::runtime::runtime& vm) const { return m_callback(vm); }
 		key get_key() const { return m_key; }
 	};
+	namespace sqfop
+	{
+		/// <summary>
+		/// Utility method to create a nular operator.
+		/// </summary>
+		/// <param name="name">The name of the operator to create.</param>
+		/// <param name="description">The description of the operator.</param>
+		/// <param name="fnc">The method to execute when the operator gets invoked.</param>
+		/// <returns>A valid sqfop_nular.</returns>
+		static inline sqfop_nular&& nular(std::string name, std::string description, sqfop_nular::callback fnc)
+		{ return { { name }, description, fnc }; }
+
+		/// <summary>
+		/// Utility method to create a unary operator.
+		/// </summary>
+		/// <param name="name">The name of the operator to create.</param>
+		/// <param name="rtype">The accepted type on the right side of the operator.</param>
+		/// <param name="description">The description of the operator.</param>
+		/// <param name="fnc">The method to execute when the operator gets invoked.</param>
+		/// <returns>A valid sqfop_unary.</returns>
+		static inline sqfop_unary&& unary(std::string name, type rtype, std::string description, sqfop_unary::callback fnc)
+		{ return { { name, rtype }, description, fnc }; }
+
+		/// <summary>
+		/// Utility method to create a unary operator.
+		/// </summary>
+		/// <param name="name">The name of the operator to create.</param>
+		/// <param name="rtype">The accepted type on the right side of the operator.</param>
+		/// <param name="description">The description of the operator.</param>
+		/// <param name="fnc">The method to execute when the operator gets invoked.</param>
+		/// <returns>A valid sqfop_unary.</returns>
+		static inline sqfop_binary&& binary(short precedence, std::string name, type ltype, type rtype, std::string description, sqfop_binary::callback fnc)
+		{ return { { name, ltype, rtype, precedence }, description, fnc }; }
+	}
 }
 
 
