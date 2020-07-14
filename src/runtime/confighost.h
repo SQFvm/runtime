@@ -64,29 +64,34 @@ namespace sqf::runtime
 		private:
 			std::vector<size_t> m_children;
 			sqf::runtime::value m_value;
-			size_t m_parent_index;
+			size_t m_parent_inherited_index;
+			size_t m_parent_logical_index;
 			size_t m_self_index;
 			std::string name;
 
 		public:
-			config() : m_parent_index(0), m_self_index(0) {};
+			config() : m_parent_inherited_index(0), m_parent_logical_index(0), m_self_index(0) {};
 
-			confignav parent(confighost& host) const { return host.at(m_parent_index); }
-			confignav at(confighost& host, size_t index) const
-			{
-				if (m_children.size() <= index) { return { host }; }
-				return host.at(m_children[index]);
-			}
-			size_t children_size() const { return m_children.size(); }
+			confignav parent_inherited(confighost& host) const { return host.at(m_parent_inherited_index); }
+			void parent_inherited(config conf) { m_parent_inherited_index = conf.m_self_index; }
+			confignav parent_logical(confighost& host) const { return host.at(m_parent_logical_index); }
+			void parent_logical(config conf) { m_parent_logical_index = conf.m_self_index; }
 
 			void push_back(confighost& host, config conf)
-			{ 
+			{
 				if (conf.m_self_index == 0)
 				{
 					host.push_back(conf);
 				}
 				m_children.push_back(conf.m_self_index);
 			}
+
+			confignav at(confighost& host, size_t index) const
+			{
+				if (m_children.size() <= index) { return { host }; }
+				return host.at(m_children[index]);
+			}
+			size_t children_size() const { return m_children.size(); }
 
 			void value(sqf::runtime::value value) { m_value = value; }
 
