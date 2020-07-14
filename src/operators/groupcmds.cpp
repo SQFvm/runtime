@@ -9,6 +9,7 @@
 #include "../innerobj.h"
 #include "../arraydata.h"
 #include <sstream>
+#include <algorithm>
 
 using namespace sqf;
 namespace
@@ -71,6 +72,28 @@ namespace
 		auto grp = right.data<groupdata>();
 		return value(grp->side());
 	}
+	value selectleader_group_object(virtualmachine* vm, value::cref left, value::cref right)
+	{
+		auto grp = right.data<groupdata>();
+		auto leader = right.data<objectdata>();
+		if (grp->is_null())
+		{
+			vm->wrn() << "Provided group is null." << std::endl;
+			return {};
+		}
+		if (leader->is_null())
+		{
+			vm->wrn() << "Provided object is null." << std::endl;
+			return {};
+		}
+		auto res = std::find(grp->get_units().begin(), grp->get_units().end(), leader->obj());
+		if (res == grp->get_units().end())
+		{
+			vm->wrn() << "Provided object '" << leader->tosqf() << "' is not part of provided group '" << grp->groupid() << "'." << std::endl;
+		}
+		grp->leader(leader->obj());
+		return {};
+	}
 }
 void sqf::commandmap::initgroupcmds()
 {
@@ -96,6 +119,8 @@ void sqf::commandmap::initgroupcmds()
 	add(unary("deleteGroup", type::GROUP, "Destroys the given group. Group must be empty.", deletegroup_group));
 	add(unary("isNull", type::GROUP, "Checks whether the tested item is Null.", isnull_group));
 	add(unary("side", type::GROUP, "Returns the side of a group.", side_group));
+	add(binary(4, "selectLeader", type::GROUP, type::OBJECT, "Select the group's leader.", selectleader_group_object));
+	
 }
 
 #endif

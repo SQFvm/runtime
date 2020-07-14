@@ -41,5 +41,8 @@ namespace sqf
 
 		void add_unit(std::shared_ptr<innerobj> unit);
 		void drop_unit(std::shared_ptr<innerobj> unit);
+
+		std::shared_ptr<innerobj> leader() { return m_leader; }
+		void leader(std::shared_ptr<innerobj> leader) { m_leader = leader; }
 	};
 }
