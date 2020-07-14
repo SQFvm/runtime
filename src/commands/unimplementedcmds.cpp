@@ -308,7 +308,6 @@ void sqf::commandmap::initunimplemented()
 	add(binary(4, "menuenabled", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (menuenabled)." << std::endl; return {}; }));
 	add(binary(4, "doorphase", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (doorphase)." << std::endl; return {}; }));
 	add(binary(4, "lookat", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (lookat)." << std::endl; return {}; }));
-	add(binary(4, "selectleader", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (selectleader)." << std::endl; return {}; }));
 	add(binary(4, "backpackspacefor", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (backpackspacefor)." << std::endl; return {}; }));
 	add(binary(4, "animatesource", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (animatesource)." << std::endl; return {}; }));
 	add(binary(4, "drawicon", type::ANY, type::ANY, "", [](virtualmachine* vm, value::cref l, value::cref r) -> value { vm->err() << "NOT IMPLEMENTED (drawicon)." << std::endl; return {}; }));
