@@ -47,12 +47,10 @@ test_fnc_testPassed = {
 };
 
 test_fnc_testFailed = {
-    params ["___name___", "___desc___", "___index___", "___reason___"];
+    params ["___name___", "___desc___", "___index___"];
     private _msg1 = format ["Test !FAILED! '%1' - %2  %3", ___name___, ___index___ + 1, trim__ ___desc___];
-    private _msg2 = format ["    Reason: %1", trim__ ___reason___];
     systemChat _msg1;
-    systemChat _msg2;
-    ___failed___ pushBack [_msg1, _msg2];
+    ___failed___ pushBack _msg1;
     testsFailed = testsFailed + 1;
 };
 
@@ -134,8 +132,10 @@ private ___failed___ = [];
 diag_log "Loading tests from:";
 diag_log format ["    %1", ___currentDirectory___];
 
-{  
-    if (_x find "runTests" == -1) then {
+private ___sqf_test_dir = currentDirectory__ + "\" + "sqf";
+private ___preprocessor_test_dir = currentDirectory__ + "\" + "preprocess";
+{
+    if (_x select [0, count ___sqf_test_dir] == ___sqf_test_dir) then {
         if (count _x > ___currentDirectoryLength___) then {
             if (_x select [0, ___currentDirectoryLength___] == ___currentDirectory___) then
             {
@@ -222,12 +222,35 @@ diag_log format ["    %1", ___currentDirectory___];
                 };
             };
         };
+    } else {
+        if (_x select [0, count ___preprocessor_test_dir] == ___preprocessor_test_dir) then {
+            {
+                private ___fpath___ = _x;
+                private ___code___ = { preprocess__ loadFile ___fpath___ };
+                private ___expected___ = loadFile ((_x select [0, count _x - 3]) + "txt");
+                systemChat ___fpath___;
+                systemChat ((_x select [0, count _x - 3]) + "txt");
+                systemChat preprocess__ loadFile ___fpath___;
+                systemChat loadFile ((_x select [0, count _x - 3]) + "txt");
+                
+                private ___name___ = _x select [___currentDirectoryLength___];
+                private ___tests___ = call compile preprocessFileLineNumbers _x;
+                [___name___, ___code___, "", 0, ___expected___] call test_fnc_assertEqual;
+                testsIndex = testsIndex + 1;
+            }
+            except__
+            {
+                private _msg = format ["Exception during test execution of %1: %2", ___name___, _exception];
+                diag_log _msg;
+                ___exceptions___ pushBack _msg;
+                fatalError = true;
+            };
+        };
     };
 } forEach allFiles__ [".sqf"];
 diag_log format ["%1 out of %2 tests passed.", testsPassed, testsIndex];
 {
-    diag_log (_x select 0);
-    diag_log (_x select 1);
+    diag_log _x;
 } foreach ___failed___;
 if (fatalError) then
 {

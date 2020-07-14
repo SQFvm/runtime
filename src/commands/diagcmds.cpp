@@ -1,16 +1,17 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
-#include "../debugger.h"
 #include "../virtualmachine.h"
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
 	value diag_log_any(virtualmachine* vm, value::cref right)
 	{
 		auto r = right.as_string();
-		vm->out() << "[DIAG]\t" << r << std::endl;
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "DIAG_LOG", r));
 		return {};
 	}
 	value diag_tickTime_(virtualmachine* vm)
@@ -25,24 +26,13 @@ namespace
 	{
 		if (!right.as_bool())
 		{
-			vm->err() << "Assert failed." << std::endl;
-			if (vm->dbg())
-			{
-				vm->halt();
-			}
+			vm->logmsg(err::AssertFailed(*vm->current_instruction()));
 		}
 		return right;
 	}
 	value halt_(virtualmachine* vm)
 	{
-		if (vm->dbg())
-		{
-			vm->halt();
-		}
-		else
-		{
-			vm->wrn() << "No debugger connected." << std::endl;
-		}
+		vm->execute(sqf::virtualmachine::execaction::stop);
 		return {};
 	}
 }
@@ -54,3 +44,5 @@ void sqf::commandmap::initdiagcmdss()
 	add(nular("halt", "Halts the execution if a debugger is attached. If not, warning is logged and execution continues.", halt_));
 
 }
+
+#endif

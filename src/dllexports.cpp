@@ -4,7 +4,6 @@
 #include "value.h"
 #include "vmstack.h"
 #include "configdata.h"
-#include "parsepreprocessor.h"
 #include "Entry.h"
 #include <iostream>
 #include <sstream>
@@ -22,25 +21,24 @@
 #include <execinfo.h>
 #endif
 
-extern "C" {
-
-	std::string get_working_dir()
-	{
+std::string get_working_dir()
+{
 #if defined(_WIN32) || defined(_WIN64)
-		char buffer[MAX_PATH];
-		_getcwd(buffer, MAX_PATH);
-		return std::string(buffer);
+	char buffer[MAX_PATH];
+	_getcwd(buffer, MAX_PATH);
+	return std::string(buffer);
 #elif defined(__GNUC__)
-		char buffer[PATH_MAX];
-		getcwd(buffer, PATH_MAX);
-		return std::string(buffer);
+	char buffer[PATH_MAX];
+	getcwd(buffer, PATH_MAX);
+	return std::string(buffer);
 #else
 #error "NO IMPLEMENTATION AVAILABLE"
 #endif
-	}
+}
+extern "C" {
 	DLLEXPORT_PREFIX void sqfvm_init(unsigned long long limit)
 	{
-		sqfvm_virtualmachine = std::make_shared<sqf::virtualmachine>(limit);
+		sqfvm_virtualmachine = std::make_shared<sqf::virtualmachine>(sqfvm_exportstarget, limit);
 		sqfvm_virtualmachine->allow_suspension(false);
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 		sqfvm_virtualmachine->get_filesystem().disallow(true);
@@ -51,21 +49,33 @@ extern "C" {
 	DLLEXPORT_PREFIX void sqfvm_exec(const char* code, char* buffer, unsigned int bufferlen)
 	{
 		std::stringstream sstream;
-		sqfvm_virtualmachine->out(&sstream);
-		sqfvm_virtualmachine->err(&sstream);
-		sqfvm_virtualmachine->wrn(&sstream);
-
 		bool err;
-		auto executable_path = get_working_dir();
-		auto inputAfterPP = sqf::parse::preprocessor::parse(sqfvm_virtualmachine.get(), code, err, "__libraryfeed.sqf");
+		std::string executable_path;
+		{
+#if defined(_WIN32) || defined(_WIN64)
+			char buffer[MAX_PATH];
+			_getcwd(buffer, MAX_PATH);
+			executable_path = sqf::filesystem::sanitize(buffer);
+#elif defined(__GNUC__)
+			char buffer[PATH_MAX];
+			getcwd(buffer, PATH_MAX);
+			executable_path = sqf::filesystem::sanitize(buffer);
+#else
+#error "NO IMPLEMENTATION AVAILABLE"
+#endif
+		}
+		auto inputAfterPP = sqfvm_virtualmachine->preprocess(code, err, "__libraryfeed.sqf");
 		if (!err)
 		{
 			sqfvm_virtualmachine->parse_sqf(inputAfterPP, "__libraryfeed.sqf");
-			sqfvm_virtualmachine->execute();
+			auto result = sqfvm_virtualmachine->execute(sqf::virtualmachine::execaction::start);
+			if (result != sqf::virtualmachine::execresult::OK)
+			{
+				sqfvm_virtualmachine->execute(sqf::virtualmachine::execaction::abort);
+			}
+			sstream << sqfvm_exportstarget.str();
+			sqfvm_exportstarget.clear();
 			auto val = sqfvm_virtualmachine->active_vmstack()->last_value();
-			sqfvm_virtualmachine->err_buffprint(true);
-			sqfvm_virtualmachine->wrn_buffprint(true);
-			sqfvm_virtualmachine->out_buffprint(true);
 			if (val.data() != nullptr)
 			{
 				sstream << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.as_string() << std::endl;
@@ -77,9 +87,8 @@ extern "C" {
 		}
 		else
 		{
-			sqfvm_virtualmachine->err_buffprint(true);
-			sqfvm_virtualmachine->wrn_buffprint(true);
-			sqfvm_virtualmachine->out_buffprint(true);
+			sstream << sqfvm_exportstarget.str();
+			sqfvm_exportstarget.clear();
 		}
 		auto str = sstream.str();
 		memset(buffer, 0, sizeof(char) * bufferlen);
@@ -92,7 +101,7 @@ extern "C" {
 
 	DLLEXPORT_PREFIX void sqfvm_loadconfig(const char* cfg)
 	{
-		sqfvm_virtualmachine->parse_config(cfg, sqf::configdata::configFile().data<sqf::configdata>());
+		sqfvm_virtualmachine->parse_config(cfg);
 	}
 
 	DLLEXPORT_PREFIX void sqfvm_uninit()
@@ -100,4 +109,9 @@ extern "C" {
 		sqf::commandmap::get().uninit();
 		sqfvm_virtualmachine = std::shared_ptr<sqf::virtualmachine>();
 	}
+}
+
+void exportstarget::log(loglevel level, std::string_view message)
+{
+	m_sstream << Logger::loglevelstring(level) << " " << message << std::endl;
 }

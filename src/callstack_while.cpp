@@ -28,7 +28,7 @@
 		auto val = vm->active_vmstack()->pop_back_value(success);
 		if (!success)
 		{
-			vm->err() << "while callstack found no value." << std::endl;
+			vm->logmsg(logmessage::runtime::CallstackFoundNoValue(*vm->current_instruction(), "while"sv));
 			return done;
 		}
 		else if (val.dtype() == type::BOOL)
@@ -46,13 +46,13 @@
 		}
 		else if (val.dtype() == type::NOTHING)
 		{
-			vm->wrn() << "while value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+			vm->logmsg(logmessage::runtime::TypeMissmatchWeak(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
 			push_back(value());
 			return done;
 		}
 		else
 		{
-			vm->err() << "while value was expected to be of type BOOL, got " << sqf::type_str(val.dtype()) << "." << std::endl;
+			vm->logmsg(logmessage::runtime::TypeMissmatch(*vm->current_instruction(), sqf::type::BOOL, val.dtype()));
 			return done;
 		}
 	}

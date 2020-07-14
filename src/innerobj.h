@@ -24,6 +24,7 @@ namespace sqf
 		double m_velocity_z;
 		double m_damage;
 		std::string m_classname;
+		std::string m_varname;
 		std::shared_ptr<groupdata> m_group;
 		bool m_is_vehicle;
 
@@ -54,6 +55,8 @@ namespace sqf
 		size_t netid() const { return m_netid; }
 		bool is_vehicle() const { return m_is_vehicle; }
 		std::shared_ptr<groupdata> group() const { return m_group; }
+		std::string varname() const { return m_varname; }
+		void varname(std::string str) { m_varname = str; }
 
 		double distance3dsqr(std::shared_ptr<innerobj> obj) const { return distance3dsqr(obj->pos()); }
 		double distance3dsqr(const innerobj* obj) const { return distance3dsqr(obj->pos()); }

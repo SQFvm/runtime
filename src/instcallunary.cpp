@@ -13,11 +13,11 @@ void sqf::inst::callunary::execute(virtualmachine* vm) const
 	{
 		if (vm->active_vmstack()->scheduled())
 		{
-			vm->err() << "callUnary could not receive a value for right arg." << std::endl;
+			vm->logmsg(logmessage::runtime::NoValueFoundForRightArgumentWeak(*this));
 		}
 		else
 		{
-			vm->wrn() << "callUnary could not receive a value for right arg." << std::endl;
+			vm->logmsg(logmessage::runtime::NoValueFoundForRightArgument(*this));
 		}
 		return;
 	}
@@ -30,7 +30,7 @@ void sqf::inst::callunary::execute(virtualmachine* vm) const
 	}
 	else
 	{
-		vm->err() << "Unknown input type combination. RType:" << sqf::type_str(right.dtype()) << '.' << std::endl;
+		vm->logmsg(logmessage::runtime::UnknownInputTypeCombinationBinary(*this, mcmds->front()->name(), right.dtype()));
 	}
 }
 

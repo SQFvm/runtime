@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #ifdef _WIN32
 // Required due to some headers using WinSock2.h
 // & some headers requiring windows.h
@@ -15,7 +16,7 @@
 #include "../arraydata.h"
 #include "../innerobj.h"
 #include "../objectdata.h"
-#include "../parsepreprocessor.h"
+#include "../parsing/parsepreprocessor.h"
 #include "../vmstack.h"
 #include "../sqfnamespace.h"
 #include "../callstack_sqftry.h"
@@ -32,6 +33,7 @@
 #include <cmath>
 #include <locale>
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -201,9 +203,13 @@ namespace
 				continue;
 			auto cmd = pair.second;
 			if (cmd->desc().empty())
-				vm->out() << "NULAR '" << pair.first << "'\t<" << cmd->name() << ">" << std::endl;
+			{
+				sstream << "NULAR '" << pair.first << "'\t<" << cmd->name() << ">" << std::endl;
+			}
 			else
-				vm->out() << "NULAR '" << pair.first << "'\t<" << cmd->name() << ">\t" << cmd->desc() << std::endl;
+			{
+				sstream << "NULAR '" << pair.first << "'\t<" << cmd->name() << ">\t" << cmd->desc() << std::endl;
+			}
 			wasfound = true;
 		}
 		for (auto& pair : commandmap::get().all_u())
@@ -214,9 +220,9 @@ namespace
 			for (auto& cmd : *cmds)
 			{
 				if (!cmd->desc().empty())
-					vm->out() << "UNARY '" << pair.first << "'\t<" << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">\t" << cmd->desc() << std::endl;
+					sstream << "UNARY '" << pair.first << "'\t<" << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">\t" << cmd->desc() << std::endl;
 				else
-					vm->out() << "UNARY '" << pair.first << "'\t<" << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">" << std::endl;
+					sstream << "UNARY '" << pair.first << "'\t<" << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">" << std::endl;
 				wasfound = true;
 			}
 		}
@@ -228,23 +234,24 @@ namespace
 			for (auto& cmd : *cmds)
 			{
 				if (!cmd->desc().empty())
-					vm->out() << "BINARY '" << pair.first << "'\t<" << sqf::type_str(cmd->ltype()) << " " << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">\t" << cmd->desc() << std::endl;
+					sstream << "BINARY '" << pair.first << "'\t<" << sqf::type_str(cmd->ltype()) << " " << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">\t" << cmd->desc() << std::endl;
 				else
-					vm->out() << "BINARY '" << pair.first << "'\t<" << sqf::type_str(cmd->ltype()) << " " << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">" << std::endl;
+					sstream << "BINARY '" << pair.first << "'\t<" << sqf::type_str(cmd->ltype()) << " " << cmd->name() << " " << sqf::type_str(cmd->rtype()) << ">" << std::endl;
 			}
 			wasfound = true;
 		}
 		if (!wasfound)
 		{
-			vm->out() << "Could not find any command with that name." << std::endl;
+			sstream << "Could not find any command with that name." << std::endl;
 		}
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "HELP", sstream.str()));
 		return {};
 	}
 	value configparse___string(virtualmachine* vm, value::cref right)
 	{
 		auto str = right.as_string();
 		auto cd = std::make_shared<sqf::configdata>();
-		vm->parse_config(str, cd);
+		vm->parse_config(str, "__configparse___string", cd);
 		return value(cd);
 	}
 	value merge___config_config(virtualmachine* vm, value::cref left, value::cref right)
@@ -267,13 +274,14 @@ namespace
 	{
 		auto code = right.data<codedata>();
 		auto str = code->tosqf();
-		vm->pretty_print_sqf(str);
+
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "PRETTY", vm->pretty_print_sqf(str)));
 		return {};
 	}
 	value prettysqf___string(virtualmachine* vm, value::cref right)
 	{
 		auto str = right.as_string();
-		vm->pretty_print_sqf(str);
+		vm->logmsg(err::InfoMessage(*vm->current_instruction(), "PRETTY", vm->pretty_print_sqf(str)));
 		return {};
 	}
 	value exit___(virtualmachine* vm)
@@ -295,7 +303,7 @@ namespace
 	{
 		auto content = right.as_string();
 		bool errflag = false;
-		auto ppres = sqf::parse::preprocessor::parse(vm, content, errflag, "__preprocess__.sqf");
+		auto ppres = vm->preprocess(content, errflag, "__preprocess__");
 		if (errflag)
 		{
 			return {};
@@ -331,12 +339,12 @@ namespace
 		}
 		return value(sqfarr);
 	}
-	value allfiles___(virtualmachine* vm, value::cref right)
+	value allfiles___array(virtualmachine* vm, value::cref right)
 	{
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
 		if (vm->get_filesystem().disallow())
 		{
-			vm->wrn() << "FILE SYSTEM IS DISABLED" << std::endl;
+			vm->logmsg(err::FileSystemDisabled(*vm->current_instruction()));
 			return sqf::value(std::make_shared<arraydata>());
 		}
 #endif
@@ -353,11 +361,16 @@ namespace
 				i != std::filesystem::recursive_directory_iterator();
 				++i)
 			{
-				bool skip = false;
-				for (auto& ext : *arr) {
-					if (i->is_directory() || i->path().extension().compare(ext.as_string()))
+				bool skip = true;
+				for (auto& ext : *arr)
+				{
+					if (i->is_directory())
 					{
-						skip = true;
+						break;
+					}
+					if (!(i->path().extension().compare(ext.as_string())))
+					{
+						skip = false;
 						break;
 					}
 				}
@@ -395,20 +408,20 @@ namespace
 	{
 		if (!vm->allow_networking())
 		{
-			vm->wrn() << "NETWORKING DISABLED!" << std::endl;
+			vm->logmsg(err::NetworkingDisabled(*vm->current_instruction()));
 			return false;
 		}
 		networking_init();
 		if (vm->is_networking_set())
 		{
-			vm->err() << "Already connected to something." << std::endl;
+			vm->logmsg(err::AlreadyConnected(*vm->current_instruction()));
 			return {};
 		}
 		auto s = right.as_string();
 		auto index = s.find(':');
 		if (index == std::string::npos)
 		{
-			vm->err() << "Invalid input format." << std::endl;
+			vm->logmsg(err::NetworkingFormatMissmatch(*vm->current_instruction(), s));
 			return {};
 		}
 		auto address = s.substr(0, index);
@@ -416,7 +429,7 @@ namespace
 		SOCKET socket;
 		if (networking_create_client(address.c_str(), port.c_str(), &socket))
 		{
-			vm->wrn() << "Something moved wrong during creation of the client socket." << std::endl;
+			vm->logmsg(err::FailedToEstablishConnection(*vm->current_instruction()));
 			return false;
 		}
 		vm->set_networking(std::make_shared<networking::client>(socket));
@@ -425,6 +438,41 @@ namespace
 	value closeconnection___(virtualmachine* vm)
 	{
 		vm->release_networking();
+		return {};
+	}
+	value vmctrl___string(virtualmachine* vm, value::cref right)
+	{
+		auto str = right.as_string();
+
+		if (str == "abort")
+		{
+			vm->execute(sqf::virtualmachine::execaction::abort);
+		}
+		else if (str == "assembly_step")
+		{
+			vm->execute(sqf::virtualmachine::execaction::assembly_step);
+		}
+		else if (str == "leave_scope")
+		{
+			vm->execute(sqf::virtualmachine::execaction::leave_scope);
+		}
+		else if (str == "reset_run_atomic")
+		{
+			vm->execute(sqf::virtualmachine::execaction::reset_run_atomic);
+		}
+		else if (str == "start")
+		{
+			vm->execute(sqf::virtualmachine::execaction::start);
+		}
+		else if (str == "stop")
+		{
+			vm->execute(sqf::virtualmachine::execaction::stop);
+		}
+		else
+		{
+			// ToDo: Create custom log message for enum errors
+			vm->logmsg(err::ErrorMessage(*vm->current_instruction(), "vmctrl", "exec unknown"));
+		}
 		return {};
 	}
 	value provide___code_string(virtualmachine* vm, value::cref left, value::cref right)
@@ -524,6 +572,7 @@ void sqf::commandmap::initsqfvmcmds()
 	add(unary("prettysqf__", sqf::type::CODE, "Takes provided SQF code and pretty-prints it to output.", pretty___code));
 	add(unary("prettysqf__", sqf::type::STRING, "Takes provided SQF code and pretty-prints it to output.", prettysqf___string));
 	add(nular("exit__", "Exits the VM execution immediately. Will not notify debug interface when used.", exit___));
+	add(unary("vmctrl__", sqf::type::STRING, "Executes the provided SQF-VM exection action.", vmctrl___string));
 	add(unary("exitcode__", sqf::type::SCALAR, "Exits the VM execution immediately. Will not notify debug interface when used. Allows to pass an exit code to the VM.", exit___scalar));
 	add(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
 	add(nular("respawn__", "'Respawns' the player object.", respawn___));
@@ -532,7 +581,7 @@ void sqf::commandmap::initsqfvmcmds()
 	add(unary("assembly__", sqf::type::STRING, "returns an array, containing the assembly instructions as string.", assembly___string));
 	add(binary(4, "except__", sqf::type::CODE, sqf::type::CODE, "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'. A callstack is available in '_callstack'.", except___code_code));
 	add(nular("callstack__", "Returns an array containing the whole callstack.", callstack___));
-	add(unary("allFiles__", sqf::type::ARRAY, "Returns all files available in currently loaded paths with the given file extensions.", allfiles___));
+	add(unary("allFiles__", sqf::type::ARRAY, "Returns all files available in currently loaded paths with the given file extensions.", allfiles___array));
 	add(nular("pwd__", "Current path determined by current instruction.", pwd___));
 	add(nular("currentDirectory__", "Current directory determined by current instruction.", currentDirectory___));
 	add(unary("trim__", sqf::type::STRING, "Trims provided strings start and end.", trim___));
@@ -541,3 +590,5 @@ void sqf::commandmap::initsqfvmcmds()
 	add(binary(4, "provide__", sqf::type::CODE, sqf::type::ARRAY, "Allows to provide an implementation for a given operator. Will NOT override existing definitions. Array is expected to be of the following formats:"
 		"nular: [\"name\"], unary: [\"name\", \"type\"], binary: [\"ltype\", \"name\", \"rtype\"]", provide___code_string));
 }
+
+#endif

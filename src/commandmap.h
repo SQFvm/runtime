@@ -19,6 +19,7 @@ namespace sqf
 		std::unordered_map<std::string, std::shared_ptr<nularcmd>> mnularcmd;
 		std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<unarycmd>>>> munarycmd;
 		std::unordered_map<std::string, std::shared_ptr<std::vector<std::shared_ptr<binarycmd>>>> mbinarycmd;
+#ifndef NO_COMMANDS
 		void initmathcmds();
 		void initnamespacecmds();
 		void initgenericcmds();
@@ -32,9 +33,11 @@ namespace sqf
 		void initobjectcmds();
 		void initmarkercmds();
 		void initosspecificcmds();
+#endif // !NO_COMMANDS
 	public:
 		void init()
 		{
+#ifndef NO_COMMANDS
 			initmathcmds();
 			initnamespacecmds();
 			initgenericcmds();
@@ -48,6 +51,7 @@ namespace sqf
 			initmarkercmds();
 			initosspecificcmds();
 			initunimplemented();
+#endif // !NO_COMMANDS
 		}
 
 		commandmap() {}

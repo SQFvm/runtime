@@ -30,7 +30,7 @@
 		auto variable = get_variable(m_fordata->variable());
 		if (variable.dtype() != SCALAR)
 		{
-			vm->wrn() << "for_step callstack variable '" << m_fordata->variable() << "' was expected to be of type SCALAR, got " << type_str(variable.dtype()) << "." << std::endl;
+			vm->logmsg(logmessage::runtime::ForStepVariableTypeMissmatch(*vm->current_instruction(), m_fordata->variable(), ::sqf::type::SCALAR, variable.dtype()));
 			return done;
 		}
 		// Check if exit condition is met
@@ -55,7 +55,7 @@
 		auto current_value = m_fordata->from();
 		if (m_fordata->step() > 0 ? current_value > m_fordata->to() : current_value < m_fordata->to())
 		{
-			vm->wrn() << "for_step callstack 'from " << current_value << " to " << m_fordata->to() << " step " << m_fordata->step() << "'." << std::endl;
+			vm->logmsg(logmessage::runtime::ForStepNoWorkShouldBeDone(*vm->current_instruction(), m_fordata->step(), current_value, m_fordata->to()));
 			return done;
 		}
 		// Set the for variable to its initial value

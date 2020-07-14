@@ -15,7 +15,6 @@ namespace sqf
 	{
 	private:
 		std::shared_ptr<codedata> m_codedata_catch;
-		std::string m_message;
 		std::shared_ptr<sqf::arraydata> m_stackdump;
 		bool m_do_catch;
 		bool m_done_catch;
@@ -34,7 +33,7 @@ namespace sqf
 		{
 		}
 
-		void except(std::string message, std::shared_ptr<sqf::arraydata> stackdump) { m_message = message; m_stackdump = stackdump; m_do_catch = true; }
+		void except(std::shared_ptr<sqf::arraydata> stackdump) { m_stackdump = stackdump; m_do_catch = true; }
 		bool can_recover() override { return true; }
 
 		std::string get_name() override { return "except__"; }

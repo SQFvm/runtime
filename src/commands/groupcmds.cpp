@@ -1,3 +1,4 @@
+#ifndef NO_COMMANDS
 #include "../commandmap.h"
 #include "../value.h"
 #include "../cmd.h"
@@ -57,7 +58,7 @@ namespace
 		}
 		else
 		{
-			vm->wrn() << "Attempt to delete a non-empty group was made. GroupID: " << grp->groupid() << '.' << std::endl;
+			vm->logmsg(logmessage::runtime::GroupNotEmpty(*vm->current_instruction(), grp->groupid()));
 		}
 		return {};
 	}
@@ -121,3 +122,5 @@ void sqf::commandmap::initgroupcmds()
 	add(binary(4, "selectLeader", type::GROUP, type::OBJECT, "Select the group's leader.", selectleader_group_object));
 	
 }
+
+#endif

@@ -43,7 +43,7 @@ std::optional<std::filesystem::path> sqf::filesystem::resolvePath(std::filesyste
         virtElements.emplace_back(el.string());
     }
 
-    if (virtElements.front() == "\\") //We already know it's a global path. We don't want starting backslash
+    if (virtElements.front() == "\\" ||virtElements.front() == "/") //We already know it's a global path. We don't want starting backslash
         virtElements.erase(virtElements.begin());
 
     std::vector<std::map<std::string, pathElement>::iterator> pathStack; //In case we need to walk back upwards
@@ -88,18 +88,19 @@ std::optional<std::filesystem::path> sqf::filesystem::resolvePath(std::filesyste
 
 std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string_view virt, std::string_view current)
 {
-	if (virt.empty())
-	{
-		return {};
-	}
+    if (virt.empty())
+    {
+        return {};
+    }
 #if !defined(FILESYSTEM_DISABLE_DISALLOW)
-	if (mdisallow)
-	{
-		return {};
-	}
+    if (mdisallow)
+    {
+        return {};
+    }
 #endif
-	std::string virtMapping;
-    if (virt.front() != '\\') { //It's a local path
+    std::string virtMapping;
+    if (virt.front() != '\\' && virt.front() != '/') { //It's a local path
+    local_path:
         auto parentDirectory = std::filesystem::path(current).parent_path(); //Get parent of current file
         auto wantedFile = (parentDirectory / virt).lexically_normal();
 
@@ -113,23 +114,27 @@ std::optional<std::string> sqf::filesystem::try_get_physical_path(std::string_vi
                 return {}; //boundary violation
         }
 
-		if (std::filesystem::exists(wantedFile))
-		{
-			auto absolute = std::filesystem::absolute(wantedFile);
-			return absolute.string();
-		}
+        if (std::filesystem::exists(wantedFile))
+        {
+            auto absolute = std::filesystem::absolute(wantedFile);
+            return absolute.string();
+        }
         return {}; //file doesn't exist
-    } else { //global path
+    }
+    else { //global path
         auto resolved = resolvePath(virt);
         if (resolved) {
             if (std::filesystem::exists(*resolved))
-			{
-				auto absolute = std::filesystem::absolute(*resolved);
-				return absolute.string();
-			}
+            {
+                auto absolute = std::filesystem::absolute(*resolved);
+                return absolute.string();
+            }
             return {}; //file doesn't exist
         }
-        return {}; //can't resolve file
+        else
+        {
+            goto local_path; // Handle normally
+        }
     }
 }
 
@@ -143,6 +148,14 @@ void sqf::filesystem::add_mapping(std::string_view virt, std::string_view phys)
 {
 	auto san_virt = sanitize(virt);
 	auto san_phys = sanitize(phys);
+    if (!san_virt.empty() && (san_virt.front() == '/' || san_virt.front() == '\\'))
+    {
+        san_virt = san_virt.substr(1);
+    }
+    if (!san_virt.empty() && (san_virt.back() == '/' || san_virt.back() == '\\'))
+    {
+        san_virt = san_virt.substr(0, san_virt.length() - 1);
+    }
 	m_physicalboundaries.push_back(san_phys);
 	m_virtualpaths.push_back(san_virt);
     addPathMappingInternal(san_virt, san_phys);

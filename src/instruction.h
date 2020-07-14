@@ -9,8 +9,8 @@ namespace sqf
 	class instruction
 	{
 	private:
-		size_t mline;
-		size_t mcol;
+		size_t mline = 0;
+		size_t mcol = 0;
 		std::string mfile;
 		std::string msegment;
 	public:
@@ -31,7 +31,7 @@ namespace sqf
 		};
 		virtual void execute(virtualmachine*) const = 0;
 		void setdbginf(size_t line, size_t col, std::string file, std::string segment);
-		std::string dbginf(std::string tag) const;
+		std::string dbginf(std::string tag) const { return msegment; }
 		virtual insttype thistype() const = 0;
 		virtual std::string to_string() const = 0;
 	};

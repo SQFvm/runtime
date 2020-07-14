@@ -12,7 +12,7 @@ sqf::value sqf::configdata::inherited_parent_unsafe() const
 		// try to find parent
 		auto res = lockparent->navigate_unsafe(m_inherited_parent_name);
 		// check result
-		if (res.data<configdata>().get() != this)
+		if (res.dtype() == sqf::type::CONFIG && !res.data<configdata>()->is_null() && res.data<configdata>().get() != this)
 		{ // hit, return parent
 			return res;
 		}
@@ -135,12 +135,14 @@ void sqf::configdata::mergeinto(std::shared_ptr<configdata> cd)
 			continue;
 		auto subcd = val.data<configdata>();
 		auto othercd = cd->navigate_unsafe(subcd->m_name);
-		if (othercd.dtype() != type::NOTHING)
+		auto otherconfdata = othercd.data<configdata>();
+		if (othercd.dtype() != type::NOTHING && !otherconfdata->is_null())
 		{
-			subcd->mergeinto(othercd.data<configdata>());
+			subcd->mergeinto(otherconfdata);
 		}
 		else
 		{
+			subcd->m_logical_parent = cd;
 			cd->push_back(val);
 		}
 	}

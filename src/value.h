@@ -18,6 +18,8 @@ namespace sqf
 	private:
 		std::shared_ptr<sqf::data> mdata;
 	public:
+		template<size_t size>
+		value(std::array<value, size> arr) : value(std::vector(arr.begin(), arr.end())) {}
 		value(std::vector<value>);
 		value(std::string);
 		value(char* str) : value(std::string(str)) {}
