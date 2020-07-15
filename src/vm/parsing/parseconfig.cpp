@@ -79,7 +79,7 @@ namespace sqf::parse
 	size_t config::anytext(size_t off) { size_t i; for (i = off; m_contents[i] != ' ' && m_contents[i] != '\t' && m_contents[i] != '\r' && m_contents[i] != '\n' && m_contents[i] != ';'; i++) {}; return i - off; }
 
 
-	//NODELIST = { NODE ';' { ';' } };
+	// NODELIST = { NODE ';' { ';' } };
 	bool config::NODELIST_start(size_t off) { return true; }
 	void config::NODELIST(astnode & root, bool& errflag)
 	{
@@ -113,7 +113,7 @@ namespace sqf::parse
 		//thisnode.length = m_info.offset - thisnode.offset;
 		//root.children.push_back(thisnode);
 	}
-	//NODE = CONFIGNODE | VALUENODE;
+	// NODE = CONFIGNODE | VALUENODE;
 	bool config::NODE_start(size_t off) { return CONFIGNODE_start(off) || VALUENODE_start(off); }
 	void config::NODE(astnode & root, bool& errflag)
 	{
@@ -136,7 +136,7 @@ namespace sqf::parse
 		//thisnode.length = m_info.offset - thisnode.offset;
 		//root.children.push_back(thisnode);
 	}
-	//CONFIGNODE = 'class' ident [ ':' ident ] '{' NODELIST '}'
+	// CONFIGNODE = 'class' ident [ ':' ident ] [ '{' NODELIST '}' ]
 	bool config::CONFIGNODE_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("class"), "class", compiletime::strlen("class")) == 0; }
 	void config::CONFIGNODE(astnode & root, bool& errflag)
 	{
@@ -195,26 +195,25 @@ namespace sqf::parse
 			m_info.offset++;;
 			m_info.column++;
 			skip();
-		}
-		else
-		{
-			log(err::MissingCurlyOpeningBracket(m_info));
-			errflag = true;
-		}
-		NODELIST(thisnode, errflag);
-		if (m_contents[m_info.offset] == '}')
-		{
-			m_info.offset++;;
-			m_info.column++;
-		}
-		else
-		{
-			log(err::MissingCurlyClosingBracket(m_info));
-			errflag = true;
-		}
 
-		thisnode.length = m_info.offset - thisnode.offset;
-		root.children.push_back(thisnode);
+			NODELIST(thisnode, errflag);
+			if (m_contents[m_info.offset] == '}')
+			{
+				m_info.offset++;;
+				m_info.column++;
+			}
+			else
+			{
+				log(err::MissingCurlyClosingBracket(m_info));
+				errflag = true;
+			}
+
+			thisnode.length = m_info.offset - thisnode.offset;
+			root.children.push_back(thisnode);
+		}
+		else
+		{
+		}
 	}
 	//VALUENODE = ident ('=' (STRING | NUMBER | LOCALIZATION) | '[' ']' '=' ARRAY);
 	bool config::VALUENODE_start(size_t off) { return identifier(off) > 0; }
