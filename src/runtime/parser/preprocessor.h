@@ -1,5 +1,10 @@
 #pragma once
 #include "../fileio.h"
+#include "../diagnostics/diag_info.h"
+
+#include <string>
+#include <string_view>
+#include <vector>
 
 
 namespace sqf
@@ -9,11 +14,63 @@ namespace sqf
 		class runtime;
 		namespace parser
 		{
+			class macro 
+			{
+			public:
+				// Special method pointer that may be filled
+				// to give this macro a special behavior rather
+				// then a content.
+				// Gets only applied if pointer is != nullptr
+				// m -> the original macro
+				// local_fileinfo -> the location, where the macro is called locally (lowest level)
+				// original_fileinfo -> the most upper file in the macro chain
+				// params -> the passed parameters
+				typedef std::string(*callback)(
+					const macro& m,
+					const ::sqf::runtime::diagnostics::diag_info dinf,
+					const ::sqf::runtime::fileio::pathinfo location,
+					const std::vector<std::string>& params,
+					::sqf::runtime::runtime& runtime
+					);
+			private:
+				std::string m_name;
+				std::string m_content;
+				std::vector<std::string> m_args;
+				callback m_callback;
+
+				::sqf::runtime::diagnostics::diag_info m_diag_info;
+			public:
+				macro() = default;
+				macro(diagnostics::diag_info diag_info, std::string name, std::vector<std::string> args, std::string content, callback callback) :
+					m_name(name), m_content(content), m_args(args), m_diag_info(diag_info), m_callback(callback) {}
+
+				macro(diagnostics::diag_info diag_info, std::string name) : macro(diag_info, name, {}, {}, nullptr) {}
+				macro(diagnostics::diag_info diag_info, std::string name, std::string content) : macro(diag_info, name, {}, content, nullptr) {}
+				macro(diagnostics::diag_info diag_info, std::string name, std::vector<std::string> args) : macro(diag_info, name, args, {}, nullptr) {}
+				macro(diagnostics::diag_info diag_info, std::string name, std::vector<std::string> args, std::string content) : macro(diag_info, name, args, content, nullptr) {}
+				macro(std::string name) : macro({}, name, {}, {}, nullptr) {}
+				macro(std::string name, std::string content) : macro({}, name, {}, content, nullptr) {}
+				macro(std::string name, callback callback) : macro({}, name, {}, {}, callback) {}
+				macro(std::string name, std::vector<std::string> args, std::string content) : macro({}, name, args, content, nullptr) {}
+				macro(std::string name, std::vector<std::string> args, callback callback) : macro({}, name, args, {}, callback) {}
+
+				std::string_view name() const { return m_name; }
+				std::string_view content() const { return m_content; }
+				const std::vector<std::string>& args() const { return m_args; }
+				const ::sqf::runtime::diagnostics::diag_info diag_info() const { return m_diag_info; }
+				bool has_callback() const { return m_callback; }
+				
+				std::string operator()(
+					const ::sqf::runtime::diagnostics::diag_info dinf,
+					const ::sqf::runtime::fileio::pathinfo location,
+					const std::vector<std::string>& params,
+					::sqf::runtime::runtime& runtime) const { return m_callback(*this, dinf, location, params, runtime); }
+			};
 			class preprocessor
 			{
 			public:
 				virtual ~preprocessor() = 0;
-				virtual std::string preprocess(::sqf::runtime::runtime& runtime, ::sqf::runtime::fileio::pathinfo pathinfo) = 0;
+				virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::sqf::runtime::fileio::pathinfo pathinfo) = 0;
 			};
 		}
 	}
@@ -23,7 +80,7 @@ namespace sqf
 		{
 			public:
 				virtual ~passthrough() override { return; };
-				virtual std::string preprocess(::sqf::runtime::runtime& runtime, ::sqf::runtime::fileio::pathinfo pathinfo) override;
+				virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::sqf::runtime::fileio::pathinfo pathinfo) override;
 		};
 	}
 }

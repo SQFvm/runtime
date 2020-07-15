@@ -100,8 +100,6 @@ namespace logmessage::preprocessor {
     std::string IncludeFailed::formatMessage() const {
         auto output = location.format();
 
-        const std::string_view exceptionMessage(exception.what());
-
         output.reserve(
             output.length() 
             + "Failed to include '"sv.length()
@@ -109,14 +107,14 @@ namespace logmessage::preprocessor {
             + "' into file '"sv.length()
             + location.path.length()
             + "']\t':"sv.length()
-            + exceptionMessage.length()
+            + m_exception.length()
         );
         output.append("Failed to include '"sv);
         output.append(line);
         output.append("' into file '"sv);
         output.append(location.path);
         output.append("']\t':"sv);
-        output.append(exceptionMessage);
+        output.append(m_exception);
         return output;
 
     }

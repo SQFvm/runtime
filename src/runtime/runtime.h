@@ -238,6 +238,16 @@ namespace sqf::runtime
         sqf::runtime::parser::config& parser_config() { return *m_parser_config; }
         sqf::runtime::parser::preprocessor& parser_preprocessor() { return *m_parser_preprocessor; }
 
+
+        // DO NOT USE FROM WITHIN COMMANDS!
+        // Executing this method will request a temporary halt of the vm, to then execute
+        // whatever is passed in view until the end.
+        // A deadlock thus will happen, where the command would wait for itself
+        // to return to start evaluating the expression!
+        //
+        // If you need to execute from within a command, pass "request_halt = false"
+        value evaluate_expression(std::string_view view, bool& success, bool request_halt = true);
+
         /// <summary>
         /// Breaks encapsulation to provide access to local-logger of runtime.
         /// </summary>

@@ -138,10 +138,12 @@ namespace logmessage {
             static const loglevel level = loglevel::error;
             static const size_t errorCode = 10004;
             std::string_view line;
-            const std::runtime_error& exception;
+            std::string_view m_exception;
         public:
             IncludeFailed(LogLocationInfo loc, std::string_view line, const std::runtime_error& exception) :
-                PreprocBase(level, errorCode, std::move(loc)), line(line), exception(exception) {}
+                PreprocBase(level, errorCode, std::move(loc)), line(line), m_exception(exception.what()) {}
+            IncludeFailed(LogLocationInfo loc, std::string_view line, std::string_view exception) :
+                PreprocBase(level, errorCode, std::move(loc)), line(line), m_exception(exception) {}
             [[nodiscard]] std::string formatMessage() const override;
         };
 

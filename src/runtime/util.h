@@ -2,6 +2,48 @@
 
 #include <string_view>
 
+#ifndef CONCAT_
+#define CONCAT_(L, R) L ## R
+#endif // !CONCAT_
+#ifndef CONCAT
+#define CONCAT(L, R) CONCAT_(L, R)
+#endif // !CONCAT
+#ifndef STR_
+#define STR_(IN) # IN
+#endif // !STR_
+#ifndef STR
+#define STR(IN) STR_(IN)
+#endif // !STR
+
+// Check windows
+#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN64)
+#define ENVIRONMENT x64
+#define ENVIRONMENT64 ENVIRONMENT
+#else
+#define ENVIRONMENT x86
+#define ENVIRONMENT32 ENVIRONMENT
+#endif
+#endif
+
+// Check GCC
+#if defined(__GNUC__)
+#if defined(__x86_64__) || defined(__ppc64__)
+#define ENVIRONMENT x64
+#define ENVIRONMENT64 ENVIRONMENT
+#else
+#define ENVIRONMENT x86
+#define ENVIRONMENT32 ENVIRONMENT
+#endif
+#endif
+
+#if !defined(ENVIRONMENT)
+#define ENVIRONMENT NA
+#endif
+
+#define ENVIRONMENTSTR STR(ENVIRONMENT)
+
+
 namespace sqf::runtime::util
 {
 	inline std::string_view ltrim(std::string_view str, std::string_view chars = " \t")
