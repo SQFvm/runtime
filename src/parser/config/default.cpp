@@ -623,6 +623,8 @@ sqf::parser::config::default::astnode sqf::parser::config::default::parse(bool& 
 
 bool sqf::parser::config::default::apply_to_confighost(sqf::parser::config::default::astnode& node, ::sqf::runtime::confighost& confighost, ::sqf::runtime::confighost::config& parent)
 {
+	// ToDo: Check if a corresponding config already exists in confighost before creating it to avoid duplicates
+
 	switch (node.kind)
 	{
 	case nodetype::CONFIGNODE:
