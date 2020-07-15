@@ -113,7 +113,7 @@ namespace sqf::parse
 		//thisnode.length = m_info.offset - thisnode.offset;
 		//root.children.push_back(thisnode);
 	}
-	// NODE = CONFIGNODE | VALUENODE;
+	// NODE = CONFIGNODE | VALUENODE | DELETENODE;
 	bool config::NODE_start(size_t off) { return CONFIGNODE_start(off) || VALUENODE_start(off); }
 	void config::NODE(astnode & root, bool& errflag)
 	{
@@ -211,11 +211,36 @@ namespace sqf::parse
 			thisnode.length = m_info.offset - thisnode.offset;
 			root.children.push_back(thisnode);
 		}
+	}
+	// DELETENODE = delete ident;
+	bool config::DELETENODE_start(size_t off) { return str_cmpi(m_contents + off, compiletime::strlen("delete"), "delete", compiletime::strlen("delete")) == 0; }
+	void config::DELETENODE(astnode & root, bool& errflag)
+	{
+		size_t len;
+		auto thisnode = astnode();
+		thisnode.offset = m_info.offset;
+		thisnode.kind = (short)asttype::config::DELETENODE;
+
+		m_info.offset += compiletime::strlen("delete");
+		m_info.column += compiletime::strlen("delete");
+		skip();
+		std::string ident;
+		if ((len = identifier(m_info.offset)) > 0)
+		{
+			ident = std::string(m_contents_actual.substr(m_info.offset, len));
+			thisnode.content = ident;
+			thisnode.line = m_info.line;
+			thisnode.file = m_info.file;
+			m_info.offset += len;
+			m_info.column += len;
+		}
 		else
 		{
+			log(err::ExpectedIdentifier(m_info));
+			errflag = true;
 		}
 	}
-	//VALUENODE = ident ('=' (STRING | NUMBER | LOCALIZATION) | '[' ']' '=' ARRAY);
+	// VALUENODE = ident ('=' (STRING | NUMBER | LOCALIZATION) | '[' ']' ( '=' | '+=' ) ARRAY);
 	bool config::VALUENODE_start(size_t off) { return identifier(off) > 0; }
 	void config::VALUENODE(astnode & root, bool& errflag)
 	{
@@ -258,17 +283,40 @@ namespace sqf::parse
 				log(err::MissingSquareClosingBracket(m_info));
 				errflag = true;
 			}
-		}
-		if (m_contents[m_info.offset] == '=')
-		{
-			m_info.offset++;;
-			m_info.column++;
-			skip();
+			if (m_contents[m_info.offset] == '=')
+			{
+				m_info.offset++;
+				m_info.column++;
+				skip();
+			}
+			else if (m_contents[m_info.offset] == '+' && m_contents[m_info.offset + 1] == '=')
+			{
+				thisnode.kind = (short)asttype::config::VALUENODE_ADDARRAY;
+				m_info.offset++;
+				m_info.offset++;
+				m_info.column++;
+				m_info.column++;
+				skip();
+			}
+			else
+			{
+				log(err::MissingEqualSign(m_info));
+				errflag = true;
+			}
 		}
 		else
 		{
-			log(err::MissingEqualSign(m_info));
-			errflag = true;
+			if (m_contents[m_info.offset] == '=')
+			{
+				m_info.offset++;;
+				m_info.column++;
+				skip();
+			}
+			else
+			{
+				log(err::MissingEqualSign(m_info));
+				errflag = true;
+			}
 		}
 
 		if (isarr)
