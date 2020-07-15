@@ -7,14 +7,15 @@ namespace sqf
 	namespace runtime
 	{
 		class runtime;
+		class confighost;
 		namespace parser
 		{
 			class config
 			{
 			public:
 				virtual ~config() = 0;
-				virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents) = 0;
-				virtual bool parse(::sqf::runtime::runtime& runtime, std::string contents) = 0;
+				virtual bool check_syntax(std::string contents) = 0;
+				virtual bool parse(::sqf::runtime::confighost& target, std::string contents) = 0;
 			};
 		}
 	}
@@ -24,8 +25,8 @@ namespace sqf
 		{
 		public:
 			virtual ~disabled() override { return; }
-			virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents) override { return false; }
-			virtual bool parse(::sqf::runtime::runtime& runtime, std::string contents) override { return false; }
+			virtual bool check_syntax(std::string contents) override { return false; }
+			virtual bool parse(::sqf::runtime::confighost& target, std::string contents) override { return false; }
 		};
 	}
 }

@@ -23,6 +23,7 @@ namespace sqf
 		{
 		public:
 			static sqf::runtime::type cexp_type() { return sqf::runtime::t_array(); }
+			using iterator = std::vector<sqf::runtime::value>::iterator;
 		private:
 			std::vector<sqf::runtime::value> m_value;
 			bool recursion_test_(std::vector<std::shared_ptr<d_array>>& visited)
@@ -119,11 +120,11 @@ namespace sqf
 			size_t size() const { return m_value.size(); }
 			bool empty() const { return m_value.empty(); }
 
-			std::vector<sqf::runtime::value>::iterator begin() { return m_value.begin(); }
-			std::vector<sqf::runtime::value>::iterator end() { return m_value.end(); }
-
-			std::vector<sqf::runtime::value>::iterator erase(std::vector<sqf::runtime::value>::iterator begin, std::vector<sqf::runtime::value>::iterator end)
-			{ return m_value.erase(begin, end); }
+			iterator begin() { return m_value.begin(); }
+			iterator end() { return m_value.end(); }
+			iterator erase(iterator begin, iterator end) { return m_value.erase(begin, end); }
+			template<typename TIterator>
+			iterator insert(iterator start, TIterator begin, TIterator end) { return m_value.insert(start, begin, end); }
 
 			//#TODO emplace back
 			bool push_back(sqf::runtime::value val) { m_value.push_back(std::move(val)); if (!recursion_test()) { m_value.pop_back(); return false; } return true; }
@@ -142,16 +143,6 @@ namespace sqf
 					}
 				}
 			}
-			void append(std::vector<sqf::runtime::value> other)
-			{
-				m_value.reserve(m_value.size() + std::distance(other.begin(), other.end()));
-				m_value.insert(m_value.end(), other.begin(), other.end());
-			}
-			void erase_at(size_t position)
-			{
-				m_value.erase(m_value.begin() + position);
-			}
-
 			sqf::runtime::type type() const override { return cexp_type(); }
 
 

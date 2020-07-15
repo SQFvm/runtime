@@ -153,14 +153,20 @@ namespace sqf::parser::sqf
 			parse(success);
 			return success;
 		}
-		virtual std::optional<::sqf::runtime::instruction_set> parse(::sqf::runtime::runtime& runtime, std::string contents)
+		virtual std::optional<::sqf::runtime::instruction_set> parse(::sqf::runtime::runtime& runtime, std::string contents) override
 		{
 			bool success = false;
-			parse(success);
+			auto root = parse(success);
 			if (!success)
 			{
 				return {};
 			}
+			std::vector<::sqf::runtime::instruction::sptr> source;
+			if (!to_assembly(root, source))
+			{
+				return {};
+			}
+			return source;
 		}
 	};
 }
