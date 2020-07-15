@@ -2371,52 +2371,77 @@ namespace logmessage::runtime
 	std::string UnknownInputTypeCombinationBinary::formatMessage() const
 	{
 		auto output = location.format();
+		auto left_got = m_left_got.to_string();
+		auto right_got = m_right_got.to_string();
+		output.reserve(
+			output.length()
+			+ "Unknown input combination "sv.length()
+			+ left_got.length()
+			+ " "sv.length()
+			+ m_operator.length()
+			+ " "sv.length()
+			+ right_got.length()
+			+ "."sv.length()
+		);
 
-		if (m_left_got.is<::sqf::types::t_nothing>())
-		{
-			auto right_got = m_right_got.to_string();
-			output.reserve(
-				output.length()
-				+ "Unknown input combination "sv.length()
-				+ m_operator.length()
-				+ " "sv.length()
-				+ right_got.length()
-				+ "."sv.length()
-			);
+		output.append("Unknown input combination "sv);
+		output.append(left_got);
+		output.append(" "sv);
+		output.append(m_operator);
+		output.append(" "sv);
+		output.append(right_got);
+		output.append("."sv);
+		return output;
+	}
+	std::string UnknownInputTypeCombinationUnary::formatMessage() const
+	{
+		auto output = location.format();
+		auto right_got = m_right_got.to_string();
+		output.reserve(
+			output.length()
+			+ "Unknown input combination "sv.length()
+			+ m_operator.length()
+			+ " "sv.length()
+			+ right_got.length()
+			+ "."sv.length()
+		);
 
-			output.append("Unknown input combination "sv);
-			output.append(m_operator);
-			output.append(" "sv);
-			output.append(right_got);
-			output.append("."sv);
-			return output;
-		}
-		else
-		{
-			auto left_got = m_left_got.to_string();
-			auto right_got = m_right_got.to_string();
-			output.reserve(
-				output.length()
-				+ "Unknown input combination "sv.length()
-				+ left_got.length()
-				+ " "sv.length()
-				+ m_operator.length()
-				+ " "sv.length()
-				+ right_got.length()
-				+ "."sv.length()
-			);
+		output.append("Unknown input combination "sv);
+		output.append(m_operator);
+		output.append(" "sv);
+		output.append(right_got);
+		output.append("."sv);
+		return output;
+	}
+	std::string UnknownInputTypeCombinationNular::formatMessage() const
+	{
+		auto output = location.format();
+		output.reserve(
+			output.length()
+			+ "Unknown input combination "sv.length()
+			+ m_operator.length()
+			+ "."sv.length()
+		);
 
-			output.append("Unknown input combination "sv);
-			output.append(left_got);
-			output.append(" "sv);
-			output.append(m_operator);
-			output.append(" "sv);
-			output.append(right_got);
-			output.append("."sv);
-			return output;
-		}
+		output.append("Unknown input combination "sv);
+		output.append(m_operator);
+		output.append("."sv);
+		return output;
 	}
 	std::string FoundNoValue::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "No value found on value stack."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string FoundNoValueWeak::formatMessage() const
 	{
 		auto output = location.format();
 		const auto message = "No value found on value stack."sv;

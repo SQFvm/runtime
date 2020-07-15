@@ -24,6 +24,13 @@ namespace sqf::runtime
 
 		explicit operator type() const { return m_data ? m_data->type() : sqf::types::t_nothing(); };
 
+		template<class T>
+		bool is() const
+		{
+			static_assert(std::is_base_of<sqf::runtime::type, T>::value, "value::is<T>() can only be used with sqf::runtime::type types.");
+			return this->operator sqf::runtime::type() == T();
+		}
+
 
 		/// <summary>
 		/// Returns the m_data member.

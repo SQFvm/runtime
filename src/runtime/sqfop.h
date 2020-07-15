@@ -19,7 +19,6 @@ namespace sqf::runtime
 			std::string name;
 			sqf::runtime::type left_type;
 			sqf::runtime::type right_type;
-			short precedence;
 
 			bool operator==(const key& other) const
 			{
@@ -30,11 +29,12 @@ namespace sqf::runtime
 		key m_key;
 		std::string m_description;
 		callback m_callback;
+		short m_precedence;
 	public:
-		sqfop_binary(key key, std::string description, callback callback) : m_key(key), m_description(description), m_callback(callback) {}
+		sqfop_binary(short precedence, key key, std::string description, callback callback) : m_key(key), m_description(description), m_callback(callback), m_precedence(precedence) {}
 		std::string_view name() const { return m_key.name; }
 		std::string_view description() const { return m_description; }
-		short precedence() const { return m_key.precedence; }
+		short precedence() const { return m_precedence; }
 		sqf::runtime::type left_type() const { return m_key.left_type; }
 		sqf::runtime::type right_type() const { return m_key.right_type; }
 		value execute(sqf::runtime::runtime& vm, sqf::runtime::value::cref left, value::cref right) const { return m_callback(vm, left, right); }
@@ -126,7 +126,7 @@ namespace sqf::runtime
 		/// <param name="fnc">The method to execute when the operator gets invoked.</param>
 		/// <returns>A valid sqfop_unary.</returns>
 		static inline sqfop_binary&& binary(short precedence, std::string name, type ltype, type rtype, std::string description, sqfop_binary::callback fnc)
-		{ return { { name, ltype, rtype, precedence }, description, fnc }; }
+		{ return { precedence, { name, ltype, rtype }, description, fnc }; }
 	}
 }
 
@@ -136,11 +136,9 @@ template<> struct std::hash<sqf::runtime::sqfop_binary::key> {
 		std::size_t h1 = std::hash<std::string>{}(s.name);
 		std::size_t h2 = std::hash<short>{}(s.left_type);
 		std::size_t h3 = std::hash<short>{}(s.right_type);
-		std::size_t h4 = std::hash<short>{}(s.precedence);
 
 		h1 ^= (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
 		h1 ^= (h3 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
-		h1 ^= (h4 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
 		return h1;
 	}
 };

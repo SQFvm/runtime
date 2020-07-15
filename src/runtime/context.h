@@ -15,6 +15,7 @@ namespace sqf::runtime
 		std::vector<sqf::runtime::frame> m_frames;
 		std::vector<sqf::runtime::value> m_values;
 		bool m_suspended;
+		bool m_weak_error_handling;
 		std::chrono::system_clock::time_point m_wakeup_timestamp;
 
 	public:
@@ -53,6 +54,9 @@ namespace sqf::runtime
 			}
 			return {};
 		}
+
+		bool weak_error_handling() const { return m_weak_error_handling; }
+		void weak_error_handling(bool flag) { m_weak_error_handling = flag; }
 
 
 		frame& current_frame() { return m_frames.back(); }

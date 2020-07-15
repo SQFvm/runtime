@@ -1533,18 +1533,51 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
-		class FoundNoValue : public RuntimeBase {
+		class UnknownInputTypeCombinationUnary : public RuntimeBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60077;
+			std::string_view m_operator;
+			::sqf::runtime::type m_right_got;
+		public:
+			UnknownInputTypeCombinationUnary(LogLocationInfo loc, std::string_view op, ::sqf::runtime::type right_got) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_operator(op),
+				m_right_got(right_got)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class UnknownInputTypeCombinationNular : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60078;
+			std::string_view m_operator;
+		public:
+			UnknownInputTypeCombinationNular(LogLocationInfo loc, std::string_view op) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_operator(op)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class FoundNoValue : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60079;
 		public:
 			FoundNoValue(LogLocationInfo loc) :
 				RuntimeBase(level, errorCode, std::move(loc))
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+		class FoundNoValueWeak : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60080;
+		public:
+			FoundNoValueWeak(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
 		class CallstackFoundNoValue : public RuntimeBase {
 			static const loglevel level = loglevel::error;
-			static const size_t errorCode = 60078;
+			static const size_t errorCode = 60081;
 			std::string_view m_callstack_name;
 		public:
 			CallstackFoundNoValue(LogLocationInfo loc, std::string_view callstack_name) :
@@ -1555,7 +1588,7 @@ namespace logmessage {
 		};
 		class CallstackFoundNoValueWeak : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
-			static const size_t errorCode = 60079;
+			static const size_t errorCode = 60082;
 			std::string_view m_callstack_name;
 		public:
 			CallstackFoundNoValueWeak(LogLocationInfo loc, std::string_view callstack_name) :
@@ -1566,7 +1599,7 @@ namespace logmessage {
 		};
 		class GroupNotEmpty : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
-			static const size_t errorCode = 60080;
+			static const size_t errorCode = 60083;
 			std::string_view m_group_name;
 		public:
 			GroupNotEmpty(LogLocationInfo loc, std::string_view group_name) :
@@ -1578,7 +1611,7 @@ namespace logmessage {
 
 		class ForStepVariableTypeMissmatch : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
-			static const size_t errorCode = 60081;
+			static const size_t errorCode = 60084;
 			std::string_view m_variable_name;
 			::sqf::runtime::type m_expected;
 			::sqf::runtime::type m_got;
@@ -1593,7 +1626,7 @@ namespace logmessage {
 		};
 		class ForStepNoWorkShouldBeDone : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
-			static const size_t errorCode = 60082;
+			static const size_t errorCode = 60085;
 			double m_step;
 			double m_from;
 			double m_to;
