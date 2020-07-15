@@ -4,6 +4,7 @@
 
 #include <optional>
 #include <algorithm>
+#include <string_view>
 
 namespace sqf
 {
@@ -18,7 +19,7 @@ namespace sqf
 				virtual ~sqf() = 0;
 				virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents) = 0;
 				virtual std::optional<::sqf::runtime::instruction_set> parse(::sqf::runtime::runtime& runtime, std::string contents) = 0;
-				static std::string create_code_segment(std::string view, size_t off, size_t length)
+				static std::string create_code_segment(std::string_view view, size_t off, size_t length)
 				{
 					size_t i = off < 15 ? 0 : off - 15;
 					size_t len = 30 + length;
