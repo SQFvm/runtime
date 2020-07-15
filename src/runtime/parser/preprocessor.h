@@ -6,6 +6,7 @@ namespace sqf
 {
 	namespace runtime
 	{
+		class runtime;
 		namespace parser
 		{
 			class preprocessor

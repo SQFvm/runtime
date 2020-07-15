@@ -14,9 +14,9 @@ void StdOutLogger::log(loglevel level, std::string_view message) {
 #pragma region LogLocationInfo
 LogLocationInfo::LogLocationInfo(const sqf::runtime::diagnostics::diag_info& info)
 {
-	path = info.file();
-	line = info.line();
-	col =  info.column();
+	path = info.file;
+	line = info.line;
+	col =  info.column;
 }
 
 std::string LogLocationInfo::format() const {
@@ -1010,10 +1010,9 @@ namespace logmessage::runtime
 		int i = 1;
 		for (auto& frame : m_stacktrace.frames)
 		{
-			sstream << i++ << ":\tnamespace: " << frame.namespace_used->get_name()
-				<< "\tscopename: " << it.scope_name
-				<< "\tcallstack: " << it.callstack_name
-				<< std::endl << it.dbginf << std::endl;
+			sstream << i++ << ":\tnamespace: " << frame.globals_value_scope()->scope_name()
+				<< "\tscopename: " << frame.scope_name()
+				<< std::endl << (*frame.current())->diag_info().code_segment << std::endl;
 		}
 		return sstream.str();
 	}
