@@ -15,7 +15,7 @@ namespace sqf::runtime
 	public:
 		value_scope() = default;
 
-		sqf::runtime::value::cref operator[](const std::string& index) const { return get(index); }
+		sqf::runtime::value operator[](const std::string& index) const { return get(index); }
 		sqf::runtime::value& operator[](const std::string& index) { return get(index); }
 
 		bool contains(const std::string& view) const { return m_map.find(view) != m_map.end(); }

@@ -70,9 +70,8 @@ namespace sqf
 			{
 				return m_value;
 			}
-			static d_string from_sqf(std::string_view sview)
+			static std::string from_sqf(std::string_view sview)
 			{
-				size_t count = 0;
 				char start = sview[0];
 				if (sview.length() == 0) { return {}; }
 				if (start != '"' && start != '\'') { return {}; }
@@ -89,7 +88,7 @@ namespace sqf
 					}
 					arr.emplace_back(c);
 				}
-				return { std::string(arr.data(), arr.size()) };
+				return std::string(arr.data(), arr.size());
 			}
 			sqf::runtime::type type() const override { return cexp_type(); }
 			std::string value() const { return m_value; }

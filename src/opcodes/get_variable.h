@@ -1,5 +1,8 @@
 #pragma once
 #include "../runtime/instruction.h"
+#include "../runtime/runtime.h"
+#include "../runtime/value.h"
+#include "../runtime/value_scope.h"
 
 #include <string>
 
@@ -15,8 +18,48 @@ namespace sqf::opcodes
 		std::string m_variable_name;
 	public:
 		get_variable(std::string variable_name) : m_variable_name(variable_name) {}
-		virtual void execute(sqf::runtime::runtime& vm) const override;
+		virtual void execute(sqf::runtime::runtime& vm) const override
+		{
+			if (m_variable_name[0] == '_')
+			{ // local variable
+				auto opt = vm.active_context()->get_variable(m_variable_name);
+				if (opt.has_value())
+				{
+					vm.active_context()->push_value(*opt);
+				}
+				else
+				{
+					vm.__logmsg(logmessage::runtime::VariableNotFound(diag_info(), m_variable_name));
+				}
+			}
+			else
+			{ // global variable
+				auto global_scope = vm.active_context()->current_frame().globals_value_scope();
+				if (global_scope->contains(m_variable_name))
+				{
+					vm.active_context()->push_value(global_scope->get(m_variable_name));
+				}
+				else
+				{
+					vm.__logmsg(logmessage::runtime::VariableNotFound(diag_info(), m_variable_name));
+				}
+			}
+		}
 		std::string to_string() const override { return "GETVARIABLE " + m_variable_name; }
 		std::string variable_name() const { return m_variable_name; }
+
+		virtual std::optional<std::string> reconstruct(
+			std::vector<sqf::runtime::instruction::sptr>::const_iterator& current,
+			std::vector<sqf::runtime::instruction::sptr>::const_iterator end,
+			short parent_precedence, bool left_from_binary) const override
+		{
+			return m_variable_name;
+		}
+
+		virtual bool equals(const instruction* p_other) const override
+		{
+			auto casted = dynamic_cast<const get_variable*>(p_other);
+			return casted != nullptr && casted->m_variable_name == m_variable_name;
+		}
 	};
 }

@@ -2557,4 +2557,17 @@ namespace logmessage::runtime
 		output.append("."sv);
 		return output;
 	}
+	std::string ReconstructionOfCodeFailed::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Reconstructing code from assembly failed."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
 }

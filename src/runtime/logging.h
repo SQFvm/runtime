@@ -1639,6 +1639,15 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+		class ReconstructionOfCodeFailed : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60086;
+		public:
+			ReconstructionOfCodeFailed(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
 	}
 }
 

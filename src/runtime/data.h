@@ -6,6 +6,7 @@
 
 namespace sqf::runtime
 {
+	class runtime;
 	class data
 	{
 	protected:
@@ -27,6 +28,10 @@ namespace sqf::runtime
 		/// SQF-representation here means that this could get printed 
 		/// out to file directly and parsed again.
 		/// </summary>
+		/// <param name="runtime">
+		/// Valid instance of runtime the current runtime,
+		/// requesting the SQF representation.
+		/// </param>
 		/// <returns>SQF-Representation of this data.</returns>
 		virtual std::string to_string_sqf() const = 0;
 

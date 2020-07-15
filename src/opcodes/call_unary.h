@@ -32,7 +32,7 @@ namespace sqf::opcodes
 				return;
 			}
 
-			sqf::runtime::sqfop_unary::key key = { m_operator_name, *right_value };
+			sqf::runtime::sqfop_unary::key key = { m_operator_name, right_value->operator sqf::runtime::type() };
 			if (!vm.sqfop_exists(key))
 			{
 				vm.__logmsg(logmessage::runtime::UnknownInputTypeCombinationUnary(diag_info(), key.name, key.right_type));
@@ -45,5 +45,27 @@ namespace sqf::opcodes
 		}
 		virtual std::string to_string() const override { return std::string("CALLUNARY ") + m_operator_name; }
 		std::string_view operator_name() const { return m_operator_name; }
+		virtual std::optional<std::string> reconstruct(
+			std::vector<sqf::runtime::instruction::sptr>::const_iterator& current,
+			std::vector<sqf::runtime::instruction::sptr>::const_iterator end,
+			short parent_precedence, bool left_from_binary) const override
+		{
+			if (++current == end)
+			{
+				return {};
+			}
+			auto exp = (*current)->reconstruct(current, end, 10, false);
+			if (!exp.has_value())
+			{
+				return {};
+			}
+			return m_operator_name + " " + *exp;
+		}
+
+		virtual bool equals(const instruction* p_other) const override
+		{
+			auto casted = dynamic_cast<const call_unary*>(p_other);
+			return casted != nullptr && casted->m_operator_name == m_operator_name;
+		}
 	};
 }

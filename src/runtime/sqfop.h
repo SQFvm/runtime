@@ -12,6 +12,7 @@ namespace sqf::runtime
 	class sqfop_binary
 	{
 	public:
+		using cwref = std::reference_wrapper<const sqfop_binary>;
 		using cref = const sqfop_binary&;
 		typedef value(*callback)(sqf::runtime::runtime&, sqf::runtime::value::cref, value::cref);
 		struct key
@@ -31,6 +32,7 @@ namespace sqf::runtime
 		callback m_callback;
 		short m_precedence;
 	public:
+		sqfop_binary() = default;
 		sqfop_binary(short precedence, key key, std::string description, callback callback) : m_key(key), m_description(description), m_callback(callback), m_precedence(precedence) {}
 		std::string_view name() const { return m_key.name; }
 		std::string_view description() const { return m_description; }
@@ -43,6 +45,7 @@ namespace sqf::runtime
 	class sqfop_unary
 	{
 	public:
+		using cwref = std::reference_wrapper<const sqfop_unary>;
 		using cref = const sqfop_unary&;
 		typedef value(*callback)(sqf::runtime::runtime&, sqf::runtime::value::cref);
 		struct key
@@ -61,6 +64,7 @@ namespace sqf::runtime
 
 		callback m_callback;
 	public:
+		sqfop_unary() = default;
 		sqfop_unary(key key, std::string description, callback callback) : m_key(key), m_description(description), m_callback(callback) {}
 		std::string_view name() const { return m_key.name; }
 		std::string_view description() const { return m_description; }
@@ -71,6 +75,7 @@ namespace sqf::runtime
 	class sqfop_nular
 	{
 	public:
+		using cwref = std::reference_wrapper<const sqfop_nular>;
 		using cref = const sqfop_nular&;
 		typedef value(*callback)(sqf::runtime::runtime&);
 		struct key
@@ -88,6 +93,7 @@ namespace sqf::runtime
 
 		callback m_callback;
 	public:
+		sqfop_nular() = default;
 		sqfop_nular(key key, std::string description, callback callback) : m_key(key), m_description(description), m_callback(callback) {}
 		std::string_view name() const { return m_key.name; }
 		std::string_view description() const { return m_description; }

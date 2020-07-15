@@ -143,10 +143,10 @@ namespace sqf::runtime
 
     private:
         std::unordered_map<sqf::runtime::sqfop_binary::key, sqf::runtime::sqfop_binary> m_operators_binary;
-        std::unordered_map<std::string_view, std::vector<sqf::runtime::sqfop_binary::cref>> m_operators_by_name_binary;
+        std::unordered_map<std::string_view, std::vector<sqf::runtime::sqfop_binary::cwref>> m_operators_by_name_binary;
 
         std::unordered_map<sqf::runtime::sqfop_unary::key, sqf::runtime::sqfop_unary> m_operators_unary;
-        std::unordered_map<std::string_view, std::vector<sqf::runtime::sqfop_unary::cref>> m_operators_by_name_unary;
+        std::unordered_map<std::string_view, std::vector<sqf::runtime::sqfop_unary::cwref>> m_operators_by_name_unary;
 
         std::unordered_map<sqf::runtime::sqfop_nular::key, sqf::runtime::sqfop_nular> m_operators_nular;
     public:
@@ -155,10 +155,10 @@ namespace sqf::runtime
         sqfop_binary_iterator sqfop_binary_end() const { return m_operators_binary.end(); }
         bool sqfop_exists(const sqf::runtime::sqfop_binary::key key) const { return m_operators_binary.find(key) != m_operators_binary.end(); }
         sqf::runtime::sqfop_binary::cref sqfop_at(const sqf::runtime::sqfop_binary::key key) const { return m_operators_binary.at(key); }
-        std::vector<sqf::runtime::sqfop_binary::cref> sqfop_binary_by_name(const std::string_view key) const { return m_operators_by_name_binary.at(key); }
+        const std::vector<sqf::runtime::sqfop_binary::cwref>& sqfop_binary_by_name(const std::string_view key) const { return m_operators_by_name_binary.at(key); }
         void register_sqfop(sqf::runtime::sqfop_binary op)
         {
-            m_operators_binary.emplace(op.get_key(), op);
+            m_operators_binary.insert({ op.get_key(), op });
             m_operators_by_name_binary[op.name()].push_back(m_operators_binary[op.get_key()]);
         }
 
@@ -167,10 +167,10 @@ namespace sqf::runtime
         sqfop_unary_iterator sqfop_unary_end() const { return m_operators_unary.end(); }
         bool sqfop_exists(const sqf::runtime::sqfop_unary::key key) const { return m_operators_unary.find(key) != m_operators_unary.end(); }
         sqf::runtime::sqfop_unary::cref sqfop_at(const sqf::runtime::sqfop_unary::key key) const { return m_operators_unary.at(key); }
-        std::vector<sqf::runtime::sqfop_unary::cref> sqfop_unary_by_name(const std::string_view key) const { return m_operators_by_name_unary.at(key); }
+        const std::vector<sqf::runtime::sqfop_unary::cwref>& sqfop_unary_by_name(const std::string_view key) const { return m_operators_by_name_unary.at(key); }
         void register_sqfop(sqf::runtime::sqfop_unary op)
         {
-            m_operators_unary[op.get_key()] = op;
+            m_operators_unary.insert({ op.get_key(), op });
             m_operators_by_name_unary[op.name()].push_back(m_operators_unary[op.get_key()]);
         }
 
@@ -181,7 +181,7 @@ namespace sqf::runtime
         sqf::runtime::sqfop_nular::cref sqfop_at(const sqf::runtime::sqfop_nular::key key) const { return m_operators_nular.at(key); }
         void register_sqfop(sqf::runtime::sqfop_nular op)
         {
-            m_operators_nular[op.get_key()] = op;
+            m_operators_nular.insert({ op.get_key(), op });
         }
 
 #pragma endregion

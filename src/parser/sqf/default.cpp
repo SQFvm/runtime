@@ -1,6 +1,20 @@
 #include "default.h"
 #include "../../runtime/util.h"
 
+#include "../../opcodes/assign_to.h"
+#include "../../opcodes/assign_to_local.h"
+#include "../../opcodes/call_binary.h"
+#include "../../opcodes/call_nular.h"
+#include "../../opcodes/call_unary.h"
+#include "../../opcodes/end_statement.h"
+#include "../../opcodes/get_variable.h"
+#include "../../opcodes/make_array.h"
+#include "../../opcodes/push.h"
+
+#include "../../types/d_string.h"
+#include "../../types/d_scalar.h"
+#include "../../types/d_code.h"
+
 //#include "string_op.h"
 
 
@@ -49,8 +63,8 @@ void ::sqf::parser::sqf::default::skip(::sqf::runtime::diagnostics::diag_info& i
                 info.offset += 6;
                 size_t start = info.offset;
                 for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n' && m_contents[info.offset] != ' '; info.offset++);
-                auto str = std::string(m_contents_actual.substr(start, info.offset - start));
-                info.line = static_cast<size_t>(std::stoul(str));
+                auto str_tmp = std::string(m_contents_actual.substr(start, info.offset - start));
+                info.line = static_cast<size_t>(std::stoul(str_tmp));
 
                 for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n' && m_contents[info.offset] == ' '; info.offset++);
                 if (m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n')
@@ -1198,7 +1212,7 @@ sqf::parser::sqf::default::astnode sqf::parser::sqf::default::parse(bool& errfla
 }
 
 
-bool sqf::parser::sqf::default::to_assembly(astnode& node, std::vector<::sqf::runtime::instruction>& set)
+bool sqf::parser::sqf::default::to_assembly(astnode& node, std::vector<::sqf::runtime::instruction::sptr>& set)
 {
     // execute_parsing_callbacks(full, node, evaction::enter);
     switch (node.kind)
@@ -1217,40 +1231,40 @@ bool sqf::parser::sqf::default::to_assembly(astnode& node, std::vector<::sqf::ru
     {
         to_assembly(node.children[0], set);
         to_assembly(node.children[2], set);
-        auto inst = std::make_shared<sqf::inst::callbinary>(sqf::commandmap::get().getrange_b(node.children[1].content));
-        inst->setdbginf(node.children[1].line, node.children[1].col, node.file, sqf::parse::dbgsegment(full, node.children[1].offset, node.children[1].length));
-        stack->push_back(inst);
+        auto inst = std::make_shared<::sqf::opcodes::call_binary>(node.children[1].content, (short)(((short)node.kind - (short)nodetype::BEXP1) + 1));
+        inst->diag_info({ node.children[1].line, node.children[1].col, node.children[1].offset, node.children[1].file, create_code_segment(m_contents, node.children[1].offset, node.children[1].length) });
+        set.push_back(inst);
     }
     break;
     case nodetype::UNARYEXPRESSION:
     {
         to_assembly(node.children[1], set);
-        auto inst = std::make_shared<sqf::inst::callunary>(sqf::commandmap::get().getrange_u(node.children[0].content));
-        inst->setdbginf(node.children[0].line, node.children[0].col, node.file, sqf::parse::dbgsegment(full, node.children[0].offset, node.children[0].length));
-        stack->push_back(inst);
+        auto inst = std::make_shared<::sqf::opcodes::call_unary>(node.children[0].content);
+        inst->diag_info({ node.children[0].line, node.children[0].col, node.children[0].offset, node.children[0].file, create_code_segment(m_contents, node.children[0].offset, node.children[0].length) });
+        set.push_back(inst);
     }
     break;
     case nodetype::NULAROP:
     {
-        auto inst = std::make_shared<sqf::inst::callnular>(sqf::commandmap::get().get(node.content));
-        inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-        stack->push_back(inst);
+        auto inst = std::make_shared<::sqf::opcodes::call_nular>(node.content);
+        inst->diag_info({ node.line, node.col, node.offset, node.file, create_code_segment(m_contents, node.offset, node.length) });
+        set.push_back(inst);
     }
     break;
     case nodetype::HEXNUMBER:
     {
         try
         {
-            auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::stol(node.content, nullptr, 16)));
-            inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-            stack->push_back(inst);
+            auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>(std::stol(node.content, nullptr, 16))));
+            inst->diag_info({ node.line, node.col, node.offset, node.file, create_code_segment(m_contents, node.offset, node.length) });
+            set.push_back(inst);
         }
         catch (std::out_of_range&)
         {
-            auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::scalardata>(std::nanf(""))));
-            inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-            log(logmessage::assembly::NumberOutOfRange(*inst));
-            stack->push_back(inst);
+            auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>(std::nanf(""))));
+            inst->diag_info({ node.line, node.col, node.offset, node.file, create_code_segment(m_contents, node.offset, node.length) });
+            log(logmessage::assembly::NumberOutOfRange(inst->diag_info()));
+            set.push_back(inst);
         }
     }
     break;
@@ -1258,44 +1272,45 @@ bool sqf::parser::sqf::default::to_assembly(astnode& node, std::vector<::sqf::ru
     {
         try
         {
-            auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::stod(node.content)));
-            inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-            stack->push_back(inst);
+            auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>(std::stod(node.content))));
+            inst->diag_info({ node.line, node.col, node.offset, node.file, create_code_segment(m_contents, node.offset, node.length) });
+            set.push_back(inst);
         }
         catch (std::out_of_range&)
         {
-            auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::scalardata>(std::nanf(""))));
-            inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-            log(logmessage::assembly::NumberOutOfRange(*inst));
-            stack->push_back(inst);
+            auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>(std::nanf(""))));
+            inst->diag_info({ node.line, node.col, node.offset, node.file, create_code_segment(m_contents, node.offset, node.length) });
+            log(logmessage::assembly::NumberOutOfRange(inst->diag_info()));
+            set.push_back(inst);
         }
     }
     break;
     case nodetype::STRING:
     {
-        auto inst = std::make_shared<sqf::inst::push>(sqf::value(std::make_shared<sqf::stringdata>(node.content, true)));
-        inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-        stack->push_back(inst);
+        auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_string>(::sqf::types::d_string::from_sqf(node.content))));
+        inst->diag_info({ node.line, node.col, node.offset, node.file, create_code_segment(m_contents, node.offset, node.length) });
+        set.push_back(inst);
     }
     break;
     case nodetype::CODE:
     {
-        auto cs = std::make_shared<sqf::callstack>(missionnamespace());
-        sqf::parse::astnode previous_node;
+        std::vector<::sqf::runtime::instruction::sptr> tmp_set;
+        astnode previous_node;
         for (size_t i = 0; i < node.children.size(); i++)
         {
             if (i != 0)
             {
-                auto inst = std::make_shared<sqf::inst::endstatement>();
-                inst->setdbginf(previous_node.line, previous_node.col + previous_node.length, previous_node.file, sqf::parse::dbgsegment(full, previous_node.offset, previous_node.length));
-                cs->push_back(inst);
+                auto inst = std::make_shared<::sqf::opcodes::end_statement>();
+                inst->diag_info({ previous_node.line, previous_node.col + previous_node.length, previous_node.offset, previous_node.file, create_code_segment(m_contents, previous_node.offset, previous_node.length) });
+                tmp_set.push_back(inst);
             }
             previous_node = node.children[i];
-            to_assembly(previous_node, set);
+            to_assembly(previous_node, tmp_set);
         }
-        auto inst = std::make_shared<sqf::inst::push>(sqf::value(cs));
-        inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-        stack->push_back(inst);
+        auto inst_set = ::sqf::runtime::instruction_set(tmp_set);
+        auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_code>(inst_set)));
+        inst->diag_info({ node.line, node.col, node.offset, node.file, create_code_segment(m_contents, node.offset, node.length) });
+        set.push_back(inst);
     }
     break;
     case nodetype::ARRAY:
@@ -1304,32 +1319,32 @@ bool sqf::parser::sqf::default::to_assembly(astnode& node, std::vector<::sqf::ru
         {
             to_assembly(subnode, set);
         }
-        auto inst = std::make_shared<sqf::inst::makearray>(node.children.size());
-        inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-        stack->push_back(inst);
+        auto inst = std::make_shared<::sqf::opcodes::make_array>(node.children.size());
+        inst->diag_info({ node.line, node.col, node.offset, node.file, create_code_segment(m_contents, node.offset, node.length) });
+        set.push_back(inst);
     }
     break;
     case nodetype::ASSIGNMENT:
     {
         to_assembly(node.children[1], set);
-        auto inst = std::make_shared<sqf::inst::assignto>(node.children[0].content);
-        inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-        stack->push_back(inst);
+        auto inst = std::make_shared<::sqf::opcodes::assign_to>(node.children[0].content);
+        inst->diag_info({ node.line, node.col, node.offset, node.file, create_code_segment(m_contents, node.offset, node.length) });
+        set.push_back(inst);
     }
     break;
     case nodetype::ASSIGNMENTLOCAL:
     {
         to_assembly(node.children[1], set);
-        auto inst = std::make_shared<sqf::inst::assigntolocal>(node.children[0].content);
-        inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-        stack->push_back(inst);
+        auto inst = std::make_shared<::sqf::opcodes::assign_to_local>(node.children[0].content);
+        inst->diag_info({ node.line, node.col, node.offset, node.file, create_code_segment(m_contents, node.offset, node.length) });
+        set.push_back(inst);
     }
     break;
     case nodetype::VARIABLE:
     {
-        auto inst = std::make_shared<sqf::inst::getvariable>(node.content);
-        inst->setdbginf(node.line, node.col, node.file, sqf::parse::dbgsegment(full, node.offset, node.length));
-        stack->push_back(inst);
+        auto inst = std::make_shared<::sqf::opcodes::get_variable>(node.content);
+        inst->diag_info({ node.line, node.col, node.offset, node.file, create_code_segment(m_contents, node.offset, node.length) });
+        set.push_back(inst);
     }
     break;
     default:
@@ -1339,8 +1354,8 @@ bool sqf::parser::sqf::default::to_assembly(astnode& node, std::vector<::sqf::ru
         {
             if (i != 0)
             {
-                auto inst = std::make_shared<sqf::inst::endstatement>();
-                inst->setdbginf(previous_node.line, previous_node.col + previous_node.length, previous_node.file, sqf::parse::dbgsegment(full, previous_node.offset, previous_node.length));
+                auto inst = std::make_shared<::sqf::opcodes::end_statement>();
+                inst->diag_info({ previous_node.line, previous_node.col + previous_node.length, previous_node.offset, previous_node.file, create_code_segment(m_contents, previous_node.offset, previous_node.length) });
                 set.push_back(inst);
             }
             previous_node = node.children[i];
@@ -1349,14 +1364,6 @@ bool sqf::parser::sqf::default::to_assembly(astnode& node, std::vector<::sqf::ru
     }
     }
     // execute_parsing_callbacks(full, node, evaction::exit);
-}
 
-bool sqf::parser::sqf::default::check_syntax(::sqf::runtime::runtime & runtime, std::string contents)
-{
-    return false;
-}
-
-std::optional<::sqf::runtime::instruction_set> sqf::parser::sqf::default::parse(::sqf::runtime::runtime & runtime, std::string contents)
-{
-    return std::optional<::sqf::runtime::instruction_set>();
+    return true;
 }

@@ -1,8 +1,8 @@
 #pragma once
+#include "instruction.h"
+
 #include <vector>
 #include <initializer_list>
-
-#include "instruction.h"
 
 namespace sqf::runtime
 {

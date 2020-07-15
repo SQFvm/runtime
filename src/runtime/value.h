@@ -1,7 +1,9 @@
 #pragma once
+#include "data.h"
+
 #include <string>
 #include <memory>
-#include "data.h"
+#include <functional>
 
 
 
@@ -10,6 +12,7 @@ namespace sqf::runtime
 	class value
 	{
 	public:
+		using cwref = std::reference_wrapper<const value>;
 		using cref = const value&;
 	private:
 		std::shared_ptr<sqf::runtime::data> m_data;
@@ -30,6 +33,8 @@ namespace sqf::runtime
 			static_assert(std::is_base_of<sqf::runtime::type, T>::value, "value::is<T>() can only be used with sqf::runtime::type types.");
 			return this->operator sqf::runtime::type() == T();
 		}
+
+		bool operator==(cref other) const { return (m_data.get() && other.m_data.get()) || (m_data != nullptr && m_data->equals(other.data())); }
 
 
 		/// <summary>

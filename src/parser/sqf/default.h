@@ -54,7 +54,7 @@ namespace sqf::parser::sqf
 			nodetype kind;
 			std::vector<astnode> children;
 
-			astnode() : offset(0), length(0), line(0), col(0), kind(0) {}
+			astnode() : offset(0), length(0), line(0), col(0), kind(nodetype::NA) {}
 		};
 	private:
 		::sqf::runtime::diagnostics::diag_info m_info;
@@ -126,7 +126,7 @@ namespace sqf::parser::sqf
 		bool ARRAY_start(size_t curoff);
 		void ARRAY(astnode& root, bool& errflag);
 		astnode parse(bool& errflag);
-		bool to_assembly(astnode& root, std::vector<::sqf::runtime::instruction>& set);
+		bool to_assembly(astnode& root, std::vector<::sqf::runtime::instruction::sptr>& set);
 	public:
 		default(
 			Logger& logger,
