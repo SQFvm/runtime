@@ -9,6 +9,7 @@ set(CMAKE_MACOSX_RPATH 1)
 # Enable multithreaded compilation in MSVC
 if (MSVC)
   add_definitions(/MP)
+  add_definitions(/wd4100)
 endif()
 
 # Add the filesystem library if we are building on Clang or GCC
