@@ -97,6 +97,13 @@ namespace sqf
 			operator std::string() { return m_value; }
 			operator std::string_view() { return m_value; }
 		};
+
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, std::string str)
+		{
+			input = std::make_shared<d_string>(str);
+			return input;
+		}
+
 		::sqf::runtime::value val(std::string value) { return std::make_shared<sqf::types::d_string>(value); }
 		::sqf::runtime::value val(std::string_view value) { return std::make_shared<sqf::types::d_string>(value); }
 	}

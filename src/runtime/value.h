@@ -19,11 +19,8 @@ namespace sqf::runtime
 	public:
 		value();
 		value(std::shared_ptr<sqf::runtime::data> d) : m_data(std::move(d)) { }
-		template<class T, class ... _Types>
-		value(_Types&& ... args) : m_data(std::make_shared<T>(args))
-		{
-			static_assert(std::is_base_of<sqf::runtime::data, T>::value, "value::value<T>(std::shared_ptr<T>) can only be used with sqf::runtime::data types.");
-		}
+		template<class T>
+		value(T t) { m_data << t; }
 
 		explicit operator type() const { return m_data ? m_data->type() : sqf::types::t_nothing(); };
 

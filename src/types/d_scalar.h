@@ -49,15 +49,16 @@ namespace sqf
 			operator float() { return m_value; }
 			static void set_decimals(int val) { s_decimals = val; }
 		};
-		::sqf::runtime::value val(int8_t  value)  { return std::make_shared<sqf::types::d_scalar>(value); }
-		::sqf::runtime::value val(int16_t value)  { return std::make_shared<sqf::types::d_scalar>(value); }
-		::sqf::runtime::value val(int32_t value)  { return std::make_shared<sqf::types::d_scalar>(value); }
-		::sqf::runtime::value val(int64_t value)  { return std::make_shared<sqf::types::d_scalar>(value); }
-		::sqf::runtime::value val(uint8_t  value) { return std::make_shared<sqf::types::d_scalar>(value); }
-		::sqf::runtime::value val(uint16_t value) { return std::make_shared<sqf::types::d_scalar>(value); }
-		::sqf::runtime::value val(uint32_t value) { return std::make_shared<sqf::types::d_scalar>(value); }
-		::sqf::runtime::value val(uint64_t value) { return std::make_shared<sqf::types::d_scalar>(value); }
-		::sqf::runtime::value val(float value)    { return std::make_shared<sqf::types::d_scalar>(value); }
-		::sqf::runtime::value val(double value)   { return std::make_shared<sqf::types::d_scalar>(value); }
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, int8_t  value) { input = std::make_shared<d_scalar>(value); return input; }
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, int16_t value) { input = std::make_shared<d_scalar>(value); return input; }
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, int32_t value) { input = std::make_shared<d_scalar>(value); return input; }
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, int64_t value) { input = std::make_shared<d_scalar>(value); return input; }
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, uint8_t  value) { input = std::make_shared<d_scalar>(value); return input; }
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, uint16_t value) { input = std::make_shared<d_scalar>(value); return input; }
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, uint32_t value) { input = std::make_shared<d_scalar>(value); return input; }
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, uint64_t value) { input = std::make_shared<d_scalar>(value); return input; }
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, float value) { input = std::make_shared<d_scalar>(value); return input; }
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, double value) { input = std::make_shared<d_scalar>(value); return input; }
 	}
+
 }

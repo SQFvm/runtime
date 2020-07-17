@@ -152,7 +152,12 @@ namespace sqf
 				return vec;
 			}
 		};
-		::sqf::runtime::value val(std::vector<sqf::runtime::value> arr) { return std::make_shared<sqf::types::d_array>(arr); }
+
+		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, std::vector<sqf::runtime::value> arr)
+		{
+			input = std::make_shared<d_array>(arr);
+			return input;
+		}
 
 		float distance3dsqr(const std::shared_ptr<sqf::types::d_array>& l, const std::shared_ptr<sqf::types::d_array>& r);
 		float distance3dsqr(const d_array* l, const d_array* r);
