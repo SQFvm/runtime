@@ -103,8 +103,5 @@ namespace sqf
 			input = std::make_shared<d_string>(str);
 			return input;
 		}
-
-		::sqf::runtime::value val(std::string value) { return std::make_shared<sqf::types::d_string>(value); }
-		::sqf::runtime::value val(std::string_view value) { return std::make_shared<sqf::types::d_string>(value); }
 	}
 }

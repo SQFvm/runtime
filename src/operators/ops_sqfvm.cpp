@@ -55,9 +55,9 @@ namespace
         std::vector<value> outarr;
         for (auto it = code->value().begin(); it != code->value().end(); it++)
         {
-            outarr.push_back(val((*it)->to_string()));
+            outarr.push_back((*it)->to_string());
         }
-        return val(outarr);
+        return outarr;
     }
     value assembly___string(runtime& runtime, value::cref right)
     {
@@ -68,9 +68,9 @@ namespace
             std::vector<value> outarr;
             for (auto it = set->begin(); it != set->end(); it++)
             {
-                outarr.push_back(val((*it)->to_string()));
+                outarr.push_back((*it)->to_string());
             }
-            return val(outarr);
+            return outarr;
         }
         else
         {
@@ -83,31 +83,31 @@ namespace
         auto str = "n";
         for (auto& pair = runtime.sqfop_nular_begin(); pair != runtime.sqfop_nular_end(); pair++)
         {
-            outarr.push_back(val(std::vector<value> {
-                val(str),
-                val(pair->first.name)
-            }));
+            outarr.push_back(std::vector<value> {
+                str,
+                pair->first.name
+            });
         }
         str = "u";
         for (auto& pair = runtime.sqfop_unary_begin(); pair != runtime.sqfop_unary_end(); pair++)
         {
-            outarr.push_back(val(std::vector<value> {
-                val(str),
-                val(pair->first.name),
-                val(pair->first.right_type.to_string())
-            }));
+            outarr.push_back(std::vector<value> {
+                str,
+                pair->first.name,
+                pair->first.right_type.to_string()
+            });
         }
         str = "b";
         for (auto& pair = runtime.sqfop_binary_begin(); pair != runtime.sqfop_binary_end(); pair++)
         {
-            outarr.push_back(val(std::vector<value> {
-                val(str),
-                val(pair->first.left_type.to_string()),
-                val(pair->first.name),
-                val(pair->first.right_type.to_string())
-            }));
+            outarr.push_back(std::vector<value> {
+                str,
+                pair->first.left_type.to_string(),
+                pair->first.name,
+                pair->first.right_type.to_string()
+            });
         }
-        return val(outarr);
+        return outarr;
     }
     value cmdsimplemented___(runtime& runtime)
     {
@@ -117,35 +117,35 @@ namespace
         {
             if (pair->second.description().empty())
                 continue;
-            outarr.push_back(val(std::vector<value> {
-                val(str),
-                val(pair->first.name)
-            }));
+            outarr.push_back(std::vector<value> {
+                str,
+                pair->first.name
+            });
         }
         str = "u";
         for (auto& pair = runtime.sqfop_unary_begin(); pair != runtime.sqfop_unary_end(); pair++)
         {
             if (pair->second.description().empty())
                 continue;
-            outarr.push_back(val(std::vector<value> {
-                val(str),
-                val(pair->first.name),
-                val(pair->first.right_type.to_string())
-            }));
+            outarr.push_back(std::vector<value> {
+                str,
+                pair->first.name,
+                pair->first.right_type.to_string()
+            });
         }
         str = "b";
         for (auto& pair = runtime.sqfop_binary_begin(); pair != runtime.sqfop_binary_end(); pair++)
         {
             if (pair->second.description().empty())
                 continue;
-            outarr.push_back(val(std::vector<value> {
-                val(str),
-                val(pair->first.left_type.to_string()),
-                val(pair->first.name),
-                val(pair->first.right_type.to_string())
-            }));
+            outarr.push_back(std::vector<value> {
+                str,
+                pair->first.left_type.to_string(),
+                pair->first.name,
+                pair->first.right_type.to_string()
+            });
         }
-        return val(outarr);
+        return outarr;
     }
     value vm___(runtime& runtime)
     {
@@ -155,35 +155,35 @@ namespace
         {
             if (pair->first.name.length() < 2 || pair->first.name[pair->first.name.length() - 1] != '_' || pair->first.name[pair->first.name.length() - 2] != '_')
                 continue;
-            outarr.push_back(val(std::vector<value> {
-                val(str),
-                    val(pair->first.name)
-            }));
+            outarr.push_back(std::vector<value> {
+                str,
+                    pair->first.name
+            });
         }
         str = "u";
         for (auto& pair = runtime.sqfop_unary_begin(); pair != runtime.sqfop_unary_end(); pair++)
         {
             if (pair->first.name.length() < 2 || pair->first.name[pair->first.name.length() - 1] != '_' || pair->first.name[pair->first.name.length() - 2] != '_')
                 continue;
-            outarr.push_back(val(std::vector<value> {
-                val(str),
-                    val(pair->first.name),
-                    val(pair->first.right_type.to_string())
-            }));
+            outarr.push_back(std::vector<value> {
+                str,
+                    pair->first.name,
+                    pair->first.right_type.to_string()
+            });
         }
         str = "b";
         for (auto& pair = runtime.sqfop_binary_begin(); pair != runtime.sqfop_binary_end(); pair++)
         {
             if (pair->first.name.length() < 2 || pair->first.name[pair->first.name.length() - 1] != '_' || pair->first.name[pair->first.name.length() - 2] != '_')
                 continue;
-            outarr.push_back(val(std::vector<value> {
-                val(str),
-                    val(pair->first.left_type.to_string()),
-                    val(pair->first.name),
-                    val(pair->first.right_type.to_string())
-            }));
+            outarr.push_back(std::vector<value> {
+                str,
+                    pair->first.left_type.to_string(),
+                    pair->first.name,
+                    pair->first.right_type.to_string()
+            });
         }
-        return val(outarr);
+        return outarr;
     }
     // value tree___string(runtime& runtime, value::cref right)
     // {
@@ -263,7 +263,7 @@ namespace
     }
     value configparse___string(runtime& runtime, value::cref right)
     {
-        auto str = right.as_string();
+        auto str = right.data<d_string>();
         auto cd = std::make_shared<sqf::configdata>();
         runtime.parse_config(str, "__configparse___string", cd);
         return value(cd);
@@ -277,7 +277,7 @@ namespace
     }
     value allObjects__(runtime& runtime)
     {
-        auto arr = std::make_shared<arraydata>();
+        auto arr = std::make_shared<d_array>();
         for (auto& object : runtime.get_objlist())
         {
             arr->push_back(value(std::make_shared<objectdata>(object)));
@@ -315,7 +315,7 @@ namespace
     }
     value preprocess___string(runtime& runtime, value::cref right)
     {
-        auto content = right.as_string();
+        auto content = right.data<d_string>();
         bool errflag = false;
         auto ppres = runtime.preprocess(content, errflag, "__preprocess__");
         if (errflag)
