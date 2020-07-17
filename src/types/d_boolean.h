@@ -49,5 +49,6 @@ namespace sqf
 				return m_value;
 			}
 		};
+		::sqf::runtime::value val(bool flag) { return std::make_shared<sqf::types::d_boolean>(flag); }
 	}
 }

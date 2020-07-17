@@ -118,7 +118,6 @@ namespace sqf
 		struct t_switch : public sqf::runtime::type::extend<t_switch> { t_switch() : extend() {} static const std::string name() { return "SWITCH"; } };
 		struct t_exception : public sqf::runtime::type::extend<t_exception> { t_exception() : extend() {} static const std::string name() { return "EXCEPTION"; } };
 		struct t_with : public sqf::runtime::type::extend<t_with> { t_with() : extend() {} static const std::string name() { return "WITH"; } };
-		struct t_code : public sqf::runtime::type::extend<t_code> { t_code() : extend() {} static const std::string name() { return "CODE"; } };
 		struct t_object : public sqf::runtime::type::extend<t_object> { t_object() : extend() {} static const std::string name() { return "OBJECT"; } };
 		struct t_vector : public sqf::runtime::type::extend<t_vector> { t_vector() : extend() {} static const std::string name() { return "VECTOR"; } };
 		struct t_trans : public sqf::runtime::type::extend<t_trans> { t_trans() : extend() {} static const std::string name() { return "TRANS"; } };

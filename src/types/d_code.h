@@ -25,7 +25,6 @@ namespace sqf
 		private:
 			sqf::runtime::instruction_set m_value;
 
-			void rebuild_from_assembly_recursive(std::stringstream& sstream, sqf::runtime::instruction_set::reverse_iterator& iterator, short parent_precedence, bool binary_left) const;
 		protected:
 			bool do_equals(std::shared_ptr<data> other, bool invariant) const override
 			{
@@ -80,5 +79,6 @@ namespace sqf
 
 			operator const sqf::runtime::instruction_set&() { return m_value; }
 		};
+		::sqf::runtime::value val(sqf::runtime::instruction_set set) { return std::make_shared<sqf::types::d_code>(set); }
 	}
 }
