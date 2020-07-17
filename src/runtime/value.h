@@ -18,9 +18,10 @@ namespace sqf::runtime
 		std::shared_ptr<sqf::runtime::data> m_data;
 	public:
 		value();
-		value(std::shared_ptr<sqf::runtime::data> d) : m_data(std::move(d)) { }
-		template<class T>
+		template<typename T>
 		value(T t) { m_data << t; }
+		template<typename T>
+		value(std::shared_ptr<T> d) : m_data(std::move(d)) { }
 
 		explicit operator type() const { return m_data ? m_data->type() : sqf::types::t_nothing(); };
 

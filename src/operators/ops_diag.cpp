@@ -26,7 +26,7 @@ namespace
 		auto starttime = runtime.runtime_timestamp().time_since_epoch();
 		// Time is since beginning of game so long is fine.
 		long r = static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(curtime - starttime).count());
-		return std::make_shared<d_scalar>(r * 0.001);
+		return r * 0.001;
 	}
 	value assert_bool(runtime& runtime, value::cref right)
 	{
