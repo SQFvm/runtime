@@ -1622,6 +1622,19 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+    class ObjectNotInGroup : public RuntimeBase {
+      static const loglevel level = loglevel::warning;
+      static const size_t errorCode = 60083;
+      std::string_view m_object_sqf;
+      std::string_view m_group_name;
+    public:
+      ObjectNotInGroup(LogLocationInfo loc, std::string_view object_sqf, std::string_view group_name) :
+        RuntimeBase(level, errorCode, std::move(loc)),
+        m_object_sqf(object_sqf),
+        m_group_name(group_name)
+      {}
+      [[nodiscard]] std::string formatMessage() const override;
+    };
 	}
 }
 

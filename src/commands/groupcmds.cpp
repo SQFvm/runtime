@@ -11,6 +11,7 @@
 #include <sstream>
 #include <algorithm>
 
+namespace err = logmessage::runtime;
 using namespace sqf;
 namespace
 {
@@ -78,18 +79,18 @@ namespace
 		auto leader = right.data<objectdata>();
 		if (grp->is_null())
 		{
-			vm->wrn() << "Provided group is null." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		if (leader->is_null())
 		{
-			vm->wrn() << "Provided object is null." << std::endl;
+			vm->logmsg(err::ExpectedNonNullValue(*vm->current_instruction()));
 			return {};
 		}
 		auto res = std::find(grp->get_units().begin(), grp->get_units().end(), leader->obj());
 		if (res == grp->get_units().end())
 		{
-			vm->wrn() << "Provided object '" << leader->tosqf() << "' is not part of provided group '" << grp->groupid() << "'." << std::endl;
+			vm->logmsg(logmessage::runtime::ObjectNotInGroup(*vm->current_instruction(), leader->tosqf(), grp->groupid()));
 		}
 		grp->leader(leader->obj());
 		return {};
