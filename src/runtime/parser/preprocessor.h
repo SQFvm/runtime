@@ -70,7 +70,8 @@ namespace sqf
 			{
 			public:
 				virtual ~preprocessor() = 0;
-				virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::sqf::runtime::fileio::pathinfo pathinfo) = 0;
+				virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) = 0;
+				std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::sqf::runtime::fileio::pathinfo pathinfo);
 			};
 		}
 	}
@@ -80,7 +81,7 @@ namespace sqf
 		{
 			public:
 				virtual ~passthrough() override { return; };
-				virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::sqf::runtime::fileio::pathinfo pathinfo) override;
+				virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) override;
 		};
 	}
 }

@@ -1650,6 +1650,39 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+		class WaitUntilMaxLoopReached : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60087;
+		public:
+			WaitUntilMaxLoopReached(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ArraySizeChanged : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60088;
+			size_t m_before;
+			size_t m_after;
+		public:
+			ArraySizeChanged(LogLocationInfo loc, size_t before, size_t after) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_before(before),
+				m_after(after)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MagicVariableNotPresent : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60089;
+			std::string_view m_variable_name;
+		public:
+			MagicVariableNotPresent(LogLocationInfo loc, std::string_view variable_name) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_variable_name(variable_name)
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
 	}
 }
 

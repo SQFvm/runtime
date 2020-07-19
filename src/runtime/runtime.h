@@ -101,14 +101,12 @@ namespace sqf::runtime
         std::vector<sqf::runtime::diagnostics::breakpoint> m_breakpoints;
         sqf::runtime::diagnostics::breakpoint m_last_breakpoint_hit;
     public:
-        std::vector<sqf::runtime::context>::iterator active_context() const { return m_active_context; };
         const std::vector<sqf::runtime::diagnostics::breakpoint>& breakpoints() const { return m_breakpoints; }
         std::vector<sqf::runtime::diagnostics::breakpoint>& breakpoints() { return m_breakpoints; }
 
         void breakpoint_hit(sqf::runtime::diagnostics::breakpoint breakpoint) { m_last_breakpoint_hit = breakpoint; m_is_halt_requested = true; }
 
 #pragma endregion
-
 #pragma region storage
 
     public:
@@ -136,9 +134,10 @@ namespace sqf::runtime
                 return *res->second;
             }
         }
+        template<class TStorage>
+        TStorage& storage() { return storage<TStorage, TStorage>(); }
 
 #pragma endregion
-
 #pragma region operators
 
     private:
@@ -186,14 +185,40 @@ namespace sqf::runtime
 
 #pragma endregion
 
+#pragma region Namespaces
+
+    private:
+        std::unordered_map<std::string, std::shared_ptr<sqf::runtime::value_scope>> m_namespaces;
+        std::string m_default_scope_key;
+    public:
+        std::shared_ptr<sqf::runtime::value_scope> get_value_scope(std::string key)
+        {
+            auto needle = m_namespaces.find(key);
+            if (needle != m_namespaces.end())
+            {
+                return needle->second;
+            }
+            else
+            {
+                auto& value_scope = m_namespaces[key];
+                value_scope->scope_name(key);
+                return value_scope;
+            }
+        }
+        std::shared_ptr<sqf::runtime::value_scope> default_value_scope() { return get_value_scope(m_default_scope_key); }
+        void default_value_scope(std::string key) { m_default_scope_key = key; }
+
+#pragma endregion
+
+
 
     private:
         configuration m_configuration;
         std::chrono::system_clock::time_point m_runtime_timestamp;
         bool m_runtime_error;
 
-        std::vector<sqf::runtime::context> m_contexts;
-        std::vector<sqf::runtime::context>::iterator m_active_context;
+        std::vector<std::shared_ptr<sqf::runtime::context>> m_contexts;
+        std::shared_ptr<sqf::runtime::context> m_active_context;
 
         std::chrono::system_clock::time_point m_created_timestamp;
         std::chrono::system_clock::time_point m_current_time;
@@ -217,11 +242,14 @@ namespace sqf::runtime
             m_fileio(std::make_unique<sqf::fileio::disabled>()),
             m_parser_sqf(std::make_unique<sqf::parser::sqf::disabled>()),
             m_parser_config(std::make_unique<sqf::parser::config::disabled>()),
-            m_parser_preprocessor(std::make_unique<sqf::parser::preprocessor::passthrough>())
+            m_parser_preprocessor(std::make_unique<sqf::parser::preprocessor::passthrough>()),
+            m_default_scope_key("default")
         {
         }
 
-        void push_back(sqf::runtime::context context) { m_contexts.push_back(context); }
+        sqf::runtime::context& active_context() const { return *m_active_context; };
+        std::weak_ptr<context> create_context() { auto ptr = std::make_shared<context>(); m_contexts.push_back(ptr); return ptr; }
+
         sqf::runtime::runtime::result execute(sqf::runtime::runtime::action action);
         const sqf::runtime::runtime::configuration configuration() const { return m_configuration; }
         std::chrono::system_clock::time_point runtime_timestamp() { return m_runtime_timestamp; }

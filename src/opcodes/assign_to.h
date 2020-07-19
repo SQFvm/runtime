@@ -15,12 +15,12 @@ namespace sqf::opcodes
 		assign_to(std::string value) : m_variable_name(value) {}
 		virtual void execute(sqf::runtime::runtime& vm) const override
 		{
-			auto context = vm.active_context();
+			auto& context = vm.active_context();
 
-			auto value = vm.active_context()->pop_value();
+			auto value = vm.active_context().pop_value();
 			if (!value.has_value() || value->is<sqf::types::t_nothing>())
 			{
-				if (context->weak_error_handling())
+				if (context.weak_error_handling())
 				{
 					vm.__logmsg(logmessage::runtime::FoundNoValueWeak(diag_info()));
 				}
@@ -33,7 +33,7 @@ namespace sqf::opcodes
 
 			if (m_variable_name[0] == '_')
 			{
-				for (auto it = context->frames_rbegin(); it != context->frames_rend(); ++it)
+				for (auto it = context.frames_rbegin(); it != context.frames_rend(); ++it)
 				{
 					if (it->contains(m_variable_name))
 					{
@@ -41,11 +41,11 @@ namespace sqf::opcodes
 						return;
 					}
 				}
-				context->current_frame()[m_variable_name] = *value;
+				context.current_frame()[m_variable_name] = *value;
 			}
 			else
 			{
-				context->current_frame().globals_value_scope()->get(m_variable_name) = *value;
+				context.current_frame().globals_value_scope()->at(m_variable_name) = *value;
 			}
 		}
 		virtual std::string to_string() const override { return std::string("ASSIGNTO ") + m_variable_name; }

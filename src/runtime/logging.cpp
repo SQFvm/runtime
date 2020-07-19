@@ -2567,4 +2567,56 @@ namespace logmessage::runtime
 		output.append(message);
 		return output;
 	}
+	std::string WaitUntilMaxLoopReached::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Max-Loop reached for WaitUntil."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string ArraySizeChanged::formatMessage() const
+	{
+		auto output = location.format();
+		auto before = to_string(m_before);
+		auto after = to_string(m_after);
+
+		output.reserve(
+			output.length()
+			+ "Array size changed from "sv.length()
+			+ before.length()
+			+ " to "sv.length()
+			+ after.length()
+			+ "."sv.length()
+		);
+
+		output.append("Array size changed from "sv);
+		output.append(before);
+		output.append(" to "sv);
+		output.append(after);
+		output.append("."sv);
+		return output;
+	}
+	std::string MagicVariableNotPresent::formatMessage() const
+	{
+		auto output = location.format();
+		auto variable_name = m_variable_name;
+
+		output.reserve(
+			output.length()
+			+ "The Magic variable '"sv.length()
+			+ variable_name.length()
+			+ "' is not present."sv.length()
+		);
+
+		output.append("The Magic variable '"sv);
+		output.append(variable_name);
+		output.append("' is not present."sv);
+		return output;
+	}
 }

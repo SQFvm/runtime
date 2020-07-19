@@ -16,12 +16,12 @@ namespace sqf::opcodes
 		call_unary(std::string key) : m_operator_name(key) {}
 		virtual void execute(sqf::runtime::runtime& vm) const override
 		{
-			auto context = vm.active_context();
+			auto& context = vm.active_context();
 
-			auto right_value = vm.active_context()->pop_value();
+			auto right_value = vm.active_context().pop_value();
 			if (!right_value.has_value() || right_value->is<sqf::types::t_nothing>())
 			{
-				if (context->weak_error_handling())
+				if (context.weak_error_handling())
 				{
 					vm.__logmsg(logmessage::runtime::NoValueFoundForRightArgumentWeak(diag_info()));
 				}
@@ -31,17 +31,22 @@ namespace sqf::opcodes
 				}
 				return;
 			}
-
-			sqf::runtime::sqfop_unary::key key = { m_operator_name, right_value->operator sqf::runtime::type() };
+			
+			auto tright = right_value->operator sqf::runtime::type();
+			sqf::runtime::sqfop_unary::key key = { m_operator_name, tright };
 			if (!vm.sqfop_exists(key))
 			{
-				vm.__logmsg(logmessage::runtime::UnknownInputTypeCombinationUnary(diag_info(), key.name, key.right_type));
-				return;
+				key = { m_operator_name, sqf::types::t_any() };
+				if (!vm.sqfop_exists(key))
+				{
+					vm.__logmsg(logmessage::runtime::UnknownInputTypeCombinationUnary(diag_info(), key.name, tright));
+					return;
+				}
 			}
 			auto op = vm.sqfop_at(key);
 			auto return_value = op.execute(vm, *right_value);
 
-			context->push_value(return_value);
+			context.push_value(return_value);
 		}
 		virtual std::string to_string() const override { return std::string("CALLUNARY ") + m_operator_name; }
 		std::string_view operator_name() const { return m_operator_name; }

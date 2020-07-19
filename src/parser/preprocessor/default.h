@@ -294,7 +294,7 @@ namespace sqf::parser::preprocessor
 	public:
 		default(::Logger& logger);
 		virtual ~default() override { }
-		virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::sqf::runtime::fileio::pathinfo pathinfo) override;
+		virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) override;
 
 		std::optional<::sqf::runtime::parser::macro> get_try(const std::string macro_name) const
 		{

@@ -14,18 +14,26 @@ namespace sqf::runtime
 	private:
 		std::vector<sqf::runtime::frame> m_frames;
 		std::vector<sqf::runtime::value> m_values;
+		bool m_can_suspend;
 		bool m_suspended;
 		bool m_weak_error_handling;
 		std::chrono::system_clock::time_point m_wakeup_timestamp;
+		std::string m_name;
+		bool m_terminate;
 
 	public:
 		context() = default;
 
 
+		std::string name() const { return m_name; }
+		void name(std::string value) { m_name = value; }
+
+		bool can_suspend() const { return m_can_suspend; }
+		void can_suspend(bool flag) { m_can_suspend = flag; }
 		bool suspended() const { return m_suspended; }
 		std::chrono::system_clock::time_point wakeup_timestamp() const { return m_wakeup_timestamp; }
-		template<class T>
-		void suspend(std::chrono::duration<T> duration)
+		template<class _Rep, class _Period>
+		void suspend(std::chrono::duration<_Rep, _Period> duration)
 		{
 			m_wakeup_timestamp = std::chrono::system_clock::now() + duration;
 			m_suspended = true;
@@ -51,6 +59,10 @@ namespace sqf::runtime
 				{
 					return (*rit)[variable_name];
 				}
+				else if (!rit->bubble_variable())
+				{
+					return {};
+				}
 			}
 			return {};
 		}
@@ -58,7 +70,9 @@ namespace sqf::runtime
 		bool weak_error_handling() const { return m_weak_error_handling; }
 		void weak_error_handling(bool flag) { m_weak_error_handling = flag; }
 
-
 		frame& current_frame() { return m_frames.back(); }
+
+		bool terminate() const { return m_terminate; }
+		void terminate(bool flag) { m_terminate = flag; }
 	};
 }

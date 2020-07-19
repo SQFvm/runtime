@@ -17,12 +17,12 @@ namespace sqf::opcodes
 		call_binary(std::string key, short precedence) : m_operator_name(key), m_precedence(precedence) {}
 		virtual void execute(sqf::runtime::runtime& vm) const override
 		{
-			auto context = vm.active_context();
+			auto& context = vm.active_context();
 
-			auto right_value = vm.active_context()->pop_value();
+			auto right_value = vm.active_context().pop_value();
 			if (!right_value.has_value() || right_value->is<sqf::types::t_nothing>())
 			{
-				if (context->weak_error_handling())
+				if (context.weak_error_handling())
 				{
 					vm.__logmsg(logmessage::runtime::NoValueFoundForRightArgumentWeak(diag_info()));
 				}
@@ -33,10 +33,10 @@ namespace sqf::opcodes
 				return;
 			}
 
-			auto left_value = vm.active_context()->pop_value();
+			auto left_value = vm.active_context().pop_value();
 			if (!left_value.has_value() || left_value->is<sqf::types::t_nothing>())
 			{
-				if (context->weak_error_handling())
+				if (context.weak_error_handling())
 				{
 					vm.__logmsg(logmessage::runtime::NoValueFoundForLeftArgumentWeak(diag_info()));
 				}
@@ -46,17 +46,36 @@ namespace sqf::opcodes
 				}
 				return;
 			}
-			sqf::runtime::sqfop_binary::key key = { m_operator_name, left_value->operator sqf::runtime::type(), right_value->operator sqf::runtime::type() };
+			auto tleft = left_value->operator sqf::runtime::type();
+			auto tright = right_value->operator sqf::runtime::type();
+			sqf::runtime::sqfop_binary::key key = { m_operator_name, tleft, tright };
 
 			if (!vm.sqfop_exists(key))
 			{
-				vm.__logmsg(logmessage::runtime::UnknownInputTypeCombinationBinary(diag_info(), key.left_type, key.name, key.right_type));
+				vm.__logmsg(logmessage::runtime::UnknownInputTypeCombinationBinary(diag_info(), tleft, key.name, tright));
 				return;
+			}
+			if (!vm.sqfop_exists(key))
+			{
+				key = { m_operator_name, sqf::types::t_any(), tright };
+				if (!vm.sqfop_exists(key))
+				{
+					key = { m_operator_name, tleft, sqf::types::t_any() };
+					if (!vm.sqfop_exists(key))
+					{
+						key = { m_operator_name, sqf::types::t_any(), sqf::types::t_any() };
+						if (!vm.sqfop_exists(key))
+						{
+							vm.__logmsg(logmessage::runtime::UnknownInputTypeCombinationBinary(diag_info(), tleft, key.name, tright));
+							return;
+						}
+					}
+				}
 			}
 			auto op = vm.sqfop_at(key);
 			auto return_value = op.execute(vm, *left_value, *right_value);
 
-			context->push_value(return_value);
+			context.push_value(return_value);
 		}
 		virtual std::string to_string() const override { return std::string("CALLBINARY ") + m_operator_name; }
 		std::string_view operator_name() const { return m_operator_name; }

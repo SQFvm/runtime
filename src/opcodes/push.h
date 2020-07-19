@@ -13,7 +13,7 @@ namespace sqf::opcodes
 
 	public:
 		push(sqf::runtime::value value) : m_value(value) {}
-		virtual void execute(sqf::runtime::runtime& vm) const override { vm.active_context()->push_value(m_value); }
+		virtual void execute(sqf::runtime::runtime& vm) const override { vm.active_context().push_value(m_value); }
 		virtual std::string to_string() const override { return std::string("PUSH ") + m_value.data<sqf::runtime::data>()->to_string_sqf(); }
 		sqf::runtime::value::cref value() const { return m_value; }
 		virtual std::optional<std::string> reconstruct(

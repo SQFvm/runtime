@@ -1,0 +1,154 @@
+#include "d_array.h"
+#include "d_scalar.h"
+#include "logging.h"
+#include "runtime.h"
+namespace err = logmessage::runtime;
+
+static std::array<float, 3> as_vec3(const sqf::types::d_array& data)
+{
+	switch (data.size())
+	{
+	case 0:
+		return std::array<float, 3> { 0, 0, 0 };
+	case 1:
+		return std::array<float, 3> { data.at(0).data<sqf::types::d_scalar, float>(), 0, 0 };
+	case 2:
+		return std::array<float, 3> { data.at(0).data<sqf::types::d_scalar, float>(), data.at(1).data<sqf::types::d_scalar, float>(), 0 };
+	default:
+		return std::array<float, 3> { data.at(0).data<sqf::types::d_scalar, float>(), data.at(1).data<sqf::types::d_scalar, float>(), data.at(2).data<sqf::types::d_scalar, float>() };
+	}
+}
+
+static std::array<float, 2> as_vec2(const sqf::types::d_array& data)
+{
+	switch (data.size())
+	{
+	case 0:
+		return std::array<float, 2> { 0, 0 };
+	case 1:
+		return std::array<float, 2> { data.at(0).data<sqf::types::d_scalar, float>(), 0 };
+	default:
+		return std::array<float, 2> { data.at(0).data<sqf::types::d_scalar, float>(), data.at(1).data<sqf::types::d_scalar, float>() };
+	}
+}
+
+float sqf::types::distance3dsqr(const std::shared_ptr<sqf::types::d_array>& l, const std::shared_ptr<sqf::types::d_array>& r)
+{
+	return distance3d(as_vec3(*l), as_vec3(*r));
+}
+float sqf::types::distance3dsqr(const sqf::types::d_array* l, const sqf::types::d_array* r)
+{
+	return distance3d(as_vec3(*l), as_vec3(*r));
+}
+
+float sqf::types::distance3d(const std::shared_ptr<sqf::types::d_array>& l, const std::shared_ptr<sqf::types::d_array>& r)
+{
+	return distance3d(as_vec3(*l), as_vec3(*r));
+}
+float sqf::types::distance3d(const sqf::types::d_array* l, const sqf::types::d_array* r)
+{
+	return distance3d(as_vec3(*l), as_vec3(*r));
+}
+
+float sqf::types::distance2dsqr(const std::shared_ptr<sqf::types::d_array>& l, const std::shared_ptr<sqf::types::d_array>& r)
+{
+	return distance2dsqr(as_vec2(*l), as_vec2(*r));
+}
+float sqf::types::distance2dsqr(const sqf::types::d_array* l, const sqf::types::d_array* r)
+{
+	return distance2dsqr(as_vec2(*l), as_vec2(*r));
+}
+
+float sqf::types::distance2d(const std::shared_ptr<sqf::types::d_array>& l, const std::shared_ptr<sqf::types::d_array>& r)
+{
+	return distance2d(as_vec2(*l), as_vec2(*r));
+}
+float sqf::types::distance2d(const sqf::types::d_array* l, const sqf::types::d_array* r)
+{
+	return distance2d(as_vec2(*l), as_vec2(*r));
+}
+
+bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, sqf::runtime::type t, size_t min, size_t max) const
+{
+	bool errflag = true;
+	if (size() < min || size() > max)
+	{
+		if (min == max)
+		{
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), min, size()));
+		}
+		else
+		{
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), min, max, size()));
+		}
+		return false;
+	}
+	for (size_t i = 0; i < size(); i++)
+	{
+		if (!at(i).is(t))
+		{
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), i, t, at(i).data()->type()));
+			errflag = false;
+		}
+	}
+	return errflag;
+
+}
+
+bool sqf::types::d_array::recursion_test_helper(std::vector<std::shared_ptr<d_array>>& visited)
+{
+	for (auto& it : this->m_value)
+	{
+		if (it.is<d_array>())
+		{
+			// Get child
+			auto arr = it.data<d_array>();
+
+			// Check if child was visited already
+			if (std::find(visited.begin(), visited.end(), arr) != visited.end())
+			{
+				// Child already was visited, recursion test failed.
+				return false;
+			}
+
+			// Add child to visited list
+			visited.push_back(arr);
+
+			// Check child recursion
+			if (!arr->recursion_test_helper(visited))
+			{
+				return false;
+			}
+
+			// Remove child from visited list
+			visited.pop_back();
+		}
+	}
+	return true;
+}
+
+bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, const sqf::runtime::type* p_t, size_t min, size_t max) const
+{
+	bool errflag = true;
+	if (size() < min || size() > max)
+	{
+		if (min == max)
+		{
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), min, size()));
+		}
+		else
+		{
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), min, max, size()));
+		}
+		return false;
+	}
+	for (size_t i = 0; i < size(); i++)
+	{
+		if (!at(i).is(p_t[i]))
+		{
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), i, p_t[i], at(i).data()->type()));
+			errflag = false;
+		}
+	}
+	return errflag;
+}

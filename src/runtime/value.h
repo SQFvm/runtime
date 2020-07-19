@@ -2,6 +2,7 @@
 #include "data.h"
 
 #include <string>
+#include <optional>
 #include <memory>
 #include <functional>
 
@@ -31,8 +32,13 @@ namespace sqf::runtime
 			static_assert(std::is_base_of<sqf::runtime::type, T>::value, "value::is<T>() can only be used with sqf::runtime::type types.");
 			return this->operator sqf::runtime::type() == T();
 		}
+		bool is(sqf::runtime::type t) const
+		{
+			return this->operator sqf::runtime::type() == t;
+		}
 
 		bool operator==(cref other) const { return (m_data.get() && other.m_data.get()) || (m_data != nullptr && m_data->equals(other.data())); }
+		bool operator!=(cref other) const { return !(*this == other); }
 
 
 		/// <summary>
@@ -45,8 +51,8 @@ namespace sqf::runtime
 		/// Attempts to convert the data-member to the provided data type.
 		/// Will use std::dynamic_pointer_cast.
 		/// </summary>
-		/// <remark>
-		/// If it can be ensured that this will be the correct type, use sqf::runtime::value::data<T>.
+		/// <remarks>
+		/// If it can be ensured that this will be the correct type, use sqf::runtime::value::data&lt;T&gt;.
 		/// </remarks>
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
@@ -54,6 +60,30 @@ namespace sqf::runtime
 		std::shared_ptr<T> data_try() const {
 			static_assert(std::is_base_of<sqf::runtime::data, T>::value, "value::data_try_as<T>() can only convert to sqf::runtime::data types");
 			return std::dynamic_pointer_cast<T>(m_data);
+		}
+		template <class T, typename TValue>
+		std::optional<TValue> data_try() const {
+			auto conv = data_try<T>();
+			if (conv)
+			{
+				return (TValue)*conv;
+			}
+			else
+			{
+				return {};
+			}
+		}
+		template <class T, typename TValue>
+		TValue data_try(TValue def) const {
+			auto conv = data_try<T>();
+			if (conv)
+			{
+				return (TValue)*conv;
+			}
+			else
+			{
+				return def;
+			}
 		}
 		/// <summary>
 		/// Converts the data-member to the provided data type.

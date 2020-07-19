@@ -2,6 +2,7 @@
 #include <string>
 #include <string_view>
 #include <optional>
+#include <filesystem>
 
 namespace sqf
 {
@@ -29,6 +30,7 @@ namespace sqf
 				/// The full virtual path of the file.
 				/// </summary>
 				std::string virtual_;
+				pathinfo() : physical({}), additional({}), virtual_({}) {}
 				pathinfo(std::string_view p, std::string_view v) : pathinfo(p, {}, v) {}
 				pathinfo(std::string_view p, std::string_view a, std::string_view v) : pathinfo(std::string(p), std::string(a), std::string(v)) {}
 				pathinfo(std::string p, std::string v) : pathinfo(p, {}, v) {}
@@ -76,6 +78,26 @@ namespace sqf
 			/// </summary>
 			/// <param name="physical">Physical path to search inside.</param>
 			void add_mapping_auto(std::string_view physical);
+
+			/// <summary>
+			/// Method that returns ALL files inside the current fileio range.
+			/// MUST be overriden if physical boundaries exist.
+			/// </summary>
+			/// <returns></returns>
+			virtual std::filesystem::directory_iterator all_files_begin() const
+			{
+				auto options = std::filesystem::directory_options::skip_permission_denied | std::filesystem::directory_options::follow_directory_symlink;
+				return std::filesystem::directory_iterator(".", options);
+			}
+			/// <summary>
+			/// Method that returns ALL files inside the current fileio range.
+			/// MUST be overriden if physical boundaries exist.
+			/// </summary>
+			/// <returns></returns>
+			virtual std::filesystem::directory_iterator all_files_end() const
+			{
+				return std::filesystem::directory_iterator();
+			}
 		};
 	}
 	namespace fileio

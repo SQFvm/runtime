@@ -43,6 +43,7 @@
     ["assertException", { [1, 2, 3, 4, 5] select { "" } }, []],                 // ARRAY select CODE
     ["assertException", { [1, 2, 3, 4, 5] select { [] } }, []],                 // ARRAY select CODE
     ["assertException", { [1, 2, 3, 4, 5] select { {} } }, []],                 // ARRAY select CODE
+    ["assertException", { private _i = 0; private _arr = [1,2,3]; { _i = _i + 1; if (_i > 3) then { throw "Abort Endless Loop" }; _arr push_back _x; 0 } select _arr }],
     ["assertEqual",     { [] select { true } }, []],                            // ARRAY select CODE
 
 

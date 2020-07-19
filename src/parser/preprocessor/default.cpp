@@ -933,10 +933,10 @@ sqf::parser::preprocessor::default::default(::Logger & logger) : CanLog(logger)
 	m_macros["_SQFVM_RUNTIME_VERSION_MINOR"s] = { "_SQFVM_RUNTIME_VERSION_MINOR"s, STR(SQFVM_RUNTIME_VERSION_MINOR) };
 	m_macros["_SQFVM_RUNTIME_VERSION_REVISION"s] = { "_SQFVM_RUNTIME_VERSION_REVISION"s, STR(SQFVM_RUNTIME_VERSION_REVISION) };
 }
-std::optional<std::string> sqf::parser::preprocessor::default::preprocess(::sqf::runtime::runtime & runtime, ::sqf::runtime::fileio::pathinfo pathinfo)
+std::optional<std::string> sqf::parser::preprocessor::default::preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo)
 {
 	preprocessorfileinfo fileinfo(pathinfo);
-	fileinfo.content = runtime.fileio().read_file(pathinfo);
+	fileinfo.content = view;
 	auto res = parse_file(runtime, fileinfo);
 	if (inside_ppif_err_flag())
 	{

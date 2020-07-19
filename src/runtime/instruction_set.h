@@ -25,5 +25,7 @@ namespace sqf::runtime
 		iterator end() const { return m_instructions.end(); }
 		reverse_iterator rbegin() const { return m_instructions.rbegin(); }
 		reverse_iterator rend() const { return m_instructions.rend(); }
+		bool empty() const { return m_instructions.empty(); }
+		size_t size() const { return m_instructions.size(); }
 	};
 }

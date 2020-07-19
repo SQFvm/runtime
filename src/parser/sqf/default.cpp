@@ -11,9 +11,9 @@
 #include "../../opcodes/make_array.h"
 #include "../../opcodes/push.h"
 
-#include "../../types/d_string.h"
-#include "../../types/d_scalar.h"
-#include "../../types/d_code.h"
+#include "../../runtime/d_string.h"
+#include "../../runtime/d_scalar.h"
+#include "../../runtime/d_code.h"
 
 //#include "string_op.h"
 

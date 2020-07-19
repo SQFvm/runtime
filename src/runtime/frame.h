@@ -5,7 +5,7 @@
 
 namespace sqf::runtime
 {
-	class context;
+	class runtime;
 	class frame : public sqf::runtime::value_scope
 	{
 	public:
@@ -30,10 +30,15 @@ namespace sqf::runtime
 				/// Tells that the active instruction_set should be changed to the one
 				/// provided by this behavior.
 				/// </summary>
-				exchange
+				exchange,
+				/// <summary>
+				/// Indicates a failure state of the enact method.
+				/// If not used within error_behavior, then this acts like result::ok
+				/// </summary>
+				fail
 			};
-			virtual sqf::runtime::instruction_set get_instruction_set() = 0;
-			virtual result enact(sqf::runtime::context& context, const sqf::runtime::frame& frame) = 0;
+			virtual sqf::runtime::instruction_set get_instruction_set() { return {}; };
+			virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) = 0;
 			behavior() = default;
 		};
 		enum class result
@@ -55,6 +60,11 @@ namespace sqf::runtime
 			/// </summary>
 			ok
 		};
+		enum seek_
+		{
+			end,
+			start
+		};
 	private:
 		sqf::runtime::instruction_set m_instruction_set;
 		sqf::runtime::instruction_set::reverse_iterator m_iterator;
@@ -62,28 +72,32 @@ namespace sqf::runtime
 		std::shared_ptr<behavior> m_exit_behavior;
 		std::shared_ptr<behavior> m_error_behavior;
 		std::shared_ptr<sqf::runtime::value_scope> m_globals_value_scope;
+		bool m_bubble_variable;
 	public:
-		frame() : frame({}, {}, {}, {}) {}
-		frame(std::shared_ptr<behavior> enter_behavior, sqf::runtime::instruction_set instruction_set) : frame(enter_behavior, instruction_set, {}, {}) {}
-		frame(sqf::runtime::instruction_set instruction_set, std::shared_ptr<behavior> exit_behavior) : frame({}, instruction_set, exit_behavior, {}) {}
-		frame(sqf::runtime::instruction_set instruction_set) : frame({}, instruction_set, {}, {}) {}
-		frame(std::shared_ptr<behavior> enter_behavior,
-			  sqf::runtime::instruction_set instruction_set,
-			  std::shared_ptr<behavior> exit_behavior,
-			  std::shared_ptr<behavior> error_behavior)
+		frame() : frame({}, {}, {}, {}, {}) {}
+		frame(std::shared_ptr<sqf::runtime::value_scope> globals_scope, std::shared_ptr<behavior> enter_behavior, sqf::runtime::instruction_set instruction_set) : frame(globals_scope, enter_behavior, instruction_set, {}, {}) {}
+		frame(std::shared_ptr<sqf::runtime::value_scope> globals_scope, sqf::runtime::instruction_set instruction_set, std::shared_ptr<behavior> exit_behavior) : frame(globals_scope, {}, instruction_set, exit_behavior, {}) {}
+		frame(std::shared_ptr<sqf::runtime::value_scope> globals_scope, sqf::runtime::instruction_set instruction_set) : frame(globals_scope, {}, instruction_set, {}, {}) {}
+		frame(std::shared_ptr<sqf::runtime::value_scope> globals_scope,
+			std::shared_ptr<behavior> enter_behavior,
+			sqf::runtime::instruction_set instruction_set,
+			std::shared_ptr<behavior> exit_behavior,
+			std::shared_ptr<behavior> error_behavior)
 			:
 			m_instruction_set(instruction_set),
 			m_iterator(instruction_set.rbegin()),
 			m_enter_behavior(enter_behavior),
 			m_exit_behavior(exit_behavior),
-			m_error_behavior(error_behavior)
+			m_error_behavior(error_behavior),
+			m_globals_value_scope(globals_scope),
+			m_bubble_variable(true)
 		{}
 
 		bool can_recover_runtime_error() { return m_error_behavior != nullptr; }
-		result recover_runtime_error(context& context)
+		result recover_runtime_error(runtime& runtime)
 		{
 			if (!m_error_behavior) { return result::error; }
-			switch (m_error_behavior->enact(context, *this))
+			switch (m_error_behavior->enact(runtime, *this))
 			{
 			case behavior::result::seek_end:
 				m_iterator = m_instruction_set.rend();
@@ -95,8 +109,29 @@ namespace sqf::runtime
 				m_instruction_set = m_enter_behavior->get_instruction_set();
 				m_iterator = m_instruction_set.rbegin();
 				return result::ok;
+			case behavior::result::fail:
+				return result::error;
 			}
 			return result::ok;
+		}
+
+		void seek(long target, seek_ from)
+		{
+			switch (from)
+			{
+			case sqf::runtime::frame::end:
+				m_iterator = m_instruction_set.rend() + target;
+				break;
+			case sqf::runtime::frame::start:
+				m_iterator = m_instruction_set.rbegin() + target;
+				break;
+			default:
+				break;
+			}
+		}
+		size_t position() const
+		{
+			return m_iterator - m_instruction_set.rbegin();
 		}
 
 		sqf::runtime::instruction_set::reverse_iterator peek() const { bool flag; return peek(flag); }
@@ -107,6 +142,8 @@ namespace sqf::runtime
 			return it;
 		}
 
+		bool bubble_variable() const { return m_bubble_variable; }
+		void bubble_variable(bool flag) { m_bubble_variable = flag; }
 
 		sqf::runtime::instruction_set::reverse_iterator current() const { return m_iterator; }
 		std::shared_ptr<sqf::runtime::value_scope> globals_value_scope() const { return m_globals_value_scope; }
@@ -126,11 +163,11 @@ namespace sqf::runtime
 		/// Moves current to next instruction.
 		/// </summary>
 		/// <returns>Enum value describing the success state of the operation.</returns>
-		result next(context& context)
+		result next(runtime& runtime)
 		{
 			if (m_iterator == m_instruction_set.rbegin())
 			{
-				switch (m_enter_behavior->enact(context, *this))
+				switch (m_enter_behavior->enact(runtime, *this))
 				{
 				case behavior::result::seek_end:
 					m_iterator = m_instruction_set.rend();
@@ -149,7 +186,7 @@ namespace sqf::runtime
 				auto res = next();
 				if (m_iterator == m_instruction_set.rend())
 				{
-					switch (m_enter_behavior->enact(context, *this))
+					switch (m_enter_behavior->enact(runtime, *this))
 					{
 					case behavior::result::seek_end:
 						m_iterator = m_instruction_set.rend();

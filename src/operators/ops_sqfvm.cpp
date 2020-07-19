@@ -9,32 +9,19 @@
 #include "ops_sqfvm.h"
 #include "../runtime/runtime.h"
 #include "../runtime/type.h"
+#include "../runtime/frame.h"
 #include "../runtime/sqfop.h"
-#include "../types/d_array.h"
-#include "../types/d_boolean.h"
-#include "../types/d_code.h"
-#include "../types/d_scalar.h"
-#include "../types/d_string.h"
+#include "../runtime/d_array.h"
+#include "../runtime/d_boolean.h"
+#include "../runtime/d_code.h"
+#include "../runtime/d_scalar.h"
+#include "../runtime/d_string.h"
+#include "../runtime/diagnostics/stacktrace.h"
+#include "../runtime/diagnostics/d_stacktrace.h"
+#include "d_config.h"
+#include "d_object.h"
 
 
-#include "../commandmap.h"
-#include "../value.h"
-#include "../cmd.h"
-#include "../virtualmachine.h"
-#include "../configdata.h"
-#include "../arraydata.h"
-#include "../innerobj.h"
-#include "../objectdata.h"
-#include "../parsing/parsepreprocessor.h"
-#include "../vmstack.h"
-#include "../sqfnamespace.h"
-#include "../callstack_sqftry.h"
-#include "../instruction.h"
-#include "../codedata.h"
-#include "../networking/network_client.h"
-#include "../networking.h"
-#include "../codedata.h"
-#include "filesystem.h"
 #include <sstream>
 #include <array>
 #include <algorithm> 
@@ -45,6 +32,7 @@
 namespace err = logmessage::runtime;
 using namespace sqf::runtime;
 using namespace sqf::types;
+using namespace std::string_literals;
 
 namespace
 {
@@ -258,45 +246,23 @@ namespace
         {
             sstream << "Could not find any command with that name." << std::endl;
         }
-        runtime.__logmsg(err::InfoMessage((*runtime.active_context()->current_frame().current())->diag_info(), "HELP", sstream.str()));
+        runtime.__logmsg(err::InfoMessage((*runtime.active_context().current_frame().current())->diag_info(), "HELP", sstream.str()));
         return {};
     }
     value configparse___string(runtime& runtime, value::cref right)
     {
-        auto str = right.data<d_string>();
-        auto cd = std::make_shared<sqf::configdata>();
-        runtime.parse_config(str, "__configparse___string", cd);
-        return value(cd);
-    }
-    value merge___config_config(runtime& runtime, value::cref left, value::cref right)
-    {
-        auto target = left.data<configdata>();
-        auto source = right.data<configdata>();
-        source->mergeinto(target);
+        auto str = right.data<d_string, std::string>();
+        runtime.parser_config().parse(runtime.confighost(), str);
         return {};
     }
     value allObjects__(runtime& runtime)
     {
         auto arr = std::make_shared<d_array>();
-        for (auto& object : runtime.get_objlist())
+        for (auto& object : runtime.storage<object, object::object_storage>())
         {
-            arr->push_back(value(std::make_shared<objectdata>(object)));
+            arr->push_back(object);
         }
         return value(arr);
-    }
-    value pretty___code(runtime& runtime, value::cref right)
-    {
-        auto code = right.data<codedata>();
-        auto str = code->tosqf();
-
-        runtime.logmsg(err::InfoMessage(*runtime.current_instruction(), "PRETTY", runtime.pretty_print_sqf(str)));
-        return {};
-    }
-    value prettysqf___string(runtime& runtime, value::cref right)
-    {
-        auto str = right.as_string();
-        runtime.logmsg(err::InfoMessage(*runtime.current_instruction(), "PRETTY", runtime.pretty_print_sqf(str)));
-        return {};
     }
     value exit___(runtime& runtime)
     {
@@ -310,14 +276,31 @@ namespace
     }
     value respawn___(runtime& runtime)
     {
-        runtime.player_obj(innerobj::create(vm, "CAManBase", false));
-        return value(std::make_shared<objectdata>(runtime.player_obj()));
+        auto current = runtime.storage<object, object::object_storage>().player();
+        if (current)
+        {
+            current->destroy(runtime);
+        }
+        auto root = runtime.confighost().root();
+        auto cfgVehicles_ = root.navigate(runtime.confighost(), "CfgVehicles");
+        sqf::runtime::confighost::config entry;
+        if (cfgVehicles_.has_value())
+        {
+            auto caManBase_ = cfgVehicles_->navigate(runtime.confighost(), "CAManBase");
+            if (caManBase_.has_value())
+            {
+                entry = *caManBase_;
+            }
+        }
+        current = object::create(runtime, entry, false);
+        runtime.storage<object, object::object_storage>().player(current);
+        return current;
     }
     value preprocess___string(runtime& runtime, value::cref right)
     {
         auto content = right.data<d_string>();
         bool errflag = false;
-        auto ppres = runtime.preprocess(content, errflag, "__preprocess__");
+        auto ppres = runtime.parser_preprocessor().preprocess(runtime, *content, { {}, "__preprocess__"s });
         if (errflag)
         {
             return {};
@@ -329,87 +312,76 @@ namespace
     }
     value except___code_code(runtime& runtime, value::cref left, value::cref right)
     {
-        auto cs = std::make_shared<callstack_sqftry>(runtime.active_vmstack()->stacks_top()->get_namespace(), right.data<codedata>());
-        runtime.active_vmstack()->push_back(cs);
-        left.data<codedata>()->loadinto(runtime.active_vmstack(), cs);
+        class behavior_except : public frame::behavior
+        {
+        private:
+            instruction_set m_set;
+        public:
+            behavior_except(instruction_set set) : m_set(set) {}
+            virtual sqf::runtime::instruction_set get_instruction_set() override { return m_set; };
+            virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override { return result::exchange; };
+        };
+        frame f(
+            runtime.default_value_scope(),
+            {},
+            right.data<d_code, sqf::runtime::instruction_set>(),
+            {},
+            std::make_shared<behavior_except>(left.data<d_code, sqf::runtime::instruction_set>()));
+        runtime.active_context().push_frame(f);
         return {};
     }
     value callstack___(runtime& runtime)
     {
-        auto stackdump = runtime.active_vmstack()->dump_callstack_diff({});
-        auto sqfarr = std::make_shared<arraydata>();
-        for (auto& it : stackdump)
-        {
-            std::vector<value> vec = {
-                    value(it.namespace_used->get_name()),
-                    value(it.scope_name),
-                    value(it.callstack_name),
-                    value(it.line),
-                    value(it.column),
-                    value(it.file),
-                    value(it.dbginf)
-            };
-            sqfarr->push_back(value(std::make_shared<arraydata>(vec)));
-        }
-        return value(sqfarr);
+        auto context = runtime.active_context();
+        std::vector<sqf::runtime::frame> stacktrace_frames(context.frames_rbegin(), context.frames_rend());
+        sqf::runtime::diagnostics::stacktrace stacktrace(stacktrace_frames);
+        return stacktrace;
     }
     value allfiles___array(runtime& runtime, value::cref right)
     {
-#if !defined(FILESYSTEM_DISABLE_DISALLOW)
-        if (runtime.get_filesystem().disallow())
-        {
-            runtime.logmsg(err::FileSystemDisabled(*runtime.current_instruction()));
-            return value(std::make_shared<arraydata>());
-        }
-#endif
-        auto arr = right.data<arraydata>();
-        if (!arr->check_type(vm, t_string(), 0, arr->size()))
+        auto arr = right.data<d_array>();
+        if (!arr->check_type(runtime, t_string(), 0, arr->size()))
         {
             return {};
         }
         auto files = std::vector<value>();
-        //recursively search for pboprefix
-        for (auto phys : runtime.get_filesystem().m_physicalboundaries)
+        auto fileio = runtime.fileio();
+        // recursively search for pboprefix
+        for (auto i = fileio.all_files_begin(); i != fileio.all_files_end(); ++i)
         {
-            for (auto i = std::filesystem::recursive_directory_iterator(phys, std::filesystem::directory_options::follow_directory_symlink);
-                i != std::filesystem::recursive_directory_iterator();
-                ++i)
+            bool skip = true;
+            for (auto& ext : *arr)
             {
-                bool skip = true;
-                for (auto& ext : *arr)
+                if (i->is_directory())
                 {
-                    if (i->is_directory())
-                    {
-                        break;
-                    }
-                    if (!(i->path().extension().compare(ext.as_string())))
-                    {
-                        skip = false;
-                        break;
-                    }
+                    break;
                 }
-                if (!skip)
+                if (!(i->path().extension().compare(ext.data<d_string, std::string>())))
                 {
-                    files.push_back(i->path().string());
+                    skip = false;
+                    break;
                 }
             }
+            if (!skip)
+            {
+                files.push_back(i->path().string());
+            }
         }
-        return value(std::make_shared<arraydata>(files));
+        return files;
     }
     value pwd___(runtime& runtime)
     {
-        auto path = std::filesystem::path(runtime.active_vmstack()->stacks_top()->current_instruction()->file());
+        auto path = std::filesystem::path((*runtime.active_context().current_frame().current())->diag_info().file);
         return std::filesystem::absolute(path).string();
     }
     value currentDirectory___(runtime& runtime)
     {
-        auto path = std::filesystem::path(runtime.active_vmstack()->stacks_top()->current_instruction()->file());
-        
+        auto path = std::filesystem::path((*runtime.active_context().current_frame().current())->diag_info().file);
         return std::filesystem::absolute(path.parent_path()).string();
     }
     value trim___(runtime& runtime, value::cref right)
     {
-        auto str = right.as_string();
+        auto str = right.data<d_string, std::string>();
         str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](int ch) {
             return !std::isspace(ch);
             }));
@@ -422,20 +394,20 @@ namespace
     {
         if (!runtime.allow_networking())
         {
-            runtime.logmsg(err::NetworkingDisabled(*runtime.current_instruction()));
+            runtime.__logmsg(err::NetworkingDisabled((*runtime.active_context().current_frame().current())->diag_info()));
             return false;
         }
         networking_init();
         if (runtime.is_networking_set())
         {
-            runtime.logmsg(err::AlreadyConnected(*runtime.current_instruction()));
+            runtime.__logmsg(err::AlreadyConnected((*runtime.active_context().current_frame().current())->diag_info()));
             return {};
         }
         auto s = right.as_string();
         auto index = s.find(':');
         if (index == std::string::npos)
         {
-            runtime.logmsg(err::NetworkingFormatMissmatch(*runtime.current_instruction(), s));
+            runtime.__logmsg(err::NetworkingFormatMissmatch((*runtime.active_context().current_frame().current())->diag_info(), s));
             return {};
         }
         auto address = s.substr(0, index);
@@ -443,7 +415,7 @@ namespace
         SOCKET socket;
         if (networking_create_client(address.c_str(), port.c_str(), &socket))
         {
-            runtime.logmsg(err::FailedToEstablishConnection(*runtime.current_instruction()));
+            runtime.__logmsg(err::FailedToEstablishConnection((*runtime.active_context().current_frame().current())->diag_info()));
             return false;
         }
         runtime.set_networking(std::make_shared<networking::client>(socket));
@@ -456,121 +428,137 @@ namespace
     }
     value vmctrl___string(runtime& runtime, value::cref right)
     {
-        auto str = right.as_string();
+        auto str = right.data<d_string, std::string>();
 
         if (str == "abort")
         {
-            runtime.execute(sqf::virtualmachine::execaction::abort);
+            runtime.execute(sqf::runtime::runtime::action::abort);
         }
         else if (str == "assembly_step")
         {
-            runtime.execute(sqf::virtualmachine::execaction::assembly_step);
+            runtime.execute(sqf::runtime::runtime::action::assembly_step);
         }
         else if (str == "leave_scope")
         {
-            runtime.execute(sqf::virtualmachine::execaction::leave_scope);
+            runtime.execute(sqf::runtime::runtime::action::leave_scope);
         }
         else if (str == "reset_run_atomic")
         {
-            runtime.execute(sqf::virtualmachine::execaction::reset_run_atomic);
+            runtime.execute(sqf::runtime::runtime::action::reset_run_atomic);
         }
         else if (str == "start")
         {
-            runtime.execute(sqf::virtualmachine::execaction::start);
+            runtime.execute(sqf::runtime::runtime::action::start);
         }
         else if (str == "stop")
         {
-            runtime.execute(sqf::virtualmachine::execaction::stop);
+            runtime.execute(sqf::runtime::runtime::action::stop);
         }
         else
         {
             // ToDo: Create custom log message for enum errors
-            runtime.logmsg(err::ErrorMessage(*runtime.current_instruction(), "vmctrl", "exec unknown"));
+            runtime.__logmsg(err::ErrorMessage((*runtime.active_context().current_frame().current())->diag_info(), "vmctrl", "exec unknown"));
         }
         return {};
     }
-    value provide___code_string(runtime& runtime, value::cref left, value::cref right)
+    value noBubble___ANY_CODE(runtime& runtime, value::cref left, value::cref right)
     {
-        auto arr = right.data<arraydata>();
-        if (!arr->check_type(vm, t_string(), 1, 3))
-        {
-            return {};
-        }
-        sqf::type ltype;
-        sqf::type rtype;
-        std::string name;
-        int size = arr->size();
-        switch (size)
-        {
-            case 1:
-                name = arr->at(0).as_string();
-            break;
-            case 3:
-            {
-                name = arr->at(1).as_string();
-                auto l = arr->at(0).as_string();
-                ltype = parsetype(l);
-                auto r = arr->at(arr->size() - 1).as_string();
-                rtype = parsetype(r);
-            }
-            break;
-            case 2:
-            {
-                name = arr->at(0).as_string();
-                auto r = arr->at(arr->size() - 1).as_string();
-                rtype = parsetype(r);
-            } break;
-            default:
-                return {};
-        }
-        switch (size)
-        {
-        case 1:
-            sqf::commandmap::get().remove(name);
-            sqf::commandmap::get().add(sqf::nulardata<std::shared_ptr<codedata>>(
-                left.data<codedata>(),
-                name,
-                "",
-                [](runtime& runtime, std::shared_ptr<codedata> code) -> value
-                {
-                    code->loadinto(vm, runtime.active_vmstack());
-                    runtime.active_vmstack()->stacks_top()->set_variable("_this", value());
-                    return {};
-                }));
-            break;
-        case 2:
-            sqf::commandmap::get().remove(name, rtype);
-            sqf::commandmap::get().add(sqf::unarydata<std::shared_ptr<codedata>>(
-                left.data<codedata>(),
-                name,
-                rtype,
-                "",
-                [](runtime& runtime, std::shared_ptr<codedata> code, value::cref right) -> value
-                {
-                    code->loadinto(vm, runtime.active_vmstack());
-                    runtime.active_vmstack()->stacks_top()->set_variable("_this", right);
-                    return {};
-                }));
-            break;
-        case 3:
-            sqf::commandmap::get().remove(ltype, name, rtype);
-            sqf::commandmap::get().add(sqf::binarydata<std::shared_ptr<codedata>>(
-                left.data<codedata>(),
-                (short)4,
-                name,
-                ltype,
-                rtype,
-                "",
-                [](runtime& runtime, std::shared_ptr<codedata> code, value::cref left, value::cref right) -> value
-                {
-                    code->loadinto(vm, runtime.active_vmstack());
-                    runtime.active_vmstack()->stacks_top()->set_variable("_this", value({ left , right }));
-                    return {};
-                }));
-            break;
-        }
+        frame f = { right.data<d_code, instruction_set>() };
+        f["_this"] = left;
+        f.bubble_variable(false);
+        runtime.active_context().push_frame(f);
         return {};
     }
+    value noBubble___CODE(runtime& runtime, value::cref right)
+    {
+        frame f = { right.data<d_code, instruction_set>() };
+        f["_this"] = {};
+        f.bubble_variable(false);
+        runtime.active_context().push_frame(f);
+        return {};
+    }
+    //value provide___code_string(runtime& runtime, value::cref left, value::cref right)
+    //{
+    //    auto arr = right.data<d_array>();
+    //    if (!arr->check_type(runtime, t_string(), 1, 3))
+    //    {
+    //        return {};
+    //    }
+    //    sqf::runtime::type ltype;
+    //    sqf::runtime::type rtype;
+    //    std::string name;
+    //    int size = arr->size();
+    //    switch (size)
+    //    {
+    //        case 1:
+    //            name = arr->at(0).data<d_string, std::string>();
+    //        break;
+    //        case 3:
+    //        {
+    //            name = arr->at(1).data<d_string, std::string>();
+    //            auto l = arr->at(0).data<d_string, std::string>();
+    //            ltype = sqf::runtime::type::typemap().at(l);
+    //            auto r = arr->at(arr->size() - 1).data<d_string, std::string>();
+    //            rtype = sqf::runtime::type::typemap().at(r);
+    //        }
+    //        break;
+    //        case 2:
+    //        {
+    //            name = arr->at(0).data<d_string, std::string>();
+    //            auto r = arr->at(arr->size() - 1).data<d_string, std::string>();
+    //            rtype = sqf::runtime::type::typemap().at(r);
+    //        } break;
+    //        default:
+    //            return {};
+    //    }
+    //    switch (size)
+    //    {
+    //    case 1:
+    //        sqf::commandmap::get().remove(name);
+    //        sqf::commandmap::get().add(sqf::nulardata<std::shared_ptr<codedata>>(
+    //            left.data<codedata>(),
+    //            name,
+    //            "",
+    //            [](runtime& runtime, std::shared_ptr<codedata> code) -> value
+    //            {
+    //                code->loadinto(vm, runtime.active_vmstack());
+    //                runtime.active_vmstack()->stacks_top()->set_variable("_this", value());
+    //                return {};
+    //            }));
+    //        break;
+    //    case 2:
+    //        sqf::commandmap::get().remove(name, rtype);
+    //        sqf::commandmap::get().add(sqf::unarydata<std::shared_ptr<codedata>>(
+    //            left.data<codedata>(),
+    //            name,
+    //            rtype,
+    //            "",
+    //            [](runtime& runtime, std::shared_ptr<codedata> code, value::cref right) -> value
+    //            {
+    //                code->loadinto(vm, runtime.active_vmstack());
+    //                runtime.active_vmstack()->stacks_top()->set_variable("_this", right);
+    //                return {};
+    //            }));
+    //        break;
+    //    case 3:
+    //        sqf::commandmap::get().remove(ltype, name, rtype);
+    //        sqf::commandmap::get().add(sqf::binarydata<std::shared_ptr<codedata>>(
+    //            left.data<codedata>(),
+    //            (short)4,
+    //            name,
+    //            ltype,
+    //            rtype,
+    //            "",
+    //            [](runtime& runtime, std::shared_ptr<codedata> code, value::cref left, value::cref right) -> value
+    //            {
+    //                code->loadinto(vm, runtime.active_vmstack());
+    //                runtime.active_vmstack()->stacks_top()->set_variable("_this", value({ left , right }));
+    //                return {};
+    //            }));
+    //        break;
+    //    }
+    //    return {};
+    //}
 }
 void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
 {
@@ -581,11 +569,11 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(nular("cmdsimplemented__", "Returns an array containing all commands that are actually implemented.", cmdsimplemented___));
     runtime.register_sqfop(unary("help__", t_string(), "Displays all available information for a single command.", help___string));
     runtime.register_sqfop(unary("configparse__", t_string(), "Parses provided string as config into a new config object.", configparse___string));
-    runtime.register_sqfop(binary(4, "merge__", t_config(), t_config(), "Merges contents from the right config into the left config. Duplicate entries will be overriden. Contents will not be copied but referenced.", merge___config_config));
+    // runtime.register_sqfop(binary(4, "merge__", t_config(), t_config(), "Merges contents from the right config into the left config. Duplicate entries will be overriden. Contents will not be copied but referenced.", merge___config_config));
     runtime.register_sqfop(nular("allObjects__", "Returns an array containing all objects created.", allObjects__));
-    runtime.register_sqfop(unary("pretty__", t_code(), "Takes provided SQF code and pretty-prints it to output.", pretty___code));
-    runtime.register_sqfop(unary("prettysqf__", t_code(), "Takes provided SQF code and pretty-prints it to output.", pretty___code));
-    runtime.register_sqfop(unary("prettysqf__", t_string(), "Takes provided SQF code and pretty-prints it to output.", prettysqf___string));
+    // runtime.register_sqfop(unary("pretty__", t_code(), "Takes provided SQF code and pretty-prints it to output.", pretty___code));
+    // runtime.register_sqfop(unary("prettysqf__", t_code(), "Takes provided SQF code and pretty-prints it to output.", pretty___code));
+    // runtime.register_sqfop(unary("prettysqf__", t_string(), "Takes provided SQF code and pretty-prints it to output.", prettysqf___string));
     runtime.register_sqfop(nular("exit__", "Exits the VM execution immediately. Will not notify debug interface when used.", exit___));
     runtime.register_sqfop(unary("vmctrl__", t_string(), "Executes the provided SQF-VM exection action.", vmctrl___string));
     runtime.register_sqfop(unary("exitcode__", t_scalar(), "Exits the VM execution immediately. Will not notify debug interface when used. Allows to pass an exit code to the VM.", exit___scalar));
@@ -602,6 +590,7 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(unary("trim__", t_string(), "Trims provided strings start and end.", trim___));
     runtime.register_sqfop(unary("remoteConnect__", t_string(), "Connects this as a client to the provided endpoint. Endpoint is expected to have the format ADDRESS:PORT. Returns TRUE on success, false if it failed. Note that IP-Address is required, not DNS names (eg. use '127.0.0.1' instead of 'localhost').", remoteConnect___));
     runtime.register_sqfop(nular("closeConnection__", "Closes the connection previously opened using remoteConnect__.", closeconnection___));
-    runtime.register_sqfop(binary(4, "provide__", t_code(), t_array(), "Allows to provide an implementation for a given operator. Will NOT override existing definitions. Array is expected to be of the following formats:"
-        "nular: [\"name\"], unary: [\"name\", \"type\"], binary: [\"ltype\", \"name\", \"rtype\"]", provide___code_string));
+    // runtime.register_sqfop(binary(4, "provide__", t_code(), t_array(), "Allows to provide an implementation for a given operator. Will NOT override existing definitions. Array is expected to be of the following formats: nular: [\"name\"], unary: [\"name\", \"type\"], binary: [\"ltype\", \"name\", \"rtype\"]", provide___code_string));
+    runtime.register_sqfop(unary("noBubble__", t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", noBubble___CODE));
+    runtime.register_sqfop(binary(4, "noBubble__", t_any(), t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", noBubble___ANY_CODE));
 }

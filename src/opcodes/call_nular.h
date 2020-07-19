@@ -16,7 +16,7 @@ namespace sqf::opcodes
 		call_nular(std::string key) : m_operator_name(key) {}
 		virtual void execute(sqf::runtime::runtime& vm) const override
 		{
-			auto context = vm.active_context();
+			auto& context = vm.active_context();
 			sqf::runtime::sqfop_nular::key key = { m_operator_name };
 			if (!vm.sqfop_exists(key))
 			{
@@ -26,7 +26,7 @@ namespace sqf::opcodes
 			auto op = vm.sqfop_at(key);
 			auto return_value = op.execute(vm);
 
-			context->push_value(return_value);
+			context.push_value(return_value);
 		}
 		virtual std::string to_string() const override { return std::string("CALLNULAR ") + m_operator_name; }
 		std::string_view operator_name() const { return m_operator_name; }

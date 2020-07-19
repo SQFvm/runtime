@@ -6,25 +6,25 @@
 
 static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, size_t exit_after)
 {
-	auto active_context = runtime.active_context();
+	auto& active_context = runtime.active_context();
 	auto& runtime_error = runtime.__runtime_error();
 	while (true)
 	{
 		if (runtime.is_exit_requested()) { return sqf::runtime::runtime::result::ok; }
 		if (exit_after == 0) { return sqf::runtime::runtime::result::ok; }
-		if (active_context->suspended()) { return sqf::runtime::runtime::result::ok; }
-		if (active_context->empty()) { return sqf::runtime::runtime::result::ok; }
+		if (active_context.suspended()) { return sqf::runtime::runtime::result::ok; }
+		if (active_context.empty()) { return sqf::runtime::runtime::result::ok; }
 		if (runtime.runtime_state() != sqf::runtime::runtime::state::running) { return sqf::runtime::runtime::result::ok; }
 
 		auto context = runtime.active_context();
-		auto result = context->current_frame().next(*context);
+		auto result = context.current_frame().next(runtime);
 
 		if (result == sqf::runtime::frame::result::done)
 		{ // frame is done executing. Pop it from context and rerun.
-			context->pop_frame();
+			context.pop_frame();
 			continue;
 		}
-		auto instruction = context->current_frame().current();
+		auto instruction = context.current_frame().current();
 
 		if (runtime.configuration().max_runtime != std::chrono::milliseconds::zero() &&
 			runtime.configuration().max_runtime + runtime.runtime_timestamp() < std::chrono::system_clock::now())
@@ -42,7 +42,7 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
 				if (breakpoint.is_enabled() && breakpoint.line() == dinf.line && breakpoint.file() == dinf.file)
 				{
 					runtime.breakpoint_hit(breakpoint);
-					context->current_frame().previous(); // Unput instruction
+					context.current_frame().previous(); // Unput instruction
 					return sqf::runtime::runtime::result::ok;
 				}
 			}
@@ -67,28 +67,28 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
 		{
 			runtime_error = false;
 			// Build Stacktrace
-			std::vector<sqf::runtime::frame> stacktrace_frames(context->frames_rbegin(), context->frames_rend());
+			std::vector<sqf::runtime::frame> stacktrace_frames(context.frames_rbegin(), context.frames_rend());
 			sqf::runtime::diagnostics::stacktrace stacktrace(stacktrace_frames);
 
 			// Try to find a frame that has recover behavior for runtime error
-			auto res = std::find_if(context->frames_rbegin(), context->frames_rend(),
+			auto res = std::find_if(context.frames_rbegin(), context.frames_rend(),
 				[](sqf::runtime::frame& frame) -> bool { return frame.can_recover_runtime_error(); });
 
-			if (res != context->frames_rend())
+			if (res != context.frames_rend())
 			{ // We found a recoverable frame
 
 				// Push Stacktrace to value-stack
-				context->push_value({ std::make_shared<sqf::types::d_stacktrace>(stacktrace) });
+				context.push_value({ std::make_shared<sqf::types::d_stacktrace>(stacktrace) });
 
 				// Pop all frames between result and current_frame
-				size_t frames_to_pop = res - context->frames_rbegin();
+				size_t frames_to_pop = res - context.frames_rbegin();
 				for (size_t i = 0; i < frames_to_pop; i++)
 				{
-					context->pop_frame();
+					context.pop_frame();
 				}
 
 				// Recover from exception
-				res->recover_runtime_error(*context);
+				res->recover_runtime_error(runtime);
 			}
 			else
 			{ // No recover frame available, exit method
@@ -112,7 +112,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 		{
 			m_is_exit_requested = false;
 			m_is_halt_requested = false;
-			auto scopeNum = m_active_context->size() - 1;
+			auto scopeNum = m_active_context().size() - 1;
 			m_state = state::running;
 			while (!m_is_exit_requested && !m_is_halt_requested && !m_contexts.size() == 0)
 			{
@@ -121,7 +121,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 				{
 					break;
 				}
-				if (m_active_context->size() <= scopeNum)
+				if (m_active_context().size() <= scopeNum)
 				{
 					break;
 				}
@@ -162,12 +162,12 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 			m_state = state::running;
 			for (auto iterator = m_contexts.begin(); iterator != m_contexts.end(); iterator++)
 			{
-				m_active_context = iterator;
-				if (m_active_context->suspended())
+				m_active_context = *iterator;
+				if (m_active_context().suspended())
 				{
-					if (m_active_context->wakeup_timestamp() <= std::chrono::system_clock::now())
+					if (m_active_context().wakeup_timestamp() <= std::chrono::system_clock::now())
 					{
-						m_active_context->unsuspend();
+						m_active_context().unsuspend();
 						res = execute_do(*this, 150);
 					}
 					else
@@ -268,7 +268,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 			{
 				if (!dinf.has_value())
 				{
-					auto next_inst = m_active_context->current_frame().peek(success);
+					auto next_inst = m_active_context().current_frame().peek(success);
 					if (success)
 					{
 						dinf = { (*next_inst)->diag_info() };
@@ -282,7 +282,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 				}
 				if (dinf.has_value())
 				{
-					auto next_inst = m_active_context->current_frame().peek(success);
+					auto next_inst = m_active_context().current_frame().peek(success);
 					if (success && dinf.value() != (*next_inst)->diag_info())
 					{
 						break;

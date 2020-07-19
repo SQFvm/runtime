@@ -1,4 +1,5 @@
-[   [
+[
+	[
         "assertEqual",
         {
             private _arr = [];
@@ -23,6 +24,24 @@
             _arr
         },
         ["past case 1","past cases inner","past cases call outter","inside 2","b"]
+    ],
+	[
+        "assertEqual",
+        {
+            private _arr = [];
+			switch (1) do
+			{
+			  private _case = case 1;
+			  switch (2) do
+			  {
+				  case 2: { _arr pushBack "empty"; };
+				  _case: { _arr pushBack "arg"; };
+			  };
+			  default { _arr pushBack "magic"; };
+			};
+            _arr
+        },
+        ["empty", "magic"]
     ],
     ["assert", { switch(2) do { case 1: {}; }; }]
 ]
