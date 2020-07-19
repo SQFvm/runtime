@@ -22,7 +22,7 @@ namespace sqf
 		private:
 			bool m_value;
 		protected:
-			bool do_equals(std::shared_ptr<data> other, bool invariant) const override
+			bool do_equals(std::shared_ptr<sqf::runtime::data> other, bool invariant) const override
 			{
 				return m_value == std::static_pointer_cast<d_boolean>(other)->m_value;
 			}

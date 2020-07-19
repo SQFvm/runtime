@@ -6,6 +6,7 @@
 #include <sstream>
 #include <array>
 
+#include "../runtime/vec.h"
 #include "../runtime/data.h"
 #include "../runtime/type.h"
 #include "../runtime/value.h"
@@ -161,24 +162,28 @@ namespace sqf
 
 		float distance3dsqr(const std::shared_ptr<sqf::types::d_array>& l, const std::shared_ptr<sqf::types::d_array>& r);
 		float distance3dsqr(const d_array* l, const d_array* r);
+		float distance3dsqr(const ::sqf::runtime::vec3 l, const ::sqf::runtime::vec3 r) { return distance3dsqr(std::array<float, 3>{l.x, l.y, l.z}, std::array<float, 3>{r.x, r.y, r.z}); }
 		float distance3dsqr(std::array<float, 3> l, std::array<float, 3> r)
 		{
 			return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2) + std::pow(l[2] - r[2], 2);
 		}
 		float distance3d(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
 		float distance3d(const d_array* l, const d_array* r);
+		float distance3d(const ::sqf::runtime::vec3 l, const ::sqf::runtime::vec3 r) { return distance3d(std::array<float, 3>{l.x, l.y, l.z}, std::array<float, 3>{r.x, r.y, r.z}); }
 		float distance3d(std::array<float, 3> l, std::array<float, 3> r)
 		{
 			return std::sqrt(distance3dsqr(l, r));
 		}
 		float distance2dsqr(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
 		float distance2dsqr(const d_array* l, const d_array* r);
+		float distance2dsqr(const ::sqf::runtime::vec3 l, const ::sqf::runtime::vec3 r) { return distance2dsqr(std::array<float, 2>{l.x, l.y}, std::array<float, 2>{r.x, r.y}); }
 		float distance2dsqr(std::array<float, 2> l, std::array<float, 2> r)
 		{
 			return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2);
 		}
 		float distance2d(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
 		float distance2d(const d_array* l, const d_array* r);
+		float distance2d(const ::sqf::runtime::vec3 l, const ::sqf::runtime::vec3 r) { return distance2d(std::array<float, 2>{l.x, l.y}, std::array<float, 2>{r.x, r.y}); }
 		float distance2d(std::array<float, 2> l, std::array<float, 2> r)
 		{
 			return std::sqrt(distance2dsqr(l, r));

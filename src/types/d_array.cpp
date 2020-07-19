@@ -8,11 +8,11 @@ static std::array<float, 3> as_vec3(const sqf::types::d_array& data)
 	case 0:
 		return std::array<float, 3> { 0, 0, 0 };
 	case 1:
-		return std::array<float, 3> { data.at(0).data_as<sqf::types::d_scalar, float>(), 0, 0 };
+		return std::array<float, 3> { data.at(0).data<sqf::types::d_scalar, float>(), 0, 0 };
 	case 2:
-		return std::array<float, 3> { data.at(0).data_as<sqf::types::d_scalar, float>(), data.at(1).data_as<sqf::types::d_scalar, float>(), 0 };
+		return std::array<float, 3> { data.at(0).data<sqf::types::d_scalar, float>(), data.at(1).data<sqf::types::d_scalar, float>(), 0 };
 	default:
-		return std::array<float, 3> { data.at(0).data_as<sqf::types::d_scalar, float>(), data.at(1).data_as<sqf::types::d_scalar, float>(), data.at(2).data_as<sqf::types::d_scalar, float>() };
+		return std::array<float, 3> { data.at(0).data<sqf::types::d_scalar, float>(), data.at(1).data<sqf::types::d_scalar, float>(), data.at(2).data<sqf::types::d_scalar, float>() };
 	}
 }
 
@@ -23,9 +23,9 @@ static std::array<float, 2> as_vec2(const sqf::types::d_array& data)
 	case 0:
 		return std::array<float, 2> { 0, 0 };
 	case 1:
-		return std::array<float, 2> { data.at(0).data_as<sqf::types::d_scalar, float>(), 0 };
+		return std::array<float, 2> { data.at(0).data<sqf::types::d_scalar, float>(), 0 };
 	default:
-		return std::array<float, 2> { data.at(0).data_as<sqf::types::d_scalar, float>(), data.at(1).data_as<sqf::types::d_scalar, float>() };
+		return std::array<float, 2> { data.at(0).data<sqf::types::d_scalar, float>(), data.at(1).data<sqf::types::d_scalar, float>() };
 	}
 }
 

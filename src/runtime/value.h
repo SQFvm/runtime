@@ -41,9 +41,6 @@ namespace sqf::runtime
 		/// <returns></returns>
 		std::shared_ptr<sqf::runtime::data> data() const { return m_data; }
 
-		template<class TData, typename TValue>
-		TValue data_as() { return (TValue)(data<TData>()->value()); }
-
 		/// <summary>
 		/// Attempts to convert the data-member to the provided data type.
 		/// Will use std::dynamic_pointer_cast.
@@ -72,5 +69,8 @@ namespace sqf::runtime
 			static_assert(std::is_base_of<sqf::runtime::data, T>::value, "value::data<T>() can only convert to sqf::runtime::data types");
 			return std::static_pointer_cast<T>(m_data);
 		}
+
+		template<class TData, typename TValue>
+		TValue data() const { return (TValue)(*data<TData>()); }
 	};
 }
