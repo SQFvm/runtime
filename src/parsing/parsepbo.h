@@ -48,7 +48,7 @@ public:
 
     void setBufferSize(size_t newSize);
     int underflow() override;
-    int64_t xsgetn(char* _Ptr, int64_t _Count) override;
+    std::streamsize xsgetn(char* _Ptr, std::streamsize _Count) override;
     pos_type seekoff(off_type, std::ios_base::seekdir, std::ios_base::openmode) override;
     pos_type seekpos(pos_type, std::ios_base::openmode) override;
     std::streamsize showmanyc() override;
