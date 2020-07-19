@@ -23,7 +23,6 @@ namespace
 		auto data = (std::string)right;
 		if (!OpenClipboard(NULL))
 		{
-			//vm->wrn() << "Failed to access clipboard." << std::endl;
 			vm->logmsg(err::FailedToCopyToClipboard(*vm->current_instruction()));
 			return {};
 		}
@@ -31,7 +30,6 @@ namespace
 		HGLOBAL hClipboardData = GlobalAlloc(GMEM_DDESHARE, data.length() + 1);
 		if (hClipboardData == NULL)
 		{
-			//vm->wrn() << "Failed to allocate clipboard." << std::endl;
 			vm->logmsg(err::FailedToCopyToClipboard(*vm->current_instruction()));
 			return {};
 		}

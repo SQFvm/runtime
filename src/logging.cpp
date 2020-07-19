@@ -2546,4 +2546,24 @@ namespace logmessage::runtime
 		output.append("."sv);
 		return output;
 	}
+  std::string ObjectNotInGroup::formatMessage() const
+  {
+    auto output = location.format();
+
+    output.reserve(
+      output.length()
+      + "Object '"sv.length()
+      + m_object_sqf.length()
+      + "not in Group '"sv.length()
+      + m_group_name.length()
+      + "' is not empty."sv.length()
+    );
+
+    output.append("Object '"sv);
+    output.append(m_object_sqf);
+    output.append("' not in Group '"sv);
+    output.append(m_group_name);
+    output.append("'."sv);
+    return output;
+  }
 }
