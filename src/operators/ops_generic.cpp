@@ -173,7 +173,7 @@ namespace
         }
         else
         {
-            frame f(runtime.default_value_scope(), left.data<d_code, instruction_set>(), std::make_shared<behavior_count_exit>(r->begin(), r->end()));
+            frame f(runtime.default_value_scope(), left.data<d_code, instruction_set>(), std::make_shared<behavior_count_exit>(r));
             f["_x"] = r->at(0);
             runtime.active_context().push_frame(f);
         }
@@ -347,7 +347,7 @@ namespace
             instruction_set m_code;
         public:
             behavior_while_exit(instruction_set condition, instruction_set code) : m_mode(mode::Condition), m_condition(condition), m_code(code) {}
-            virtual sqf::runtime::instruction_set get_instruction_set() override
+            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override
             {
                 switch (m_mode)
                 {
@@ -400,7 +400,9 @@ namespace
     value for_string(runtime& runtime, value::cref right)
     {
         auto str = right.data<d_string, std::string>();
-        return value(std::make_shared<d_for>(str));
+        auto fordata = std::make_shared<d_for>();
+        fordata->variable(str);
+        return fordata;
     }
     value from_for_scalar(runtime& runtime, value::cref left, value::cref right)
     {
@@ -851,7 +853,7 @@ namespace
         auto r = right.data<d_array>();
         if (r->size() > 0)
         {
-            frame f(runtime.default_value_scope(), left.data<d_code, instruction_set>(), std::make_shared<behavior_findif_exit>(r->begin(), r->end()));
+            frame f(runtime.default_value_scope(), left.data<d_code, instruction_set>(), std::make_shared<behavior_findif_exit>(r));
             f["_x"] = r->at(0);
             runtime.active_context().push_frame(f);
         }
@@ -864,7 +866,7 @@ namespace
     }
     value private_string(runtime& runtime, value::cref right)
     {
-        runtime.active_context().current_frame().get(right.data<d_string, std::string>());
+        runtime.active_context().current_frame().at(right.data<d_string, std::string>());
         return {};
     }
     value private_array(runtime& runtime, value::cref right)
@@ -886,7 +888,7 @@ namespace
         }
         for (auto& it : arr)
         {
-            runtime.active_context().current_frame().get(it.data<d_string, std::string>());
+            runtime.active_context().current_frame().at(it.data<d_string, std::string>());
         }
         return {};
     }
@@ -955,15 +957,13 @@ namespace
     {
         class behavior_switch_exit : public frame::behavior
         {
-        private:
-            std::shared_ptr<d_switch> m_switch;
-
         public:
-            behavior_switch_exit(std::shared_ptr<d_switch> switchdata) : m_switch(switchdata) {}
-            virtual sqf::runtime::instruction_set get_instruction_set() override { auto res = m_switch->target_code(); m_switch->target_code({}); return res; }
+            behavior_switch_exit() {}
+            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override { auto res = frame[d_switch::magic].data<d_switch>()->target_code(); frame[d_switch::magic].data<d_switch>()->target_code({}); return res; }
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
-                return m_switch->target_code().empty() ? result::ok : result::exchange;
+                auto dswitch = frame[d_switch::magic].data_try<d_switch>();
+                return dswitch ? dswitch->target_code().empty() ? result::ok : result::exchange : result::fail;
             };
         };
 
@@ -1750,8 +1750,9 @@ namespace
             return {};
         }
         auto duration = std::chrono::duration<float>();
+        auto durationCasted = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
 
-        runtime.active_context().suspend(duration);
+        runtime.active_context().suspend(durationCasted);
         return {};
     }
     value cansuspend_(runtime& runtime)
@@ -1867,7 +1868,7 @@ namespace
             instruction_set m_set;
         public:
             behavior_catch_exit(instruction_set set) : m_set(set) {}
-            virtual sqf::runtime::instruction_set get_instruction_set() override { return m_set; };
+            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
                 return runtime.__runtime_error() ? result::fail : result::exchange;

@@ -81,10 +81,9 @@ namespace sqf
 			operator sqf::runtime::instruction_set&() { return m_value; }
 		};
 
-		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, sqf::runtime::instruction_set set)
+		std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::instruction_set set)
 		{
-			input = std::make_shared<d_code>(set);
-			return input;
+			return std::make_shared<d_code>(set);
 		}
 	}
 }

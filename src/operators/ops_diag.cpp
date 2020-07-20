@@ -3,9 +3,9 @@
 #include "../runtime/runtime.h"
 #include "../runtime/sqfop.h"
 
-#include "../types/d_string.h"
-#include "../types/d_scalar.h"
-#include "../types/d_boolean.h"
+#include "../runtime/d_string.h"
+#include "../runtime/d_scalar.h"
+#include "../runtime/d_boolean.h"
 
 #include <chrono>
 

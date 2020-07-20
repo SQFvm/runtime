@@ -37,7 +37,7 @@ namespace sqf::runtime
 				/// </summary>
 				fail
 			};
-			virtual sqf::runtime::instruction_set get_instruction_set() { return {}; };
+			virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) { return {}; };
 			virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) = 0;
 			behavior() = default;
 		};
@@ -106,7 +106,7 @@ namespace sqf::runtime
 				m_iterator = m_instruction_set.rbegin();
 				return result::ok;
 			case behavior::result::exchange:
-				m_instruction_set = m_enter_behavior->get_instruction_set();
+				m_instruction_set = m_enter_behavior->get_instruction_set(*this);
 				m_iterator = m_instruction_set.rbegin();
 				return result::ok;
 			case behavior::result::fail:
@@ -176,7 +176,7 @@ namespace sqf::runtime
 					m_iterator = m_instruction_set.rbegin();
 					break;
 				case behavior::result::exchange:
-					m_instruction_set = m_enter_behavior->get_instruction_set();
+					m_instruction_set = m_enter_behavior->get_instruction_set(*this);
 					m_iterator = m_instruction_set.rbegin();
 					break;
 				}
@@ -195,7 +195,7 @@ namespace sqf::runtime
 						m_iterator = m_instruction_set.rbegin();
 						return next();
 					case behavior::result::exchange:
-						m_instruction_set = m_enter_behavior->get_instruction_set();
+						m_instruction_set = m_enter_behavior->get_instruction_set(*this);
 						m_iterator = m_instruction_set.rbegin();
 						return next();
 					}

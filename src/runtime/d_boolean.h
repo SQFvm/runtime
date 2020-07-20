@@ -49,10 +49,9 @@ namespace sqf
 				return m_value;
 			}
 		};
-		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, bool flag)
+		std::shared_ptr<sqf::runtime::data> to_data(bool flag)
 		{
-			input = std::make_shared<d_boolean>(flag);
-			return input;
+			return std::make_shared<d_boolean>(flag);
 		}
 	}
 }

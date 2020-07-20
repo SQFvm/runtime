@@ -55,7 +55,6 @@ namespace sqf
 			std::shared_ptr<sqf::types::d_object> m_leader;
 			std::vector<std::shared_ptr<sqf::types::d_object>> m_units;
 
-			group(sqf::runtime::confighost::config config, bool is_vehicle);
 			group(const group& obj) = delete;
 		public:
 			size_t netid() const { return m_netid; }

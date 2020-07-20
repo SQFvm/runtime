@@ -10,7 +10,7 @@ namespace sqf::operators
     private:
         std::vector<std::shared_ptr<dlops>> m_dlops;
     public:
-        virtual dlops_storage~() override {}
+        virtual ~dlops_storage() override {}
         void push_back(std::shared_ptr<dlops> dl) { m_dlops.push_back(dl); }
         std::vector<std::shared_ptr<dlops>>::iterator begin() { return m_dlops.begin(); }
         std::vector<std::shared_ptr<dlops>>::iterator end() { return m_dlops.end(); }

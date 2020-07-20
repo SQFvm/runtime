@@ -127,11 +127,12 @@ namespace sqf::runtime
             auto res = m_data_storage.find(key);
             if (res == m_data_storage.end())
             {
-                return *(m_data_storage[key] = std::make_unique<TStorage>());
+                m_data_storage[key] = std::make_unique<TStorage>();
+                return static_cast<TStorage&>(*m_data_storage[key]);
             }
             else
             {
-                return *res->second;
+                return static_cast<TStorage&>(*res->second);
             }
         }
         template<class TStorage>

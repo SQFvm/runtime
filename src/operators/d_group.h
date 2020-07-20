@@ -31,6 +31,7 @@ namespace sqf
 		public:
 			d_group() = default;
 			d_group(std::weak_ptr<group> value) : m_value(value) {}
+			d_group(std::shared_ptr<group> value) : m_value(value) {}
 
 
 			std::string to_string_sqf() const override
@@ -69,10 +70,11 @@ namespace sqf
 
 			operator std::shared_ptr<::sqf::types::group>() { return value(); }
 		};
-		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, bool flag)
+
+		bool operator==(const std::shared_ptr<d_group> left, const std::shared_ptr<group> right)
 		{
-			input = std::make_shared<d_group>(flag);
-			return input;
+			if (left->is_null()) { return false; }
+			return left->value() == right;
 		}
 	}
 }

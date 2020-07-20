@@ -51,10 +51,9 @@ namespace sqf
 			}
 		};
 
-		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, sqf::runtime::diagnostics::stacktrace str)
+		std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::diagnostics::stacktrace str)
 		{
-			input = std::make_shared<d_stacktrace>(str);
-			return input;
+			return std::make_shared<d_stacktrace>(str);
 		}
 	}
 }

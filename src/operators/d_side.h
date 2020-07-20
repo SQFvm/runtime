@@ -105,10 +105,9 @@ namespace sqf
 			static bool is_friendly_to(side self, side other) { return friendly_map(self, other); }
 			static void set_friendly_to(side self, side other, bool flag) { friendly_map(self, other) = flag; }
 		};
-		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, bool flag)
+		std::shared_ptr<sqf::runtime::data> to_data(d_side::side side)
 		{
-			input = std::make_shared<d_side>(flag);
-			return input;
+			return std::make_shared<d_side>(side);
 		}
 	}
 }

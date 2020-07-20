@@ -4,10 +4,10 @@
 #include <memory>
 #include <vector>
 
-#include "data.h"
-#include "type.h"
-#include "value.h"
-#include "confighost.h"
+#include "../runtime/data.h"
+#include "../runtime/type.h"
+#include "../runtime/value.h"
+#include "../runtime/confighost.h"
 
 
 namespace sqf
@@ -28,6 +28,7 @@ namespace sqf
 			bool do_equals(std::shared_ptr<data> other, bool invariant) const override
 			{
 				auto other_config = std::static_pointer_cast<d_config>(other)->m_value;
+				return other_config.value() == m_value;
 			}
 		public:
 			d_config() = default;
@@ -48,10 +49,9 @@ namespace sqf
 			operator sqf::runtime::confighost::config() { return m_value; }
 		};
 
-		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, sqf::runtime::confighost::config conf)
+		std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::confighost::config conf)
 		{
-			input = std::make_shared<d_config>(conf);
-			return input;
+			return std::make_shared<d_config>(conf);
 		}
 	}
 }

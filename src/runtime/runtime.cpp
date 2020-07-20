@@ -112,7 +112,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 		{
 			m_is_exit_requested = false;
 			m_is_halt_requested = false;
-			auto scopeNum = m_active_context().size() - 1;
+			auto scopeNum = m_active_context->size() - 1;
 			m_state = state::running;
 			while (!m_is_exit_requested && !m_is_halt_requested && !m_contexts.size() == 0)
 			{
@@ -121,7 +121,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 				{
 					break;
 				}
-				if (m_active_context().size() <= scopeNum)
+				if (m_active_context->size() <= scopeNum)
 				{
 					break;
 				}
@@ -163,11 +163,11 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 			for (auto iterator = m_contexts.begin(); iterator != m_contexts.end(); iterator++)
 			{
 				m_active_context = *iterator;
-				if (m_active_context().suspended())
+				if (m_active_context->suspended())
 				{
-					if (m_active_context().wakeup_timestamp() <= std::chrono::system_clock::now())
+					if (m_active_context->wakeup_timestamp() <= std::chrono::system_clock::now())
 					{
-						m_active_context().unsuspend();
+						m_active_context->unsuspend();
 						res = execute_do(*this, 150);
 					}
 					else
@@ -268,7 +268,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 			{
 				if (!dinf.has_value())
 				{
-					auto next_inst = m_active_context().current_frame().peek(success);
+					auto next_inst = m_active_context->current_frame().peek(success);
 					if (success)
 					{
 						dinf = { (*next_inst)->diag_info() };
@@ -282,7 +282,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 				}
 				if (dinf.has_value())
 				{
-					auto next_inst = m_active_context().current_frame().peek(success);
+					auto next_inst = m_active_context->current_frame().peek(success);
 					if (success && dinf.value() != (*next_inst)->diag_info())
 					{
 						break;

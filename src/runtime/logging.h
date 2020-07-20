@@ -1683,6 +1683,15 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+		class GroupLeaderNotPartOfGroup : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60090;
+		public:
+			GroupLeaderNotPartOfGroup(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
 	}
 }
 

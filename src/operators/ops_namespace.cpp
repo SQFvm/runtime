@@ -6,6 +6,7 @@
 #include "../runtime/value_scope.h"
 #include "../runtime/sqfop.h"
 #include "../runtime/d_array.h"
+#include "../runtime/d_code.h"
 #include "../runtime/d_string.h"
 
 
@@ -37,7 +38,7 @@ namespace
 	}
 	value do_with_code(runtime& runtime, value::cref left, value::cref right)
 	{
-		auto& scope = left.data<d_with, std::shared_ptr<value_scope>>();
+		auto scope = left.data<d_with, std::shared_ptr<value_scope>>();
 		auto set = right.data<d_code, instruction_set>();
 
 		frame f(scope, set);
@@ -46,14 +47,14 @@ namespace
 	}
 	value getVariable_namespace_string(runtime& runtime, value::cref left, value::cref right)
 	{
-		auto& scope = left.data<d_with, std::shared_ptr<value_scope>>();
+		auto scope = left.data<d_with, std::shared_ptr<value_scope>>();
 		auto variable = right.data<d_string, std::string>();
 
 		return scope->at(variable);
 	}
 	value getVariable_namespace_array(runtime& runtime, value::cref left, value::cref right)
 	{
-		auto& scope = left.data<d_with, std::shared_ptr<value_scope>>();
+		auto scope = left.data<d_with, std::shared_ptr<value_scope>>();
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
@@ -71,7 +72,7 @@ namespace
 	}
 	value setVariable_namespace_array(runtime& runtime, value::cref left, value::cref right)
 	{
-		auto& scope = left.data<d_with, std::shared_ptr<value_scope>>();
+		auto scope = left.data<d_with, std::shared_ptr<value_scope>>();
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
@@ -94,13 +95,13 @@ void sqf::operators::ops_namespace(::sqf::runtime::runtime& runtime)
 	runtime.default_value_scope(missionNamespace);
 
 	runtime.register_sqfop(nular("missionNamespace", "Returns the global namespace attached to mission.",
-		[](::sqf::runtime::runtime& runtime) -> value { return value(runtime.get_value_scope(missionNamespace)); }));
+		[](::sqf::runtime::runtime& runtime) -> value { return std::make_shared<d_namespace>(runtime.get_value_scope(missionNamespace)); }));
 	runtime.register_sqfop(nular("uiNamespace", "Returns the global namespace attached to user interface.",
-		[](::sqf::runtime::runtime& runtime) -> value { return value(runtime.get_value_scope(uiNamespace)); }));
+		[](::sqf::runtime::runtime& runtime) -> value { return std::make_shared<d_namespace>(runtime.get_value_scope(uiNamespace)); }));
 	runtime.register_sqfop(nular("parsingNamespace", "Returns the global namespace attached to config parser.",
-		[](::sqf::runtime::runtime& runtime) -> value { return value(runtime.get_value_scope(parsingNamespace)); }));
+		[](::sqf::runtime::runtime& runtime) -> value { return std::make_shared<d_namespace>(runtime.get_value_scope(parsingNamespace)); }));
 	runtime.register_sqfop(nular("profileNamespace", "Returns the global namespace attached to the active user profile.",
-		[](::sqf::runtime::runtime& runtime) -> value { return value(runtime.get_value_scope(profileNamespace)); }));
+		[](::sqf::runtime::runtime& runtime) -> value { return std::make_shared<d_namespace>(runtime.get_value_scope(profileNamespace)); }));
 
 	runtime.register_sqfop(unary("allVariables", t_namespace(), "Returns a list of all variables from desired namespace.", allvariables_namespace));
 	runtime.register_sqfop(unary("with", t_namespace(), "Creates a WITH type that is used inside a do construct in order to execute code inside a given namespace.", with_namespace));

@@ -2619,4 +2619,17 @@ namespace logmessage::runtime
 		output.append("' is not present."sv);
 		return output;
 	}
+	std::string GroupLeaderNotPartOfGroup::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Leader set is not part of group."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
 }

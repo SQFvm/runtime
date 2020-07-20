@@ -69,10 +69,15 @@ namespace sqf
 
 			operator std::shared_ptr<::sqf::types::object>() { return value(); }
 		};
-		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, std::shared_ptr<sqf::types::object> value)
+		std::shared_ptr<sqf::runtime::data> to_data(std::shared_ptr<sqf::types::object> value)
 		{
-			input = std::make_shared<d_object>(value);
-			return input;
+			return std::make_shared<d_object>(value);
+		}
+
+		bool operator==(const std::shared_ptr<sqf::types::d_object> left, const std::shared_ptr<sqf::types::object> right)
+		{
+			if (left->is_null()) { return false; }
+			return left->value() == right;
 		}
 	}
 }

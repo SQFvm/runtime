@@ -10,6 +10,10 @@
 #include "data.h"
 #include "type.h"
 #include "value.h"
+#include "d_scalar.h"
+
+
+
 
 
 namespace sqf
@@ -76,13 +80,15 @@ namespace sqf
 			d_array() = default;
 			d_array(size_t size) : m_value(std::vector<sqf::runtime::value>(size)) {}
 			d_array(std::vector<sqf::runtime::value> value) : m_value(std::move(value)) {}
+			template<typename TIterator>
+			d_array(TIterator begin, TIterator end) : m_value(begin, end) {}
 
 			std::shared_ptr<d_array> copy_deep() const
 			{
 				std::vector<sqf::runtime::value> copy;
 				for (auto& val : m_value)
 				{
-					if (val.is<t_array>())
+					if (val.is<sqf::runtime::t_array>())
 					{
 						copy.emplace_back(val.data<d_array>()->copy_deep());
 					}
@@ -180,14 +186,6 @@ namespace sqf
 				if (size() > 2) { v.z = at(2).data_try<d_scalar, float>(0); }
 				return v;
 			}
-			operator std::array<float, 3>()
-			{
-				std::array<float, 3> v;
-				if (size() > 0) { v[0] = at(0).data_try<d_scalar, float>(0); }
-				if (size() > 1) { v[1] = at(1).data_try<d_scalar, float>(0); }
-				if (size() > 2) { v[2] = at(2).data_try<d_scalar, float>(0); }
-				return v;
-			}
 
 		private:
 			bool check_type(sqf::runtime::runtime&, const sqf::runtime::type*, size_t, size_t) const;
@@ -200,11 +198,14 @@ namespace sqf
 			template<size_t size>
 			bool check_type(sqf::runtime::runtime& runtime, const std::array<sqf::runtime::type, size>& arr, size_t optionalstart) const { return check_type(runtime, arr.data(), size, optionalstart); }
 		};
-
-		std::shared_ptr<sqf::runtime::data>& operator<<(std::shared_ptr<sqf::runtime::data>& input, std::vector<sqf::runtime::value> arr)
+		template<size_t size>
+		std::shared_ptr<sqf::runtime::data> to_data(std::array<sqf::runtime::value, size> arr)
 		{
-			input = std::make_shared<d_array>(arr);
-			return input;
+			return std::make_shared<d_array>(arr.begin(), arr.end());
+		}
+		std::shared_ptr<sqf::runtime::data> to_data(std::vector<sqf::runtime::value> arr)
+		{
+			return std::make_shared<d_array>(arr);
 		}
 
 		float distance3dsqr(const std::shared_ptr<sqf::types::d_array>& l, const std::shared_ptr<sqf::types::d_array>& r);

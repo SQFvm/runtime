@@ -80,6 +80,9 @@ namespace sqf::runtime
 			std::string m_name;
 		public:
 
+			bool operator==(const config& other) { return m_self_index == other.m_self_index; }
+			bool operator!=(const config& other) { return !(*this == other); }
+
 			config_iterator iterator(confighost& host)
 			{
 				return m_self_index == invalid_config ? host.end() : host.begin() + m_self_index;
@@ -121,6 +124,29 @@ namespace sqf::runtime
 			size_t children_size() const { return m_children.size(); }
 
 			void value(sqf::runtime::value value) { m_value = value; }
+
+			bool inherits_or_equal(confighost& host, config other) const
+			{
+				if (m_self_index == other.m_self_index)
+				{
+					return true;
+				}
+				config node = *this;
+				while (node.has_parent_inherited())
+				{
+					auto tmp = node.parent_inherited(host);
+					if (tmp.is_null())
+					{
+						return false;
+					}
+					node = tmp.get();
+					if (m_self_index == other.m_self_index)
+					{
+						return true;
+					}
+				}
+				return false;
+			}
 
 			sqf::runtime::value::cref value() const { return m_value; }
 

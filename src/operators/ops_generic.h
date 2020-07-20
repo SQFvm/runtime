@@ -4,6 +4,7 @@
 #include "../runtime/value.h"
 #include "../runtime/d_boolean.h"
 #include "../runtime/d_code.h"
+#include "../runtime/context.h"
 
 #include <string>
 #include <memory>
@@ -91,7 +92,7 @@ namespace sqf
             inline static const std::string magic = "___switch";
         private:
             sqf::runtime::instruction_set m_target_code;
-            value m_value;
+            sqf::runtime::value m_value;
             bool m_match_now;
             bool m_has_match;
         protected:
@@ -101,6 +102,7 @@ namespace sqf
             }
         public:
             d_switch() = default;
+            d_switch(sqf::runtime::value val) : m_value(val), m_match_now(false), m_has_match(false) {}
 
             std::string to_string_sqf() const override
             {

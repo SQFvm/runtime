@@ -55,13 +55,13 @@ namespace
 		{
 			runtime.__logmsg(err::NegativeIndexWeak((*runtime.active_context().current_frame().current())->diag_info()));
 			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
-			return "";
+			return ""s;
 		}
 		if (start >= static_cast<int>(str.length()))
 		{
 			runtime.__logmsg(err::IndexOutOfRangeWeak((*runtime.active_context().current_frame().current())->diag_info(), str.length(), start));
 			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
-			return "";
+			return ""s;
 		}
 		if (arr->size() >= 2)
 		{
@@ -75,7 +75,7 @@ namespace
 			{
 				runtime.__logmsg(err::NegativeIndexWeak((*runtime.active_context().current_frame().current())->diag_info()));
 				runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
-				return "";
+				return ""s;
 			}
 			return str.substr(start, length);
 		}
@@ -88,13 +88,13 @@ namespace
 		{
 			runtime.__logmsg(err::ExpectedArrayToHaveElementsWeak((*runtime.active_context().current_frame().current())->diag_info()));
 			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
-			return "";
+			return ""s;
 		}
 		if (!r->at(0).is<t_string>())
 		{
 			runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), 0, t_string(), r->at(0).data()->type()));
 			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
-			return "";
+			return ""s;
 		}
 		auto format = r->at(0).data<d_string, std::string>();
 		std::stringstream sstream;

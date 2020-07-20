@@ -5,6 +5,7 @@
 #include <optional>
 #include <memory>
 #include <functional>
+#include <type_traits>
 
 
 
@@ -20,7 +21,7 @@ namespace sqf::runtime
 	public:
 		value();
 		template<typename T>
-		value(T t) { m_data << t; }
+		value(T t) : m_data(to_data(t)) { }
 		template<typename T>
 		value(std::shared_ptr<T> d) : m_data(std::move(d)) { }
 
