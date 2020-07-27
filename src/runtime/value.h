@@ -37,6 +37,7 @@ namespace sqf::runtime
 		{
 			return this->operator sqf::runtime::type() == t;
 		}
+		bool empty() const { return !m_data.get(); }
 
 		bool operator==(cref other) const { return (m_data.get() && other.m_data.get()) || (m_data != nullptr && m_data->equals(other.data())); }
 		bool operator!=(cref other) const { return !(*this == other); }

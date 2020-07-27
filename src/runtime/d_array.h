@@ -141,6 +141,10 @@ namespace sqf
 			sqf::runtime::value operator[](size_t index) const { return at(index); }
 			sqf::runtime::value& at(size_t index) { return m_value.at(index); }
 			sqf::runtime::value at(size_t index) const { return m_value.at(index); }
+			template <class T, typename TValue>
+			TValue get(size_t index) const { return m_value.at(index).data<T, TValue>(def); }
+			template <class T, typename TValue>
+			TValue get(size_t index, TValue def) const { return m_value.size() > index ? m_value.at(index).data_try<T, TValue>(def) : def; }
 			size_t size() const { return m_value.size(); }
 			bool empty() const { return m_value.empty(); }
 

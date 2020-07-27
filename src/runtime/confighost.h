@@ -12,7 +12,6 @@ namespace sqf::runtime
 	class confighost
 	{
 	public:
-		class confignav;
 		class config;
 		static const size_t invalid_config = ~((size_t)0);
 		using config_iterator = std::vector<config>::iterator;
@@ -25,6 +24,7 @@ namespace sqf::runtime
 			private:
 				std::vector<std::reference_wrapper<config>> m_gathered;
 			public:
+				using iterator = std::vector<std::reference_wrapper<config>>::iterator;
 				iterator_factory(const config& current, confighost& r_confighost)
 				{
 					m_gathered.reserve(current.m_children.size());
@@ -33,14 +33,15 @@ namespace sqf::runtime
 						m_gathered.emplace_back(r_confighost.as_reference(id));
 					}
 				}
-				std::vector<std::reference_wrapper<config>>::iterator begin() { return m_gathered.begin(); }
-				std::vector<std::reference_wrapper<config>>::iterator end() { return m_gathered.end(); }
+				iterator begin() { return m_gathered.begin(); }
+				iterator end() { return m_gathered.end(); }
 			};
 			class iterator_recursive_factory
 			{
 			private:
 				std::vector<std::reference_wrapper<config>> m_gathered;
 			public:
+				using iterator = std::vector<std::reference_wrapper<config>>::iterator;
 				iterator_recursive_factory(config current, confighost& r_confighost)
 				{
 					std::vector<size_t> deleted(current.m_deleted);
@@ -58,16 +59,15 @@ namespace sqf::runtime
 						{
 							break;
 						}
-						auto nav = current.parent_logical(r_confighost);
-						if (nav.is_null())
+						current = current.parent_logical(r_confighost);
+						if (current.is_null())
 						{
 							break;
 						}
-						current = nav.get();
 					}
 				}
-				std::vector<std::reference_wrapper<config>>::iterator begin() { return m_gathered.begin(); }
-				std::vector<std::reference_wrapper<config>>::iterator end() { return m_gathered.end(); }
+				iterator begin() { return m_gathered.begin(); }
+				iterator end() { return m_gathered.end(); }
 			};
 
 		private:
@@ -90,14 +90,16 @@ namespace sqf::runtime
 			config() : m_parent_inherited_index(invalid_config), m_parent_logical_index(invalid_config), m_self_index(invalid_config) {};
 
 			bool has_parent_inherited() const { return m_parent_inherited_index != invalid_config; }
-			confignav parent_inherited(confighost& host) const { return host.at(m_parent_inherited_index); }
+			config parent_inherited(confighost& host) const { return host.at(m_parent_inherited_index); }
 			void parent_inherited(config conf) { m_parent_inherited_index = conf.m_self_index; }
 			bool has_parent_logical() const { return m_parent_logical_index != invalid_config; }
-			confignav parent_logical(confighost& host) const { return host.at(m_parent_logical_index); }
+			config parent_logical(confighost& host) const { return host.at(m_parent_logical_index); }
 			void parent_logical(config conf) { m_parent_logical_index = conf.m_self_index; }
 
 			std::string_view name() const { return m_name; }
 			void name(std::string value) { m_name = value; }
+
+			bool is_null() const { return m_self_index == invalid_config; }
 
 			void push_child(confighost& host, config& conf)
 			{
@@ -116,9 +118,9 @@ namespace sqf::runtime
 				m_deleted.push_back(conf.m_self_index);
 			}
 
-			confignav at(confighost& host, size_t index) const
+			config at(confighost& host, size_t index) const
 			{
-				if (m_children.size() <= index) { return { host }; }
+				if (m_children.size() <= index) { return { }; }
 				return host.at(m_children[index]);
 			}
 			size_t children_size() const { return m_children.size(); }
@@ -134,13 +136,12 @@ namespace sqf::runtime
 				config node = *this;
 				while (node.has_parent_inherited())
 				{
-					auto tmp = node.parent_inherited(host);
-					if (tmp.is_null())
+					node = node.parent_inherited(host);
+					if (node.is_null())
 					{
 						return false;
 					}
-					node = tmp.get();
-					if (m_self_index == other.m_self_index)
+					if (m_self_index == node.m_self_index)
 					{
 						return true;
 					}
@@ -166,7 +167,7 @@ namespace sqf::runtime
 			/// </summary>
 			/// <param name="host"></param>
 			/// <returns></returns>
-			iterator_factory iterate_recursive(confighost& host) { return iterator_factory(*this, host); }
+			iterator_recursive_factory iterate_recursive(confighost& host) { return iterator_recursive_factory(*this, host); }
 
 			std::optional<config> navigate(confighost& host, std::string_view target_name)
 			{
@@ -179,20 +180,18 @@ namespace sqf::runtime
 				}
 				return {};
 			}
-		};
-		class confignav
-		{
-		private:
-			confighost& mr_confighost;
-			size_t m_entry_index;
-		public:
-			bool is_null() const { return m_entry_index == invalid_config || m_entry_index >= mr_confighost.m_configs.size(); }
-			config& get() const { return mr_confighost.as_reference(m_entry_index); }
 
-			confignav(confighost& confighost) : mr_confighost(confighost), m_entry_index(invalid_config) {}
-			confignav(confighost& confighost, size_t index) : mr_confighost(confighost), m_entry_index(index) {}
-
-			config& operator*() { return mr_confighost.as_reference(m_entry_index); }
+			std::optional<config> navigate_local(confighost& host, std::string_view target_name)
+			{
+				for (auto& it : iterate(host))
+				{
+					if (it.get().name().compare(target_name))
+					{
+						return it;
+					}
+				}
+				return {};
+			}
 		};
 	private:
 		std::vector<config> m_configs;
@@ -220,10 +219,10 @@ namespace sqf::runtime
 		config& create_new() { return m_configs.emplace_back(); }
 		config& root() { return as_reference(0); }
 		const config& root() const { return as_reference(0); }
-		confignav at(size_t index)
+		config at(size_t index)
 		{
-			if (m_configs.size() <= index) { return { *this }; }
-			return { *this, index };
+			if (m_configs.size() <= index) { return {}; }
+			return {};
 		}
 
 		config_iterator begin() { return m_configs.begin(); }
@@ -237,7 +236,7 @@ namespace sqf::runtime
 				{
 					return end();
 				}
-				start = parent.get().iterator(*this);
+				start = parent.iterator(*this);
 				auto factory = start->iterate(*this);
 				auto res = std::find_if(factory.begin(), factory.end(), [view](config conf) { return conf.name() == view; });
 				if (res != factory.end())
@@ -256,7 +255,7 @@ namespace sqf::runtime
 				{
 					return end();
 				}
-				start = parent.get().iterator(*this);
+				start = parent.iterator(*this);
 				auto factory = start->iterate(*this);
 				auto res = std::find_if(factory.begin(), factory.end(), [view](config& conf) { return conf.name() == view; });
 				if (res != factory.end())
