@@ -48,15 +48,6 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
 			}
 		}
 		
-		//if (m_evaluate_halt)
-		//{
-		//	m_status = vmstatus::evaluating;
-		//	while (m_evaluate_halt);
-		//	if (m_status == vmstatus::evaluating)
-		//	{
-		//		m_status = vmstatus::running;
-		//	}
-		//}
 		if (exit_after > 0)
 		{
 			exit_after--;
@@ -117,6 +108,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 			while (!m_is_exit_requested && !m_is_halt_requested && !m_contexts.size() == 0)
 			{
 				res = execute_do(*this, 1);
+				perform_evaluate();
 				if (res != result::ok)
 				{
 					break;
@@ -179,6 +171,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 				{
 					res = execute_do(*this, 150);
 				}
+				perform_evaluate();
 				switch (res)
 				{
 				case sqf::runtime::runtime::result::empty:
@@ -276,6 +269,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 				}
 
 				res = execute_do(*this, 1);
+				perform_evaluate();
 				if (res != result::ok)
 				{
 					break;
@@ -376,3 +370,63 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
 	return res;
 }
 
+::sqf::runtime::value sqf::runtime::runtime::evaluate_expression(std::string view, bool& success, bool request_halt)
+{
+	while (m_evaluate_halt);
+	m_evaluate_halt = true;
+	if (request_halt)
+	{
+		while (m_state == state::running);
+	}
+	auto sqf_parser = parser_sqf();
+	auto opt_set = sqf_parser.parse(*this, view);
+	if (opt_set.has_value())
+	{
+		frame f(default_value_scope(), opt_set.value());
+		std::vector<sqf::runtime::value> values(active_context().values_rbegin(), active_context().values_rend());
+		auto frames = active_context().size();
+		active_context().push_frame(f);
+		active_context().clear_values();
+		try
+		{
+			while (frames < active_context().size())
+			{
+				execute_do(*this, 1);
+			}
+		}
+		catch (const std::exception& ex)
+		{
+			m_evaluate_halt = false;
+		}
+		if (m_runtime_error)
+		{
+			m_evaluate_halt = false;
+			m_runtime_error = false;
+			success = false;
+			active_context().clear_values();
+			for (auto val : values)
+			{
+				active_context().push_value(val);
+			}
+			return {};
+		}
+		else
+		{
+			auto val = active_context().pop_value();
+			active_context().clear_values();
+			for (auto val : values)
+			{
+				active_context().push_value(val);
+			}
+			m_evaluate_halt = false;
+			success = true;
+			return val.value();
+		}
+	}
+	else
+	{
+		m_evaluate_halt = false;
+		success = false;
+		return {};
+	}
+}

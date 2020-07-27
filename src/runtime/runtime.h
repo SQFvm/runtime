@@ -185,7 +185,6 @@ namespace sqf::runtime
         }
 
 #pragma endregion
-
 #pragma region Namespaces
 
     private:
@@ -208,6 +207,41 @@ namespace sqf::runtime
         }
         std::shared_ptr<sqf::runtime::value_scope> default_value_scope() { return get_value_scope(m_default_scope_key); }
         void default_value_scope(std::string key) { m_default_scope_key = key; }
+
+#pragma endregion
+#pragma region Code Evaluation
+
+        private:
+            bool m_evaluate_halt;
+
+            void perform_evaluate()
+            {
+                if (m_evaluate_halt)
+                {
+                    m_state = state::evaluating;
+                    while (m_evaluate_halt);
+                    if (m_state == state::evaluating)
+                    {
+                        m_state = state::running;
+                    }
+                }
+            }
+
+        public:
+            /// <summary>
+            /// Executing this method will request a temporary halt of the runtime, to then execute
+            /// whatever is passed in view until.
+            /// </summary>
+            /// <remarks>
+            /// A deadlock will happen, if this operation is occuring from within an operator due
+            /// to the evaluate expression then waiting for the operator to finish that called
+            /// the evaluate method.
+            /// </remarks>
+            /// <param name="view">The contents to parse.</param>
+            /// <param name="success">Wether the operation was successful or something moved wrong.</param>
+            /// <param name="request_halt">Allows to disable the runtime-halt request, allowing this to be called from within operators.</param>
+            /// <returns></returns>
+            value evaluate_expression(std::string str, bool& success, bool request_halt = true);
 
 #pragma endregion
 
@@ -267,15 +301,6 @@ namespace sqf::runtime
         sqf::runtime::parser::config& parser_config() { return *m_parser_config; }
         sqf::runtime::parser::preprocessor& parser_preprocessor() { return *m_parser_preprocessor; }
 
-
-        // DO NOT USE FROM WITHIN COMMANDS!
-        // Executing this method will request a temporary halt of the vm, to then execute
-        // whatever is passed in view until the end.
-        // A deadlock thus will happen, where the command would wait for itself
-        // to return to start evaluating the expression!
-        //
-        // If you need to execute from within a command, pass "request_halt = false"
-        value evaluate_expression(std::string_view view, bool& success, bool request_halt = true);
 
         /// <summary>
         /// Breaks encapsulation to provide access to local-logger of runtime.

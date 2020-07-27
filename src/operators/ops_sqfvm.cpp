@@ -318,7 +318,7 @@ namespace
             instruction_set m_set;
         public:
             behavior_except(instruction_set set) : m_set(set) {}
-            virtual sqf::runtime::instruction_set get_instruction_set() override { return m_set; };
+            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override { return result::exchange; };
         };
         frame f(
@@ -390,42 +390,42 @@ namespace
             }).base(), str.end());
         return str;
     }
-    value remoteConnect___(runtime& runtime, value::cref right)
-    {
-        if (!runtime.allow_networking())
-        {
-            runtime.__logmsg(err::NetworkingDisabled((*runtime.active_context().current_frame().current())->diag_info()));
-            return false;
-        }
-        networking_init();
-        if (runtime.is_networking_set())
-        {
-            runtime.__logmsg(err::AlreadyConnected((*runtime.active_context().current_frame().current())->diag_info()));
-            return {};
-        }
-        auto s = right.as_string();
-        auto index = s.find(':');
-        if (index == std::string::npos)
-        {
-            runtime.__logmsg(err::NetworkingFormatMissmatch((*runtime.active_context().current_frame().current())->diag_info(), s));
-            return {};
-        }
-        auto address = s.substr(0, index);
-        auto port = s.substr(index + 1);
-        SOCKET socket;
-        if (networking_create_client(address.c_str(), port.c_str(), &socket))
-        {
-            runtime.__logmsg(err::FailedToEstablishConnection((*runtime.active_context().current_frame().current())->diag_info()));
-            return false;
-        }
-        runtime.set_networking(std::make_shared<networking::client>(socket));
-        return true;
-    }
-    value closeconnection___(runtime& runtime)
-    {
-        runtime.release_networking();
-        return {};
-    }
+//    value remoteConnect___(runtime& runtime, value::cref right)
+//    {
+//        if (!runtime.allow_networking())
+//        {
+//            runtime.__logmsg(err::NetworkingDisabled((*runtime.active_context().current_frame().current())->diag_info()));
+//            return false;
+//        }
+//        networking_init();
+//        if (runtime.is_networking_set())
+//        {
+//            runtime.__logmsg(err::AlreadyConnected((*runtime.active_context().current_frame().current())->diag_info()));
+//            return {};
+//        }
+//        auto s = right.as_string();
+//        auto index = s.find(':');
+//        if (index == std::string::npos)
+//        {
+//            runtime.__logmsg(err::NetworkingFormatMissmatch((*runtime.active_context().current_frame().current())->diag_info(), s));
+//            return {};
+//        }
+//        auto address = s.substr(0, index);
+//        auto port = s.substr(index + 1);
+//        SOCKET socket;
+//        if (networking_create_client(address.c_str(), port.c_str(), &socket))
+//        {
+//            runtime.__logmsg(err::FailedToEstablishConnection((*runtime.active_context().current_frame().current())->diag_info()));
+//            return false;
+//        }
+//        runtime.set_networking(std::make_shared<networking::client>(socket));
+//        return true;
+//    }
+//    value closeconnection___(runtime& runtime)
+//    {
+//        runtime.release_networking();
+//        return {};
+//    }
     value vmctrl___string(runtime& runtime, value::cref right)
     {
         auto str = right.data<d_string, std::string>();
@@ -463,7 +463,7 @@ namespace
     }
     value noBubble___ANY_CODE(runtime& runtime, value::cref left, value::cref right)
     {
-        frame f = { right.data<d_code, instruction_set>() };
+        frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
         f["_this"] = left;
         f.bubble_variable(false);
         runtime.active_context().push_frame(f);
@@ -471,7 +471,7 @@ namespace
     }
     value noBubble___CODE(runtime& runtime, value::cref right)
     {
-        frame f = { right.data<d_code, instruction_set>() };
+        frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
         f["_this"] = {};
         f.bubble_variable(false);
         runtime.active_context().push_frame(f);
@@ -588,8 +588,8 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(nular("pwd__", "Current path determined by current instruction.", pwd___));
     runtime.register_sqfop(nular("currentDirectory__", "Current directory determined by current instruction.", currentDirectory___));
     runtime.register_sqfop(unary("trim__", t_string(), "Trims provided strings start and end.", trim___));
-    runtime.register_sqfop(unary("remoteConnect__", t_string(), "Connects this as a client to the provided endpoint. Endpoint is expected to have the format ADDRESS:PORT. Returns TRUE on success, false if it failed. Note that IP-Address is required, not DNS names (eg. use '127.0.0.1' instead of 'localhost').", remoteConnect___));
-    runtime.register_sqfop(nular("closeConnection__", "Closes the connection previously opened using remoteConnect__.", closeconnection___));
+//    runtime.register_sqfop(unary("remoteConnect__", t_string(), "Connects this as a client to the provided endpoint. Endpoint is expected to have the format ADDRESS:PORT. Returns TRUE on success, false if it failed. Note that IP-Address is required, not DNS names (eg. use '127.0.0.1' instead of 'localhost').", remoteConnect___));
+//    runtime.register_sqfop(nular("closeConnection__", "Closes the connection previously opened using remoteConnect__.", closeconnection___));
     // runtime.register_sqfop(binary(4, "provide__", t_code(), t_array(), "Allows to provide an implementation for a given operator. Will NOT override existing definitions. Array is expected to be of the following formats: nular: [\"name\"], unary: [\"name\", \"type\"], binary: [\"ltype\", \"name\", \"rtype\"]", provide___code_string));
     runtime.register_sqfop(unary("noBubble__", t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", noBubble___CODE));
     runtime.register_sqfop(binary(4, "noBubble__", t_any(), t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", noBubble___ANY_CODE));

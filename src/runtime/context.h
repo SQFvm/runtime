@@ -41,7 +41,8 @@ namespace sqf::runtime
 		void unsuspend() { m_suspended = false; }
 		bool empty() const { return m_frames.empty(); }
 		size_t size() const { return m_frames.size(); }
-		void clear() { m_frames.clear(); }
+		void clear_frames() { m_frames.clear(); }
+		void clear_values() { m_values.clear(); }
 		void push_frame(sqf::runtime::frame frame) { m_frames.push_back(frame); }
 		void push_value(sqf::runtime::value value) { m_values.push_back(value); }
 		sqf::runtime::frame pop_frame() { auto frame = m_frames.back(); m_frames.pop_back(); return frame; }
@@ -50,6 +51,10 @@ namespace sqf::runtime
 
 		std::vector<sqf::runtime::frame>::reverse_iterator frames_rbegin() { return m_frames.rbegin(); }
 		std::vector<sqf::runtime::frame>::reverse_iterator frames_rend() { return m_frames.rend(); }
+		std::vector<sqf::runtime::value>::iterator values_begin() { return m_values.begin(); }
+		std::vector<sqf::runtime::value>::iterator values_end() { return m_values.end(); }
+		std::vector<sqf::runtime::value>::reverse_iterator values_rbegin() { return m_values.rbegin(); }
+		std::vector<sqf::runtime::value>::reverse_iterator values_rend() { return m_values.rend(); }
 
 		std::optional<sqf::runtime::value> get_variable(std::string variable_name) const
 		{
