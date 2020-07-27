@@ -16,12 +16,12 @@ namespace sqf::runtime
 	private:
 		sqf::runtime::diagnostics::diag_info m_diag_info;
 	public:
-		virtual ~instruction() = 0;
+		virtual ~instruction() {};
 		virtual void execute(runtime& runtime) const = 0;
 		virtual std::string to_string() const = 0;
 		virtual std::optional<std::string> reconstruct(
-			std::vector<sqf::runtime::instruction::sptr>::const_iterator& current,
-			std::vector<sqf::runtime::instruction::sptr>::const_iterator end,
+			std::vector<sqf::runtime::instruction::sptr>::const_reverse_iterator& current,
+			std::vector<sqf::runtime::instruction::sptr>::const_reverse_iterator end,
 			short parent_precedence, bool left_from_binary) const = 0;
 		virtual bool equals(const instruction* p_other) const = 0;
 

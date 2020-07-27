@@ -49,7 +49,7 @@ namespace sqf
 				return m_value;
 			}
 		};
-		std::shared_ptr<sqf::runtime::data> to_data(bool flag)
+		inline std::shared_ptr<sqf::runtime::data> to_data(bool flag)
 		{
 			return std::make_shared<d_boolean>(flag);
 		}

@@ -54,7 +54,7 @@ namespace sqf
 			size_t m_netid;
 			std::shared_ptr<sqf::types::d_object> m_leader;
 			std::vector<std::shared_ptr<sqf::types::d_object>> m_units;
-
+			group() = default;
 			group(const group& obj) = delete;
 		public:
 			size_t netid() const { return m_netid; }

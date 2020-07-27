@@ -43,8 +43,8 @@ namespace
 		auto obj = right.data<d_object>();
 		if (obj->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return "";
 		}
 		else
@@ -74,14 +74,14 @@ namespace
 			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
 			if (!cfgVehicles.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
 				return {};
 			}
 
 			auto opt = cfgVehicles->navigate(runtime.confighost(), type);
 			if (!opt.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
 				return {};
 			}
 			else
@@ -117,14 +117,14 @@ namespace
 			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
 			if (!cfgVehicles.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
 				return {};
 			}
 
 			auto opt = cfgVehicles->navigate(runtime.confighost(), type);
 			if (!opt.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
 				return {};
 			}
 			else
@@ -146,7 +146,7 @@ namespace
 		auto veh = right.data<d_object>();
 		if (veh->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		veh->value()->destroy(runtime);
@@ -157,7 +157,7 @@ namespace
 		auto veh = right.data<d_object>();
 		if (veh->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto pos = veh->value()->position();
@@ -172,7 +172,7 @@ namespace
 		auto veh = left.data<d_object>();
 		if (veh->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto position = right.data<d_array>();
@@ -190,7 +190,7 @@ namespace
 		auto veh = right.data<d_object>();
 		if (veh->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto vel = veh->value()->velocity();
@@ -205,7 +205,7 @@ namespace
 		auto veh = left.data<d_object>();
 		if (veh->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto velocity = right.data<d_array>();
@@ -223,7 +223,7 @@ namespace
 		auto obj = left.data<d_object>()->value();
 		if (obj->is_vehicle())
 		{
-			runtime.__logmsg(err::ExpectedUnit((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedUnit((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		setpos_object_array(runtime, left, right);
@@ -237,12 +237,12 @@ namespace
 		{
 			if (!arr->at(i).is<t_object>())
 			{
-				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), i, t_object(), arr->at(i).data()->type()));
+				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, t_object(), arr->at(i).data()->type()));
 				errflag = true;
 			}
 			else if (arr->at(i).data<d_object>()->value()->is_vehicle())
 			{
-				runtime.__logmsg(err::ExpectedUnit((*runtime.active_context().current_frame().current())->diag_info()));
+				runtime.__logmsg(err::ExpectedUnit((*runtime.context_active().current_frame().current())->diag_info()));
 				errflag = true;
 			}
 		}
@@ -281,14 +281,14 @@ namespace
 			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
 			if (!cfgVehicles.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
 				return {};
 			}
 
 			auto opt = cfgVehicles->navigate(runtime.confighost(), type);
 			if (!opt.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
 				return {};
 			}
 			else
@@ -313,13 +313,13 @@ namespace
 
 		if (arr->size() < 2)
 		{
-			runtime.__logmsg(err::ExpectedMinimumArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, arr->size()));
+			runtime.__logmsg(err::ExpectedMinimumArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, arr->size()));
 			return {};
 		}
 		// Position
 		if (!arr->at(0).is< t_array>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 0, t_array(), arr->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_array(), arr->at(0).data()->type()));
 			return {};
 		}
 		auto position = arr->at(0).data<d_array>();
@@ -330,7 +330,7 @@ namespace
 		// Group
 		if (!arr->at(1).is<t_group>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 1, t_group(), arr->at(1).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_group(), arr->at(1).data()->type()));
 			return {};
 		}
 		auto grp = arr->at(1).data<d_group>();
@@ -341,7 +341,7 @@ namespace
 		{
 			if (!arr->at(2).is< t_string>())
 			{
-				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, t_string(), arr->at(2).data()->type()));
+				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), arr->at(2).data()->type()));
 				return {};
 			}
 			else
@@ -354,7 +354,7 @@ namespace
 		{
 			if (!arr->at(3).is< t_scalar>())
 			{
-				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 3, t_scalar(), arr->at(3).data()->type()));
+				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 3, t_scalar(), arr->at(3).data()->type()));
 				return {};
 			}
 			else
@@ -367,7 +367,7 @@ namespace
 		{
 			if (!arr->at(4).is<t_string>())
 			{
-				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 4, t_string(), arr->at(4).data()->type()));
+				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 4, t_string(), arr->at(4).data()->type()));
 				return {};
 			}
 			else
@@ -383,14 +383,14 @@ namespace
 			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
 			if (!cfgVehicles.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
 				return {};
 			}
 
 			auto opt = cfgVehicles->navigate(runtime.confighost(), type);
 			if (!opt.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
 				return {};
 			}
 			else
@@ -428,7 +428,7 @@ namespace
 		auto r = right.data<d_array>();
 		if (l->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		if (!r->check_type(runtime, t_scalar(), 2, 3))
@@ -443,7 +443,7 @@ namespace
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		if (!l->check_type(runtime, t_scalar(), 2, 3))
@@ -458,12 +458,12 @@ namespace
 		auto r = right.data<d_object>();
 		if (l->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		return l->value()->distance3d(r->value());
@@ -484,7 +484,7 @@ namespace
 		auto r = right.data<d_array>();
 		if (l->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		if (!r->check_type(runtime, t_scalar(), 2, 3))
@@ -499,7 +499,7 @@ namespace
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		if (!l->check_type(runtime, t_scalar(), 2, 3))
@@ -514,12 +514,12 @@ namespace
 		auto r = right.data<d_object>();
 		if (l->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		return l->value()->distance2d(r->value());
@@ -545,7 +545,7 @@ namespace
 		auto arr = right.data<d_array>();
 		if (arr->size() != 3 && arr->size() != 4)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 3, 4, arr->size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 3, 4, arr->size()));
 			return {};
 		}
 		vec3 position {0, 0, 0};
@@ -561,33 +561,33 @@ namespace
 		{
 			if (arr->at(0).data<d_object>()->is_null())
 			{
-				runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+				runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 				return {};
 			}
 			position = arr->at(0).data<d_object>()->value()->position();
 		}
 		else
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 0, std::array<sqf::runtime::type, 2> { t_array(), t_object() }, arr->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, std::array<sqf::runtime::type, 2> { t_array(), t_object() }, arr->at(0).data()->type()));
 			return {};
 		}
 		if (!arr->at(1).is< t_array>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 1, t_array(), arr->at(1).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_array(), arr->at(1).data()->type()));
 			return {};
 		}
 		auto filterarr = arr->at(1).data<d_array>();
 		for (size_t i = 0; i < filterarr->size(); i++)
 		{
 			if (!filterarr->at(i).is< t_string>())
-				runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), std::array<size_t, 2> { 1, i }, t_string(), filterarr->at(i).data()->type()));
+				runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 2> { 1, i }, t_string(), filterarr->at(i).data()->type()));
 			{
 				return {};
 			}
 		}
 		if (!arr->at(2).is< t_scalar>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, t_scalar(), arr->at(2).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_scalar(), arr->at(2).data()->type()));
 			return {};
 		}
 		auto radius = arr->at(2).data<d_scalar, float>();
@@ -596,7 +596,7 @@ namespace
 		{
 			if (!arr->at(3).is<t_boolean>())
 			{
-				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 4, t_boolean(), arr->at(3).data()->type()));
+				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 4, t_boolean(), arr->at(3).data()->type()));
 				return {};
 			}
 			is2ddistance = arr->at(3).data<d_boolean, bool>();
@@ -671,7 +671,7 @@ namespace
 		auto grp = obj->value()->group();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_side>(d_side::side::Empty);
 		}
 		else
@@ -695,7 +695,7 @@ namespace
 		auto obj = left.data<d_object>();
 		if (obj->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto base_type_str = right.data<d_string, std::string>();
@@ -705,14 +705,14 @@ namespace
 			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
 			if (!cfgVehicles.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
 				return {};
 			}
 
 			auto opt = cfgVehicles->navigate(runtime.confighost(), base_type_str);
 			if (!opt.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
 				return {};
 			}
 			else
@@ -731,21 +731,21 @@ namespace
 			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
 			if (!cfgVehicles.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
 				return {};
 			}
 
 			auto test_opt = cfgVehicles->navigate(runtime.confighost(), test_type_str);
 			if (!test_opt.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, test_type_str));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, test_type_str));
 				return {};
 			}
 
 			auto base_opt = cfgVehicles->navigate(runtime.confighost(), base_type_str);
 			if (!base_opt.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
 				return {};
 			}
 			else
@@ -770,14 +770,14 @@ namespace
 			auto test_opt = base_conf.navigate(runtime.confighost(), test_type_str);
 			if (!test_opt.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, test_type_str));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, test_type_str));
 				return {};
 			}
 
 			auto base_opt = base_conf.navigate(runtime.confighost(), base_type_str);
 			if (!base_opt.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
 				return {};
 			}
 			else
@@ -798,7 +798,7 @@ namespace
 		auto r = right.data<d_scalar, float>();
 		if (l->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		l->value()->damage(r);
@@ -809,7 +809,7 @@ namespace
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		return r->value()->damage();
@@ -819,7 +819,7 @@ namespace
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.context_active().current_frame().current())->diag_info()));
 			return false;
 		}
 		return r->value()->alive();
@@ -829,15 +829,15 @@ namespace
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto arr = std::make_shared<d_array>();
 		auto obj = r->value();
 		if (!obj->is_vehicle())
 		{
-			runtime.__logmsg(err::ExpectedVehicleWeak((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedVehicleWeak((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
 			return value(arr);
 		}
 		if (!obj->driver()->is_null())
@@ -863,13 +863,13 @@ namespace
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto obj = r->value();
 		if (!obj->is_vehicle())
 		{
-			runtime.__logmsg(err::ExpectedVehicleWeak((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedVehicleWeak((*runtime.context_active().current_frame().current())->diag_info()));
 			return right;
 		}
 		auto parent = obj->parent_object();
@@ -887,7 +887,7 @@ namespace
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		return value(r->value()->parent_object());
@@ -897,13 +897,13 @@ namespace
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto obj = r->value();
 		if (!obj->is_vehicle())
 		{
-			runtime.__logmsg(err::ExpectedVehicleWeak((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedVehicleWeak((*runtime.context_active().current_frame().current())->diag_info()));
 			return right;
 		}
 		return value(obj->driver());
@@ -913,13 +913,13 @@ namespace
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto obj = r->value();
 		if (!obj->is_vehicle())
 		{
-			runtime.__logmsg(err::ExpectedVehicleWeak((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedVehicleWeak((*runtime.context_active().current_frame().current())->diag_info()));
 			return right;
 		}
 		return value(obj->commander());
@@ -929,13 +929,13 @@ namespace
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto obj = r->value();
 		if (!obj->is_vehicle())
 		{
-			runtime.__logmsg(err::ExpectedVehicleWeak((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedVehicleWeak((*runtime.context_active().current_frame().current())->diag_info()));
 			return right;
 		}
 		return value(obj->gunner());
@@ -945,25 +945,25 @@ namespace
 		auto l = left.data<d_object>();
 		if (l->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		if (l->value()->is_vehicle())
 		{
-			runtime.__logmsg(err::ExpectedUnitWeak((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningFalse((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedUnitWeak((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningFalse((*runtime.context_active().current_frame().current())->diag_info()));
 			return false;
 		}
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		if (!r->value()->is_vehicle())
 		{
-			runtime.__logmsg(err::ExpectedUnitWeak((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningFalse((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedUnitWeak((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningFalse((*runtime.context_active().current_frame().current())->diag_info()));
 			return false;
 		}
 		auto veh = r->value();
@@ -985,7 +985,7 @@ namespace
 		auto r = right.data<d_object>();
 		if (r->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		return r->value()->varname();
@@ -995,7 +995,7 @@ namespace
 		auto l = left.data<d_object>();
 		if (l->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto r = right.data<d_string, std::string>();
@@ -1007,8 +1007,8 @@ namespace
 		auto obj = right.data<d_object>();
 		if (obj->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_array>();
 		}
 		auto scope = std::static_pointer_cast<value_scope>(obj->value());
@@ -1026,8 +1026,8 @@ namespace
 		auto obj = right.data<d_object>();
 		if (obj->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_array>();
 		}
 		auto scope = std::static_pointer_cast<value_scope>(obj->value());
@@ -1040,20 +1040,20 @@ namespace
 		auto obj = right.data<d_object>();
 		if (obj->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_array>();
 		}
 		auto scope = std::static_pointer_cast<value_scope>(obj->value());
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, r->size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, r->size()));
 			return {};
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
 			return {};
 		}
 
@@ -1064,20 +1064,20 @@ namespace
 		auto obj = right.data<d_object>();
 		if (obj->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_array>();
 		}
 		auto scope = std::static_pointer_cast<value_scope>(obj->value());
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, r->size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, r->size()));
 			return {};
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
 			return {};
 		}
 
@@ -1089,8 +1089,8 @@ namespace
 		auto obj = right.data<d_object>();
 		if (obj->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_array>();
 		}
 		else
@@ -1098,8 +1098,8 @@ namespace
 			auto grp = obj->value()->group();
 			if (grp->is_null())
 			{
-				runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-				runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+				runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+				runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 				return std::make_shared<d_array>();
 			}
 			else

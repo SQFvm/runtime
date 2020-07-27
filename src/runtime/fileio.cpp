@@ -4,25 +4,6 @@
 #include <vector>
 #include <filesystem>
 
-static std::vector<char> read_file_from_disk(std::string_view filename)
-{
-	std::ifstream file(filename.data(), std::ios::ate | std::ios::binary);
-
-	if (!file.is_open())
-	{
-		return {};
-	}
-
-	auto fileSize = static_cast<size_t>(file.tellg());
-	std::vector<char> buffer(fileSize);
-
-	file.seekg(0);
-	file.read(buffer.data(), fileSize);
-
-	file.close();
-
-	return buffer;
-}
 static int get_bom_skip(const std::vector<char>& buff)
 {
 	if (buff.empty())
@@ -94,14 +75,28 @@ static bool file_exists(std::string_view filename)
 	std::ifstream infile(filename.data());
 	return infile.good();
 }
-std::optional<std::string> sqf::runtime::fileio::read_file(std::string_view physical_path)
+std::optional<std::string> sqf::runtime::fileio::read_file_from_disk(std::string_view physical_path)
 {
 	if (!file_exists(physical_path))
 	{
 		return {};
 	}
-	auto vec = read_file_from_disk(physical_path);
-	return std::string(vec.begin() + get_bom_skip(vec), vec.end());
+	std::ifstream file(physical_path.data(), std::ios::ate | std::ios::binary);
+
+	if (!file.is_open())
+	{
+		return {};
+	}
+
+	auto fileSize = static_cast<size_t>(file.tellg());
+	std::vector<char> buffer(fileSize);
+
+	file.seekg(0);
+	file.read(buffer.data(), fileSize);
+
+	file.close();
+
+	return std::string(buffer.begin() + get_bom_skip(buffer), buffer.end());
 }
 
 void sqf::runtime::fileio::add_mapping_auto(std::string_view phys)

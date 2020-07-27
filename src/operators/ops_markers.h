@@ -3,6 +3,7 @@
 #include "../runtime/type.h"
 #include "../runtime/value.h"
 #include "../runtime/runtime.h"
+#include "../runtime/d_array.h"
 
 #include <string>
 #include <memory>
@@ -41,39 +42,30 @@ namespace sqf
 			public:
 				marker();
 
-				sqf::runtime::value get_text_sqf() const;
 				std::string get_text() const { return mtext; };
 				void set_text(std::string val) { mtext = val; };
 
-				sqf::runtime::value get_type_sqf() const;
 				std::string get_type() const { return mtype; };
 				void set_type(std::string val) { mtype = val; };
 
-				sqf::runtime::value get_brush_sqf() const;
 				std::string get_brush() const { return mbrush; };
 				void set_brush(std::string val) { mbrush = val; };
 
-				sqf::runtime::value get_color_sqf() const;
 				std::string get_color() const { return mcolor; };
 				void set_color(std::string val) { mcolor = val; };
 
-				sqf::runtime::value get_size_sqf() const;
 				std::array<float, 2> get_size() const { return msize; };
 				void set_size(std::array<float, 2> val) { msize = val; };
 
-				sqf::runtime::value get_pos_sqf() const;
 				std::array<float, 3> get_pos() const { return mpos; };
 				void set_pos(std::array<float, 3> val) { mpos = val; };
 
-				sqf::runtime::value get_alpha_sqf() const;
 				float get_alpha() const { return malpha; };
 				void set_alpha(float val) { malpha = val; };
 
-				sqf::runtime::value get_direction_sqf() const;
 				float get_direction() const { return mdirection; };
 				void set_direction(float val) { mdirection = val; };
 
-				sqf::runtime::value get_shape_sqf() const;
 				shape get_shape() const { return mshape; };
 				std::string get_shape_string() const
 				{

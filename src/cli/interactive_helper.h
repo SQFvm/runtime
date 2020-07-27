@@ -1,10 +1,13 @@
 #pragma once
+#include "../runtime/runtime.h"
+
 #include <string>
 #include <vector>
 #include <array>
-namespace sqf
+
+namespace sqf::runtime
 {
-	class virtualmachine;
+	class context;
 }
 class interactive_helper
 {
@@ -15,28 +18,32 @@ class interactive_helper
 		interactive_callback callback;
 		std::string description;
 	};
-	std::vector<command> m_cmds;
-	sqf::virtualmachine& m_vm;
+	std::vector<command> m_commands;
+
+
+	sqf::runtime::runtime& m_runtime;
+	sqf::runtime::runtime::action m_runtime_apply_action;
 	bool m_thread_die;
 	bool m_exit;
-	int m_run_virtualmachine;
-	long m_active_script;
-	void virtualmachine_thread();
+	std::weak_ptr<sqf::runtime::context> m_context_selected;
+
 	static const size_t buffer_size = 16384;
 	char* m_buffer;
+
+	void virtualmachine_thread();
 public:
 	template<size_t size>
 	void register_command(std::array<std::string, size> names, std::string description, interactive_callback callback)
 	{
-		m_cmds.push_back({ std::vector(names.begin(), names.end()), callback, description });
+		m_commands.push_back({ std::vector(names.begin(), names.end()), callback, description });
 	}
-	interactive_helper(sqf::virtualmachine& vm) :
-		m_vm(vm),
-		m_cmds(),
+	interactive_helper(sqf::runtime::runtime& vm) :
+		m_runtime(vm),
+		m_runtime_apply_action(sqf::runtime::runtime::action::invalid),
+		m_commands(),
 		m_thread_die(false),
 		m_exit(false),
-		m_run_virtualmachine(0),
-		m_active_script(-1),
+		m_context_selected(),
 		m_buffer(new char[buffer_size])
 	{
 	}
@@ -47,18 +54,25 @@ public:
 
 	void init();
 	void run();
-	void set_exit()
-	{
-		m_exit = 1;
-		m_thread_die = true;
-	}
-	void set_start_vm() { m_run_virtualmachine = 1; }
-	void set_leave_scope_vm() { m_run_virtualmachine = 2; }
-	void set_pause_vm() { m_run_virtualmachine = -1; }
-	void set_kill_thread() { m_thread_die = true; }
-	void set_active_script(long l) { m_active_script = l; }
-	long get_active_script() { return m_active_script; }
+
+	std::vector<command>::const_iterator commands_begin() const { return m_commands.begin(); }
+	std::vector<command>::const_iterator commands_end() const { return m_commands.end(); }
+	sqf::runtime::runtime& runtime() const { return m_runtime; }
+
+	void context_selected(std::shared_ptr<sqf::runtime::context> sptr) { m_context_selected = sptr; }
+	std::shared_ptr<sqf::runtime::context> context_selected() const { return m_context_selected.lock(); }
 	void print_welcome();
-	const std::vector<command>& cmds() const { return m_cmds; }
-	sqf::virtualmachine& vm() const { return m_vm; }
+
+	bool execute_next(sqf::runtime::runtime::action action)
+	{
+		if (m_runtime_apply_action == sqf::runtime::runtime::action::invalid)
+		{
+			m_runtime_apply_action = action;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 };

@@ -11,6 +11,7 @@
 #include "../runtime/d_boolean.h"
 #include "../runtime/d_array.h"
 #include "../runtime/d_code.h"
+#include "../runtime/git_sha1.h"
 
 #include "dlops_storage.h"
 
@@ -22,38 +23,6 @@ namespace err = logmessage::runtime;
 using namespace sqf::runtime;
 using namespace sqf::types;
 using namespace std::string_literals;
-
-
-//
-//#include "../commandmap.h"
-//#include "../value.h"
-//#include "../cmd.h"
-//#include "../virtualmachine.h"
-//#include "../codedata.h"
-//#include "../d_array.h"
-//#include "../stringdata.h"
-//#include "../d_for.h"
-//#include "../d_switch.h"
-//#include "../scriptdata.h"
-//#include "../callstack_for_step.h"
-//#include "../callstack_while.h"
-//#include "../callstack_waituntil.h"
-//#include "../callstack_select.h"
-//#include "../callstack_isnil.h"
-//#include "../callstack_exitwith.h"
-//#include "../callstack_findif.h"
-//#include "../callstack_switch.h"
-//#include "../callstack_apply.h"
-//#include "../callstack_foreach.h"
-//#include "../callstack_catch.h"
-//#include "../callstack_count.h"
-//#include "../Entry.h"
-//#include "../sqfnamespace.h"
-//#include "../fileio.h"
-//#include "../parsing/parsepreprocessor.h"
-//#include "../git_sha1.h"
-//#include <cmath>
-//#include "booldata.h"
 
 
 #define CALLEXTBUFFSIZE 10240
@@ -86,7 +55,7 @@ namespace
             value("sqf-runtime"),
             value(CONCAT(SQFVM_RUNTIME_VERSION_MAJOR, SQFVM_RUNTIME_VERSION_MINOR)),
             value(SQFVM_RUNTIME_VERSION_REVISION),
-            //value("COMMUNITY-" + std::string{g_GIT_SHA1}),
+            value("COMMUNITY-" + std::string{g_GIT_SHA1}),
             value(false),
 #if _WIN32
             value("Windows"),
@@ -103,14 +72,14 @@ namespace
     {
         frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
         f["_this"] = {};
-        runtime.active_context().push_frame(f);
+        runtime.context_active().push_frame(f);
         return {};
     }
     value call_any_code(runtime& runtime, value::cref left, value::cref right)
     {
         frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
         f["_this"] = left;
-        runtime.active_context().push_frame(f);
+        runtime.context_active().push_frame(f);
         return {};
     }
     value count_array(runtime& runtime, value::cref right)
@@ -131,7 +100,7 @@ namespace
             behavior_count_exit(std::shared_ptr<d_array> arr) : m_array(arr), m_index(0), m_size(arr->size()), m_count(0) {}
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
-                auto res = runtime.active_context().pop_value();
+                auto res = runtime.context_active().pop_value();
                 if (res.has_value())
                 {
                     auto value = res->data_try<d_boolean, bool>();
@@ -155,7 +124,7 @@ namespace
                 }
                 if (++m_index == m_size)
                 {
-                    runtime.active_context().push_value(m_count);
+                    runtime.context_active().push_value(m_count);
                     return result::ok;
                 }
                 else
@@ -175,7 +144,7 @@ namespace
         {
             frame f(runtime.default_value_scope(), left.data<d_code, instruction_set>(), std::make_shared<behavior_count_exit>(r));
             f["_x"] = r->at(0);
-            runtime.active_context().push_frame(f);
+            runtime.context_active().push_frame(f);
         }
         return {};
     }
@@ -183,7 +152,7 @@ namespace
     {
         auto r = right.data<d_string, std::string>();
         auto& parser = runtime.parser_sqf();
-        auto res = parser.parse(runtime, r);
+        auto res = parser.parse(runtime, r, (*runtime.context_active().current_frame().current())->diag_info().path);
         return res.has_value() ? res.value() : value{};
     }
     value typename_any(runtime& runtime, value::cref right)
@@ -212,7 +181,7 @@ namespace
         auto arr = right.data<d_array>()->value();
         if (arr.size() != 2)
         {
-            runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, arr.size()));
+            runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, arr.size()));
             return {};
         }
         auto el0 = arr[0];
@@ -221,16 +190,16 @@ namespace
         {
             if (!el1.is<t_code>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), 1, t_code(), el1.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 1, t_code(), el1.data()->type()));
             }
             if (el0.is<t_code>())
             {
-                runtime.active_context().push_frame({ runtime.default_value_scope(), el0.data<d_code, instruction_set>() });
+                runtime.context_active().push_frame({ runtime.default_value_scope(), el0.data<d_code, instruction_set>() });
                 return {};
             }
             else
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 0, t_code(), el0.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_code(), el0.data()->type()));
                 return {};
             }
         }
@@ -238,16 +207,16 @@ namespace
         {
             if (!el0.is<t_code>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), 0, t_code(), el0.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 0, t_code(), el0.data()->type()));
             }
             if (el1.is<t_code>())
             {
-                runtime.active_context().push_frame({ runtime.default_value_scope(), el1.data<d_code, instruction_set>() });
+                runtime.context_active().push_frame({ runtime.default_value_scope(), el1.data<d_code, instruction_set>() });
                 return {};
             }
             else
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 1, t_code(), el1.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_code(), el1.data()->type()));
                 return {};
             }
         }
@@ -257,7 +226,7 @@ namespace
         auto ifcond = left.data<d_boolean, bool>();
         if (ifcond)
         {
-            runtime.active_context().push_frame({ runtime.default_value_scope(), right.data<d_code, instruction_set>() });
+            runtime.context_active().push_frame({ runtime.default_value_scope(), right.data<d_code, instruction_set>() });
             return {};
         }
         else
@@ -269,8 +238,8 @@ namespace
     {
         if (left.data<d_boolean, bool>())
         {
-            runtime.active_context().current_frame().seek(0, frame::end);
-            runtime.active_context().push_frame({ runtime.default_value_scope(), right.data<d_code, instruction_set>() });
+            runtime.context_active().current_frame().seek(0, frame::seekpos::end);
+            runtime.context_active().push_frame({ runtime.default_value_scope(), right.data<d_code, instruction_set>() });
             return {};
         }
         else
@@ -296,7 +265,7 @@ namespace
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
                 m_count++;
-                auto res = runtime.active_context().pop_value();
+                auto res = runtime.context_active().pop_value();
                 if (res.has_value())
                 {
                     auto value = res->data_try<d_boolean, bool>();
@@ -309,7 +278,7 @@ namespace
                         runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->data()->type()));
                     }
                 }
-                else if (m_count > 30000 && runtime.active_context().can_suspend())
+                else if (m_count > 30000 && runtime.context_active().can_suspend())
                 {
                     runtime.__logmsg(logmessage::runtime::WaitUntilMaxLoopReached((*frame.current())->diag_info()));
                     return result::ok;
@@ -319,13 +288,13 @@ namespace
                     runtime.__logmsg(logmessage::runtime::CallstackFoundNoValue((*frame.current())->diag_info(), "waitUntil"sv));
                 }
                 // "Simulate" a frame wait
-                runtime.active_context().suspend(std::chrono::milliseconds(10));
+                runtime.context_active().suspend(std::chrono::milliseconds(10));
                 return result::seek_start;
             };
         };
 
         frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_waituntil_exit>());
-        runtime.active_context().push_frame(f);
+        runtime.context_active().push_frame(f);
         return {};
     }
     value while_code(runtime& runtime, value::cref right)
@@ -366,7 +335,7 @@ namespace
                 {
                 case behavior_while_exit::mode::Condition:
                 {
-                    auto res = runtime.active_context().pop_value();
+                    auto res = runtime.context_active().pop_value();
                     if (res.has_value())
                     {
                         auto value = res->data_try<d_boolean, bool>();
@@ -394,7 +363,7 @@ namespace
         auto code = right.data<d_code>();
 
         frame f(runtime.default_value_scope(), *right.data<d_code>(), std::make_shared<behavior_while_exit>(*condition, *code));
-        runtime.active_context().push_frame(f);
+        runtime.context_active().push_frame(f);
         return {};
     }
     value for_string(runtime& runtime, value::cref right)
@@ -454,6 +423,7 @@ namespace
                 else
                 {
                     runtime.__logmsg(logmessage::runtime::ForStepVariableTypeMissmatch((*frame.current())->diag_info(), m_for.variable(), t_scalar(), res.data()->type()));
+                    return result::ok;
                 }
             };
         };
@@ -461,7 +431,7 @@ namespace
         auto fordata = left.data<d_for>();
         frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_for_exit>(fordata));
         f[fordata->variable()] = fordata->from();
-        runtime.active_context().push_frame(f);
+        runtime.context_active().push_frame(f);
         return {};
     }
     value foreach_code_array(runtime& runtime, value::cref left, value::cref right)
@@ -499,7 +469,7 @@ namespace
             frame f(runtime.default_value_scope(), left.data<d_code, instruction_set>(), std::make_shared<behavior_foreach_exit>(arr));
             f["_forEachIndex"] = 0;
             f["_x"] = arr->at(0);
-            runtime.active_context().push_frame(f);
+            runtime.context_active().push_frame(f);
         }
         return {};
     }
@@ -510,12 +480,12 @@ namespace
 
         if (static_cast<int>(arr.size()) < index || index < 0)
         {
-            runtime.__logmsg(err::IndexOutOfRange((*runtime.active_context().current_frame().current())->diag_info(), arr.size(), index));
+            runtime.__logmsg(err::IndexOutOfRange((*runtime.context_active().current_frame().current())->diag_info(), arr.size(), index));
             return {};
         }
         if (arr.size() == index)
         {
-            runtime.__logmsg(err::IndexEqualsRange((*runtime.active_context().current_frame().current())->diag_info(), arr.size(), index));
+            runtime.__logmsg(err::IndexEqualsRange((*runtime.context_active().current_frame().current())->diag_info(), arr.size(), index));
             return {};
         }
         return arr[index];
@@ -526,16 +496,16 @@ namespace
         auto flag = right.data<d_boolean, bool>();
         if (arr.size() != 2)
         {
-            runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), 2, arr.size()));
+            runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 2, arr.size()));
         }
         if ((!flag && arr.size() < 2) || arr.size() < 1)
         {
-            runtime.__logmsg(err::ReturningNil((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::ReturningNil((*runtime.context_active().current_frame().current())->diag_info()));
             return {};
         }
         else if (flag && arr.size() < 2)
         {
-            runtime.__logmsg(err::ReturningNil((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::ReturningNil((*runtime.context_active().current_frame().current())->diag_info()));
             return {};
         }
 
@@ -547,43 +517,43 @@ namespace
         auto arr = right.data<d_array>()->value();
         if (arr.size() < 1)
         {
-            runtime.__logmsg(err::ExpectedMinimumArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 1, arr.size()));
+            runtime.__logmsg(err::ExpectedMinimumArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, arr.size()));
             return {};
         }
         else if (arr.size() != 2)
         {
-            runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), 2, arr.size()));
+            runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 2, arr.size()));
         }
         if (!arr[0].is<t_scalar>())
         {
-            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 1, t_scalar(), arr[0].data()->type()));
+            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_scalar(), arr[0].data()->type()));
             return {};
         }
         int start = static_cast<int>(std::round(arr[0].data<d_scalar, float>()));
         if (start < 0)
         {
-            runtime.__logmsg(err::NegativeIndexWeak((*runtime.active_context().current_frame().current())->diag_info()));
-            runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::NegativeIndexWeak((*runtime.context_active().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
             return value(std::make_shared<d_array>());
         }
         if (start > static_cast<int>(vec.size()))
         {
-            runtime.__logmsg(err::IndexOutOfRangeWeak((*runtime.active_context().current_frame().current())->diag_info(), vec.size(), start));
-            runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::IndexOutOfRangeWeak((*runtime.context_active().current_frame().current())->diag_info(), vec.size(), start));
+            runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
             return value(std::make_shared<d_array>());
         }
         if (arr.size() >= 2)
         {
             if (!arr[1].is<t_scalar>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 1, t_scalar(), arr[1].data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_scalar(), arr[1].data()->type()));
                 return {};
             }
             int length = static_cast<int>(std::round(arr[1].data<d_scalar, float>()));
             if (length < 0)
             {
-                runtime.__logmsg(err::NegativeIndexWeak((*runtime.active_context().current_frame().current())->diag_info()));
-                runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+                runtime.__logmsg(err::NegativeIndexWeak((*runtime.context_active().current_frame().current())->diag_info()));
+                runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
                 return value(std::make_shared<d_array>());
             }
 
@@ -608,7 +578,7 @@ namespace
             behavior_select_exit(std::shared_ptr<d_array> arr) : m_array(arr), m_index(0), m_size(arr->size()) {}
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
-                auto res = runtime.active_context().pop_value();
+                auto res = runtime.context_active().pop_value();
                 if (res.has_value())
                 {
                     auto value = res->data_try<d_boolean, bool>();
@@ -633,7 +603,7 @@ namespace
                 }
                 if (++m_index == m_size)
                 {
-                    runtime.active_context().push_value(m_out);
+                    runtime.context_active().push_value(m_out);
                     return result::ok;
                 }
                 else
@@ -648,7 +618,7 @@ namespace
         {
             frame f(runtime.default_value_scope(), left.data<d_code, instruction_set>(), std::make_shared<behavior_select_exit>(arr));
             f["_x"] = arr->at(0);
-            runtime.active_context().push_frame(f);
+            runtime.context_active().push_frame(f);
             return {};
         }
         return std::vector<value>();
@@ -667,7 +637,7 @@ namespace
         if (type != t_string() && type != t_scalar() && type != t_array())
         {
             runtime.__logmsg(err::ExpectedArrayTypeMissmatch(
-                (*runtime.active_context().current_frame().current())->diag_info(), 0, std::array<sqf::runtime::type, 3>{ t_string(), t_scalar(), t_array() }, type));
+                (*runtime.context_active().current_frame().current())->diag_info(), 0, std::array<sqf::runtime::type, 3>{ t_string(), t_scalar(), t_array() }, type));
             return {};
         }
         if (!arr->check_type(runtime, type, arr->size(), arr->size()))
@@ -733,7 +703,7 @@ namespace
         auto i = right.data<d_scalar, size_t>();
         if (i < 0)
         {
-            runtime.__logmsg(err::NegativeSize((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::NegativeSize((*runtime.context_active().current_frame().current())->diag_info()));
             return {};
         }
         left.data<d_array>()->resize(i);
@@ -751,18 +721,18 @@ namespace
         auto arr = left.data<d_array>();
         if (from > to)
         {
-            runtime.__logmsg(err::StartIndexExceedsToIndexWeak((*runtime.active_context().current_frame().current())->diag_info(), from, to));
+            runtime.__logmsg(err::StartIndexExceedsToIndexWeak((*runtime.context_active().current_frame().current())->diag_info(), from, to));
             to = from;
         }
         if (from < 0)
         {
-            runtime.__logmsg(err::NegativeIndexWeak((*runtime.active_context().current_frame().current())->diag_info()));
-            runtime.__logmsg(err::ReturningNil((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::NegativeIndexWeak((*runtime.context_active().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::ReturningNil((*runtime.context_active().current_frame().current())->diag_info()));
             return {};
         }
         if (to >= (int)arr->size())
         {
-            runtime.__logmsg(err::IndexOutOfRangeWeak((*runtime.active_context().current_frame().current())->diag_info(), arr->size(), to));
+            runtime.__logmsg(err::IndexOutOfRangeWeak((*runtime.context_active().current_frame().current())->diag_info(), arr->size(), to));
             to = arr->size() - 1;
         }
         arr->erase(arr->begin() + from, arr->begin() + to + 1);
@@ -774,7 +744,7 @@ namespace
         auto newindex = arr->size();
         if (!arr->push_back(value(right)))
         {
-            runtime.__logmsg(err::ArrayRecursion((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::ArrayRecursion((*runtime.context_active().current_frame().current())->diag_info()));
             return {};
         }
         return newindex;
@@ -788,7 +758,7 @@ namespace
         {
             if (!arr->push_back(value(right)))
             {
-                runtime.__logmsg(err::ArrayRecursion((*runtime.active_context().current_frame().current())->diag_info()));
+                runtime.__logmsg(err::ArrayRecursion((*runtime.context_active().current_frame().current())->diag_info()));
                 return {};
             }
         }
@@ -811,7 +781,7 @@ namespace
             behavior_findif_exit(std::shared_ptr<d_array> arr) : m_array(arr), m_index(0), m_size(arr->size()), m_count(0) {}
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
-                auto res = runtime.active_context().pop_value();
+                auto res = runtime.context_active().pop_value();
                 if (res.has_value())
                 {
                     auto value = res->data_try<d_boolean, bool>();
@@ -819,7 +789,7 @@ namespace
                     {
                         if (*value)
                         {
-                            runtime.active_context().push_value(m_array->at(m_index));
+                            runtime.context_active().push_value(m_array->at(m_index));
                             return result::ok;
                         }
                     }
@@ -839,7 +809,7 @@ namespace
                 }
                 if (++m_index == m_size)
                 {
-                    runtime.active_context().push_value(m_count);
+                    runtime.context_active().push_value(m_count);
                     return result::ok;
                 }
                 else
@@ -855,7 +825,7 @@ namespace
         {
             frame f(runtime.default_value_scope(), left.data<d_code, instruction_set>(), std::make_shared<behavior_findif_exit>(r));
             f["_x"] = r->at(0);
-            runtime.active_context().push_frame(f);
+            runtime.context_active().push_frame(f);
         }
         return {};
     }
@@ -866,7 +836,7 @@ namespace
     }
     value private_string(runtime& runtime, value::cref right)
     {
-        runtime.active_context().current_frame().at(right.data<d_string, std::string>());
+        runtime.context_active().current_frame().at(right.data<d_string, std::string>());
         return {};
     }
     value private_array(runtime& runtime, value::cref right)
@@ -878,7 +848,7 @@ namespace
             auto it = arr[i];
             if (!it.is<t_string>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), i, t_string(), it.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, t_string(), it.data()->type()));
                 errflag = true;
             }
         }
@@ -888,15 +858,15 @@ namespace
         }
         for (auto& it : arr)
         {
-            runtime.active_context().current_frame().at(it.data<d_string, std::string>());
+            runtime.context_active().current_frame().at(it.data<d_string, std::string>());
         }
         return {};
     }
     value isnil_string(runtime& runtime, value::cref right)
     {
         auto varname = right.data<d_string, std::string>();
-        auto val = runtime.active_context().get_variable(varname);
-        return val.has_value() ? true : runtime.active_context().current_frame().globals_value_scope()->contains(varname);
+        auto val = runtime.context_active().get_variable(varname);
+        return val.has_value() ? true : runtime.context_active().current_frame().globals_value_scope()->contains(varname);
     }
     value isnil_code(runtime& runtime, value::cref right)
     {
@@ -909,11 +879,11 @@ namespace
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
                 m_count++;
-                auto res = runtime.active_context().pop_value();
+                auto res = runtime.context_active().pop_value();
                 if (res.has_value())
                 {
                     auto value = res->data();
-                    runtime.active_context().push_value(value.get() ? false : true);
+                    runtime.context_active().push_value(value.get() ? false : true);
                     return result::ok;
                 }
                 else
@@ -921,31 +891,31 @@ namespace
                     runtime.__logmsg(logmessage::runtime::CallstackFoundNoValue((*frame.current())->diag_info(), "isNil"sv));
                 }
                 // "Simulate" a frame wait
-                runtime.active_context().suspend(std::chrono::milliseconds(10));
+                runtime.context_active().suspend(std::chrono::milliseconds(10));
                 return result::seek_start;
             };
         };
 
         frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_isnil_exit>());
-        runtime.active_context().push_frame(f);
+        runtime.context_active().push_frame(f);
         return {};
     }
     value hint_string(runtime& runtime, value::cref right)
     {
         auto r = right.data<d_string, std::string>();
-        runtime.__logmsg(err::InfoMessage((*runtime.active_context().current_frame().current())->diag_info(), "HINT"sv, r));
+        runtime.__logmsg(err::InfoMessage((*runtime.context_active().current_frame().current())->diag_info(), "HINT"sv, r));
         return {};
     }
     value hint_text(runtime& runtime, value::cref right)
     {
         auto r = right.data<d_string, std::string>();
-        runtime.__logmsg(err::InfoMessage((*runtime.active_context().current_frame().current())->diag_info(), "HINT"sv, r));
+        runtime.__logmsg(err::InfoMessage((*runtime.context_active().current_frame().current())->diag_info(), "HINT"sv, r));
         return {};
     }
     value systemchat_string(runtime& runtime, value::cref right)
     {
         auto r = right.data<d_string, std::string>();
-        runtime.__logmsg(err::InfoMessage((*runtime.active_context().current_frame().current())->diag_info(), "SYSTEM-CHAT"sv, r));
+        runtime.__logmsg(err::InfoMessage((*runtime.context_active().current_frame().current())->diag_info(), "SYSTEM-CHAT"sv, r));
         return {};
     }
 
@@ -969,15 +939,15 @@ namespace
 
         frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_switch_exit>());
         f[d_switch::magic] = std::make_shared<d_switch>();
-        runtime.active_context().push_frame(f);
+        runtime.context_active().push_frame(f);
         return {};
     }
     value case_any(runtime& runtime, value::cref right)
     {
-        auto valswtch = runtime.active_context().get_variable(d_switch::magic);
+        auto valswtch = runtime.context_active().get_variable(d_switch::magic);
         if (!valswtch.has_value() || !valswtch->is<t_switch>())
         {
-            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->data()->type()));
+            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->data()->type()));
             return {};
         }
         auto swtch = valswtch->data<d_switch>();
@@ -990,10 +960,10 @@ namespace
     }
     value default_code(runtime& runtime, value::cref right)
     {
-        auto valswtch = runtime.active_context().get_variable(d_switch::magic);
+        auto valswtch = runtime.context_active().get_variable(d_switch::magic);
         if (!valswtch.has_value() || !valswtch->is<t_switch>())
         {
-            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->data()->type()));
+            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->data()->type()));
             return {};
         }
         auto swtch = valswtch->data<d_switch>();
@@ -1005,10 +975,10 @@ namespace
     }
     value colon_switch_code(runtime& runtime, value::cref left, value::cref right)
     {
-        auto valswtch = runtime.active_context().get_variable(d_switch::magic);
+        auto valswtch = runtime.context_active().get_variable(d_switch::magic);
         if (!valswtch.has_value() || !valswtch->is<t_switch>())
         {
-            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->data()->type()));
+            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->data()->type()));
             return {};
         }
         auto swtch = valswtch->data<d_switch>();
@@ -1033,7 +1003,7 @@ namespace
             behavior_apply_exit(std::shared_ptr<d_array> arr) : m_array(arr), m_index(0), m_size(arr->size()) {}
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
-                auto res = runtime.active_context().pop_value();
+                auto res = runtime.context_active().pop_value();
                 if (res.has_value())
                 {
                     m_out.push_back(*res);
@@ -1050,7 +1020,7 @@ namespace
                 }
                 if (++m_index == m_size)
                 {
-                    runtime.active_context().push_value(m_out);
+                    runtime.context_active().push_value(m_out);
                     return result::ok;
                 }
                 else
@@ -1066,14 +1036,14 @@ namespace
         {
             frame f(runtime.default_value_scope(), left.data<d_code, instruction_set>(), std::make_shared<behavior_apply_exit>(arr));
             f["_x"] = arr->at(0);
-            runtime.active_context().push_frame(f);
+            runtime.context_active().push_frame(f);
             return {};
         }
         return std::vector<value>();
     }
     value spawn_any_code(runtime& runtime, value::cref left, value::cref right)
     {
-        auto context_weak = runtime.create_context();
+        auto context_weak = runtime.context_create();
         auto lock = context_weak.lock();
         auto scriptdata = std::make_shared<d_script>(context_weak);
         frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>());
@@ -1087,12 +1057,17 @@ namespace
         auto r = right.data<d_script>();
         return r->done();
     }
+    value isnull_script(runtime& runtime, value::cref right)
+    { // Due to implementation as of now, null-scripts are the "same" as done scripts.
+        auto r = right.data<d_script>();
+        return r->done();
+    }
     value terminate_script(runtime& runtime, value::cref right)
     {
         auto r = right.data<d_script>();
         if (r->done())
         {
-            runtime.__logmsg(err::ScriptHandleAlreadyFinished((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::ScriptHandleAlreadyFinished((*runtime.context_active().current_frame().current())->diag_info()));
         }
         else
         {
@@ -1100,7 +1075,7 @@ namespace
 
             if (lock->terminate())
             {
-                runtime.__logmsg(err::ScriptHandleAlreadyTerminated((*runtime.active_context().current_frame().current())->diag_info()));
+                runtime.__logmsg(err::ScriptHandleAlreadyTerminated((*runtime.context_active().current_frame().current())->diag_info()));
             }
             else
             {
@@ -1115,19 +1090,19 @@ namespace
         auto params = right.data<d_array>()->value();
         if (params.size() != 2)
         {
-            runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, params.size()));
+            runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, params.size()));
             return {};
         }
         if (!params[0].is<t_scalar>())
         {
-            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 0, t_scalar(), params[0].data()->type()));
+            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_scalar(), params[0].data()->type()));
             return {};
         }
 
         auto index = params[0].data<d_scalar, int>();
         if (index < 0)
         {
-            runtime.__logmsg(err::NegativeIndex((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::NegativeIndex((*runtime.context_active().current_frame().current())->diag_info()));
             return {};
         }
         auto val = params[1];
@@ -1140,7 +1115,7 @@ namespace
         if (!arr->recursion_test())
         {
             (*arr)[index] = oldval;
-            runtime.__logmsg(err::ArrayRecursion((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::ArrayRecursion((*runtime.context_active().current_frame().current())->diag_info()));
             return {};
         }
         return {};
@@ -1155,7 +1130,7 @@ namespace
         // create a copy of left array
         auto arr = left.data<d_array, std::vector<sqf::runtime::value>>();
         auto r = right.data<d_array>();
-        arr.insert(arr.begin(), r->begin(), r->end());
+        arr.insert(arr.end(), r->begin(), r->end());
         return arr;
     }
 
@@ -1211,12 +1186,12 @@ namespace
         auto index = right.data<d_scalar, int>();
         if (index >= static_cast<int>(l->size()))
         {
-            runtime.__logmsg(err::IndexOutOfRangeWeak((*runtime.active_context().current_frame().current())->diag_info(), l->size(), index));
+            runtime.__logmsg(err::IndexOutOfRangeWeak((*runtime.context_active().current_frame().current())->diag_info(), l->size(), index));
             return {};
         }
         else if (index < 0)
         {
-            runtime.__logmsg(err::NegativeIndexWeak((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::NegativeIndexWeak((*runtime.context_active().current_frame().current())->diag_info()));
             return {};
         }
         auto val = l->at(index);
@@ -1260,7 +1235,7 @@ namespace
                 {
                     max = 0;
                 }
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), i, std::array<type, 2>{t_scalar(), t_boolean()}, tmp.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 2>{t_scalar(), t_boolean()}, tmp.data()->type()));
             }
         }
         return max;
@@ -1292,7 +1267,7 @@ namespace
                 {
                     min = 0;
                 }
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), i, std::array<type, 2>{t_scalar(), t_boolean()}, tmp.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 2>{t_scalar(), t_boolean()}, tmp.data()->type()));
             }
         }
         return min;
@@ -1328,13 +1303,13 @@ namespace
             reinterpret_cast<RVExtensionVersion>(sym)(buffer, CALLEXTVERSIONBUFFSIZE);
             if (buffer[CALLEXTVERSIONBUFFSIZE - 1] != '\0')
             {
-                runtime.__logmsg(err::ExtensionNotTerminatingVersionString((*runtime.active_context().current_frame().current())->diag_info(), name));
+                runtime.__logmsg(err::ExtensionNotTerminatingVersionString((*runtime.context_active().current_frame().current())->diag_info(), name));
             }
-            runtime.__logmsg(err::ExtensionLoaded((*runtime.active_context().current_frame().current())->diag_info(), name, from_char_array(buffer, CALLEXTVERSIONBUFFSIZE)));
+            runtime.__logmsg(err::ExtensionLoaded((*runtime.context_active().current_frame().current())->diag_info(), name, from_char_array(buffer, CALLEXTVERSIONBUFFSIZE)));
         }
         else
         {
-            runtime.__logmsg(err::ExtensionLoaded((*runtime.active_context().current_frame().current())->diag_info(), name, "NOT AVAILABLE"));
+            runtime.__logmsg(err::ExtensionLoaded((*runtime.context_active().current_frame().current())->diag_info(), name, "NOT AVAILABLE"));
         }
         if (dl->try_resolve("RVExtensionRegisterCallback", &sym))
         {
@@ -1350,8 +1325,8 @@ namespace
         auto libname = left.data<d_string, std::string>();
         if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
         {
-            runtime.__logmsg(err::LibraryNameContainsPath((*runtime.active_context().current_frame().current())->diag_info(), libname));
-            runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::LibraryNameContainsPath((*runtime.context_active().current_frame().current())->diag_info(), libname));
+            runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
             return "";
         }
         try
@@ -1365,15 +1340,15 @@ namespace
             method(buffer, CALLEXTBUFFSIZE, right.data<d_string, std::string>().c_str());
             if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
             {
-                runtime.__logmsg(err::ExtensionNotTerminatingCallExtensionBufferString((*runtime.active_context().current_frame().current())->diag_info(), libname));
+                runtime.__logmsg(err::ExtensionNotTerminatingCallExtensionBufferString((*runtime.context_active().current_frame().current())->diag_info(), libname));
                 buffer[CALLEXTBUFFSIZE - 1] = '\0';
             }
             return buffer;
         }
         catch (const std::runtime_error& ex)
         {
-            runtime.__logmsg(err::ExtensionRuntimeError((*runtime.active_context().current_frame().current())->diag_info(), libname, ex.what()));
-            runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::ExtensionRuntimeError((*runtime.context_active().current_frame().current())->diag_info(), libname, ex.what()));
+            runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
             return "";
         }
     }
@@ -1383,37 +1358,37 @@ namespace
         auto libname = left.data<d_string, std::string>();
         if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
         {
-            runtime.__logmsg(err::LibraryNameContainsPath((*runtime.active_context().current_frame().current())->diag_info(), libname));
-            runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::LibraryNameContainsPath((*runtime.context_active().current_frame().current())->diag_info(), libname));
+            runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
             return "";
         }
         auto rvec = right.data<d_array>();
         if (rvec->size() < 2)
         {
-            runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), 2, rvec->size()));
-            runtime.__logmsg(err::ReturningErrorCode((*runtime.active_context().current_frame().current())->diag_info(), "PARAMS_ERROR_TOO_MANY_ARGS(201)"sv));
+            runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 2, rvec->size()));
+            runtime.__logmsg(err::ReturningErrorCode((*runtime.context_active().current_frame().current())->diag_info(), "PARAMS_ERROR_TOO_MANY_ARGS(201)"sv));
             return std::vector<value> { "", 0, 201 };
         }
         else if (rvec->size() > 2)
         {
-            runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), 2, rvec->size()));
+            runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 2, rvec->size()));
         }
         if (!rvec->at(0).is<t_string>())
         {
-            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 0, t_string(), rvec->at(0).data()->type()));
+            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_string(), rvec->at(0).data()->type()));
             return {};
         }
         if (!rvec->at(1).is<t_array>())
         {
-            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 1, t_string(), rvec->at(1).data()->type()));
+            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_string(), rvec->at(1).data()->type()));
             return {};
         }
 
         auto arr = rvec->at(1).data<d_array>();
         if (arr->size() > RVARGSLIMIT)
         {
-            runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), 0, RVARGSLIMIT, arr->size()));
-            runtime.__logmsg(err::ReturningErrorCode((*runtime.active_context().current_frame().current())->diag_info(), "SYNTAX_ERROR_WRONG_PARAMS_SIZE(101)"sv));
+            runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 0, RVARGSLIMIT, arr->size()));
+            runtime.__logmsg(err::ReturningErrorCode((*runtime.context_active().current_frame().current())->diag_info(), "SYNTAX_ERROR_WRONG_PARAMS_SIZE(101)"sv));
             return std::vector<value> { "", 0, 101 };
         }
         std::vector<std::string> argstringvec;
@@ -1427,8 +1402,8 @@ namespace
             }
             else
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), i, std::array<type, 4> {t_boolean(), t_string(), t_scalar(), t_array()}, at.data()->type()));
-                runtime.__logmsg(err::ReturningErrorCode((*runtime.active_context().current_frame().current())->diag_info(), "SYNTAX_ERROR_WRONG_PARAMS_TYPE(102)"sv));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 4> {t_boolean(), t_string(), t_scalar(), t_array()}, at.data()->type()));
+                runtime.__logmsg(err::ReturningErrorCode((*runtime.context_active().current_frame().current())->diag_info(), "SYNTAX_ERROR_WRONG_PARAMS_TYPE(102)"sv));
                 return std::vector<value>{ "", 0, 102 };
             }
         }
@@ -1450,15 +1425,15 @@ namespace
             auto res = method(buffer, CALLEXTBUFFSIZE, rvec->at(0).data<d_string, std::string>().c_str(), argvec.data(), static_cast<int>(argvec.size()));
             if (buffer[CALLEXTBUFFSIZE - 1] != '\0')
             {
-                runtime.__logmsg(err::ExtensionNotTerminatingCallExtensionBufferString((*runtime.active_context().current_frame().current())->diag_info(), libname));
+                runtime.__logmsg(err::ExtensionNotTerminatingCallExtensionBufferString((*runtime.context_active().current_frame().current())->diag_info(), libname));
                 buffer[CALLEXTBUFFSIZE - 1] = '\0';
             }
             return std::vector<value>{ buffer, res, 0 };
         }
         catch (const std::runtime_error& ex)
         {
-            runtime.__logmsg(err::ExtensionRuntimeError((*runtime.active_context().current_frame().current())->diag_info(), libname, ex.what()));
-            runtime.__logmsg(err::ReturningErrorCode((*runtime.active_context().current_frame().current())->diag_info(), "501"sv));
+            runtime.__logmsg(err::ExtensionRuntimeError((*runtime.context_active().current_frame().current())->diag_info(), libname, ex.what()));
+            runtime.__logmsg(err::ReturningErrorCode((*runtime.context_active().current_frame().current())->diag_info(), "501"sv));
             return std::vector<value>{ "", 0, 501 };
         }
     }
@@ -1487,7 +1462,7 @@ namespace
             // validation step
             if (params_descriptors.size() >= 1 && !params_descriptors.at(0).is<t_scalar>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 0, t_scalar(), params_descriptors.at(0).data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_scalar(), params_descriptors.at(0).data()->type()));
                 return {};
             }
             else
@@ -1496,12 +1471,12 @@ namespace
             }
             if (params_descriptors.size() >= 3 && !params_descriptors.at(2).is<t_array>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 0, t_array(), params_descriptors.at(2).data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_array(), params_descriptors.at(2).data()->type()));
                 return {};
             }
             if (params_descriptors.size() >= 4 && (!params_descriptors.at(3).is<t_array>() && !params_descriptors.at(3).is<t_scalar>()))
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 0, std::array<type, 2> { t_array(), t_scalar() }, params_descriptors.at(3).data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, std::array<type, 2> { t_array(), t_scalar() }, params_descriptors.at(3).data()->type()));
                 return {};
             }
             else if (params_descriptors.size() >= 4 && !params_descriptors.at(3).is<t_array>())
@@ -1512,7 +1487,7 @@ namespace
                 {
                     if (!tmp->at(j).is<t_scalar>())
                     {
-                        runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), std::array<size_t, 2> { 3, j }, t_scalar(), tmp->at(j).data()->type()));
+                        runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 2> { 3, j }, t_scalar(), tmp->at(j).data()->type()));
                         flag = true;
                         continue;
                     }
@@ -1543,7 +1518,7 @@ namespace
                         {
                             types.push_back(it.data()->type());
                         }
-                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
+                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
                         return params_descriptors.at(1);
                     }
                 }
@@ -1570,7 +1545,7 @@ namespace
                         {
                             types.push_back(it.data()->type());
                         }
-                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
+                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
                         return params_descriptors.at(1);
                     }
                 }
@@ -1585,10 +1560,10 @@ namespace
     }
     value param_array(runtime& runtime, value::cref right)
     {
-        auto _this = runtime.active_context().get_variable("_this");
+        auto _this = runtime.context_active().get_variable("_this");
         if (!_this.has_value())
         {
-            runtime.__logmsg(err::MagicVariableNotPresent((*runtime.active_context().current_frame().current())->diag_info(), "_this"));
+            runtime.__logmsg(err::MagicVariableNotPresent((*runtime.context_active().current_frame().current())->diag_info(), "_this"));
             return {};
         }
         if (!_this->is<t_array>())
@@ -1621,22 +1596,22 @@ namespace
             {
                 if (fel.is<t_array>())
                 { // Empty Array
-                    runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 1, 4, 0));
+                    runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, 4, 0));
                 }
                 else
                 { // Non-Valid value
-                    runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), i, std::array<type, 2> { t_string(), t_array() }, fel.data()->type()));
+                    runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 2> { t_string(), t_array() }, fel.data()->type()));
                 }
                 continue;
             }
             if (params_descriptors.size() >= 3 && !params_descriptors.at(2).is<t_array>())
             {
-                runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), std::array<size_t, 2> { i, 2 }, t_array(), params_descriptors.at(2).data()->type()));
+                runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 2> { i, 2 }, t_array(), params_descriptors.at(2).data()->type()));
                 continue;
             }
             if (params_descriptors.size() >= 4 && (!params_descriptors.at(3).is<t_array>() && !params_descriptors.at(3).is<t_scalar>()))
             {
-                runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), std::array<size_t, 2> { i, 3 }, std::array<type, 2> { t_scalar(), t_array() }, params_descriptors.at(2).data()->type()));
+                runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 2> { i, 3 }, std::array<type, 2> { t_scalar(), t_array() }, params_descriptors.at(2).data()->type()));
                 continue;
             }
             else if (params_descriptors.size() >= 4 && params_descriptors.at(3).is<t_array>())
@@ -1647,7 +1622,7 @@ namespace
                 {
                     if (!tmp->at(j).is<t_scalar>())
                     {
-                        runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), std::array<size_t, 3> { i, 3, j }, t_scalar(), tmp->at(j).data()->type()));
+                        runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 3> { i, 3, j }, t_scalar(), tmp->at(j).data()->type()));
                         flag = true;
                         continue;
                     }
@@ -1678,7 +1653,7 @@ namespace
                         {
                             types.push_back(it.data()->type());
                         }
-                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
+                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
                         return params_descriptors.at(1);
                     }
                 }
@@ -1705,25 +1680,25 @@ namespace
                         {
                             types.push_back(it.data()->type());
                         }
-                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.active_context().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
+                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
                         return params_descriptors.at(1);
                     }
                 }
-                runtime.active_context().current_frame()[params_descriptors.at(0).data<d_string, std::string>()] = current_input_value;
+                runtime.context_active().current_frame()[params_descriptors.at(0).data<d_string, std::string>()] = current_input_value;
             }
             else
             {
-                runtime.active_context().current_frame()[params_descriptors.at(0).data<d_string, std::string>()] = params_descriptors.size() >= 2 ? params_descriptors.at(1) : value();
+                runtime.context_active().current_frame()[params_descriptors.at(0).data<d_string, std::string>()] = params_descriptors.size() >= 2 ? params_descriptors.at(1) : value();
             }
         }
         return {};
     }
     value params_array(runtime& runtime, value::cref right)
     {
-        auto _this = runtime.active_context().get_variable("_this");
+        auto _this = runtime.context_active().get_variable("_this");
         if (!_this.has_value())
         {
-            runtime.__logmsg(err::MagicVariableNotPresent((*runtime.active_context().current_frame().current())->diag_info(), "_this"));
+            runtime.__logmsg(err::MagicVariableNotPresent((*runtime.context_active().current_frame().current())->diag_info(), "_this"));
             return {};
         }
         if (!_this->is<t_array>())
@@ -1744,20 +1719,20 @@ namespace
     }
     value sleep_scalar(runtime& runtime, value::cref right)
     {
-        if (!runtime.active_context().can_suspend())
+        if (!runtime.context_active().can_suspend())
         {
-            runtime.__logmsg(err::SuspensionInUnscheduledEnvironment((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::SuspensionInUnscheduledEnvironment((*runtime.context_active().current_frame().current())->diag_info()));
             return {};
         }
         auto duration = std::chrono::duration<float>();
         auto durationCasted = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
 
-        runtime.active_context().suspend(durationCasted);
+        runtime.context_active().suspend(durationCasted);
         return {};
     }
     value cansuspend_(runtime& runtime)
     {
-        return runtime.active_context().can_suspend();
+        return runtime.context_active().can_suspend();
     }
     value loadfile_string(runtime& runtime, value::cref right)
     {
@@ -1769,8 +1744,8 @@ namespace
         }
         else
         {
-            runtime.__logmsg(err::FileNotFound((*runtime.active_context().current_frame().current())->diag_info(), right.data<d_string, std::string>()));
-            runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::FileNotFound((*runtime.context_active().current_frame().current())->diag_info(), right.data<d_string, std::string>()));
+            runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
             return "";
         }
     }
@@ -1786,34 +1761,34 @@ namespace
         }
         else
         {
-            runtime.__logmsg(err::FileNotFound((*runtime.active_context().current_frame().current())->diag_info(), right.data<d_string, std::string>()));
-            runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::FileNotFound((*runtime.context_active().current_frame().current())->diag_info(), right.data<d_string, std::string>()));
+            runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
             return "";
         }
     }
     value scopename_string(runtime& runtime, value::cref right)
     {
         auto str = right.data<d_string, std::string>();
-        if (runtime.active_context().current_frame().scope_name().empty())
+        if (runtime.context_active().current_frame().scope_name().empty())
         {
-            runtime.active_context().current_frame().scope_name(str);
+            runtime.context_active().current_frame().scope_name(str);
         }
         else
         {
-            runtime.__logmsg(err::ScopeNameAlreadySet((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::ScopeNameAlreadySet((*runtime.context_active().current_frame().current())->diag_info()));
         }
         return {};
     }
     value scriptname_string(runtime& runtime, value::cref right)
     {
         auto str = right.data<d_string, std::string>();
-        if (runtime.active_context().name().empty())
+        if (runtime.context_active().name().empty())
         {
-            runtime.active_context().name(str);
+            runtime.context_active().name(str);
         }
         else
         {
-            runtime.__logmsg(err::ScriptNameAlreadySet((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::ScriptNameAlreadySet((*runtime.context_active().current_frame().current())->diag_info()));
         }
         return {};
     }
@@ -1839,19 +1814,19 @@ namespace
     }
     value throw_any(runtime& runtime, value::cref right)
     {
-        auto res = std::find_if(runtime.active_context().frames_rbegin(), runtime.active_context().frames_rend(), [&](frame& f) -> bool {
+        auto res = std::find_if(runtime.context_active().frames_rbegin(), runtime.context_active().frames_rend(), [&](frame& f) -> bool {
             return f.can_recover_runtime_error() && f.recover_runtime_error(runtime) != frame::result::error;
             });
-        if (res == runtime.active_context().frames_rend())
+        if (res == runtime.context_active().frames_rend())
         {
-            runtime.__logmsg(err::ErrorMessage((*runtime.active_context().current_frame().current())->diag_info(), "THROW", right.data()->to_string_sqf()));
+            runtime.__logmsg(err::ErrorMessage((*runtime.context_active().current_frame().current())->diag_info(), "THROW", right.data()->to_string_sqf()));
         }
         else
         {
-            auto drop = res - runtime.active_context().frames_rbegin();
+            auto drop = res - runtime.context_active().frames_rbegin();
             while (drop-- != 0)
             {
-                runtime.active_context().pop_frame();
+                runtime.context_active().pop_frame();
             }
         }
         return {};
@@ -1876,11 +1851,10 @@ namespace
         };
         frame f(
             runtime.default_value_scope(),
-            {},
             right.data<d_code, sqf::runtime::instruction_set>(),
             {},
             std::make_shared<behavior_catch_exit>(left.data<d_code, sqf::runtime::instruction_set>()));
-        runtime.active_context().push_frame(f);
+        runtime.context_active().push_frame(f);
         return {};
     }
     value execvm_any_string(runtime& runtime, value::cref left, value::cref right)
@@ -1895,10 +1869,10 @@ namespace
             {
                 auto r = right.data<d_string, std::string>();
                 auto& parser = runtime.parser_sqf();
-                auto res = parser.parse(runtime, r);
+                auto res = parser.parse(runtime, r, (*runtime.context_active().current_frame().current())->diag_info().path);
                 if (res.has_value())
                 {
-                    auto context_weak = runtime.create_context();
+                    auto context_weak = runtime.context_create();
                     auto lock = context_weak.lock();
                     auto scriptdata = std::make_shared<d_script>(context_weak);
                     frame f(runtime.default_value_scope(), res.value());
@@ -1909,20 +1883,20 @@ namespace
                 }
                 else
                 {
-                    runtime.__logmsg(err::ReturningEmptyScriptHandle((*runtime.active_context().current_frame().current())->diag_info()));
+                    runtime.__logmsg(err::ReturningEmptyScriptHandle((*runtime.context_active().current_frame().current())->diag_info()));
                     return std::make_shared<d_script>();
                 }
             }
             else
             {
-                runtime.__logmsg(err::ReturningEmptyScriptHandle((*runtime.active_context().current_frame().current())->diag_info()));
+                runtime.__logmsg(err::ReturningEmptyScriptHandle((*runtime.context_active().current_frame().current())->diag_info()));
                 return std::make_shared<d_script>();
             }
         }
         else
         {
-            runtime.__logmsg(err::FileNotFound((*runtime.active_context().current_frame().current())->diag_info(), right.data<d_string, std::string>()));
-            runtime.__logmsg(err::ReturningEmptyScriptHandle((*runtime.active_context().current_frame().current())->diag_info()));
+            runtime.__logmsg(err::FileNotFound((*runtime.context_active().current_frame().current())->diag_info(), right.data<d_string, std::string>()));
+            runtime.__logmsg(err::ReturningEmptyScriptHandle((*runtime.context_active().current_frame().current())->diag_info()));
             return std::make_shared<d_script>();
         }
     }
@@ -1995,6 +1969,7 @@ void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(unary("scriptDone", t_script(), "Check if a script is finished running using the Script_(Handle).", scriptdone_script));
     runtime.register_sqfop(unary("terminate", t_script(), "Terminates (aborts) spawned or execVMed script. "
         "The given script will not terminate immediately upon terminate command execution, it will do so the next time the script is processed by the scheduler", terminate_script));
+    runtime.register_sqfop(unary("isNull", t_script(), "Checks if a given script is null.", isnull_script));
 
 
 

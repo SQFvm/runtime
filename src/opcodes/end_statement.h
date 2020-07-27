@@ -7,11 +7,11 @@ namespace sqf::opcodes
 	class end_statement : public sqf::runtime::instruction
 	{
 	public:
-		virtual void execute(sqf::runtime::runtime& vm) const override { vm.active_context().current_frame().clear(); }
+		virtual void execute(sqf::runtime::runtime& vm) const override { vm.context_active().clear_values(); }
 		virtual std::string to_string() const override { return "ENDSTATEMENT"; }
 		virtual std::optional<std::string> reconstruct(
-			std::vector<sqf::runtime::instruction::sptr>::const_iterator& current,
-			std::vector<sqf::runtime::instruction::sptr>::const_iterator end,
+			std::vector<sqf::runtime::instruction::sptr>::const_reverse_iterator& current,
+			std::vector<sqf::runtime::instruction::sptr>::const_reverse_iterator end,
 			short parent_precedence, bool left_from_binary) const override
 		{
 			return "; ";

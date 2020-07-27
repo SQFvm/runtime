@@ -32,7 +32,7 @@ namespace
 		if (l)
 		{
 			frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>());
-			runtime.active_context().push_frame(f);
+			runtime.context_active().push_frame(f);
 			return {};
 		}
 		else
@@ -50,7 +50,7 @@ namespace
 		else
 		{
 			frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>());
-			runtime.active_context().push_frame(f);
+			runtime.context_active().push_frame(f);
 			return {};
 		}
 	}

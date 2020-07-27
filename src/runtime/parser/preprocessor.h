@@ -69,7 +69,8 @@ namespace sqf
 			class preprocessor
 			{
 			public:
-				virtual ~preprocessor() = 0;
+				virtual void push_back(::sqf::runtime::parser::macro m) = 0;
+				virtual ~preprocessor() {}
 				virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) = 0;
 				std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::sqf::runtime::fileio::pathinfo pathinfo);
 			};
@@ -80,6 +81,7 @@ namespace sqf
 		class passthrough : public ::sqf::runtime::parser::preprocessor
 		{
 			public:
+				virtual void push_back(::sqf::runtime::parser::macro m) override {};
 				virtual ~passthrough() override { return; };
 				virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) override;
 		};

@@ -1,9 +1,5 @@
 #include "interactive_helper.h"
-#include "virtualmachine.h"
-#include "scriptdata.h"
-#include "sqfnamespace.h"
-#include "vmstack.h"
-#include "callstack.h"
+#include "../runtime/runtime.h"
 #include <thread>
 #include <string>
 #include <iostream>
@@ -15,34 +11,31 @@ void interactive_helper::virtualmachine_thread()
 {
 	while (!m_thread_die)
 	{
-		if (m_run_virtualmachine <= 0)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-			continue;
-		}
-		auto action = m_run_virtualmachine;
-		m_run_virtualmachine = 0;
+		auto tmp = m_runtime_apply_action;
+		m_runtime_apply_action = sqf::runtime::runtime::action::invalid;
 
-		m_vm.execute(action == 1 ? sqf::virtualmachine::execaction::start : sqf::virtualmachine::execaction::leave_scope);
-		if (m_run_virtualmachine == 0)
+		switch (tmp)
 		{
-			switch (m_vm.status())
-			{
-			case sqf::virtualmachine::vmstatus::empty:
-				std::cout << "VM Done!" << std::endl;
-				break;
-			case sqf::virtualmachine::vmstatus::halted:
-				std::cout << "VM Halted!" << std::endl;
-				break;
-			case sqf::virtualmachine::vmstatus::halt_error:
-				std::cout << "VM Error!" << std::endl;
-				break;
-			case sqf::virtualmachine::vmstatus::running:
-			case sqf::virtualmachine::vmstatus::requested_halt:
-			case sqf::virtualmachine::vmstatus::requested_abort:
-			case sqf::virtualmachine::vmstatus::evaluating:
-				break;
-			}
+		case sqf::runtime::runtime::action::invalid:
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			break;
+		default:
+			m_runtime.execute(m_runtime_apply_action);
+			break;
+		}
+
+
+		switch (m_runtime.runtime_state())
+		{
+		case sqf::runtime::runtime::state::empty:
+			std::cout << "runtime Done!" << std::endl;
+			break;
+		case sqf::runtime::runtime::state::halted:
+			std::cout << "runtime Halted!" << std::endl;
+			break;
+		case sqf::runtime::runtime::state::halted_error:
+			std::cout << "runtime Error!" << std::endl;
+			break;
 		}
 	}
 }
@@ -55,11 +48,11 @@ void interactive_helper::init()
 			size_t max_names_len = 0;
 
 			// Calculate max name length
-			for (const auto& it : interactive.cmds())
+			for (auto it = interactive.commands_begin(); it != interactive.commands_end(); ++it)
 			{
 				bool flag = false;
 				size_t len = 0;
-				for (const auto& name : it.names)
+				for (const auto name : it->names)
 				{
 					if (flag)
 					{
@@ -76,11 +69,11 @@ void interactive_helper::init()
 					max_names_len = len;
 				}
 			}
-			for (const auto& it : interactive.cmds())
+			for (auto it = interactive.commands_begin(); it != interactive.commands_end(); ++it)
 			{
 				bool flag = false;
 				size_t len = 0;
-				for (const auto& name : it.names)
+				for (const auto name : it->names)
 				{
 					if (flag)
 					{
@@ -98,7 +91,7 @@ void interactive_helper::init()
 				size_t pos = 0;
 				size_t previous = 0;
 				flag = false;
-				while ((pos = it.description.find('\n', pos + 1)) != std::string_view::npos)
+				while ((pos = it->description.find('\n', pos + 1)) != std::string_view::npos)
 				{
 					if (flag)
 					{
@@ -108,14 +101,14 @@ void interactive_helper::init()
 					{
 						flag = true;
 					}
-					std::cout << it.description.substr(previous, pos - previous) << std::endl;
+					std::cout << it->description.substr(previous, pos - previous) << std::endl;
 					previous = pos + 1;
 				}
 				if (flag)
 				{
 					std::cout << std::string(max_names_len + 6, ' ');
 				}
-				std::cout << it.description.substr(previous) << std::endl;
+				std::cout << it->description.substr(previous) << std::endl;
 			}
 		});
 	register_command(std::array{ "bp"s, "set-breapoint"s },
@@ -135,7 +128,7 @@ void interactive_helper::init()
 
 			line = std::stol(arg.data());
 			file = arg.substr(split);
-			interactive.vm().push_back({ line, file });
+			interactive.runtime().push_back({ line, file });
 		});
 	register_command(std::array{ "rbp"s, "remove-breapoint"s },
 		"Removes a breakpoint from the provided line & file.\n"
@@ -154,99 +147,95 @@ void interactive_helper::init()
 
 			line = std::stol(arg.data());
 			file = arg.substr(split);
-			auto res = std::find_if(interactive.vm().breakpoints_begin(), interactive.vm().breakpoints_end(),
-				[line, file](const sqf::diagnostics::breakpoint& bp) -> bool { return bp.line() == line && bp.file() == file; });
-			if (interactive.vm().breakpoints_end() == res)
+			auto res = std::find_if(interactive.runtime().breakpoints_begin(), interactive.runtime().breakpoints_end(),
+				[line, file](const sqf::runtime::diagnostics::breakpoint& bp)
+				{ return bp.line() == line && bp.file() == file; });
+			if (interactive.runtime().breakpoints_end() == res)
 			{
 				std::cerr << "remove-breapoint is unable to locate existing breakpoint." << std::endl;
 			}
 			else
 			{
-				interactive.vm().breakpoints_erase(res, res);
+				interactive.runtime().erase(res);
 			}
 		});
 	register_command(std::array{ "rbpa"s, "clear-breapoints"s },
 		"Removes all breakpoints.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
-			interactive.vm().breakpoints_erase(interactive.vm().breakpoints_begin(), interactive.vm().breakpoints_end());
+			interactive.runtime().erase(interactive.runtime().breakpoints_begin(), interactive.runtime().breakpoints_end());
 		});
 	register_command(std::array{ "r"s, "run"s, "start"s },
-		"Starts the VM execution.",
+		"Starts the runtime execution.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
-			switch (interactive.vm().status())
+			switch (interactive.runtime().runtime_state())
 			{
-			case sqf::virtualmachine::vmstatus::running:
-			case sqf::virtualmachine::vmstatus::evaluating:
-				std::cerr << "run cannot start vm. Already running." << std::endl;
+			case sqf::runtime::runtime::state::running:
+			case sqf::runtime::runtime::state::evaluating:
+				std::cerr << "run cannot start runtime. Already running." << std::endl;
 				return;
 			default:
-				interactive.set_start_vm();
+				interactive.execute_next(sqf::runtime::runtime::action::start);
 				break;
 			}
 		});
 	register_command(std::array{ "h"s, "halt"s },
-		"Halts the VM execution wherever it is right now.",
+		"Halts the runtime execution wherever it is right now.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
-			switch (interactive.vm().status())
+			switch (interactive.runtime().runtime_state())
 			{
-			case sqf::virtualmachine::vmstatus::running:
-			case sqf::virtualmachine::vmstatus::evaluating:
-				interactive.vm().execute(sqf::virtualmachine::execaction::stop);
+			case sqf::runtime::runtime::state::running:
+			case sqf::runtime::runtime::state::evaluating:
+				interactive.runtime().execute(sqf::runtime::runtime::action::stop);
 				return;
 			default:
-				std::cerr << "halt cannot halt vm. Already halted or stopped." << std::endl;
+				std::cerr << "halt cannot halt runtime. Already halted or stopped." << std::endl;
 				break;
 			}
 		});
 	register_command(std::array{ "a"s, "abort"s, "stop"s },
-		"Stops the execution of the VM and clears whatever is currently in the execution queue.",
+		"Stops the execution of the runtime and clears whatever is currently in the execution queue.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
-			interactive.vm().execute(sqf::virtualmachine::execaction::abort);
+			interactive.runtime().execute(sqf::runtime::runtime::action::abort);
 		});
 	register_command(std::array{ "ls"s, "line-step"s, "step"s },
-		"Executes a single line-step in the VM. Blocking call.",
+		"Executes a single line-step in the runtime. Blocking call.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
-			switch (interactive.vm().status())
+			switch (interactive.runtime().runtime_state())
 			{
-			case sqf::virtualmachine::vmstatus::running:
-			case sqf::virtualmachine::vmstatus::evaluating:
-				std::cerr << "step vm still running, halt first." << std::endl;
+			case sqf::runtime::runtime::state::running:
+			case sqf::runtime::runtime::state::evaluating:
+				std::cerr << "Runtime not halted." << std::endl;
 				return;
 			default:
-				interactive.vm().execute(sqf::virtualmachine::execaction::line_step);
+				interactive.execute_next(sqf::runtime::runtime::action::line_step);
 				break;
 			}
 		});
 	register_command(std::array{ "as"s, "assembly-step"s, },
-		"Executes a single assembly-step in the VM. Blocking call.",
+		"Executes a single assembly-step in the runtime. Blocking call.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
-			switch (interactive.vm().status())
+			switch (interactive.runtime().runtime_state())
 			{
-			case sqf::virtualmachine::vmstatus::running:
-			case sqf::virtualmachine::vmstatus::evaluating:
-				std::cerr << "step vm still running, halt first." << std::endl;
+			case sqf::runtime::runtime::state::running:
+			case sqf::runtime::runtime::state::evaluating:
+				std::cerr << "Runtime not halted." << std::endl;
 				return;
 			default:
-				interactive.vm().execute(sqf::virtualmachine::execaction::assembly_step);
+				interactive.execute_next(sqf::runtime::runtime::action::assembly_step);
 				break;
 			}
 		});
 	register_command(std::array{ "leave-scope"s, },
-		"Executes until current scope is one higher in the VM.",
+		"Executes a leave-scope operation in the runtime.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
-			switch (interactive.vm().status())
+			switch (interactive.runtime().runtime_state())
 			{
-			case sqf::virtualmachine::vmstatus::running:
-			case sqf::virtualmachine::vmstatus::evaluating:
-				interactive.set_leave_scope_vm();
-				interactive.vm().execute(sqf::virtualmachine::execaction::stop);
-				while (interactive.vm().status() == sqf::virtualmachine::vmstatus::running || interactive.vm().status() == sqf::virtualmachine::vmstatus::evaluating)
-				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				}
+			case sqf::runtime::runtime::state::running:
+			case sqf::runtime::runtime::state::evaluating:
+				std::cerr << "Runtime not halted." << std::endl;
 				break;
 			default:
-				interactive.vm().execute(sqf::virtualmachine::execaction::assembly_step);
+				interactive.execute_next(sqf::runtime::runtime::action::leave_scope);
 				break;
 			}
 		});
@@ -254,125 +243,69 @@ void interactive_helper::init()
 		"Receives the callstack from the current active vmstack and displays it.\n"
 		"Affected by Enacted Script.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
-			switch (interactive.vm().status())
+			switch (interactive.runtime().runtime_state())
 			{
-			case sqf::virtualmachine::vmstatus::running:
-			case sqf::virtualmachine::vmstatus::evaluating:
-			{
-				interactive.set_pause_vm();
-				while (interactive.vm().status() == sqf::virtualmachine::vmstatus::running || interactive.vm().status() == sqf::virtualmachine::vmstatus::evaluating)
-				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				}
-				long enacted = interactive.get_active_script();
-				auto it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
-					[enacted](const std::shared_ptr<sqf::scriptdata>& scriptdata) -> bool {
-						return scriptdata->script_id() == (size_t)enacted;
-					});
-				if (it == interactive.vm().scripts_end())
-				{
-					interactive.set_active_script(-1);
-					enacted = -1;
-					std::cout << "Enacted script " << enacted << " no longer available. Changing to Currently Active." << std::endl;
-				}
-				auto stackdump = enacted == -1 ? interactive.vm().active_vmstack()->dump_callstack_diff({}) :
-					enacted == 0 ? interactive.vm().main_vmstack()->dump_callstack_diff({}) :
-					(*it)->vmstack()->dump_callstack_diff({});
-				int i = 1;
-				for (const auto& it : stackdump)
-				{
-					std::cout << i++ << ":\tnamespace: " << it.namespace_used->get_name()
-						<< "\tscopename: " << it.scope_name
-						<< "\tcallstack: " << it.callstack_name
-						<< std::endl << it.dbginf << std::endl;
-				}
-				interactive.set_start_vm();
-			}
-			break;
+			case sqf::runtime::runtime::state::running:
+			case sqf::runtime::runtime::state::evaluating:
+				std::cerr << "Runtime not halted." << std::endl;
 			default:
-				interactive.vm().execute(sqf::virtualmachine::execaction::line_step);
-				break;
+			{
+				auto selected_context = interactive.context_selected();
+				if (!selected_context)
+				{
+					interactive.context_selected(interactive.runtime().context_active_as_shared());
+					std::cout << "Selected context no longer available. Changing to Currently Active." << std::endl;
+				}
+
+				// Dump frames to console
+				int i = 0;
+				for (auto it = selected_context->frames_rbegin(); it != selected_context->frames_rend(); ++it)
+				{
+					std::cout << i++ << ":\tnamespace: " << it->globals_value_scope()->scope_name()
+						<< "\tscopename: " << it->scope_name()
+						<< std::endl << (*it->current())->diag_info().code_segment << std::endl;
+				}
+			} break;
 			}
 		});
-	register_command(std::array{ "ls"s, "locals"s, "vars"s },
+	register_command(std::array{ "ll"s, "locals"s, "list-locals"s, "vars"s },
 		"Lists all local variables.\n"
 		"Affected by Enacted Script.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
-			switch (interactive.vm().status())
+			switch (interactive.runtime().runtime_state())
 			{
-			case sqf::virtualmachine::vmstatus::running:
-			case sqf::virtualmachine::vmstatus::evaluating:
+			case sqf::runtime::runtime::state::running:
+			case sqf::runtime::runtime::state::evaluating:
+				std::cerr << "Runtime not halted." << std::endl;
+			default:
 			{
-				interactive.set_pause_vm();
-				while (interactive.vm().status() == sqf::virtualmachine::vmstatus::running || interactive.vm().status() == sqf::virtualmachine::vmstatus::evaluating)
+				auto selected_context = interactive.context_selected();
+				if (!selected_context)
 				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(1));
+					interactive.context_selected(interactive.runtime().context_active_as_shared());
+					std::cout << "Selected context no longer available. Changing to Currently Active." << std::endl;
 				}
-				long enacted = interactive.get_active_script();
-				auto it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
-					[enacted](const std::shared_ptr<sqf::scriptdata>& scriptdata) -> bool {
-						return scriptdata->script_id() == (size_t)enacted;
-					});
-				if (it == interactive.vm().scripts_end())
+
+				// Dump variables to console
+				size_t space_index = 0;
+				for (auto it_frame = selected_context->frames_rbegin(); it_frame != selected_context->frames_rend(); ++it_frame)
 				{
-					interactive.set_active_script(-1);
-					enacted = -1;
-					std::cout << "Enacted script " << enacted << " no longer available. Changing to Currently Active." << std::endl;
-				}
-				auto vmstack = enacted == -1 ? interactive.vm().active_vmstack() :
-					enacted == 0 ? interactive.vm().main_vmstack() :
-					(*it)->vmstack();
-				for (auto cs = vmstack->stacks_begin(); cs != vmstack->stacks_end(); ++cs)
-				{
-					if ((*cs)->get_variable_map().empty())
+					for (auto it_var = it_frame->begin(); it_var != it_frame->end(); ++it_var)
 					{
-						continue;
-					}
-					std::cout << (cs - vmstack->stacks_begin()) << ": " << (*cs)->get_name() << std::endl;
-					for (auto& pair : (*cs)->get_variable_map())
-					{
-						std::cout << "    - '" << pair.first << "' -> " << pair.second.tosqf();
+						std::cout << "[" << std::setw(3) << space_index << "] '" << it_var->first << "' := " << it_var->second.to_string_sqf() << std::endl;
 					}
 				}
-				interactive.set_start_vm();
-			}
-			break;
-			default:
-				interactive.vm().execute(sqf::virtualmachine::execaction::line_step);
-				break;
-			}
-		});
-	register_command(std::array{ "parse-sqf"s, "sqf"s },
-		"Will parse the input code into the vm. 'Filepath' will be '__interactive.sqf'.",
-		[](interactive_helper& interactive, std::string_view arg) -> void {
-			switch (interactive.vm().status())
-			{
-			case sqf::virtualmachine::vmstatus::running:
-			case sqf::virtualmachine::vmstatus::evaluating:
-			{
-				interactive.set_pause_vm();
-				while (interactive.vm().status() == sqf::virtualmachine::vmstatus::running || interactive.vm().status() == sqf::virtualmachine::vmstatus::evaluating)
-				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				}
-				auto stackdump = interactive.vm().active_vmstack()->dump_callstack_diff({});
-				interactive.vm().parse_sqf(arg, "__interactive.sqf");
-				interactive.set_start_vm();
-			}
-			break;
-			default:
-				interactive.vm().parse_sqf(arg, "__interactive.sqf");
-				break;
+			} break;
 			}
 		});
 	register_command(std::array{ "e"s, "eval"s, "evaluate"s },
 		"Evaluates the provided expression and returns the result.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
 			bool success = false;
-			auto value = interactive.vm().evaluate_expression(arg, success);
+			auto value = interactive.runtime().evaluate_expression(std::string(arg), success);
 			if (success)
 			{
-				std::cout << value.tosqf() << std::endl;
+				std::cout << value.to_string_sqf() << std::endl;
 			}
 			else
 			{
@@ -382,18 +315,30 @@ void interactive_helper::init()
 	register_command(std::array{ "q"s, "exit"s, "quit"s },
 		"Exits the execution and terminates the program.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
-			interactive.set_exit();
+			interactive.runtime().exit(0);
 		});
-	register_command(std::array{ "scripts"s, "list-scripts"s },
+	register_command(std::array{ "ls"s, "scripts"s, "list-scripts"s },
 		"Displays a list of all script instances currently running and their reference number.",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
-			int i = -1;
-			std::cout << i++ << ":\tCurrently Active" << std::endl;
-			std::cout << i++ << ":\tMain Instance" << std::endl;
-
-			for (auto it = interactive.vm().scripts_begin(); it != interactive.vm().scripts_end(); ++it)
+			size_t i = 0;
+			auto selected = interactive.context_selected();
+			for (auto it = interactive.runtime().context_begin(); it != interactive.runtime().context_end(); ++it)
 			{
-				std::cout << (*it)->script_id() << ":\t" << (*it)->vmstack()->script_name() << std::endl;
+				if ((*it)->name().empty())
+				{
+					std::cout << "[" << std::setw(3) << i << "] " <<
+						(interactive.runtime().context_active_as_shared() == *it ? '>' : ' ') <<
+						" '" << (*it)->name() << "'" <<
+						(selected == *it ? " [SELECTED]" : "") << std::endl;
+				}
+				else
+				{
+					std::cout << "[" << std::setw(3) << i << "] " <<
+						(interactive.runtime().context_active_as_shared() == *it ? '>' : ' ') <<
+						" UNNAMED" <<
+						(selected == *it ? " [SELECTED]" : "") << std::endl;
+				}
+				i++;
 			}
 		});
 	register_command(std::array{ "ss"s, "set-script"s },
@@ -401,33 +346,33 @@ void interactive_helper::init()
 		"Example: `ss -1`\n",
 		[](interactive_helper& interactive, std::string_view arg) -> void {
 
-			long i = std::stoll(arg.data());
-			if (i == -1)
+			switch (interactive.runtime().runtime_state())
 			{
-				interactive.set_active_script(i);
-				std::cout << "Setting enacted script to 'Currently Active'." << std::endl;
-			}
-			else if (i == 0)
+			case sqf::runtime::runtime::state::running:
+			case sqf::runtime::runtime::state::evaluating:
+				std::cerr << "Runtime not halted." << std::endl;
+			default:
 			{
-				interactive.set_active_script(i);
-				std::cout << "Setting enacted script to 'Main Instance'." << std::endl;
-			}
-			else
-			{
-				auto it = std::find_if(interactive.vm().scripts_begin(), interactive.vm().scripts_end(),
-					[i](const std::shared_ptr<sqf::scriptdata> scriptdata) -> bool {
-						return scriptdata->script_id() == (size_t)i;
-					});
-				if (it == interactive.vm().scripts_end())
+				long i = std::stol(arg.data());
+				long index = 0;
+				for (auto it = interactive.runtime().context_begin(); it != interactive.runtime().context_end(); ++it)
 				{
-					interactive.set_active_script(-1);
-					std::cout << "Cannot set enacted script to " << i << " (Not Found). Setting to Currently Active." << std::endl;
+					if (i == index++)
+					{
+						interactive.context_selected(*it);
+						if ((*it)->name().empty())
+						{
+							std::cout << "Selected context " << index << " '" << (*it)->name() << "'" << std::endl;
+						}
+						else
+						{
+							std::cout << "Selected context " << index << " UNNAMED" << std::endl;
+						}
+						return;
+					}
 				}
-				else
-				{
-					interactive.set_active_script(i);
-					std::cout << "Setting enacted script to '" << (*it)->vmstack()->script_name() << "'." << std::endl;
-				}
+				std::cout << "Cannot set selected context to " << i << " (Not Found)." << std::endl;
+			} break;
 			}
 		});
 }
@@ -451,11 +396,11 @@ void interactive_helper::run()
 		{
 			command = std::string_view(m_buffer, split);
 		}
-		auto res = std::find_if(m_cmds.begin(), m_cmds.end(),
+		auto res = std::find_if(m_commands.begin(), m_commands.end(),
 			[command](const interactive_helper::command& cmd) -> bool {
 				return std::find(cmd.names.begin(), cmd.names.end(), command) != cmd.names.end();
 			});
-		if (res == m_cmds.end())
+		if (res == m_commands.end())
 		{
 			std::cerr << "Unknwon command '" << command << "'" << std::endl;
 		}
@@ -471,7 +416,7 @@ void interactive_helper::print_welcome()
 {
 	std::cout
 		<< "Welcome to Interactive mode." << std::endl
-		<< "In interactive, you can control the behavior of the VM while it is running." << std::endl
+		<< "In interactive, you can control the behavior of the runtime while it is running." << std::endl
 		<< "Quick Reference:" << std::endl
 		<< "cmds, commands -> Lists all commands available." << std::endl
 		<< "q, exit, quit  -> Exits the execution and terminates the program." << std::endl;

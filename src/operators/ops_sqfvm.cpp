@@ -50,7 +50,7 @@ namespace
     value assembly___string(runtime& runtime, value::cref right)
     {
         auto str = right.data<d_string>();
-        auto set = runtime.parser_sqf().parse(runtime, *str);
+        auto set = runtime.parser_sqf().parse(runtime, *str, (*runtime.context_active().current_frame().current())->diag_info().path);
         if (set.has_value())
         {
             std::vector<value> outarr;
@@ -69,7 +69,7 @@ namespace
     {
         std::vector<value> outarr;
         auto str = "n";
-        for (auto& pair = runtime.sqfop_nular_begin(); pair != runtime.sqfop_nular_end(); pair++)
+        for (auto pair = runtime.sqfop_nular_begin(); pair != runtime.sqfop_nular_end(); pair++)
         {
             outarr.push_back(std::vector<value> {
                 str,
@@ -77,7 +77,7 @@ namespace
             });
         }
         str = "u";
-        for (auto& pair = runtime.sqfop_unary_begin(); pair != runtime.sqfop_unary_end(); pair++)
+        for (auto pair = runtime.sqfop_unary_begin(); pair != runtime.sqfop_unary_end(); pair++)
         {
             outarr.push_back(std::vector<value> {
                 str,
@@ -86,7 +86,7 @@ namespace
             });
         }
         str = "b";
-        for (auto& pair = runtime.sqfop_binary_begin(); pair != runtime.sqfop_binary_end(); pair++)
+        for (auto pair = runtime.sqfop_binary_begin(); pair != runtime.sqfop_binary_end(); pair++)
         {
             outarr.push_back(std::vector<value> {
                 str,
@@ -101,7 +101,7 @@ namespace
     {
         std::vector<value> outarr;
         auto str = "n";
-        for (auto& pair = runtime.sqfop_nular_begin(); pair != runtime.sqfop_nular_end(); pair++)
+        for (auto pair = runtime.sqfop_nular_begin(); pair != runtime.sqfop_nular_end(); pair++)
         {
             if (pair->second.description().empty())
                 continue;
@@ -111,7 +111,7 @@ namespace
             });
         }
         str = "u";
-        for (auto& pair = runtime.sqfop_unary_begin(); pair != runtime.sqfop_unary_end(); pair++)
+        for (auto pair = runtime.sqfop_unary_begin(); pair != runtime.sqfop_unary_end(); pair++)
         {
             if (pair->second.description().empty())
                 continue;
@@ -122,7 +122,7 @@ namespace
             });
         }
         str = "b";
-        for (auto& pair = runtime.sqfop_binary_begin(); pair != runtime.sqfop_binary_end(); pair++)
+        for (auto pair = runtime.sqfop_binary_begin(); pair != runtime.sqfop_binary_end(); pair++)
         {
             if (pair->second.description().empty())
                 continue;
@@ -139,7 +139,7 @@ namespace
     {
         std::vector<value> outarr;
         auto str = "n";
-        for (auto& pair = runtime.sqfop_nular_begin(); pair != runtime.sqfop_nular_end(); pair++)
+        for (auto pair = runtime.sqfop_nular_begin(); pair != runtime.sqfop_nular_end(); pair++)
         {
             if (pair->first.name.length() < 2 || pair->first.name[pair->first.name.length() - 1] != '_' || pair->first.name[pair->first.name.length() - 2] != '_')
                 continue;
@@ -149,7 +149,7 @@ namespace
             });
         }
         str = "u";
-        for (auto& pair = runtime.sqfop_unary_begin(); pair != runtime.sqfop_unary_end(); pair++)
+        for (auto pair = runtime.sqfop_unary_begin(); pair != runtime.sqfop_unary_end(); pair++)
         {
             if (pair->first.name.length() < 2 || pair->first.name[pair->first.name.length() - 1] != '_' || pair->first.name[pair->first.name.length() - 2] != '_')
                 continue;
@@ -160,7 +160,7 @@ namespace
             });
         }
         str = "b";
-        for (auto& pair = runtime.sqfop_binary_begin(); pair != runtime.sqfop_binary_end(); pair++)
+        for (auto pair = runtime.sqfop_binary_begin(); pair != runtime.sqfop_binary_end(); pair++)
         {
             if (pair->first.name.length() < 2 || pair->first.name[pair->first.name.length() - 1] != '_' || pair->first.name[pair->first.name.length() - 2] != '_')
                 continue;
@@ -193,7 +193,7 @@ namespace
         std::stringstream sstream;
         std::string str = *right.data<d_string>();
         bool wasfound = false;
-        for (auto& pair = runtime.sqfop_nular_begin(); pair != runtime.sqfop_nular_end(); pair++)
+        for (auto pair = runtime.sqfop_nular_begin(); pair != runtime.sqfop_nular_end(); pair++)
         {
             if (pair->first.name != str)
                 continue;
@@ -208,7 +208,7 @@ namespace
             }
             wasfound = true;
         }
-        for (auto& pair = runtime.sqfop_unary_begin(); pair != runtime.sqfop_unary_end(); pair++)
+        for (auto pair = runtime.sqfop_unary_begin(); pair != runtime.sqfop_unary_end(); pair++)
         {
             if (pair->first.name != str)
                 continue;
@@ -223,7 +223,7 @@ namespace
             }
             wasfound = true;
         }
-        for (auto& pair = runtime.sqfop_binary_begin(); pair != runtime.sqfop_binary_end(); pair++)
+        for (auto pair = runtime.sqfop_binary_begin(); pair != runtime.sqfop_binary_end(); pair++)
         {
             if (pair->first.name != str)
                 continue;
@@ -246,13 +246,13 @@ namespace
         {
             sstream << "Could not find any command with that name." << std::endl;
         }
-        runtime.__logmsg(err::InfoMessage((*runtime.active_context().current_frame().current())->diag_info(), "HELP", sstream.str()));
+        runtime.__logmsg(err::InfoMessage((*runtime.context_active().current_frame().current())->diag_info(), "HELP", sstream.str()));
         return {};
     }
     value configparse___string(runtime& runtime, value::cref right)
     {
         auto str = right.data<d_string, std::string>();
-        runtime.parser_config().parse(runtime.confighost(), str);
+        runtime.parser_config().parse(runtime.confighost(), str, (*runtime.context_active().current_frame().current())->diag_info());
         return {};
     }
     value allObjects__(runtime& runtime)
@@ -260,7 +260,7 @@ namespace
         auto arr = std::make_shared<d_array>();
         for (auto& object : runtime.storage<object, object::object_storage>())
         {
-            arr->push_back(object);
+            arr->push_back(std::make_shared<d_object>(object));
         }
         return value(arr);
     }
@@ -294,20 +294,19 @@ namespace
         }
         current = object::create(runtime, entry, false);
         runtime.storage<object, object::object_storage>().player(current);
-        return current;
+        return std::make_shared<d_object>(current);
     }
     value preprocess___string(runtime& runtime, value::cref right)
     {
         auto content = right.data<d_string>();
-        bool errflag = false;
         auto ppres = runtime.parser_preprocessor().preprocess(runtime, *content, { {}, "__preprocess__"s });
-        if (errflag)
+        if (ppres.has_value())
         {
-            return {};
+            return *ppres;
         }
         else
         {
-            return ppres;
+            return ""s;
         }
     }
     value except___code_code(runtime& runtime, value::cref left, value::cref right)
@@ -323,16 +322,15 @@ namespace
         };
         frame f(
             runtime.default_value_scope(),
-            {},
             right.data<d_code, sqf::runtime::instruction_set>(),
             {},
             std::make_shared<behavior_except>(left.data<d_code, sqf::runtime::instruction_set>()));
-        runtime.active_context().push_frame(f);
+        runtime.context_active().push_frame(f);
         return {};
     }
     value callstack___(runtime& runtime)
     {
-        auto context = runtime.active_context();
+        auto context = runtime.context_active();
         std::vector<sqf::runtime::frame> stacktrace_frames(context.frames_rbegin(), context.frames_rend());
         sqf::runtime::diagnostics::stacktrace stacktrace(stacktrace_frames);
         return stacktrace;
@@ -345,38 +343,50 @@ namespace
             return {};
         }
         auto files = std::vector<value>();
-        auto fileio = runtime.fileio();
-        // recursively search for pboprefix
-        for (auto i = fileio.all_files_begin(); i != fileio.all_files_end(); ++i)
+        auto& fileio = runtime.fileio();
+        auto paths = fileio.get_directories();
+        if (paths.empty())
         {
-            bool skip = true;
-            for (auto& ext : *arr)
+            return files;
+        }
+        // recursively search for pboprefix
+        for (auto& path : paths)
+        {
+            const auto options = std::filesystem::directory_options::skip_permission_denied | std::filesystem::directory_options::follow_directory_symlink;
+            auto begin = std::filesystem::recursive_directory_iterator(path, options);
+            auto end = std::filesystem::recursive_directory_iterator();
+            for (auto i = begin; i != end; ++i)
             {
-                if (i->is_directory())
+                bool skip = true;
+                for (auto& ext : *arr)
                 {
-                    break;
+                    if (i->is_directory())
+                    {
+                        break;
+                    }
+                    if (!(i->path().extension().compare(ext.data<d_string, std::string>())))
+                    {
+                        skip = false;
+                        break;
+                    }
                 }
-                if (!(i->path().extension().compare(ext.data<d_string, std::string>())))
+                if (!skip)
                 {
-                    skip = false;
-                    break;
+                    files.push_back(i->path().string());
                 }
-            }
-            if (!skip)
-            {
-                files.push_back(i->path().string());
+                // runtime.__logmsg(err::InfoMessage((*runtime.context_active().current_frame().current())->diag_info(), "DEBUG", i->path().string()));
             }
         }
         return files;
     }
     value pwd___(runtime& runtime)
     {
-        auto path = std::filesystem::path((*runtime.active_context().current_frame().current())->diag_info().file);
+        auto path = std::filesystem::path((*runtime.context_active().current_frame().current())->diag_info().path.physical);
         return std::filesystem::absolute(path).string();
     }
     value currentDirectory___(runtime& runtime)
     {
-        auto path = std::filesystem::path((*runtime.active_context().current_frame().current())->diag_info().file);
+        auto path = std::filesystem::path((*runtime.context_active().current_frame().current())->diag_info().path.physical);
         return std::filesystem::absolute(path.parent_path()).string();
     }
     value trim___(runtime& runtime, value::cref right)
@@ -394,20 +404,20 @@ namespace
 //    {
 //        if (!runtime.allow_networking())
 //        {
-//            runtime.__logmsg(err::NetworkingDisabled((*runtime.active_context().current_frame().current())->diag_info()));
+//            runtime.__logmsg(err::NetworkingDisabled((*runtime.context_active().current_frame().current())->diag_info()));
 //            return false;
 //        }
 //        networking_init();
 //        if (runtime.is_networking_set())
 //        {
-//            runtime.__logmsg(err::AlreadyConnected((*runtime.active_context().current_frame().current())->diag_info()));
+//            runtime.__logmsg(err::AlreadyConnected((*runtime.context_active().current_frame().current())->diag_info()));
 //            return {};
 //        }
 //        auto s = right.as_string();
 //        auto index = s.find(':');
 //        if (index == std::string::npos)
 //        {
-//            runtime.__logmsg(err::NetworkingFormatMissmatch((*runtime.active_context().current_frame().current())->diag_info(), s));
+//            runtime.__logmsg(err::NetworkingFormatMissmatch((*runtime.context_active().current_frame().current())->diag_info(), s));
 //            return {};
 //        }
 //        auto address = s.substr(0, index);
@@ -415,7 +425,7 @@ namespace
 //        SOCKET socket;
 //        if (networking_create_client(address.c_str(), port.c_str(), &socket))
 //        {
-//            runtime.__logmsg(err::FailedToEstablishConnection((*runtime.active_context().current_frame().current())->diag_info()));
+//            runtime.__logmsg(err::FailedToEstablishConnection((*runtime.context_active().current_frame().current())->diag_info()));
 //            return false;
 //        }
 //        runtime.set_networking(std::make_shared<networking::client>(socket));
@@ -457,7 +467,7 @@ namespace
         else
         {
             // ToDo: Create custom log message for enum errors
-            runtime.__logmsg(err::ErrorMessage((*runtime.active_context().current_frame().current())->diag_info(), "vmctrl", "exec unknown"));
+            runtime.__logmsg(err::ErrorMessage((*runtime.context_active().current_frame().current())->diag_info(), "vmctrl", "exec unknown"));
         }
         return {};
     }
@@ -466,7 +476,7 @@ namespace
         frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
         f["_this"] = left;
         f.bubble_variable(false);
-        runtime.active_context().push_frame(f);
+        runtime.context_active().push_frame(f);
         return {};
     }
     value noBubble___CODE(runtime& runtime, value::cref right)
@@ -474,7 +484,7 @@ namespace
         frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
         f["_this"] = {};
         f.bubble_variable(false);
-        runtime.active_context().push_frame(f);
+        runtime.context_active().push_frame(f);
         return {};
     }
     //value provide___code_string(runtime& runtime, value::cref left, value::cref right)
@@ -487,8 +497,8 @@ namespace
     //    sqf::runtime::type ltype;
     //    sqf::runtime::type rtype;
     //    std::string name;
-    //    int size = arr->size();
-    //    switch (size)
+    //    int frames_size = arr->frames_size();
+    //    switch (frames_size)
     //    {
     //        case 1:
     //            name = arr->at(0).data<d_string, std::string>();
@@ -498,20 +508,20 @@ namespace
     //            name = arr->at(1).data<d_string, std::string>();
     //            auto l = arr->at(0).data<d_string, std::string>();
     //            ltype = sqf::runtime::type::typemap().at(l);
-    //            auto r = arr->at(arr->size() - 1).data<d_string, std::string>();
+    //            auto r = arr->at(arr->frames_size() - 1).data<d_string, std::string>();
     //            rtype = sqf::runtime::type::typemap().at(r);
     //        }
     //        break;
     //        case 2:
     //        {
     //            name = arr->at(0).data<d_string, std::string>();
-    //            auto r = arr->at(arr->size() - 1).data<d_string, std::string>();
+    //            auto r = arr->at(arr->frames_size() - 1).data<d_string, std::string>();
     //            rtype = sqf::runtime::type::typemap().at(r);
     //        } break;
     //        default:
     //            return {};
     //    }
-    //    switch (size)
+    //    switch (frames_size)
     //    {
     //    case 1:
     //        sqf::commandmap::get().remove(name);
@@ -584,7 +594,10 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(unary("assembly__", t_string(), "returns an array, containing the assembly instructions as string.", assembly___string));
     runtime.register_sqfop(binary(4, "except__", t_code(), t_code(), "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'. A callstack is available in '_callstack'.", except___code_code));
     runtime.register_sqfop(nular("callstack__", "Returns an array containing the whole callstack.", callstack___));
-    runtime.register_sqfop(unary("allFiles__", t_array(), "Returns all files available in currently loaded paths with the given file extensions.", allfiles___array));
+    runtime.register_sqfop(unary("allFiles__", t_array(),
+        "Returns all files available in that path with the given file extensions." " "
+        "RIGHT: File extension filters that are looked for. If empty, all files are returned." " "
+        , allfiles___array));
     runtime.register_sqfop(nular("pwd__", "Current path determined by current instruction.", pwd___));
     runtime.register_sqfop(nular("currentDirectory__", "Current directory determined by current instruction.", currentDirectory___));
     runtime.register_sqfop(unary("trim__", t_string(), "Trims provided strings start and end.", trim___));

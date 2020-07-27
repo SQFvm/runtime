@@ -13,9 +13,9 @@ namespace sqf
 			class config
 			{
 			public:
-				virtual ~config() = 0;
-				virtual bool check_syntax(std::string contents) = 0;
-				virtual bool parse(::sqf::runtime::confighost& target, std::string contents) = 0;
+				virtual ~config() {}
+				virtual bool check_syntax(std::string contents, ::sqf::runtime::fileio::pathinfo pathinfo) = 0;
+				virtual bool parse(::sqf::runtime::confighost& target, std::string contents, ::sqf::runtime::fileio::pathinfo pathinfo) = 0;
 			};
 		}
 	}
@@ -25,8 +25,8 @@ namespace sqf
 		{
 		public:
 			virtual ~disabled() override { return; }
-			virtual bool check_syntax(std::string contents) override { return false; }
-			virtual bool parse(::sqf::runtime::confighost& target, std::string contents) override { return false; }
+			virtual bool check_syntax(std::string contents, ::sqf::runtime::fileio::pathinfo pathinfo) override { return false; }
+			virtual bool parse(::sqf::runtime::confighost& target, std::string contents, ::sqf::runtime::fileio::pathinfo pathinfo) override { return false; }
 		};
 	}
 }

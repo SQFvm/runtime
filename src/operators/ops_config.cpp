@@ -24,8 +24,8 @@ namespace
 		auto cd = left.data<d_config, confighost::config>();
 		if (cd.is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningConfigNull((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningConfigNull((*runtime.context_active().current_frame().current())->diag_info()));
 			return confighost::config();
 		}
 		auto target = right.data<d_string, std::string>();
@@ -46,8 +46,8 @@ namespace
 			} while (cd.has_parent_logical());
 
 			std::reverse(path.begin(), path.end());
-			runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), path, target));
-			runtime.__logmsg(err::ReturningConfigNull((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), path, target));
+			runtime.__logmsg(err::ReturningConfigNull((*runtime.context_active().current_frame().current())->diag_info()));
 			return confighost::config();
 		}
 	}
@@ -64,8 +64,8 @@ namespace
 		auto cd = right.data<d_config, confighost::config>();
 		if (cd.is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return ""s;
 		}
 		return cd.name();
@@ -76,8 +76,8 @@ namespace
 		auto index = right.data<d_scalar, int>();
 		if (index >= static_cast<int>(cd.children_size()) || index < 0)
 		{
-			runtime.__logmsg(err::IndexOutOfRangeWeak((*runtime.active_context().current_frame().current())->diag_info(), cd.children_size(), index));
-			runtime.__logmsg(err::ReturningConfigNull((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::IndexOutOfRangeWeak((*runtime.context_active().current_frame().current())->diag_info(), cd.children_size(), index));
+			runtime.__logmsg(err::ReturningConfigNull((*runtime.context_active().current_frame().current())->diag_info()));
 			return confighost::config();
 		}
 		return cd.at(runtime.confighost(), index);
@@ -87,8 +87,8 @@ namespace
 		auto cd = right.data<d_config, confighost::config>();
 		if (cd.is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningScalarZero((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningScalarZero((*runtime.context_active().current_frame().current())->diag_info()));
 			return 0;
 		}
 		return cd.children_size();
@@ -98,8 +98,8 @@ namespace
 		auto cd = right.data<d_config, confighost::config>();
 		if (cd.is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningScalarZero((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningScalarZero((*runtime.context_active().current_frame().current())->diag_info()));
 			return 0;
 		}
 		std::vector<value> branch;
@@ -122,8 +122,8 @@ namespace
 		auto cd = right.data<d_config, confighost::config>();
 		if (cd.is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningFalse((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningFalse((*runtime.context_active().current_frame().current())->diag_info()));
 			return false;
 		}
 		return cd.value().is<t_scalar>();
@@ -133,8 +133,8 @@ namespace
 		auto cd = right.data<d_config, confighost::config>();
 		if (cd.is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningFalse((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningFalse((*runtime.context_active().current_frame().current())->diag_info()));
 			return false;
 		}
 		return cd.value().is<t_string>();
@@ -144,8 +144,8 @@ namespace
 		auto cd = right.data<d_config, confighost::config>();
 		if (cd.is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningFalse((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningFalse((*runtime.context_active().current_frame().current())->diag_info()));
 			return false;
 		}
 		return cd.children_size() > 0;
@@ -155,8 +155,8 @@ namespace
 		auto cd = right.data<d_config, confighost::config>();
 		if (cd.is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningFalse((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningFalse((*runtime.context_active().current_frame().current())->diag_info()));
 			return false;
 		}
 		return cd.value().is<t_array>();
@@ -166,8 +166,8 @@ namespace
 		auto cd = right.data<d_config, confighost::config>();
 		if (cd.is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningFalse((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningFalse((*runtime.context_active().current_frame().current())->diag_info()));
 			return false;
 		}
 		return cd.value().data_try<d_scalar, float>(0.0F);
@@ -177,8 +177,8 @@ namespace
 		auto cd = right.data<d_config, confighost::config>();
 		if (cd.is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningFalse((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningFalse((*runtime.context_active().current_frame().current())->diag_info()));
 			return false;
 		}
 		return cd.value().data_try<d_string, std::string>(""s);
@@ -188,8 +188,8 @@ namespace
 		auto cd = right.data<d_config, confighost::config>();
 		if (cd.is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningFalse((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningFalse((*runtime.context_active().current_frame().current())->diag_info()));
 			return false;
 		}
 		auto data = cd.value().data_try<d_array>();
@@ -219,7 +219,7 @@ namespace
 			behavior_configclasses_exit(confighost::config::iterator_factory fact) : m_out_arr(std::make_shared<d_array>()), m_iterator_factory(fact), m_iterator_current(fact.begin()) {}
 			virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
 			{
-				auto res = runtime.active_context().pop_value();
+				auto res = runtime.context_active().pop_value();
 				if (res.has_value())
 				{
 					auto value = res->data_try<d_boolean, bool>();
@@ -238,7 +238,7 @@ namespace
 				}
 				if (++m_iterator_current == m_iterator_factory.end())
 				{
-					runtime.active_context().push_value(m_out_arr);
+					runtime.context_active().push_value(m_out_arr);
 					return result::ok;
 				}
 				else
@@ -259,13 +259,13 @@ namespace
 		else
 		{
 			auto& parser = runtime.parser_sqf();
-			auto res = parser.parse(runtime, code);
+			auto res = parser.parse(runtime, code, (*runtime.context_active().current_frame().current())->diag_info().path);
 
 			if (res.has_value())
 			{
 				frame f(runtime.default_value_scope(), res.value(), std::make_shared<behavior_configclasses_exit>(conf.iterate(runtime.confighost())));
 				f["_x"] = conf.at(runtime.confighost(), 0);
-				runtime.active_context().push_frame(f);
+				runtime.context_active().push_frame(f);
 			}
 		}
 		return {};
@@ -282,7 +282,7 @@ namespace
 			behavior_configproperties_exit(confighost::config::iterator_recursive_factory fact) : m_out_arr(std::make_shared<d_array>()), m_iterator_factory(fact), m_iterator_current(fact.begin()) {}
 			virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
 			{
-				auto res = runtime.active_context().pop_value();
+				auto res = runtime.context_active().pop_value();
 				if (res.has_value())
 				{
 					auto value = res->data_try<d_boolean, bool>();
@@ -301,7 +301,7 @@ namespace
 				}
 				if (++m_iterator_current == m_iterator_factory.end())
 				{
-					runtime.active_context().push_value(m_out_arr);
+					runtime.context_active().push_value(m_out_arr);
 					return result::ok;
 				}
 				else
@@ -330,20 +330,20 @@ namespace
 			else
 			{
 				auto& parser = runtime.parser_sqf();
-				auto res = parser.parse(runtime, code);
+				auto res = parser.parse(runtime, code, (*runtime.context_active().current_frame().current())->diag_info().path);
 
 				if (res.has_value())
 				{
 					frame f(runtime.default_value_scope(), res.value(), std::make_shared<behavior_configproperties_exit>(conf.iterate_recursive(runtime.confighost())));
 					f["_x"] = conf.at(runtime.confighost(), 0);
-					runtime.active_context().push_frame(f);
+					runtime.context_active().push_frame(f);
 				}
 			}
 			return {};
 		}
 		else
 		{
-			configclasses_code_config(runtime, code, conf);
+			return configclasses_code_config(runtime, code, conf);
 		}
 	}
 }

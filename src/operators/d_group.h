@@ -71,7 +71,7 @@ namespace sqf
 			operator std::shared_ptr<::sqf::types::group>() { return value(); }
 		};
 
-		bool operator==(const std::shared_ptr<d_group> left, const std::shared_ptr<group> right)
+		inline bool operator==(const std::shared_ptr<d_group> left, const std::shared_ptr<group> right)
 		{
 			if (left->is_null()) { return false; }
 			return left->value() == right;

@@ -5,6 +5,7 @@
 #include "../../runtime/value.h"
 
 #include <algorithm>
+#include <cctype>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -516,7 +517,7 @@ std::string sqf::parser::preprocessor::default::parse_ppinstruction(::sqf::runti
 {
 	auto inst = fileinfo.get_word();
 	std::string line{ trim(fileinfo.get_line(true)) };
-	std::transform(inst.begin(), inst.end(), inst.begin(), std::toupper);
+	std::transform(inst.begin(), inst.end(), inst.begin(), [](char& c) { return std::toupper(c); });
 	if (inst == "INCLUDE")
 	{ // #include "file/path"
 		// Trim

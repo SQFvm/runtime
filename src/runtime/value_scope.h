@@ -5,6 +5,8 @@
 #include <string>
 #include <string_view>
 #include <optional>
+#include <cctype>
+#include <algorithm>
 
 namespace sqf::runtime
 {
@@ -19,13 +21,22 @@ namespace sqf::runtime
 		sqf::runtime::value operator[](const std::string& index) const { return at(index); }
 		sqf::runtime::value& operator[](const std::string& index) { return at(index); }
 
-		bool contains(const std::string& view) const { return m_map.find(view) != m_map.end(); }
-		sqf::runtime::value at(const std::string& view) const
+		bool contains(std::string variable_name) const
 		{
-			auto res = m_map.find(view);
+			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return std::tolower(c); });
+			return m_map.find(variable_name) != m_map.end();
+		}
+		sqf::runtime::value at(std::string variable_name) const
+		{
+			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return std::tolower(c); });
+			auto res = m_map.find(variable_name);
 			return res == m_map.end() ? value() : res->second;
 		}
-		sqf::runtime::value& at(const std::string& view) { return m_map.at(view); }
+		sqf::runtime::value& at(std::string variable_name)
+		{
+			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return std::tolower(c); });
+			return m_map[variable_name];
+		}
 		std::string_view scope_name() const { return m_scope_name; }
 		void scope_name(std::string value) { m_scope_name = value; }
 		void clear() { m_map.clear(); }

@@ -6,78 +6,100 @@
 #include <chrono>
 #include <optional>
 #include <string_view>
+#include <algorithm>
+#include <cctype>
+
+#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#include <iostream>
+#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+
 
 namespace sqf::runtime
 {
-	class context final
-	{
-	private:
-		std::vector<sqf::runtime::frame> m_frames;
-		std::vector<sqf::runtime::value> m_values;
-		bool m_can_suspend;
-		bool m_suspended;
-		bool m_weak_error_handling;
-		std::chrono::system_clock::time_point m_wakeup_timestamp;
-		std::string m_name;
-		bool m_terminate;
+    class context final
+    {
+    private:
+        std::vector<sqf::runtime::frame> m_frames;
+        std::vector<sqf::runtime::value> m_values;
+        bool m_can_suspend;
+        bool m_suspended;
+        bool m_weak_error_handling;
+        std::chrono::system_clock::time_point m_wakeup_timestamp;
+        std::string m_name;
+        bool m_terminate;
 
-	public:
-		context() = default;
+    public:
+        context() = default;
 
 
-		std::string name() const { return m_name; }
-		void name(std::string value) { m_name = value; }
+        std::string name() const { return m_name; }
+        void name(std::string value) { m_name = value; }
 
-		bool can_suspend() const { return m_can_suspend; }
-		void can_suspend(bool flag) { m_can_suspend = flag; }
-		bool suspended() const { return m_suspended; }
-		std::chrono::system_clock::time_point wakeup_timestamp() const { return m_wakeup_timestamp; }
-		template<class _Rep, class _Period>
-		void suspend(std::chrono::duration<_Rep, _Period> duration)
-		{
-			m_wakeup_timestamp = std::chrono::system_clock::now() + duration;
-			m_suspended = true;
-		}
-		void unsuspend() { m_suspended = false; }
-		bool empty() const { return m_frames.empty(); }
-		size_t size() const { return m_frames.size(); }
-		void clear_frames() { m_frames.clear(); }
-		void clear_values() { m_values.clear(); }
-		void push_frame(sqf::runtime::frame frame) { m_frames.push_back(frame); }
-		void push_value(sqf::runtime::value value) { m_values.push_back(value); }
-		sqf::runtime::frame pop_frame() { auto frame = m_frames.back(); m_frames.pop_back(); return frame; }
-		std::optional<sqf::runtime::value> pop_value() { if (m_values.empty()) { return {}; } else { auto value = m_values.back(); m_values.pop_back(); return value; } }
-		sqf::runtime::value::cref peek_value() { if (m_values.empty()) { return {}; } else { return m_values.back(); } }
+        bool can_suspend() const { return m_can_suspend; }
+        void can_suspend(bool flag) { m_can_suspend = flag; }
+        bool suspended() const { return m_suspended; }
+        std::chrono::system_clock::time_point wakeup_timestamp() const { return m_wakeup_timestamp; }
+        template<class _Rep, class _Period>
+        void suspend(std::chrono::duration<_Rep, _Period> duration)
+        {
+            m_wakeup_timestamp = std::chrono::system_clock::now() + duration;
+            m_suspended = true;
+        }
+        void unsuspend() { m_suspended = false; }
+        bool empty() const { return m_frames.empty(); }
+        size_t frames_size() const { return m_frames.size(); }
+        size_t values_size() const { return m_values.size(); }
+        void clear_frames() { m_frames.clear(); }
+        void clear_values() { m_values.clear(); }
+        void push_frame(sqf::runtime::frame frame)
+        {
+            m_frames.push_back(frame);
 
-		std::vector<sqf::runtime::frame>::reverse_iterator frames_rbegin() { return m_frames.rbegin(); }
-		std::vector<sqf::runtime::frame>::reverse_iterator frames_rend() { return m_frames.rend(); }
-		std::vector<sqf::runtime::value>::iterator values_begin() { return m_values.begin(); }
-		std::vector<sqf::runtime::value>::iterator values_end() { return m_values.end(); }
-		std::vector<sqf::runtime::value>::reverse_iterator values_rbegin() { return m_values.rbegin(); }
-		std::vector<sqf::runtime::value>::reverse_iterator values_rend() { return m_values.rend(); }
+#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
 
-		std::optional<sqf::runtime::value> get_variable(std::string variable_name) const
-		{
-			for (auto rit = m_frames.rbegin(); rit != m_frames.rend(); rit++)
-			{
-				if (rit->contains(variable_name))
-				{
-					return (*rit)[variable_name];
-				}
-				else if (!rit->bubble_variable())
-				{
-					return {};
-				}
-			}
-			return {};
-		}
+            std::cout << "[ASSEMBLY ASSERT]" <<
+                "    " << "    " << " " <<
+                "    " << "    " << " " <<
+                "    " << "    " << "Pushed Frame ";
+            m_frames.back().dbg_str();
+            std::cout << std::endl;
+#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+        }
+        void push_value(sqf::runtime::value value) { m_values.push_back(value); }
+        sqf::runtime::frame&& pop_frame() { auto& frame = m_frames.back(); m_frames.pop_back(); return std::move(frame); }
+        std::optional<sqf::runtime::value> pop_value() { if (m_values.empty()) { return {}; } else { auto value = m_values.back(); m_values.pop_back(); return value; } }
+        sqf::runtime::value::cref peek_value() { if (m_values.empty()) { return {}; } else { return m_values.back(); } }
 
-		bool weak_error_handling() const { return m_weak_error_handling; }
-		void weak_error_handling(bool flag) { m_weak_error_handling = flag; }
+        std::vector<sqf::runtime::frame>::reverse_iterator frames_rbegin() { return m_frames.rbegin(); }
+        std::vector<sqf::runtime::frame>::reverse_iterator frames_rend() { return m_frames.rend(); }
+        std::vector<sqf::runtime::value>::iterator values_begin() { return m_values.begin(); }
+        std::vector<sqf::runtime::value>::iterator values_end() { return m_values.end(); }
+        std::vector<sqf::runtime::value>::reverse_iterator values_rbegin() { return m_values.rbegin(); }
+        std::vector<sqf::runtime::value>::reverse_iterator values_rend() { return m_values.rend(); }
 
-		frame& current_frame() { return m_frames.back(); }
+        std::optional<sqf::runtime::value> get_variable(std::string variable_name) const
+        {
+            std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return std::tolower(c); });
+            for (auto rit = m_frames.rbegin(); rit != m_frames.rend(); rit++)
+            {
+                if (rit->contains(variable_name))
+                {
+                    return (*rit)[variable_name];
+                }
+                else if (!rit->bubble_variable())
+                {
+                    return {};
+                }
+            }
+            return {};
+        }
 
-		bool terminate() const { return m_terminate; }
-		void terminate(bool flag) { m_terminate = flag; }
-	};
+        bool weak_error_handling() const { return m_weak_error_handling; }
+        void weak_error_handling(bool flag) { m_weak_error_handling = flag; }
+
+        frame& current_frame() { return m_frames.back(); }
+
+        bool terminate() const { return m_terminate; }
+        void terminate(bool flag) { m_terminate = flag; }
+    };
 }

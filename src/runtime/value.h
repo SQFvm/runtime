@@ -19,7 +19,8 @@ namespace sqf::runtime
 	private:
 		std::shared_ptr<sqf::runtime::data> m_data;
 	public:
-		value();
+		value() {}
+
 		template<typename T>
 		value(T t) : m_data(to_data(t)) { }
 		template<typename T>
@@ -48,6 +49,9 @@ namespace sqf::runtime
 		/// </summary>
 		/// <returns></returns>
 		std::shared_ptr<sqf::runtime::data> data() const { return m_data; }
+
+		std::string to_string_sqf() const { return m_data ? m_data->to_string_sqf() : std::string("nil"); }
+		std::string to_string() const { return m_data ? m_data->to_string() : std::string(); }
 
 		/// <summary>
 		/// Attempts to convert the data-member to the provided data type.

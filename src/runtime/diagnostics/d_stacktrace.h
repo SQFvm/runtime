@@ -51,7 +51,7 @@ namespace sqf
 			}
 		};
 
-		std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::diagnostics::stacktrace str)
+		inline std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::diagnostics::stacktrace str)
 		{
 			return std::make_shared<d_stacktrace>(str);
 		}

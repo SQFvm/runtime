@@ -12,7 +12,7 @@
 
 namespace sqf::parser::preprocessor
 {
-	class default : public ::sqf::runtime::parser::preprocessor, public CanLog
+	class default: public ::sqf::runtime::parser::preprocessor, public CanLog
 	{
 	public:
 		class preprocessorfileinfo
@@ -52,7 +52,7 @@ namespace sqf::parser::preprocessor
 				is_in_block_comment = false;
 			}
 			preprocessorfileinfo(::sqf::runtime::diagnostics::diag_info dinf)
-				: pathinf({ dinf.file, {} })
+				: pathinf(dinf.path)
 			{
 				last_col = 0;
 				is_in_string = false;
@@ -224,7 +224,7 @@ namespace sqf::parser::preprocessor
 				}
 			}
 
-			operator ::sqf::runtime::diagnostics::diag_info() const { return { line, col, off, pathinf.physical, {} }; }
+			operator ::sqf::runtime::diagnostics::diag_info() const { return { line, col, off, pathinf, {} }; }
 			operator ::sqf::runtime::fileio::pathinfo() const { return pathinf; }
 		};
 	private:
@@ -293,6 +293,7 @@ namespace sqf::parser::preprocessor
 			void pop_path(preprocessorfileinfo& preprocessorfileinfo);
 	public:
 		default(::Logger& logger);
+		virtual void push_back(::sqf::runtime::parser::macro m) override { m_macros[std::string(m.name())] = m; };
 		virtual ~default() override { }
 		virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) override;
 

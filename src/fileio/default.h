@@ -3,31 +3,42 @@
 #include <unordered_map>
 #include <filesystem>
 #include <string>
+#include <vector>
 
 namespace sqf::fileio
 {
-	class fileio_default : public sqf::runtime::fileio
+	class default : public sqf::runtime::fileio
 	{
 	private:
-		struct pathElement
+		struct path_element
 		{
-			std::unordered_map<std::string, pathElement> subPaths;
-			std::optional<std::filesystem::path> physicalPath;
+			std::unordered_map<std::string, path_element> next;
+			std::vector<std::filesystem::path> physical;
 		};
-		// Left -> Virtual
-		// Right -> Physical
-		std::unordered_map<std::string, pathElement> m_virtualphysicalmap;
-		std::vector<std::string> m_physicalboundaries;
-		std::vector<std::string> m_virtualpaths;
-		void add_path_mapping_internal(std::filesystem::path virt, std::filesystem::path phy);
+		path_element m_virtual_file_root;
+		using file_tree_iterator = std::unordered_map<std::string, path_element>::iterator;
+		void get_directories_recursive(std::vector<std::string>& paths, const path_element& el) const
+		{
+			for (auto& path : el.physical)
+			{
+				paths.push_back(path.string());
+			}
+			for (auto& next : el.next)
+			{
+				get_directories_recursive(paths, next.second);
+			}
+		}
 	public:
-		std::optional<sqf::runtime::fileio::pathinfo> resolve_virtual(std::string_view virtual_) const;
-		void add_allowed_physical(std::string_view physical) { m_physicalboundaries.push_back(std::string(physical)); }
-
 #pragma region sqf::runtime::fileio
 		virtual std::optional<sqf::runtime::fileio::pathinfo> get_info(std::string_view view, sqf::runtime::fileio::pathinfo current) const override;
-		virtual void add_mapping(std::string_view physical, std::string_view virtual_) override;
+		virtual void add_mapping(std::string_view viewPhysical, std::string_view viewVirtual) override;
 		virtual std::string read_file(sqf::runtime::fileio::pathinfo info) const override;
+		virtual std::vector<std::string> get_directories() const override
+		{
+			std::vector<std::string> paths;
+			get_directories_recursive(paths, m_virtual_file_root);
+			return paths;
+		}
 #pragma endregion
 
 	};

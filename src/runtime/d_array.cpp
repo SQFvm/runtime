@@ -75,11 +75,11 @@ bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, sqf::runtim
 	{
 		if (min == max)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), min, size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), min, size()));
 		}
 		else
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), min, max, size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), min, max, size()));
 		}
 		return false;
 	}
@@ -87,44 +87,12 @@ bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, sqf::runtim
 	{
 		if (!at(i).is(t))
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), i, t, at(i).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, t, at(i).data()->type()));
 			errflag = false;
 		}
 	}
 	return errflag;
 
-}
-
-bool sqf::types::d_array::recursion_test_helper(std::vector<std::shared_ptr<d_array>>& visited)
-{
-	for (auto& it : this->m_value)
-	{
-		if (it.is<d_array>())
-		{
-			// Get child
-			auto arr = it.data<d_array>();
-
-			// Check if child was visited already
-			if (std::find(visited.begin(), visited.end(), arr) != visited.end())
-			{
-				// Child already was visited, recursion test failed.
-				return false;
-			}
-
-			// Add child to visited list
-			visited.push_back(arr);
-
-			// Check child recursion
-			if (!arr->recursion_test_helper(visited))
-			{
-				return false;
-			}
-
-			// Remove child from visited list
-			visited.pop_back();
-		}
-	}
-	return true;
 }
 
 bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, const sqf::runtime::type* p_t, size_t min, size_t max) const
@@ -134,11 +102,11 @@ bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, const sqf::
 	{
 		if (min == max)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), min, size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), min, size()));
 		}
 		else
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), min, max, size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), min, max, size()));
 		}
 		return false;
 	}
@@ -146,7 +114,7 @@ bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, const sqf::
 	{
 		if (!at(i).is(p_t[i]))
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), i, p_t[i], at(i).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, p_t[i], at(i).data()->type()));
 			errflag = false;
 		}
 	}

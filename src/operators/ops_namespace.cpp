@@ -42,7 +42,7 @@ namespace
 		auto set = right.data<d_code, instruction_set>();
 
 		frame f(scope, set);
-		runtime.active_context().push_frame(f);
+		runtime.context_active().push_frame(f);
 		return {};
 	}
 	value getVariable_namespace_string(runtime& runtime, value::cref left, value::cref right)
@@ -58,12 +58,12 @@ namespace
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, r->size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, r->size()));
 			return {};
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
 			return {};
 		}
 
@@ -76,12 +76,12 @@ namespace
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, r->size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, r->size()));
 			return {};
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
 			return {};
 		}
 

@@ -15,9 +15,9 @@ namespace sqf::opcodes
 		assign_to(std::string value) : m_variable_name(value) {}
 		virtual void execute(sqf::runtime::runtime& vm) const override
 		{
-			auto& context = vm.active_context();
+			auto& context = vm.context_active();
 
-			auto value = vm.active_context().pop_value();
+			auto value = vm.context_active().pop_value();
 			if (!value.has_value() || value->is<sqf::types::t_nothing>())
 			{
 				if (context.weak_error_handling())
@@ -52,8 +52,8 @@ namespace sqf::opcodes
 		std::string_view variable_name() const { return m_variable_name; }
 
 		virtual std::optional<std::string> reconstruct(
-			std::vector<sqf::runtime::instruction::sptr>::const_iterator& current,
-			std::vector<sqf::runtime::instruction::sptr>::const_iterator end,
+			std::vector<sqf::runtime::instruction::sptr>::const_reverse_iterator& current,
+			std::vector<sqf::runtime::instruction::sptr>::const_reverse_iterator end,
 			short parent_precedence, bool left_from_binary) const override
 		{
 			if (++current == end)

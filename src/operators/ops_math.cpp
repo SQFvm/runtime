@@ -39,7 +39,7 @@ namespace
 		auto r = (right.data<d_scalar, float>());
 		if (r == 0)
 		{
-			runtime.__logmsg(err::ZeroDivisor((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ZeroDivisor((*runtime.context_active().current_frame().current())->diag_info()));
 			return 0;
 		}
 		return (left.data<d_scalar, float>()) / r;
@@ -166,23 +166,23 @@ namespace
 	{
 		return right;
 	}
-	float dotProduct(std::array<float, 3> left, std::array<float, 3> right)
+	float dotProduct(vec3 left, vec3 right)
 	{
-		return left[0] * right[0] + left[1] * right[1] + left[2] * right[2];
+		return left.x * right.x + left.y * right.y + left.z * right.z;
 	}
-	float vectorMagnitudeSqr(std::array<float, 3> arr)
+	float vectorMagnitudeSqr(vec3 arr)
 	{
-		return std::pow(arr[0], 2) + std::pow(arr[1], 2) + std::pow(arr[2], 2);
+		return std::pow(arr.x, 2) + std::pow(arr.y, 2) + std::pow(arr.z, 2);
 	}
-	float vectorMagnitude(std::array<float, 3> arr)
+	float vectorMagnitude(vec3 arr)
 	{
 		return std::sqrt(vectorMagnitudeSqr(arr));
 	}
-	float vectorDistanceSqr(std::array<float, 3> left, std::array<float, 3> right)
+	float vectorDistanceSqr(vec3 left, vec3 right)
 	{
-		return std::pow(left[0] - right[0], 2) + std::pow(left[1] - right[1], 2) + std::pow(left[2] - right[2], 2);
+		return std::pow(left.x - right.x, 2) + std::pow(left.y - right.y, 2) + std::pow(left.z - right.z, 2);
 	}
-	float vectorDistance(std::array<float, 3> left, std::array<float, 3> right)
+	float vectorDistance(vec3 left, vec3 right)
 	{
 		return std::sqrt(vectorDistanceSqr(left, right));
 	}

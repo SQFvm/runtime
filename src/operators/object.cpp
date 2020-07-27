@@ -118,7 +118,7 @@ void sqf::types::object::commander(std::shared_ptr<d_object> val)
 
 std::shared_ptr<sqf::types::object> sqf::types::object::create(::sqf::runtime::runtime& runtime, sqf::runtime::confighost::config config, bool is_vehicle)
 {
-    auto& storage = runtime.storage<::sqf::types::object, object_storage>();
+    auto& storage = runtime.storage<object_storage>();
     auto sp_obj = std::shared_ptr<object>(new object(config, is_vehicle));
     auto net_id = storage.push_back(sp_obj);
     sp_obj->m_netid = net_id;
@@ -127,7 +127,7 @@ std::shared_ptr<sqf::types::object> sqf::types::object::create(::sqf::runtime::r
 
 void sqf::types::object::destroy(::sqf::runtime::runtime& runtime)
 {
-    auto& storage = runtime.storage<::sqf::types::object, object_storage>();
+    auto& storage = runtime.storage<object_storage>();
     storage.erase(shared_from_this());
     if (m_group)
     {

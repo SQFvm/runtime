@@ -30,7 +30,7 @@
  *      to the `throw` operator.                         *
  ********************************************************/
  
- 
+diag_log str productVersion;
 diag_log format (["%1"] + productVersion);
 diag_log format (["v %3.%4 (%5)"] + productVersion);
 diag_log format (["%7 %8"] + productVersion);
@@ -135,8 +135,10 @@ diag_log format ["    %1", ___currentDirectory___];
 private ___sqf_test_dir = currentDirectory__ + "\" + "sqf";
 private ___preprocessor_test_dir = currentDirectory__ + "\" + "preprocess";
 {
-    if (_x select [0, count ___sqf_test_dir] == ___sqf_test_dir) then {
-        if (count _x > ___currentDirectoryLength___) then {
+    if (_x select [0, count ___sqf_test_dir] == ___sqf_test_dir) then
+	{
+        if (count _x > ___currentDirectoryLength___) then
+		{
             if (_x select [0, ___currentDirectoryLength___] == ___currentDirectory___) then
             {
                 {
@@ -222,8 +224,11 @@ private ___preprocessor_test_dir = currentDirectory__ + "\" + "preprocess";
                 };
             };
         };
-    } else {
-        if (_x select [0, count ___preprocessor_test_dir] == ___preprocessor_test_dir) then {
+    }
+	else
+	{
+        if (_x select [0, count ___preprocessor_test_dir] == ___preprocessor_test_dir) then
+		{
             {
                 private ___fpath___ = _x;
                 private ___code___ = { preprocess__ loadFile ___fpath___ };
@@ -251,14 +256,14 @@ private ___preprocessor_test_dir = currentDirectory__ + "\" + "preprocess";
 diag_log format ["%1 out of %2 tests passed.", testsPassed, testsIndex];
 {
     diag_log _x;
-} foreach ___failed___;
+} forEach ___failed___;
 if (fatalError) then
 {
     diag_log "FATALERROR occured during testing:";
     {
         diag_log _x;
-    } foreach ___exceptions___;
-    exitcode__ -1;
+    } forEach ___exceptions___;
+    exitCode__ -1;
 }
 else 
 {

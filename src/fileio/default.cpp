@@ -1,187 +1,134 @@
 #include "default.h"
+#include "../runtime/util.h"
+
+#include <algorithm>
+#include <filesystem>
+#include <sstream>
+#include <fstream>
 
 using namespace std::literals::string_literals;
 
-void sqf::fileio::fileio_default::add_path_mapping_internal(std::filesystem::path virt, std::filesystem::path phy)
+template<char delimiter>
+class StringDelimiter : public std::string
+{ };
+template<char delimiter>
+std::istream & operator>>(std::istream & is, StringDelimiter<delimiter>& output)
 {
-    std::vector<std::string> virtElements;
+    std::getline(is, output, delimiter);
+    return is;
+}
 
-    for (auto& el : virt)
-    { //Split path into elements
-        if (el.string().empty())
+inline bool file_exists(std::filesystem::path p)
+{
+    std::ifstream infile(p.string());
+    return infile.good();
+}
+
+std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::default::get_info(std::string_view viewVirtual, sqf::runtime::fileio::pathinfo current) const
+{
+    // Create & Cleanse stuff
+    auto virt = std::string(viewVirtual);
+    std::replace(virt.begin(), virt.end(), '\\', '/');
+    virt = std::string(sqf::runtime::util::trim(virt));
+    std::string virtFull = virt;
+
+    // Abort conditions
+    if (virt.empty()) { return {}; }
+
+    // Prepare local tree-node list
+    std::vector<const path_element*> nodes;
+    nodes.push_back(&m_virtual_file_root);
+
+    if (viewVirtual[0] != '/')
+    { // Navigate current virtual path if relative
+
+        // Iterate over the whole existing virtual path
+        if (!current.virtual_.empty())
         {
-            continue;
-        }
-        virtElements.emplace_back(el.string());
-    }
+            virtFull = current.virtual_ + "/" + virt;
 
-    auto found = m_virtualphysicalmap.find(virtElements[0]);
-    auto curIter = m_virtualphysicalmap.end();
-    bool first = true;
-    for (auto& it : virtElements)
-    {
-        if (first)
-        { // first element
-            first = false; // this is ugly. But comparing iterators doesn't work
-            curIter = m_virtualphysicalmap.find(it);
-            if (curIter == m_virtualphysicalmap.end())
-                curIter = m_virtualphysicalmap.insert({ it, pathElement{} }).first;
-            continue;
-        }
-        auto& curEl = curIter->second;
-        curIter = curEl.subPaths.find(it);
-        if (curIter == curEl.subPaths.end())
-            curIter = curEl.subPaths.insert({ it, pathElement{} }).first;
-    }
-
-    curIter->second.physicalPath = phy;
-}
-
-std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::fileio_default::resolve_virtual(std::string_view virtual_) const
-{
-    std::filesystem::path virt(virtual_);
-    std::vector<std::string> virtElements;
-
-    for (auto& el : virt)
-    { // Split path into elements
-        virtElements.emplace_back(el.string());
-    }
-
-    // We already know it's a global path. We don't want starting backslash
-    if (virtElements.front() == "\\" || virtElements.front() == "/")
-    {
-        virtElements.erase(virtElements.begin());
-    }
-
-    // In case we need to walk back upwards
-    std::vector<std::unordered_map<std::string, pathElement>::iterator> pathStack;
-
-    auto curIter = m_virtualphysicalmap.end();
-    bool first = true;
-    for (auto& it : virtElements)
-    {
-        if (first)
-        { // first element needs special handling as it comes directly from the map
-            first = false; // this is ugly. But comparing iterators doesn't work
-            curIter = m_virtualphysicalmap.find(it);
-            if (curIter == m_virtualphysicalmap.end())
-            { // if we didn't find the starting element, we won't find any of the next elements either
-                return {};
-            }
-            pathStack.emplace_back(curIter);
-            continue;
-        }
-        auto& curEl = curIter->second;
-        curIter = curEl.subPaths.find(it);
-        if (curIter == curEl.subPaths.end())
-        { // not found
-            break;
-        }
-        pathStack.emplace_back(curIter);
-    }
-
-    // Remove elements we resolved to get a list of leftovers
-    virtElements.erase(virtElements.begin(), virtElements.begin() + pathStack.size());
-
-
-    // walk up stack until we find a phys path.
-    while (!pathStack.back()->second.physicalPath) {
-        virtElements.emplace_back(pathStack.back()->first);
-        pathStack.pop_back();
-        if (pathStack.empty())
-        { // whole stack didn't have physical path
-            return {};
-        }
-    }
-
-    //build full path to file
-    auto mapping = pathStack.back();
-    auto curPath = *mapping->second.physicalPath;
-    for (auto& it : virtElements)
-    {
-        curPath = curPath / it;
-    }
-    sqf::runtime::fileio::pathinfo info(curPath.string(), mapping->first);
-    return info;
-}
-
-std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::fileio_default::get_info(std::string_view virt, sqf::runtime::fileio::pathinfo current) const
-{
-    if (virt.empty())
-    {
-        return {};
-    }
-    std::string virtMapping;
-    if (virt.front() != '\\' && virt.front() != '/') { // It's a local path
-    local_path:
-        auto parentDirectory = std::filesystem::path(current.physical).parent_path(); // Get parent of current file
-        auto wantedFile = (parentDirectory / virt).lexically_normal();
-
-        if (virt.find("..") != std::string::npos)
-        { // need to check against physical boundary
-            // #TODO implement this as a tree lookup
-            auto found = std::find_if(m_physicalboundaries.begin(), m_physicalboundaries.end(),
-                [search = wantedFile.string()](std::string_view it) -> bool
+            std::istringstream stream_virt(current.virtual_);
+            for (auto it = std::istream_iterator<StringDelimiter<'/'>>{ stream_virt }; it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it)
             {
-                return search.find(it) != std::string::npos;
-            });
-
-            if (found == m_physicalboundaries.end())
-            { // boundary violation
-                return {};
+                if (it->empty()) { /* skip empty */ continue; }
+                if (nodes.back()->next.find(*it) == nodes.back()->next.end()) { /* Dead-End. File Not Found. */ return {}; }
+                nodes.push_back(&(nodes.back()->next.at(*it)));
             }
         }
-
-        if (std::filesystem::exists(wantedFile))
-        {
-            auto absolute = std::filesystem::absolute(wantedFile);
-            sqf::runtime::fileio::pathinfo info(absolute.string(), current.virtual_.empty() ? ""s : (current.virtual_ + wantedFile.string()));
-            return info;
-        }
-
-        // file doesn't exist
-        return {};
     }
-    else 
-   { // global path
-        auto resolved = resolve_virtual(virt);
-        if (resolved)
+
+    // Explore further until we hit dead-end
+    {
+        std::istringstream stream_virt(virt);
+        auto it = std::istream_iterator<StringDelimiter<'/'>>{ stream_virt };
+        for (; it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it)
         {
-            if (resolved.has_value())
+            if (it->empty()) { /* skip empty */ continue; }
+            if (*it == ".."s && !nodes.empty())
             {
-                auto info = *resolved;
-                auto absolute = std::filesystem::absolute(info.physical);
-                info.physical = absolute.string();
-                return info;
+                // Move dir-up
+                nodes.pop_back();
             }
-            return {}; // file doesn't exist
+            else
+            {
+                if (nodes.back()->next.find(*it) == nodes.back()->next.end()) { /* Dead-End. */ break; }
+                nodes.push_back(&(nodes.back()->next.at(*it)));
+            }
         }
-        else
+
+        // Invalid path from our perspective. Return File-Not-Found.
+        if (nodes.empty()) { return {}; }
+
+        // Set virtual to remaining and ensure no further dir-up occur
+        virt.clear();
+        for (; it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it)
         {
-            goto local_path; // Handle normally
+            if (*it == ".."s) { /* skip dir-up */ continue; }
+            virt.append(*it);
+            virt.append("/");
         }
     }
+
+    // Check every physical path in current tree_element if the file exists
+    for (auto& phys : nodes.back()->physical)
+    {
+        std::filesystem::path p(phys);
+        p /= virt;
+        if (file_exists(p))
+        {
+            return { { p.string(), virtFull } };
+        }
+    }
+
+    // As we reached this, file-not-found
+    return {};
 }
 
-void sqf::fileio::fileio_default::add_mapping(std::string_view physical, std::string_view virtual_)
+void sqf::fileio::default::add_mapping(std::string_view viewPhysical, std::string_view viewVirtual)
 {
-    if (!virtual_.empty() && (virtual_.front() == '/' || virtual_.front() == '\\'))
+    // Create & Cleanse stuff
+    auto phys = std::string(viewPhysical);
+    std::replace(phys.begin(), phys.end(), '\\', '/');
+    auto path_phys = std::filesystem::path(phys);
+
+    auto virt = std::string(viewVirtual);
+    std::replace(virt.begin(), virt.end(), '\\', '/');
+
+    // Iterate over the whole virtual path and add missing elements to the file_tree
+    std::istringstream stream_virt(virt);
+    path_element* tree = &m_virtual_file_root;
+    for (auto it = std::istream_iterator<StringDelimiter<'/'>>{ stream_virt }; it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it)
     {
-        virtual_ = virtual_.substr(1);
+        if (it->empty()) { /* skip empty */ continue; }
+        tree = &(tree->next[*it]);
     }
-    if (!virtual_.empty() && (virtual_.back() == '/' || virtual_.back() == '\\'))
-    {
-        virtual_ = virtual_.substr(0, virtual_.length() - 1);
-    }
-    std::string s_physical(physical);
-    std::string s_virtual(virtual_);
-    m_physicalboundaries.push_back(s_physical);
-    m_virtualpaths.push_back(s_virtual);
-    add_path_mapping_internal(s_virtual, s_physical);
+
+    // Add physical path to final tree node
+    tree->physical.push_back(phys);
 }
 
-std::string sqf::fileio::fileio_default::read_file(sqf::runtime::fileio::pathinfo info) const
+std::string sqf::fileio::default::read_file(sqf::runtime::fileio::pathinfo info) const
 {
-    auto res = sqf::runtime::fileio::read_file(info.physical);
+    auto res = sqf::runtime::fileio::read_file_from_disk(info.physical);
     return *res;
 }

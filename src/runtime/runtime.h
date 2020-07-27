@@ -7,6 +7,7 @@
 #include "parser/config.h"
 #include "parser/sqf.h"
 #include "parser/preprocessor.h"
+#include "value_scope.h"
 #include "sqfop.h"
 
 #include <chrono>
@@ -22,6 +23,10 @@ namespace sqf::runtime
     public:
         enum class action
         {
+            // Invalid action
+            invalid,
+
+
             start,
             stop,
             abort,
@@ -48,8 +53,7 @@ namespace sqf::runtime
             halted_error,
             evaluating
         };
-
-        struct configuration
+        struct runtime_conf
         {
             /// <summary>
             /// Allows to set a maximum to VM runtime
@@ -77,7 +81,12 @@ namespace sqf::runtime
             bool disable_networking;
 
 
-            configuration() = default;
+            runtime_conf() :
+                max_runtime(std::chrono::milliseconds::zero()),
+                disable_sleep(false),
+                disable_networking(false),
+                enable_classname_check(true)
+            {}
         };
 
 #pragma region Runtime state handling
@@ -92,6 +101,7 @@ namespace sqf::runtime
     public:
         bool is_exit_requested() const { return m_is_exit_requested; }
         void exit(int exit_code) { m_exit_code = exit_code; m_is_exit_requested = true; }
+        std::optional<int> exit_code() const { return m_is_exit_requested ? m_exit_code : std::optional<int>(); }
         state runtime_state() const { return m_state; }
 
 #pragma endregion
@@ -101,19 +111,26 @@ namespace sqf::runtime
         std::vector<sqf::runtime::diagnostics::breakpoint> m_breakpoints;
         sqf::runtime::diagnostics::breakpoint m_last_breakpoint_hit;
     public:
+        using breakpoints_iterator = std::vector<sqf::runtime::diagnostics::breakpoint>::iterator;
         const std::vector<sqf::runtime::diagnostics::breakpoint>& breakpoints() const { return m_breakpoints; }
         std::vector<sqf::runtime::diagnostics::breakpoint>& breakpoints() { return m_breakpoints; }
+
+        breakpoints_iterator breakpoints_begin() { return m_breakpoints.begin(); }
+        breakpoints_iterator breakpoints_end() { return m_breakpoints.end(); }
+        void erase(breakpoints_iterator from, breakpoints_iterator to) { m_breakpoints.erase(from, to); }
+        void erase(breakpoints_iterator iterator) { m_breakpoints.erase(iterator); }
+        void push_back(sqf::runtime::diagnostics::breakpoint bp) { m_breakpoints.push_back(bp); }
 
         void breakpoint_hit(sqf::runtime::diagnostics::breakpoint breakpoint) { m_last_breakpoint_hit = breakpoint; m_is_halt_requested = true; }
 
 #pragma endregion
-#pragma region storage
+#pragma region Storage
 
     public:
         class datastorage
         {
         public:
-            virtual ~datastorage() = 0;
+            virtual ~datastorage() {};
         };
     private:
         std::unordered_map<std::type_index, std::unique_ptr<datastorage>> m_data_storage;
@@ -139,42 +156,45 @@ namespace sqf::runtime
         TStorage& storage() { return storage<TStorage, TStorage>(); }
 
 #pragma endregion
-#pragma region operators
+#pragma region Operators
 
     private:
         std::unordered_map<sqf::runtime::sqfop_binary::key, sqf::runtime::sqfop_binary> m_operators_binary;
-        std::unordered_map<std::string_view, std::vector<sqf::runtime::sqfop_binary::cwref>> m_operators_by_name_binary;
+        std::unordered_map<std::string, std::vector<sqf::runtime::sqfop_binary::cwref>> m_operators_by_name_binary;
 
         std::unordered_map<sqf::runtime::sqfop_unary::key, sqf::runtime::sqfop_unary> m_operators_unary;
-        std::unordered_map<std::string_view, std::vector<sqf::runtime::sqfop_unary::cwref>> m_operators_by_name_unary;
+        std::unordered_map<std::string, std::vector<sqf::runtime::sqfop_unary::cwref>> m_operators_by_name_unary;
 
         std::unordered_map<sqf::runtime::sqfop_nular::key, sqf::runtime::sqfop_nular> m_operators_nular;
     public:
         using sqfop_binary_iterator = std::unordered_map<sqf::runtime::sqfop_binary::key, sqf::runtime::sqfop_binary>::const_iterator;
+        using sqfop_unary_iterator = std::unordered_map<sqf::runtime::sqfop_unary::key, sqf::runtime::sqfop_unary>::const_iterator;
+        using sqfop_nular_iterator = std::unordered_map<sqf::runtime::sqfop_nular::key, sqf::runtime::sqfop_nular>::const_iterator;
+
         sqfop_binary_iterator sqfop_binary_begin() const { return m_operators_binary.begin(); }
         sqfop_binary_iterator sqfop_binary_end() const { return m_operators_binary.end(); }
         bool sqfop_exists(const sqf::runtime::sqfop_binary::key key) const { return m_operators_binary.find(key) != m_operators_binary.end(); }
         sqf::runtime::sqfop_binary::cref sqfop_at(const sqf::runtime::sqfop_binary::key key) const { return m_operators_binary.at(key); }
-        const std::vector<sqf::runtime::sqfop_binary::cwref>& sqfop_binary_by_name(const std::string_view key) const { return m_operators_by_name_binary.at(key); }
+        const std::vector<sqf::runtime::sqfop_binary::cwref>& sqfop_binary_by_name(const std::string key) const { return m_operators_by_name_binary.at(key); }
+        bool sqfop_exists_binary(const std::string key) const { return m_operators_by_name_binary.find(key) != m_operators_by_name_binary.end(); }
         void register_sqfop(sqf::runtime::sqfop_binary op)
         {
             m_operators_binary.insert({ op.get_key(), op });
-            m_operators_by_name_binary[op.name()].push_back(m_operators_binary[op.get_key()]);
+            m_operators_by_name_binary[std::string(op.name())].push_back(m_operators_binary[op.get_key()]);
         }
 
-        using sqfop_unary_iterator = std::unordered_map<sqf::runtime::sqfop_unary::key, sqf::runtime::sqfop_unary>::const_iterator;
         sqfop_unary_iterator sqfop_unary_begin() const { return m_operators_unary.begin(); }
         sqfop_unary_iterator sqfop_unary_end() const { return m_operators_unary.end(); }
         bool sqfop_exists(const sqf::runtime::sqfop_unary::key key) const { return m_operators_unary.find(key) != m_operators_unary.end(); }
         sqf::runtime::sqfop_unary::cref sqfop_at(const sqf::runtime::sqfop_unary::key key) const { return m_operators_unary.at(key); }
-        const std::vector<sqf::runtime::sqfop_unary::cwref>& sqfop_unary_by_name(const std::string_view key) const { return m_operators_by_name_unary.at(key); }
+        const std::vector<sqf::runtime::sqfop_unary::cwref>& sqfop_unary_by_name(const std::string key) const { return m_operators_by_name_unary.at(key); }
+        bool sqfop_exists_unary(const std::string key) const { return m_operators_by_name_unary.find(key) != m_operators_by_name_unary.end(); }
         void register_sqfop(sqf::runtime::sqfop_unary op)
         {
             m_operators_unary.insert({ op.get_key(), op });
-            m_operators_by_name_unary[op.name()].push_back(m_operators_unary[op.get_key()]);
+            m_operators_by_name_unary[std::string(op.name())].push_back(m_operators_unary[op.get_key()]);
         }
 
-        using sqfop_nular_iterator = std::unordered_map<sqf::runtime::sqfop_nular::key, sqf::runtime::sqfop_nular>::const_iterator;
         sqfop_nular_iterator sqfop_nular_begin() const { return m_operators_nular.begin(); }
         sqfop_nular_iterator sqfop_nular_end() const { return m_operators_nular.end(); }
         bool sqfop_exists(const sqf::runtime::sqfop_nular::key key) const { return m_operators_nular.find(key) != m_operators_nular.end(); }
@@ -200,7 +220,7 @@ namespace sqf::runtime
             }
             else
             {
-                auto& value_scope = m_namespaces[key];
+                auto& value_scope = m_namespaces[key] = std::make_shared<sqf::runtime::value_scope>();
                 value_scope->scope_name(key);
                 return value_scope;
             }
@@ -244,16 +264,33 @@ namespace sqf::runtime
             value evaluate_expression(std::string str, bool& success, bool request_halt = true);
 
 #pragma endregion
+#pragma region Runtime-Context Handling
+
+            private:
+                std::vector<std::shared_ptr<sqf::runtime::context>> m_contexts;
+                std::shared_ptr<sqf::runtime::context> m_context_active;
+
+            public:
+                using context_iterator = std::vector<std::shared_ptr<sqf::runtime::context>>::iterator;
+                sqf::runtime::context& context_active()
+                { 
+                    if (m_context_active) { return *m_context_active; }
+                    else if (m_contexts.empty()) { m_context_active = context_create().lock(); return *m_context_active; }
+                    else  { m_context_active = m_contexts.front(); return *m_context_active; }
+                };
+                std::shared_ptr<sqf::runtime::context> context_active_as_shared() const { return m_context_active; };
+                std::weak_ptr<context> context_create() { auto ptr = std::make_shared<context>(); m_contexts.push_back(ptr); return ptr; }
+                context_iterator context_begin() { return m_contexts.begin(); }
+                context_iterator context_end() { return m_contexts.end(); }
+
+#pragma endregion
 
 
 
     private:
-        configuration m_configuration;
+        runtime_conf m_configuration;
         std::chrono::system_clock::time_point m_runtime_timestamp;
         bool m_runtime_error;
-
-        std::vector<std::shared_ptr<sqf::runtime::context>> m_contexts;
-        std::shared_ptr<sqf::runtime::context> m_active_context;
 
         std::chrono::system_clock::time_point m_created_timestamp;
         std::chrono::system_clock::time_point m_current_time;
@@ -265,7 +302,7 @@ namespace sqf::runtime
         std::unique_ptr<sqf::runtime::parser::preprocessor> m_parser_preprocessor;
 
     public:
-        runtime(Logger& logger, configuration config) :
+        runtime(Logger& logger, runtime_conf config) :
             CanLog(logger),
             m_state(state::halted),
             m_exit_code(0),
@@ -278,15 +315,14 @@ namespace sqf::runtime
             m_parser_sqf(std::make_unique<sqf::parser::sqf::disabled>()),
             m_parser_config(std::make_unique<sqf::parser::config::disabled>()),
             m_parser_preprocessor(std::make_unique<sqf::parser::preprocessor::passthrough>()),
-            m_default_scope_key("default")
+            m_default_scope_key("default"),
+            m_evaluate_halt(false)
         {
         }
 
-        sqf::runtime::context& active_context() const { return *m_active_context; };
-        std::weak_ptr<context> create_context() { auto ptr = std::make_shared<context>(); m_contexts.push_back(ptr); return ptr; }
 
         sqf::runtime::runtime::result execute(sqf::runtime::runtime::action action);
-        const sqf::runtime::runtime::configuration configuration() const { return m_configuration; }
+        const sqf::runtime::runtime::runtime_conf configuration() const { return m_configuration; }
         std::chrono::system_clock::time_point runtime_timestamp() { return m_runtime_timestamp; }
         void runtime_timestamp_reset() { m_runtime_timestamp = std::chrono::system_clock::now(); }
 

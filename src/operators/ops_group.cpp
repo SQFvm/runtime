@@ -48,8 +48,8 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return "";
 		}
 		else
@@ -62,8 +62,8 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_array>();
 		}
 		else
@@ -76,8 +76,8 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_array>();
 		}
 		else if (grp->value()->empty())
@@ -86,7 +86,7 @@ namespace
 		}
 		else
 		{
-			runtime.__logmsg(logmessage::runtime::GroupNotEmpty((*runtime.active_context().current_frame().current())->diag_info(), grp->value()->group_id()));
+			runtime.__logmsg(logmessage::runtime::GroupNotEmpty((*runtime.context_active().current_frame().current())->diag_info(), grp->value()->group_id()));
 			return {};
 		}
 	}
@@ -100,8 +100,8 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningNil((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningNil((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		else
@@ -114,20 +114,20 @@ namespace
 		auto grp = left.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto leader = right.data<d_object>();
 		if (leader->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
 			return {};
 		}
 		auto grp_ = grp->value();
 		auto res = std::find(grp_->begin(), grp_->end(), leader->value());
 		if (res == grp_->end())
 		{
-			runtime.__logmsg(err::GroupLeaderNotPartOfGroup((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::GroupLeaderNotPartOfGroup((*runtime.context_active().current_frame().current())->diag_info()));
 		}
 		grp_->leader(leader);
 		return {};
@@ -137,8 +137,8 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_array>();
 		}
 		auto scope = std::static_pointer_cast<value_scope>(grp->value());
@@ -156,8 +156,8 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_array>();
 		}
 		auto scope = std::static_pointer_cast<value_scope>(grp->value());
@@ -170,20 +170,20 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_array>();
 		}
 		auto scope = std::static_pointer_cast<value_scope>(grp->value());
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, r->size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, r->size()));
 			return {};
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
 			return {};
 		}
 
@@ -194,20 +194,20 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
 			return std::make_shared<d_array>();
 		}
 		auto scope = std::static_pointer_cast<value_scope>(grp->value());
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, r->size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, r->size()));
 			return {};
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
 			return {};
 		}
 

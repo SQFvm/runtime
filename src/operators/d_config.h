@@ -49,7 +49,7 @@ namespace sqf
 			operator sqf::runtime::confighost::config() { return m_value; }
 		};
 
-		std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::confighost::config conf)
+		inline std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::confighost::config conf)
 		{
 			return std::make_shared<d_config>(conf);
 		}

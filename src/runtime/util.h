@@ -49,7 +49,7 @@ namespace sqf::runtime::util
 	inline std::string_view ltrim(std::string_view str, std::string_view chars = " \t")
 	{
 		size_t startpos = str.find_first_not_of(chars);
-		return str.substr(startpos);
+		return std::string_view::npos == startpos ? str : str.substr(startpos);
 	}
 
 	inline std::string_view rtrim(std::string_view str, std::string_view chars = " \t")

@@ -26,7 +26,7 @@ namespace sqf::opcodes
 			auto vec = std::vector<sqf::runtime::value>(m_array_size);
 			for (size_t i = m_array_size - 1; i != (size_t)~0; i--)
 			{
-				auto opt = vm.active_context().pop_value();
+				auto opt = vm.context_active().pop_value();
 				if (!opt.has_value())
 				{
 					vm.__logmsg(logmessage::runtime::StackCorruptionMissingValues(diag_info(), m_array_size, m_array_size - i));
@@ -37,14 +37,14 @@ namespace sqf::opcodes
 					vec[i] = *opt;
 				}
 			}
-			vm.active_context().push_value(std::make_shared<sqf::types::d_array>(vec));
+			vm.context_active().push_value(std::make_shared<sqf::types::d_array>(vec));
 		}
 		virtual std::string to_string() const override { return std::string("MAKEARRAY ") + std::to_string(m_array_size); }
 		size_t array_size() const { return m_array_size; }
 
 		virtual std::optional<std::string> reconstruct(
-			std::vector<sqf::runtime::instruction::sptr>::const_iterator& current,
-			std::vector<sqf::runtime::instruction::sptr>::const_iterator end,
+			std::vector<sqf::runtime::instruction::sptr>::const_reverse_iterator& current,
+			std::vector<sqf::runtime::instruction::sptr>::const_reverse_iterator end,
 			short parent_precedence, bool left_from_binary) const override
 		{
 			std::stringstream sstream;
@@ -56,8 +56,11 @@ namespace sqf::opcodes
 				{
 					return {};
 				}
-				auto exp = reconstruct(current, end, 0, false);
-				if (!exp.has_value()) { return {}; }
+				auto exp = (*current)->reconstruct(current, end, 0, false);
+				if (!exp.has_value())
+				{ 
+					return {};
+				}
 				strvec[i] = *exp;
 			}
 			for (auto it = strvec.rbegin(); it != strvec.rend(); it++)

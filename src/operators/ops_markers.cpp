@@ -33,108 +33,110 @@ namespace
 		auto name = right.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return "";
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
-		return marker.get_type_sqf();
+		return marker.get_type();
 	}
 	value getmarkersize_string(runtime& runtime, value::cref right)
 	{
 		auto name = right.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
-			runtime.__logmsg(err::ReturningDefaultArray((*runtime.active_context().current_frame().current())->diag_info(), 2));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::ReturningDefaultArray((*runtime.context_active().current_frame().current())->diag_info(), 2));
 			return std::array<value, 2> { 0, 0 };
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
-		return marker.get_size_sqf();
+		auto size = marker.get_size();
+		return std::make_shared<d_array>(size.begin(), size.end());
 	}
 	value getmarkercolor_string(runtime& runtime, value::cref right)
 	{
 		auto name = right.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return "";
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
-		return marker.get_color_sqf();
+		return marker.get_color();
 	}
 	value getmarkerpos_string(runtime& runtime, value::cref right)
 	{
 		auto name = right.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
-			runtime.__logmsg(err::ReturningDefaultArray((*runtime.active_context().current_frame().current())->diag_info(), 2));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::ReturningDefaultArray((*runtime.context_active().current_frame().current())->diag_info(), 2));
 			return std::array<value, 2> { 0, 0 };
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
-		return marker.get_pos_sqf();
+		auto pos = marker.get_pos();
+		return std::make_shared<d_array>(pos.begin(), pos.end());
 	}
 	value markerbrush_string(runtime& runtime, value::cref right)
 	{
 		auto name = right.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return "";
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
-		return marker.get_brush_sqf();
+		return marker.get_brush();
 	}
 	value markertext_string(runtime& runtime, value::cref right)
 	{
 		auto name = right.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return "";
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
-		return marker.get_text_sqf();
+		return marker.get_text();
 	}
 	value markerdir_string(runtime& runtime, value::cref right)
 	{
 		auto name = right.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
-			runtime.__logmsg(err::ReturningScalarZero((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::ReturningScalarZero((*runtime.context_active().current_frame().current())->diag_info()));
 			return 0;
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
-		return marker.get_direction_sqf();
+		return marker.get_direction();
 	}
 	value markershape_string(runtime& runtime, value::cref right)
 	{
 		auto name = right.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return "";
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
-		return marker.get_shape_sqf();
+		return marker.get_shape_string();
 	}
 	value markeralpha_string(runtime& runtime, value::cref right)
 	{
 		auto name = right.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return "";
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
-		return marker.get_alpha_sqf();
+		return marker.get_alpha();
 	}
 	value createmarker_array(runtime& runtime, value::cref right)
 	{
@@ -147,8 +149,8 @@ namespace
 			auto objdata = arr->at(1).data<d_object>();
 			if (objdata->is_null())
 			{
-				runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.active_context().current_frame().current())->diag_info()));
-				runtime.__logmsg(err::ReturningNil((*runtime.active_context().current_frame().current())->diag_info()));
+				runtime.__logmsg(err::ExpectedNonNullValueWeak((*runtime.context_active().current_frame().current())->diag_info()));
+				runtime.__logmsg(err::ReturningNil((*runtime.context_active().current_frame().current())->diag_info()));
 				return {};
 			}
 			auto obj = objdata->value();
@@ -176,8 +178,8 @@ namespace
 		}
 		if (runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerAlreadyExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.active_context().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::MarkerAlreadyExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return "";
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
@@ -189,7 +191,7 @@ namespace
 		auto name = right.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
 			return {};
 		}
 		runtime.storage<sqf::operators::markers_storage>().erase(name);
@@ -200,7 +202,7 @@ namespace
 		auto name= left.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
 			return {};
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
@@ -223,7 +225,7 @@ namespace
 		}
 		else
 		{
-			runtime.__logmsg(err::InvalidMarkershape((*runtime.active_context().current_frame().current())->diag_info(), shapename));
+			runtime.__logmsg(err::InvalidMarkershape((*runtime.context_active().current_frame().current())->diag_info(), shapename));
 		}
 		return {};
 	}
@@ -232,7 +234,7 @@ namespace
 		auto name = left.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
 			return {};
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
@@ -244,14 +246,14 @@ namespace
 			auto cfgMarkerBrushes = configBin.navigate(runtime.confighost(), "CfgMarkerBrushes");
 			if (!cfgMarkerBrushes.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgMarkerBrushes"));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgMarkerBrushes"));
 				return {};
 			}
 
 			auto brushConfig = cfgMarkerBrushes->navigate(runtime.confighost(), brushname);
 			if (!brushConfig.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgMarkerBrushes" }, brushname));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgMarkerBrushes" }, brushname));
 				return {};
 			}
 		}
@@ -263,7 +265,7 @@ namespace
 		auto name = left.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
 			return {};
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
@@ -280,7 +282,7 @@ namespace
 		auto name = left.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
 			return {};
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
@@ -292,14 +294,14 @@ namespace
 			auto cfgMarkers = configBin.navigate(runtime.confighost(), "CfgMarkers");
 			if (!cfgMarkers.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgMarkers"));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgMarkers"));
 				return {};
 			}
 
 			auto typeConfig = cfgMarkers->navigate(runtime.confighost(), tname);
 			if (!typeConfig.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgMarkers" }, tname));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgMarkers" }, tname));
 				return {};
 			}
 		}
@@ -311,7 +313,7 @@ namespace
 		auto name = left.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
 			return {};
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
@@ -324,7 +326,7 @@ namespace
 		auto name = left.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
 			return {};
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
@@ -337,7 +339,7 @@ namespace
 		auto name = left.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
 			return {};
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
@@ -349,14 +351,14 @@ namespace
 			auto cfgMarkerColors = configBin.navigate(runtime.confighost(), "CfgMarkerColors");
 			if (!cfgMarkerColors.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgMarkerColors"));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgMarkerColors"));
 				return {};
 			}
 
 			auto colorConfig = cfgMarkerColors->navigate(runtime.confighost(), colorname);
 			if (!colorConfig.has_value())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgMarkerColors" }, colorname));
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.context_active().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgMarkerColors" }, colorname));
 				return {};
 			}
 		}
@@ -368,7 +370,7 @@ namespace
 		auto name = left.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
 			return {};
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
@@ -385,7 +387,7 @@ namespace
 		auto name = left.data<d_string, std::string>();
 		if (!runtime.storage<sqf::operators::markers_storage>().exists(name))
 		{
-			runtime.__logmsg(err::MarkerNotExisting((*runtime.active_context().current_frame().current())->diag_info(), name));
+			runtime.__logmsg(err::MarkerNotExisting((*runtime.context_active().current_frame().current())->diag_info(), name));
 			return {};
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
