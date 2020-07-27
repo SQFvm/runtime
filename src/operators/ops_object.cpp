@@ -235,7 +235,7 @@ namespace
 		bool errflag = false;
 		for (size_t i = 0; i < arr->size(); i++)
 		{
-			if (!arr->at(i).is<d_object>())
+			if (!arr->at(i).is<t_object>())
 			{
 				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.active_context().current_frame().current())->diag_info(), i, t_object(), arr->at(i).data()->type()));
 				errflag = true;
@@ -690,93 +690,106 @@ namespace
 		}
 		return value(arr);
 	}
-	bool iskindof__helper(runtime& runtime, std::string left, std::string base, std::shared_ptr<d_config> config)
-	{
-		auto node = config->navigate(left).data<d_config>();
-		while (!node->is_null())
-		{
-			if (str_cmpi(node->name().c_str(), -1, base.c_str(), -1) == 0)
-			{
-				return true;
-			}
-			node = node->inherited_parent().data<d_config>();
-		}
-		return false;
-	}
 	value iskindof_object_string(runtime& runtime, value::cref left, value::cref right)
 	{
-		auto obj = right.data<d_object>();
+		auto obj = left.data<d_object>();
 		if (obj->is_null())
 		{
 			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.active_context().current_frame().current())->diag_info()));
 			return {};
 		}
-		auto str = left.data<d_string, std::string>();
-		return obj->value()->iskindof(str);
+		auto base_type_str = right.data<d_string, std::string>();
+		{
+			auto configBin = runtime.confighost().root();
+
+			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
+			if (!cfgVehicles.has_value())
+			{
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
+				return {};
+			}
+
+			auto opt = cfgVehicles->navigate(runtime.confighost(), base_type_str);
+			if (!opt.has_value())
+			{
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
+				return {};
+			}
+			else
+			{
+				return obj->value()->config().inherits_or_equal(runtime.confighost(), opt.value());
+			}
+		}
 	}
 	value iskindof_string_string(runtime& runtime, value::cref left, value::cref right)
 	{
-		auto confname = left.data<d_string, std::string>();
-		auto configbin = d_config::configFile().data<d_config>();
-		auto cfgVehicles = configbin->navigate("CfgVehicles").data<d_config>();
-		if (cfgVehicles->is_null())
+		auto test_type_str = left.data<d_string, std::string>();
+		auto base_type_str = right.data<d_string, std::string>();
 		{
-			return false;
-		}
-		auto node = cfgVehicles->navigate(confname).data<d_config>();
-		if (!node->is_null())
-		{
-			return node->is_kind_of(right.data<d_string, std::string>());
-		}
-		auto cfgAmmo = configbin->navigate("CfgAmmo").data<d_config>();
-		node = cfgAmmo->navigate(confname).data<d_config>();
-		if (!node->is_null())
-		{
-			return node->is_kind_of(right.data<d_string, std::string>());
-		}
-		auto cfgNonAiVehicles = configbin->navigate("CfgNonAiVehicles").data<d_config>();
-		node = cfgNonAiVehicles->navigate(confname).data<d_config>();
-		if (!node->is_null())
-		{
-			return node->is_kind_of(right.data<d_string, std::string>());
+			auto configBin = runtime.confighost().root();
+
+			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
+			if (!cfgVehicles.has_value())
+			{
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
+				return {};
+			}
+
+			auto test_opt = cfgVehicles->navigate(runtime.confighost(), test_type_str);
+			if (!test_opt.has_value())
+			{
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, test_type_str));
+				return {};
+			}
+
+			auto base_opt = cfgVehicles->navigate(runtime.confighost(), base_type_str);
+			if (!base_opt.has_value())
+			{
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
+				return {};
+			}
+			else
+			{
+				return test_opt.value().inherits_or_equal(runtime.confighost(), base_opt.value());
+			}
 		}
 		return false;
 	}
 	value iskindof_string_array(runtime& runtime, value::cref left, value::cref right)
 	{
-		auto classname = left.data<d_string, std::string>();
+		auto test_type_str = left.data<d_string, std::string>();
 		auto arr = right.data<d_array>();
 		if (!arr->check_type(runtime, std::array<sqf::runtime::type, 2>{ t_string(), t_config() }))
 		{
 			return {};
 		}
-		auto basename = arr->at(0).data<d_string, std::string>();
-		auto conf = arr->at(1).data<d_config, confighost::config>();
-		auto navtarget = conf.navigate(runtime.confighost(), classname);
-		if (!navtarget.has_value())
+		auto base_type_str = arr->at(0).data<d_string, std::string>();
+		auto base_conf = arr->at(1).data<d_config, confighost::config>();
+
 		{
-			// ToDo: Check if isKindOf really does not errors here
-			runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { conf->name() }, classname));
-			runtime.__logmsg(err::ReturningNil((*runtime.active_context().current_frame().current())->diag_info()));
-			return false;
+			auto test_opt = base_conf.navigate(runtime.confighost(), test_type_str);
+			if (!test_opt.has_value())
+			{
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, test_type_str));
+				return {};
+			}
+
+			auto base_opt = base_conf.navigate(runtime.confighost(), base_type_str);
+			if (!base_opt.has_value())
+			{
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
+				return {};
+			}
+			else
+			{
+				return test_opt.value().inherits_or_equal(runtime.confighost(), base_opt.value());
+			}
 		}
-		return navtarget->inherits_or_equal(runtime.confighost(), basename);
-		auto node = *navtarget;
-		if (node->is_null())
-		{
-			// ToDo: Check if isKindOf really does not errors here
-			runtime.__logmsg(err::ConfigEntryNotFoundWeak((*runtime.active_context().current_frame().current())->diag_info(), std::array<std::string, 2> { conf->name() }, classname));
-			runtime.__logmsg(err::ReturningNil((*runtime.active_context().current_frame().current())->diag_info()));
-			return false;
-		}
-		else
-		{
-			return node->is_kind_of(basename);
-		}
+		return false;
 	}
 	value player_(runtime& runtime)
 	{
-		return value(std::make_shared<d_object>(runtime.player_obj()));
+		return std::make_shared<d_object>(runtime.storage<object::object_storage>().player());
 	}
 
 	value setdamage_object_scalar(runtime& runtime, value::cref left, value::cref right)
@@ -1099,7 +1112,6 @@ namespace
 void sqf::operators::ops_object(sqf::runtime::runtime& runtime)
 {
 	using namespace sqf::runtime::sqfop;
-	runtime.default_value_scope(missionNamespace);
 
 	runtime.register_sqfop(unary("units", t_object(), "Returns an array with all the units in the group of the unit. For a destroyed object an empty array is returned.", units_object));
 	runtime.register_sqfop(nular("allUnits", "Return a list of all units (all persons except agents) outside and inside vehicles.", allunits_));
@@ -1148,8 +1160,8 @@ void sqf::operators::ops_object(sqf::runtime::runtime& runtime)
 		"This is the variable given in the Insert Unit dialog / name field, in the editor. It can be changed using setVehicleVarName.", vehiclevarname_object));
 	runtime.register_sqfop(binary(4, "setVehicleVarName", t_object(), t_string(), "Sets string representation of an object to a custom string. For example it is possible to return \"MyFerrari\" instead of default \"ce06b00# 164274: offroad_01_unarmed_f.p3d\" when querying object as string", setvehiclevarname_object_string));
 
-	runtime.register_sqfop(unary("allVariables", t_object(), "Returns a list of all variables from desired namespace.", allvariables_namespace));
-	runtime.register_sqfop(binary(4, "getVariable", t_object(), t_string(), "Return the value of variable in the variable space assigned to various data types. Returns nil if variable is undefined.", getVariable_namespace_string));
-	runtime.register_sqfop(binary(4, "getVariable", t_object(), t_array(), "Return the value of variable in the provided variable space. First element is expected to be the variable name as string. Returns second array item if variable is undefined.", getVariable_namespace_array));
-	runtime.register_sqfop(binary(4, "setVariable", t_object(), t_array(), "Sets a variable to given value in the provided variable space. First element is expected to be the variable name as string. Second element is expected to be anything.", setVariable_namespace_array));
+	runtime.register_sqfop(unary("allVariables", t_object(), "Returns a list of all variables from desired namespace.", allvariables_object));
+	runtime.register_sqfop(binary(4, "getVariable", t_object(), t_string(), "Return the value of variable in the variable space assigned to various data types. Returns nil if variable is undefined.", getVariable_object_string));
+	runtime.register_sqfop(binary(4, "getVariable", t_object(), t_array(), "Return the value of variable in the provided variable space. First element is expected to be the variable name as string. Returns second array item if variable is undefined.", getVariable_object_array));
+	runtime.register_sqfop(binary(4, "setVariable", t_object(), t_array(), "Sets a variable to given value in the provided variable space. First element is expected to be the variable name as string. Second element is expected to be anything.", setVariable_object_array));
 }
