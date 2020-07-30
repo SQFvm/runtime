@@ -3,9 +3,9 @@
 #include "instruction_set.h"
 #include "value_scope.h"
 
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 #include <iostream>
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 
 namespace sqf::runtime
@@ -80,6 +80,7 @@ namespace sqf::runtime
         bool m_bubble_variable;
         bool m_started;
     public:
+        static const size_t position_invalid = ~(size_t)0;
         frame() :
             frame({}, {}, {}, {}) {}
         frame(std::shared_ptr<sqf::runtime::value_scope> globals_scope, sqf::runtime::instruction_set instruction_set, std::shared_ptr<behavior> exit_behavior) :
@@ -92,7 +93,7 @@ namespace sqf::runtime
             std::shared_ptr<behavior> error_behavior)
             :
             m_instruction_set(instruction_set),
-            m_position(0),
+            m_position(position_invalid),
             m_exit_behavior(exit_behavior),
             m_error_behavior(error_behavior),
             m_globals_value_scope(globals_scope),
@@ -100,7 +101,7 @@ namespace sqf::runtime
             m_started(false)
         {}
 
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
         void dbg_str()
         {
@@ -113,7 +114,7 @@ namespace sqf::runtime
             std::cout << "}" << std::endl;
         }
 
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
         bool can_recover_runtime_error() { return m_error_behavior != nullptr; }
         result recover_runtime_error(runtime& runtime)
         {
@@ -121,20 +122,20 @@ namespace sqf::runtime
             switch (m_error_behavior->enact(runtime, *this))
             {
             case behavior::result::seek_end:
-                m_position = m_instruction_set.size();
+                seek(0, seekpos::end);
                 return result::done;
             case behavior::result::seek_start:
-                m_position = 0;
+                seek(0, seekpos::start);
                 return result::ok;
             case behavior::result::exchange:
                 m_instruction_set = m_error_behavior->get_instruction_set(*this);
                 m_position = 0;
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
-                std::cout << "[ASSEMBLY ASSERT]" <<
+                std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                     "    " << "    " << " " <<
                     "    " << "    " << " " <<
-                    "    " << "    " << "Loaded assembly " << "[";
+                    "    " << "    " << "\x1B[91mFrame\033[0m - Loaded assembly " << "[";
 
                 for (auto& it : m_instruction_set)
                 {
@@ -142,7 +143,7 @@ namespace sqf::runtime
                 }
                 std::cout << "]" << std::endl;
 
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                 return result::ok;
             case behavior::result::fail:
                 return result::error;
@@ -156,9 +157,25 @@ namespace sqf::runtime
             {
             case sqf::runtime::frame::seekpos::end:
                 m_position = m_instruction_set.size() + target;
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+
+                std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                    "    " << "    " << " " <<
+                    "    " << "    " << " " <<
+                    "    " << "    " << "\x1B[91mFrame\033[0m - Seek End" << std::endl;
+
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                 break;
             case sqf::runtime::frame::seekpos::start:
-                m_position = target;
+                m_position = target + position_invalid;
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+
+                std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                    "    " << "    " << " " <<
+                    "    " << "    " << " " <<
+                    "    " << "    " << "\x1B[91mFrame\033[0m - Seek Start" << std::endl;
+
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                 break;
             default:
                 break;
@@ -172,7 +189,7 @@ namespace sqf::runtime
         sqf::runtime::instruction_set::iterator peek() const { bool flag; return peek(flag); }
         sqf::runtime::instruction_set::iterator peek(bool& success) const
         {
-            auto pos = m_position == m_instruction_set.size() ? m_position : m_position + 1;
+            auto pos = m_position >= m_instruction_set.size() ? m_instruction_set.size() - 1 : m_position + 1;
             auto it = m_instruction_set.begin() + m_position;
             success = it != m_instruction_set.end();
             return it;
@@ -209,20 +226,20 @@ namespace sqf::runtime
                     switch (m_exit_behavior->enact(runtime, *this))
                     {
                     case behavior::result::seek_end:
-                        m_position = m_instruction_set.size();
+                        seek(0, seekpos::end);
                         return result::done;
                     case behavior::result::seek_start:
-                        m_position = 0;
+                        seek(0, seekpos::start);
                         return next();
                     case behavior::result::exchange:
                         m_instruction_set = m_exit_behavior->get_instruction_set(*this);
                         m_position = 0;
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
                         std::cout << "[ASSEMBLY ASSERT]" <<
                             "    " << "    " << " " <<
                             "    " << "    " << " " <<
-                            "    " << "    " << "Loaded assembly " << "[";
+                            "    " << "    " << "\x1B[91mFrame\033[0m - Loaded assembly " << "[";
 
                         for (auto& it : m_instruction_set)
                         {
@@ -230,7 +247,7 @@ namespace sqf::runtime
                         }
                         std::cout << "]" << std::endl;
 
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                         return next();
                     }
                 }
@@ -249,7 +266,7 @@ namespace sqf::runtime
         /// <returns>Enum value describing the success state of the operation.</returns>
         result previous()
         {
-            if (m_position == 0) { return result::done; }
+            if (m_position == position_invalid) { return result::done; }
             return --m_position == 0 ? result::done : result::ok;
         }
     };

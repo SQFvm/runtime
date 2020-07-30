@@ -5,11 +5,11 @@
 #include "../runtime/runtime.h"
 #include "../runtime/sqfop.h"
 
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 #include <iostream>
 
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 namespace sqf::opcodes
 {
@@ -33,15 +33,6 @@ namespace sqf::opcodes
             auto return_value = op.execute(vm);
 
             context.push_value(return_value);
-
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
-
-            std::cout << "[ASSEMBLY ASSERT]" <<
-                "    " << "    " << " " <<
-                "    " << "    " << " " <<
-                "    " << "    " << "Pushed Return Value " << return_value.to_string_sqf() << std::endl;
-
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
         }
         virtual std::string to_string() const override { return std::string("CALLNULAR ") + m_operator_name; }
         std::string_view operator_name() const { return m_operator_name; }

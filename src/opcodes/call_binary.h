@@ -7,12 +7,6 @@
 
 
 
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
-
-#include <iostream>
-
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
-
 namespace sqf::opcodes
 {
     class call_binary : public sqf::runtime::instruction
@@ -42,14 +36,6 @@ namespace sqf::opcodes
             }
 
 
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
-
-            std::cout << "[ASSEMBLY ASSERT]" <<
-                "    " << "    " << " " <<
-                "    " << "    " << " " <<
-                "    " << "    " << "Popped RValue " << right_value->to_string_sqf() << std::endl;
-
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
 
             auto left_value = vm.context_active().pop_value();
             if (!left_value.has_value() || left_value->is<sqf::types::t_nothing>())
@@ -64,15 +50,6 @@ namespace sqf::opcodes
                 }
                 return;
             }
-
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
-
-            std::cout << "[ASSEMBLY ASSERT]" <<
-                "    " << "    " << " " <<
-                "    " << "    " << " " <<
-                "    " << "    " << "Popped LValue " << left_value->to_string_sqf() << std::endl;
-
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
 
             auto tleft = left_value->operator sqf::runtime::type();
             auto tright = right_value->operator sqf::runtime::type();
@@ -104,15 +81,6 @@ namespace sqf::opcodes
             auto return_value = op.execute(vm, *left_value, *right_value);
 
             context.push_value(return_value);
-
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
-
-            std::cout << "[ASSEMBLY ASSERT]" <<
-                "    " << "    " << " " <<
-                "    " << "    " << " " <<
-                "    " << "    " << "Pushed Return Value " << return_value.to_string_sqf() << std::endl;
-
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
         }
         virtual std::string to_string() const override { return std::string("CALLBINARY ") + m_operator_name; }
         std::string_view operator_name() const { return m_operator_name; }

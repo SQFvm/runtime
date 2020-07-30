@@ -54,3 +54,22 @@ For Issues please use [this](https://github.com/SQFvm/vm/blob/master/ISSUE_TEMPL
 ### Wiki / Documentation
 
 WIP, for now please refer to the Discord.
+
+
+### Build Flags
+
+|----------------------------------------------|------------------------------------|--------------------------------------------------------------------------------------------------|
+| Macro Name                                   | Prefix stdout                      | Description                                                                                      |
+|----------------------------------------------|------------------------------------|--------------------------------------------------------------------------------------------------|
+| `DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE` | `\x1B[94m[ASSEMBLY ASSERT]\033[0m` | Enables enhanced debug output to console that allows diagnosing issues related to the execution. |
+| `DF__SQF_FILEIO__ALL_FILES`                  | `\x1B[94m[FILEIO-ALLFILES]\033[0m` | Outputs the files located of the `allFiles ARRAY` operation.                                     |
+|----------------------------------------------|------------------------------------|--------------------------------------------------------------------------------------------------|
+
+
+
+
+
+
+
+
+

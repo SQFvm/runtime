@@ -4,9 +4,9 @@
 
 #include <optional>
 
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 #include <iostream>
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, size_t exit_after)
 {
@@ -14,16 +14,69 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
     auto& runtime_error = runtime.__runtime_error();
     while (true)
     {
-        if (runtime.is_exit_requested()) { return sqf::runtime::runtime::result::ok; }
-        if (exit_after == 0) { return sqf::runtime::runtime::result::ok; }
-        if (context_active.suspended()) { return sqf::runtime::runtime::result::ok; }
-        if (context_active.empty()) { return sqf::runtime::runtime::result::ok; }
-        if (runtime.runtime_state() != sqf::runtime::runtime::state::running) { return sqf::runtime::runtime::result::ok; }
+        if (runtime.is_exit_requested())
+        {
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90mruntime.is_exit_requested() == true\033[0m" << std::endl;
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            return sqf::runtime::runtime::result::ok;
+        }
+        if (exit_after == 0)
+        {
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90mexit_after == 0\033[0m" << std::endl;
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            return sqf::runtime::runtime::result::ok;
+        }
+        if (context_active.suspended())
+        {
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90context_active.suspended() == true\033[0m" << std::endl;
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            return sqf::runtime::runtime::result::ok;
+        }
+        if (context_active.empty())
+        {
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90context_active.empty() == true\033[0m" << std::endl;
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            return sqf::runtime::runtime::result::ok;
+        }
+        if (runtime.runtime_state() != sqf::runtime::runtime::state::running)
+        {
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90runtime.runtime_state() != sqf::runtime::runtime::state::running\033[0m" << std::endl;
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            return sqf::runtime::runtime::result::ok;
+        }
 
-        auto& context = runtime.context_active();
 
-        auto frame_count = context.frames_size();
-        auto& frame = context.current_frame();
+        auto frame_count = context_active.frames_size();
+        auto& frame = context_active.current_frame();
+
+        auto result = frame.next(runtime);
+
+        if (result == sqf::runtime::frame::result::done && context_active.frames_size() == frame_count)
+        { // frame is done executing. Pop it from context and rerun.
+            context_active.pop_frame();
+            continue;
+        }
+
         auto instruction = frame.current();
         if (runtime.configuration().max_runtime != std::chrono::milliseconds::zero() &&
             runtime.configuration().max_runtime + runtime.runtime_timestamp() < std::chrono::system_clock::now())
@@ -41,7 +94,7 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
                 if (breakpoint.is_enabled() && breakpoint.line() == dinf.line && breakpoint.file() == dinf.path.physical)
                 {
                     runtime.breakpoint_hit(breakpoint);
-                    context.current_frame().previous(); // Unput instruction
+                    context_active.current_frame().previous(); // Unput instruction
                     return sqf::runtime::runtime::result::ok;
                 }
             }
@@ -52,17 +105,30 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
             exit_after--;
         }
 
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
-        
-        std::cout << "[ASSEMBLY ASSERT]" <<
-            "[FC:" << std::setw(3) << context.frames_size() << "]" <<
-            "[VC:" << std::setw(3) <<context.values_size() << "]" <<
-            "    " << (*instruction)->to_string() << std::endl <<
-            "[ASSEMBLY ASSERT]" << "        " << "        " << "    " << "    " << LogLocationInfo((*frame.current())->diag_info()).format() << std::endl;
+        {
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "[FC:" << std::setw(3) << context_active.frames_size() << "]" <<
+                "[VC:" << std::setw(3) << context_active.values_size() << "]" <<
+                "    " << (*instruction)->to_string() << std::endl;
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "    " << LogLocationInfo((*frame.current())->diag_info()).format() << std::endl;
+
+            size_t values_index = 0;
+            for (auto& it = context_active.values_begin(); context_active.values_end() != it; ++it)
+            {
+                std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                    "        " <<
+                    "        " <<
+                    "    " << "    " << std::setw(2) << values_index++ << ": " << (*it).to_string_sqf() << std::endl;
+            }
+        }
 
 
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 
         (*instruction)->execute(runtime);
@@ -71,24 +137,24 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
         {
             runtime_error = false;
             // Build Stacktrace
-            std::vector<sqf::runtime::frame> stacktrace_frames(context.frames_rbegin(), context.frames_rend());
+            std::vector<sqf::runtime::frame> stacktrace_frames(context_active.frames_rbegin(), context_active.frames_rend());
             sqf::runtime::diagnostics::stacktrace stacktrace(stacktrace_frames);
 
             // Try to find a frame that has recover behavior for runtime error
-            auto res = std::find_if(context.frames_rbegin(), context.frames_rend(),
+            auto res = std::find_if(context_active.frames_rbegin(), context_active.frames_rend(),
                 [](sqf::runtime::frame& frame) -> bool { return frame.can_recover_runtime_error(); });
 
-            if (res != context.frames_rend())
+            if (res != context_active.frames_rend())
             { // We found a recoverable frame
 
                 // Push Stacktrace to value-stack
-                context.push_value({ std::make_shared<sqf::types::d_stacktrace>(stacktrace) });
+                context_active.push_value({ std::make_shared<sqf::types::d_stacktrace>(stacktrace) });
 
                 // Pop all frames between result and current_frame
-                size_t frames_to_pop = res - context.frames_rbegin();
+                size_t frames_to_pop = res - context_active.frames_rbegin();
                 for (size_t i = 0; i < frames_to_pop; i++)
                 {
-                    context.pop_frame();
+                    context_active.pop_frame();
                 }
 
                 // Recover from exception
@@ -100,23 +166,6 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
                 runtime.__logmsg(logmessage::runtime::Stacktrace((*instruction)->diag_info(), stacktrace));
                 return sqf::runtime::runtime::result::runtime_error;
             }
-        }
-        auto result = frame.next(runtime);
-
-        if (result == sqf::runtime::frame::result::done && context.frames_size() == frame_count)
-        { // frame is done executing. Pop it from context and rerun.
-            context.pop_frame();
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
-
-
-            std::cout << "[ASSEMBLY ASSERT]" <<
-                "[FC:" << std::setw(3) << context.frames_size() << "]" <<
-                "[VC:" << std::setw(3) << context.values_size() << "]" <<
-                "    " << "POPPED FRAME" << std::endl;
-
-
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
-            continue;
         }
     }
     return sqf::runtime::runtime::result::ok;

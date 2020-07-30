@@ -29,6 +29,10 @@
 #include <cmath>
 #include <locale>
 
+#if defined(FLAG__SQF_FILEIO__ALL_FILES)
+#include <iostream>
+#endif
+
 namespace err = logmessage::runtime;
 using namespace sqf::runtime;
 using namespace sqf::types;
@@ -370,11 +374,18 @@ namespace
                         break;
                     }
                 }
+                auto str = i->path().string();
+                std::replace(str.begin(), str.end(), '\\', '/');
                 if (!skip)
                 {
-                    files.push_back(i->path().string());
+                    files.push_back(str);
                 }
-                // runtime.__logmsg(err::InfoMessage((*runtime.context_active().current_frame().current())->diag_info(), "DEBUG", i->path().string()));
+
+#ifdef FLAG__SQF_FILEIO__ALL_FILES
+                std::cout << "\x1B[94m[FILEIO-ALLFILES]\033[0m" << "    " << (skip ? "SKIPPED" : "PICKED ") << "    " << str << std::endl;
+#endif // FLAG__SQF_FILEIO__ALL_FILES
+
+                
             }
         }
         return files;

@@ -9,9 +9,9 @@
 #include <algorithm>
 #include <cctype>
 
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 #include <iostream>
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 
 namespace sqf::runtime
@@ -55,19 +55,64 @@ namespace sqf::runtime
         {
             m_frames.push_back(frame);
 
-#ifdef SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
-            std::cout << "[ASSEMBLY ASSERT]" <<
-                "    " << "    " << " " <<
-                "    " << "    " << " " <<
-                "    " << "    " << "Pushed Frame ";
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "[FC:" << std::setw(3) << frames_size() << "]" <<
+                "[VC:" << std::setw(3) << values_size() << "]" <<
+                "    " << "    " << "Pushed \x1B[91mFrame\033[0m ";
             m_frames.back().dbg_str();
             std::cout << std::endl;
-#endif // SQF_ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
         }
-        void push_value(sqf::runtime::value value) { m_values.push_back(value); }
-        sqf::runtime::frame&& pop_frame() { auto& frame = m_frames.back(); m_frames.pop_back(); return std::move(frame); }
-        std::optional<sqf::runtime::value> pop_value() { if (m_values.empty()) { return {}; } else { auto value = m_values.back(); m_values.pop_back(); return value; } }
+        void push_value(sqf::runtime::value value)
+        {
+            m_values.push_back(value);
+
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "[FC:" << std::setw(3) << frames_size() << "]" <<
+                "[VC:" << std::setw(3) << values_size() << "]" <<
+                "    " << "    " << "Pushed Return \x1B[92mValue\033[0m " << value.to_string_sqf() << std::endl;
+
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+        }
+        sqf::runtime::frame&& pop_frame()
+        {
+            auto& frame = m_frames.back();
+            m_frames.pop_back();
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "[FC:" << std::setw(3) << frames_size() << "]" <<
+                "[VC:" << std::setw(3) << values_size() << "]" <<
+                "    " << "    " << "Popped \x1B[91mFrame\033[0m" << std::endl;
+
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            return std::move(frame);
+        }
+        std::optional<sqf::runtime::value> pop_value()
+        {
+            if (m_values.empty())
+            {
+                return {};
+            }
+            else
+            {
+                auto value = m_values.back();
+                m_values.pop_back();
+#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+
+                std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                    "[FC:" << std::setw(3) << frames_size() << "]" <<
+                    "[VC:" << std::setw(3) << values_size() << "]" <<
+                    "    " << "    " << "Popped \x1B[92mValue\033[0m " << value.to_string_sqf() << std::endl;
+
+#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+                return value;
+            }
+        }
         sqf::runtime::value::cref peek_value() { if (m_values.empty()) { return {}; } else { return m_values.back(); } }
 
         std::vector<sqf::runtime::frame>::reverse_iterator frames_rbegin() { return m_frames.rbegin(); }
