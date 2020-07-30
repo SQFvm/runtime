@@ -12,7 +12,7 @@ if (MSVC)
 endif()
 
 # Add the filesystem library if we are building on Clang or GCC
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(ST_CXXFS_LIBS stdc++fs)
 endif()
 

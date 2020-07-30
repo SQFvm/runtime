@@ -1,0 +1,67 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  linux_x64:
+    name: Linux x64
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Linux x64
+        run: mkdir build && cd build && cmake .. && make
+        env:
+          CC: gcc-8
+          CXX: g++-8
+
+      - name: Upload Linux x64 binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: sqfvm_linux_x64
+          path: build/sqfvm*
+
+  macos:
+    name: macOS
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build macOS
+        run: mkdir build && cd build && cmake .. && make
+
+      - name: Upload macOS binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: sqfvm_macos
+          path: build/sqfvm*
+
+  windows_win32:
+    name: Windows Win32
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Windows Win32
+        run: mkdir build && cd build && cmake -G "Visual Studio 16 2019" -A Win32 .. && cmake --build . --config Release
+
+      - name: Upload Windows Win32 binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: sqfvm_windows_win32
+          path: build/Release/*.exe
+
+  windows_x64:
+    name: Windows x64
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Windows x64
+        run: mkdir build && cd build && cmake -G "Visual Studio 16 2019" -A x64 .. && cmake --build . --config Release
+
+      - name: Upload Windows x64 binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: sqfvm_windows_x64
+          path: build/Release/*.exe
