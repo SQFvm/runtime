@@ -183,7 +183,7 @@ namespace
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).type()));
 			return {};
 		}
 
@@ -207,7 +207,7 @@ namespace
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).type()));
 			return {};
 		}
 

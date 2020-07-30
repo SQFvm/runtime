@@ -35,7 +35,7 @@ namespace sqf
 			{
 				for (auto& it : m_value)
 				{
-					if (it.data()->type() == cexp_type())
+					if (it.type() == cexp_type())
 					{
 						// Get child
 						auto arr = it.data<sqf::types::d_array>();
@@ -108,7 +108,7 @@ namespace sqf
 				{
 					for (auto it : m_value)
 					{
-						sstream << it.data()->to_string_sqf() << ",";
+						sstream << it.to_string_sqf() << ",";
 					}
 					sstream.seekp(-1, std::ios_base::end);
 				}
@@ -123,7 +123,7 @@ namespace sqf
 				{
 					for (auto it : m_value)
 					{
-						sstream << it.data()->to_string() << ",";
+						sstream << it.to_string() << ",";
 					}
 					sstream.seekp(-1, std::ios_base::end);
 				}

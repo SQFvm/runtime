@@ -3,9 +3,9 @@
 #include "instruction_set.h"
 #include "value_scope.h"
 
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 #include <iostream>
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 
 namespace sqf::runtime
@@ -101,7 +101,7 @@ namespace sqf::runtime
             m_started(false)
         {}
 
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
         void dbg_str()
         {
@@ -114,7 +114,7 @@ namespace sqf::runtime
             std::cout << "}" << std::endl;
         }
 
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
         bool can_recover_runtime_error() { return m_error_behavior != nullptr; }
         result recover_runtime_error(runtime& runtime)
         {
@@ -130,7 +130,7 @@ namespace sqf::runtime
             case behavior::result::exchange:
                 m_instruction_set = m_error_behavior->get_instruction_set(*this);
                 m_position = 0;
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
                 std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                     "    " << "    " << " " <<
@@ -143,7 +143,7 @@ namespace sqf::runtime
                 }
                 std::cout << "]" << std::endl;
 
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                 return result::ok;
             case behavior::result::fail:
                 return result::error;
@@ -157,25 +157,25 @@ namespace sqf::runtime
             {
             case sqf::runtime::frame::seekpos::end:
                 m_position = m_instruction_set.size() + target;
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
                 std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                     "    " << "    " << " " <<
                     "    " << "    " << " " <<
                     "    " << "    " << "\x1B[91mFrame\033[0m - Seek End" << std::endl;
 
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                 break;
             case sqf::runtime::frame::seekpos::start:
                 m_position = target + position_invalid;
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
                 std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                     "    " << "    " << " " <<
                     "    " << "    " << " " <<
                     "    " << "    " << "\x1B[91mFrame\033[0m - Seek Start" << std::endl;
 
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                 break;
             default:
                 break;
@@ -234,7 +234,7 @@ namespace sqf::runtime
                     case behavior::result::exchange:
                         m_instruction_set = m_exit_behavior->get_instruction_set(*this);
                         m_position = 0;
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
                         std::cout << "[ASSEMBLY ASSERT]" <<
                             "    " << "    " << " " <<
@@ -247,7 +247,7 @@ namespace sqf::runtime
                         }
                         std::cout << "]" << std::endl;
 
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                         return next();
                     }
                 }

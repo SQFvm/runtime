@@ -4,9 +4,9 @@
 
 #include <optional>
 
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 #include <iostream>
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, size_t exit_after)
 {
@@ -16,52 +16,52 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
     {
         if (runtime.is_exit_requested())
         {
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                 "        " <<
                 "        " <<
                 "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90mruntime.is_exit_requested() == true\033[0m" << std::endl;
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             return sqf::runtime::runtime::result::ok;
         }
         if (exit_after == 0)
         {
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                 "        " <<
                 "        " <<
                 "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90mexit_after == 0\033[0m" << std::endl;
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             return sqf::runtime::runtime::result::ok;
         }
         if (context_active.suspended())
         {
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                 "        " <<
                 "        " <<
                 "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90context_active.suspended() == true\033[0m" << std::endl;
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             return sqf::runtime::runtime::result::ok;
         }
         if (context_active.empty())
         {
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                 "        " <<
                 "        " <<
                 "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90context_active.empty() == true\033[0m" << std::endl;
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             return sqf::runtime::runtime::result::ok;
         }
         if (runtime.runtime_state() != sqf::runtime::runtime::state::running)
         {
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                 "        " <<
                 "        " <<
                 "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90runtime.runtime_state() != sqf::runtime::runtime::state::running\033[0m" << std::endl;
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             return sqf::runtime::runtime::result::ok;
         }
 
@@ -105,7 +105,7 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
             exit_after--;
         }
 
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
         {
             std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
@@ -118,17 +118,66 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
                 "    " << "    " << LogLocationInfo((*frame.current())->diag_info()).format() << std::endl;
 
             size_t values_index = 0;
+            std::optional<size_t> nil_index = {};
             for (auto& it = context_active.values_begin(); context_active.values_end() != it; ++it)
             {
-                std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
-                    "        " <<
-                    "        " <<
-                    "    " << "    " << std::setw(2) << values_index++ << ": " << (*it).to_string_sqf() << std::endl;
+                auto sqf = (*it).to_string_sqf();
+                if (sqf == "nil")
+                {
+                    if (!nil_index.has_value())
+                    {
+                        nil_index = { values_index };
+                    }
+                    values_index++;
+                }
+                else
+                {
+                    if (nil_index.has_value())
+                    {
+                        if (*nil_index == values_index - 1)
+                        {
+                            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                                "        " <<
+                                "        " <<
+                                "    " << "    " << std::setw(2) << (values_index - 1) << ": nil" << std::endl;
+                        }
+                        else
+                        {
+                            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                                "        " <<
+                                "        " <<
+                                "    " << "    " << *nil_index << "-" << (values_index - 1) << ": nil" << std::endl;
+                        }
+                        nil_index = {};
+                    }
+                    std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                        "        " <<
+                        "        " <<
+                        "    " << "    " << std::setw(2) << values_index++ << ": " << sqf << std::endl;
+                }
+            }
+            if (nil_index.has_value())
+            {
+                if (*nil_index == values_index - 1)
+                {
+                    std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                        "        " <<
+                        "        " <<
+                        "    " << "    " << std::setw(2) << (values_index - 1) << ": nil" << std::endl;
+                }
+                else
+                {
+                    std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                        "        " <<
+                        "        " <<
+                        "    " << "    " << *nil_index << "-" << (values_index - 1) << ": nil" << std::endl;
+                }
+                nil_index = {};
             }
         }
 
 
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 
         (*instruction)->execute(runtime);
@@ -219,6 +268,12 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
                 m_state = state::empty;
             }
             m_run_atomic = false;
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36mREACHED EXIT FOR\033[0m \x1B[90maction::leave_scope\033[0m" << std::endl;
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
         }
         else
         {
@@ -231,45 +286,59 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             m_is_exit_requested = false;
             m_is_halt_requested = false;
             m_state = state::running;
-            for (auto iterator = m_contexts.begin(); iterator != m_contexts.end(); iterator++)
+            while (!m_contexts.empty())
             {
-                m_context_active = *iterator;
-                if (m_context_active->suspended())
+                for (auto iterator = m_contexts.begin(); iterator != m_contexts.end(); iterator++)
                 {
-                    if (m_context_active->wakeup_timestamp() <= std::chrono::system_clock::now())
+                    m_context_active = *iterator;
+                    if (m_context_active->suspended())
                     {
-                        m_context_active->unsuspend();
-                        res = execute_do(*this, 150);
+                        if (m_context_active->wakeup_timestamp() <= std::chrono::system_clock::now())
+                        {
+                            m_context_active->unsuspend();
+                            res = execute_do(*this, 150);
+                        }
+                        else
+                        {
+                            res = result::ok;
+                        }
                     }
                     else
                     {
-                        res = result::ok;
+                        res = execute_do(*this, 150);
                     }
-                }
-                else
-                {
-                    res = execute_do(*this, 150);
-                }
-                perform_evaluate();
-                switch (res)
-                {
-                case sqf::runtime::runtime::result::empty:
-                    m_contexts.erase(iterator);
-                    if (m_contexts.empty())
+                    if (m_is_exit_requested)
                     {
-                        m_context_active = {};
-                        break;
+                        m_contexts.clear();
+                        m_state = state::empty;
+                        goto start_loop_exit;
                     }
-                    iterator = m_contexts.begin();
-                    break;
-                case sqf::runtime::runtime::result::invalid:
-                case sqf::runtime::runtime::result::action_error:
-                case sqf::runtime::runtime::result::runtime_error:
-                    goto start_loop_exit;
+                    perform_evaluate();
+                    switch (res)
+                    {
+                    case sqf::runtime::runtime::result::empty:
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+                        std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                            "        " <<
+                            "        " <<
+                            "    " << "\x1B[36mERASE CONTEXT\033[0m \x1B[90" << ((*iterator)->name().empty() ? "<unnamed>" : (*iterator)->name().empty()) << "\033[0m" << std::endl;
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+                        m_contexts.erase(iterator);
+                        if (m_contexts.empty())
+                        {
+                            m_context_active = {};
+                            goto start_loop_exit;
+                        }
+                        iterator = m_contexts.begin();
+                        break;
+                    case sqf::runtime::runtime::result::invalid:
+                    case sqf::runtime::runtime::result::action_error:
+                    case sqf::runtime::runtime::result::runtime_error:
+                        goto start_loop_exit;
+                    }
                 }
             }
         start_loop_exit:
-
             switch (res)
             {
             case sqf::runtime::runtime::result::empty:
@@ -293,6 +362,12 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
                 m_state = state::empty;
             }
             m_run_atomic = false;
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36mREACHED EXIT FOR\033[0m \x1B[90maction::start\033[0m" << std::endl;
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
         }
         else
         {
@@ -329,6 +404,12 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
                 m_state = state::empty;
             }
             m_run_atomic = false;
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36mREACHED EXIT FOR\033[0m \x1B[90maction::assembly_step\033[0m" << std::endl;
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
         }
         else
         {
@@ -392,6 +473,12 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
                 m_state = state::empty;
             }
             m_run_atomic = false;
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36mREACHED EXIT FOR\033[0m \x1B[90maction::line_step\033[0m" << std::endl;
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
         }
         else
         {

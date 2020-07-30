@@ -93,7 +93,7 @@ namespace
 	}
 	value isequaltype_any_any(runtime& runtime, value::cref left, value::cref right)
 	{
-		return left.data()->type() == right.data()->type();
+		return left.type() == right.type();
 	}
 
 	value true_(runtime& runtime)

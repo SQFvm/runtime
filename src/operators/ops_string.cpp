@@ -48,7 +48,7 @@ namespace
 		}
 		if (!arr->at(0).is<t_scalar>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_scalar(), arr->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_scalar(), arr->at(0).type()));
 			return {};
 		}
 		int start = static_cast<int>(std::round(arr->at(0).data<d_scalar, float>()));
@@ -68,7 +68,7 @@ namespace
 		{
 			if (!arr->at(1).is<t_scalar>())
 			{
-				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_scalar(), arr->at(1).data()->type()));
+				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_scalar(), arr->at(1).type()));
 				return {};
 			}
 			int length = static_cast<int>(std::round(arr->at(1).data<d_scalar, float>()));
@@ -93,7 +93,7 @@ namespace
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 0, t_string(), r->at(0).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 0, t_string(), r->at(0).type()));
 			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
 			return ""s;
 		}
@@ -156,7 +156,7 @@ namespace
 			}
 			else
 			{
-				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, t_scalar(), val.data()->type()));
+				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, t_scalar(), val.type()));
 			}
 		}
 		return sstream.str();

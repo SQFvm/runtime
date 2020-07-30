@@ -52,6 +52,7 @@ namespace sqf::runtime
 
 		std::string to_string_sqf() const { return m_data ? m_data->to_string_sqf() : std::string("nil"); }
 		std::string to_string() const { return m_data ? m_data->to_string() : std::string(); }
+		sqf::runtime::type type() const { return m_data ? m_data->type() : sqf::types::t_nothing(); }
 
 		/// <summary>
 		/// Attempts to convert the data-member to the provided data type.

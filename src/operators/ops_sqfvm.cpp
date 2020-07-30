@@ -29,7 +29,7 @@
 #include <cmath>
 #include <locale>
 
-#if defined(FLAG__SQF_FILEIO__ALL_FILES)
+#if defined(DF__SQF_FILEIO__ALL_FILES)
 #include <iostream>
 #endif
 
@@ -381,9 +381,9 @@ namespace
                     files.push_back(str);
                 }
 
-#ifdef FLAG__SQF_FILEIO__ALL_FILES
+#ifdef DF__SQF_FILEIO__ALL_FILES
                 std::cout << "\x1B[94m[FILEIO-ALLFILES]\033[0m" << "    " << (skip ? "SKIPPED" : "PICKED ") << "    " << str << std::endl;
-#endif // FLAG__SQF_FILEIO__ALL_FILES
+#endif // DF__SQF_FILEIO__ALL_FILES
 
                 
             }
@@ -393,12 +393,16 @@ namespace
     value pwd___(runtime& runtime)
     {
         auto path = std::filesystem::path((*runtime.context_active().current_frame().current())->diag_info().path.physical);
-        return std::filesystem::absolute(path).string();
+        auto str = std::filesystem::absolute(path).string();
+        std::replace(str.begin(), str.end(), '\\', '/');
+        return str;
     }
     value currentDirectory___(runtime& runtime)
     {
         auto path = std::filesystem::path((*runtime.context_active().current_frame().current())->diag_info().path.physical);
-        return std::filesystem::absolute(path.parent_path()).string();
+        auto str = std::filesystem::absolute(path.parent_path()).string();
+        std::replace(str.begin(), str.end(), '\\', '/');
+        return str;
     }
     value trim___(runtime& runtime, value::cref right)
     {

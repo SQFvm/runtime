@@ -110,7 +110,7 @@ namespace
                     }
                     else
                     {
-                        runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->data()->type()));
+                        runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->type()));
                     }
                 }
                 else
@@ -157,7 +157,7 @@ namespace
     }
     value typename_any(runtime& runtime, value::cref right)
     {
-        return right.data()->type().to_string();
+        return right.type().to_string();
     }
     value str_any(runtime& runtime, value::cref right)
     {
@@ -190,7 +190,7 @@ namespace
         {
             if (!el1.is<t_code>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 1, t_code(), el1.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 1, t_code(), el1.type()));
             }
             if (el0.is<t_code>())
             {
@@ -199,7 +199,7 @@ namespace
             }
             else
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_code(), el0.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_code(), el0.type()));
                 return {};
             }
         }
@@ -207,7 +207,7 @@ namespace
         {
             if (!el0.is<t_code>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 0, t_code(), el0.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 0, t_code(), el0.type()));
             }
             if (el1.is<t_code>())
             {
@@ -216,7 +216,7 @@ namespace
             }
             else
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_code(), el1.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_code(), el1.type()));
                 return {};
             }
         }
@@ -275,7 +275,7 @@ namespace
                     }
                     else
                     {
-                        runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->data()->type()));
+                        runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->type()));
                     }
                 }
                 else if (m_count > 30000 && runtime.context_active().can_suspend())
@@ -345,7 +345,7 @@ namespace
                         }
                         else
                         {
-                            runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->data()->type()));
+                            runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->type()));
                         }
                     }
                     else
@@ -422,7 +422,7 @@ namespace
                 }
                 else
                 {
-                    runtime.__logmsg(logmessage::runtime::ForStepVariableTypeMissmatch((*frame.current())->diag_info(), m_for.variable(), t_scalar(), res.data()->type()));
+                    runtime.__logmsg(logmessage::runtime::ForStepVariableTypeMissmatch((*frame.current())->diag_info(), m_for.variable(), t_scalar(), res.type()));
                     return result::ok;
                 }
             };
@@ -526,7 +526,7 @@ namespace
         }
         if (!arr[0].is<t_scalar>())
         {
-            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_scalar(), arr[0].data()->type()));
+            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_scalar(), arr[0].type()));
             return {};
         }
         int start = static_cast<int>(std::round(arr[0].data<d_scalar, float>()));
@@ -546,7 +546,7 @@ namespace
         {
             if (!arr[1].is<t_scalar>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_scalar(), arr[1].data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_scalar(), arr[1].type()));
                 return {};
             }
             int length = static_cast<int>(std::round(arr[1].data<d_scalar, float>()));
@@ -588,7 +588,7 @@ namespace
                     }
                     else
                     {
-                        runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->data()->type()));
+                        runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->type()));
                     }
                 }
                 else
@@ -633,7 +633,7 @@ namespace
 
         // Check element types
         //#TODO d_array::front
-        auto type = (*arr)[0].data()->type();
+        auto type = (*arr)[0].type();
         if (type != t_string() && type != t_scalar() && type != t_array())
         {
             runtime.__logmsg(err::ExpectedArrayTypeMissmatch(
@@ -648,7 +648,7 @@ namespace
         {
             auto subarray = (*arr)[0].data<d_array>()->value();
             std::vector<sqf::runtime::type> types;
-            std::transform(subarray.begin(), subarray.end(), std::back_inserter(types), [](const auto& elem) { return elem.data()->type(); });
+            std::transform(subarray.begin(), subarray.end(), std::back_inserter(types), [](const auto& elem) { return elem.type(); });
             for (const auto& elem : *arr)
             {
                 if (!d_array{ elem.data<d_array>()->value() }.check_type(runtime, types))
@@ -795,7 +795,7 @@ namespace
                     }
                     else
                     {
-                        runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->data()->type()));
+                        runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->type()));
                     }
                 }
                 else
@@ -848,7 +848,7 @@ namespace
             auto it = arr[i];
             if (!it.is<t_string>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, t_string(), it.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, t_string(), it.type()));
                 errflag = true;
             }
         }
@@ -947,7 +947,7 @@ namespace
         auto valswtch = runtime.context_active().get_variable(d_switch::magic);
         if (!valswtch.has_value() || !valswtch->is<t_switch>())
         {
-            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->data()->type()));
+            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->type()));
             return {};
         }
         auto swtch = valswtch->data<d_switch>();
@@ -963,7 +963,7 @@ namespace
         auto valswtch = runtime.context_active().get_variable(d_switch::magic);
         if (!valswtch.has_value() || !valswtch->is<t_switch>())
         {
-            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->data()->type()));
+            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->type()));
             return {};
         }
         auto swtch = valswtch->data<d_switch>();
@@ -978,7 +978,7 @@ namespace
         auto valswtch = runtime.context_active().get_variable(d_switch::magic);
         if (!valswtch.has_value() || !valswtch->is<t_switch>())
         {
-            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->data()->type()));
+            runtime.__logmsg(err::MagicVariableTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), d_switch::magic, t_switch(), valswtch->type()));
             return {};
         }
         auto swtch = valswtch->data<d_switch>();
@@ -1095,7 +1095,7 @@ namespace
         }
         if (!params[0].is<t_scalar>())
         {
-            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_scalar(), params[0].data()->type()));
+            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_scalar(), params[0].type()));
             return {};
         }
 
@@ -1235,7 +1235,7 @@ namespace
                 {
                     max = 0;
                 }
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 2>{t_scalar(), t_boolean()}, tmp.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 2>{t_scalar(), t_boolean()}, tmp.type()));
             }
         }
         return max;
@@ -1267,7 +1267,7 @@ namespace
                 {
                     min = 0;
                 }
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 2>{t_scalar(), t_boolean()}, tmp.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 2>{t_scalar(), t_boolean()}, tmp.type()));
             }
         }
         return min;
@@ -1375,12 +1375,12 @@ namespace
         }
         if (!rvec->at(0).is<t_string>())
         {
-            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_string(), rvec->at(0).data()->type()));
+            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_string(), rvec->at(0).type()));
             return {};
         }
         if (!rvec->at(1).is<t_array>())
         {
-            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_string(), rvec->at(1).data()->type()));
+            runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_string(), rvec->at(1).type()));
             return {};
         }
 
@@ -1402,7 +1402,7 @@ namespace
             }
             else
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 4> {t_boolean(), t_string(), t_scalar(), t_array()}, at.data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 4> {t_boolean(), t_string(), t_scalar(), t_array()}, at.type()));
                 runtime.__logmsg(err::ReturningErrorCode((*runtime.context_active().current_frame().current())->diag_info(), "SYNTAX_ERROR_WRONG_PARAMS_TYPE(102)"sv));
                 return std::vector<value>{ "", 0, 102 };
             }
@@ -1462,7 +1462,7 @@ namespace
             // validation step
             if (params_descriptors.size() >= 1 && !params_descriptors.at(0).is<t_scalar>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_scalar(), params_descriptors.at(0).data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_scalar(), params_descriptors.at(0).type()));
                 return {};
             }
             else
@@ -1471,12 +1471,12 @@ namespace
             }
             if (params_descriptors.size() >= 3 && !params_descriptors.at(2).is<t_array>())
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_array(), params_descriptors.at(2).data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_array(), params_descriptors.at(2).type()));
                 return {};
             }
             if (params_descriptors.size() >= 4 && (!params_descriptors.at(3).is<t_array>() && !params_descriptors.at(3).is<t_scalar>()))
             {
-                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, std::array<type, 2> { t_array(), t_scalar() }, params_descriptors.at(3).data()->type()));
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, std::array<type, 2> { t_array(), t_scalar() }, params_descriptors.at(3).type()));
                 return {};
             }
             else if (params_descriptors.size() >= 4 && !params_descriptors.at(3).is<t_array>())
@@ -1487,7 +1487,7 @@ namespace
                 {
                     if (!tmp->at(j).is<t_scalar>())
                     {
-                        runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 2> { 3, j }, t_scalar(), tmp->at(j).data()->type()));
+                        runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 2> { 3, j }, t_scalar(), tmp->at(j).type()));
                         flag = true;
                         continue;
                     }
@@ -1505,7 +1505,7 @@ namespace
                 {
                     auto tmp = params_descriptors.at(2).data<d_array>();
 
-                    auto found = std::find_if(tmp->begin(), tmp->end(), [type = current_input_value.data()->type()](value::cref val) {
+                    auto found = std::find_if(tmp->begin(), tmp->end(), [type = current_input_value.type()](value::cref val) {
                         return val.is(type);
                     });
 
@@ -1516,9 +1516,9 @@ namespace
                         std::vector<type> types;
                         for (const auto& it : *tmp)
                         {
-                            types.push_back(it.data()->type());
+                            types.push_back(it.type());
                         }
-                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
+                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.type()));
                         return params_descriptors.at(1);
                     }
                 }
@@ -1529,7 +1529,7 @@ namespace
 
                     if (params_descriptors.at(2).is<t_array>())
                     {// Check available datatypes
-                        auto found = std::find_if(tmp->begin(), tmp->end(), [type = current_input_value.data()->type()](value::cref val) {
+                        auto found = std::find_if(tmp->begin(), tmp->end(), [type = current_input_value.type()](value::cref val) {
                             return val.is(type);
                         });
                         flag = found != tmp->end();
@@ -1543,9 +1543,9 @@ namespace
                         std::vector<type> types;
                         for (const auto& it : *tmp)
                         {
-                            types.push_back(it.data()->type());
+                            types.push_back(it.type());
                         }
-                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
+                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.type()));
                         return params_descriptors.at(1);
                     }
                 }
@@ -1600,18 +1600,18 @@ namespace
                 }
                 else
                 { // Non-Valid value
-                    runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 2> { t_string(), t_array() }, fel.data()->type()));
+                    runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, std::array<type, 2> { t_string(), t_array() }, fel.type()));
                 }
                 continue;
             }
             if (params_descriptors.size() >= 3 && !params_descriptors.at(2).is<t_array>())
             {
-                runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 2> { i, 2 }, t_array(), params_descriptors.at(2).data()->type()));
+                runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 2> { i, 2 }, t_array(), params_descriptors.at(2).type()));
                 continue;
             }
             if (params_descriptors.size() >= 4 && (!params_descriptors.at(3).is<t_array>() && !params_descriptors.at(3).is<t_scalar>()))
             {
-                runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 2> { i, 3 }, std::array<type, 2> { t_scalar(), t_array() }, params_descriptors.at(2).data()->type()));
+                runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 2> { i, 3 }, std::array<type, 2> { t_scalar(), t_array() }, params_descriptors.at(2).type()));
                 continue;
             }
             else if (params_descriptors.size() >= 4 && params_descriptors.at(3).is<t_array>())
@@ -1622,7 +1622,7 @@ namespace
                 {
                     if (!tmp->at(j).is<t_scalar>())
                     {
-                        runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 3> { i, 3, j }, t_scalar(), tmp->at(j).data()->type()));
+                        runtime.__logmsg(err::ExpectedSubArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), std::array<size_t, 3> { i, 3, j }, t_scalar(), tmp->at(j).type()));
                         flag = true;
                         continue;
                     }
@@ -1640,7 +1640,7 @@ namespace
                 {
                     auto tmp = params_descriptors.at(2).data<d_array>();
 
-                    auto found = std::find_if(tmp->begin(), tmp->end(), [type = current_input_value.data()->type()](value::cref val) {
+                    auto found = std::find_if(tmp->begin(), tmp->end(), [type = current_input_value.type()](value::cref val) {
                         return val.is(type);
                     });
 
@@ -1651,9 +1651,9 @@ namespace
                         std::vector<type> types;
                         for (const auto& it : *tmp)
                         {
-                            types.push_back(it.data()->type());
+                            types.push_back(it.type());
                         }
-                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
+                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.type()));
                         return params_descriptors.at(1);
                     }
                 }
@@ -1663,7 +1663,7 @@ namespace
                     auto tmp = params_descriptors.at(2).data<d_array>();
                     if (params_descriptors.at(2).is<t_array>())
                     {
-                        auto found = std::find_if(tmp->begin(), tmp->end(), [type = current_input_value.data()->type()](value::cref val) {
+                        auto found = std::find_if(tmp->begin(), tmp->end(), [type = current_input_value.type()](value::cref val) {
                             return val.is(type);
                         });
 
@@ -1678,9 +1678,9 @@ namespace
                         std::vector<type> types;
                         for (const auto& it : *tmp)
                         {
-                            types.push_back(it.data()->type());
+                            types.push_back(it.type());
                         }
-                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.data()->type()));
+                        runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), i, types, current_input_value.type()));
                         return params_descriptors.at(1);
                     }
                 }

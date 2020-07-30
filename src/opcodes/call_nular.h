@@ -5,11 +5,11 @@
 #include "../runtime/runtime.h"
 #include "../runtime/sqfop.h"
 
-#ifdef FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 #include <iostream>
 
-#endif // FLAG__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 namespace sqf::opcodes
 {

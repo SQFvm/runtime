@@ -87,7 +87,7 @@ bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, sqf::runtim
 	{
 		if (!at(i).is(t))
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, t, at(i).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, t, at(i).type()));
 			errflag = false;
 		}
 	}
@@ -114,7 +114,7 @@ bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, const sqf::
 	{
 		if (!at(i).is(p_t[i]))
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, p_t[i], at(i).data()->type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, p_t[i], at(i).type()));
 			errflag = false;
 		}
 	}

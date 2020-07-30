@@ -879,7 +879,7 @@ int main(int argc, char** argv)
                 auto val = runtime.context_active().pop_value();
                 if (val.has_value() && val->data())
                 {
-                    std::cout << "[WORK]\t<" << val->data()->type().to_string() << ">\t" << val->data()->to_string_sqf() << std::endl;
+                    std::cout << "[WORK]\t<" << val->type().to_string() << ">\t" << val->data()->to_string_sqf() << std::endl;
                 }
                 else
                 {

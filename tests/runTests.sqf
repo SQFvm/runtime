@@ -42,14 +42,14 @@ fatalError = false;
 
 test_fnc_testPassed = {
     params ["___name___", "___desc___", "___index___"];
-    systemChat format ["Test  Passed  '%1' - %2", ___name___, ___index___ + 1];
+    diag_log format ["Test  Passed  '%1' - %2", ___name___, ___index___ + 1];
     testsPassed = testsPassed + 1;
 };
 
 test_fnc_testFailed = {
     params ["___name___", "___desc___", "___index___"];
     private _msg1 = format ["Test !FAILED! '%1' - %2  %3", ___name___, ___index___ + 1, trim__ ___desc___];
-    systemChat _msg1;
+    diag_log _msg1;
     ___failed___ pushBack _msg1;
     testsFailed = testsFailed + 1;
 };
@@ -132,8 +132,8 @@ private ___failed___ = [];
 diag_log "Loading tests from:";
 diag_log format ["    %1", ___currentDirectory___];
 
-private ___sqf_test_dir = currentDirectory__ + "\" + "sqf";
-private ___preprocessor_test_dir = currentDirectory__ + "\" + "preprocess";
+private ___sqf_test_dir = currentDirectory__ + "/" + "sqf";
+private ___preprocessor_test_dir = currentDirectory__ + "/" + "preprocess";
 {
     if (_x select [0, count ___sqf_test_dir] == ___sqf_test_dir) then
 	{
@@ -233,10 +233,10 @@ private ___preprocessor_test_dir = currentDirectory__ + "\" + "preprocess";
                 private ___fpath___ = _x;
                 private ___code___ = { preprocess__ loadFile ___fpath___ };
                 private ___expected___ = loadFile ((_x select [0, count _x - 3]) + "txt");
-                systemChat ___fpath___;
-                systemChat ((_x select [0, count _x - 3]) + "txt");
-                systemChat preprocess__ loadFile ___fpath___;
-                systemChat loadFile ((_x select [0, count _x - 3]) + "txt");
+                diag_log ___fpath___;
+                diag_log ((_x select [0, count _x - 3]) + "txt");
+                diag_log preprocess__ loadFile ___fpath___;
+                diag_log loadFile ((_x select [0, count _x - 3]) + "txt");
                 
                 private ___name___ = _x select [___currentDirectoryLength___];
                 private ___tests___ = call compile preprocessFileLineNumbers _x;

@@ -108,7 +108,6 @@ namespace sqf
 	{
 
 		struct t_nothing : public sqf::runtime::type::extend<t_nothing> { t_nothing() : extend() {} static const std::string name() { return "NOTHING"; } };
-
 		struct t_any : public sqf::runtime::type::extend<t_any> { t_any() : extend() {} static const std::string name() { return "ANY"; } };
 		struct t_nan : public sqf::runtime::type::extend<t_nan> { t_nan() : extend() {} static const std::string name() { return "NaN"; } };
 		struct t_vector : public sqf::runtime::type::extend<t_vector> { t_vector() : extend() {} static const std::string name() { return "VECTOR"; } };

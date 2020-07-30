@@ -229,7 +229,7 @@ namespace
 					}
 					else
 					{
-						runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->data()->type()));
+						runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->type()));
 					}
 				}
 				else
@@ -292,7 +292,7 @@ namespace
 					}
 					else
 					{
-						runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->data()->type()));
+						runtime.__logmsg(logmessage::runtime::TypeMissmatch((*frame.current())->diag_info(), t_boolean(), res->type()));
 					}
 				}
 				else
