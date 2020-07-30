@@ -33,11 +33,11 @@ namespace sqf
 
 			std::string to_string_sqf() const override
 			{
-				return "\"STACKTRACE\"";
+				return "'" + m_value.to_string() + "'";
 			}
 			std::string to_string() const override
 			{
-				return "STACKTRACE";
+				return m_value.to_string();
 			}
 
 			sqf::runtime::type type() const override { return cexp_type(); }

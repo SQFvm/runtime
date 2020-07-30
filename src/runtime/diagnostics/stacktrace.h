@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 
 namespace sqf::runtime::diagnostics
 {
@@ -12,5 +13,7 @@ namespace sqf::runtime::diagnostics
 
 		stacktrace() {}
 		stacktrace(std::vector<sqf::runtime::frame> f) : frames(f) {}
+
+		std::string to_string() const;
 	};
 }

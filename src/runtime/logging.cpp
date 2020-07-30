@@ -1004,17 +1004,8 @@ namespace logmessage::runtime
 	std::string Stacktrace::formatMessage() const
 	{
 		std::stringstream sstream;
-		sstream << location.format()  << "Stacktrace:" << std::endl;
+		sstream << location.format()  << "Stacktrace:" << m_stacktrace.to_string() << std::endl;
 		int i = 0;
-		for (auto& frame : m_stacktrace.frames)
-		{
-			sstream <<
-				"<" << std::setw(3) << ++i << " of " << m_stacktrace.frames.size() << "> " <<
-				LogLocationInfo((*frame.current())->diag_info()).format() <<
-				"[" << (frame.globals_value_scope()->scope_name().empty() ? "SCOPENAME-NA" : frame.globals_value_scope()->scope_name()) << "] " <<
-				"[" << (frame.scope_name().empty() ? "SCOPENAME-EMPTY" : frame.scope_name()) << "]" << std::endl <<
-				(*frame.current())->diag_info().code_segment << std::endl;
-		}
 		return sstream.str();
 	}
 	std::string MaximumRuntimeReached::formatMessage() const
