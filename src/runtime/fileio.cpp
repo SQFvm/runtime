@@ -4,6 +4,10 @@
 #include <vector>
 #include <filesystem>
 
+#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
+#include <iostream>
+#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+
 static int get_bom_skip(const std::vector<char>& buff)
 {
 	if (buff.empty())
@@ -73,6 +77,12 @@ static int get_bom_skip(const std::vector<char>& buff)
 static bool file_exists(std::string_view filename)
 {
 	std::ifstream infile(filename.data());
+#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
+	std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
+		"        " <<
+		"        " <<
+		"    " << "\x1B[36mfile_exists\033[0m(\x1B[90m" << filename << "\033[0m) == \x1B[34m" << infile.good() << "\033[0m" << std::endl;
+#endif // DF__SQF_FILEIO__TRACE_REESOLVE
 	return infile.good();
 }
 std::optional<std::string> sqf::runtime::fileio::read_file_from_disk(std::string_view physical_path)
@@ -125,7 +135,6 @@ void sqf::runtime::fileio::add_mapping_auto(std::string_view phys)
 
 		if (i->path().filename() == "$PBOPREFIX$")
 		{
-
 			std::ifstream prefixFile(i->path());
 			std::string prefix;
 			std::getline(prefixFile, prefix);
