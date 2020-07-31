@@ -319,16 +319,30 @@ namespace
         {
         private:
             instruction_set m_set;
+            bool m_exchanged;
         public:
-            behavior_except(instruction_set set) : m_set(set) {}
+            behavior_except(instruction_set set) : m_set(set), m_exchanged(false) {}
             virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
-            virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override { return result::exchange; };
+            virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
+            {
+                if (!m_exchanged)
+                {
+                    m_exchanged = true;
+                    auto val = runtime.context_active().pop_value();
+                    frame["_exception"] = val.has_value() ? *val : value{};
+                    return result::exchange;
+                }
+                else
+                {
+                    return result::fail;
+                }
+            };
         };
         frame f(
             runtime.default_value_scope(),
-            right.data<d_code, sqf::runtime::instruction_set>(),
+            left.data<d_code, sqf::runtime::instruction_set>(),
             {},
-            std::make_shared<behavior_except>(left.data<d_code, sqf::runtime::instruction_set>()));
+            std::make_shared<behavior_except>(right.data<d_code, sqf::runtime::instruction_set>()));
         runtime.context_active().push_frame(f);
         return {};
     }

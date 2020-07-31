@@ -124,7 +124,7 @@ namespace
 				}
 				else
 				{
-					sstream << r->at(num).data()->to_string_sqf();
+					sstream << r->at(num).to_string_sqf();
 				}
 				while (format[newoff] >= '0' && format[newoff] <= '9') newoff++;
 			}
@@ -258,11 +258,16 @@ namespace
 	{
 		return value(strtof(right.data<d_string, std::string>().c_str(), nullptr));
 	}
+	value endl_(runtime& runtime)
+	{
+		return "\r\n"s;
+	}
 }
 void sqf::operators::ops_string(sqf::runtime::runtime& runtime)
 {
 	using namespace sqf::runtime::sqfop;
 
+	runtime.register_sqfop(nular("endl", "Creates a string containing a line break (`\r\n`).", endl_));
 	runtime.register_sqfop(unary("count", t_string(), "Can be used to count: the number of characters in a string.", count_string));
 	runtime.register_sqfop(unary("toLower", t_string(), "Converts the supplied string to all lowercase characters.", tolower_string));
 	runtime.register_sqfop(unary("toUpper", t_string(), "Converts the supplied string to all uppercase characters.", toupper_string));

@@ -79,6 +79,10 @@ namespace sqf::runtime
         std::shared_ptr<sqf::runtime::value_scope> m_globals_value_scope;
         bool m_bubble_variable;
         bool m_started;
+        size_t m_value_stack_pos;
+
+    private:
+        void clear_values_helper(runtime& runtime);
     public:
         static const size_t position_invalid = ~(size_t)0;
         frame() :
@@ -115,6 +119,9 @@ namespace sqf::runtime
         }
 
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+
+        size_t value_stack_pos() const { return m_value_stack_pos; }
+        void value_stack_pos(size_t val) { m_value_stack_pos = val; }
         bool can_recover_runtime_error() { return m_error_behavior != nullptr; }
         result recover_runtime_error(runtime& runtime)
         {
@@ -126,22 +133,18 @@ namespace sqf::runtime
                 return result::done;
             case behavior::result::seek_start:
                 seek(0, seekpos::start);
+                clear_values_helper(runtime);
                 return result::ok;
             case behavior::result::exchange:
                 m_instruction_set = m_error_behavior->get_instruction_set(*this);
-                m_position = 0;
+                seek(0, seekpos::start);
 #ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
                 std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                     "    " << "    " << " " <<
                     "    " << "    " << " " <<
-                    "    " << "    " << "\x1B[91mFrame\033[0m - Loaded assembly " << "[";
-
-                for (auto& it : m_instruction_set)
-                {
-                    std::cout << it->to_string() << ", ";
-                }
-                std::cout << "]" << std::endl;
+                    "    " << "    " << "\x1B[91mFrame\033[0m - Loaded assembly ";
+                dbg_str();
 
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                 return result::ok;
@@ -230,22 +233,18 @@ namespace sqf::runtime
                         return result::done;
                     case behavior::result::seek_start:
                         seek(0, seekpos::start);
+                        clear_values_helper(runtime);
                         return next();
                     case behavior::result::exchange:
                         m_instruction_set = m_exit_behavior->get_instruction_set(*this);
-                        m_position = 0;
+                        seek(0, seekpos::start);
 #ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
                         std::cout << "[ASSEMBLY ASSERT]" <<
                             "    " << "    " << " " <<
                             "    " << "    " << " " <<
-                            "    " << "    " << "\x1B[91mFrame\033[0m - Loaded assembly " << "[";
-
-                        for (auto& it : m_instruction_set)
-                        {
-                            std::cout << it->to_string();
-                        }
-                        std::cout << "]" << std::endl;
+                            "    " << "    " << "\x1B[91mFrame\033[0m - Loaded assembly ";
+                            dbg_str();
 
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                         return next();

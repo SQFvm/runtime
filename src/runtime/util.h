@@ -55,7 +55,7 @@ namespace sqf::runtime::util
 	inline std::string_view rtrim(std::string_view str, std::string_view chars = " \t")
 	{
 		size_t endpos = str.find_last_not_of(chars);
-		return str.substr(0, endpos);
+		return str.substr(0, endpos + 1);
 	}
 
 	inline std::string_view trim(std::string_view str, std::string_view chars = " \t")

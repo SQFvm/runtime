@@ -186,16 +186,21 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::default::get_info_vir
             "        " <<
             "        " <<
             "    " << "\x1B[36mget_info_virtual\033[0m" <<
-            "    " << "    " << "Built remainer '" << virt << "'." << std::endl;
+            "    " << "    " << "Built remainder '" << virt << "'." << std::endl;
 #endif // DF__SQF_FILEIO__TRACE_REESOLVE
-        return {};
     }
-
     // Check every physical path in current tree_element if the file exists
     for (auto& phys : nodes.back()->physical)
     {
-        std::filesystem::path p(phys);
-        p /= virt;
+        auto tmp = phys.string() + virt;
+        std::filesystem::path p(tmp);
+#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
+        std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
+            "        " <<
+            "        " <<
+            "    " << "\x1B[36mget_info_virtual\033[0m" <<
+            "    " << "    " << "Testing '" << p.string() << "'" << std::endl;
+#endif // DF__SQF_FILEIO__TRACE_REESOLVE
         if (file_exists(p))
         {
 #ifdef DF__SQF_FILEIO__TRACE_REESOLVE

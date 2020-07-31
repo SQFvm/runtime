@@ -5,6 +5,10 @@ std::string sqf::runtime::diagnostics::stacktrace::to_string() const
 {
 	std::stringstream sstream;
 	int i = 0;
+	if (!value.empty())
+	{
+		sstream << value.to_string_sqf() << std::endl;
+	}
 	for (auto& frame : frames)
 	{
 		sstream <<

@@ -38,7 +38,7 @@ namespace sqf
 				}
 				else
 				{
-					return m_value.compare(m_value) == 0;
+					return m_value.compare(otherstr) == 0;
 				}
 			}
 		public:

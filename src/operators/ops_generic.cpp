@@ -10,6 +10,7 @@
 #include "../runtime/d_scalar.h"
 #include "../runtime/d_boolean.h"
 #include "../runtime/d_array.h"
+#include "../runtime/diagnostics/d_stacktrace.h"
 #include "../runtime/d_code.h"
 #include "../runtime/git_sha1.h"
 
@@ -71,7 +72,8 @@ namespace
     value call_code(runtime& runtime, value::cref right)
     {
         frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
-        f["_this"] = {};
+        auto _this = runtime.context_active().get_variable("_this");
+        f["_this"] = _this.has_value() ? *_this : value{};
         runtime.context_active().push_frame(f);
         return {};
     }
@@ -153,7 +155,15 @@ namespace
         auto r = right.data<d_string, std::string>();
         auto& parser = runtime.parser_sqf();
         auto res = parser.parse(runtime, r, (*runtime.context_active().current_frame().current())->diag_info().path);
-        return res.has_value() ? res.value() : value{};
+        if (!res.has_value())
+        {
+            runtime.__runtime_error() = true;
+            return value{};
+        }
+        else
+        {
+            return *res;
+        }
     }
     value typename_any(runtime& runtime, value::cref right)
     {
@@ -927,18 +937,31 @@ namespace
     {
         class behavior_switch_exit : public frame::behavior
         {
+        private:
+            bool m_switched;
         public:
-            behavior_switch_exit() {}
-            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override { auto res = frame[d_switch::magic].data<d_switch>()->target_code(); frame[d_switch::magic].data<d_switch>()->target_code({}); return res; }
+            behavior_switch_exit() : m_switched(false) {}
+            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override
+            {
+                return frame[d_switch::magic].data<d_switch>()->target_code();
+            }
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
-                auto dswitch = frame[d_switch::magic].data_try<d_switch>();
-                return dswitch ? dswitch->target_code().empty() ? result::ok : result::exchange : result::fail;
+                if (!m_switched)
+                {
+                    m_switched = true;
+                    auto dswitch = frame[d_switch::magic].data_try<d_switch>();
+                    return dswitch ? (dswitch->target_code().empty() ? result::ok : result::exchange) : result::fail;
+                }
+                else
+                {
+                    return result::ok;
+                }
             };
         };
 
         frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_switch_exit>());
-        f[d_switch::magic] = std::make_shared<d_switch>();
+        f[d_switch::magic] = left;
         runtime.context_active().push_frame(f);
         return {};
     }
@@ -954,7 +977,7 @@ namespace
 
         if (right == swtch->value())
         {
-            swtch->has_match(true);
+            swtch->match_now(true);
         }
         return value(swtch);
     }
@@ -1815,7 +1838,7 @@ namespace
     value throw_any(runtime& runtime, value::cref right)
     {
         auto res = std::find_if(runtime.context_active().frames_rbegin(), runtime.context_active().frames_rend(), [&](frame& f) -> bool {
-            return f.can_recover_runtime_error() && f.recover_runtime_error(runtime) != frame::result::error;
+            return f.can_recover_runtime_error();
             });
         if (res == runtime.context_active().frames_rend())
         {
@@ -1823,6 +1846,21 @@ namespace
         }
         else
         {
+            std::vector<sqf::runtime::frame> stacktrace_frames(runtime.context_active().frames_rbegin(), runtime.context_active().frames_rend());
+            sqf::runtime::diagnostics::stacktrace stacktrace(stacktrace_frames);
+            stacktrace.value = right;
+            auto valpos = runtime.context_active().values_size();
+            runtime.context_active().push_value(stacktrace);
+            if (res->recover_runtime_error(runtime) == frame::result::error)
+            {
+                if (valpos > 0)
+                {
+                    runtime.context_active().pop_value();
+                }
+                runtime.__logmsg(err::ErrorMessage((*runtime.context_active().current_frame().current())->diag_info(), "THROW", right.data()->to_string_sqf()));
+                return {};
+            }
+
             auto drop = res - runtime.context_active().frames_rbegin();
             while (drop-- != 0)
             {
@@ -1846,7 +1884,23 @@ namespace
             virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
-                return runtime.__runtime_error() ? result::fail : result::exchange;
+                if (runtime.__runtime_error())
+                {
+                    return result::fail;
+                }
+                else
+                {
+                    auto val = runtime.context_active().pop_value();
+                    if (val.has_value() && val->is<t_stacktrace>())
+                    {
+                        frame["_exception"] = val->data<d_stacktrace>()->value().value;
+                    }
+                    else
+                    {
+                        frame["_exception"] = {};
+                    }
+                    return result::exchange;
+                }
             };
         };
         frame f(

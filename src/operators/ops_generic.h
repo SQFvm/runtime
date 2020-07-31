@@ -106,11 +106,11 @@ namespace sqf
 
             std::string to_string_sqf() const override
             {
-                return m_value.data()->to_string_sqf();
+                return m_value.to_string_sqf();
             }
             std::string to_string() const override
             {
-                return m_value.data()->to_string();
+                return m_value.to_string();
             }
 
             sqf::runtime::type type() const override { return cexp_type(); }

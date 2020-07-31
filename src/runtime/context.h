@@ -50,11 +50,24 @@ namespace sqf::runtime
         size_t frames_size() const { return m_frames.size(); }
         size_t values_size() const { return m_values.size(); }
         void clear_frames() { m_frames.clear(); }
-        void clear_values() { m_values.clear(); }
+        void clear_values(bool of_all_frames = false)
+        {
+            if (of_all_frames)
+            {
+                m_values.clear();
+            }
+            else if (!m_frames.empty())
+            {
+                for (size_t i = m_values.size(); i > current_frame().value_stack_pos(); i--)
+                {
+                    m_values.pop_back();
+                }
+            }
+        }
         void push_frame(sqf::runtime::frame frame)
         {
             m_frames.push_back(frame);
-
+            m_frames.back().value_stack_pos(m_values.size());
 #ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
             std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<

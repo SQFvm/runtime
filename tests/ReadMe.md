@@ -41,3 +41,4 @@ A single test-case has the following structure: `[METHOD, TEST, ARGUMENT]`
 |   assertIsNil   | `["assertIsNil",  { nil }]`             | Checks if the value returned `isNil`                                                  |
 |    assertNil    | `["assertNil",  { nil }]`               | Alias of `assertIsNil`                                                                |
 | assertException | `["assertException",  { throw "foo" }]` | Executes the piece of code. Will be passed if Exception is raised.                    |
+| assertExcept    | `["assertExcept",  { throw "foo" }]`    | Alias of `assertException`.                                                           |

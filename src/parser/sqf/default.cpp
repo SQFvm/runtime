@@ -123,13 +123,20 @@ void ::sqf::parser::sqf::default::instance::skip(::sqf::runtime::diagnostics::di
 //endchr = [,;];
 size_t sqf::parser::sqf::default::instance::endchr(size_t off) { if (off >= m_contents.length()) { return 0; } return m_contents[off] == ';' || m_contents[off] == ',' ? 1 : 0; }
 //identifier = [_a-zA-Z][_a-zA-Z0-9]*;
-size_t sqf::parser::sqf::default::instance::identifier(size_t off) { if (off >= m_contents.length()) { return 0; } size_t i = off; if (!((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || m_contents[i] == '_')) return 0; for (i = off + 1; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'; i++) {}; return i - off; }
+size_t sqf::parser::sqf::default::instance::identifier(size_t off)
+{
+    if (off >= m_contents.length()) { return 0; }
+    size_t i = off;
+    if (!((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || m_contents[i] == '_')) return 0;
+    for (i = off + 1; i < m_contents.length() && ((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'); i++) {}
+    return i - off;
+}
 //identifier = [_a-zA-Z0-9]+;
 size_t sqf::parser::sqf::default::instance::assidentifier(size_t off)
 {
     if (off >= m_contents.length()) { return 0; }
     size_t i = off;
-    for (i++; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'; i++);
+    for (i++; i < m_contents.length() && ((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'); i++);
     return i - off;
 }
 //operator_ = [+-*/%^]|&&|\|\||==|[!<>][=]?|[a-zA-Z_]+;
@@ -143,7 +150,7 @@ size_t sqf::parser::sqf::default::instance::operator_(size_t off) {
         return 1;
     }
     size_t i;
-    for (i = off; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'; i++);
+    for (i = off; i < m_contents.length() && ((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'); i++);
     return i - off;
 }
 //hexadecimal = [0-9a-fA-F]+;
@@ -1023,7 +1030,7 @@ void ::sqf::parser::sqf::default::instance::NUMBER(astnode& root, bool& errflag)
     {
         thisnode.kind = nodetype::HEXNUMBER;
         size_t i;
-        for (i = m_info.offset + 1; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
+        for (i = m_info.offset + 1; (i < m_contents.length()) && (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
         auto ident = std::string(m_contents.substr(m_info.offset + 1, i - m_info.offset));
         thisnode.content = ident;
         thisnode.offset = m_info.offset;
@@ -1035,7 +1042,7 @@ void ::sqf::parser::sqf::default::instance::NUMBER(astnode& root, bool& errflag)
     {
         thisnode.kind = nodetype::HEXNUMBER;
         size_t i;
-        for (i = m_info.offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
+        for (i = m_info.offset + 2; (i < m_contents.length()) && (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
         auto ident = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
         thisnode.content = ident;
         thisnode.offset = m_info.offset;
@@ -1048,7 +1055,7 @@ void ::sqf::parser::sqf::default::instance::NUMBER(astnode& root, bool& errflag)
         size_t i = m_info.offset;
         bool numhaddot = false;
         unsigned short numhadexp = 0;
-        while (true)
+        while (i < m_contents.length())
         {
             if (m_contents[i] >= '0' && m_contents[i] <= '9')
             {
@@ -1160,6 +1167,7 @@ void ::sqf::parser::sqf::default::instance::CODE(astnode& root, bool& errflag)
     thisnode.col = m_info.column;
     thisnode.line = m_info.line;
     thisnode.path = m_info.path;
+    auto copy = m_info;
     m_info.offset++;
     m_info.column++;
     skip(m_info);
@@ -1174,14 +1182,14 @@ void ::sqf::parser::sqf::default::instance::CODE(astnode& root, bool& errflag)
         errflag = true;
     }
 
-    if (m_contents[m_info.offset] == '}')
+    if (m_contents.size() > m_info.offset && m_contents[m_info.offset] == '}')
     {
         m_info.offset++;
         m_info.column++;
     }
     else
     {
-        m_owner.log(err::MissingCurlyClosingBracket(m_info));
+        m_owner.log(err::MissingCurlyClosingBracket(copy));
         errflag = true;
     }
     thisnode.length = m_info.offset - thisnode.offset;

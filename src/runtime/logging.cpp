@@ -967,7 +967,7 @@ namespace logmessage::runtime
 		switch (num)
 		{
 		case 0:
-			return "none";
+			return "null";
 		case 1:
 			return "first";
 		case 2:
@@ -1179,6 +1179,7 @@ namespace logmessage::runtime
 		auto output = location.format();
 		auto position = to_ordinal_string(m_position);
 		auto got = m_got.to_string();
+		sstream << output;
 		sstream << "Expected the "sv;
 		sstream << position;
 		sstream << " element of the array to be of the type "sv;
@@ -1203,6 +1204,7 @@ namespace logmessage::runtime
 		auto output = location.format();
 		auto position = to_ordinal_string(m_position);
 		auto got = m_got.to_string();
+		sstream << output;
 		sstream << "Expected the "sv;
 		sstream << position;
 		sstream << " element of the array to be of the type "sv;

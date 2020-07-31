@@ -16,6 +16,6 @@
     ["assertException", { { 1 } count [0] }],                   // CODE count ARRAY
     ["assertException", { { {} } count [0] }],                  // CODE count ARRAY
     ["assertException", { { [] } count [0] }],                  // CODE count ARRAY
-    ["assertException", { {""} count [0] }]                     // CODE count ARRAY
-    ["assertException", { private _i = 0; private _arr = [1,2,3]; { _i = _i + 1; if (_i > 3) then { throw "Abort Endless Loop" }; _arr push_back _x; false } count _arr }]
+    ["assertException", { {""} count [0] }],                     // CODE count ARRAY
+    ["assertException", { private _i = 0; private _arr = [1,2,3]; { _i = _i + 1; if (_i > 3) then { throw "Abort Endless Loop" }; _arr pushBack _x; false } count _arr }]
 ]

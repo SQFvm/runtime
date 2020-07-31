@@ -60,10 +60,10 @@
     ["assertException",  { [1,2,3] vectorDiff [true,2,1] }],
     ["assertException",  { vectorMagnitude [true,2,1] }],
     ["assertException",  { vectorMagnitudeSqr [true,2,1] }],
-    ["assertException",  { vectorNormalized [true,2,1] }]
+    ["assertException",  { vectorNormalized [true,2,1] }],
 
 
-    ["assertFalse",  { private _arr = [1,2,3]; private _nested = [_arr]; private _copy = +_nested; (_copy select 0) set [2, 1]; _nested isEqualTo _copy }, "5.00"],
+    ["assertFalse",  { private _arr = [1,2,3]; private _nested = [_arr]; private _copy = +_nested; (_copy select 0) set [2, 1]; _nested isEqualTo _copy }, "5.00"]
 
 
 

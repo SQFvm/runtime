@@ -40,7 +40,7 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
             std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                 "        " <<
                 "        " <<
-                "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90context_active.suspended() == true\033[0m" << std::endl;
+                "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90mcontext_active.suspended() == true\033[0m" << std::endl;
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             return sqf::runtime::runtime::result::ok;
         }
@@ -50,9 +50,9 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
             std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                 "        " <<
                 "        " <<
-                "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90context_active.empty() == true\033[0m" << std::endl;
+                "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90mcontext_active.empty() == true\033[0m" << std::endl;
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
-            return sqf::runtime::runtime::result::ok;
+            return sqf::runtime::runtime::result::empty;
         }
         if (runtime.runtime_state() != sqf::runtime::runtime::state::running)
         {
@@ -60,7 +60,7 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
             std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                 "        " <<
                 "        " <<
-                "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90runtime.runtime_state() != sqf::runtime::runtime::state::running\033[0m" << std::endl;
+                "    " << "\x1B[36mEXIT execute_do\033[0m due to \x1B[90mruntime.runtime_state() != sqf::runtime::runtime::state::running\033[0m" << std::endl;
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             return sqf::runtime::runtime::result::ok;
         }
@@ -184,7 +184,6 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
 
         if (runtime_error)
         {
-            runtime_error = false;
             // Build Stacktrace
             std::vector<sqf::runtime::frame> stacktrace_frames(context_active.frames_rbegin(), context_active.frames_rend());
             sqf::runtime::diagnostics::stacktrace stacktrace(stacktrace_frames);
@@ -207,11 +206,12 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
                 }
 
                 // Recover from exception
-                res->recover_runtime_error(runtime);
+                context_active.current_frame().recover_runtime_error(runtime);
+                runtime_error = false;
             }
             else
             { // No recover frame available, exit method
-
+                runtime_error = false;
                 runtime.__logmsg(logmessage::runtime::Stacktrace((*instruction)->diag_info(), stacktrace));
                 return sqf::runtime::runtime::result::runtime_error;
             }

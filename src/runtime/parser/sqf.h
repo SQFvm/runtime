@@ -28,10 +28,10 @@ namespace sqf
 						len += i;
 						i = 0;
 					}
-					for (size_t j = i; j < i + len; j++)
+					for (size_t j = i; j < i + len && j < view.length(); j++)
 					{
 						char wc = view[j];
-						if (wc == '\0' || wc == '\n')
+						if (wc == '\n')
 						{
 							if (j < off)
 							{

@@ -40,7 +40,7 @@ namespace sqf::runtime
 		}
 		bool empty() const { return !m_data.get(); }
 
-		bool operator==(cref other) const { return (m_data.get() && other.m_data.get()) || (m_data != nullptr && m_data->equals(other.data())); }
+		bool operator==(cref other) const { return (((bool)m_data.get()) && ((bool)other.m_data.get()) && m_data->equals(other.m_data)) || (!((bool)m_data.get()) && !((bool)other.m_data.get())); }
 		bool operator!=(cref other) const { return !(*this == other); }
 
 

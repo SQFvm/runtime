@@ -13,14 +13,14 @@
 #include <optional>
 #include <iostream>
 
-//#define PRINT_MACRO_CHAIN
-
-#ifdef PRINT_MACRO_CHAIN
+#ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
 #include <iostream>
-#endif
+#endif // DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
+
 
 namespace err = logmessage::preprocessor;
 using namespace std::string_literals;
+using namespace sqf::runtime::util;
 
 void sqf::parser::preprocessor::default::replace_stringify(
 	::sqf::runtime::runtime & runtime,
@@ -453,7 +453,7 @@ std::string sqf::parser::preprocessor::default::handle_macro(::sqf::runtime::run
 			}
 		}
 	}
-#ifdef PRINT_MACRO_CHAIN
+#ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
 	auto replace_result = replace(original_fileinfo, m, params);
 	std::cout << "Resolving '" << m.name << "'" << std::endl;
 	std::cout << m.name << " - Definition: #define " << m.name;
@@ -490,27 +490,6 @@ std::string sqf::parser::preprocessor::default::handle_macro(::sqf::runtime::run
 #else
 	return replace(runtime, original_fileinfo, m, params);
 #endif
-}
-
-namespace {
-	const std::string WHITESPACE = " \t";
-
-	std::string_view ltrim(std::string_view s)
-	{
-		size_t start = s.find_first_not_of(WHITESPACE);
-		return (start == std::string_view::npos) ? "" : s.substr(start);
-	}
-
-	std::string_view rtrim(std::string_view s)
-	{
-		size_t end = s.find_last_not_of(WHITESPACE);
-		return (end == std::string_view::npos) ? "" : s.substr(0, end + 1);
-	}
-
-	std::string_view trim(std::string_view s)
-	{
-		return rtrim(ltrim(s));
-	}
 }
 
 std::string sqf::parser::preprocessor::default::parse_ppinstruction(::sqf::runtime::runtime & runtime, preprocessorfileinfo & fileinfo)
@@ -612,7 +591,7 @@ std::string sqf::parser::preprocessor::default::parse_ppinstruction(::sqf::runti
 					log(err::MacroDefinedTwice(fileinfo.operator ::sqf::runtime::diagnostics::diag_info(), name_tmp));
 				}
 				auto content = trim(line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex)); //Special magic for '#define ::sqf::runtime::parser::macro\'
-				m_macros[line] = { fileinfo, name_tmp, std::string(content) };
+				m_macros[name_tmp] = { fileinfo, name_tmp, std::string(content) };
 			}
 			else
 			{ // We got a define with arguments here
@@ -643,9 +622,9 @@ std::string sqf::parser::preprocessor::default::parse_ppinstruction(::sqf::runti
 						arg_start_index = arg_index + 1;
 					}
 				}
-				auto content = trim(line.length() <= bracketsEndIndex + 1 ? "" : line.substr(bracketsEndIndex + 1));
+				auto content = trim(line.length() <= bracketsEndIndex + 1 ? "" : std::string_view(line).substr(bracketsEndIndex + 1));
 
-				m_macros[line] = { fileinfo, name_tmp, std::string(content) };
+				m_macros[name_tmp] = { fileinfo, name_tmp, args, std::string(content) };
 			}
 		}
 		return "\n";
@@ -933,6 +912,9 @@ sqf::parser::preprocessor::default::default(::Logger & logger) : CanLog(logger)
 	m_macros["_SQFVM_RUNTIME_VERSION_MAJOR"s] = { "_SQFVM_RUNTIME_VERSION_MAJOR"s, STR(SQFVM_RUNTIME_VERSION_MAJOR) };
 	m_macros["_SQFVM_RUNTIME_VERSION_MINOR"s] = { "_SQFVM_RUNTIME_VERSION_MINOR"s, STR(SQFVM_RUNTIME_VERSION_MINOR) };
 	m_macros["_SQFVM_RUNTIME_VERSION_REVISION"s] = { "_SQFVM_RUNTIME_VERSION_REVISION"s, STR(SQFVM_RUNTIME_VERSION_REVISION) };
+#if defined(_DEBUG)
+	m_macros["_SQFVM_DEBUG"s] = { "_DEBUG"s };
+#endif
 }
 std::optional<std::string> sqf::parser::preprocessor::default::preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo)
 {

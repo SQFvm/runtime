@@ -8,6 +8,10 @@
 #include <cctype>
 #include <algorithm>
 
+#ifdef DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
+#include <iostream>
+#endif // DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
+
 namespace sqf::runtime
 {
 	class value_scope
@@ -24,17 +28,37 @@ namespace sqf::runtime
 		bool contains(std::string variable_name) const
 		{
 			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return std::tolower(c); });
-			return m_map.find(variable_name) != m_map.end();
+			auto res = m_map.find(variable_name) != m_map.end();
+#ifdef DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
+			std::cout << "\x1B[33m[VALUE-SCOPE-DBG]\033[0m" <<
+				"        " <<
+				"        " <<
+				"    " << "    " << "contains(\"" << variable_name << "\") const := " << res << std::endl;
+#endif // DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
+			return res;
 		}
 		sqf::runtime::value at(std::string variable_name) const
 		{
 			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return std::tolower(c); });
 			auto res = m_map.find(variable_name);
+#ifdef DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
+			std::cout << "\x1B[33m[VALUE-SCOPE-DBG]\033[0m" <<
+				"        " <<
+				"        " <<
+				"    " << "    " << "at(\"" << variable_name << "\") const := { " << (res == m_map.end() ? "" : res->second.to_string_sqf()) << " }" << std::endl;
+#endif // DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
 			return res == m_map.end() ? value() : res->second;
 		}
 		sqf::runtime::value& at(std::string variable_name)
 		{
 			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return std::tolower(c); });
+#ifdef DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
+			auto res = m_map.find(variable_name);
+			std::cout << "\x1B[33m[VALUE-SCOPE-DBG]\033[0m" <<
+				"        " <<
+				"        " <<
+				"    " << "    " << "at(\"" << variable_name << "\") := { " << (res == m_map.end() ? "" : res->second.to_string_sqf()) << " }" << std::endl;
+#endif // DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
 			return m_map[variable_name];
 		}
 		std::string_view scope_name() const { return m_scope_name; }

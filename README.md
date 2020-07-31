@@ -62,6 +62,9 @@ WIP, for now please refer to the Discord.
 |----------------------------------------------|------------------------------------|--------------------------------------------------------------------------------------------------|
 | `DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE` | `\x1B[94m[ASSEMBLY ASSERT]\033[0m` | Enables enhanced debug output to console that allows diagnosing issues related to the execution. |
 | `DF__SQF_FILEIO__ALL_FILES`                  | `\x1B[94m[FILEIO-ALLFILES]\033[0m` | Outputs the files located of the `allFiles ARRAY` operation.                                     |
+| `DF__SQF_FILEIO__TRACE_REESOLVE`             | `\x1B[94m[FILEIO-ALLFILES]\033[0m` | Outputs the files located of the `allFiles ARRAY` operation.                                     |
+| `DF__SQF_PREPROC__TRACE_MACRO_RESOLVE`       | `\x1B[94m[PREPROCESSOR-DB]\033[0m` | Outputs every step during resolution of macro chains.                                            |
+| `DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG`         | `\x1B[94m[VALUE-SCOPE-DBG]\033[0m` | Every variable-change,-get,-set is logged to console.                                            |
 
 
 

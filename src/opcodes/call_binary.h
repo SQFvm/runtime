@@ -57,11 +57,6 @@ namespace sqf::opcodes
 
             if (!vm.sqfop_exists(key))
             {
-                vm.__logmsg(logmessage::runtime::UnknownInputTypeCombinationBinary(diag_info(), tleft, key.name, tright));
-                return;
-            }
-            if (!vm.sqfop_exists(key))
-            {
                 key = { m_operator_name, sqf::types::t_any(), tright };
                 if (!vm.sqfop_exists(key))
                 {
