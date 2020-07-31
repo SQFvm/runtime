@@ -15,6 +15,7 @@ namespace sqf::fileio
 		{
 			std::unordered_map<std::string, std::shared_ptr<path_element>> next;
 			std::vector<std::filesystem::path> physical;
+			std::string virtual_full;
 		};
 		std::shared_ptr<path_element> m_virtual_file_root;
 		using file_tree_iterator = std::unordered_map<std::string, std::shared_ptr<path_element>>::iterator;
@@ -50,6 +51,7 @@ namespace sqf::fileio
 	public:
 		default() : m_path_elements(), m_virtual_file_root(std::make_shared<path_element>())
 		{
+			m_virtual_file_root->virtual_full = "/";
 			m_path_elements.push_back(m_virtual_file_root);
 		}
 #pragma region sqf::runtime::fileio
