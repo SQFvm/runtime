@@ -31,9 +31,10 @@
  ********************************************************/
 
 
+// #define _TEST_FRAMEWORK_DEBUG
 
 
-#ifdef _SQFVM_DEBUG
+#ifdef _TEST_FRAMEWORK_DEBUG
 #define DIAGNOSTICS(MESSAGE) diag_log #MESSAGE
 #define DIAGNOSTICS_EXEC(MESSAGE) diag_log (MESSAGE)
 #else
