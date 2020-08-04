@@ -52,6 +52,7 @@ namespace sqf::runtime
 		bool equals(std::shared_ptr<data> other, bool invariant = false) const
 		{
 			if (other->type() != type()) { return false; }
+			if (other.get() == this) { return true; }
 			return do_equals(other, invariant);
 		}
 

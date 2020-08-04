@@ -5,29 +5,6 @@
  *                                                       *
  * SQF-VM commands are suffixed with a double underscore *
  * (eg. exitcode__)                                      *
- * ----------------------------------------------------- *
- * Test-Case format:                                     *
- * - ["OP", { CODE }, PARA]                              *
- * - ["OP", ["DESCRIPTION", {CODE}], PARA]               *
- * ----------------------------------------------------- *
- * Test-Case Operations:                                 *
- * - assert:                                             *
- *      Allows to just execute a piece of code. Will     *
- *      PASS if there is no exception raised during      *
- *      execution.                                       *
- * - assertTrue:                                         *
- *      Will PASS if the codes return value is true.     *
- * - assertFalse:                                        *
- *      Will PASS if the codes return value is false.    *
- * - assertNil|assertIsNil:                              *
- *      Will PASS if the codes return value is nil.      *
- * - assertEqual:                                        *
- *      Will PASS if the codes return value is equal     *
- *      to whatever is passed with PARA.                 *
- * - assertException:                                    *
- *      Will PASS if the code threw any Exception.       *
- *      Note that this is including, but not limited     *
- *      to the `throw` operator.                         *
  ********************************************************/
 
 
@@ -41,6 +18,7 @@
 #define DIAGNOSTICS(MESSAGE)
 #define DIAGNOSTICS_EXEC(MESSAGE)
 #endif
+#define COMMA ,
 
 diag_log str productVersion;
 diag_log format(["%1"] + productVersion);
@@ -54,69 +32,82 @@ fatalError = false;
 
 test_fnc_testPassed = {
     params["___name___", "___desc___", "___index___"];
+    DIAGNOSTICS(TEST PASSED);
     diag_log format["Test  Passed  '%1' - %2", ___name___, ___index___ + 1];
     testsPassed = testsPassed + 1;
 };
 
 test_fnc_testFailed = {
-    params["___name___", "___desc___", "___index___"];
-    private _msg1 = format["Test !FAILED! '%1' - %2  %3", ___name___, ___index___ + 1, trim__ ___desc___];
+    params["___name___", "___desc___", "___index___", "___msg___"];
+    DIAGNOSTICS(TEST FAILED);
+    private _msg1 = format["Test !FAILED! '%1' - %2  %3: %4", ___name___, ___index___ + 1, trim__ ___desc___];
     diag_log _msg1;
+    diag_log ___msg___;
     ___failed___ pushBack _msg1;
     testsFailed = testsFailed + 1;
 };
 
 test_fnc_assertEqual = {
-    params["___name___", "___test___", "___desc___", "___index___", "___compare___"];
-    private ___ret___ = call ___test___;
-    if (___ret___ isEqualTo ___compare___) then
-    {
-        [___name___, ___desc___, ___index___] call test_fnc_testPassed;
-    }
-    else
-    {
-        private ___msg___ = format[
-            "Wrong return value. Expected %1 (type %2), got %3 (type %4).",
-            ___compare___,
-            typeName ___compare___,
-            ___ret___,
-            typeName ___ret___
-        ];
-        [___name___, ___desc___, ___index___, ___msg___] call test_fnc_testFailed;
-    }
+    [_this, {
+        params["___name___", "___test___", "___desc___", "___index___", "___compare___"];
+        private ___ret___ = call ___test___;
+        DIAGNOSTICS_EXEC(format ["___ret___: %1" COMMA ___ret___]);
+        DIAGNOSTICS_EXEC(format ["___compare___: %1" COMMA ___compare___]);
+        if (___ret___ isEqualTo ___compare___) then
+        {
+            [___name___, ___desc___, ___index___] call test_fnc_testPassed;
+        }
+        else
+        {
+            private ___msg___ = format[
+                "Wrong return value. Expected %1 (type %2), got %3 (type %4).",
+                ___compare___,
+                typeName ___compare___,
+                ___ret___,
+                typeName ___ret___
+            ];
+            [___name___, ___desc___, ___index___, ___msg___] call test_fnc_testFailed;
+        }
+    }] call test_fnc_exceptWrapper;
 };
 
 test_fnc_assert = {
-    params["___name___", "___test___", "___desc___", "___index___", "___compare___"];
-    private ___ret___ = call ___test___;
-    [___name___, ___desc___, ___index___] call test_fnc_testPassed;
+    [_this, {
+        params["___name___", "___test___", "___desc___", "___index___", "___compare___"];
+        private ___ret___ = call ___test___;
+        [___name___, ___desc___, ___index___] call test_fnc_testPassed;
+    }] call test_fnc_exceptWrapper;
 };
 
 test_fnc_assertIsNil = {
-    params["___name___", "___test___", "___desc___", "___index___", "___compare___"];
-    private ___ret___ = call ___test___;
-    if (isNil "___ret___") then
-    {
-        [___name___, ___desc___, ___index___] call test_fnc_testPassed;
-    }
-    else
-    {
-        private ___msg___ = format["Wrong return value. Expected nil, got %1 (type %2).",  ___ret___, typeName ___ret___];
-        [___name___, ___desc___, ___index___, ___msg___] call test_fnc_testFailed;
-    }
+    [_this, {
+        params["___name___", "___test___", "___desc___", "___index___", "___compare___"];
+        private ___ret___ = call ___test___;
+        if (isNil "___ret___") then
+        {
+            [___name___, ___desc___, ___index___] call test_fnc_testPassed;
+        }
+        else
+        {
+            private ___msg___ = format["Wrong return value. Expected nil, got %1 (type %2).",  ___ret___, typeName ___ret___];
+            [___name___, ___desc___, ___index___, ___msg___] call test_fnc_testFailed;
+        }
+    }] call test_fnc_exceptWrapper;
 };
 
 test_fnc_assertException = {
-    params["___name___", "___test___", "___desc___", "___index___"];
-    {
-        private ___ret___ = call ___test___;
-        private ___msg___ = format["Never reached except. Returned: %1", ___ret___];
-        [___name___, ___desc___, ___index___, ___msg___] call test_fnc_testFailed;
-    }
-    except__
-    {
-        [___name___, ___desc___, ___index___] call test_fnc_testPassed;
-    }
+    [_this, {
+        params["___name___", "___test___", "___desc___", "___index___"];
+        {
+            private ___ret___ = call ___test___;
+            private ___msg___ = format["Never reached except. Returned: %1", ___ret___];
+            [___name___, ___desc___, ___index___, ___msg___] call test_fnc_testFailed;
+        }
+        except__
+        {
+            [___name___, ___desc___, ___index___] call test_fnc_testPassed;
+        }
+    }] call test_fnc_exceptWrapper;
 };
 
 test_fnc_exceptWrapper = {
@@ -128,6 +119,17 @@ test_fnc_exceptWrapper = {
     {
         private ___msg___ = format["Exception occurred: %1",  _exception];
         [___exceptWrapper_args___ select 0, ___exceptWrapper_args___ select 2, ___exceptWrapper_args___ select 3, ___msg___] call test_fnc_testFailed;
+    }
+};
+test_fnc_setupWrapper = {
+    params["___setupWrapper_args___", "___setupWrapper_code___"];
+    {
+        ___setupWrapper_args___ call ___setupWrapper_code___
+    }
+    except__
+    {
+        private ___msg___ = format["Exception occurred during setup: %1",  _exception];
+        fatalError = true;
     }
 };
 
@@ -173,39 +175,39 @@ private ___preprocessor_test_dir = currentDirectory__ + "/" + "preprocess";
                             DIAGNOSTICS_EXEC("___mode___ is assert");
                             [{
                                 [___name___, ___code___, ___desc___, _forEachIndex, true] call test_fnc_assert
-                            }, ___setup___] call test_fnc_exceptWrapper;
+                            }, ___setup___] call test_fnc_setupWrapper;
                         };
                         case "assertTrue": {
                             DIAGNOSTICS_EXEC("___mode___ is assertTrue");
                             [{
                                 [___name___, ___code___, ___desc___, _forEachIndex, true] call test_fnc_assertEqual
-                            }, ___setup___] call test_fnc_exceptWrapper;
+                            }, ___setup___] call test_fnc_setupWrapper;
                         };
                         case "assertFalse": {
                             DIAGNOSTICS_EXEC("___mode___ is assertFalse");
                             [{
                                 [___name___, ___code___, ___desc___, _forEachIndex, false] call test_fnc_assertEqual
-                            }, ___setup___] call test_fnc_exceptWrapper;
+                            }, ___setup___] call test_fnc_setupWrapper;
                         };
                         case "assertEqual": {
                             DIAGNOSTICS_EXEC("___mode___ is assertEqual");
                             [{
                                 [___name___, ___code___, ___desc___, _forEachIndex, _x select 2] call test_fnc_assertEqual
-                            }, ___setup___] call test_fnc_exceptWrapper;
+                            }, ___setup___] call test_fnc_setupWrapper;
                         };
                         case "assertNil";
                         case "assertIsNil": {
                             DIAGNOSTICS_EXEC("___mode___ is assertNil");
                             [{
                                 [___name___, ___code___, ___desc___, _forEachIndex] call test_fnc_assertIsNil
-                            }, ___setup___] call test_fnc_exceptWrapper;
+                            }, ___setup___] call test_fnc_setupWrapper;
                         };
                         case "assertExcept";
                         case "assertException": {
                             DIAGNOSTICS_EXEC("___mode___ is assertException");
                             [{
                                 [___name___, ___code___, ___desc___, _forEachIndex] call test_fnc_assertException
-                            }, ___setup___] call test_fnc_exceptWrapper;
+                            }, ___setup___] call test_fnc_setupWrapper;
                         };
                         default {
                             throw format["Unknown Test-Type %1 in %2-%3 (%4)", ___mode___, ___name___, _forEachIndex + 1, ___desc___];
@@ -264,7 +266,9 @@ private ___preprocessor_test_dir = currentDirectory__ + "/" + "preprocess";
         };
     };
 } forEach allFiles__[".sqf"];
+diag_log "############################################################";
 diag_log format["%1 out of %2 tests passed.", testsPassed, testsIndex];
+diag_log "############################################################";
 {
     diag_log _x;
 } forEach ___failed___;
@@ -282,3 +286,6 @@ else
     diag_log(["FAILED", "SUCCESS"] select(testsPassed == testsIndex));
     exitcode__(testsIndex - testsPassed);
 };
+diag_log "############################################################";
+diag_log format["%1 out of %2 tests passed.", testsPassed, testsIndex];
+diag_log "############################################################";

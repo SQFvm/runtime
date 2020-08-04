@@ -50,9 +50,9 @@ namespace sqf::runtime
         size_t frames_size() const { return m_frames.size(); }
         size_t values_size() const { return m_values.size(); }
         void clear_frames() { m_frames.clear(); }
-        void clear_values(bool of_all_frames = false)
+        void clear_values(bool ingore_frame_boundaries = false)
         {
-            if (of_all_frames)
+            if (ingore_frame_boundaries)
             {
                 m_values.clear();
             }
@@ -105,9 +105,9 @@ namespace sqf::runtime
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             return std::move(frame);
         }
-        std::optional<sqf::runtime::value> pop_value()
+        std::optional<sqf::runtime::value> pop_value(bool ingore_frame_boundaries = false)
         {
-            if (m_values.empty())
+            if (m_values.empty() || (m_values.size() <= current_frame().value_stack_pos() && !ingore_frame_boundaries))
             {
                 return {};
             }

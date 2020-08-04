@@ -1,5 +1,4 @@
 #include "default.h"
-#include "../../runtime/util.h"
 
 #include "../../opcodes/assign_to.h"
 #include "../../opcodes/assign_to_local.h"
@@ -26,9 +25,11 @@
 #include <string>
 #include <sstream>
 
+
 namespace err = logmessage::sqf;
 
 using namespace ::sqf::runtime::util;
+using namespace ::sqf::parser::util;
 
 bool sqf::parser::sqf::default::instance::m_contains_nular(std::string_view view)
 {
@@ -71,10 +72,11 @@ short sqf::parser::sqf::default::instance::m_precedence(std::string_view view)
 
 void ::sqf::parser::sqf::default::instance::skip(size_t& curoff)
 {
-    while (curoff < m_contents.length())
+    while (true)
     {
         switch (m_contents[curoff])
         {
+        case '\0': return;
         case ' ': curoff++; continue;
         case '\t': curoff++; continue;
         case '\r': curoff++; continue;
@@ -85,10 +87,11 @@ void ::sqf::parser::sqf::default::instance::skip(size_t& curoff)
 }
 void ::sqf::parser::sqf::default::instance::skip(::sqf::runtime::diagnostics::diag_info& info)
 {
-    while (info.offset < m_contents.length())
+    while (true)
     {
         switch (m_contents[info.offset])
         {
+        case '\0': return;
         case ' ': info.offset++; info.column++; continue;
         case '\t': info.offset++; info.column++; continue;
         case '\r': info.offset++; info.column++; continue;
@@ -121,46 +124,81 @@ void ::sqf::parser::sqf::default::instance::skip(::sqf::runtime::diagnostics::di
 }
 
 //endchr = [,;];
-size_t sqf::parser::sqf::default::instance::endchr(size_t off) { if (off >= m_contents.length()) { return 0; } return m_contents[off] == ';' || m_contents[off] == ',' ? 1 : 0; }
+size_t sqf::parser::sqf::default::instance::endchr(size_t off) { return util::is_match<';', ','>(m_contents[off]) ? 1 : 0; }
 //identifier = [_a-zA-Z][_a-zA-Z0-9]*;
 size_t sqf::parser::sqf::default::instance::identifier(size_t off)
 {
-    if (off >= m_contents.length()) { return 0; }
-    size_t i = off;
-    if (!((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || m_contents[i] == '_')) return 0;
-    for (i = off + 1; i < m_contents.length() && ((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'); i++) {}
-    return i - off;
+    if (!util::is_match<
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        '_'>(m_contents[off]))
+    {
+        return 0;
+    }
+    return util::len_match<
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
 }
 //identifier = [_a-zA-Z0-9]+;
 size_t sqf::parser::sqf::default::instance::assidentifier(size_t off)
 {
-    if (off >= m_contents.length()) { return 0; }
-    size_t i = off;
-    for (i++; i < m_contents.length() && ((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'); i++);
-    return i - off;
+    return util::len_match<
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
 }
 //operator_ = [+-*/%^]|&&|\|\||==|[!<>][=]?|[a-zA-Z_]+;
-size_t sqf::parser::sqf::default::instance::operator_(size_t off) {
-    if (off >= m_contents.length()) { return 0; }
-    if (m_contents[off] == '+' || m_contents[off] == '-' || m_contents[off] == '*' || m_contents[off] == '/' || m_contents[off] == '%' || m_contents[off] == '^' || m_contents[off] == ':' || m_contents[off] == '#') return 1;
-    if ((m_contents[off] == '|' && m_contents[off + 1] == '|') || (m_contents[off] == '&' && m_contents[off + 1] == '&') || (m_contents[off] == '=' && m_contents[off + 1] == '=') || (m_contents[off] == '>' && m_contents[off + 1] == '>')) return 2;
-    if (m_contents[off] == '<' || m_contents[off] == '>' || m_contents[off] == '!')
+size_t sqf::parser::sqf::default::instance::operator_(size_t off)
+{
+    if (util::is_match<'+', '-', '*', '/', '%', '^', ':', '#'>(m_contents[off])) { return 1; }
+    if (util::is_match_x<2, '|'>(m_contents + off) ||
+        util::is_match_x<2, '&'>(m_contents + off) ||
+        util::is_match_x<2, '='>(m_contents + off) ||
+        util::is_match_x<2, '>'>(m_contents + off) ||
+        util::is_match_x<2, '<'>(m_contents + off)) { return 2; }
+
+    if (util::is_match<'<', '!', '>'>(m_contents[off]))
     {
-        if (m_contents[off + 1] == '=') return 2;
+        if (util::is_match<'='>(m_contents[off + 1])) return 2;
         return 1;
     }
-    size_t i;
-    for (i = off; i < m_contents.length() && ((m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'); i++);
+    return util::len_match<
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
+}
+// hexadecimal = [0-9a-fA-F]+;
+size_t sqf::parser::sqf::default::instance::hexadecimal(size_t off)
+{
+    return util::len_match<
+        'a', 'b', 'c', 'd', 'e', 'f',
+        'A', 'B', 'C', 'D', 'E', 'F',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
+}
+// scalarsub = [0-9]+;
+size_t sqf::parser::sqf::default::instance::scalarsub(size_t off)
+{
+    return util::len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(m_contents + off);
+}
+// scalar = scalarsub(.scalarsub)?;
+size_t sqf::parser::sqf::default::instance::scalar(size_t off)
+{
+    size_t i = off + scalarsub(off);
+    if (util::is_match<'='>(m_contents[off]) == '.')
+    {
+        i += scalarsub(off);
+    }
     return i - off;
 }
-//hexadecimal = [0-9a-fA-F]+;
-size_t sqf::parser::sqf::default::instance::hexadecimal(size_t off) { if (off >= m_contents.length()) { return 0; }size_t i; for (i = off; (m_contents[i] >= 'a' && m_contents[i] <= 'f') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= '0' && m_contents[i] <= '9'); i++) {}; return i - off; }
-//scalarsub = [0-9]+;
-size_t sqf::parser::sqf::default::instance::scalarsub(size_t off) { if (off >= m_contents.length()) { return 0; } size_t i; for (i = off; m_contents[i] >= '0' && m_contents[i] <= '9'; i++) {}; return i - off; }
-//scalar = scalarsub(.scalarsub)?;
-size_t sqf::parser::sqf::default::instance::scalar(size_t off) { if (off >= m_contents.length()) { return 0; }size_t i = off + scalarsub(off); if (m_contents[off] == '.') i += scalarsub(off); return i - off; }
-//anytext = (?![ \t\r\n;])+;
-size_t sqf::parser::sqf::default::instance::anytext(size_t off) { if (off >= m_contents.length()) { return 0; } size_t i; for (i = off; m_contents[i] != ' ' && m_contents[i] != '\t' && m_contents[i] != '\r' && m_contents[i] != '\n' && m_contents[i] != ';'; i++) {}; return i - off; }
+// anytext = (?![ \t\r\n;])+;
+size_t sqf::parser::sqf::default::instance::anytext(size_t off)
+{
+    const char* begin = m_contents + off;
+    const char* it = begin;
+    for (; !util::is_match<' ', '\t', '\r', '\n', ';', '\0'>(*it); ++it) {};
+    return it - begin;
+}
 //SQF = [ STATEMENT { endchr { endchr } STATEMENT } ]
 bool ::sqf::parser::sqf::default::instance::SQF_start(size_t curoff) { return true; }
 void ::sqf::parser::sqf::default::instance::SQF(astnode& root, bool& errflag)
@@ -226,9 +264,10 @@ bool ::sqf::parser::sqf::default::instance::ASSIGNMENT_start(size_t curoff)
     const char* priv = "private";
 #endif
 
-    if (curoff + ::sqf::runtime::util::strlen(priv) >= m_contents.length()) { return 0; }
-    if (std::equal(m_contents.begin() + curoff, m_contents.begin() + curoff + ::sqf::runtime::util::strlen(priv),
-        priv, priv + ::sqf::runtime::util::strlen(priv), [](char l, char r) { return std::tolower(l) == std::tolower(r); }))
+    if (std::equal(
+        m_contents + curoff, m_contents + curoff + ::sqf::runtime::util::strlen(priv),
+        priv, priv + ::sqf::runtime::util::strlen(priv),
+        [](char l, char r) { return std::tolower(l) == std::tolower(r); }))
     {
         curoff += ::sqf::runtime::util::strlen(priv);
         skip(curoff);
@@ -237,7 +276,7 @@ bool ::sqf::parser::sqf::default::instance::ASSIGNMENT_start(size_t curoff)
     {
         curoff += len;
         skip(curoff);
-        return curoff < m_contents.length() && m_contents[curoff] == '=' && m_contents[curoff + 1] != '=';
+        return m_contents[curoff] == '=' && m_contents[curoff + 1] != '=';
     }
     else
     {
@@ -258,8 +297,10 @@ void ::sqf::parser::sqf::default::instance::ASSIGNMENT(astnode& root, bool& errf
     const char* priv = "private";
 #endif
 
-    if (std::equal(m_contents.begin() + m_info.offset, m_contents.begin() + m_info.offset + ::sqf::runtime::util::strlen(priv),
-        priv, priv + ::sqf::runtime::util::strlen(priv), [](char l, char r) { return std::tolower(l) == std::tolower(r); }))
+    if (std::equal(
+        m_contents + m_info.offset, m_contents + m_info.offset + ::sqf::runtime::util::strlen(priv),
+        priv, priv + ::sqf::runtime::util::strlen(priv),
+        [](char l, char r) { return std::tolower(l) == std::tolower(r); }))
     {
         m_info.offset += ::sqf::runtime::util::strlen(priv);
         m_info.column += ::sqf::runtime::util::strlen(priv);
@@ -874,7 +915,7 @@ void ::sqf::parser::sqf::default::instance::BINARYEXPRESSION(astnode& root, bool
     bexp1(root, errflag);
 }
 //BRACKETS = '(' BINARYEXPRESSION ')';
-bool ::sqf::parser::sqf::default::instance::BRACKETS_start(size_t curoff) { if (curoff >= m_contents.length()) { return 0; } return m_contents[curoff] == '('; }
+bool ::sqf::parser::sqf::default::instance::BRACKETS_start(size_t curoff) {  return m_contents[curoff] == '('; }
 void ::sqf::parser::sqf::default::instance::BRACKETS(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
@@ -1010,7 +1051,6 @@ void ::sqf::parser::sqf::default::instance::UNARYEXPRESSION(astnode& root, bool&
 //NUMBER = ("0x" | '$' | '.') hexadecimal | scalar;
 bool ::sqf::parser::sqf::default::instance::NUMBER_start(size_t curoff)
 {
-    if (curoff >= m_contents.length()) { return 0; }
     return  m_contents[curoff] == '$' ||
         (
             m_contents[curoff] == '.' &&
@@ -1030,7 +1070,7 @@ void ::sqf::parser::sqf::default::instance::NUMBER(astnode& root, bool& errflag)
     {
         thisnode.kind = nodetype::HEXNUMBER;
         size_t i;
-        for (i = m_info.offset + 1; (i < m_contents.length()) && (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
+        for (i = m_info.offset + 1; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
         auto ident = std::string(m_contents.substr(m_info.offset + 1, i - m_info.offset));
         thisnode.content = ident;
         thisnode.offset = m_info.offset;
@@ -1042,7 +1082,7 @@ void ::sqf::parser::sqf::default::instance::NUMBER(astnode& root, bool& errflag)
     {
         thisnode.kind = nodetype::HEXNUMBER;
         size_t i;
-        for (i = m_info.offset + 2; (i < m_contents.length()) && (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
+        for (i = m_info.offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
         auto ident = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
         thisnode.content = ident;
         thisnode.offset = m_info.offset;
@@ -1055,7 +1095,7 @@ void ::sqf::parser::sqf::default::instance::NUMBER(astnode& root, bool& errflag)
         size_t i = m_info.offset;
         bool numhaddot = false;
         unsigned short numhadexp = 0;
-        while (i < m_contents.length())
+        while (true)
         {
             if (m_contents[i] >= '0' && m_contents[i] <= '9')
             {
@@ -1120,7 +1160,7 @@ void ::sqf::parser::sqf::default::instance::VARIABLE(astnode& root, bool& errfla
     root.children.emplace_back(std::move(thisnode));
 }
 //STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
-bool ::sqf::parser::sqf::default::instance::STRING_start(size_t curoff) { if (curoff >= m_contents.length()) { return 0; } return m_contents[curoff] == '\'' || m_contents[curoff] == '"'; }
+bool ::sqf::parser::sqf::default::instance::STRING_start(size_t curoff) { return m_contents[curoff] == '\'' || m_contents[curoff] == '"'; }
 void ::sqf::parser::sqf::default::instance::STRING(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
@@ -1131,7 +1171,7 @@ void ::sqf::parser::sqf::default::instance::STRING(astnode& root, bool& errflag)
     size_t i;
     auto startchr = m_contents[m_info.offset];
     m_info.column++;
-    for (i = m_info.offset + 1; m_contents.length() != i && (m_contents[i] != startchr || m_contents[i + 1] == startchr); i++)
+    for (i = m_info.offset + 1; (m_contents[i] != startchr || m_contents[i + 1] == startchr) && m_contents[i] != '\0'; i++)
     {
         if (m_contents[i] == startchr)
         {
@@ -1148,6 +1188,10 @@ void ::sqf::parser::sqf::default::instance::STRING(astnode& root, bool& errflag)
             m_info.column++;
         }
     }
+    if (m_contents[i] != startchr)
+    {
+        m_owner.log(err::MissingStringTermination(m_info));
+    }
     i++;
     m_info.column++;
     auto fullstring = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
@@ -1158,7 +1202,7 @@ void ::sqf::parser::sqf::default::instance::STRING(astnode& root, bool& errflag)
     root.children.emplace_back(std::move(thisnode));
 }
 //CODE = "{" SQF "}";
-bool ::sqf::parser::sqf::default::instance::CODE_start(size_t curoff) { if (curoff >= m_contents.length()) { return 0; } return m_contents[curoff] == '{'; }
+bool ::sqf::parser::sqf::default::instance::CODE_start(size_t curoff) { return m_contents[curoff] == '{'; }
 void ::sqf::parser::sqf::default::instance::CODE(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
@@ -1182,7 +1226,7 @@ void ::sqf::parser::sqf::default::instance::CODE(astnode& root, bool& errflag)
         errflag = true;
     }
 
-    if (m_contents.size() > m_info.offset && m_contents[m_info.offset] == '}')
+    if (m_contents[m_info.offset] == '}')
     {
         m_info.offset++;
         m_info.column++;
@@ -1196,7 +1240,7 @@ void ::sqf::parser::sqf::default::instance::CODE(astnode& root, bool& errflag)
     root.children.emplace_back(std::move(thisnode));
 }
 //ARRAY = '[' [ BINARYEXPRESSION { ',' BINARYEXPRESSION } ] ']';
-bool ::sqf::parser::sqf::default::instance::ARRAY_start(size_t curoff) { if (curoff >= m_contents.length()) { return 0; } return m_contents[curoff] == '['; }
+bool ::sqf::parser::sqf::default::instance::ARRAY_start(size_t curoff) { return m_contents[curoff] == '['; }
 void ::sqf::parser::sqf::default::instance::ARRAY(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
@@ -1212,7 +1256,7 @@ void ::sqf::parser::sqf::default::instance::ARRAY(astnode& root, bool& errflag)
     {
         BINARYEXPRESSION(thisnode, errflag);
         skip(m_info);
-        while (m_contents.length() > m_info.offset && m_contents[m_info.offset] == ',')
+        while (m_contents[m_info.offset] == ',')
         {
             m_info.column++;
             m_info.offset++;
@@ -1230,7 +1274,7 @@ void ::sqf::parser::sqf::default::instance::ARRAY(astnode& root, bool& errflag)
             }
         }
     }
-    if (m_contents.length() > m_info.offset && m_contents[m_info.offset] == ']')
+    if (m_contents[m_info.offset] == ']')
     {
         m_info.offset++;
         m_info.column++;
@@ -1250,12 +1294,12 @@ sqf::parser::sqf::default::astnode sqf::parser::sqf::default::instance::parse(bo
     astnode node;
     node.kind = nodetype::SQF;
     node.offset = 0;
-    node.content = m_contents;
+    node.content = m_contents.substr();
     node.path = m_file;
     SQF(node, errflag);
     node.length = m_info.offset;
     skip(m_info);
-    if (!errflag && m_contents.length() > m_info.offset) {
+    if (!errflag && m_info.offset < m_contents.size()) {
         m_owner.log(err::EndOfFile(m_info));
         errflag = true;
     }

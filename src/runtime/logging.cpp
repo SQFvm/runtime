@@ -728,6 +728,18 @@ namespace logmessage::sqf
 		output.append("' cannot be used in code."sv);
 		return output;
 	}
+	std::string MissingStringTermination::formatMessage() const
+	{
+		auto output = location.format();
+
+		output.reserve(
+			output.length()
+			+ "Unterminated string."sv.length()
+		);
+
+		output.append("Unterminated string."sv);
+		return output;
+	}
 }
 
 namespace logmessage::config
@@ -2626,6 +2638,23 @@ namespace logmessage::runtime
 		);
 
 		output.append(message);
+		return output;
+	}
+	std::string AssigningNilValue::formatMessage() const
+	{
+		auto output = location.format();
+		auto variable_name = m_variable_name;
+
+		output.reserve(
+			output.length()
+			+ "Assigning nil to variable '"sv.length()
+			+ variable_name.length()
+			+ "'."sv.length()
+		);
+
+		output.append("Assigning nil to variable '"sv);
+		output.append(variable_name);
+		output.append("'."sv);
 		return output;
 	}
 }

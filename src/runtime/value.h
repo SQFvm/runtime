@@ -22,17 +22,15 @@ namespace sqf::runtime
 		value() {}
 
 		template<typename T>
-		value(T t) : m_data(to_data(t)) { }
+		value(T t) : m_data(sqf::types::to_data(t)) { }
 		template<typename T>
 		value(std::shared_ptr<T> d) : m_data(std::move(d)) { }
-
-		explicit operator type() const { return m_data ? m_data->type() : sqf::types::t_nothing(); };
 
 		template<class T>
 		bool is() const
 		{
 			static_assert(std::is_base_of<sqf::runtime::type, T>::value, "value::is<T>() can only be used with sqf::runtime::type types.");
-			return this->operator sqf::runtime::type() == T();
+			return type() == T();
 		}
 		bool is(sqf::runtime::type t) const
 		{
@@ -52,6 +50,8 @@ namespace sqf::runtime
 
 		std::string to_string_sqf() const { return m_data ? m_data->to_string_sqf() : std::string("nil"); }
 		std::string to_string() const { return m_data ? m_data->to_string() : std::string(); }
+
+		explicit operator type() const { return type(); };
 		sqf::runtime::type type() const { return m_data ? m_data->type() : sqf::types::t_nothing(); }
 
 		/// <summary>

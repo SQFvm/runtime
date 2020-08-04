@@ -39,7 +39,7 @@ namespace
 		auto r = (right.data<d_scalar, float>());
 		if (r == 0)
 		{
-			runtime.__logmsg(err::ZeroDivisor((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ZeroDivisor(runtime.context_active().current_frame().diag_info_from_position()));
 			return 0;
 		}
 		return (left.data<d_scalar, float>()) / r;

@@ -338,8 +338,14 @@ namespace sqf::runtime
         sqf::runtime::parser::preprocessor& parser_preprocessor() { return *m_parser_preprocessor; }
 
 
+    public:
         /// <summary>
-        /// Breaks encapsulation to provide access to local-logger of runtime.
+        /// Special field that keeps track of the messages that occured (in order) during the current execution.
+        /// Cleared after each instruction execution.
+        /// </summary>
+        std::vector<std::string> log_messages;
+        /// <summary>
+        /// Breaks encapsulation to provide access to local-logger of runtime to operators.
         /// </summary>
         /// <remarks>
         /// Should not be used outside of non-runtime-related operations (eg. Normal program IO)
@@ -352,8 +358,15 @@ namespace sqf::runtime
             if (message.getLevel() <= loglevel::error)
             {
                 m_runtime_error = true;
+                log_messages.push_back(message.formatMessage());
             }
         }
+
+        /// <summary>
+        /// Method that can tell wether a __logmsg operation has
+        /// an errored.
+        /// </summary>
+        /// <returns></returns>
         inline bool& __runtime_error() { return m_runtime_error; }
     };
 }

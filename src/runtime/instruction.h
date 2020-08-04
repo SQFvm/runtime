@@ -25,8 +25,6 @@ namespace sqf::runtime
 			short parent_precedence, bool left_from_binary) const = 0;
 		virtual bool equals(const instruction* p_other) const = 0;
 
-		bool operator==(const sptr other) const { return equals(other.get()); }
-
 		sqf::runtime::diagnostics::diag_info diag_info() const { return m_diag_info; }
 		void diag_info(sqf::runtime::diagnostics::diag_info dinf) { m_diag_info = dinf; }
 	};

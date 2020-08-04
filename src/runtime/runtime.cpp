@@ -1,5 +1,7 @@
 #include "runtime.h"
 #include "diagnostics/stacktrace.h"
+#include "d_array.h"
+#include "d_string.h"
 #include "diagnostics/d_stacktrace.h"
 
 #include <optional>
@@ -182,8 +184,15 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
 
         (*instruction)->execute(runtime);
 
-        if (runtime_error)
+
+        if (!runtime_error)
         {
+            runtime.log_messages.clear();
+        }
+        else
+        {
+            auto log_messages = runtime.log_messages;
+            runtime.log_messages.clear();
             // Build Stacktrace
             std::vector<sqf::runtime::frame> stacktrace_frames(context_active.frames_rbegin(), context_active.frames_rend());
             sqf::runtime::diagnostics::stacktrace stacktrace(stacktrace_frames);
@@ -194,7 +203,7 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
 
             if (res != context_active.frames_rend())
             { // We found a recoverable frame
-
+                stacktrace.value = std::make_shared<sqf::types::d_array>(log_messages.begin(), log_messages.end());
                 // Push Stacktrace to value-stack
                 context_active.push_value({ std::make_shared<sqf::types::d_stacktrace>(stacktrace) });
 

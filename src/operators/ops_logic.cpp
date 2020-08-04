@@ -89,6 +89,10 @@ namespace
 	}
 	value isequalto_any_any(runtime& runtime, value::cref left, value::cref right)
 	{
+		if (left.empty() && right.empty())
+		{
+			return false;
+		}
 		return left == right;
 	}
 	value isequaltype_any_any(runtime& runtime, value::cref left, value::cref right)

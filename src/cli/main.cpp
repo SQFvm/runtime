@@ -2,6 +2,7 @@
 #include "../runtime/runtime.h"
 #include "../runtime/git_sha1.h"
 
+#include "../operators/object.h"
 #include "../operators/ops_config.h"
 #include "../operators/ops_diag.h"
 #include "../operators/ops_generic.h"
@@ -208,8 +209,8 @@ int main(int argc, char** argv)
     // TCLAP::ValueArg<int> serverArg("s", "server", "Causes the SQF-VM to start a network server that allows other SQF-VM instances to connecto to it via remoteConnect__.", false, 0, "PORT");
     // cmd.add(serverArg);
 
-    TCLAP::SwitchArg disableClassnameCheckArg("c", "check-classnames", "Enables the config checking for eg. createVehicle.", false);
-    cmd.add(disableClassnameCheckArg);
+    TCLAP::SwitchArg enableClassnameCheckArg("c", "check-classnames", "Enables the config checking for eg. createVehicle.", false);
+    cmd.add(enableClassnameCheckArg);
 
     TCLAP::SwitchArg interactiveArg("", "interactive", "Starts into the interactive mode. Interactive mode will run the VM in a separate thread, allowing you "
         "to control the behavior via basic commands.", false);
@@ -241,14 +242,14 @@ int main(int argc, char** argv)
     // TCLAP::SwitchArg lintPrivateVarExistingArg("", "lint-private-var-usage", "Adds the 'private_var_usage' lint check to the SQF-VM SQF Parser. Note that this check requires assembly generation.", false);
     // cmd.add(lintPrivateVarExistingArg);
 
-    TCLAP::SwitchArg noWorkPrintArg("", "no-work-print", "Disables the printing of all values which are on the work stack.", false);
-    cmd.add(noWorkPrintArg);
-
     TCLAP::SwitchArg noExecutePrintArg("", "no-execute-print", "Disables the `Executing...` and two horizontal lines hint printing.", false);
     cmd.add(noExecutePrintArg);
 
     TCLAP::SwitchArg noLoadExecDirArg("", "no-load-execdir", "Prevents automatically adding the workspace to the path of allowed locations.", false);
     cmd.add(noLoadExecDirArg);
+
+    TCLAP::SwitchArg noSpawnPlayerArg("", "no-spawn-player", "Prevents automatic \"spawn\" of the player.", false);
+    cmd.add(noSpawnPlayerArg);
 
     // TCLAP::SwitchArg noAssemblyCreationArg("", "no-assembly-creation", "Will force to use only the SQF parser. "
     //     "Execution of SQF-code will not work with this. "
@@ -375,7 +376,7 @@ int main(int argc, char** argv)
 
     StdOutLogger logger;
     sqf::runtime::runtime::runtime_conf conf;
-    conf.enable_classname_check = !disableClassnameCheckArg.getValue();
+    conf.enable_classname_check = enableClassnameCheckArg.getValue();
 
     sqf::runtime::runtime runtime(logger, conf);
     runtime.fileio(std::make_unique<sqf::fileio::default>());
@@ -393,6 +394,13 @@ int main(int argc, char** argv)
     sqf::operators::ops_object(runtime);
     sqf::operators::ops_sqfvm(runtime);
     sqf::operators::ops_string(runtime);
+
+    if (!noSpawnPlayerArg.getValue())
+    {
+        auto player_object = sqf::types::object::create(runtime, {}, false);;
+        runtime.storage<sqf::types::object::object_storage>().player(player_object);
+    }
+
     //netserver* srv = nullptr;
 
     // if (lintPrivateVarExistingArg.getValue())
@@ -459,13 +467,13 @@ int main(int argc, char** argv)
     for (auto& f : commandDummyNular.getValue())
     {
         runtime.register_sqfop(sqf::runtime::sqfop::nular(f, "DUMMY", [](sqf::runtime::runtime& runtime) -> sqf::runtime::value {
-            runtime.__logmsg(logmessage::runtime::ErrorMessage((*runtime.context_active().current_frame().current())->diag_info(), "DUMMY", "DUMMY")); return {};
+            runtime.__logmsg(logmessage::runtime::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "DUMMY", "DUMMY")); return {};
         }));
     }
     for (auto& f : commandDummyUnary.getValue())
     {
         runtime.register_sqfop(sqf::runtime::sqfop::unary(f, sqf::types::t_any(), "DUMMY", [](sqf::runtime::runtime& runtime, sqf::runtime::value::cref r) -> sqf::runtime::value {
-            runtime.__logmsg(logmessage::runtime::ErrorMessage((*runtime.context_active().current_frame().current())->diag_info(), "DUMMY", "DUMMY")); return {};
+            runtime.__logmsg(logmessage::runtime::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "DUMMY", "DUMMY")); return {};
         }));
     }
     for (auto& f : commandDummyBinary.getValue())
@@ -480,7 +488,7 @@ int main(int argc, char** argv)
         auto precedence = f.substr(0, split_index);
         auto name = f.substr(split_index + 1);
         runtime.register_sqfop(sqf::runtime::sqfop::binary(static_cast<short>(std::stoi(precedence)), name, sqf::types::t_any(), sqf::types::t_any(), "DUMMY", [](sqf::runtime::runtime& runtime, sqf::runtime::value::cref l, sqf::runtime::value::cref r) -> sqf::runtime::value {
-            runtime.__logmsg(logmessage::runtime::ErrorMessage((*runtime.context_active().current_frame().current())->diag_info(), "DUMMY", "DUMMY")); return {};
+            runtime.__logmsg(logmessage::runtime::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "DUMMY", "DUMMY")); return {};
         }));
     }
 
@@ -873,19 +881,6 @@ int main(int argc, char** argv)
             if (result != sqf::runtime::runtime::result::ok)
             {
                 runtime.execute(sqf::runtime::runtime::action::abort);
-            }
-            if (!noWorkPrintArg.getValue())
-            {
-                auto val = runtime.context_active().pop_value();
-                if (val.has_value() && val->data())
-                {
-                    std::cout << "[WORK]\t<" << val->type().to_string() << ">\t" << val->data()->to_string_sqf() << std::endl;
-                }
-                else
-                {
-                    std::cout << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
-                }
-                std::wcout << std::endl;
             }
         } while (!automated && !runtime.is_exit_requested());
     }

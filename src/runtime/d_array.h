@@ -12,10 +12,6 @@
 #include "value.h"
 #include "d_scalar.h"
 
-
-
-
-
 namespace sqf
 {
 	namespace runtime
@@ -69,7 +65,19 @@ namespace sqf
 				if (other_array->size() != m_value.size()) { return false; }
 				for (size_t i = 0; i < m_value.size(); i++)
 				{
-					if (!m_value[i].data()->equals(other_array->m_value[i].data(), invariant))
+					// check if both empty
+					if (m_value[i].empty() && other_array->m_value[i].empty())
+					{
+						// Arma returns false on nil isEqualTo nil
+						return false;
+					}
+					// check if one is empty
+					else if (m_value[i].empty() || other_array->m_value[i].empty())
+					{
+						return false;
+					}
+					// Do actual comparison
+					else if (!m_value[i].data()->equals(other_array->m_value[i].data(), invariant))
 					{
 						return false;
 					}

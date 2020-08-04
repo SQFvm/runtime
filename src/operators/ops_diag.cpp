@@ -17,7 +17,7 @@ namespace
 	value diag_log_any(runtime& runtime, value::cref right)
 	{
 		auto r = right.to_string();
-		runtime.__logmsg(err::InfoMessage((*runtime.context_active().current_frame().current())->diag_info(), "DIAG_LOG", r));
+		runtime.__logmsg(err::InfoMessage(runtime.context_active().current_frame().diag_info_from_position(), "DIAG_LOG", r));
 		return {};
 	}
 	value diag_tickTime_(runtime& runtime)
@@ -33,7 +33,7 @@ namespace
 		auto r = right.data<d_boolean>()->value();
 		if (!r)
 		{
-			runtime.__logmsg(err::AssertFailed((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::AssertFailed(runtime.context_active().current_frame().diag_info_from_position()));
 		}
 		return right;
 	}

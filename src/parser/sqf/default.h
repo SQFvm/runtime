@@ -3,10 +3,13 @@
 #include "../../runtime/logging.h"
 #include "../../runtime/diagnostics/diag_info.h"
 #include "../../runtime/fileio.h"
+#include "../../runtime/util.h"
 
 #include <string>
 #include <string_view>
 #include <vector>
+
+
 
 namespace sqf::parser::sqf
 {
@@ -64,12 +67,12 @@ namespace sqf::parser::sqf
 		private:
 			::sqf::runtime::runtime& m_runtime;
 			default& m_owner;
-			std::string_view m_contents;
+			::sqf::parser::util::string_ref m_contents;
 			::sqf::runtime::fileio::pathinfo m_file;
 			::sqf::runtime::diagnostics::diag_info m_info;
 
 		public:
-			instance(::sqf::runtime::runtime& runtime, default& owner, std::string_view contents, ::sqf::runtime::fileio::pathinfo file) :
+			instance(::sqf::runtime::runtime& runtime, default& owner, std::string& contents, ::sqf::runtime::fileio::pathinfo file) :
 				m_runtime(runtime), m_owner(owner), m_contents(contents), m_file(file)
 			{
 				::sqf::runtime::diagnostics::diag_info dinf(1, 0, 0, m_file, {});

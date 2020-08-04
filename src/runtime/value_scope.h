@@ -27,7 +27,7 @@ namespace sqf::runtime
 
 		bool contains(std::string variable_name) const
 		{
-			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return std::tolower(c); });
+			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return (char)std::tolower(c); });
 			auto res = m_map.find(variable_name) != m_map.end();
 #ifdef DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
 			std::cout << "\x1B[33m[VALUE-SCOPE-DBG]\033[0m" <<
@@ -64,6 +64,7 @@ namespace sqf::runtime
 		std::string_view scope_name() const { return m_scope_name; }
 		void scope_name(std::string value) { m_scope_name = value; }
 		void clear() { m_map.clear(); }
+		std::optional<sqf::runtime::value> try_get(std::string variable_name) { if (contains(variable_name)) { return at(variable_name); } return {}; }
 
 		std::unordered_map<std::string, sqf::runtime::value>::iterator begin() { return m_map.begin(); }
 		std::unordered_map<std::string, sqf::runtime::value>::iterator end() { return m_map.end(); }

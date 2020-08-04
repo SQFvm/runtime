@@ -23,7 +23,7 @@ namespace
 		if (!OpenClipboard(NULL))
 		{
 			//vm->wrn() << "Failed to access clipboard." << std::endl;
-			runtime.__logmsg(err::FailedToCopyToClipboard((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::FailedToCopyToClipboard(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
 		EmptyClipboard();
@@ -31,7 +31,7 @@ namespace
 		if (hClipboardData == NULL)
 		{
 			//vm->wrn() << "Failed to allocate clipboard." << std::endl;
-			runtime.__logmsg(err::FailedToCopyToClipboard((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::FailedToCopyToClipboard(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
 		char* pchData = (char*)GlobalLock(hClipboardData);
@@ -41,7 +41,7 @@ namespace
 		CloseClipboard();
 
 #else
-		runtime.__logmsg(err::ClipboardDisabled((*runtime.context_active().current_frame().current())->diag_info()));
+		runtime.__logmsg(err::ClipboardDisabled(runtime.context_active().current_frame().diag_info_from_position()));
 #endif
 		return {};
 

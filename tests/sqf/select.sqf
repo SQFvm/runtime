@@ -49,5 +49,22 @@
 
     ["assertEqual",     { selectMax [0,1,2,3,4] }, 4],                            // selectMax ARRAY
     ["assertEqual",     { selectMin [0,1,2,3,4] }, 0],                            // selectMin ARRAY
-    ["assertEqual",     { selectRandom [0,0,0,0,0] }, 0]                          // selectRandom ARRAY
+    ["assertEqual",     { selectRandom [0,0,0,0,0] }, 0],                         // selectRandom ARRAY
+    ["assertEqual",
+    [
+        "Frame-Variables Cleared before each repetition.",
+        {
+            private _out = [];
+            [1, 2] select
+            {
+                if !isNil "_something" then
+                {
+                    _out pushBack _i;
+                };
+                _something = 1;
+                false
+            };
+            _out
+        }
+    ], []]
 ]

@@ -30,6 +30,7 @@ namespace sqf::opcodes
 				else
 				{
 					vm.__logmsg(logmessage::runtime::VariableNotFound(diag_info(), m_variable_name));
+					vm.context_active().push_value({});
 				}
 			}
 			else
@@ -42,6 +43,7 @@ namespace sqf::opcodes
 				else
 				{
 					vm.__logmsg(logmessage::runtime::VariableNotFound(diag_info(), m_variable_name));
+					vm.context_active().push_value({});
 				}
 			}
 		}

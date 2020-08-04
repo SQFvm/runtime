@@ -43,39 +43,39 @@ namespace
 		auto arr = right.data<d_array>();
 		if (arr->empty())
 		{
-			runtime.__logmsg(err::ExpectedArrayToHaveElements((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedArrayToHaveElements(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
 		if (!arr->at(0).is<t_scalar>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 0, t_scalar(), arr->at(0).type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 0, t_scalar(), arr->at(0).type()));
 			return {};
 		}
 		int start = static_cast<int>(std::round(arr->at(0).data<d_scalar, float>()));
 		if (start < 0)
 		{
-			runtime.__logmsg(err::NegativeIndexWeak((*runtime.context_active().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::NegativeIndexWeak(runtime.context_active().current_frame().diag_info_from_position()));
+			runtime.__logmsg(err::ReturningEmptyString(runtime.context_active().current_frame().diag_info_from_position()));
 			return ""s;
 		}
 		if (start >= static_cast<int>(str.length()))
 		{
-			runtime.__logmsg(err::IndexOutOfRangeWeak((*runtime.context_active().current_frame().current())->diag_info(), str.length(), start));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::IndexOutOfRangeWeak(runtime.context_active().current_frame().diag_info_from_position(), str.length(), start));
+			runtime.__logmsg(err::ReturningEmptyString(runtime.context_active().current_frame().diag_info_from_position()));
 			return ""s;
 		}
 		if (arr->size() >= 2)
 		{
 			if (!arr->at(1).is<t_scalar>())
 			{
-				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 1, t_scalar(), arr->at(1).type()));
+				runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 1, t_scalar(), arr->at(1).type()));
 				return {};
 			}
 			int length = static_cast<int>(std::round(arr->at(1).data<d_scalar, float>()));
 			if (length < 0)
 			{
-				runtime.__logmsg(err::NegativeIndexWeak((*runtime.context_active().current_frame().current())->diag_info()));
-				runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
+				runtime.__logmsg(err::NegativeIndexWeak(runtime.context_active().current_frame().diag_info_from_position()));
+				runtime.__logmsg(err::ReturningEmptyString(runtime.context_active().current_frame().diag_info_from_position()));
 				return ""s;
 			}
 			return str.substr(start, length);
@@ -87,14 +87,14 @@ namespace
 		auto r = right.data<d_array>();
 		if (r->empty())
 		{
-			runtime.__logmsg(err::ExpectedArrayToHaveElementsWeak((*runtime.context_active().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedArrayToHaveElementsWeak(runtime.context_active().current_frame().diag_info_from_position()));
+			runtime.__logmsg(err::ReturningEmptyString(runtime.context_active().current_frame().diag_info_from_position()));
 			return ""s;
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak((*runtime.context_active().current_frame().current())->diag_info(), 0, t_string(), r->at(0).type()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak(runtime.context_active().current_frame().diag_info_from_position(), 0, t_string(), r->at(0).type()));
+			runtime.__logmsg(err::ReturningEmptyString(runtime.context_active().current_frame().diag_info_from_position()));
 			return ""s;
 		}
 		auto format = r->at(0).data<d_string, std::string>();
@@ -108,7 +108,7 @@ namespace
 
 			if (!(format[newoff] >= '0' && format[newoff] <= '9'))
 			{
-				runtime.__logmsg(err::FormatInvalidPlaceholder((*runtime.context_active().current_frame().current())->diag_info(), format[newoff], newoff));
+				runtime.__logmsg(err::FormatInvalidPlaceholder(runtime.context_active().current_frame().diag_info_from_position(), format[newoff], newoff));
 				newoff++;
 			}
 			else
@@ -116,7 +116,7 @@ namespace
 				auto num = std::stoi(format.substr(newoff));
 				if (num >= static_cast<int>(r->size()))
 				{
-					runtime.__logmsg(err::IndexOutOfRangeWeak((*runtime.context_active().current_frame().current())->diag_info(), r->size(), num));
+					runtime.__logmsg(err::IndexOutOfRangeWeak(runtime.context_active().current_frame().diag_info_from_position(), r->size(), num));
 				}
 				else if (r->at(num).is<t_string>())
 				{
@@ -156,7 +156,7 @@ namespace
 			}
 			else
 			{
-				runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, t_scalar(), val.type()));
+				runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), i, t_scalar(), val.type()));
 			}
 		}
 		return sstream.str();

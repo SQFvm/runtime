@@ -48,8 +48,8 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+			runtime.__logmsg(err::ReturningEmptyString(runtime.context_active().current_frame().diag_info_from_position()));
 			return "";
 		}
 		else
@@ -62,8 +62,8 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+			runtime.__logmsg(err::ReturningEmptyString(runtime.context_active().current_frame().diag_info_from_position()));
 			return std::make_shared<d_array>();
 		}
 		else
@@ -76,8 +76,8 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyString((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+			runtime.__logmsg(err::ReturningEmptyString(runtime.context_active().current_frame().diag_info_from_position()));
 			return std::make_shared<d_array>();
 		}
 		else if (grp->value()->empty())
@@ -86,7 +86,7 @@ namespace
 		}
 		else
 		{
-			runtime.__logmsg(logmessage::runtime::GroupNotEmpty((*runtime.context_active().current_frame().current())->diag_info(), grp->value()->group_id()));
+			runtime.__logmsg(logmessage::runtime::GroupNotEmpty(runtime.context_active().current_frame().diag_info_from_position(), std::string(grp->value()->group_id())));
 			return {};
 		}
 	}
@@ -100,8 +100,8 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningNil((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+			runtime.__logmsg(err::ReturningNil(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
 		else
@@ -114,20 +114,20 @@ namespace
 		auto grp = left.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
 		auto leader = right.data<d_object>();
 		if (leader->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
 		auto grp_ = grp->value();
 		auto res = std::find(grp_->begin(), grp_->end(), leader->value());
 		if (res == grp_->end())
 		{
-			runtime.__logmsg(err::GroupLeaderNotPartOfGroup((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::GroupLeaderNotPartOfGroup(runtime.context_active().current_frame().diag_info_from_position()));
 		}
 		grp_->leader(leader);
 		return {};
@@ -137,8 +137,8 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
+			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+			runtime.__logmsg(err::ReturningEmptyArray(runtime.context_active().current_frame().diag_info_from_position()));
 			return std::make_shared<d_array>();
 		}
 		auto scope = std::static_pointer_cast<value_scope>(grp->value());
@@ -156,58 +156,69 @@ namespace
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
-			return std::make_shared<d_array>();
+			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+			runtime.__logmsg(err::ReturningNil(runtime.context_active().current_frame().diag_info_from_position()));
+			return {};
 		}
 		auto scope = std::static_pointer_cast<value_scope>(grp->value());
 		auto variable = right.data<d_string, std::string>();
-
-		return scope->at(variable);
+		
+		auto res = scope->try_get(variable);
+		if (res.has_value())
+		{
+			return *res;
+		}
+		return {};
 	}
 	value getVariable_group_array(runtime& runtime, value::cref left, value::cref right)
 	{
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
-			return std::make_shared<d_array>();
+			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+			runtime.__logmsg(err::ReturningNil(runtime.context_active().current_frame().diag_info_from_position()));
+			return {};
 		}
 		auto scope = std::static_pointer_cast<value_scope>(grp->value());
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, r->size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 2, r->size()));
+			runtime.__logmsg(err::ReturningNil(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 2, t_string(), r->at(0).type()));
+			runtime.__logmsg(err::ReturningNil(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
-
-		return scope->at(r->at(0).data<d_string, std::string>());
+		
+		auto res = scope->try_get(r->at(0).data<d_string, std::string>());
+		if (res.has_value())
+		{
+			return *res;
+		}
+		return r->at(1);
 	}
 	value setVariable_group_array(runtime& runtime, value::cref left, value::cref right)
 	{
 		auto grp = right.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue((*runtime.context_active().current_frame().current())->diag_info()));
-			runtime.__logmsg(err::ReturningEmptyArray((*runtime.context_active().current_frame().current())->diag_info()));
-			return std::make_shared<d_array>();
+			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+			return {};
 		}
 		auto scope = std::static_pointer_cast<value_scope>(grp->value());
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, r->size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 2, r->size()));
 			return {};
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 2, t_string(), r->at(0).type()));
 			return {};
 		}
 

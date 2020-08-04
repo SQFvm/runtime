@@ -154,6 +154,22 @@ namespace sqf::runtime
             return result::ok;
         }
 
+        sqf::runtime::diagnostics::diag_info diag_info_from_position() const
+        {
+            if (m_position == position_invalid)
+            {
+                return (*m_instruction_set.begin())->diag_info();
+            }
+            else if (m_position == m_instruction_set.size())
+            {
+                return m_instruction_set.size() == 0 ? sqf::runtime::diagnostics::diag_info{} : (*m_instruction_set.rbegin())->diag_info();
+            }
+            else
+            {
+                return (*current())->diag_info();
+            }
+        }
+
         void seek(long target, sqf::runtime::frame::seekpos from)
         {
             switch (from)
@@ -193,7 +209,7 @@ namespace sqf::runtime
         sqf::runtime::instruction_set::iterator peek(bool& success) const
         {
             auto pos = m_position >= m_instruction_set.size() ? m_instruction_set.size() - 1 : m_position + 1;
-            auto it = m_instruction_set.begin() + m_position;
+            auto it = m_instruction_set.begin() + pos;
             success = it != m_instruction_set.end();
             return it;
         }

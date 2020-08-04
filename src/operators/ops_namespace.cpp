@@ -50,7 +50,12 @@ namespace
 		auto scope = left.data<d_with, std::shared_ptr<value_scope>>();
 		auto variable = right.data<d_string, std::string>();
 
-		return scope->at(variable);
+		auto res = scope->try_get(variable);
+		if (res.has_value())
+		{
+			return *res;
+		}
+		return {};
 	}
 	value getVariable_namespace_array(runtime& runtime, value::cref left, value::cref right)
 	{
@@ -58,16 +63,23 @@ namespace
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, r->size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 2, r->size()));
+			runtime.__logmsg(err::ReturningNil(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 2, t_string(), r->at(0).type()));
+			runtime.__logmsg(err::ReturningNil(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
 
-		return scope->at(r->at(0).data<d_string, std::string>());
+		auto res = scope->try_get(r->at(0).data<d_string, std::string>());
+		if (res.has_value())
+		{
+			return *res;
+		}
+		return r->at(1);
 
 	}
 	value setVariable_namespace_array(runtime& runtime, value::cref left, value::cref right)
@@ -76,12 +88,12 @@ namespace
 		auto r = right.data<d_array>();
 		if (r->size() != 2)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, r->size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 2, r->size()));
 			return {};
 		}
 		if (!r->at(0).is<t_string>())
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), 2, t_string(), r->at(0).type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 2, t_string(), r->at(0).type()));
 			return {};
 		}
 

@@ -75,11 +75,11 @@ bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, sqf::runtim
 	{
 		if (min == max)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), min, size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), min, size()));
 		}
 		else
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), min, max, size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), min, max, size()));
 		}
 		return false;
 	}
@@ -87,7 +87,7 @@ bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, sqf::runtim
 	{
 		if (!at(i).is(t))
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, t, at(i).type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), i, t, at(i).type()));
 			errflag = false;
 		}
 	}
@@ -102,11 +102,11 @@ bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, const sqf::
 	{
 		if (min == max)
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), min, size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), min, size()));
 		}
 		else
 		{
-			runtime.__logmsg(err::ExpectedArraySizeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), min, max, size()));
+			runtime.__logmsg(err::ExpectedArraySizeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), min, max, size()));
 		}
 		return false;
 	}
@@ -114,7 +114,7 @@ bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, const sqf::
 	{
 		if (!at(i).is(p_t[i]))
 		{
-			runtime.__logmsg(err::ExpectedArrayTypeMissmatch((*runtime.context_active().current_frame().current())->diag_info(), i, p_t[i], at(i).type()));
+			runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), i, p_t[i], at(i).type()));
 			errflag = false;
 		}
 	}

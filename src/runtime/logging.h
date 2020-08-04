@@ -137,12 +137,12 @@ namespace logmessage {
         class IncludeFailed : public PreprocBase {
             static const loglevel level = loglevel::error;
             static const size_t errorCode = 10004;
-            std::string_view line;
-            std::string_view m_exception;
+            std::string line;
+            std::string m_exception;
         public:
-            IncludeFailed(LogLocationInfo loc, std::string_view line, const std::runtime_error& exception) :
+            IncludeFailed(LogLocationInfo loc, std::string line, const std::runtime_error& exception) :
                 PreprocBase(level, errorCode, std::move(loc)), line(line), m_exception(exception.what()) {}
-            IncludeFailed(LogLocationInfo loc, std::string_view line, std::string_view exception) :
+            IncludeFailed(LogLocationInfo loc, std::string line, std::string exception) :
                 PreprocBase(level, errorCode, std::move(loc)), line(line), m_exception(exception) {}
             [[nodiscard]] std::string formatMessage() const override;
         };
@@ -150,9 +150,9 @@ namespace logmessage {
         class MacroDefinedTwice : public PreprocBase {
             static const loglevel level = loglevel::warning;
             static const size_t errorCode = 10005;
-            std::string_view macroname;
+            std::string macroname;
         public:
-            MacroDefinedTwice(LogLocationInfo loc, std::string_view macroname) :
+            MacroDefinedTwice(LogLocationInfo loc, std::string macroname) :
                 PreprocBase(level, errorCode, std::move(loc)), macroname(macroname) {}
             [[nodiscard]] std::string formatMessage() const override;
         };
@@ -160,9 +160,9 @@ namespace logmessage {
         class MacroNotFound : public PreprocBase {
             static const loglevel level = loglevel::warning;
             static const size_t errorCode = 10006;
-            std::string_view macroname;
+            std::string macroname;
         public:
-            MacroNotFound(LogLocationInfo loc, std::string_view macroname) :
+            MacroNotFound(LogLocationInfo loc, std::string macroname) :
                 PreprocBase(level, errorCode, std::move(loc)), macroname(macroname) {}
             [[nodiscard]] std::string formatMessage() const override;
         };
@@ -210,9 +210,9 @@ namespace logmessage {
         class UnknownInstruction : public PreprocBase {
             static const loglevel level = loglevel::error;
             static const size_t errorCode = 10012;
-            std::string_view instruction;
+            std::string instruction;
         public:
-            UnknownInstruction(LogLocationInfo loc, std::string_view instruction) :
+            UnknownInstruction(LogLocationInfo loc, std::string instruction) :
                 PreprocBase(level, errorCode, std::move(loc)), instruction(instruction) {}
             [[nodiscard]] std::string formatMessage() const override;
         };
@@ -282,9 +282,9 @@ namespace logmessage {
 		class UnknownNularOperator : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 20007;
-			std::string_view operator_name;
+			std::string operator_name;
 		public:
-			UnknownNularOperator(LogLocationInfo loc, std::string_view operator_name) :
+			UnknownNularOperator(LogLocationInfo loc, std::string operator_name) :
 				AssemblyBase(level, errorCode, std::move(loc)), operator_name(operator_name) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
@@ -305,9 +305,9 @@ namespace logmessage {
 		class UnknownUnaryOperator : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 20010;
-			std::string_view operator_name;
+			std::string operator_name;
 		public:
-			UnknownUnaryOperator(LogLocationInfo loc, std::string_view operator_name) :
+			UnknownUnaryOperator(LogLocationInfo loc, std::string operator_name) :
 				AssemblyBase(level, errorCode, std::move(loc)), operator_name(operator_name) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
@@ -328,9 +328,9 @@ namespace logmessage {
 		class UnknownBinaryOperator : public AssemblyBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 20013;
-			std::string_view operator_name;
+			std::string operator_name;
 		public:
-			UnknownBinaryOperator(LogLocationInfo loc, std::string_view operator_name) :
+			UnknownBinaryOperator(LogLocationInfo loc, std::string operator_name) :
 				AssemblyBase(level, errorCode, std::move(loc)), operator_name(operator_name) {}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
@@ -425,9 +425,9 @@ namespace logmessage {
 		class MissingUnderscoreOnPrivateVariable : public SqfBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 30003;
-			std::string_view m_variable_name;
+			std::string m_variable_name;
 		public:
-			MissingUnderscoreOnPrivateVariable(LogLocationInfo loc, std::string_view variable_name) :
+			MissingUnderscoreOnPrivateVariable(LogLocationInfo loc, std::string variable_name) :
 				SqfBase(level, errorCode, std::move(loc)),
 			m_variable_name(variable_name) { }
 			[[nodiscard]] std::string formatMessage() const override;
@@ -442,9 +442,9 @@ namespace logmessage {
 		class MissingRightArgument : public SqfBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 30005;
-			std::string_view m_operator_name;
+			std::string m_operator_name;
 		public:
-			MissingRightArgument(LogLocationInfo loc, std::string_view operator_name) :
+			MissingRightArgument(LogLocationInfo loc, std::string operator_name) :
 				SqfBase(level, errorCode, std::move(loc)),
 				m_operator_name(operator_name) { }
 			[[nodiscard]] std::string formatMessage() const override;
@@ -505,11 +505,19 @@ namespace logmessage {
 		class InvalidStartOfGlobalVariable : public SqfBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 30013;
-			std::string_view m_variable_name;
+			std::string m_variable_name;
 		public:
-			InvalidStartOfGlobalVariable(LogLocationInfo loc, std::string_view variable_name) :
+			InvalidStartOfGlobalVariable(LogLocationInfo loc, std::string variable_name) :
 				SqfBase(level, errorCode, std::move(loc)),
 				m_variable_name(variable_name) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class MissingStringTermination : public SqfBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 30014;
+		public:
+			MissingStringTermination(LogLocationInfo loc) :
+				SqfBase(level, errorCode, std::move(loc)) { }
 			[[nodiscard]] std::string formatMessage() const override;
 		};
 	}
@@ -630,9 +638,9 @@ namespace logmessage {
 		class UnassignedVariable : public LintingBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 50001;
-			std::string_view m_variable_name;
+			std::string m_variable_name;
 		public:
-			UnassignedVariable(LogLocationInfo loc, std::string_view variable_name) :
+			UnassignedVariable(LogLocationInfo loc, std::string variable_name) :
 				LintingBase(level, errorCode, std::move(loc)),
 				m_variable_name(variable_name) {}
 			[[nodiscard]] std::string formatMessage() const override;
@@ -881,10 +889,10 @@ namespace logmessage {
 		class InfoMessage: public RuntimeBase {
 			static const loglevel level = loglevel::info;
 			static const size_t errorCode = 60019;
-			std::string_view m_source;
+			std::string m_source;
 			std::string m_message;
 		public:
-			InfoMessage(LogLocationInfo loc, std::string_view source, std::string message) :
+			InfoMessage(LogLocationInfo loc, std::string source, std::string message) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_source(source),
 				m_message(message)
@@ -957,11 +965,11 @@ namespace logmessage {
 		class MagicVariableTypeMissmatch : public RuntimeBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60026;
-			std::string_view m_variable_name;
+			std::string m_variable_name;
 			::sqf::runtime::type m_expected;
 			::sqf::runtime::type m_got;
 		public:
-			MagicVariableTypeMissmatch(LogLocationInfo loc, std::string_view variable_name, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
+			MagicVariableTypeMissmatch(LogLocationInfo loc, std::string variable_name, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_variable_name(variable_name),
 				m_expected(expected),
@@ -990,10 +998,10 @@ namespace logmessage {
 		class ExtensionLoaded : public RuntimeBase {
 			static const loglevel level = loglevel::verbose;
 			static const size_t errorCode = 60029;
-			std::string_view m_extension_name;
+			std::string m_extension_name;
 			std::string m_version;
 		public:
-			ExtensionLoaded(LogLocationInfo loc, std::string_view extension_name, std::string version) :
+			ExtensionLoaded(LogLocationInfo loc, std::string extension_name, std::string version) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_extension_name(extension_name),
 				m_version(version)
@@ -1003,9 +1011,9 @@ namespace logmessage {
 		class ExtensionNotTerminatingVersionString : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60030;
-			std::string_view m_extension_name;
+			std::string m_extension_name;
 		public:
-			ExtensionNotTerminatingVersionString(LogLocationInfo loc, std::string_view extension_name) :
+			ExtensionNotTerminatingVersionString(LogLocationInfo loc, std::string extension_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_extension_name(extension_name)
 			{}
@@ -1015,9 +1023,9 @@ namespace logmessage {
 		class ExtensionNotTerminatingCallExtensionBufferString : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60031;
-			std::string_view m_extension_name;
+			std::string m_extension_name;
 		public:
-			ExtensionNotTerminatingCallExtensionBufferString(LogLocationInfo loc, std::string_view extension_name) :
+			ExtensionNotTerminatingCallExtensionBufferString(LogLocationInfo loc, std::string extension_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_extension_name(extension_name)
 			{}
@@ -1026,9 +1034,9 @@ namespace logmessage {
 		class ExtensionNotTerminatingCallExtensionArgBufferString : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60032;
-			std::string_view m_extension_name;
+			std::string m_extension_name;
 		public:
-			ExtensionNotTerminatingCallExtensionArgBufferString(LogLocationInfo loc, std::string_view extension_name) :
+			ExtensionNotTerminatingCallExtensionArgBufferString(LogLocationInfo loc, std::string extension_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_extension_name(extension_name)
 			{}
@@ -1037,9 +1045,9 @@ namespace logmessage {
 		class LibraryNameContainsPath : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60033;
-			std::string_view m_extension_name;
+			std::string m_extension_name;
 		public:
-			LibraryNameContainsPath(LogLocationInfo loc, std::string_view extension_name) :
+			LibraryNameContainsPath(LogLocationInfo loc, std::string extension_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_extension_name(extension_name)
 			{}
@@ -1057,10 +1065,10 @@ namespace logmessage {
 		class ExtensionRuntimeError : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60035;
-			std::string_view m_extension_name;
-			std::string_view m_what;
+			std::string m_extension_name;
+			std::string m_what;
 		public:
-			ExtensionRuntimeError(LogLocationInfo loc, std::string_view extension_name, std::string_view what) :
+			ExtensionRuntimeError(LogLocationInfo loc, std::string extension_name, std::string what) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_extension_name(extension_name),
 				m_what(what)
@@ -1070,9 +1078,9 @@ namespace logmessage {
 		class FileNotFound : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60036;
-			std::string_view m_filename;
+			std::string m_filename;
 		public:
-			FileNotFound(LogLocationInfo loc, std::string_view filename) :
+			FileNotFound(LogLocationInfo loc, std::string filename) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_filename(filename)
 			{}
@@ -1108,9 +1116,9 @@ namespace logmessage {
 		class ReturningErrorCode : public RuntimeBase {
 			static const loglevel level = loglevel::verbose;
 			static const size_t errorCode = 60040;
-			std::string_view m_error_code;
+			std::string m_error_code;
 		public:
-			ReturningErrorCode(LogLocationInfo loc, std::string_view error_code) :
+			ReturningErrorCode(LogLocationInfo loc, std::string error_code) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_error_code(error_code)
 			{}
@@ -1166,10 +1174,10 @@ namespace logmessage {
 		class ErrorMessage : public RuntimeBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60043;
-			std::string_view m_source;
+			std::string m_source;
 			std::string m_message;
 		public:
-			ErrorMessage(LogLocationInfo loc, std::string_view source, std::string message) :
+			ErrorMessage(LogLocationInfo loc, std::string source, std::string message) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_source(source),
 				m_message(message)
@@ -1206,9 +1214,9 @@ namespace logmessage {
 		class NetworkingFormatMissmatch : public RuntimeBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60047;
-			std::string_view m_provided;
+			std::string m_provided;
 		public:
-			NetworkingFormatMissmatch(LogLocationInfo loc, std::string_view provided) :
+			NetworkingFormatMissmatch(LogLocationInfo loc, std::string provided) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_provided(provided)
 			{}
@@ -1285,9 +1293,9 @@ namespace logmessage {
 		class MarkerNotExisting : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60055;
-			std::string_view m_marker_name;
+			std::string m_marker_name;
 		public:
-			MarkerNotExisting(LogLocationInfo loc, std::string_view marker_name) :
+			MarkerNotExisting(LogLocationInfo loc, std::string marker_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_marker_name(marker_name)
 			{}
@@ -1414,9 +1422,9 @@ namespace logmessage {
 		class MarkerAlreadyExisting : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60067;
-			std::string_view m_marker_name;
+			std::string m_marker_name;
 		public:
-			MarkerAlreadyExisting(LogLocationInfo loc, std::string_view marker_name) :
+			MarkerAlreadyExisting(LogLocationInfo loc, std::string marker_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_marker_name(marker_name)
 			{}
@@ -1425,9 +1433,9 @@ namespace logmessage {
 		class InvalidMarkershape : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60067;
-			std::string_view m_shape_name;
+			std::string m_shape_name;
 		public:
-			InvalidMarkershape(LogLocationInfo loc, std::string_view shape_name) :
+			InvalidMarkershape(LogLocationInfo loc, std::string shape_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_shape_name(shape_name)
 			{}
@@ -1462,9 +1470,9 @@ namespace logmessage {
 		class VariableNotFound : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60070;
-			std::string_view m_variable_name;
+			std::string m_variable_name;
 		public:
-			VariableNotFound(LogLocationInfo loc, std::string_view variable_name) :
+			VariableNotFound(LogLocationInfo loc, std::string variable_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_variable_name(variable_name)
 			{}
@@ -1523,11 +1531,11 @@ namespace logmessage {
 		class UnknownInputTypeCombinationBinary : public RuntimeBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60076;
-			std::string_view m_operator;
+			std::string m_operator;
 			::sqf::runtime::type m_left_got;
 			::sqf::runtime::type m_right_got;
 		public:
-			UnknownInputTypeCombinationBinary(LogLocationInfo loc, ::sqf::runtime::type left_got, std::string_view op, ::sqf::runtime::type right_got) :
+			UnknownInputTypeCombinationBinary(LogLocationInfo loc, ::sqf::runtime::type left_got, std::string op, ::sqf::runtime::type right_got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_operator(op),
 				m_left_got(left_got),
@@ -1538,10 +1546,10 @@ namespace logmessage {
 		class UnknownInputTypeCombinationUnary : public RuntimeBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60077;
-			std::string_view m_operator;
+			std::string m_operator;
 			::sqf::runtime::type m_right_got;
 		public:
-			UnknownInputTypeCombinationUnary(LogLocationInfo loc, std::string_view op, ::sqf::runtime::type right_got) :
+			UnknownInputTypeCombinationUnary(LogLocationInfo loc, std::string op, ::sqf::runtime::type right_got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_operator(op),
 				m_right_got(right_got)
@@ -1551,9 +1559,9 @@ namespace logmessage {
 		class UnknownInputTypeCombinationNular : public RuntimeBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60078;
-			std::string_view m_operator;
+			std::string m_operator;
 		public:
-			UnknownInputTypeCombinationNular(LogLocationInfo loc, std::string_view op) :
+			UnknownInputTypeCombinationNular(LogLocationInfo loc, std::string op) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_operator(op)
 			{}
@@ -1580,9 +1588,9 @@ namespace logmessage {
 		class CallstackFoundNoValue : public RuntimeBase {
 			static const loglevel level = loglevel::error;
 			static const size_t errorCode = 60081;
-			std::string_view m_callstack_name;
+			std::string m_callstack_name;
 		public:
-			CallstackFoundNoValue(LogLocationInfo loc, std::string_view callstack_name) :
+			CallstackFoundNoValue(LogLocationInfo loc, std::string callstack_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_callstack_name(callstack_name)
 			{}
@@ -1591,9 +1599,9 @@ namespace logmessage {
 		class CallstackFoundNoValueWeak : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60082;
-			std::string_view m_callstack_name;
+			std::string m_callstack_name;
 		public:
-			CallstackFoundNoValueWeak(LogLocationInfo loc, std::string_view callstack_name) :
+			CallstackFoundNoValueWeak(LogLocationInfo loc, std::string callstack_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_callstack_name(callstack_name)
 			{}
@@ -1602,9 +1610,9 @@ namespace logmessage {
 		class GroupNotEmpty : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60083;
-			std::string_view m_group_name;
+			std::string m_group_name;
 		public:
-			GroupNotEmpty(LogLocationInfo loc, std::string_view group_name) :
+			GroupNotEmpty(LogLocationInfo loc, std::string group_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_group_name(group_name)
 			{}
@@ -1614,11 +1622,11 @@ namespace logmessage {
 		class ForStepVariableTypeMissmatch : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60084;
-			std::string_view m_variable_name;
+			std::string m_variable_name;
 			::sqf::runtime::type m_expected;
 			::sqf::runtime::type m_got;
 		public:
-			ForStepVariableTypeMissmatch(LogLocationInfo loc, std::string_view variable_name, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
+			ForStepVariableTypeMissmatch(LogLocationInfo loc, std::string variable_name, ::sqf::runtime::type expected, ::sqf::runtime::type got) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_variable_name(variable_name),
 				m_expected(expected),
@@ -1675,9 +1683,9 @@ namespace logmessage {
 		class MagicVariableNotPresent : public RuntimeBase {
 			static const loglevel level = loglevel::warning;
 			static const size_t errorCode = 60089;
-			std::string_view m_variable_name;
+			std::string m_variable_name;
 		public:
-			MagicVariableNotPresent(LogLocationInfo loc, std::string_view variable_name) :
+			MagicVariableNotPresent(LogLocationInfo loc, std::string variable_name) :
 				RuntimeBase(level, errorCode, std::move(loc)),
 				m_variable_name(variable_name)
 			{}
@@ -1689,6 +1697,17 @@ namespace logmessage {
 		public:
 			GroupLeaderNotPartOfGroup(LogLocationInfo loc) :
 				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class AssigningNilValue : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60091;
+			std::string m_variable_name;
+		public:
+			AssigningNilValue(LogLocationInfo loc, std::string variable_name) :
+				RuntimeBase(level, errorCode, std::move(loc)),
+				m_variable_name(variable_name)
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};

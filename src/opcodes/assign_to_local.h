@@ -18,7 +18,7 @@ namespace sqf::opcodes
 			auto& context = vm.context_active();
 
 			auto value = vm.context_active().pop_value();
-			if (!value.has_value() || value->is<sqf::types::t_nothing>())
+			if (!value.has_value())
 			{
 				if (context.weak_error_handling())
 				{
@@ -29,6 +29,10 @@ namespace sqf::opcodes
 					vm.__logmsg(logmessage::runtime::FoundNoValue(diag_info()));
 				}
 				return;
+			}
+			else if (value->is<sqf::types::t_nothing>())
+			{
+				vm.__logmsg(logmessage::runtime::AssigningNilValue(diag_info(), m_variable_name));
 			}
 
 			context.current_frame()[m_variable_name] = *value;

@@ -30,7 +30,7 @@ namespace sqf
             {
                 auto casted = std::static_pointer_cast<d_code>(other);
                 return std::equal(m_value.begin(), m_value.end(), casted->m_value.begin(), casted->m_value.end(),
-                    [](::sqf::runtime::instruction::sptr left, ::sqf::runtime::instruction::sptr right) { return left == right; });
+                    [](::sqf::runtime::instruction::sptr left, ::sqf::runtime::instruction::sptr right) { return left->equals(right.get()); });
             }
         public:
             d_code() = default;
@@ -57,7 +57,7 @@ namespace sqf
                 {
                     sstream << str;
                 }
-                sstream << "}";
+                sstream << " }";
 
                 return sstream.str();
             }

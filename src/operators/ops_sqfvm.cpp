@@ -54,7 +54,7 @@ namespace
     value assembly___string(runtime& runtime, value::cref right)
     {
         auto str = right.data<d_string>();
-        auto set = runtime.parser_sqf().parse(runtime, *str, (*runtime.context_active().current_frame().current())->diag_info().path);
+        auto set = runtime.parser_sqf().parse(runtime, *str, runtime.context_active().current_frame().diag_info_from_position().path);
         if (set.has_value())
         {
             std::vector<value> outarr;
@@ -250,13 +250,13 @@ namespace
         {
             sstream << "Could not find any command with that name." << std::endl;
         }
-        runtime.__logmsg(err::InfoMessage((*runtime.context_active().current_frame().current())->diag_info(), "HELP", sstream.str()));
+        runtime.__logmsg(err::InfoMessage(runtime.context_active().current_frame().diag_info_from_position(), "HELP", sstream.str()));
         return {};
     }
     value configparse___string(runtime& runtime, value::cref right)
     {
         auto str = right.data<d_string, std::string>();
-        runtime.parser_config().parse(runtime.confighost(), str, (*runtime.context_active().current_frame().current())->diag_info());
+        runtime.parser_config().parse(runtime.confighost(), str, runtime.context_active().current_frame().diag_info_from_position());
         return {};
     }
     value allObjects__(runtime& runtime)
@@ -406,14 +406,14 @@ namespace
     }
     value pwd___(runtime& runtime)
     {
-        auto path = std::filesystem::path((*runtime.context_active().current_frame().current())->diag_info().path.physical);
+        auto path = std::filesystem::path(runtime.context_active().current_frame().diag_info_from_position().path.physical);
         auto str = std::filesystem::absolute(path).string();
         std::replace(str.begin(), str.end(), '\\', '/');
         return str;
     }
     value currentDirectory___(runtime& runtime)
     {
-        auto path = std::filesystem::path((*runtime.context_active().current_frame().current())->diag_info().path.physical);
+        auto path = std::filesystem::path(runtime.context_active().current_frame().diag_info_from_position().path.physical);
         auto str = std::filesystem::absolute(path.parent_path()).string();
         std::replace(str.begin(), str.end(), '\\', '/');
         return str;
@@ -433,20 +433,20 @@ namespace
 //    {
 //        if (!runtime.allow_networking())
 //        {
-//            runtime.__logmsg(err::NetworkingDisabled((*runtime.context_active().current_frame().current())->diag_info()));
+//            runtime.__logmsg(err::NetworkingDisabled(runtime.context_active().current_frame().diag_info_from_position()));
 //            return false;
 //        }
 //        networking_init();
 //        if (runtime.is_networking_set())
 //        {
-//            runtime.__logmsg(err::AlreadyConnected((*runtime.context_active().current_frame().current())->diag_info()));
+//            runtime.__logmsg(err::AlreadyConnected(runtime.context_active().current_frame().diag_info_from_position()));
 //            return {};
 //        }
 //        auto s = right.as_string();
 //        auto index = s.find(':');
 //        if (index == std::string::npos)
 //        {
-//            runtime.__logmsg(err::NetworkingFormatMissmatch((*runtime.context_active().current_frame().current())->diag_info(), s));
+//            runtime.__logmsg(err::NetworkingFormatMissmatch(runtime.context_active().current_frame().diag_info_from_position(), s));
 //            return {};
 //        }
 //        auto address = s.substr(0, index);
@@ -454,7 +454,7 @@ namespace
 //        SOCKET socket;
 //        if (networking_create_client(address.c_str(), port.c_str(), &socket))
 //        {
-//            runtime.__logmsg(err::FailedToEstablishConnection((*runtime.context_active().current_frame().current())->diag_info()));
+//            runtime.__logmsg(err::FailedToEstablishConnection(runtime.context_active().current_frame().diag_info_from_position()));
 //            return false;
 //        }
 //        runtime.set_networking(std::make_shared<networking::client>(socket));
@@ -496,7 +496,7 @@ namespace
         else
         {
             // ToDo: Create custom log message for enum errors
-            runtime.__logmsg(err::ErrorMessage((*runtime.context_active().current_frame().current())->diag_info(), "vmctrl", "exec unknown"));
+            runtime.__logmsg(err::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "vmctrl", "exec unknown"));
         }
         return {};
     }
