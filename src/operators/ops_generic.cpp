@@ -597,10 +597,16 @@ namespace
                 auto res = runtime.context_active().pop_value();
                 if (res.has_value())
                 {
-                    auto value = res->data_try<d_boolean, bool>();
-                    if (value.has_value())
+                    if (res->is<t_boolean>())
                     {
-                        m_out.push_back(*res);
+                        if (res->data<d_boolean, bool>())
+                        {
+                            m_out.push_back(m_array->at(m_index));
+                        }
+                    }
+                    else if (res->empty())
+                    {
+                        runtime.__logmsg(logmessage::runtime::TypeMissmatchWeak(frame.diag_info_from_position(), t_boolean(), res->type()));
                     }
                     else
                     {

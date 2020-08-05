@@ -8,7 +8,7 @@
  ********************************************************/
 
 
-// #define _TEST_FRAMEWORK_DEBUG
+//#define _TEST_FRAMEWORK_DEBUG
 
 
 #ifdef _TEST_FRAMEWORK_DEBUG
@@ -40,7 +40,7 @@ test_fnc_testPassed = {
 test_fnc_testFailed = {
     params["___name___", "___desc___", "___index___", "___msg___"];
     DIAGNOSTICS(TEST FAILED);
-    private _msg1 = format["Test !FAILED! '%1' - %2  %3: %4", ___name___, ___index___ + 1, trim__ ___desc___];
+    private _msg1 = format["Test !FAILED! '%1' - %2  %3", ___name___, ___index___ + 1, trim__ ___desc___];
     diag_log _msg1;
     diag_log ___msg___;
     ___failed___ pushBack _msg1;
@@ -131,6 +131,10 @@ test_fnc_setupWrapper = {
         private ___msg___ = format["Exception occurred during setup: %1",  _exception];
         fatalError = true;
     }
+};
+test_fnc_cleanup_carraige_return = {
+    params["___text___"];
+    toString (toArray ___text___ select { /* take all chars but carraige return '\r' */ _x != 13 });
 };
 
 private ___currentDirectory___ = currentDirectory__;
@@ -246,15 +250,18 @@ private ___preprocessor_test_dir = currentDirectory__ + "/" + "preprocess";
             {
                 testsIndex = testsIndex + 1;
                 private ___fpath___ = _x;
-                private ___code___ = { preprocess__ loadFile ___fpath___ };
-                private ___expected___ = loadFile((_x select[0, count _x - 3]) + "txt");
-                diag_log ___fpath___;
-                diag_log((_x select[0, count _x - 3]) + "txt");
-                diag_log preprocess__ loadFile ___fpath___;
-                diag_log loadFile((_x select[0, count _x - 3]) + "txt");
-
+                private ___actual___ = [preprocess__ loadFile ___fpath___] call test_fnc_cleanup_carraige_return;
+                private ___expected___ = [loadFile ((_x select[0, count _x - 3]) + "txt")] call test_fnc_cleanup_carraige_return;
+                
+                DIAGNOSTICS_EXEC((_x select[0 COMMA count _x - 3]) + "txt");
+                DIAGNOSTICS_EXEC(format["___expected___: %1" COMMA toArray (___expected___)]);
+                DIAGNOSTICS_EXEC(___expected___);
+                DIAGNOSTICS_EXEC(___fpath___);
+                DIAGNOSTICS_EXEC(format["___actual___:   %1" COMMA toArray (___actual___)]);
+                DIAGNOSTICS_EXEC(___actual___);
+                
                 private ___name___ = _x select[___currentDirectoryLength___];
-                [___name___, ___code___, "", 0, ___expected___] call test_fnc_assertEqual;
+                [___name___, { ___actual___ }, "", 0, ___expected___] call test_fnc_assertEqual;
             }
             except__
             {

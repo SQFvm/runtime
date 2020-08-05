@@ -75,7 +75,21 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
 
         if (result == sqf::runtime::frame::result::done && context_active.frames_size() == frame_count)
         { // frame is done executing. Pop it from context and rerun.
+
+            // Pop possible return value
+            auto val = context_active.pop_value();
+
+            // Clear the value-stack part of the frame
+            while (context_active.pop_value().has_value());
+
+            // Pop the actual frame
             context_active.pop_frame();
+
+            // Readd return value of frame if it had one
+            if (val.has_value())
+            { context_active.push_value(val.value()); }
+
+            // Restart loop-run
             continue;
         }
 

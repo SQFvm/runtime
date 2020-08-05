@@ -21,17 +21,6 @@
 
 #include "../fileio/default.h"
 
-
-
-
-
-
-
-
-
-
-
-
 #include "interactive_helper.h"
 #include <iostream>
 #include <sstream>
