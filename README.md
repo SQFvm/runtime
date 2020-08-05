@@ -56,7 +56,7 @@ For Issues please use [this](https://github.com/SQFvm/vm/blob/master/ISSUE_TEMPL
 WIP, for now please refer to the Discord.
 
 
-### Build Flags
+### Diagnostics build flags
 
 | Macro Name                                   | Prefix stdout                      | Description                                                                                      |
 |----------------------------------------------|------------------------------------|--------------------------------------------------------------------------------------------------|
