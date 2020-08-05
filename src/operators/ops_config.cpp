@@ -243,6 +243,8 @@ namespace
 				}
 				else
 				{
+					runtime.context_active().clear_values();
+					frame.clear_value_scope();
 					frame["_x"] = m_iterator_current->get();
 					return result::seek_start;
 				}
@@ -306,6 +308,8 @@ namespace
 				}
 				else
 				{
+					runtime.context_active().clear_values();
+					frame.clear_value_scope();
 					frame["_x"] = m_iterator_current->get();
 					return result::seek_start;
 				}

@@ -134,6 +134,8 @@ namespace
                 }
                 else
                 {
+                    runtime.context_active().clear_values();
+                    frame.clear_value_scope();
                     frame["_x"] = m_array->at(m_index);
                     return result::seek_start;
                 }
@@ -302,6 +304,8 @@ namespace
                 }
                 // "Simulate" a frame wait
                 runtime.context_active().suspend(std::chrono::milliseconds(10));
+                runtime.context_active().clear_values();
+                frame.clear_value_scope();
                 return result::seek_start;
             };
         };
@@ -421,7 +425,7 @@ namespace
             behavior_for_exit(std::shared_ptr<d_for> fordata) : m_for(*fordata), m_value(m_for.from()) {}
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
-                auto& res = frame[m_for.variable()];
+                auto res = frame[m_for.variable()];
                 auto value = res.data_try<d_scalar, float>();
                 if (value.has_value())
                 {
@@ -434,6 +438,9 @@ namespace
                         return result::ok;
                     }
                     res = updated;
+                    runtime.context_active().clear_values();
+                    frame.clear_value_scope();
+                    frame[m_for.variable()] = res;
                     return result::seek_start;
                 }
                 else
@@ -473,6 +480,8 @@ namespace
                 }
                 else
                 {
+                    runtime.context_active().clear_values();
+                    frame.clear_value_scope();
                     frame["_forEachIndex"] = m_index;
                     frame["_x"] = m_array->at(m_index);
                     return result::seek_start;
@@ -630,6 +639,8 @@ namespace
                 }
                 else
                 {
+                    runtime.context_active().clear_values();
+                    frame.clear_value_scope();
                     frame["_x"] = m_array->at(m_index);
                     return result::seek_start;
                 }
@@ -835,6 +846,8 @@ namespace
                 }
                 else
                 {
+                    runtime.context_active().clear_values();
+                    frame.clear_value_scope();
                     frame["_x"] = m_array->at(m_index);
                     return result::seek_start;
                 }
@@ -913,15 +926,12 @@ namespace
                 {
                     auto value = res->data();
                     runtime.context_active().push_value(value.get() ? false : true);
-                    return result::ok;
                 }
                 else
                 {
                     runtime.__logmsg(logmessage::runtime::CallstackFoundNoValue(frame.diag_info_from_position(), "isNil"s));
                 }
-                // "Simulate" a frame wait
-                runtime.context_active().suspend(std::chrono::milliseconds(10));
-                return result::seek_start;
+                return result::ok;
             };
         };
 
@@ -1067,6 +1077,8 @@ namespace
                 }
                 else
                 {
+                    runtime.context_active().clear_values();
+                    frame.clear_value_scope();
                     frame["_x"] = m_array->at(m_index);
                     return result::seek_start;
                 }
@@ -1924,7 +1936,7 @@ namespace
         };
         frame f(
             runtime.default_value_scope(),
-            right.data<d_code, sqf::runtime::instruction_set>(),
+            left.data<d_code, sqf::runtime::instruction_set>(),
             {},
             std::make_shared<behavior_catch_exit>(right.data<d_code, sqf::runtime::instruction_set>()));
         runtime.context_active().push_frame(f);

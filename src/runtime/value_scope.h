@@ -63,7 +63,7 @@ namespace sqf::runtime
 		}
 		std::string_view scope_name() const { return m_scope_name; }
 		void scope_name(std::string value) { m_scope_name = value; }
-		void clear() { m_map.clear(); }
+		void clear_value_scope() { m_map.clear(); }
 		std::optional<sqf::runtime::value> try_get(std::string variable_name) { if (contains(variable_name)) { return at(variable_name); } return {}; }
 
 		std::unordered_map<std::string, sqf::runtime::value>::iterator begin() { return m_map.begin(); }

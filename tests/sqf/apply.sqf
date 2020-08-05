@@ -9,7 +9,7 @@
             {
                 if !isNil "_something" then
                 {
-                    _out pushBack _i;
+                    _out pushBack _something;
                 };
                 _something = 1;
                 false

@@ -279,6 +279,9 @@ diag_log "############################################################";
 {
     diag_log _x;
 } forEach ___failed___;
+diag_log "############################################################";
+diag_log format["%1 out of %2 tests passed.", testsPassed, testsIndex];
+diag_log "############################################################";
 if (fatalError) then
 {
     diag_log "FATALERROR occured during testing:";
@@ -293,6 +296,3 @@ else
     diag_log(["FAILED", "SUCCESS"] select(testsPassed == testsIndex));
     exitcode__(testsIndex - testsPassed);
 };
-diag_log "############################################################";
-diag_log format["%1 out of %2 tests passed.", testsPassed, testsIndex];
-diag_log "############################################################";
