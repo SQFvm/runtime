@@ -357,7 +357,12 @@ namespace
                     {
                         if (res->is<t_boolean>())
                         {
-                            return res->data<d_boolean, bool>() ? result::exchange : result::ok;
+                            if (res->data<d_boolean, bool>())
+                            {
+                                runtime.context_active().clear_values();
+                                frame.clear_value_scope();
+                                return m_code.empty() ? result::seek_start : result::exchange;
+                            }
                         }
                         else if (res->empty())
                         {
@@ -374,6 +379,8 @@ namespace
                     }
                 } break;
                 case behavior_while_exit::mode::Code:
+                    runtime.context_active().clear_values();
+                    frame.clear_value_scope();
                     return result::exchange;
                 }
                 return result::ok;
@@ -381,6 +388,12 @@ namespace
         };
         auto condition = left.data<d_code, instruction_set>();
         auto code = right.data<d_code, instruction_set>();
+
+        if (condition.empty())
+        {
+            runtime.__logmsg(logmessage::runtime::ConditionEmpty(runtime.context_active().current_frame().diag_info_from_position()));
+            return {};
+        }
 
         frame f(runtime.default_value_scope(), condition, std::make_shared<behavior_while_exit>(condition, code));
         runtime.context_active().push_frame(f);
@@ -1922,6 +1935,8 @@ namespace
                 else
                 {
                     auto val = runtime.context_active().pop_value();
+                    runtime.context_active().clear_values();
+                    frame.clear_value_scope();
                     if (val.has_value() && val->is<t_stacktrace>())
                     {
                         frame["_exception"] = val->data<d_stacktrace>()->value().value;

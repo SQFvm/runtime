@@ -189,8 +189,8 @@ namespace sqf
 			float distance2dsqr(const object* obj) const { return distance2dsqr(obj->position()); }
 			float distance2dsqr(::sqf::runtime::vec3 obj) const { return distance2dsqr(std::array<float, 2>{ obj.x, obj.y }); }
 			float distance2dsqr(std::array<float, 2> obj) const;
-			float distance2d(std::shared_ptr<object> obj) const { return distance3dsqr(obj->position()); }
-			float distance2d(const object* obj) const { return distance3dsqr(obj->position()); }
+			float distance2d(std::shared_ptr<object> obj) const { return distance2d(obj->position()); }
+			float distance2d(const object* obj) const { return distance2d(obj->position()); }
 			float distance2d(::sqf::runtime::vec3 obj) const { return distance2d(std::array<float, 2>{ obj.x, obj.y }); }
 			float distance2d(std::array<float, 2> obj) const;
 		};

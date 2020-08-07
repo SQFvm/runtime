@@ -153,7 +153,7 @@ namespace sqf
                 return m_variable == of->m_variable && m_from == of->m_from && m_to == of->m_to && m_step == of->m_step;
             }
         public:
-            d_for() : m_variable({}), m_from(0), m_to(0), m_step(0) {}
+            d_for() : m_variable({}), m_from(0), m_to(0), m_step(1.0F) {}
 
             std::string to_string_sqf() const override
             {

@@ -329,6 +329,8 @@ namespace
                 {
                     m_exchanged = true;
                     auto val = runtime.context_active().pop_value();
+                    runtime.context_active().clear_values();
+                    frame.clear_value_scope();
                     frame["_exception"] = val.has_value() ? *val : value{};
                     return result::exchange;
                 }

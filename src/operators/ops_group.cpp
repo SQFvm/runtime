@@ -114,13 +114,13 @@ namespace
 		auto grp = left.data<d_group>();
 		if (grp->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+			runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
 		auto leader = right.data<d_object>();
 		if (leader->is_null())
 		{
-			runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+			runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
 			return {};
 		}
 		auto grp_ = grp->value();

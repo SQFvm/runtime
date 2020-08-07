@@ -316,7 +316,9 @@ namespace sqf::runtime
             m_parser_config(std::make_unique<sqf::parser::config::disabled>()),
             m_parser_preprocessor(std::make_unique<sqf::parser::preprocessor::passthrough>()),
             m_default_scope_key("default"),
-            m_evaluate_halt(false)
+            m_evaluate_halt(false),
+            m_created_timestamp(std::chrono::system_clock::now()),
+            m_runtime_timestamp(m_created_timestamp)
         {
         }
 

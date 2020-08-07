@@ -2657,4 +2657,17 @@ namespace logmessage::runtime
 		output.append("'."sv);
 		return output;
 	}
+	std::string ConditionEmpty::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Condition provided is empty."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
 }

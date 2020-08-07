@@ -1711,6 +1711,15 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+		class ConditionEmpty : public RuntimeBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 60092;
+		public:
+			ConditionEmpty(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
 	}
 }
 
