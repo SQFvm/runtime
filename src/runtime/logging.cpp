@@ -2670,4 +2670,30 @@ namespace logmessage::runtime
 		output.append(message);
 		return output;
 	}
+	std::string NilValueFoundForRightArgumentWeak::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Nil value provided for right-handed argument."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
+	std::string NilValueFoundForLeftArgumentWeak::formatMessage() const
+	{
+		auto output = location.format();
+		const auto message = "Nil value provided for left-handed argument."sv;
+
+		output.reserve(
+			output.length()
+			+ message.length()
+		);
+
+		output.append(message);
+		return output;
+	}
 }

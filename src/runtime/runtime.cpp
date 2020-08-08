@@ -97,6 +97,12 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
         if (runtime.configuration().max_runtime != std::chrono::milliseconds::zero() &&
             runtime.configuration().max_runtime + runtime.runtime_timestamp() < std::chrono::system_clock::now())
         {
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+            std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36mEXIT execute_do\033[0m as max runtime (\x1B[90m" << runtime.configuration().max_runtime.count() << "ms\033[0m) was reached" << std::endl;
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
             runtime.__logmsg(logmessage::runtime::MaximumRuntimeReached((*instruction)->diag_info(), runtime.configuration().max_runtime));
             runtime.exit(0);
             return sqf::runtime::runtime::result::ok;
@@ -234,13 +240,18 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
             }
             else
             { // No recover frame available, exit method
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+                std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                    "        " <<
+                    "        " <<
+                    "    " << "\x1B[36mEXIT execute_do\033[0m as runtime error occured" << std::endl;
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                 runtime_error = false;
                 runtime.__logmsg(logmessage::runtime::Stacktrace((*instruction)->diag_info(), stacktrace));
                 return sqf::runtime::runtime::result::runtime_error;
             }
         }
     }
-    return sqf::runtime::runtime::result::ok;
 }
 
 sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runtime::action action)

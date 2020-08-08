@@ -1720,6 +1720,24 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+		class NilValueFoundForRightArgumentWeak : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60093;
+		public:
+			NilValueFoundForRightArgumentWeak(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class NilValueFoundForLeftArgumentWeak : public RuntimeBase {
+			static const loglevel level = loglevel::warning;
+			static const size_t errorCode = 60094;
+		public:
+			NilValueFoundForLeftArgumentWeak(LogLocationInfo loc) :
+				RuntimeBase(level, errorCode, std::move(loc))
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
 	}
 }
 

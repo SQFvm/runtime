@@ -22,7 +22,7 @@ namespace sqf::opcodes
             auto& context = vm.context_active();
 
             auto right_value = vm.context_active().pop_value();
-            if (!right_value.has_value() || right_value->is<sqf::types::t_nothing>())
+            if (!right_value.has_value())
             {
                 if (context.weak_error_handling())
                 {
@@ -34,20 +34,30 @@ namespace sqf::opcodes
                 }
                 return;
             }
+            else if (right_value->is<sqf::types::t_nothing>())
+            {
+                vm.__logmsg(logmessage::runtime::NilValueFoundForRightArgumentWeak(diag_info()));
+                return;
+            }
 
 
 
             auto left_value = vm.context_active().pop_value();
-            if (!left_value.has_value() || left_value->is<sqf::types::t_nothing>())
+            if (!left_value.has_value())
             {
                 if (context.weak_error_handling())
                 {
-                    vm.__logmsg(logmessage::runtime::NoValueFoundForLeftArgumentWeak(diag_info()));
+                    vm.__logmsg(logmessage::runtime::NoValueFoundForRightArgumentWeak(diag_info()));
                 }
                 else
                 {
-                    vm.__logmsg(logmessage::runtime::NoValueFoundForLeftArgument(diag_info()));
+                    vm.__logmsg(logmessage::runtime::NoValueFoundForRightArgument(diag_info()));
                 }
+                return;
+            }
+            else if (left_value->is<sqf::types::t_nothing>())
+            {
+                vm.__logmsg(logmessage::runtime::NilValueFoundForRightArgumentWeak(diag_info()));
                 return;
             }
 

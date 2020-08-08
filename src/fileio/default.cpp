@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <sstream>
 #include <fstream>
+#include <iterator>
 
 #ifdef DF__SQF_FILEIO__TRACE_REESOLVE
 #include <iostream>
