@@ -305,6 +305,7 @@ namespace sqf::runtime
         runtime(Logger& logger, runtime_conf config) :
             CanLog(logger),
             m_state(state::halted),
+            m_run_atomic(false),
             m_exit_code(0),
             m_is_exit_requested(false),
             m_is_halt_requested(false),

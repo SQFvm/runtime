@@ -20,7 +20,7 @@ namespace sqf::opcodes
             auto& context = vm.context_active();
 
             auto right_value = vm.context_active().pop_value();
-            if (!right_value.has_value() || right_value->is<sqf::types::t_nothing>())
+            if (!right_value.has_value())
             {
                 if (context.weak_error_handling())
                 {
@@ -30,6 +30,11 @@ namespace sqf::opcodes
                 {
                     vm.__logmsg(logmessage::runtime::NoValueFoundForRightArgument(diag_info()));
                 }
+                return;
+            }
+            else if (right_value->is<sqf::types::t_nothing>())
+            {
+                vm.__logmsg(logmessage::runtime::NilValueFoundForRightArgumentWeak(diag_info()));
                 return;
             }
             

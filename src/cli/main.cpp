@@ -871,6 +871,34 @@ int main(int argc, char** argv)
             {
                 runtime.execute(sqf::runtime::runtime::action::abort);
             }
+            switch (result)
+            {
+            case sqf::runtime::runtime::result::invalid:
+                if (verbose)
+                {
+                    std::cout << "Invalid result. Please raise a bug at github concerning this." << std::endl;
+                }
+                break;
+            case sqf::runtime::runtime::result::empty:
+                if (verbose)
+                {
+                    std::cout << "Ran to completion." << std::endl;
+                }
+                break;
+            case sqf::runtime::runtime::result::ok:
+                break;
+            case sqf::runtime::runtime::result::action_error:
+                std::cout << "Performing the action failed." << std::endl;
+                break;
+            case sqf::runtime::runtime::result::runtime_error:
+                if (verbose)
+                {
+                    std::cout << "Runtime Error occured." << std::endl;
+                }
+                break;
+            default:
+                break;
+            }
         } while (!automated && !runtime.is_exit_requested());
     }
 
