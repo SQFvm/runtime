@@ -684,7 +684,7 @@ std::string sqf::parser::preprocessor::default::parse_ppinstruction(::sqf::runti
 {
     auto inst = fileinfo.get_word();
     std::string line{ trim(fileinfo.get_line(true)) };
-    std::transform(inst.begin(), inst.end(), inst.begin(), [](char& c) { return std::toupper(c); });
+    std::transform(inst.begin(), inst.end(), inst.begin(), [](char& c) { return (char)std::toupper((int)c); });
     if (inst == "INCLUDE")
     { // #include "file/path"
         // Trim

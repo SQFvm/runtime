@@ -137,7 +137,7 @@ namespace sqf::runtime
 
         std::optional<sqf::runtime::value> get_variable(std::string variable_name) const
         {
-            std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return std::tolower(c); });
+            std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return (char)std::tolower((int)c); });
             for (auto rit = m_frames.rbegin(); rit != m_frames.rend(); rit++)
             {
                 if (rit->contains(variable_name))

@@ -27,7 +27,7 @@ namespace sqf::runtime
 
 		bool contains(std::string variable_name) const
 		{
-			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return (char)std::tolower(c); });
+			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return (char)std::tolower((int)c); });
 			auto res = m_map.find(variable_name) != m_map.end();
 #ifdef DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
 			std::cout << "\x1B[33m[VALUE-SCOPE-DBG]\033[0m" <<
@@ -39,7 +39,7 @@ namespace sqf::runtime
 		}
 		sqf::runtime::value at(std::string variable_name) const
 		{
-			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return std::tolower(c); });
+			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return (char)std::tolower((int)c); });
 			auto res = m_map.find(variable_name);
 #ifdef DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
 			std::cout << "\x1B[33m[VALUE-SCOPE-DBG]\033[0m" <<
@@ -51,7 +51,7 @@ namespace sqf::runtime
 		}
 		sqf::runtime::value& at(std::string variable_name)
 		{
-			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return std::tolower(c); });
+			std::transform(variable_name.begin(), variable_name.end(), variable_name.begin(), [](char& c) { return (char)std::tolower((int)c); });
 #ifdef DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG
 			auto res = m_map.find(variable_name);
 			std::cout << "\x1B[33m[VALUE-SCOPE-DBG]\033[0m" <<

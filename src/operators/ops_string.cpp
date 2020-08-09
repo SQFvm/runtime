@@ -28,13 +28,13 @@ namespace
 	value toupper_string(runtime& runtime, value::cref right)
 	{
 		auto r = right.data<d_string, std::string>();
-		std::transform(r.begin(), r.end(), r.begin(), [](char& c) { return std::toupper(c); });
+		std::transform(r.begin(), r.end(), r.begin(), [](char& c) { return (char)std::toupper((int)c); });
 		return r;
 	}
 	value tolower_string(runtime& runtime, value::cref right)
 	{
 		auto r = right.data<d_string, std::string>();
-		std::transform(r.begin(), r.end(), r.begin(), [](char& c) { return std::tolower(c); });
+		std::transform(r.begin(), r.end(), r.begin(), [](char& c) { return (char)std::tolower((int)c); });
 		return r;
 	}
 	value select_string_array(runtime& runtime, value::cref left, value::cref right)

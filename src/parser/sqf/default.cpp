@@ -34,21 +34,21 @@ using namespace ::sqf::parser::util;
 bool sqf::parser::sqf::default::instance::m_contains_nular(std::string_view view)
 {
     auto s = std::string(view);
-    std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return std::tolower(c); });
+    std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
     return m_runtime.sqfop_exists(::sqf::runtime::sqfop_nular::key{ s });
 }
 
 bool sqf::parser::sqf::default::instance::m_contains_unary(std::string_view view)
 {
     auto s = std::string(view);
-    std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return std::tolower(c); });
+    std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
     return m_runtime.sqfop_exists_unary(s);
 }
 
 bool sqf::parser::sqf::default::instance::m_contains_binary(std::string_view view, short precedence)
 {
     auto s = std::string(view);
-    std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return std::tolower(c); });
+    std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
     if (!m_runtime.sqfop_exists_binary(s)) { return false; }
     auto& res = m_runtime.sqfop_binary_by_name(s);
     if (precedence == 0) { return !res.empty(); }
@@ -65,7 +65,7 @@ bool sqf::parser::sqf::default::instance::m_contains_binary(std::string_view vie
 short sqf::parser::sqf::default::instance::m_precedence(std::string_view view)
 {
     auto s = std::string(view);
-    std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return std::tolower(c); });
+    std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
     auto& res = m_runtime.sqfop_binary_by_name(s);
     return res.empty() ? 0 : res.front().get().precedence();
 }
@@ -1327,7 +1327,7 @@ bool sqf::parser::sqf::default::instance::to_assembly(::sqf::parser::sqf::defaul
         to_assembly(node.children[0], set);
         to_assembly(node.children[2], set);
         auto s = std::string(node.children[1].content);
-        std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return std::tolower(c); });
+        std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
         auto inst = std::make_shared<::sqf::opcodes::call_binary>(s, (short)(((short)node.kind - (short)nodetype::BEXP1) + 1));
         inst->diag_info({ node.children[1].line, node.children[1].col, node.children[1].offset, node.children[1].path, create_code_segment(m_contents, node.children[1].offset, node.children[1].length) });
         set.push_back(inst);
@@ -1337,7 +1337,7 @@ bool sqf::parser::sqf::default::instance::to_assembly(::sqf::parser::sqf::defaul
     {
         to_assembly(node.children[1], set);
         auto s = std::string(node.children[0].content);
-        std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return std::tolower(c); });
+        std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
         auto inst = std::make_shared<::sqf::opcodes::call_unary>(s);
         inst->diag_info({ node.children[0].line, node.children[0].col, node.children[0].offset, node.children[0].path, create_code_segment(m_contents, node.children[0].offset, node.children[0].length) });
         set.push_back(inst);
@@ -1346,7 +1346,7 @@ bool sqf::parser::sqf::default::instance::to_assembly(::sqf::parser::sqf::defaul
     case nodetype::NULAROP:
     {
         auto s = std::string(node.content);
-        std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return std::tolower(c); });
+        std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
         auto inst = std::make_shared<::sqf::opcodes::call_nular>(s);
         inst->diag_info({ node.line, node.col, node.offset, node.path, create_code_segment(m_contents, node.offset, node.length) });
         set.push_back(inst);

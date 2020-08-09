@@ -111,7 +111,7 @@ namespace sqf::runtime
 		/// <returns>A valid sqfop_nular.</returns>
 		static inline sqfop_nular nular(std::string name, std::string description, sqfop_nular::callback fnc)
 		{
-			std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return std::tolower(c); });
+			std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return (char)std::tolower((int)c); });
 			return { { name }, description, fnc };
 		}
 
@@ -125,7 +125,7 @@ namespace sqf::runtime
 		/// <returns>A valid sqfop_unary.</returns>
 		static inline sqfop_unary unary(std::string name, type rtype, std::string description, sqfop_unary::callback fnc)
 		{
-			std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return std::tolower(c); });
+			std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return (char)std::tolower((int)c); });
 			return { { name, rtype }, description, fnc }; 
 		}
 
@@ -139,7 +139,7 @@ namespace sqf::runtime
 		/// <returns>A valid sqfop_unary.</returns>
 		static inline sqfop_binary binary(short precedence, std::string name, type ltype, type rtype, std::string description, sqfop_binary::callback fnc)
 		{
-			std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return std::tolower(c); });
+			std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return (char)std::tolower((int)c); });
 			return { precedence, { name, ltype, rtype }, description, fnc };
 		}
 	}
