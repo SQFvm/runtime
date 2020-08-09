@@ -753,7 +753,6 @@ namespace
 				return test_opt.value().inherits_or_equal(runtime.confighost(), base_opt.value());
 			}
 		}
-		return false;
 	}
 	value iskindof_string_array(runtime& runtime, value::cref left, value::cref right)
 	{
@@ -785,7 +784,6 @@ namespace
 				return test_opt.value().inherits_or_equal(runtime.confighost(), base_opt.value());
 			}
 		}
-		return false;
 	}
 	value player_(runtime& runtime)
 	{

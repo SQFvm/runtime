@@ -1017,7 +1017,6 @@ namespace logmessage::runtime
 	{
 		std::stringstream sstream;
 		sstream << location.format()  << "Stacktrace:" << m_stacktrace.to_string() << std::endl;
-		int i = 0;
 		return sstream.str();
 	}
 	std::string MaximumRuntimeReached::formatMessage() const

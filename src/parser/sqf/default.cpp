@@ -185,7 +185,7 @@ size_t sqf::parser::sqf::default::instance::scalarsub(size_t off)
 size_t sqf::parser::sqf::default::instance::scalar(size_t off)
 {
     size_t i = off + scalarsub(off);
-    if (util::is_match<'='>(m_contents[off]) == '.')
+    if (util::is_match<'.'>(m_contents[off]))
     {
         i += scalarsub(off);
     }
