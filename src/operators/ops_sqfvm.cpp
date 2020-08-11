@@ -414,7 +414,7 @@ namespace
         std::replace(str.begin(), str.end(), '\\', '/');
         return str;
     }
-    value currentDirectory___(runtime& runtime)
+    value currentdirectory___(runtime& runtime)
     {
         auto path = std::filesystem::path(runtime.context_active().current_frame().diag_info_from_position().path.physical);
         auto str = std::filesystem::absolute(path.parent_path()).string();
@@ -503,13 +503,11 @@ namespace
         }
         return {};
     }
-    value createnamespace___string(runtime& runtime, value::cref right)
+    value customnamespace___string(runtime& runtime, value::cref right)
     {
-        auto scope = std::make_shared<value_scope>();
-        scope->scope_name(right.data<d_string, std::string>());
-        return { std::make_shared<d_namespace>(scope) };
+        return { std::make_shared<d_namespace>(runtime.get_value_scope(right.data<d_string, std::string>())) };
     }
-    value noBubble___ANY_CODE(runtime& runtime, value::cref left, value::cref right)
+    value nobubble___any_code(runtime& runtime, value::cref left, value::cref right)
     {
         frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
         f["_this"] = left;
@@ -517,7 +515,7 @@ namespace
         runtime.context_active().push_frame(f);
         return {};
     }
-    value noBubble___CODE(runtime& runtime, value::cref right)
+    value nobubble___code(runtime& runtime, value::cref right)
     {
         frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
         f["_this"] = {};
@@ -637,12 +635,12 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
         "RIGHT: File extension filters that are looked for. If empty, all files are returned." " "
         , allfiles___array));
     runtime.register_sqfop(nular("pwd__", "Current path determined by current instruction.", pwd___));
-    runtime.register_sqfop(nular("currentDirectory__", "Current directory determined by current instruction.", currentDirectory___));
+    runtime.register_sqfop(nular("currentDirectory__", "Current directory determined by current instruction.", currentdirectory___));
     runtime.register_sqfop(unary("trim__", t_string(), "Trims provided strings start and end.", trim___));
 //    runtime.register_sqfop(unary("remoteConnect__", t_string(), "Connects this as a client to the provided endpoint. Endpoint is expected to have the format ADDRESS:PORT. Returns TRUE on success, false if it failed. Note that IP-Address is required, not DNS names (eg. use '127.0.0.1' instead of 'localhost').", remoteConnect___));
 //    runtime.register_sqfop(nular("closeConnection__", "Closes the connection previously opened using remoteConnect__.", closeconnection___));
     // runtime.register_sqfop(binary(4, "provide__", t_code(), t_array(), "Allows to provide an implementation for a given operator. Will NOT override existing definitions. Array is expected to be of the following formats: nular: [\"name\"], unary: [\"name\", \"type\"], binary: [\"ltype\", \"name\", \"rtype\"]", provide___code_string));
-    runtime.register_sqfop(unary("noBubble__", t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", noBubble___CODE));
-    runtime.register_sqfop(binary(4, "noBubble__", t_any(), t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", noBubble___ANY_CODE));
-    runtime.register_sqfop(unary("createNamespace__", t_string(), "Creates a new namespace with the provided name.", createnamespace___string));
+    runtime.register_sqfop(unary("noBubble__", t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", nobubble___code));
+    runtime.register_sqfop(binary(4, "noBubble__", t_any(), t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", nobubble___any_code));
+    runtime.register_sqfop(unary("customNamespace__", t_string(), "operator to get a custom namespace that lives as long as the VM lives.", customnamespace___string));
 }
