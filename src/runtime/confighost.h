@@ -332,6 +332,16 @@ namespace sqf::runtime
 			return false;
 		}
 
+		confignav parent_inherited() const
+		{
+			if (!empty())
+			{
+				size_t index = m_index;
+				auto& container = m_confighost.m_containers.at(index);
+				return { m_confighost, container.id_parent_inherited };
+			}
+			return { m_confighost, config::invalid_id };
+		}
 		confignav parent_logical() const
 		{
 			if (!empty())
@@ -341,6 +351,15 @@ namespace sqf::runtime
 				return { m_confighost, container.id_parent_logical };
 			}
 			return { m_confighost, config::invalid_id };
+		}
+		void value(::sqf::runtime::value val) const
+		{
+			if (!empty())
+			{
+				size_t index = m_index;
+				auto& container = m_confighost.m_containers.at(index);
+				container.value = val;
+			}
 		}
 
 		iterator begin() const { return { m_confighost, m_index }; }

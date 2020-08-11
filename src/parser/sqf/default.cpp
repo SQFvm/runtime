@@ -252,7 +252,7 @@ void ::sqf::parser::sqf::default::instance::STATEMENT(astnode& root, bool& errfl
         errflag = true;
     }
     //thisnode.length = curoff - thisnode.offset;
-    //root.children.push_back(thisnode);
+    //root.children.create(thisnode);
 }
 //ASSIGNMENT(2) = assidentifier '=' BINARYEXPRESSION | "private" assidentifier '=' BINARYEXPRESSION;
 bool ::sqf::parser::sqf::default::instance::ASSIGNMENT_start(size_t curoff)
@@ -990,7 +990,7 @@ void ::sqf::parser::sqf::default::instance::PRIMARYEXPRESSION(astnode& root, boo
         errflag = true;
     }
     //thisnode.length = curoff - thisnode.offset;
-    //root.children.push_back(thisnode);
+    //root.children.create(thisnode);
 }
 //NULAREXPRESSION = operator;
 bool ::sqf::parser::sqf::default::instance::NULAREXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_nular(std::string(m_contents.substr(curoff, oplen))) : false; }
@@ -1299,7 +1299,8 @@ sqf::parser::sqf::default::astnode sqf::parser::sqf::default::instance::parse(bo
     SQF(node, errflag);
     node.length = m_info.offset;
     skip(m_info);
-    if (!errflag && m_info.offset < m_contents.size()) {
+    if (!errflag && m_info.offset < m_contents.size())
+    {
         m_owner.log(err::EndOfFile(m_info));
         errflag = true;
     }

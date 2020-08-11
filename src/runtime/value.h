@@ -19,7 +19,7 @@ namespace sqf::runtime
 	private:
 		std::shared_ptr<sqf::runtime::data> m_data;
 	public:
-		value() {}
+		constexpr value() noexcept {}
 
 		template<typename T>
 		value(T t) : m_data(sqf::types::to_data(t)) { }

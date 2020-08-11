@@ -89,7 +89,7 @@ namespace sqf
 			};
 		private:
 			size_t m_netid;
-			sqf::runtime::confighost::config m_config;
+			sqf::runtime::config m_config;
 			bool m_is_vehicle;
 
 			std::string m_varname;
@@ -106,10 +106,10 @@ namespace sqf
 			soldiers_ m_soldiers;
 			configuration_ m_configuration;
 
-			object(sqf::runtime::confighost::config config, bool is_vehicle);
+			object(sqf::runtime::config config, bool is_vehicle);
 			object(const object& obj) = delete;
 		public:
-			sqf::runtime::confighost::config config() const { return m_config; }
+			sqf::runtime::config config() const { return m_config; }
 			size_t netid() const { return m_netid; }
 			bool is_vehicle() const { return m_is_vehicle; }
 			bool alive() const { return m_damage < 1; }
@@ -156,7 +156,7 @@ namespace sqf
 			/// <param name="classname"></param>
 			/// <param name="isvehicle"></param>
 			/// <returns></returns>
-			static std::shared_ptr<object> create(::sqf::runtime::runtime& runtime, sqf::runtime::confighost::config config, bool is_vehicle);
+			static std::shared_ptr<object> create(::sqf::runtime::runtime& runtime, sqf::runtime::config config, bool is_vehicle);
 
 			/// <summary>
 			/// Destroys a given object, invalidating all living d_object instances (making them null).

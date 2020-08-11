@@ -58,7 +58,7 @@ void sqf::types::object::soldiers_::erase(std::shared_ptr<d_object> obj)
 
 #pragma region ::sqf::types::object
 
-sqf::types::object::object(sqf::runtime::confighost::config config, bool is_vehicle) :
+sqf::types::object::object(sqf::runtime::config config, bool is_vehicle) :
     m_soldiers(this),
     m_position({ 0,0,0 }),
     m_velocity({ 0,0,0 }),
@@ -116,7 +116,7 @@ void sqf::types::object::commander(std::shared_ptr<d_object> val)
     }
 }
 
-std::shared_ptr<sqf::types::object> sqf::types::object::create(::sqf::runtime::runtime& runtime, sqf::runtime::confighost::config config, bool is_vehicle)
+std::shared_ptr<sqf::types::object> sqf::types::object::create(::sqf::runtime::runtime& runtime, sqf::runtime::config config, bool is_vehicle)
 {
     auto& storage = runtime.storage<object_storage>();
     auto sp_obj = std::shared_ptr<object>(new object(config, is_vehicle));
@@ -136,13 +136,13 @@ void sqf::types::object::destroy(::sqf::runtime::runtime& runtime)
 }
 
 template<class TData, typename TType>
-inline TType extract(std::optional<sqf::runtime::confighost::config> conf, TType def)
+inline TType extract(sqf::runtime::confignav conf, TType def)
 {
-    if (!conf.has_value())
+    if (!conf.empty())
     {
         return def;
     }
-    auto val = conf.value().value();
+    auto val = conf->value;
     auto res = val.data_try<TData>();
     if (res)
     {
@@ -155,13 +155,14 @@ inline TType extract(std::optional<sqf::runtime::confighost::config> conf, TType
 }
 bool sqf::types::object::update_values_from_confighost(sqf::runtime::confighost host)
 {
-    m_configuration.has_driver = extract<d_boolean, bool>(m_config.navigate(host, "hasDriver"), false);
+    auto nav = m_config.navigate(host);
+    m_configuration.has_driver = extract<d_boolean, bool>(nav / "hasDriver", false);
 
-    m_configuration.has_gunner = extract<d_boolean, bool>(m_config.navigate(host, "hasGunner"), false);
+    m_configuration.has_gunner = extract<d_boolean, bool>(nav / "hasGunner", false);
 
-    m_configuration.has_commander = extract<d_boolean, bool>(m_config.navigate(host, "hasCommander"), false);
+    m_configuration.has_commander = extract<d_boolean, bool>(nav / "hasCommander", false);
 
-    m_configuration.transport_soldier = (size_t)extract<d_scalar, float>(m_config.navigate(host, "transportSoldier"), false);
+    m_configuration.transport_soldier = (size_t)extract<d_scalar, float>(nav / "transportSoldier", false);
     m_soldiers.m_inner.resize(m_configuration.transport_soldier);
 
     return true;

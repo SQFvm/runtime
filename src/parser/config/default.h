@@ -4,6 +4,7 @@
 #include "../../runtime/diagnostics/diag_info.h"
 #include "../../runtime/confighost.h"
 #include "../../runtime/fileio.h"
+#include "../../runtime/util.h"
 
 #include <string>
 #include <string_view>
@@ -52,7 +53,7 @@ namespace sqf::parser::config
 		public:
 			instance(
 				default& owner,
-				std::string_view contents,
+				std::string& contents,
 				::sqf::runtime::fileio::pathinfo file
 				) : owner(owner),
 				m_contents(contents),
@@ -62,7 +63,7 @@ namespace sqf::parser::config
 				m_info = dinf;
 			}
 			::sqf::runtime::diagnostics::diag_info m_info;
-			std::string_view m_contents;
+			::sqf::parser::util::string_ref m_contents;
 			::sqf::runtime::fileio::pathinfo m_file;
 
 			void skip();
@@ -97,7 +98,7 @@ namespace sqf::parser::config
 
 			::sqf::parser::config::default::astnode parse(bool& errflag);
 		};
-		bool apply_to_confighost(::sqf::parser::config::default::astnode& node, ::sqf::runtime::confighost& confighost, ::sqf::runtime::confighost::config& parent);
+		bool apply_to_confighost(::sqf::parser::config::default::astnode& node, ::sqf::runtime::confighost& confighost, ::sqf::runtime::confignav parent);
 	public:
 		default(Logger& logger) : CanLog(logger) { }
 		virtual ~default() override { };
@@ -118,7 +119,8 @@ namespace sqf::parser::config
 			{
 				return {};
 			}
-			return apply_to_confighost(root, target, target.root());
+			auto conf_root = target.root();
+			return apply_to_confighost(root, target, conf_root);
 		}
 	};
 }

@@ -287,14 +287,14 @@ namespace
             current->destroy(runtime);
         }
         auto root = runtime.confighost().root();
-        auto cfgVehicles_ = root.navigate(runtime.confighost(), "CfgVehicles");
-        sqf::runtime::confighost::config entry;
-        if (cfgVehicles_.has_value())
+        auto cfgVehicles = root / "CfgVehicles";
+        sqf::runtime::config entry;
+        if (!cfgVehicles.empty())
         {
-            auto caManBase_ = cfgVehicles_->navigate(runtime.confighost(), "CAManBase");
-            if (caManBase_.has_value())
+            auto caManBase = cfgVehicles / "CAManBase";
+            if (!caManBase.empty())
             {
-                entry = *caManBase_;
+                entry = *caManBase;
             }
         }
         current = object::create(runtime, entry, false);

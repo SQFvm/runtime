@@ -23,16 +23,16 @@ namespace sqf
 		public:
 			static sqf::runtime::type cexp_type() { return sqf::runtime::t_config(); }
 		private:
-			sqf::runtime::confighost::config m_value;
+			sqf::runtime::config m_value;
 		protected:
 			bool do_equals(std::shared_ptr<data> other, bool invariant) const override
 			{
 				auto other_config = std::static_pointer_cast<d_config>(other)->m_value;
-				return other_config.value() == m_value;
+				return other_config == m_value;
 			}
 		public:
 			d_config() = default;
-			d_config(sqf::runtime::confighost::config conf) : m_value(conf) {}
+			d_config(sqf::runtime::config conf) : m_value(conf) {}
 
 			std::string to_string_sqf() const override
 			{
@@ -43,13 +43,13 @@ namespace sqf
 				return std::string(m_value.name());
 			}
 			sqf::runtime::type type() const override { return cexp_type(); }
-			sqf::runtime::confighost::config value() const { return m_value; }
-			void value(sqf::runtime::confighost::config conf) { m_value = conf; }
+			sqf::runtime::config value() const { return m_value; }
+			void value(sqf::runtime::config conf) { m_value = conf; }
 
-			operator sqf::runtime::confighost::config() { return m_value; }
+			operator sqf::runtime::config() { return m_value; }
 		};
 
-		inline std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::confighost::config conf)
+		inline std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::config conf)
 		{
 			return std::make_shared<d_config>(conf);
 		}

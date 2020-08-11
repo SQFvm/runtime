@@ -243,15 +243,15 @@ namespace
 		{
 			auto configBin = runtime.confighost().root();
 
-			auto cfgMarkerBrushes = configBin.navigate(runtime.confighost(), "CfgMarkerBrushes");
-			if (!cfgMarkerBrushes.has_value())
+			auto cfgMarkerBrushes = configBin / "CfgMarkerBrushes";
+			if (cfgMarkerBrushes.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin" }, "CfgMarkerBrushes"));
 				return {};
 			}
 
-			auto brushConfig = cfgMarkerBrushes->navigate(runtime.confighost(), brushname);
-			if (!brushConfig.has_value())
+			auto brushConfig = cfgMarkerBrushes / brushname;
+			if (brushConfig.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgMarkerBrushes" }, brushname));
 				return {};
@@ -291,15 +291,15 @@ namespace
 		{
 			auto configBin = runtime.confighost().root();
 
-			auto cfgMarkers = configBin.navigate(runtime.confighost(), "CfgMarkers");
-			if (!cfgMarkers.has_value())
+			auto cfgMarkers = configBin / "CfgMarkers";
+			if (cfgMarkers.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin" }, "CfgMarkers"));
 				return {};
 			}
 
-			auto typeConfig = cfgMarkers->navigate(runtime.confighost(), tname);
-			if (!typeConfig.has_value())
+			auto typeConfig = cfgMarkers / tname;
+			if (typeConfig.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgMarkers" }, tname));
 				return {};
@@ -348,15 +348,15 @@ namespace
 		{
 			auto configBin = runtime.confighost().root();
 
-			auto cfgMarkerColors = configBin.navigate(runtime.confighost(), "CfgMarkerColors");
-			if (!cfgMarkerColors.has_value())
+			auto cfgMarkerColors = configBin / "CfgMarkerColors";
+			if (cfgMarkerColors.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin" }, "CfgMarkerColors"));
 				return {};
 			}
 
-			auto colorConfig = cfgMarkerColors->navigate(runtime.confighost(), colorname);
-			if (!colorConfig.has_value())
+			auto colorConfig = cfgMarkerColors / colorname;
+			if (colorConfig.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgMarkerColors" }, colorname));
 				return {};

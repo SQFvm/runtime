@@ -66,27 +66,27 @@ namespace
 			return {};
 		}
 		auto radius = arr->at(3).data<d_scalar, float>();
-		confighost::config conf;
+		config conf;
 		if (runtime.configuration().enable_classname_check)
 		{
 			auto configBin = runtime.confighost().root();
 
-			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
-			if (!cfgVehicles.has_value())
+			auto cfgVehicles = configBin / "CfgVehicles";
+			if (cfgVehicles.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
 				return {};
 			}
 
-			auto opt = cfgVehicles->navigate(runtime.confighost(), type);
-			if (!opt.has_value())
+			auto opt = cfgVehicles / type;
+			if (opt.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
 				return {};
 			}
 			else
 			{
-				conf = opt.value();
+				conf = *opt;
 			}
 		}
 		auto veh = object::create(runtime, conf, true);
@@ -109,27 +109,27 @@ namespace
 		{
 			return {};
 		}
-		confighost::config conf;
+		config conf;
 		if (runtime.configuration().enable_classname_check)
 		{
 			auto configBin = runtime.confighost().root();
 
-			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
-			if (!cfgVehicles.has_value())
+			auto cfgVehicles = configBin / "CfgVehicles";
+			if (cfgVehicles.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
 				return {};
 			}
 
-			auto opt = cfgVehicles->navigate(runtime.confighost(), type);
-			if (!opt.has_value())
+			auto opt = cfgVehicles / type;
+			if (opt.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
 				return {};
 			}
 			else
 			{
-				conf = opt.value();
+				conf = *opt;
 			}
 		}
 		auto veh = object::create(runtime, conf, true);
@@ -273,27 +273,27 @@ namespace
 			return {};
 		}
 		auto radius = arr->at(3).data<d_scalar, float>();
-		confighost::config conf;
+		config conf;
 		if (runtime.configuration().enable_classname_check)
 		{
 			auto configBin = runtime.confighost().root();
 
-			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
-			if (!cfgVehicles.has_value())
+			auto cfgVehicles = configBin / "CfgVehicles";
+			if (cfgVehicles.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
 				return {};
 			}
 
-			auto opt = cfgVehicles->navigate(runtime.confighost(), type);
-			if (!opt.has_value())
+			auto opt = cfgVehicles / type;
+			if (opt.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
 				return {};
 			}
 			else
 			{
-				conf = opt.value();
+				conf = *opt;
 			}
 		}
 		auto veh = object::create(runtime, conf, false);
@@ -375,27 +375,27 @@ namespace
 				rank = arr->at(4).data<d_string, std::string>();
 			}
 		}
-		confighost::config conf;
+		config conf;
 		if (runtime.configuration().enable_classname_check)
 		{
 			auto configBin = runtime.confighost().root();
 
-			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
-			if (!cfgVehicles.has_value())
+			auto cfgVehicles = configBin / "CfgVehicles";
+			if (cfgVehicles.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
 				return {};
 			}
 
-			auto opt = cfgVehicles->navigate(runtime.confighost(), type);
-			if (!opt.has_value())
+			auto opt = cfgVehicles / type;
+			if (opt.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, type));
 				return {};
 			}
 			else
 			{
-				conf = opt.value();
+				conf = *opt;
 			}
 		}
 		auto veh = object::create(runtime, conf, false);
@@ -612,13 +612,12 @@ namespace
 				bool match = filterarr->empty() || !runtime.configuration().enable_classname_check;
 				if (!match)
 				{
-					auto cfgVehicles = runtime.confighost().root().navigate(runtime.confighost(), "CfgVehicles");
-					if (cfgVehicles.has_value())
+					auto cfgObject = object->config().navigate(runtime.confighost());
+
+					if (!cfgObject.empty())
 					{
-						auto found = std::find_if(filterarr->begin(), filterarr->end(), [&runtime, &cfgVehicles](value::cref value) {
-							auto base = cfgVehicles->navigate(runtime.confighost(), value.data<d_string, std::string>());
-							auto other = cfgVehicles->navigate(runtime.confighost(), value.data<d_string, std::string>());
-							return other.has_value() ? base->inherits_or_equal(runtime.confighost(), *other) : false;
+						auto found = std::find_if(filterarr->begin(), filterarr->end(), [&cfgObject](value::cref value) {
+							return cfgObject.has_inherited_with_name(value.data<d_string, std::string>());
 						});
 						match = found != filterarr->end();
 					}
@@ -627,7 +626,6 @@ namespace
 				{
 					outputarr->push_back(value(std::make_shared<d_object>(object)));
 				}
-				
 			}
 			std::sort(outputarr->begin(), outputarr->end(), nearestobjects_distancesort2d(position2d));
 		}
@@ -640,13 +638,11 @@ namespace
 				bool match = filterarr->empty() || !runtime.configuration().enable_classname_check;
 				if (!match)
 				{
-					auto cfgVehicles = runtime.confighost().root().navigate(runtime.confighost(), "CfgVehicles");
-					if (cfgVehicles.has_value())
+					auto cfgObject = object->config().navigate(runtime.confighost());
+					if (!cfgObject.empty())
 					{
-						auto found = std::find_if(filterarr->begin(), filterarr->end(), [&runtime, &cfgVehicles](value::cref value) {
-							auto base = cfgVehicles->navigate(runtime.confighost(), value.data<d_string, std::string>());
-							auto other = cfgVehicles->navigate(runtime.confighost(), value.data<d_string, std::string>());
-							return other.has_value() ? base->inherits_or_equal(runtime.confighost(), *other) : false;
+						auto found = std::find_if(filterarr->begin(), filterarr->end(), [&cfgObject](value::cref value) {
+							return cfgObject.has_inherited_with_name(value.data<d_string, std::string>());
 							});
 						match = found != filterarr->end();
 					}
@@ -699,27 +695,7 @@ namespace
 			return {};
 		}
 		auto base_type_str = right.data<d_string, std::string>();
-		{
-			auto configBin = runtime.confighost().root();
-
-			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
-			if (!cfgVehicles.has_value())
-			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
-				return {};
-			}
-
-			auto opt = cfgVehicles->navigate(runtime.confighost(), base_type_str);
-			if (!opt.has_value())
-			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
-				return {};
-			}
-			else
-			{
-				return obj->value()->config().inherits_or_equal(runtime.confighost(), opt.value());
-			}
-		}
+		return obj->value()->config().navigate(runtime.confighost()).has_inherited_with_name(base_type_str);
 	}
 	value iskindof_string_string(runtime& runtime, value::cref left, value::cref right)
 	{
@@ -728,30 +704,21 @@ namespace
 		{
 			auto configBin = runtime.confighost().root();
 
-			auto cfgVehicles = configBin.navigate(runtime.confighost(), "CfgVehicles");
-			if (!cfgVehicles.has_value())
+			auto cfgVehicles = configBin / "CfgVehicles";
+			if (cfgVehicles.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin" }, "CfgVehicles"));
 				return {};
 			}
 
-			auto test_opt = cfgVehicles->navigate(runtime.confighost(), test_type_str);
-			if (!test_opt.has_value())
+			auto test_opt = cfgVehicles / test_type_str;
+			if (test_opt.empty())
 			{
 				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, test_type_str));
 				return {};
 			}
 
-			auto base_opt = cfgVehicles->navigate(runtime.confighost(), base_type_str);
-			if (!base_opt.has_value())
-			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
-				return {};
-			}
-			else
-			{
-				return test_opt.value().inherits_or_equal(runtime.confighost(), base_opt.value());
-			}
+			return test_opt.has_inherited_with_name(base_type_str);
 		}
 	}
 	value iskindof_string_array(runtime& runtime, value::cref left, value::cref right)
@@ -763,26 +730,25 @@ namespace
 			return {};
 		}
 		auto base_type_str = arr->at(0).data<d_string, std::string>();
-		auto base_conf = arr->at(1).data<d_config, confighost::config>();
+		auto base_conf = arr->at(1).data<d_config, config>();
 
 		{
-			auto test_opt = base_conf.navigate(runtime.confighost(), test_type_str);
-			if (!test_opt.has_value())
+			auto nav = base_conf.navigate(runtime.confighost());
+			auto test_opt = nav / test_type_str;
+			if (test_opt.empty())
 			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, test_type_str));
+				// Get navigation path
+				std::vector<std::string> path;
+				do
+				{
+					path.push_back(nav->name);
+					nav = nav.parent_logical();
+				} while (nav->id_parent_logical != config::invalid_id);
+				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), path, test_type_str));
 				return {};
 			}
 
-			auto base_opt = base_conf.navigate(runtime.confighost(), base_type_str);
-			if (!base_opt.has_value())
-			{
-				runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), std::array<std::string, 2> { "ConfigBin", "CfgVehicles" }, base_type_str));
-				return {};
-			}
-			else
-			{
-				return test_opt.value().inherits_or_equal(runtime.confighost(), base_opt.value());
-			}
+			return test_opt.has_inherited_with_name(base_type_str);
 		}
 	}
 	value player_(runtime& runtime)

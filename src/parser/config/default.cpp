@@ -112,7 +112,7 @@ void sqf::parser::config::default::instance::NODELIST(::sqf::parser::config::def
 		}
 	}
 	//thisnode.length = m_info.offset - thisnode.offset;
-	//root.children.push_back(thisnode);
+	//root.children.create(thisnode);
 }
 // NODE = CONFIGNODE | VALUENODE | DELETENODE;
 bool sqf::parser::config::default::instance::NODE_start(size_t off) { return CONFIGNODE_start(off) || VALUENODE_start(off); }
@@ -135,7 +135,7 @@ void sqf::parser::config::default::instance::NODE(::sqf::parser::config::default
 		errflag = true;
 	}
 	//thisnode.length = m_info.offset - thisnode.offset;
-	//root.children.push_back(thisnode);
+	//root.children.create(thisnode);
 }
 // CONFIGNODE = 'class' ident [ ':' ident ] [ '{' NODELIST '}' ]
 bool sqf::parser::config::default::instance::CONFIGNODE_start(size_t off)
@@ -600,7 +600,7 @@ void sqf::parser::config::default::instance::VALUE(::sqf::parser::config::defaul
 		errflag = true;
 	}
 	//thisnode.length = m_info.offset - thisnode.offset;
-	//root.children.push_back(thisnode);
+	//root.children.create(thisnode);
 }
 
 
@@ -609,10 +609,10 @@ sqf::parser::config::default::astnode sqf::parser::config::default::instance::pa
 	astnode node;
 	node.kind = nodetype::NODELIST;
 	node.offset = 0;
-	node.content = m_contents;
+	node.content = m_contents.substr();
 	NODELIST(node, errflag);
 	skip();
-	if (m_info.offset != m_contents.length())
+	if (!errflag && m_info.offset < m_contents.size())
 	{
 		owner.log(err::EndOfFileNotReached(m_info));
 		errflag = true;
@@ -621,7 +621,7 @@ sqf::parser::config::default::astnode sqf::parser::config::default::instance::pa
 	return node;
 }
 
-bool sqf::parser::config::default::apply_to_confighost(sqf::parser::config::default::astnode& node, ::sqf::runtime::confighost& confighost, ::sqf::runtime::confighost::config& parent)
+bool sqf::parser::config::default::apply_to_confighost(sqf::parser::config::default::astnode& node, ::sqf::runtime::confighost& confighost, ::sqf::runtime::confignav parent)
 {
 	// ToDo: Check if a corresponding config already exists in confighost before creating it to avoid duplicates
 
@@ -629,18 +629,9 @@ bool sqf::parser::config::default::apply_to_confighost(sqf::parser::config::defa
 	{
 	case nodetype::CONFIGNODE:
 	{
-		auto& curnode = confighost.create_new();
-		parent.push_child(confighost, curnode);
-		curnode.parent_logical(parent);
-		curnode.name(node.content);
-
 		if (!node.children.empty() && node.children.front().kind == nodetype::CONFIGNODE_PARENTIDENT)
 		{
-			auto inherited = confighost.find_traverse_upwards_logical(parent.iterator(confighost), node.children.front().content);
-			if (inherited != confighost.end())
-			{
-				curnode.parent_inherited(*inherited);
-			}
+			auto curnode = parent.append_or_replace(node.content, node.children.front().content);
 			for (size_t i = 1; i < node.children.size(); i++)
 			{
 				auto subnode = node.children[i];
@@ -649,6 +640,7 @@ bool sqf::parser::config::default::apply_to_confighost(sqf::parser::config::defa
 		}
 		else
 		{
+			auto curnode = parent.append_or_replace(node.content);
 			for (auto subnode : node.children)
 			{
 				apply_to_confighost(subnode, confighost, curnode);
@@ -657,19 +649,12 @@ bool sqf::parser::config::default::apply_to_confighost(sqf::parser::config::defa
 	} break;
 	case nodetype::DELETENODE:
 	{
-		auto referenced = confighost.find_traverse_upwards_inherited(parent.iterator(confighost), node.content);
-		if (referenced != confighost.end())
-		{
-			parent.push_deleted(*referenced);
-		}
+		 parent.delete_inherited_or_replace(node.content);
 	} break;
 	case nodetype::VALUENODE_ADDARRAY:
 	case nodetype::VALUENODE:
 	{
-		auto& curnode = confighost.create_new();
-		parent.push_child(confighost, curnode);
-		curnode.parent_logical(parent);
-		curnode.name(node.content);
+		auto curnode = parent.append_or_replace(node.content);
 
 		for (auto& subnode : node.children)
 		{
@@ -677,11 +662,12 @@ bool sqf::parser::config::default::apply_to_confighost(sqf::parser::config::defa
 		}
 		if (node.kind == nodetype::VALUENODE_ADDARRAY)
 		{
-			auto inherited = confighost.find_traverse_upwards_inherited(parent.iterator(confighost), node.content);
-			if (inherited != confighost.end())
+			auto parent_inherited = curnode.parent_logical().parent_inherited();
+			auto valuefield = parent_inherited / node.content;
+			if (!valuefield.empty())
 			{
-				auto self =  curnode.value().data_try<sqf::types::d_array>();
-				auto other = inherited->value().data_try<sqf::types::d_array>();
+				auto self =  curnode->value.data_try<sqf::types::d_array>();
+				auto other = valuefield->value.data_try<sqf::types::d_array>();
 				if (self.get() && other.get())
 				{
 					self->insert(self->end(), other->begin(), other->end());
@@ -707,7 +693,7 @@ bool sqf::parser::config::default::apply_to_confighost(sqf::parser::config::defa
 		for (auto& subnode : node.children)
 		{
 			apply_to_confighost(subnode, confighost, parent);
-			values.push_back(parent.value());
+			values.push_back(parent->value);
 		}
 		parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_array>(values)));
 	} break;
