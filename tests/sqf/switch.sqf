@@ -23,7 +23,7 @@
                     _arr pushBack "past cases call outter";
                 };
                 _arr pushBack _res;
-                systemChat str _arr
+                _arr
             }
         ],
         ["past case 1","past cases inner","past cases call outter","inside 2","b"]

@@ -113,7 +113,10 @@ namespace
 			}
 			else
 			{
-				auto num = std::stoi(format.substr(newoff));
+				size_t end;
+				for (end = newoff; format[end] >= '0' && format[end] <= '9'; ++end);
+				auto num = std::stoi(format.substr(newoff, end - newoff));
+				newoff = end;
 				if (num >= static_cast<int>(r->size()))
 				{
 					runtime.__logmsg(err::IndexOutOfRangeWeak(runtime.context_active().current_frame().diag_info_from_position(), r->size(), num));
@@ -126,7 +129,6 @@ namespace
 				{
 					sstream << r->at(num).to_string_sqf();
 				}
-				while (format[newoff] >= '0' && format[newoff] <= '9') newoff++;
 			}
 			off = newoff;
 		}

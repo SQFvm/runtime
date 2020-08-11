@@ -13,7 +13,7 @@
    ["assertEqual",     { ["1","2","3"] joinString "-"  }, "1-2-3"],
    ["assertEqual",     { [1,2,3] joinString "-"  }, "1-2-3"],
    ["assertEqual",     { "a"+"b"  }, "ab"],
-   ["assertFalse",     { nil isEqualTo nil }],
+   ["assert",          { nil isEqualTo nil }],
    ["assertFalse",     { [nil] isEqualTo [nil] }],
    ["assertTrue",      { isNil "_some_Non_Existing_Variable_"  }],
    ["assertFalse",     { private _var = 0; isNil "_var"  }],

@@ -129,15 +129,15 @@ namespace sqf::runtime
             switch (m_error_behavior->enact(runtime, *this))
             {
             case behavior::result::seek_end:
-                seek(0, seekpos::end);
+                seek(0, ::sqf::runtime::frame::seekpos::end);
                 return result::done;
             case behavior::result::seek_start:
-                seek(0, seekpos::start);
+                seek(0, ::sqf::runtime::frame::seekpos::start);
                 clear_values_helper(runtime);
                 return result::ok;
             case behavior::result::exchange:
                 m_instruction_set = m_error_behavior->get_instruction_set(*this);
-                seek(0, seekpos::start);
+                seek(0, ::sqf::runtime::frame::seekpos::start);
 #ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
                 std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
@@ -237,41 +237,34 @@ namespace sqf::runtime
         /// <returns>Enum value describing the success state of the operation.</returns>
         result next(runtime& runtime)
         {
-            if (m_position != m_instruction_set.size())
+            auto res = next();
+            if (m_position == m_instruction_set.size() && m_exit_behavior)
             {
-                auto res = next();
-                if (m_position == m_instruction_set.size() && m_exit_behavior)
+                switch (m_exit_behavior->enact(runtime, *this))
                 {
-                    switch (m_exit_behavior->enact(runtime, *this))
-                    {
-                    case behavior::result::seek_end:
-                        seek(0, seekpos::end);
-                        return result::done;
-                    case behavior::result::seek_start:
-                        seek(0, seekpos::start);
-                        clear_values_helper(runtime);
-                        return next();
-                    case behavior::result::exchange:
-                        m_instruction_set = m_exit_behavior->get_instruction_set(*this);
-                        seek(0, seekpos::start);
+                case behavior::result::seek_end:
+                    seek(0, ::sqf::runtime::frame::seekpos::end);
+                    return result::done;
+                case behavior::result::seek_start:
+                    seek(0, ::sqf::runtime::frame::seekpos::start);
+                    clear_values_helper(runtime);
+                    return next();
+                case behavior::result::exchange:
+                    m_instruction_set = m_exit_behavior->get_instruction_set(*this);
+                    seek(0, ::sqf::runtime::frame::seekpos::start);
 #ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
-                        std::cout << "[ASSEMBLY ASSERT]" <<
-                            "    " << "    " << " " <<
-                            "    " << "    " << " " <<
-                            "    " << "    " << "\x1B[91mFrame\033[0m - Loaded assembly ";
-                            dbg_str();
+                    std::cout << "[ASSEMBLY ASSERT]" <<
+                        "    " << "    " << " " <<
+                        "    " << "    " << " " <<
+                        "    " << "    " << "\x1B[91mFrame\033[0m - Loaded assembly ";
+                    dbg_str();
 
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
-                        return next();
-                    }
+                    return next();
                 }
-                return res;
             }
-            else
-            {
-                return next();
-            }
+            return res;
         }
         /// <summary>
         /// Reversed sqf::runtime::frame::next().

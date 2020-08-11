@@ -1052,6 +1052,7 @@ namespace
             swtch->target_code(right.data<d_code, instruction_set>());
             swtch->match_now(false);
             swtch->has_match(true);
+            runtime.context_active().current_frame().seek(0, frame::seekpos::end);
         }
         return {};
     }

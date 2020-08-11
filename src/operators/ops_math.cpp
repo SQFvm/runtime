@@ -320,9 +320,9 @@ namespace
 		}
 		else
 		{
+			arr->push_back(l->at(0).data<d_scalar, float>() / magnitude);
 			arr->push_back(l->at(1).data<d_scalar, float>() / magnitude);
 			arr->push_back(l->at(2).data<d_scalar, float>() / magnitude);
-			arr->push_back(l->at(0).data<d_scalar, float>() / magnitude);
 		}
 		return value(arr);
 	}
