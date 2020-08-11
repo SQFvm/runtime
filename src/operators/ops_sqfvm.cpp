@@ -523,6 +523,69 @@ namespace
         runtime.context_active().push_frame(f);
         return {};
     }
+    value measureperformance___CODE(runtime& runtime, value::cref right)
+    {
+        class behavior_measureperformance : public frame::behavior
+        {
+        private:
+            std::chrono::high_resolution_clock::time_point m_start;
+            size_t m_amount;
+            size_t m_max;
+            std::chrono::nanoseconds m_compensation;
+        public:
+            behavior_measureperformance(std::chrono::nanoseconds comp, size_t max) : m_start(std::chrono::high_resolution_clock::now()), m_amount(0), m_max(max), m_compensation(comp) {}
+            virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
+            {
+                if (++m_amount < m_max)
+                {
+                    return result::seek_start;
+                }
+                else
+                {
+                    auto end = std::chrono::high_resolution_clock::now();
+                    auto delta = end - m_start;
+                    runtime.context_active().push_value(((std::chrono::duration_cast<std::chrono::nanoseconds>(delta) - m_compensation) / (std::chrono::nanoseconds::rep)m_amount).count());
+                    return result::ok;
+                }
+            };
+        };
+        class behavior_measureoverhead : public frame::behavior
+        {
+        private:
+            std::chrono::high_resolution_clock::time_point m_start;
+            size_t m_amount;
+            size_t m_max;
+            instruction_set m_set;
+        public:
+            behavior_measureoverhead(sqf::runtime::instruction_set set, size_t max) : m_start(std::chrono::high_resolution_clock::now()), m_amount(0), m_max(max), m_set(set) {}
+            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
+            virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
+            {
+                if (++m_amount < m_max)
+                {
+                    return result::seek_start;
+                }
+                else
+                {
+                    auto end = std::chrono::high_resolution_clock::now();
+                    auto delta = end - m_start;
+                    auto overhead = std::chrono::duration_cast<std::chrono::nanoseconds>(delta) / (std::chrono::nanoseconds::rep)m_amount;
+                    sqf::runtime::frame f = { f.globals_value_scope(), m_set, std::make_shared<behavior_measureperformance>(overhead, m_max) };
+                    f["_this"] = {};
+                    f.bubble_variable(false);
+                    runtime.context_active().pop_frame();
+                    runtime.context_active().push_frame(f);
+                    return result::ok;
+                }
+            };
+        };
+        auto start = std::chrono::high_resolution_clock::now();
+        frame f = { runtime.default_value_scope(), {}, std::make_shared<behavior_measureoverhead>(right.data<d_code, sqf::runtime::instruction_set>(), 10000) };
+        f["_this"] = {};
+        f.bubble_variable(false);
+        runtime.context_active().push_frame(f);
+        return {};
+    }
     //value provide___code_string(runtime& runtime, value::cref left, value::cref right)
     //{
     //    auto arr = right.data<d_array>();
@@ -640,6 +703,7 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
 //    runtime.register_sqfop(unary("remoteConnect__", t_string(), "Connects this as a client to the provided endpoint. Endpoint is expected to have the format ADDRESS:PORT. Returns TRUE on success, false if it failed. Note that IP-Address is required, not DNS names (eg. use '127.0.0.1' instead of 'localhost').", remoteConnect___));
 //    runtime.register_sqfop(nular("closeConnection__", "Closes the connection previously opened using remoteConnect__.", closeconnection___));
     // runtime.register_sqfop(binary(4, "provide__", t_code(), t_array(), "Allows to provide an implementation for a given operator. Will NOT override existing definitions. Array is expected to be of the following formats: nular: [\"name\"], unary: [\"name\", \"type\"], binary: [\"ltype\", \"name\", \"rtype\"]", provide___code_string));
+    runtime.register_sqfop(unary("measurePerformance__", t_code(), "Measures the time required to execute the provided piece of code by executing it 10000 times and pushes the average time required onto the stack in nanoseconds. Will try to compensate for the measure overhead.", measureperformance___CODE));
     runtime.register_sqfop(unary("noBubble__", t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", nobubble___code));
     runtime.register_sqfop(binary(4, "noBubble__", t_any(), t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", nobubble___any_code));
     runtime.register_sqfop(unary("customNamespace__", t_string(), "operator to get a custom namespace that lives as long as the VM lives.", customnamespace___string));
