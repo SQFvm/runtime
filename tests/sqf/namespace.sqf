@@ -1,6 +1,6 @@
 [   
-    ["assertEqual",      { private _ns = createNamespace__ "custom"; _ns setVariable ["TEST", 0]; allVariables _ns }, ["TEST"]],
-    ["assertEqual",      { private _ns = createNamespace__ "custom"; _ns setVariable ["TEST", 0]; with _ns do { allVariables currentNamespace } }, ["TEST"]],
+    ["assertEqual",      { private _ns = customNamespace__ "custom"; _ns setVariable ["test", 0]; allVariables _ns }, ["test"]],
+    ["assertEqual",      { private _ns = customNamespace__ "custom"; _ns setVariable ["test", 0]; with _ns do { allVariables currentNamespace } }, ["test"]],
     ["assertNil",        { missionNamespace getVariable "don'texist" }],
     ["assertNil",        { missionNamespace setVariable ["nstest", true] }],
     ["assertEqual",      { missionNamespace getVariable "nstest" }, true],
