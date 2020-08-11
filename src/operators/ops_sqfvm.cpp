@@ -20,6 +20,7 @@
 #include "../runtime/diagnostics/d_stacktrace.h"
 #include "d_config.h"
 #include "d_object.h"
+#include "ops_namespace.h"
 
 
 #include <sstream>
@@ -502,6 +503,12 @@ namespace
         }
         return {};
     }
+    value createnamespace___string(runtime& runtime, value::cref right)
+    {
+        auto scope = std::make_shared<value_scope>();
+        scope->scope_name(right.data<d_string, std::string>());
+        return { std::make_shared<d_namespace>(scope) };
+    }
     value noBubble___ANY_CODE(runtime& runtime, value::cref left, value::cref right)
     {
         frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
@@ -637,4 +644,5 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
     // runtime.register_sqfop(binary(4, "provide__", t_code(), t_array(), "Allows to provide an implementation for a given operator. Will NOT override existing definitions. Array is expected to be of the following formats: nular: [\"name\"], unary: [\"name\", \"type\"], binary: [\"ltype\", \"name\", \"rtype\"]", provide___code_string));
     runtime.register_sqfop(unary("noBubble__", t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", noBubble___CODE));
     runtime.register_sqfop(binary(4, "noBubble__", t_any(), t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", noBubble___ANY_CODE));
+    runtime.register_sqfop(unary("createNamespace__", t_string(), "Creates a new namespace with the provided name.", createnamespace___string));
 }
