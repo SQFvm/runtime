@@ -100,6 +100,10 @@ namespace
 		scope->at(r->at(0).data<d_string, std::string>()) = r->at(1);
 		return {};
 	}
+	value currentnamespace_(runtime& runtime)
+	{
+		return { std::make_shared<d_namespace>(runtime.context_active().current_frame().globals_value_scope()) };
+	}
 }
 void sqf::operators::ops_namespace(::sqf::runtime::runtime& runtime)
 {
@@ -121,4 +125,5 @@ void sqf::operators::ops_namespace(::sqf::runtime::runtime& runtime)
 	runtime.register_sqfop(binary(4, "getVariable", t_namespace(), t_string(), "Return the value of variable in the variable space assigned to various data types. Returns nil if variable is undefined.", getVariable_namespace_string));
 	runtime.register_sqfop(binary(4, "getVariable", t_namespace(), t_array(), "Return the value of variable in the provided variable space. First element is expected to be the variable name as string. Returns second array item if variable is undefined.", getVariable_namespace_array));
 	runtime.register_sqfop(binary(4, "setVariable", t_namespace(), t_array(), "Sets a variable to given value in the provided variable space. First element is expected to be the variable name as string. Second element is expected to be anything.", setVariable_namespace_array));
+	runtime.register_sqfop(nular("currentNamespace", "Returns the current scopes namespace.", currentnamespace_));
 }

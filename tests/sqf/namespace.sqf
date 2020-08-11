@@ -1,10 +1,6 @@
-missionNamespace setVariable ["nstest", true];
-private _vars = allVariables missionNamespace;
-
 [   
-    ["assertEqual",      { allVariables missionNamespace }, _vars],
-    ["assertException",  { allVariables currentNamespace }, _vars], //not yet implemented
-    ["assertException",  { with missionNamespace do { allVariables currentNamespace } }, _vars], //not yet implemented
+    ["assertEqual",      { private _ns = createNamespace__ "custom"; _ns setVariable ["TEST", 0]; allVariables _ns }, ["TEST"]],
+    ["assertEqual",      { private _ns = createNamespace__ "custom"; _ns setVariable ["TEST", 0]; with _ns do { allVariables currentNamespace } }, ["TEST"]],
     ["assertNil",        { missionNamespace getVariable "don'texist" }],
     ["assertNil",        { missionNamespace setVariable ["nstest", true] }],
     ["assertEqual",      { missionNamespace getVariable "nstest" }, true],
