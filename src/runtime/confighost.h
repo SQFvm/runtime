@@ -5,267 +5,350 @@
 #include <string>
 #include <string_view>
 #include <optional>
+#include <unordered_map>
 
 
 namespace sqf::runtime
 {
-	class confighost
+	class config;
+	class confighost;
+	class confignav;
+
+	class config
 	{
+		friend class confighost;
+		friend class confignav;
 	public:
-		class config;
-		static const size_t invalid_config = ~((size_t)0);
-		using config_iterator = std::vector<config>::iterator;
-		class config
+		static const size_t invalid_id = ~((size_t)0);
+		struct container
 		{
-			friend class confighost;
-		public:
-			class iterator_factory
-			{
-			private:
-				std::vector<std::reference_wrapper<config>> m_gathered;
-			public:
-				using iterator = std::vector<std::reference_wrapper<config>>::iterator;
-				iterator_factory(const config& current, confighost& r_confighost)
-				{
-					m_gathered.reserve(current.m_children.size());
-					for (auto& id : current.m_children)
-					{
-						m_gathered.emplace_back(r_confighost.as_reference(id));
-					}
-				}
-				iterator begin() { return m_gathered.begin(); }
-				iterator end() { return m_gathered.end(); }
-			};
-			class iterator_recursive_factory
-			{
-			private:
-				std::vector<std::reference_wrapper<config>> m_gathered;
-			public:
-				using iterator = std::vector<std::reference_wrapper<config>>::iterator;
-				iterator_recursive_factory(config current, confighost& r_confighost)
-				{
-					std::vector<size_t> deleted(current.m_deleted);
-					while (true)
-					{
-						auto factory = current.iterate(r_confighost);
-						for (auto it : factory)
-						{
-							if (std::find(deleted.begin(), deleted.end(), it.get().m_self_index) == deleted.end())
-							{
-								m_gathered.emplace_back(it.get());
-							}
-						}
-						if (!current.has_parent_logical())
-						{
-							break;
-						}
-						current = current.parent_logical(r_confighost);
-						if (current.is_null())
-						{
-							break;
-						}
-					}
-				}
-				iterator begin() { return m_gathered.begin(); }
-				iterator end() { return m_gathered.end(); }
-			};
-
 		private:
-			std::vector<size_t> m_children;
-			std::vector<size_t> m_deleted;
-			sqf::runtime::value m_value;
-			size_t m_parent_inherited_index;
-			size_t m_parent_logical_index;
-			size_t m_self_index;
-			std::string m_name;
+			std::vector<size_t> m_children_vec;
+			std::unordered_map<std::string, size_t> m_children;
 		public:
+			using iterator = std::unordered_map<std::string, size_t>::iterator;
+			sqf::runtime::value value;
+			size_t id;
+			size_t id_parent_logical;
+			size_t id_parent_inherited;
+			std::string name;
 
-			bool operator==(const config& other) { return m_self_index == other.m_self_index; }
-			bool operator!=(const config& other) { return !(*this == other); }
+			container(size_t id, std::string name) noexcept : m_children_vec(), m_children(), id(id), id_parent_logical(invalid_id), id_parent_inherited(invalid_id), name(name) {}
+			container() noexcept : m_children_vec(), m_children(), id(invalid_id), id_parent_logical(invalid_id), id_parent_inherited(invalid_id), name({}) {}
+			container(const container& copy) = delete;
+			container(container&& move) noexcept :
+				m_children_vec(std::move(move.m_children_vec)),
+				m_children(std::move(move.m_children)),
+				value(std::move(move.value)),
+				id(move.id),
+				id_parent_logical(move.id_parent_logical),
+				id_parent_inherited(move.id_parent_inherited),
+				name(std::move(move.name)) {}
 
-			config_iterator iterator(confighost& host)
+			size_t size() const { return m_children_vec.size(); }
+			size_t operator[] (std::string index) { return m_children[index]; }
+			size_t operator[] (std::string index) const { return m_children.at(index); }
+			size_t operator[] (size_t index) { return m_children_vec[index]; }
+			size_t operator[] (size_t index) const { return m_children_vec[index]; }
+			iterator begin() noexcept { return m_children.begin(); }
+			iterator end() noexcept { return m_children.end(); }
+			iterator find(std::string index) { return m_children.find(index); }
+			void push_back(std::string key, size_t target_id)
 			{
-				return m_self_index == invalid_config ? host.end() : host.begin() + m_self_index;
-			}
-			config() : m_parent_inherited_index(invalid_config), m_parent_logical_index(invalid_config), m_self_index(invalid_config) {};
-
-			bool has_parent_inherited() const { return m_parent_inherited_index != invalid_config; }
-			config parent_inherited(confighost& host) const { return host.at(m_parent_inherited_index); }
-			void parent_inherited(config conf) { m_parent_inherited_index = conf.m_self_index; }
-			bool has_parent_logical() const { return m_parent_logical_index != invalid_config; }
-			config parent_logical(confighost& host) const { return host.at(m_parent_logical_index); }
-			void parent_logical(config conf) { m_parent_logical_index = conf.m_self_index; }
-
-			std::string_view name() const { return m_name; }
-			void name(std::string value) { m_name = value; }
-
-			bool is_null() const { return m_self_index == invalid_config; }
-
-			void push_child(confighost& host, config& conf)
-			{
-				if (conf.m_self_index == invalid_config)
+				auto res = m_children.find(key);
+				if (res == m_children.end())
 				{
-					host.push_back(conf);
+					m_children_vec.push_back(target_id);
 				}
-				m_children.push_back(conf.m_self_index);
-			}
-			void push_deleted(config& conf)
-			{
-				if (conf.m_self_index == invalid_config)
+				else if (res->second == target_id)
 				{
 					return;
 				}
-				m_deleted.push_back(conf.m_self_index);
+				else
+				{
+					for (auto& it : m_children_vec)
+					{
+						if (it == res->second)
+						{
+							it = target_id;
+						}
+					}
+				}
+				m_children[key] = target_id;
 			}
+		};
 
-			config at(confighost& host, size_t index) const
+	private:
+		size_t m_parent_inherited_id;
+		size_t m_parent_logical_id;
+		size_t m_container_id;
+		std::string_view m_name;
+
+		config(size_t logical, size_t container_id, size_t inherited, std::string_view name) :
+			m_parent_inherited_id(inherited),
+			m_parent_logical_id(logical),
+			m_container_id(container_id),
+			m_name(name) {}
+		config(const container& cont) : config(cont.id_parent_logical, cont.id, cont.id_parent_inherited, cont.name) {}
+	public:
+
+		config() : config(invalid_id, invalid_id, invalid_id, {}) {}
+
+		bool operator==(const config& other) { return m_container_id == other.m_container_id; }
+		bool operator!=(const config& other) { return !(*this == other); }
+
+		confignav navigate(confighost& host) const;
+		std::string_view name() const { return m_name; }
+		bool is_null() const { return m_container_id == invalid_id; }
+	};
+	class confighost
+	{
+		friend class confignav;
+		friend class config;
+	public:
+		using config_iterator = std::vector<config>::iterator;
+	private:
+		std::vector<config::container> m_containers;
+
+	public:
+		confignav root();
+		confighost(const confighost& copy) = delete;
+		confighost()
+		{
+			m_containers.emplace_back(0, "config/bin");
+		}
+	};
+	class confignav
+	{
+		friend class confighost;
+		friend class config;
+	public:
+		template<bool recursive>
+		class iterator_base
+		{
+		private:
+			confighost& m_confighost;
+			size_t m_index;
+			size_t m_id;
+		public:
+			// iterator traits
+			using difference_type = size_t;
+			using value_type = config;
+			using pointer = value_type*;
+			using reference = value_type&;
+			using iterator_category = std::forward_iterator_tag;
+
+			iterator_base(const iterator_base<recursive>& copy) :
+				m_confighost(copy.m_confighost),
+				m_index(copy.m_index),
+				m_id(copy.m_id), {}
+			iterator_base(confighost& confighost, size_t config_index) :
+				m_confighost(confighost),
+				m_index(0),
+				m_id(config_index) {}
+
+			iterator_base<recursive>& operator++()
 			{
-				if (m_children.size() <= index) { return { }; }
-				return host.at(m_children[index]);
+				while (m_id != config::invalid_id)
+				{
+					auto& container = m_confighost.m_containers[m_id];
+					if (container.size() != m_index)
+					{
+						m_index++;
+						return *this;
+					}
+					else
+					{
+						m_index = 0;
+						if constexpr (recursive)
+						{
+							m_id = container.id_parent_inherited;
+						}
+						else
+						{
+							m_id = config::invalid_id;
+						}
+					}
+				}
+				return *this;
 			}
-			size_t children_size() const { return m_children.size(); }
-
-			void value(sqf::runtime::value value) { m_value = value; }
-
-			bool inherits_or_equal(confighost& host, config other) const
+			iterator_base<recursive> operator++(int) { iterator retval = *this; ++(*this); return retval; }
+			bool operator==(iterator_base<recursive> other) const { return m_index == other.m_id; }
+			bool operator!=(iterator_base<recursive> other) const { return !(*this == other); }
+			value_type operator*()
 			{
-				if (m_self_index == other.m_self_index)
+				auto& container = m_confighost.m_containers[m_id];
+				auto actual_index = container[m_index];
+				return m_confighost.m_containers[actual_index];
+			}
+		};
+		using iterator = iterator_base<false>;
+		using iterator_recursive = iterator_base<true>;
+	private:
+		confighost& m_confighost;
+		size_t m_index;
+		confignav(confighost& host, size_t current) : m_confighost(host), m_index(current) {}
+	public:
+		confignav(const confignav& copy) : m_confighost(copy.m_confighost), m_index(copy.m_index) {}
+
+		
+		void operator=(const confignav& nav) // Required thanks to compiler magix
+		{
+			m_index = nav.m_index;
+		}
+
+		bool empty() const { return m_index == config::invalid_id; }
+		const config::container* operator->() const
+		{
+			if (!empty())
+			{
+				return &*(m_confighost.m_containers.begin() + m_index);
+			}
+			return {};
+		}
+		config operator*() const
+		{
+			if (!empty())
+			{
+				return { m_confighost.m_containers.at(m_index) };
+			}
+			return {};
+		}
+		operator config() const { return **this; }
+		confignav operator/(std::string target) const { return lookup_in_inherited(target); }
+		confignav operator/(size_t index) const { return at(index); }
+		confignav at(size_t index) const
+		{
+			if (!empty())
+			{
+				auto& container = m_confighost.m_containers.at(index);
+				if (index < container.size())
+				{
+					return { m_confighost, container[index] };
+				}
+			}
+			return { m_confighost, config::invalid_id };
+		}
+		confignav lookup_in_inherited(std::string target) const
+		{
+			size_t index = m_index;
+			while (index != config::invalid_id)
+			{
+				auto& container = m_confighost.m_containers.at(index);
+
+				auto res = container.find(target);
+				if (res != container.end())
+				{
+					return { m_confighost, res->second };
+				}
+				else
+				{
+					index = container.id_parent_inherited;
+				}
+			}
+			return { m_confighost, config::invalid_id };
+		}
+		confignav lookup_in_logical(std::string target) const
+		{
+			size_t index = m_index;
+			while (index != config::invalid_id)
+			{
+				auto& container = m_confighost.m_containers.at(index);
+
+				auto res = container.find(target);
+				if (res != container.end())
+				{
+					return { m_confighost, res->second };
+				}
+				else
+				{
+					index = container.id_parent_logical;
+				}
+			}
+			return { m_confighost, config::invalid_id };
+		}
+		confignav append_or_replace(std::string target, std::string inherited = {}) const
+		{
+			if (!empty())
+			{
+				auto& container = m_confighost.m_containers.at(m_index);
+				auto find_res = container.find(target);
+
+				auto& created = (find_res == container.end()) ? m_confighost.m_containers.emplace_back(m_confighost.m_containers.size(), target) : m_confighost.m_containers[find_res->second];
+				created.id_parent_logical = m_index;
+
+				if (!inherited.empty())
+				{
+					auto nav = lookup_in_logical(inherited);
+					created.id_parent_inherited = nav.m_index;
+				}
+				container.push_back(target, created.id);
+				return { m_confighost, created.id };
+			}
+			return { m_confighost, config::invalid_id };
+		}
+		void delete_inherited_or_replace(std::string target) const
+		{
+			if (!empty())
+			{
+				auto& container = m_confighost.m_containers.at(m_index);
+				container.push_back(target, config::invalid_id);
+			}
+		}
+		bool has_inherited_with_name(std::string target) const
+		{
+			size_t index = m_index;
+			while (index != config::invalid_id)
+			{
+				auto& container = m_confighost.m_containers.at(index);
+
+				if (container.name == target)
 				{
 					return true;
 				}
-				config node = *this;
-				while (node.has_parent_inherited())
+				else
 				{
-					node = node.parent_inherited(host);
-					if (node.is_null())
-					{
-						return false;
-					}
-					if (m_self_index == node.m_self_index)
-					{
-						return true;
-					}
+					index = container.id_parent_inherited;
 				}
-				return false;
 			}
-
-			sqf::runtime::value::cref value() const { return m_value; }
-
-			/// <summary>
-			/// Creates a new iterator factory that allows iterating over
-			/// the childrens of this config node.
-			/// </summary>
-			/// <param name="host"></param>
-			/// <returns></returns>
-			iterator_factory iterate(confighost& host) { return iterator_factory(*this, host); }
-
-			/// <summary>
-			/// Creates a new iterator factory that allows iterating over
-			/// the childrens of this config node.
-			/// Also will automagically iterate over inherited nodes,
-			/// honoring delete.
-			/// </summary>
-			/// <param name="host"></param>
-			/// <returns></returns>
-			iterator_recursive_factory iterate_recursive(confighost& host) { return iterator_recursive_factory(*this, host); }
-
-			std::optional<config> navigate(confighost& host, std::string_view target_name)
+			return false;
+		}
+		bool has_logical_with_name(std::string target) const
+		{
+			size_t index = m_index;
+			while (index != config::invalid_id)
 			{
-				for (auto& it : iterate_recursive(host))
-				{
-					if (it.get().name().compare(target_name))
-					{
-						return it;
-					}
-				}
-				return {};
-			}
+				auto& container = m_confighost.m_containers.at(index);
 
-			std::optional<config> navigate_local(confighost& host, std::string_view target_name)
+				if (container.name == target)
+				{
+					return true;
+				}
+				else
+				{
+					index = container.id_parent_logical;
+				}
+			}
+			return false;
+		}
+
+		confignav parent_logical() const
+		{
+			if (!empty())
 			{
-				for (auto& it : iterate(host))
-				{
-					if (it.get().name().compare(target_name))
-					{
-						return it;
-					}
-				}
-				return {};
+				size_t index = m_index;
+				auto& container = m_confighost.m_containers.at(index);
+				return { m_confighost, container.id_parent_logical };
 			}
-		};
-	private:
-		std::vector<config> m_configs;
-		bool m_is_final;
-		config& as_reference(size_t index)
-		{
-			return m_configs.at(index);
-		}
-		const config& as_reference(size_t index) const
-		{
-			return m_configs.at(index);
+			return { m_confighost, config::invalid_id };
 		}
 
-	public:
-		confighost() : m_is_final(false)
-		{
-			m_configs.push_back(config());
-		}
-		void push_back(config conf)
-		{
-			if (conf.m_self_index != 0) { return; }
-			conf.m_self_index = m_configs.size();
-			m_configs.push_back(conf);
-		}
-		config& create_new() { return m_configs.emplace_back(); }
-		config& root() { return as_reference(0); }
-		const config& root() const { return as_reference(0); }
-		config at(size_t index)
-		{
-			if (m_configs.size() <= index) { return {}; }
-			return {};
-		}
+		iterator begin() const { return { m_confighost, m_index }; }
+		iterator end() const { return { m_confighost, config::invalid_id }; }
 
-		config_iterator begin() { return m_configs.begin(); }
-		config_iterator end() { return m_configs.end(); }
-		config_iterator find_traverse_upwards_logical(config_iterator start, std::string_view view)
-		{
-			while (start->has_parent_logical())
-			{
-				auto parent = start->parent_logical(*this);
-				if (parent.is_null())
-				{
-					return end();
-				}
-				start = parent.iterator(*this);
-				auto factory = start->iterate(*this);
-				auto res = std::find_if(factory.begin(), factory.end(), [view](config conf) { return conf.name() == view; });
-				if (res != factory.end())
-				{
-					return res->get().iterator(*this);
-				}
-			}
-			return end();
-		}
-		config_iterator find_traverse_upwards_inherited(config_iterator start, std::string_view view)
-		{
-			while (start->has_parent_inherited())
-			{
-				auto parent = start->parent_inherited(*this);
-				if (parent.is_null())
-				{
-					return end();
-				}
-				start = parent.iterator(*this);
-				auto factory = start->iterate(*this);
-				auto res = std::find_if(factory.begin(), factory.end(), [view](config& conf) { return conf.name() == view; });
-				if (res != factory.end())
-				{
-					return res->get().iterator(*this);
-				}
-			}
-			return end();
-		}
-		
-
+		iterator_recursive recursive_begin() const { return { m_confighost, m_index }; }
+		iterator_recursive recursive_end() const { return { m_confighost, config::invalid_id }; }
 	};
+	inline confignav config::navigate(confighost& host) const { return { host, m_container_id }; }
+	inline confignav confighost::root() { return { *this, 0 }; }
 }
