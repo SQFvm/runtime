@@ -8,7 +8,7 @@
  ********************************************************/
 
 
-//#define _TEST_FRAMEWORK_DEBUG
+// #define _TEST_FRAMEWORK_DEBUG
 
 
 #ifdef _TEST_FRAMEWORK_DEBUG
@@ -147,6 +147,7 @@ diag_log format["    %1", ___currentDirectory___];
 private ___sqf_test_dir = currentDirectory__ + "/" + "sqf";
 private ___preprocessor_test_dir = currentDirectory__ + "/" + "preprocess";
 {
+    DIAGNOSTICS_EXEC(format["%1 out of %2 tests passed." COMMA testsPassed COMMA testsIndex]);
     DIAGNOSTICS_EXEC(format["Checking if '%1' is '%2'.", _x, ___sqf_test_dir]);
     if (_x select[0, count ___sqf_test_dir] == ___sqf_test_dir) then
     {
@@ -160,6 +161,7 @@ private ___preprocessor_test_dir = currentDirectory__ + "/" + "preprocess";
                 fatalError = true;
             };
             {
+                DIAGNOSTICS_EXEC(format["%1 out of %2 tests passed." COMMA testsPassed COMMA testsIndex]);
                 testsIndex = testsIndex + 1;
                 private ___mode___ = _x select 0;
                 private ___test___ = _x select 1;
@@ -174,6 +176,7 @@ private ___preprocessor_test_dir = currentDirectory__ + "/" + "preprocess";
                         case "setup": {
                             DIAGNOSTICS_EXEC("___mode___ is setup");
                             ___setup___ = ___code___;
+                            testsIndex = testsIndex - 1;
                         };
                         case "assert": {
                             DIAGNOSTICS_EXEC("___mode___ is assert");
@@ -279,9 +282,12 @@ diag_log "############################################################";
 {
     diag_log _x;
 } forEach ___failed___;
-diag_log "############################################################";
-diag_log format["%1 out of %2 tests passed.", testsPassed, testsIndex];
-diag_log "############################################################";
+if (testsPassed != testsIndex) then
+{
+    diag_log "############################################################";
+    diag_log format["%1 out of %2 tests passed.", testsPassed, testsIndex];
+    diag_log "############################################################";
+};
 if (fatalError) then
 {
     diag_log "FATALERROR occured during testing:";
