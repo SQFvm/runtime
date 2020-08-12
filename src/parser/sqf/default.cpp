@@ -152,11 +152,11 @@ size_t sqf::parser::sqf::default::instance::assidentifier(size_t off)
 size_t sqf::parser::sqf::default::instance::operator_(size_t off)
 {
     if (util::is_match<'+', '-', '*', '/', '%', '^', ':', '#'>(m_contents[off])) { return 1; }
-    if (util::is_match_x<2, '|'>(m_contents + off) ||
-        util::is_match_x<2, '&'>(m_contents + off) ||
-        util::is_match_x<2, '='>(m_contents + off) ||
-        util::is_match_x<2, '>'>(m_contents + off) ||
-        util::is_match_x<2, '<'>(m_contents + off)) { return 2; }
+    if (util::is_match_repeated<2, '|'>(m_contents + off) ||
+        util::is_match_repeated<2, '&'>(m_contents + off) ||
+        util::is_match_repeated<2, '='>(m_contents + off) ||
+        util::is_match_repeated<2, '>'>(m_contents + off) ||
+        util::is_match_repeated<2, '<'>(m_contents + off)) { return 2; }
 
     if (util::is_match<'<', '!', '>'>(m_contents[off]))
     {
@@ -216,7 +216,7 @@ void ::sqf::parser::sqf::default::instance::SQF(astnode& root, bool& errflag)
     {
         STATEMENT(root, errflag);
         skip(m_info);
-        //Make sure at least one endchr is available unless no statement follows
+        // Make sure at least one endchr is available unless no statement follows
         if (!endchr(m_info.offset) && STATEMENT_start(m_info.offset))
         {
             m_owner.log(err::ExpectedStatementTerminator(m_info));
@@ -1141,7 +1141,11 @@ void ::sqf::parser::sqf::default::instance::NUMBER(astnode& root, bool& errflag)
     root.children.emplace_back(std::move(thisnode));
 }
 //VARIABLE = identifier;
-bool ::sqf::parser::sqf::default::instance::VARIABLE_start(size_t curoff) { auto len = identifier(curoff); return len > 0 && !m_contains_binary(std::string(m_contents.substr(curoff, len)), 0); }
+bool ::sqf::parser::sqf::default::instance::VARIABLE_start(size_t curoff)
+{
+    auto len = identifier(curoff);
+    return len > 0 && !m_contains_binary(std::string(m_contents.substr(curoff, len)), 0);
+}
 void ::sqf::parser::sqf::default::instance::VARIABLE(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
@@ -1192,7 +1196,10 @@ void ::sqf::parser::sqf::default::instance::STRING(astnode& root, bool& errflag)
     {
         m_owner.log(err::MissingStringTermination(m_info));
     }
-    i++;
+    else
+    {
+        i++;
+    }
     m_info.column++;
     auto fullstring = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
     thisnode.content = fullstring;

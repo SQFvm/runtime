@@ -7,7 +7,6 @@
 #include <optional>
 #include <unordered_map>
 
-
 namespace sqf::runtime
 {
 	class config;
@@ -274,16 +273,33 @@ namespace sqf::runtime
 				auto& container = m_confighost.m_containers.at(m_index);
 				auto find_res = container.find(target);
 
-				auto& created = (find_res == container.end()) ? m_confighost.m_containers.emplace_back(m_confighost.m_containers.size(), target) : m_confighost.m_containers[find_res->second];
-				created.id_parent_logical = m_index;
-
-				if (!inherited.empty())
+				if (find_res == container.end())
 				{
-					auto nav = lookup_in_logical(inherited);
-					created.id_parent_inherited = nav.m_index;
+					auto& created = m_confighost.m_containers.emplace_back(m_confighost.m_containers.size(), target);
+					// container might be invalidated here due to m_containers resizing.
+					created.id_parent_logical = m_index;
+
+					if (!inherited.empty())
+					{
+						auto nav = lookup_in_logical(inherited);
+						created.id_parent_inherited = nav.m_index;
+					}
+					m_confighost.m_containers.at(m_index).push_back(target, created.id);
+					return { m_confighost, created.id };
 				}
-				container.push_back(target, created.id);
-				return { m_confighost, created.id };
+				else
+				{
+					auto& replaced = m_confighost.m_containers[find_res->second];
+					replaced.id_parent_logical = m_index;
+
+					if (!inherited.empty())
+					{
+						auto nav = lookup_in_logical(inherited);
+						replaced.id_parent_inherited = nav.m_index;
+					}
+					container.push_back(target, replaced.id);
+					return { m_confighost, replaced.id };
+				}
 			}
 			return { m_confighost, config::invalid_id };
 		}

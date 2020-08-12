@@ -11,6 +11,12 @@
 #include <cstring>
 #include <string>
 #include <sstream>
+
+#ifdef DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
+#include <iostream>
+#endif // DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
+
+
 /*
 NODELIST = { NODE ';' { ';' } };
 NODE = 'class' CONFIGNODE | VALUENODE;
@@ -35,7 +41,23 @@ void sqf::parser::config::default::instance::skip()
 		case ' ': m_info.offset++; m_info.column++; continue;
 		case '\t': m_info.offset++; m_info.column++; continue;
 		case '\r': m_info.offset++; m_info.column++; continue;
-		case '\n': m_info.offset++; m_info.line++; m_info.column = 0; continue;
+		case '\n':
+		{
+#ifdef DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
+			auto p_current = (short)((m_info.line / (double)___dbg_line_count) * 100);
+			auto p_new = (short)(((m_info.line + 1) / (double)___dbg_line_count) * 100);
+			if (p_current != p_new)
+			{
+				std::cout << "\x1B[33m[CNF-PARSE-PROGR]\033[0m" <<
+					"        " <<
+					"        " <<
+					"    " << "\x1B[36m Config-AST-Parse Progress: " << p_new << " %\033[0m" << std::endl;
+			}
+#endif // DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
+			m_info.offset++;
+			m_info.line++;
+			m_info.column = 0;
+		} continue;
 		case '#':
 			if ((m_contents[m_info.offset + 1] == 'l' || m_contents[m_info.offset + 1] == 'L') &&
 				(m_contents[m_info.offset + 2] == 'i' || m_contents[m_info.offset + 1] == 'I') &&
@@ -64,36 +86,70 @@ void sqf::parser::config::default::instance::skip()
 }
 
 //endchr = [,;];
-size_t sqf::parser::config::default::instance::endchr(size_t off) { return m_contents[off] == ';' ? 1 : 0; }
+size_t sqf::parser::config::default::instance::endchr(size_t off) { return util::is_match<';', ','>(m_contents[off]) ? 1 : 0; }
 //identifier = [_a-zA-Z0-9]*;
-size_t sqf::parser::config::default::instance::identifier(size_t off) { size_t i = off; for (i = off; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || (m_contents[i] >= '0' && m_contents[i] <= '9') || m_contents[i] == '_'; i++) {}; return i - off; }
+size_t sqf::parser::config::default::instance::identifier(size_t off)
+{
+	return util::len_match<
+		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
+}
 //operator_ = [-*+/a-zA-Z><=%_]+;
-//ToDo: Add clearer non-alphabetical checks (-- should not be detected as SINGLE operator but rather as two operators)
-size_t sqf::parser::config::default::instance::operator_(size_t off) { size_t i; for (i = off; (m_contents[i] >= 'a' && m_contents[i] <= 'z') || (m_contents[i] >= 'A' && m_contents[i] <= 'Z') || m_contents[i] == '+' || m_contents[i] == '-' || m_contents[i] == '*' || m_contents[i] == '/' || m_contents[i] == '>' || m_contents[i] == '<' || m_contents[i] == '=' || m_contents[i] == '%' || m_contents[i] == '_'; i++) {}; return i - off; }
+size_t sqf::parser::config::default::instance::operator_(size_t off)
+{
+	if (util::is_match<'+', '-', '*', '/', '%', '^', ':', '#'>(m_contents[off])) { return 1; }
+	if (util::is_match_repeated<2, '|'>(m_contents + off) ||
+		util::is_match_repeated<2, '&'>(m_contents + off) ||
+		util::is_match_repeated<2, '='>(m_contents + off) ||
+		util::is_match_repeated<2, '>'>(m_contents + off) ||
+		util::is_match_repeated<2, '<'>(m_contents + off)) {
+		return 2;
+	}
+
+	if (util::is_match<'<', '!', '>'>(m_contents[off]))
+	{
+		if (util::is_match<'='>(m_contents[off + 1])) return 2;
+		return 1;
+	}
+	return util::len_match<
+		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
+}
 //hexadecimal = [0-9a-fA-F]+;
-size_t sqf::parser::config::default::instance::hexadecimal(size_t off) { size_t i; for (i = off; (m_contents[i] >= 'a' && m_contents[i] <= 'f') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= '0' && m_contents[i] <= '9'); i++) {}; return i - off; }
+size_t sqf::parser::config::default::instance::hexadecimal(size_t off)
+{
+	return util::len_match<
+		'a', 'b', 'c', 'd', 'e', 'f',
+		'A', 'B', 'C', 'D', 'E', 'F',
+		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(m_contents + off);
+}
 //scalarsub = [0-9]+;
-size_t sqf::parser::config::default::instance::numsub(size_t off) { size_t i; for (i = off; m_contents[i] >= '0' && m_contents[i] <= '9'; i++) {}; return i - off; }
+size_t sqf::parser::config::default::instance::numsub(size_t off)
+{
+	return util::len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(m_contents + off);
+}
 //scalar = scalarsub(.scalarsub)?;
-size_t sqf::parser::config::default::instance::num(size_t off) { size_t i = off + numsub(off); if (m_contents[off] == '.') i += numsub(off); return i - off; }
+size_t sqf::parser::config::default::instance::num(size_t off) { size_t i = off + numsub(off); if (util::is_match_repeated<'.'>(m_contents + i)) i += numsub(i); return i - off; }
 //anytext = (?![ \t\r\n;])+;
-size_t sqf::parser::config::default::instance::anytext(size_t off) { size_t i; for (i = off; m_contents[i] != ' ' && m_contents[i] != '\t' && m_contents[i] != '\r' && m_contents[i] != '\n' && m_contents[i] != ';'; i++) {}; return i - off; }
+size_t sqf::parser::config::default::instance::anytext(size_t off)
+{
+	return util::len_match_inv<' ', '\t', '\r', '\n', '\0', ';'>(m_contents + off);
+}
 
 
 // NODELIST = { NODE ';' { ';' } };
 bool sqf::parser::config::default::instance::NODELIST_start(size_t off) { return true; }
 void sqf::parser::config::default::instance::NODELIST(::sqf::parser::config::default::astnode& root, bool& errflag)
 {
-	//auto thisnode = astnode();
-	//thisnode.offset = m_info.offset;
-	//thisnode.kind = nodetype::NODELIST;
 	skip();
-	//Iterate over statements as long as it is an instruction start.
+	// Iterate over statements as long as it is an instruction start.
 	while (NODE_start(m_info.offset))
 	{
 		NODE(root, errflag);
 		skip();
-		//Make sure at least one endchr is available unless no statement follows
+		// Make sure at least one endchr is available unless no statement follows
 		if (!endchr(m_info.offset) && NODE_start(m_info.offset))
 		{
 			owner.log(err::ExpectedStatementTerminator(m_info));
@@ -102,7 +158,7 @@ void sqf::parser::config::default::instance::NODELIST(::sqf::parser::config::def
 		else
 		{
 			size_t endchrlen;
-			//Add endchr up until no semicolon is left
+			// Add endchr up until no semicolon is left
 			while ((endchrlen = endchr(m_info.offset)) > 0)
 			{
 				m_info.offset += endchrlen;
@@ -111,16 +167,11 @@ void sqf::parser::config::default::instance::NODELIST(::sqf::parser::config::def
 			}
 		}
 	}
-	//thisnode.length = m_info.offset - thisnode.offset;
-	//root.children.create(thisnode);
 }
 // NODE = CONFIGNODE | VALUENODE | DELETENODE;
 bool sqf::parser::config::default::instance::NODE_start(size_t off) { return CONFIGNODE_start(off) || VALUENODE_start(off); }
 void sqf::parser::config::default::instance::NODE(::sqf::parser::config::default::astnode & root, bool& errflag)
 {
-	//auto thisnode = astnode();
-	//thisnode.offset = m_info.offset;
-	//thisnode.kind = nodetype::NODE;
 	if (CONFIGNODE_start(m_info.offset))
 	{
 		CONFIGNODE(root, errflag);
@@ -134,17 +185,9 @@ void sqf::parser::config::default::instance::NODE(::sqf::parser::config::default
 		owner.log(err::NoViableAlternativeNode(m_info));
 		errflag = true;
 	}
-	//thisnode.length = m_info.offset - thisnode.offset;
-	//root.children.create(thisnode);
 }
 // CONFIGNODE = 'class' ident [ ':' ident ] [ '{' NODELIST '}' ]
-bool sqf::parser::config::default::instance::CONFIGNODE_start(size_t off)
-{
-	const char* txt = "class";
-	return std::equal(
-		m_contents.begin() + off, m_contents.end() + ::sqf::runtime::util::strlen(txt),
-		txt, txt + ::sqf::runtime::util::strlen(txt));
-}
+bool sqf::parser::config::default::instance::CONFIGNODE_start(size_t off) { return util::is_string_match(m_contents.begin() + off, "class"); }
 void sqf::parser::config::default::instance::CONFIGNODE(::sqf::parser::config::default::astnode & root, bool& errflag)
 {
 	size_t len;
@@ -393,7 +436,7 @@ void sqf::parser::config::default::instance::VALUENODE(::sqf::parser::config::de
 	root.children.push_back(thisnode);
 }
 //STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
-bool sqf::parser::config::default::instance::STRING_start(size_t off) { return m_contents[off] == '"' || m_contents[off] == '\''; }
+bool sqf::parser::config::default::instance::STRING_start(size_t off) { return util::is_match<'"', '\''>(m_contents[off]); }
 void sqf::parser::config::default::instance::STRING(::sqf::parser::config::default::astnode & root, bool& errflag)
 {
 	auto thisnode = astnode();
@@ -432,7 +475,7 @@ void sqf::parser::config::default::instance::STRING(::sqf::parser::config::defau
 	root.children.push_back(thisnode);
 }
 //NUMBER = "0x" hexadecimal | [ '-' ]scalar;
-bool sqf::parser::config::default::instance::NUMBER_start(size_t off) { return m_contents[off] == '-' || (m_contents[off] >= '0' && m_contents[off] <= '9'); }
+bool sqf::parser::config::default::instance::NUMBER_start(size_t off) { return util::is_match<'-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(m_contents[off]); }
 void sqf::parser::config::default::instance::NUMBER(::sqf::parser::config::default::astnode & root, bool& errflag)
 {
 	auto thisnode = astnode();
@@ -502,7 +545,7 @@ void sqf::parser::config::default::instance::NUMBER(::sqf::parser::config::defau
 	root.children.push_back(thisnode);
 }
 //LOCALIZATION = '$' ident;
-bool sqf::parser::config::default::instance::LOCALIZATION_start(size_t off) { return m_contents[off] == '$'; }
+bool sqf::parser::config::default::instance::LOCALIZATION_start(size_t off) { return util::is_match<'$'>(m_contents[off]); }
 void sqf::parser::config::default::instance::LOCALIZATION(::sqf::parser::config::default::astnode & root, bool& errflag)
 {
 	auto thisnode = astnode();
@@ -523,7 +566,7 @@ void sqf::parser::config::default::instance::LOCALIZATION(::sqf::parser::config:
 	root.children.push_back(thisnode);
 }
 //ARRAY = '{' [ VALUE { ',' VALUE } ] '}'
-bool sqf::parser::config::default::instance::ARRAY_start(size_t off) { return m_contents[off] == '{'; }
+bool sqf::parser::config::default::instance::ARRAY_start(size_t off) { return util::is_match<'{'>(m_contents[off]); }
 void sqf::parser::config::default::instance::ARRAY(::sqf::parser::config::default::astnode & root, bool& errflag)
 {
 	auto thisnode = astnode();
@@ -610,6 +653,16 @@ sqf::parser::config::default::astnode sqf::parser::config::default::instance::pa
 	node.kind = nodetype::NODELIST;
 	node.offset = 0;
 	node.content = m_contents.substr();
+#ifdef DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
+	___dbg_line_count = 0;
+	for (auto c : m_contents)
+	{
+		if (c == '\n')
+		{
+			___dbg_line_count++;
+		}
+	}
+#endif // DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
 	NODELIST(node, errflag);
 	skip();
 	if (!errflag && m_info.offset < m_contents.size())

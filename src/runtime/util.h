@@ -105,7 +105,7 @@ namespace sqf::parser::util
 	public:
 		static constexpr const size_t npos = std::string::npos;
 		string_ref(std::string& ref) : m_ref(ref), m_cstr(ref.c_str()) {}
-		std::string substr(size_t index = 0, size_t len = npos) { return m_ref.substr(index, len); }
+		std::string substr(size_t index = 0, size_t len = npos) { if (index < m_ref.length()) { return m_ref.substr(index, len); } else { return {}; } }
 		char operator[](size_t index) const { return m_cstr[index]; }
 		size_t size() const { return m_ref.size(); }
 
@@ -116,6 +116,7 @@ namespace sqf::parser::util
 		operator std::string() const { return m_ref; }
 		operator std::string_view() const { return m_ref; }
 	};
+	#pragma region is_match
 	template<typename = void>
 	inline bool is_match(char value) { return false; }
 	template<char TArg, char ... TArgs>
@@ -127,6 +128,13 @@ namespace sqf::parser::util
 		default: return is_match<TArgs...>(value);
 		}
 	}
+	template<size_t len, char ... TArgs>
+	bool is_match_repeated(const char* value)
+	{
+		size_t i = 0;
+		while (is_match<TArgs...>(*value++)) { ++i; }
+		return len == i;
+	}
 
 	template<char ... TArgs>
 	size_t len_match(const char* str)
@@ -135,11 +143,44 @@ namespace sqf::parser::util
 		while (is_match<TArgs...>(*it++)) {}
 		return it - str - 1;
 	}
+	#pragma endregion
+	#pragma region is_match_inv
+	template<typename = void>
+	inline bool is_match_inv(char value) { return true; }
+	template<char TArg, char ... TArgs>
+	bool is_match_inv(char value)
+	{
+		switch (value)
+		{
+		case TArg: return false;
+		default: return is_match_inv<TArgs...>(value);
+		}
+	}
+	template<char ... TArgs>
+	size_t len_match_inv(const char* str)
+	{
+		const char* it = str;
+		while (is_match_inv<TArgs...>(*it++)) {}
+		return it - str - 1;
+	}
 	template<size_t len, char ... TArgs>
-	bool is_match_x(const char* value)
+	bool is_match_inv_repeated(const char* value)
 	{
 		size_t i = 0;
-		while (is_match<TArgs...>(*value++)) { ++i; }
+		while (is_match_inv<TArgs...>(*value++)) { ++i; }
 		return len == i;
 	}
+	#pragma endregion
+	#pragma region is_string_match
+	inline bool is_string_match(const char* start, const char* against)
+	{
+		auto len = ::sqf::runtime::util::strlen(against);
+		for (size_t i = 0; i < len; i++)
+		{
+			if (start[i] != against[i]) { return false; }
+		}
+		return true;
+	}
+	#pragma endregion
+
 }

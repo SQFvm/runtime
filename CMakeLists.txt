@@ -81,6 +81,7 @@ if (SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__SQF_FILEIO__TRACE_REESOLVE)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__SQF_PREPROC__TRACE_MACRO_RESOLVE)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__SQF_PREPROC__TRACE_MACRO_PARSE)
+    target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG)
     
     target_compile_options(sqfvm PRIVATE

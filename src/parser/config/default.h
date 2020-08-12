@@ -50,6 +50,9 @@ namespace sqf::parser::config
 		{
 		private:
 			default& owner;
+#ifdef DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
+			size_t ___dbg_line_count;
+#endif // DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
 		public:
 			instance(
 				default& owner,
@@ -106,16 +109,16 @@ namespace sqf::parser::config
 		virtual bool check_syntax(std::string contents, ::sqf::runtime::fileio::pathinfo pathinfo) override
 		{
 			instance i(*this, contents, pathinfo);
-			bool success = false;
-			auto root = i.parse(success);
-			return success;
+			bool errflag = false;
+			auto root = i.parse(errflag);
+			return !errflag;
 		}
 		virtual bool parse(::sqf::runtime::confighost& target, std::string contents, ::sqf::runtime::fileio::pathinfo pathinfo) override
 		{
 			instance i(*this, contents, pathinfo);
-			bool success = false;
-			auto root = i.parse(success);
-			if (!success)
+			bool errflag = false;
+			auto root = i.parse(errflag);
+			if (errflag)
 			{
 				return {};
 			}
