@@ -246,8 +246,8 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
                     "        " <<
                     "    " << "\x1B[36mEXIT execute_do\033[0m as runtime error occured" << std::endl;
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
-                runtime_error = false;
                 runtime.__logmsg(logmessage::runtime::Stacktrace((*instruction)->diag_info(), stacktrace));
+                runtime_error = false;
                 return sqf::runtime::runtime::result::runtime_error;
             }
         }

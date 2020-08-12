@@ -40,8 +40,17 @@ namespace sqf::runtime
                 /// Indicates a failure state of the enact method.
                 /// If not used within error_behavior, then this acts like result::ok
                 /// </summary>
-                fail
+                fail,
+                /// <summary>
+                /// Replaces this behavior with another one and executes it immediate.
+                /// </summary>
+                replace_self,
+                /// <summary>
+                /// Replaces this behavior with another one and seeks to start.
+                /// </summary>
+                replace_self_seek_start,
             };
+            virtual std::shared_ptr<behavior> get_behavior() { return {}; };
             virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) { return {}; };
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) = 0;
             behavior() = default;
@@ -70,6 +79,7 @@ namespace sqf::runtime
             end,
             start
         };
+        friend class behavior;
     private:
         sqf::runtime::instruction_set m_instruction_set;
         // Use index over iterator due to iterator invalidation problems
@@ -125,12 +135,21 @@ namespace sqf::runtime
         bool can_recover_runtime_error() { return m_error_behavior != nullptr; }
         result recover_runtime_error(runtime& runtime)
         {
+            start:
             if (!m_error_behavior) { return result::error; }
             switch (m_error_behavior->enact(runtime, *this))
             {
             case behavior::result::seek_end:
                 seek(0, ::sqf::runtime::frame::seekpos::end);
                 return result::done;
+            case behavior::result::replace_self:
+                m_error_behavior = m_error_behavior->get_behavior();
+                goto start; // re-run self as replace_self was requested
+            case behavior::result::replace_self_seek_start:
+                m_error_behavior = m_error_behavior->get_behavior();
+                seek(0, ::sqf::runtime::frame::seekpos::start);
+                clear_values_helper(runtime);
+                return result::ok;
             case behavior::result::seek_start:
                 seek(0, ::sqf::runtime::frame::seekpos::start);
                 clear_values_helper(runtime);
@@ -237,18 +256,28 @@ namespace sqf::runtime
         /// <returns>Enum value describing the success state of the operation.</returns>
         result next(runtime& runtime)
         {
+        start:
             auto res = next();
             if (m_position == m_instruction_set.size() && m_exit_behavior)
             {
+            rerun:
                 switch (m_exit_behavior->enact(runtime, *this))
                 {
                 case behavior::result::seek_end:
                     seek(0, ::sqf::runtime::frame::seekpos::end);
                     return result::done;
+                case behavior::result::replace_self:
+                    m_exit_behavior = m_exit_behavior->get_behavior();
+                    goto rerun; // re-run self as replace_self was requested
+                case behavior::result::replace_self_seek_start:
+                    m_exit_behavior = m_exit_behavior->get_behavior();
+                    seek(0, ::sqf::runtime::frame::seekpos::start);
+                    clear_values_helper(runtime);
+                    goto start; // do not call here, reuse current stack
                 case behavior::result::seek_start:
                     seek(0, ::sqf::runtime::frame::seekpos::start);
                     clear_values_helper(runtime);
-                    return next();
+                    goto start; // do not call here, reuse current stack
                 case behavior::result::exchange:
                     m_instruction_set = m_exit_behavior->get_instruction_set(*this);
                     seek(0, ::sqf::runtime::frame::seekpos::start);
@@ -261,7 +290,7 @@ namespace sqf::runtime
                     dbg_str();
 
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
-                    return next();
+                    goto start; // do not call here, reuse current stack
                 }
             }
             return res;

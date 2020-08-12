@@ -556,8 +556,10 @@ namespace
             size_t m_amount;
             size_t m_max;
             instruction_set m_set;
+            std::chrono::nanoseconds m_overhead;
         public:
-            behavior_measureoverhead(sqf::runtime::instruction_set set, size_t max) : m_start(std::chrono::high_resolution_clock::now()), m_amount(0), m_max(max), m_set(set) {}
+            behavior_measureoverhead(sqf::runtime::instruction_set set, size_t max) : m_start(std::chrono::high_resolution_clock::now()), m_amount(0), m_max(max), m_set(set), m_overhead(0) {}
+            virtual std::shared_ptr<behavior> get_behavior() override { return std::make_shared<behavior_measureperformance>(m_overhead, m_max); };
             virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
@@ -569,13 +571,8 @@ namespace
                 {
                     auto end = std::chrono::high_resolution_clock::now();
                     auto delta = end - m_start;
-                    auto overhead = std::chrono::duration_cast<std::chrono::nanoseconds>(delta) / (std::chrono::nanoseconds::rep)m_amount;
-                    sqf::runtime::frame f = { f.globals_value_scope(), m_set, std::make_shared<behavior_measureperformance>(overhead, m_max) };
-                    f["_this"] = {};
-                    f.bubble_variable(false);
-                    runtime.context_active().pop_frame();
-                    runtime.context_active().push_frame(f);
-                    return result::ok;
+                    m_overhead = std::chrono::duration_cast<std::chrono::nanoseconds>(delta) / (std::chrono::nanoseconds::rep)m_amount;
+                    return result::replace_self_seek_start;
                 }
             };
         };
