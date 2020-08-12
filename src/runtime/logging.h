@@ -1744,7 +1744,7 @@ namespace logmessage {
 			::sqf::runtime::value value;
 		public:
 			ContextValuePrint(::sqf::runtime::value val) :
-				RuntimeBase(level, errorCode, {})
+				RuntimeBase(level, errorCode, {}), value(val)
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};

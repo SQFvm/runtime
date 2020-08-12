@@ -2698,7 +2698,7 @@ namespace logmessage::runtime
 	std::string ContextValuePrint::formatMessage() const
 	{
 		const auto messageA = "Context droped with return value `"sv;
-		const auto messageB = "`'."sv;
+		const auto messageB = "`."sv;
 		auto value_sqf = value.to_string_sqf();
 
 		std::string output;
