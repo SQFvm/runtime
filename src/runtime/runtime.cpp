@@ -351,12 +351,18 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
                     switch (res)
                     {
                     case sqf::runtime::runtime::result::empty:
+                    {
 #ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                         std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                             "        " <<
                             "        " <<
                             "    " << "\x1B[36mERASE CONTEXT\033[0m \x1B[90" << ((*iterator)->name().empty() ? "<unnamed>" : (*iterator)->name().empty()) << "\033[0m" << std::endl;
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+                        auto opt_val = (*iterator)->pop_value(true);
+                        if (opt_val.has_value() && configuration().print_context_work_to_log_on_exit)
+                        {
+                            __logmsg(logmessage::runtime::ContextValuePrint(opt_val.value()));
+                        }
                         m_contexts.erase(iterator);
                         if (m_contexts.empty())
                         {
@@ -364,7 +370,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
                             goto start_loop_exit;
                         }
                         iterator = m_contexts.begin();
-                        break;
+                    } break;
                     case sqf::runtime::runtime::result::invalid:
                     case sqf::runtime::runtime::result::action_error:
                     case sqf::runtime::runtime::result::runtime_error:

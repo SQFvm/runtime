@@ -1738,6 +1738,16 @@ namespace logmessage {
 			{}
 			[[nodiscard]] std::string formatMessage() const override;
 		};
+		class ContextValuePrint : public RuntimeBase {
+			static const loglevel level = loglevel::info;
+			static const size_t errorCode = 60095;
+			::sqf::runtime::value value;
+		public:
+			ContextValuePrint(::sqf::runtime::value val) :
+				RuntimeBase(level, errorCode, {})
+			{}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
 	}
 }
 

@@ -157,6 +157,8 @@ int main(int argc, char** argv)
     TCLAP::ValueArg<std::string> cliFileArg("", "cli-file", "Allows to provide a file from which to load arguments from. If passed, all other arguments will be ignored! Each argument needs to be separated by line-feed. " RELPATHHINT, false, "", "PATH");
     cmd.add(cliFileArg);
 
+    TCLAP::ValueArg<long> maxRuntimeArg("m", "max-runtime", "Sets the maximum allowed runtime for the VM. 0 means no restriction in place.", false, 0, "MILLISECONDS");
+    cmd.add(maxRuntimeArg);
 
     TCLAP::MultiArg<std::string> inputArg("i", "input", "Loads provided file from disk. File-Type is determined using default file extensions (sqf, cpp, hpp, pbo). " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
     cmd.add(inputArg);
@@ -239,6 +241,9 @@ int main(int argc, char** argv)
 
     TCLAP::SwitchArg noSpawnPlayerArg("", "no-spawn-player", "Prevents automatic \"spawn\" of the player.", false);
     cmd.add(noSpawnPlayerArg);
+
+    TCLAP::SwitchArg noWrokPrintArg("", "no-work-print", "Prevents the results printing of contexts that reached an empty state.", false);
+    cmd.add(noWrokPrintArg);
 
     // TCLAP::SwitchArg noAssemblyCreationArg("", "no-assembly-creation", "Will force to use only the SQF parser. "
     //     "Execution of SQF-code will not work with this. "
@@ -366,6 +371,9 @@ int main(int argc, char** argv)
     StdOutLogger logger;
     sqf::runtime::runtime::runtime_conf conf;
     conf.enable_classname_check = enableClassnameCheckArg.getValue();
+    conf.print_context_work_to_log_on_exit = !noWrokPrintArg.getValue();
+    conf.max_runtime = std::chrono::milliseconds(maxRuntimeArg.getValue());
+    
 
     sqf::runtime::runtime runtime(logger, conf);
     runtime.fileio(std::make_unique<sqf::fileio::default>());

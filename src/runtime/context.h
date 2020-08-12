@@ -107,7 +107,7 @@ namespace sqf::runtime
         }
         std::optional<sqf::runtime::value> pop_value(bool ingore_frame_boundaries = false)
         {
-            if (m_values.empty() || (m_values.size() <= current_frame().value_stack_pos() && !ingore_frame_boundaries))
+            if (m_values.empty() || (!ingore_frame_boundaries && (m_frames.empty() || m_values.size() <= current_frame().value_stack_pos())))
             {
                 return {};
             }

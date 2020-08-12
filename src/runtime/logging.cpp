@@ -2695,4 +2695,22 @@ namespace logmessage::runtime
 		output.append(message);
 		return output;
 	}
+	std::string ContextValuePrint::formatMessage() const
+	{
+		const auto messageA = "Context droped with return value `"sv;
+		const auto messageB = "`'."sv;
+		auto value_sqf = value.to_string_sqf();
+
+		std::string output;
+		output.reserve(
+			messageA.length() +
+			value_sqf.length() +
+			messageB.length()
+		);
+
+		output.append(messageA);
+		output.append(value_sqf);
+		output.append(messageB);
+		return output;
+	}
 }

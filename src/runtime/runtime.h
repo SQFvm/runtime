@@ -80,12 +80,18 @@ namespace sqf::runtime
             /// </summary>
             bool disable_networking;
 
+            /// <summary>
+            /// If true, a context containing values will push them before being erased from the context list.
+            /// </summary>
+            bool print_context_work_to_log_on_exit;
+
 
             runtime_conf() :
                 max_runtime(std::chrono::milliseconds::zero()),
                 disable_sleep(false),
                 disable_networking(false),
-                enable_classname_check(true)
+                enable_classname_check(true),
+                print_context_work_to_log_on_exit(false)
             {}
         };
 
