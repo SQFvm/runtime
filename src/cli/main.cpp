@@ -187,6 +187,11 @@ int main(int argc, char** argv)
         std::array<int, 2> arrc = { 1, 2 };
         std::array<int, 7> arrd = { 1, 2, 3, 4, 5, 6, 7 };
         auto arr_res = concat(arra, arrb, arrc, arrd, 0, 0, 0, arra);
+
+
+        auto arr_conc_a = std::array{ concat(arra, arrb), concat(arrc, arrd) };
+        auto arr_conc_a = std::array{ concat(arrc, arrd), concat(arra, arrb) };
+
         for (auto it : arr_res)
         {
             std::cout << it << ", ";

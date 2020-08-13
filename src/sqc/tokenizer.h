@@ -38,6 +38,7 @@ namespace sqf::sqc
             t_nil,
             t_true,
             t_false,
+            t_for,
             t_private,
 
             s_curlyo,
@@ -54,6 +55,7 @@ namespace sqf::sqc
             s_lessthen,
             s_plus,
             s_minus,
+            s_notequal,
             s_exclamationmark,
             s_percent,
             s_star,
@@ -64,6 +66,7 @@ namespace sqf::sqc
             s_colon,
             s_semicolon,
             s_comma,
+            s_dot,
 
             t_ident,
             t_number
@@ -220,6 +223,7 @@ namespace sqf::sqc
                 case etoken::t_nil:              len = len_match(iter, "nil"); break;
                 case etoken::t_true:             len = len_match(iter, "true"); break;
                 case etoken::t_false:            len = len_match(iter, "false"); break;
+                case etoken::t_for:              len = len_match(iter, "for"); break;
                 case etoken::t_private:          len = len_match(iter, "private"); break;
 
                 case etoken::s_curlyo:           len = is_match<'{'>(iter); break;
@@ -236,6 +240,7 @@ namespace sqf::sqc
                 case etoken::s_lessthen:         len = is_match<'<'>(iter); break;
                 case etoken::s_plus:             len = is_match<'+'>(iter); break;
                 case etoken::s_minus:            len = is_match<'-'>(iter); break;
+                case etoken::s_notequal:         len = is_match<'!'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
                 case etoken::s_exclamationmark:  len = is_match<'!'>(iter); break;
                 case etoken::s_percent:          len = is_match<'%'>(iter); break;
                 case etoken::s_star:             len = is_match<'*'>(iter); break;
@@ -246,6 +251,7 @@ namespace sqf::sqc
                 case etoken::s_colon:            len = is_match<':'>(iter); break;
                 case etoken::s_semicolon:        len = is_match<';'>(iter); break;
                 case etoken::s_comma:            len = is_match<','>(iter); break;
+                case etoken::s_dot:              len = is_match<'.'>(iter); break;
 
                 case etoken::t_string: {
                     ++iter;
@@ -308,7 +314,7 @@ namespace sqf::sqc
             case 'c': case 'C': return try_match({ etoken::t_catch, etoken::t_case, etoken::t_ident });
             case 'd': case 'D': return try_match({ etoken::t_do, etoken::t_default, etoken::t_ident });
             case 'e': case 'E': return try_match({ etoken::t_else, etoken::t_ident });
-            case 'f': case 'F': return try_match({ etoken::t_function, etoken::t_from, etoken::t_false, etoken::t_ident });
+            case 'f': case 'F': return try_match({ etoken::t_function, etoken::t_from, etoken::t_for, etoken::t_false, etoken::t_ident });
             case 'g': case 'G': return try_match({ etoken::t_ident });
             case 'h': case 'H': return try_match({ etoken::t_ident });
             case 'i': case 'I': return try_match({ etoken::t_if, etoken::t_ident });
@@ -351,6 +357,7 @@ namespace sqf::sqc
             case '{':           return try_match({ etoken::s_curlyo });
             case '}':           return try_match({ etoken::s_curlyc });
             case '&':           return try_match({ etoken::s_andand });
+            case '!':           return try_match({ etoken::s_notequal, etoken::s_exclamationmark });
             case '|':           return try_match({ etoken::s_oror });
             case '>':           return try_match({ etoken::s_greaterthenequal, etoken::s_greaterthen });
             case '<':           return try_match({ etoken::s_lessthenequal, etoken::s_lessthen });
@@ -361,6 +368,7 @@ namespace sqf::sqc
             case ':':           return try_match({ etoken::s_colon });
             case ';':           return try_match({ etoken::s_semicolon });
             case ',':           return try_match({ etoken::s_comma });
+            case '.':           return try_match({ etoken::s_dot });
             case ' ':			return try_match({ etoken::i_whitespace });
             case '\r':			return try_match({ etoken::i_whitespace });
             case '\t':			return try_match({ etoken::i_whitespace });
@@ -373,6 +381,7 @@ namespace sqf::sqc
             using namespace std::string_view_literals;
             switch (t)
             {
+            default:                         return "UNKNOWN"sv;
             case etoken::eof:                return "eof"sv;
             case etoken::invalid:            return "invalid"sv;
             case etoken::i_comment_line:     return "comment_line"sv;
@@ -399,6 +408,7 @@ namespace sqf::sqc
             case etoken::t_nil:              return "nil"sv;
             case etoken::t_true:             return "true"sv;
             case etoken::t_false:            return "false"sv;
+            case etoken::t_for:              return "for"sv;
             case etoken::t_private:          return "private"sv;
 
             case etoken::s_curlyo:           return "{"sv;
@@ -415,6 +425,7 @@ namespace sqf::sqc
             case etoken::s_lessthen:         return "<"sv;
             case etoken::s_plus:             return "+"sv;
             case etoken::s_minus:            return "-"sv;
+            case etoken::s_notequal:         return "!="sv;
             case etoken::s_exclamationmark:  return "!"sv;
             case etoken::s_percent:          return "%"sv;
             case etoken::s_star:             return "*"sv;
@@ -425,6 +436,7 @@ namespace sqf::sqc
             case etoken::s_colon:            return ":"sv;
             case etoken::s_semicolon:        return ";"sv;
             case etoken::s_comma:            return ","sv;
+            case etoken::s_dot:              return "."sv;
 
             case etoken::t_string:           return "string"sv;
             case etoken::t_ident:            return "ident"sv;
