@@ -5,6 +5,8 @@
 #include <functional>
 #include <vector>
 
+#include <iostream>
+
 namespace sqf::sqc
 {
     class parser : ::sqf::runtime::parser::sqf
@@ -85,6 +87,7 @@ namespace sqf::sqc
             {
                 if (it->type == T)
                 {
+                    std::cout << "Matched token " << m_tokenizer.to_string(it->type) << std::endl;
                     ++it;
                     return true;
                 }
@@ -320,18 +323,13 @@ namespace sqf::sqc
                     }
                     });
             }
-            // ARGLIST = ident
-            //         | ident "," ARGLIST
+            // ARGLIST = ident "," ARGLIST
             //         | ident ","
+            //         | ident
             //         ;
             bool r_arglist(iterator& current)
             {
                 return match(current, {
-                    [&](iterator it) -> iterator
-                    {
-                        if (!match<tokenizer::etoken::t_ident>(it)) { return current; }
-                        return it;
-                    },
                     [&](iterator it) -> iterator
                     {
                         if (!match<tokenizer::etoken::t_ident>(it)) { return current; }
@@ -343,6 +341,11 @@ namespace sqf::sqc
                     {
                         if (!match<tokenizer::etoken::t_ident>(it)) { return current; }
                         if (!match<tokenizer::etoken::s_comma>(it)) { return current; }
+                        return it;
+                    },
+                    [&](iterator it) -> iterator
+                    {
+                        if (!match<tokenizer::etoken::t_ident>(it)) { return current; }
                         return it;
                     }
                     });
@@ -871,19 +874,16 @@ namespace sqf::sqc
                     },
                     [&](iterator it) -> iterator
                     {
-                        if (!r_value(it)) { return current; }
                         if (!match<tokenizer::etoken::t_true>(it)) { return current; }
                         return it;
                     },
                     [&](iterator it) -> iterator
                     {
-                        if (!r_value(it)) { return current; }
                         if (!match<tokenizer::etoken::t_false>(it)) { return current; }
                         return it;
                     },
                     [&](iterator it) -> iterator
                     {
-                        if (!r_value(it)) { return current; }
                         if (!match<tokenizer::etoken::t_ident>(it)) { return current; }
                         return it;
                     }
@@ -910,18 +910,13 @@ namespace sqf::sqc
                     }
                     });
             }
-            // EXPLIST = EXP01
-            //         | EXP01 "," EXPLIST
+            // EXPLIST = EXP01 "," EXPLIST
             //         | EXP01 ","
+            //         | EXP01
             //         ;
             bool r_explist(iterator& current)
             {
                 return match(current, {
-                    [&](iterator it) -> iterator
-                    {
-                        if (!r_exp01(it)) { return current; }
-                        return it;
-                    },
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp01(it)) { return current; }
@@ -934,17 +929,48 @@ namespace sqf::sqc
                         if (!r_exp01(it)) { return current; }
                         if (!match<tokenizer::etoken::s_comma>(it)) { return current; }
                         return it;
+                    },
+                    [&](iterator it) -> iterator
+                    {
+                        if (!r_exp01(it)) { return current; }
+                        return it;
                     }
                     });
             }
         public:
             instance(sqc::tokenizer& tokenizer) :
                 m_tokenizer(tokenizer),
-                m_tokens() {}
+                m_tokens()
+            {
+                sqc::tokenizer::token t;
+                while ((t = tokenizer.next()).type != sqc::tokenizer::etoken::eof)
+                {
+                    switch (t.type)
+                    {
+                    case sqc::tokenizer::etoken::i_comment_block:
+                    case sqc::tokenizer::etoken::i_comment_line:
+                    case sqc::tokenizer::etoken::i_whitespace:
+                        break;
+                    default:
+                        m_tokens.push_back(t);
+                        break;
+                    }
+                }
+            }
+            bool test()
+            {
+                return r_sqc(m_tokens.begin());
+            }
         };
 
     public:
 
+        bool test(std::string contents)
+        {
+            sqc::tokenizer t(contents.begin(), contents.end());
+            instance i(t);
+            return i.test();
+        }
 
 
         // Inherited via sqf
