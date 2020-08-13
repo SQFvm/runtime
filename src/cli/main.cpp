@@ -21,6 +21,8 @@
 
 #include "../fileio/default.h"
 
+#include "../sqc/tokenizer.h"
+
 #include "interactive_helper.h"
 #include <iostream>
 #include <sstream>
@@ -126,8 +128,85 @@ std::string extension(std::string input)
     return input.substr(last_index + 1);
 }
 
+template<size_t TL> constexpr auto concat_size() { return TL; }
+template<size_t TL, size_t... TVar> constexpr auto concat_size() { return concat_size<TVar...>() + TL; }
+template<typename T, size_t TL, size_t TR>
+constexpr auto concat_(std::array<T, TL> l, std::array<T, TR> r)
+{
+    std::array<T, TL + TR> arr;
+    for (size_t i = 0; i < TL; i++)
+    {
+        arr[i] = l[i];
+    }
+    for (size_t i = TL; i < TL + TR; i++)
+    {
+        arr[i] = r[i - TL];
+    }
+    return arr;
+}
+template<typename T, size_t TL>
+constexpr auto concat_(std::array<T, TL> l, T r)
+{
+    std::array<T, TL + 1> arr;
+    for (size_t i = 0; i < TL; i++)
+    {
+        arr[i] = l[i];
+    }
+    arr[TR] = r;
+    return arr;
+}
+template<typename T, size_t TR>
+constexpr auto concat_(T l, std::array<T, TR> r)
+{
+    std::array<T, 1 + TR> arr;
+    arr[0] = l;
+    for (size_t i = 1; i < 1 + TR; i++)
+    {
+        arr[i] = r[i - 1];
+    }
+    return arr;
+}
+template<typename T>
+constexpr auto concat(T t)
+{
+    return t;
+}
+template<typename T, typename... TVar>
+constexpr auto concat(T t, TVar... args)
+{
+    auto arrb = concat<TVar...>(args...);
+    auto res = concat_(t, arrb);
+    return res;
+}
+
 int main(int argc, char** argv)
 {
+    {
+        std::array<int, 3> arra = { 1, 2, 3 };
+        std::array<int, 5> arrb = { 1, 2, 3, 4, 5 };
+        std::array<int, 2> arrc = { 1, 2 };
+        std::array<int, 7> arrd = { 1, 2, 3, 4, 5, 6, 7 };
+        auto arr_res = concat(arra, arrb, arrc, arrd, 0, 0, 0, arra);
+        for (auto it : arr_res)
+        {
+            std::cout << it << ", ";
+        }
+        std::cout << std::endl << std::endl << std::endl;
+        std::string str = 
+            "function test(a, b)" "\n"
+            "{" "\n"
+            "    let a be 12;" "\n"
+            "    a = a + 12;" "\n"
+            "}" "\n";
+        sqf::sqc::tokenizer tokenizer(str.begin(), str.end());
+        sqf::sqc::tokenizer::token t;
+        while ((t = tokenizer.next()).type != sqf::sqc::tokenizer::etoken::eof)
+        {
+            if (t.type == sqf::sqc::tokenizer::etoken::i_whitespace) continue;
+            std::cout << tokenizer.to_string(t.type) << " ";
+        }
+        std::cout << std::endl << std::endl << std::endl;
+    }
 #ifdef WIN32
     // ToDo: Implement StackTrace on error
 #else

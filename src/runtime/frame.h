@@ -49,6 +49,10 @@ namespace sqf::runtime
                 /// Replaces this behavior with another one and seeks to start.
                 /// </summary>
                 replace_self_seek_start,
+                /// <summary>
+                /// Exchanges the code and replaces this behavior with another one.
+                /// </summary>
+                exchange_replace_self
             };
             virtual std::shared_ptr<behavior> get_behavior() { return {}; };
             virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) { return {}; };
@@ -153,6 +157,20 @@ namespace sqf::runtime
             case behavior::result::seek_start:
                 seek(0, ::sqf::runtime::frame::seekpos::start);
                 clear_values_helper(runtime);
+                return result::ok;
+            case behavior::result::exchange_replace_self:
+                m_instruction_set = m_error_behavior->get_instruction_set(*this);
+                seek(0, ::sqf::runtime::frame::seekpos::start);
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+
+                std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
+                    "    " << "    " << " " <<
+                    "    " << "    " << " " <<
+                    "    " << "    " << "\x1B[91mFrame\033[0m - Loaded assembly ";
+                dbg_str();
+
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+                m_error_behavior = m_error_behavior->get_behavior();
                 return result::ok;
             case behavior::result::exchange:
                 m_instruction_set = m_error_behavior->get_instruction_set(*this);
@@ -290,6 +308,20 @@ namespace sqf::runtime
                     dbg_str();
 
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+                    goto start; // do not call here, reuse current stack
+                case behavior::result::exchange_replace_self:
+                    m_instruction_set = m_exit_behavior->get_instruction_set(*this);
+                    seek(0, ::sqf::runtime::frame::seekpos::start);
+#ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+
+                    std::cout << "[ASSEMBLY ASSERT]" <<
+                        "    " << "    " << " " <<
+                        "    " << "    " << " " <<
+                        "    " << "    " << "\x1B[91mFrame\033[0m - Loaded assembly ";
+                    dbg_str();
+
+#endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
+                    m_exit_behavior = m_exit_behavior->get_behavior();
                     goto start; // do not call here, reuse current stack
                 }
             }

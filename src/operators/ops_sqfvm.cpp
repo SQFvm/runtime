@@ -432,42 +432,42 @@ namespace
             }).base(), str.end());
         return str;
     }
-//    value remoteConnect___(runtime& runtime, value::cref right)
-//    {
-//        if (!runtime.allow_networking())
-//        {
-//            runtime.__logmsg(err::NetworkingDisabled(runtime.context_active().current_frame().diag_info_from_position()));
-//            return false;
-//        }
-//        networking_init();
-//        if (runtime.is_networking_set())
-//        {
-//            runtime.__logmsg(err::AlreadyConnected(runtime.context_active().current_frame().diag_info_from_position()));
-//            return {};
-//        }
-//        auto s = right.as_string();
-//        auto index = s.find(':');
-//        if (index == std::string::npos)
-//        {
-//            runtime.__logmsg(err::NetworkingFormatMissmatch(runtime.context_active().current_frame().diag_info_from_position(), s));
-//            return {};
-//        }
-//        auto address = s.substr(0, index);
-//        auto port = s.substr(index + 1);
-//        SOCKET socket;
-//        if (networking_create_client(address.c_str(), port.c_str(), &socket))
-//        {
-//            runtime.__logmsg(err::FailedToEstablishConnection(runtime.context_active().current_frame().diag_info_from_position()));
-//            return false;
-//        }
-//        runtime.set_networking(std::make_shared<networking::client>(socket));
-//        return true;
-//    }
-//    value closeconnection___(runtime& runtime)
-//    {
-//        runtime.release_networking();
-//        return {};
-//    }
+    //    value remoteConnect___(runtime& runtime, value::cref right)
+    //    {
+    //        if (!runtime.allow_networking())
+    //        {
+    //            runtime.__logmsg(err::NetworkingDisabled(runtime.context_active().current_frame().diag_info_from_position()));
+    //            return false;
+    //        }
+    //        networking_init();
+    //        if (runtime.is_networking_set())
+    //        {
+    //            runtime.__logmsg(err::AlreadyConnected(runtime.context_active().current_frame().diag_info_from_position()));
+    //            return {};
+    //        }
+    //        auto s = right.as_string();
+    //        auto index = s.find(':');
+    //        if (index == std::string::npos)
+    //        {
+    //            runtime.__logmsg(err::NetworkingFormatMissmatch(runtime.context_active().current_frame().diag_info_from_position(), s));
+    //            return {};
+    //        }
+    //        auto address = s.substr(0, index);
+    //        auto port = s.substr(index + 1);
+    //        SOCKET socket;
+    //        if (networking_create_client(address.c_str(), port.c_str(), &socket))
+    //        {
+    //            runtime.__logmsg(err::FailedToEstablishConnection(runtime.context_active().current_frame().diag_info_from_position()));
+    //            return false;
+    //        }
+    //        runtime.set_networking(std::make_shared<networking::client>(socket));
+    //        return true;
+    //    }
+    //    value closeconnection___(runtime& runtime)
+    //    {
+    //        runtime.release_networking();
+    //        return {};
+    //    }
     value vmctrl___string(runtime& runtime, value::cref right)
     {
         auto str = right.data<d_string, std::string>();
@@ -544,7 +544,9 @@ namespace
                 {
                     auto end = std::chrono::high_resolution_clock::now();
                     auto delta = end - m_start;
-                    runtime.context_active().push_value(((std::chrono::duration_cast<std::chrono::nanoseconds>(delta) - m_compensation) / (std::chrono::nanoseconds::rep)m_amount).count());
+                    auto res = std::chrono::duration_cast<std::chrono::nanoseconds>(delta) / (std::chrono::nanoseconds::rep)m_amount;
+                    auto res_comp = res - m_compensation;
+                    runtime.context_active().push_value(res_comp.count());
                     return result::ok;
                 }
             };
@@ -572,7 +574,7 @@ namespace
                     auto end = std::chrono::high_resolution_clock::now();
                     auto delta = end - m_start;
                     m_overhead = std::chrono::duration_cast<std::chrono::nanoseconds>(delta) / (std::chrono::nanoseconds::rep)m_amount;
-                    return result::replace_self_seek_start;
+                    return result::exchange_replace_self;
                 }
             };
         };
