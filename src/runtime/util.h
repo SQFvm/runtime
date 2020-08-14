@@ -44,6 +44,8 @@
 #define ENVIRONMENTSTR STR(ENVIRONMENT)
 
 
+
+
 namespace sqf::runtime::util
 {
 	inline std::string_view ltrim(std::string_view str, std::string_view chars = " \t")
