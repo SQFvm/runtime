@@ -303,7 +303,7 @@ namespace sqf::sqc
         }
 
     public:
-        tokenizer(iterator start, iterator end) : m_start(start), m_current(start), m_end(end) {}
+        tokenizer(iterator start, iterator end) : m_start(start), m_current(start), m_end(end), m_line(0), m_column(0) {}
         token next()
         {
             if (m_current == m_end) { return { etoken::eof, m_line, m_column, (size_t)(m_current - m_start), {} }; };

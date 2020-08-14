@@ -1,11 +1,13 @@
 #pragma once
 #include "tokenizer.h"
 #include "../runtime/parser/sqf.h"
+#include "../cli/colors.h"
 
 #include <functional>
 #include <vector>
 
 #include <iostream>
+#include <set>
 
 namespace sqf::sqc
 {
@@ -14,9 +16,24 @@ namespace sqf::sqc
     private:
         class instance
         {
+            struct error
+            {
+                sqc::tokenizer::token unmatched;
+                sqc::tokenizer::etoken expected;
+            };
             sqc::tokenizer& m_tokenizer;
             std::vector<sqc::tokenizer::token> m_tokens;
             using iterator = std::vector<sqc::tokenizer::token>::iterator;
+            std::vector<error> m_errors;
+            std::vector<std::string_view> m_path;
+
+
+            struct path__
+            {
+                instance* i;
+                path__(instance* i, const char* s) : i(i) { i->m_path.push_back(s); }
+                ~path__() { i->m_path.pop_back(); }
+            };
 
 
             template<size_t TL> constexpr auto concat_size() { return TL; }
@@ -85,13 +102,70 @@ namespace sqf::sqc
             template<tokenizer::etoken T>
             bool match(iterator& it)
             {
+                auto tab = std::string(it - m_tokens.begin(), ' ');
                 if (it->type == T)
                 {
-                    std::cout << "Matched token " << m_tokenizer.to_string(it->type) << std::endl;
+                    // std::cout << tab << console::color::foreground_yellow() << m_tokenizer.to_string(it->type) << ": " << console::color::reset();
+                    // std::cout << console::color::foreground_green() << "Matched token " << m_tokenizer.to_string(T) << console::color::reset() << " '" << it->contents << "'" << std::endl;
                     ++it;
                     return true;
                 }
+                // std::cout << tab << console::color::foreground_yellow() << m_tokenizer.to_string(it->type) << ": " << console::color::reset();
+                // std::cout << console::color::foreground_red() << "Failed to match token " << m_tokenizer.to_string(T) << console::color::reset() << " '" << it->contents << "'" << std::endl;
+                m_errors.push_back({ *it, T });
                 return false;
+            }
+            template<tokenizer::etoken T>
+            bool try_match(iterator it)
+            {
+                if (it->type == T)
+                {
+                    return true;
+                }
+                return false;
+            }
+            bool recover(iterator& it, std::function<bool(iterator& it)> func)
+            {
+            start:
+                m_errors.clear();
+                auto res = func(it);
+                if (!res)
+                {
+                    std::cout << "MATCH ERROR ON " << m_tokenizer.to_string(m_errors.front().unmatched.type) << " `" << m_errors.front().unmatched.contents << "`";
+                    bool eof = false;
+                    std::set<tokenizer::etoken> s;
+                    for (size_t i = 0; i < m_errors.size(); i++)
+                    {
+                        auto unmatched = m_errors[i].unmatched;
+                        auto expected = m_errors[i].expected;
+                        if (s.find(expected) != s.end()) { continue; }
+                        s.insert(expected);
+                        if (i != 0)
+                        {
+                            std::cout << " OR" << std::endl;
+                        }
+                        std::cout << "[L" << std::setw(5) << unmatched.line
+                            << "|C" << std::setw(5) << unmatched.column
+                            << "|O" << std::setw(7) << unmatched.offset << "]" <<
+                            "    " << "Expected '" << m_tokenizer.to_string(expected) << "'";
+                        if (unmatched.type == sqc::tokenizer::etoken::eof)
+                        {
+                            eof = true;
+                        }
+                    }
+                    std::cout << std::endl;
+                    for (auto it : m_path)
+                    {
+                        std::cout << it << " << ";
+                    }
+                    std::cout << "HERE" << std::endl;
+                    ++it;
+                    if (!eof)
+                    {
+                        goto start;
+                    }
+                }
+                return res;
             }
 
             // SQC = %empty
@@ -99,6 +173,7 @@ namespace sqf::sqc
             //     ;
             bool r_sqc(iterator& current)
             {
+                path__ __p(this, "SQC");
                 return m_tokens.empty() || match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -112,6 +187,7 @@ namespace sqf::sqc
             //            ;
             bool r_statements(iterator& current)
             {
+                path__ __p(this, "STATEMENTS");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -137,12 +213,13 @@ namespace sqf::sqc
             //           | TRYCATCH
             //           | SWITCH
             //           | EXP01 ";"
-            //           | ASSIGNMENT
+            //           | ASSIGNMENT ";"
             //           | ";"
             //           ;
-            bool r_statement(iterator& current)
+            bool r_statement(iterator& actual)
             {
-                return match(current, {
+                path__ __p(this, "STATEMENT");
+                return recover(actual, [&](iterator& current) { return match(current, {
                     [&](iterator it) -> iterator
                     {
                         if (!r_vardecl(it)) { return current; }
@@ -208,6 +285,7 @@ namespace sqf::sqc
                     [&](iterator it) -> iterator
                     {
                         if (!r_assignment(it)) { return current; }
+                        if (!match<tokenizer::etoken::s_semicolon>(it)) { return current; }
                         return it;
                     },
                     [&](iterator it) -> iterator
@@ -216,16 +294,18 @@ namespace sqf::sqc
                         return it;
                     }
                     });
+                });
             }
             // ASSIGNMENT = ident "=" EXP01
             //            ;
             bool r_assignment(iterator& current)
             {
+                path__ __p(this, "ASSIGNMENT");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
                         if (!match<tokenizer::etoken::t_ident>(it)) { return current; }
-                        if (!match<tokenizer::etoken::s_semicolon>(it)) { return current; }
+                        if (!match<tokenizer::etoken::s_equal>(it)) { return current; }
                         if (!r_exp01(it)) { return current; }
                         return it;
                     }
@@ -238,6 +318,7 @@ namespace sqf::sqc
             //         ;
             bool r_vardecl(iterator& current)
             {
+                path__ __p(this, "VARDECL");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -277,6 +358,7 @@ namespace sqf::sqc
             //          ;
             bool r_funcdecl(iterator& current)
             {
+                path__ __p(this, "FUNCDECL");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -292,6 +374,7 @@ namespace sqf::sqc
             //          ;
             bool r_function(iterator& current)
             {
+                path__ __p(this, "FUNCTION");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -307,6 +390,7 @@ namespace sqf::sqc
             //          ;
             bool r_funchead(iterator& current)
             {
+                path__ __p(this, "FUNCHEAD");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -329,6 +413,7 @@ namespace sqf::sqc
             //         ;
             bool r_arglist(iterator& current)
             {
+                path__ __p(this, "ARGLIST");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -350,18 +435,14 @@ namespace sqf::sqc
                     }
                     });
             }
-            // CODEBLOCK = STATEMENT
-            //           | "{" "}"
+            // CODEBLOCK = "{" "}"
             //           | "{" STATEMENTS "}"
+            //           | STATEMENT
             //           ;
             bool r_codeblock(iterator& current)
             {
+                path__ __p(this, "CODEBLOCK");
                 return match(current, {
-                    [&](iterator it) -> iterator
-                    {
-                        if (!r_statement(it)) { return current; }
-                        return it;
-                    },
                     [&](iterator it) -> iterator
                     {
                         if (!match<tokenizer::etoken::s_curlyo>(it)) { return current; }
@@ -374,7 +455,12 @@ namespace sqf::sqc
                         if (!r_statements(it)) { return current; }
                         if (!match<tokenizer::etoken::s_curlyc>(it)) { return current; }
                         return it;
-                    }
+                    },
+                    [&](iterator it) -> iterator
+                    {
+                        if (!r_statement(it)) { return current; }
+                        return it;
+                    },
                     });
             }
             // IF = if "(" EXP01 ")" CODEBLOCK else CODEBLOCK
@@ -382,6 +468,7 @@ namespace sqf::sqc
             //    ;
             bool r_if(iterator& current)
             {
+                path__ __p(this, "IF");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -411,6 +498,7 @@ namespace sqf::sqc
             //     ;
             bool r_for(iterator& current)
             {
+                path__ __p(this, "FOR");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -456,6 +544,7 @@ namespace sqf::sqc
             //       ;
             bool r_while(iterator& current)
             {
+                path__ __p(this, "WHILE");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -483,6 +572,7 @@ namespace sqf::sqc
             //          ;
             bool r_trycatch(iterator& current)
             {
+                path__ __p(this, "TRYCATCH");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -502,6 +592,7 @@ namespace sqf::sqc
             //        ;
             bool r_switch(iterator& current)
             {
+                path__ __p(this, "SWITCH");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -521,6 +612,7 @@ namespace sqf::sqc
             //          ;
             bool r_caselist(iterator& current)
             {
+                path__ __p(this, "CASELIST");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -542,6 +634,7 @@ namespace sqf::sqc
             //      ;
             bool r_case(iterator& current)
             {
+                path__ __p(this, "CASE");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -573,17 +666,13 @@ namespace sqf::sqc
                     }
                     });
             }
-            // EXP01: EXP02
-            //      | EXP02 "?" EXP01 ":" EXP01
+            // EXP01: EXP02 "?" EXP01 ":" EXP01
+            //      | EXP02
             //      ;
             bool r_exp01(iterator& current)
             {
+                path__ __p(this, "EXP01");
                 return match(current, {
-                    [&](iterator it) -> iterator
-                    {
-                        if (!r_exp02(it)) { return current; }
-                        return it;
-                    },
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp02(it)) { return current; }
@@ -592,59 +681,69 @@ namespace sqf::sqc
                         if (!match<tokenizer::etoken::s_colon>(it)) { return current; }
                         if (!r_exp01(it)) { return current; }
                         return it;
+                    },
+                    [&](iterator it) -> iterator
+                    {
+                        if (!r_exp02(it)) { return current; }
+                        return it;
                     }
                     });
             }
-            // EXP02: EXP03
-            //      | EXP03 "||" EXP01
+            // EXP02: EXP03 "||" EXP01
+            //      | EXP03
             //      ;
             bool r_exp02(iterator& current)
             {
+                path__ __p(this, "EXP02");
                 return match(current, {
-                    [&](iterator it) -> iterator
-                    {
-                        if (!r_exp03(it)) { return current; }
-                        return it;
-                    },
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp03(it)) { return current; }
                         if (!match<tokenizer::etoken::s_oror>(it)) { return current; }
                         if (!r_exp01(it)) { return current; }
                         return it;
+                    },
+                    [&](iterator it) -> iterator
+                    {
+                        if (!r_exp03(it)) { return current; }
+                        return it;
                     }
                     });
             }
-            // EXP03: EXP04
-            //      | EXP04 "&&" EXP01
+            // EXP03: EXP04 "&&" EXP01
+            //      | EXP04
             //      ;
             bool r_exp03(iterator& current)
             {
+                path__ __p(this, "EXP03");
                 return match(current, {
-                    [&](iterator it) -> iterator
-                    {
-                        if (!r_exp04(it)) { return current; }
-                        return it;
-                    },
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp04(it)) { return current; }
                         if (!match<tokenizer::etoken::s_andand>(it)) { return current; }
                         if (!r_exp01(it)) { return current; }
                         return it;
+                    },
+                    [&](iterator it) -> iterator
+                    {
+                        if (!r_exp04(it)) { return current; }
+                        return it;
                     }
                     });
             }
-            // EXP04: EXP05
+            // EXP04: EXP05 "!=" EXP01
             //      | EXP05 "==" EXP01
-            //      | EXP05 "!=" EXP01
+            //      | EXP05
             //      ;
             bool r_exp04(iterator& current)
             {
+                path__ __p(this, "EXP04");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp05(it)) { return current; }
+                        if (!match<tokenizer::etoken::s_notequal>(it)) { return current; }
+                        if (!r_exp01(it)) { return current; }
                         return it;
                     },
                     [&](iterator it) -> iterator
@@ -657,24 +756,25 @@ namespace sqf::sqc
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp05(it)) { return current; }
-                        if (!match<tokenizer::etoken::s_notequal>(it)) { return current; }
-                        if (!r_exp01(it)) { return current; }
                         return it;
                     }
                     });
             }
-            // EXP05: EXP06
+            // EXP05: EXP06 ">=" EXP01
             //      | EXP06 "<=" EXP01
             //      | EXP06 "<"  EXP01
-            //      | EXP06 ">=" EXP01
             //      | EXP06 ">"  EXP01
+            //      | EXP06
             //      ;
             bool r_exp05(iterator& current)
             {
+                path__ __p(this, "EXP05");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp06(it)) { return current; }
+                        if (!match<tokenizer::etoken::s_greaterthenequal>(it)) { return current; }
+                        if (!r_exp01(it)) { return current; }
                         return it;
                     },
                     [&](iterator it) -> iterator
@@ -694,29 +794,30 @@ namespace sqf::sqc
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp06(it)) { return current; }
-                        if (!match<tokenizer::etoken::s_greaterthenequal>(it)) { return current; }
+                        if (!match<tokenizer::etoken::s_greaterthen>(it)) { return current; }
                         if (!r_exp01(it)) { return current; }
                         return it;
                     },
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp06(it)) { return current; }
-                        if (!match<tokenizer::etoken::s_greaterthen>(it)) { return current; }
-                        if (!r_exp01(it)) { return current; }
                         return it;
                     }
                     });
             }
-            // EXP06: EXP07
+            // EXP06: EXP07 "-" EXP01
             //      | EXP07 "+" EXP01
-            //      | EXP07 "-" EXP01
+            //      | EXP07
             //      ;
             bool r_exp06(iterator& current)
             {
+                path__ __p(this, "EXP06");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp07(it)) { return current; }
+                        if (!match<tokenizer::etoken::s_minus>(it)) { return current; }
+                        if (!r_exp01(it)) { return current; }
                         return it;
                     },
                     [&](iterator it) -> iterator
@@ -729,23 +830,24 @@ namespace sqf::sqc
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp07(it)) { return current; }
-                        if (!match<tokenizer::etoken::s_minus>(it)) { return current; }
-                        if (!r_exp01(it)) { return current; }
                         return it;
                     }
                     });
             }
-            // EXP07: EXP08
+            // EXP07: EXP08 "%" EXP01
             //      | EXP08 "*" EXP01
             //      | EXP08 "/" EXP01
-            //      | EXP08 "%" EXP01
+            //      | EXP08
             //      ;
             bool r_exp07(iterator& current)
             {
+                path__ __p(this, "EXP07");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp08(it)) { return current; }
+                        if (!match<tokenizer::etoken::s_percent>(it)) { return current; }
+                        if (!r_exp01(it)) { return current; }
                         return it;
                     },
                     [&](iterator it) -> iterator
@@ -765,8 +867,6 @@ namespace sqf::sqc
                     [&](iterator it) -> iterator
                     {
                         if (!r_exp08(it)) { return current; }
-                        if (!match<tokenizer::etoken::s_percent>(it)) { return current; }
-                        if (!r_exp01(it)) { return current; }
                         return it;
                     }
                     });
@@ -776,6 +876,7 @@ namespace sqf::sqc
             //      ;
             bool r_exp08(iterator& current)
             {
+                path__ __p(this, "EXP08");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -799,6 +900,7 @@ namespace sqf::sqc
             //      ;
             bool r_expp(iterator& current)
             {
+                path__ __p(this, "EXPP");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -851,6 +953,7 @@ namespace sqf::sqc
             //       ;
             bool r_value(iterator& current)
             {
+                path__ __p(this, "VALUE");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -894,6 +997,7 @@ namespace sqf::sqc
             //       ;
             bool r_array(iterator& current)
             {
+                path__ __p(this, "ARRAY");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -916,6 +1020,7 @@ namespace sqf::sqc
             //         ;
             bool r_explist(iterator& current)
             {
+                path__ __p(this, "EXPLIST");
                 return match(current, {
                     [&](iterator it) -> iterator
                     {
@@ -956,10 +1061,12 @@ namespace sqf::sqc
                         break;
                     }
                 }
+                m_tokens.push_back(t);
             }
             bool test()
             {
-                return r_sqc(m_tokens.begin());
+                auto it = m_tokens.begin();
+                return r_sqc(it);
             }
         };
 
