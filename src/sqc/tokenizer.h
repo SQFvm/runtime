@@ -17,7 +17,6 @@ namespace sqf::sqc
             i_comment_block,
             i_whitespace,
 
-            t_string,
             t_return,
             t_throw,
             t_let,
@@ -68,6 +67,7 @@ namespace sqf::sqc
             s_comma,
             s_dot,
 
+            t_string,
             t_ident,
             t_number
         };
