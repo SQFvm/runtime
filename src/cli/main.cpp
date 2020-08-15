@@ -146,8 +146,10 @@ int main(int argc, char** argv)
         executable_path = buffer;
 #elif defined(__GNUC__)
         char buffer[PATH_MAX];
-        getcwd(buffer, PATH_MAX);
-        executable_path = buffer;
+        if (getcwd(buffer, PATH_MAX)) 
+        {
+            executable_path = buffer;
+        }
 #else
 #error "NO IMPLEMENTATION AVAILABLE"
 #endif
@@ -376,10 +378,10 @@ int main(int argc, char** argv)
     
 
     sqf::runtime::runtime runtime(logger, conf);
-    runtime.fileio(std::make_unique<sqf::fileio::default>());
-    runtime.parser_config(std::make_unique<sqf::parser::config::default>(logger));
-    runtime.parser_preprocessor(std::make_unique<sqf::parser::preprocessor::default>(logger));
-    runtime.parser_sqf(std::make_unique<sqf::parser::sqf::default>(logger));
+    runtime.fileio(std::make_unique<sqf::fileio::impl_default>());
+    runtime.parser_config(std::make_unique<sqf::parser::config::impl_default>(logger));
+    runtime.parser_preprocessor(std::make_unique<sqf::parser::preprocessor::impl_default>(logger));
+    runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
     sqf::operators::ops_config(runtime);
     sqf::operators::ops_diag(runtime);
     sqf::operators::ops_generic(runtime);

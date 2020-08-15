@@ -13,7 +13,7 @@
 
 namespace sqf::parser::sqf
 {
-	class default : public ::sqf::runtime::parser::sqf, public CanLog
+	class impl_default : public ::sqf::runtime::parser::sqf, public CanLog
 	{
 	public:
 		enum class nodetype
@@ -66,13 +66,13 @@ namespace sqf::parser::sqf
 		{
 		private:
 			::sqf::runtime::runtime& m_runtime;
-			default& m_owner;
+			impl_default& m_owner;
 			::sqf::parser::util::string_ref m_contents;
 			::sqf::runtime::fileio::pathinfo m_file;
 			::sqf::runtime::diagnostics::diag_info m_info;
 
 		public:
-			instance(::sqf::runtime::runtime& runtime, default& owner, std::string& contents, ::sqf::runtime::fileio::pathinfo file) :
+			instance(::sqf::runtime::runtime& runtime, impl_default& owner, std::string& contents, ::sqf::runtime::fileio::pathinfo file) :
 				m_runtime(runtime), m_owner(owner), m_contents(contents), m_file(file)
 			{
 				::sqf::runtime::diagnostics::diag_info dinf(1, 0, 0, m_file, {});
@@ -146,12 +146,12 @@ namespace sqf::parser::sqf
 			bool to_assembly(astnode& root, std::vector<::sqf::runtime::instruction::sptr>& set);
 		};
 	public:
-		default(
+		impl_default(
 			Logger& logger
 		) : CanLog(logger)
 		{
 		}
-		virtual ~default() override { };
+		virtual ~impl_default() override { };
 		virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override
 		{
 			bool errflag = false;

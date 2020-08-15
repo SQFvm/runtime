@@ -51,7 +51,7 @@ namespace sqf::runtime
 		std::string to_string_sqf() const { return m_data ? m_data->to_string_sqf() : std::string("nil"); }
 		std::string to_string() const { return m_data ? m_data->to_string() : std::string(); }
 
-		explicit operator type() const { return type(); };
+		explicit operator sqf::runtime::type() const { return sqf::runtime::type(); };
 		sqf::runtime::type type() const { return m_data ? m_data->type() : sqf::types::t_nothing(); }
 
 		/// <summary>

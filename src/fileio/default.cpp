@@ -29,7 +29,7 @@ inline bool file_exists(std::filesystem::path p)
     return infile.good();
 }
 
-std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::default::get_info_virtual(std::string_view viewVirtual, sqf::runtime::fileio::pathinfo current) const
+std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_info_virtual(std::string_view viewVirtual, sqf::runtime::fileio::pathinfo current) const
 {
 #ifdef DF__SQF_FILEIO__TRACE_REESOLVE
     std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
@@ -225,7 +225,7 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::default::get_info_vir
     // As we reached this, file-not-found
     return {};
 }
-std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::default::get_info_physical(std::string_view viewVirtual, sqf::runtime::fileio::pathinfo current) const
+std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_info_physical(std::string_view viewVirtual, sqf::runtime::fileio::pathinfo current) const
 {
 #ifdef DF__SQF_FILEIO__TRACE_REESOLVE
     std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
@@ -266,7 +266,7 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::default::get_info_phy
     return {};
 }
 
-void sqf::fileio::default::add_mapping(std::string_view viewPhysical, std::string_view viewVirtual)
+void sqf::fileio::impl_default::add_mapping(std::string_view viewPhysical, std::string_view viewVirtual)
 {
     // Create & Cleanse stuff
     auto phys = std::string(viewPhysical);
@@ -306,7 +306,7 @@ void sqf::fileio::default::add_mapping(std::string_view viewPhysical, std::strin
     tree->physical.push_back(phys);
 }
 
-std::string sqf::fileio::default::read_file(sqf::runtime::fileio::pathinfo info) const
+std::string sqf::fileio::impl_default::read_file(sqf::runtime::fileio::pathinfo info) const
 {
     auto res = sqf::runtime::fileio::read_file_from_disk(info.physical);
     return *res;

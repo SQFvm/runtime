@@ -33,7 +33,7 @@ namespace sqf
 				std::vector<std::shared_ptr<group>> m_inner;
 				size_t m_id;
 			public:
-				group_storage() : m_id(0), m_inner() {}
+				group_storage() : m_inner(), m_id(0) {}
 				virtual ~group_storage() override {}
 				size_t push_back(std::shared_ptr<group> obj) { m_inner.push_back(obj); return ++m_id; }
 				void erase(std::shared_ptr<group> obj)

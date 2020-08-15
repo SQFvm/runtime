@@ -1,5 +1,4 @@
 #include "ops_logic.h"
-#include "../runtime/value.h"
 #include "../runtime/logging.h"
 #include "../runtime/runtime.h"
 #include "../runtime/sqfop.h"
@@ -7,6 +6,8 @@
 #include "../runtime/d_scalar.h"
 #include "../runtime/d_boolean.h"
 #include "../runtime/d_code.h"
+
+#include "../runtime/value.h"
 
 namespace err = logmessage::runtime;
 using namespace sqf::runtime;

@@ -3,6 +3,7 @@
 #include <string_view>
 #include <optional>
 #include <filesystem>
+#include <vector>
 
 namespace sqf
 {

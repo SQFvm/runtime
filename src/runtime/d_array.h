@@ -1,16 +1,17 @@
 #pragma once
+#include "vec.h"
+#include "data.h"
+#include "type.h"
+#include "value.h"
+#include "d_scalar.h"
+
 #include <string>
 #include <memory>
 #include <vector>
 #include <algorithm>
 #include <sstream>
 #include <array>
-
-#include "vec.h"
-#include "data.h"
-#include "type.h"
-#include "value.h"
-#include "d_scalar.h"
+#include <cmath>
 
 namespace sqf
 {

@@ -521,7 +521,7 @@ namespace
             runtime.__logmsg(err::IndexOutOfRange(runtime.context_active().current_frame().diag_info_from_position(), arr.size(), index));
             return {};
         }
-        if (arr.size() == index)
+        if ((int)arr.size() == index)
         {
             runtime.__logmsg(err::IndexEqualsRange(runtime.context_active().current_frame().diag_info_from_position(), arr.size(), index));
             return {};
@@ -1280,7 +1280,7 @@ namespace
     {
         auto r = right.data<d_array>();
         double max = 0;
-        for (size_t i = r->size() - 1; i != ~0; i--)
+        for (size_t i = r->size() - 1; i != ~(size_t)0; i--)
         {
             auto tmp = r->at(i);
             if (tmp.is<t_scalar>())
@@ -1312,7 +1312,7 @@ namespace
     {
         auto r = right.data<d_array>();
         double min = 0;
-        for (size_t i = r->size() - 1; i != ~0; i--)
+        for (size_t i = r->size() - 1; i != ~(size_t)0; i--)
         {
             auto tmp = r->at(i);
             if (tmp.is<t_scalar>())
@@ -1381,7 +1381,7 @@ namespace
         }
         if (dl->try_resolve("RVExtensionRegisterCallback", &sym))
         {
-            auto method = reinterpret_cast<RVExtensionRegisterCallback>(sym);
+            // auto method = reinterpret_cast<RVExtensionRegisterCallback>(sym);
             // ToDo: Create a way to actually execute this callback
             // runtime->out() << "[RPT]\tRegistered 'ExtensionCallback' with '" << name << '\'' << std::endl;
         }
@@ -1602,7 +1602,7 @@ namespace
                         });
                         flag = found != tmp->end();
                     }
-                    else if (current_input_value.data<d_array>()->size() != params_descriptors.at(3).data<d_scalar, int>())
+                    else if ((int)current_input_value.data<d_array>()->size() != params_descriptors.at(3).data<d_scalar, int>())
                     { // Check available datatypes
                         flag = false;
                     }
@@ -1737,7 +1737,7 @@ namespace
 
                         flag = found != tmp->end();
                     }
-                    else if (current_input_value.data<d_array>()->size() != params_descriptors.at(3).data<d_scalar, int>())
+                    else if ((int)current_input_value.data<d_array>()->size() != params_descriptors.at(3).data<d_scalar, int>())
                     {
                         flag = false;
                     }

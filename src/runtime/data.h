@@ -60,6 +60,6 @@ namespace sqf::runtime
 		/// Actual type of this.
 		/// </summary>
 		/// <returns></returns>
-		virtual type type() const = 0;
+		virtual ::sqf::runtime::type type() const = 0;
 	};
 }

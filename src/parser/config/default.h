@@ -12,7 +12,7 @@
 
 namespace sqf::parser::config
 {
-	class default: public ::sqf::runtime::parser::config, public CanLog
+	class impl_default: public ::sqf::runtime::parser::config, public CanLog
 	{
 	public:
 		enum class nodetype
@@ -49,13 +49,13 @@ namespace sqf::parser::config
 		class instance
 		{
 		private:
-			default& owner;
+			impl_default& owner;
 #ifdef DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
 			size_t ___dbg_line_count;
 #endif // DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
 		public:
 			instance(
-				default& owner,
+				impl_default& owner,
 				std::string& contents,
 				::sqf::runtime::fileio::pathinfo file
 				) : owner(owner),
@@ -79,32 +79,32 @@ namespace sqf::parser::config
 			size_t num(size_t off);
 			size_t anytext(size_t off);
 			bool NODELIST_start(size_t curoff);
-			void NODELIST(::sqf::parser::config::default::astnode& root, bool& errflag);
+			void NODELIST(::sqf::parser::config::impl_default::astnode& root, bool& errflag);
 			bool NODE_start(size_t curoff);
-			void NODE(::sqf::parser::config::default::astnode& root, bool& errflag);
+			void NODE(::sqf::parser::config::impl_default::astnode& root, bool& errflag);
 			bool CONFIGNODE_start(size_t curoff);
-			void CONFIGNODE(::sqf::parser::config::default::astnode& root, bool& errflag);
+			void CONFIGNODE(::sqf::parser::config::impl_default::astnode& root, bool& errflag);
 			bool DELETENODE_start(size_t curoff);
-			void DELETENODE(::sqf::parser::config::default::astnode& root, bool& errflag);
+			void DELETENODE(::sqf::parser::config::impl_default::astnode& root, bool& errflag);
 			bool VALUENODE_start(size_t curoff);
-			void VALUENODE(::sqf::parser::config::default::astnode& root, bool& errflag);
+			void VALUENODE(::sqf::parser::config::impl_default::astnode& root, bool& errflag);
 			bool STRING_start(size_t curoff);
-			void STRING(::sqf::parser::config::default::astnode& root, bool& errflag);
+			void STRING(::sqf::parser::config::impl_default::astnode& root, bool& errflag);
 			bool NUMBER_start(size_t curoff);
-			void NUMBER(::sqf::parser::config::default::astnode& root, bool& errflag);
+			void NUMBER(::sqf::parser::config::impl_default::astnode& root, bool& errflag);
 			bool LOCALIZATION_start(size_t curoff);
-			void LOCALIZATION(::sqf::parser::config::default::astnode& root, bool& errflag);
+			void LOCALIZATION(::sqf::parser::config::impl_default::astnode& root, bool& errflag);
 			bool ARRAY_start(size_t curoff);
-			void ARRAY(::sqf::parser::config::default::astnode& root, bool& errflag);
+			void ARRAY(::sqf::parser::config::impl_default::astnode& root, bool& errflag);
 			bool VALUE_start(size_t curoff);
-			void VALUE(::sqf::parser::config::default::astnode& root, bool& errflag);
+			void VALUE(::sqf::parser::config::impl_default::astnode& root, bool& errflag);
 
-			::sqf::parser::config::default::astnode parse(bool& errflag);
+			::sqf::parser::config::impl_default::astnode parse(bool& errflag);
 		};
-		bool apply_to_confighost(::sqf::parser::config::default::astnode& node, ::sqf::runtime::confighost& confighost, ::sqf::runtime::confignav parent);
+		bool apply_to_confighost(::sqf::parser::config::impl_default::astnode& node, ::sqf::runtime::confighost& confighost, ::sqf::runtime::confignav parent);
 	public:
-		default(Logger& logger) : CanLog(logger) { }
-		virtual ~default() override { };
+		impl_default(Logger& logger) : CanLog(logger) { }
+		virtual ~impl_default() override { };
 
 		virtual bool check_syntax(std::string contents, ::sqf::runtime::fileio::pathinfo pathinfo) override
 		{

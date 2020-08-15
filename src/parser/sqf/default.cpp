@@ -31,21 +31,21 @@ namespace err = logmessage::sqf;
 using namespace ::sqf::runtime::util;
 using namespace ::sqf::parser::util;
 
-bool sqf::parser::sqf::default::instance::m_contains_nular(std::string_view view)
+bool sqf::parser::sqf::impl_default::instance::m_contains_nular(std::string_view view)
 {
     auto s = std::string(view);
     std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
     return m_runtime.sqfop_exists(::sqf::runtime::sqfop_nular::key{ s });
 }
 
-bool sqf::parser::sqf::default::instance::m_contains_unary(std::string_view view)
+bool sqf::parser::sqf::impl_default::instance::m_contains_unary(std::string_view view)
 {
     auto s = std::string(view);
     std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
     return m_runtime.sqfop_exists_unary(s);
 }
 
-bool sqf::parser::sqf::default::instance::m_contains_binary(std::string_view view, short precedence)
+bool sqf::parser::sqf::impl_default::instance::m_contains_binary(std::string_view view, short precedence)
 {
     auto s = std::string(view);
     std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
@@ -62,7 +62,7 @@ bool sqf::parser::sqf::default::instance::m_contains_binary(std::string_view vie
     return false;
 }
 
-short sqf::parser::sqf::default::instance::m_precedence(std::string_view view)
+short sqf::parser::sqf::impl_default::instance::m_precedence(std::string_view view)
 {
     auto s = std::string(view);
     std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
@@ -70,7 +70,7 @@ short sqf::parser::sqf::default::instance::m_precedence(std::string_view view)
     return res.empty() ? 0 : res.front().get().precedence();
 }
 
-void ::sqf::parser::sqf::default::instance::skip(size_t& curoff)
+void ::sqf::parser::sqf::impl_default::instance::skip(size_t& curoff)
 {
     while (true)
     {
@@ -85,7 +85,7 @@ void ::sqf::parser::sqf::default::instance::skip(size_t& curoff)
         }
     }
 }
-void ::sqf::parser::sqf::default::instance::skip(::sqf::runtime::diagnostics::diag_info& info)
+void ::sqf::parser::sqf::impl_default::instance::skip(::sqf::runtime::diagnostics::diag_info& info)
 {
     while (true)
     {
@@ -124,9 +124,9 @@ void ::sqf::parser::sqf::default::instance::skip(::sqf::runtime::diagnostics::di
 }
 
 //endchr = [,;];
-size_t sqf::parser::sqf::default::instance::endchr(size_t off) { return util::is_match<';', ','>(m_contents[off]) ? 1 : 0; }
+size_t sqf::parser::sqf::impl_default::instance::endchr(size_t off) { return util::is_match<';', ','>(m_contents[off]) ? 1 : 0; }
 //identifier = [_a-zA-Z][_a-zA-Z0-9]*;
-size_t sqf::parser::sqf::default::instance::identifier(size_t off)
+size_t sqf::parser::sqf::impl_default::instance::identifier(size_t off)
 {
     if (!util::is_match<
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -141,7 +141,7 @@ size_t sqf::parser::sqf::default::instance::identifier(size_t off)
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
 }
 //identifier = [_a-zA-Z0-9]+;
-size_t sqf::parser::sqf::default::instance::assidentifier(size_t off)
+size_t sqf::parser::sqf::impl_default::instance::assidentifier(size_t off)
 {
     return util::len_match<
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -149,7 +149,7 @@ size_t sqf::parser::sqf::default::instance::assidentifier(size_t off)
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
 }
 //operator_ = [+-*/%^]|&&|\|\||==|[!<>][=]?|[a-zA-Z_]+;
-size_t sqf::parser::sqf::default::instance::operator_(size_t off)
+size_t sqf::parser::sqf::impl_default::instance::operator_(size_t off)
 {
     if (util::is_match<'+', '-', '*', '/', '%', '^', ':', '#'>(m_contents[off])) { return 1; }
     if (util::is_match_repeated<2, '|'>(m_contents + off) ||
@@ -169,7 +169,7 @@ size_t sqf::parser::sqf::default::instance::operator_(size_t off)
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
 }
 // hexadecimal = [0-9a-fA-F]+;
-size_t sqf::parser::sqf::default::instance::hexadecimal(size_t off)
+size_t sqf::parser::sqf::impl_default::instance::hexadecimal(size_t off)
 {
     return util::len_match<
         'a', 'b', 'c', 'd', 'e', 'f',
@@ -177,12 +177,12 @@ size_t sqf::parser::sqf::default::instance::hexadecimal(size_t off)
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
 }
 // scalarsub = [0-9]+;
-size_t sqf::parser::sqf::default::instance::scalarsub(size_t off)
+size_t sqf::parser::sqf::impl_default::instance::scalarsub(size_t off)
 {
     return util::len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(m_contents + off);
 }
 // scalar = scalarsub(.scalarsub)?;
-size_t sqf::parser::sqf::default::instance::scalar(size_t off)
+size_t sqf::parser::sqf::impl_default::instance::scalar(size_t off)
 {
     size_t i = off + scalarsub(off);
     if (util::is_match<'.'>(m_contents[off]))
@@ -192,7 +192,7 @@ size_t sqf::parser::sqf::default::instance::scalar(size_t off)
     return i - off;
 }
 // anytext = (?![ \t\r\n;])+;
-size_t sqf::parser::sqf::default::instance::anytext(size_t off)
+size_t sqf::parser::sqf::impl_default::instance::anytext(size_t off)
 {
     const char* begin = m_contents + off;
     const char* it = begin;
@@ -200,8 +200,8 @@ size_t sqf::parser::sqf::default::instance::anytext(size_t off)
     return it - begin;
 }
 //SQF = [ STATEMENT { endchr { endchr } STATEMENT } ]
-bool ::sqf::parser::sqf::default::instance::SQF_start(size_t curoff) { return true; }
-void ::sqf::parser::sqf::default::instance::SQF(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::SQF_start(size_t curoff) { return true; }
+void ::sqf::parser::sqf::impl_default::instance::SQF(astnode& root, bool& errflag)
 {
     skip(m_info);
     size_t endchrlen;
@@ -235,8 +235,8 @@ void ::sqf::parser::sqf::default::instance::SQF(astnode& root, bool& errflag)
     }
 }
 //STATEMENT = ASSIGNMENT | BINARYEXPRESSION;
-bool ::sqf::parser::sqf::default::instance::STATEMENT_start(size_t curoff) { return ASSIGNMENT_start(curoff) | BINARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::STATEMENT(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::STATEMENT_start(size_t curoff) { return ASSIGNMENT_start(curoff) | BINARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::STATEMENT(astnode& root, bool& errflag)
 {
     if (ASSIGNMENT_start(m_info.offset))
     {
@@ -255,7 +255,7 @@ void ::sqf::parser::sqf::default::instance::STATEMENT(astnode& root, bool& errfl
     //root.children.create(thisnode);
 }
 //ASSIGNMENT(2) = assidentifier '=' BINARYEXPRESSION | "private" assidentifier '=' BINARYEXPRESSION;
-bool ::sqf::parser::sqf::default::instance::ASSIGNMENT_start(size_t curoff)
+bool ::sqf::parser::sqf::impl_default::instance::ASSIGNMENT_start(size_t curoff)
 {
     size_t len;
 #if defined(SQFVM_ARMA2_SYNTAX)
@@ -283,7 +283,7 @@ bool ::sqf::parser::sqf::default::instance::ASSIGNMENT_start(size_t curoff)
         return false;
     }
 }
-void ::sqf::parser::sqf::default::instance::ASSIGNMENT(astnode& root, bool& errflag)
+void ::sqf::parser::sqf::impl_default::instance::ASSIGNMENT(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.kind = nodetype::ASSIGNMENT;
@@ -364,7 +364,7 @@ void ::sqf::parser::sqf::default::instance::ASSIGNMENT(astnode& root, bool& errf
 //BEXP8 = BEXP9 [ boperator BEXP10 ];
 //BEXP9 = BEXP10 [ boperator BEXP10 ];
 //BEXP10 = PRIMARYEXPRESSION [ boperator BEXP10 ];
-void ::sqf::parser::sqf::default::instance::bexp_orderfix(astnode& root, astnode thisnode, nodetype plevel)
+void ::sqf::parser::sqf::impl_default::instance::bexp_orderfix(astnode& root, astnode thisnode, nodetype plevel)
 {
     auto& othernodeRef = thisnode.children.back();
     if (othernodeRef.children.size() == 3 && othernodeRef.kind == plevel)
@@ -388,8 +388,8 @@ void ::sqf::parser::sqf::default::instance::bexp_orderfix(astnode& root, astnode
         root.children.emplace_back(std::move(thisnode));
     }
 }
-bool ::sqf::parser::sqf::default::instance::bexp10_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::bexp10(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::bexp10_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::bexp10(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.offset = m_info.offset;
@@ -441,8 +441,8 @@ void ::sqf::parser::sqf::default::instance::bexp10(astnode& root, bool& errflag)
         root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
     }
 }
-bool ::sqf::parser::sqf::default::instance::bexp9_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::bexp9(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::bexp9_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::bexp9(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.offset = m_info.offset;
@@ -493,8 +493,8 @@ void ::sqf::parser::sqf::default::instance::bexp9(astnode& root, bool& errflag)
         root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
     }
 }
-bool ::sqf::parser::sqf::default::instance::bexp8_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::bexp8(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::bexp8_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::bexp8(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.offset = m_info.offset;
@@ -545,8 +545,8 @@ void ::sqf::parser::sqf::default::instance::bexp8(astnode& root, bool& errflag)
         root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
     }
 }
-bool ::sqf::parser::sqf::default::instance::bexp7_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::bexp7(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::bexp7_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::bexp7(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.offset = m_info.offset;
@@ -597,8 +597,8 @@ void ::sqf::parser::sqf::default::instance::bexp7(astnode& root, bool& errflag)
         root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
     }
 }
-bool ::sqf::parser::sqf::default::instance::bexp6_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::bexp6(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::bexp6_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::bexp6(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.offset = m_info.offset;
@@ -649,8 +649,8 @@ void ::sqf::parser::sqf::default::instance::bexp6(astnode& root, bool& errflag)
         root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
     }
 }
-bool ::sqf::parser::sqf::default::instance::bexp5_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::bexp5(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::bexp5_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::bexp5(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.offset = m_info.offset;
@@ -701,8 +701,8 @@ void ::sqf::parser::sqf::default::instance::bexp5(astnode& root, bool& errflag)
         root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
     }
 }
-bool ::sqf::parser::sqf::default::instance::bexp4_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::bexp4(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::bexp4_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::bexp4(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.offset = m_info.offset;
@@ -753,8 +753,8 @@ void ::sqf::parser::sqf::default::instance::bexp4(astnode& root, bool& errflag)
         root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
     }
 }
-bool ::sqf::parser::sqf::default::instance::bexp3_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::bexp3(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::bexp3_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::bexp3(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.offset = m_info.offset;
@@ -805,8 +805,8 @@ void ::sqf::parser::sqf::default::instance::bexp3(astnode& root, bool& errflag)
         root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
     }
 }
-bool ::sqf::parser::sqf::default::instance::bexp2_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::bexp2(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::bexp2_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::bexp2(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.offset = m_info.offset;
@@ -857,8 +857,8 @@ void ::sqf::parser::sqf::default::instance::bexp2(astnode& root, bool& errflag)
         root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
     }
 }
-bool ::sqf::parser::sqf::default::instance::bexp1_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::bexp1(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::bexp1_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::bexp1(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.offset = m_info.offset;
@@ -909,14 +909,14 @@ void ::sqf::parser::sqf::default::instance::bexp1(astnode& root, bool& errflag)
         root.children.insert(root.children.end(), std::make_move_iterator(thisnode.children.begin()), std::make_move_iterator(thisnode.children.end()));
     }
 }
-bool ::sqf::parser::sqf::default::instance::BINARYEXPRESSION_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
-void ::sqf::parser::sqf::default::instance::BINARYEXPRESSION(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::BINARYEXPRESSION_start(size_t curoff) { return PRIMARYEXPRESSION_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::BINARYEXPRESSION(astnode& root, bool& errflag)
 {
     bexp1(root, errflag);
 }
 //BRACKETS = '(' BINARYEXPRESSION ')';
-bool ::sqf::parser::sqf::default::instance::BRACKETS_start(size_t curoff) {  return m_contents[curoff] == '('; }
-void ::sqf::parser::sqf::default::instance::BRACKETS(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::BRACKETS_start(size_t curoff) {  return m_contents[curoff] == '('; }
+void ::sqf::parser::sqf::impl_default::instance::BRACKETS(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.kind = nodetype::BRACKETS;
@@ -949,8 +949,8 @@ void ::sqf::parser::sqf::default::instance::BRACKETS(astnode& root, bool& errfla
     root.children.emplace_back(std::move(thisnode));
 }
 //PRIMARYEXPRESSION = NUMBER | UNARYEXPRESSION | NULAREXPRESSION | VARIABLE | STRING | CODE | BRACKETS | ARRAY;
-bool ::sqf::parser::sqf::default::instance::PRIMARYEXPRESSION_start(size_t curoff) { return NUMBER_start(curoff) || UNARYEXPRESSION_start(curoff) || NULAREXPRESSION_start(curoff) || VARIABLE_start(curoff) || STRING_start(curoff) || CODE_start(curoff) || BRACKETS_start(curoff) || ARRAY_start(curoff); }
-void ::sqf::parser::sqf::default::instance::PRIMARYEXPRESSION(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::PRIMARYEXPRESSION_start(size_t curoff) { return NUMBER_start(curoff) || UNARYEXPRESSION_start(curoff) || NULAREXPRESSION_start(curoff) || VARIABLE_start(curoff) || STRING_start(curoff) || CODE_start(curoff) || BRACKETS_start(curoff) || ARRAY_start(curoff); }
+void ::sqf::parser::sqf::impl_default::instance::PRIMARYEXPRESSION(astnode& root, bool& errflag)
 {
     if (NUMBER_start(m_info.offset))
     {
@@ -993,8 +993,8 @@ void ::sqf::parser::sqf::default::instance::PRIMARYEXPRESSION(astnode& root, boo
     //root.children.create(thisnode);
 }
 //NULAREXPRESSION = operator;
-bool ::sqf::parser::sqf::default::instance::NULAREXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_nular(std::string(m_contents.substr(curoff, oplen))) : false; }
-void ::sqf::parser::sqf::default::instance::NULAREXPRESSION(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::NULAREXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_nular(std::string(m_contents.substr(curoff, oplen))) : false; }
+void ::sqf::parser::sqf::impl_default::instance::NULAREXPRESSION(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.kind = nodetype::NULAROP;
@@ -1011,8 +1011,8 @@ void ::sqf::parser::sqf::default::instance::NULAREXPRESSION(astnode& root, bool&
     root.children.emplace_back(std::move(thisnode));
 }
 //UNARYEXPRESSION = operator PRIMARYEXPRESSION;
-bool ::sqf::parser::sqf::default::instance::UNARYEXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_unary(std::string(m_contents.substr(curoff, oplen))) : false; }
-void ::sqf::parser::sqf::default::instance::UNARYEXPRESSION(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::UNARYEXPRESSION_start(size_t curoff) { auto oplen = operator_(curoff); return oplen > 0 ? m_contains_unary(std::string(m_contents.substr(curoff, oplen))) : false; }
+void ::sqf::parser::sqf::impl_default::instance::UNARYEXPRESSION(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.kind = nodetype::UNARYEXPRESSION;
@@ -1049,7 +1049,7 @@ void ::sqf::parser::sqf::default::instance::UNARYEXPRESSION(astnode& root, bool&
     root.children.emplace_back(std::move(thisnode));
 }
 //NUMBER = ("0x" | '$' | '.') hexadecimal | scalar;
-bool ::sqf::parser::sqf::default::instance::NUMBER_start(size_t curoff)
+bool ::sqf::parser::sqf::impl_default::instance::NUMBER_start(size_t curoff)
 {
     return  m_contents[curoff] == '$' ||
         (
@@ -1059,7 +1059,7 @@ bool ::sqf::parser::sqf::default::instance::NUMBER_start(size_t curoff)
             ) ||
         (m_contents[curoff] >= '0' && m_contents[curoff] <= '9');
 }
-void ::sqf::parser::sqf::default::instance::NUMBER(astnode& root, bool& errflag)
+void ::sqf::parser::sqf::impl_default::instance::NUMBER(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.kind = nodetype::NUMBER;
@@ -1141,12 +1141,12 @@ void ::sqf::parser::sqf::default::instance::NUMBER(astnode& root, bool& errflag)
     root.children.emplace_back(std::move(thisnode));
 }
 //VARIABLE = identifier;
-bool ::sqf::parser::sqf::default::instance::VARIABLE_start(size_t curoff)
+bool ::sqf::parser::sqf::impl_default::instance::VARIABLE_start(size_t curoff)
 {
     auto len = identifier(curoff);
     return len > 0 && !m_contains_binary(std::string(m_contents.substr(curoff, len)), 0);
 }
-void ::sqf::parser::sqf::default::instance::VARIABLE(astnode& root, bool& errflag)
+void ::sqf::parser::sqf::impl_default::instance::VARIABLE(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.kind = nodetype::VARIABLE;
@@ -1164,8 +1164,8 @@ void ::sqf::parser::sqf::default::instance::VARIABLE(astnode& root, bool& errfla
     root.children.emplace_back(std::move(thisnode));
 }
 //STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
-bool ::sqf::parser::sqf::default::instance::STRING_start(size_t curoff) { return m_contents[curoff] == '\'' || m_contents[curoff] == '"'; }
-void ::sqf::parser::sqf::default::instance::STRING(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::STRING_start(size_t curoff) { return m_contents[curoff] == '\'' || m_contents[curoff] == '"'; }
+void ::sqf::parser::sqf::impl_default::instance::STRING(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.kind = nodetype::STRING;
@@ -1209,8 +1209,8 @@ void ::sqf::parser::sqf::default::instance::STRING(astnode& root, bool& errflag)
     root.children.emplace_back(std::move(thisnode));
 }
 //CODE = "{" SQF "}";
-bool ::sqf::parser::sqf::default::instance::CODE_start(size_t curoff) { return m_contents[curoff] == '{'; }
-void ::sqf::parser::sqf::default::instance::CODE(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::CODE_start(size_t curoff) { return m_contents[curoff] == '{'; }
+void ::sqf::parser::sqf::impl_default::instance::CODE(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.kind = nodetype::CODE;
@@ -1247,8 +1247,8 @@ void ::sqf::parser::sqf::default::instance::CODE(astnode& root, bool& errflag)
     root.children.emplace_back(std::move(thisnode));
 }
 //ARRAY = '[' [ BINARYEXPRESSION { ',' BINARYEXPRESSION } ] ']';
-bool ::sqf::parser::sqf::default::instance::ARRAY_start(size_t curoff) { return m_contents[curoff] == '['; }
-void ::sqf::parser::sqf::default::instance::ARRAY(astnode& root, bool& errflag)
+bool ::sqf::parser::sqf::impl_default::instance::ARRAY_start(size_t curoff) { return m_contents[curoff] == '['; }
+void ::sqf::parser::sqf::impl_default::instance::ARRAY(astnode& root, bool& errflag)
 {
     auto thisnode = astnode();
     thisnode.kind = nodetype::ARRAY;
@@ -1296,7 +1296,7 @@ void ::sqf::parser::sqf::default::instance::ARRAY(astnode& root, bool& errflag)
     root.children.emplace_back(std::move(thisnode));
 }
 
-sqf::parser::sqf::default::astnode sqf::parser::sqf::default::instance::parse(bool& errflag)
+sqf::parser::sqf::impl_default::astnode sqf::parser::sqf::impl_default::instance::parse(bool& errflag)
 {
     astnode node;
     node.kind = nodetype::SQF;
@@ -1315,7 +1315,7 @@ sqf::parser::sqf::default::astnode sqf::parser::sqf::default::instance::parse(bo
 }
 
 
-bool sqf::parser::sqf::default::instance::to_assembly(::sqf::parser::sqf::default::astnode& node, std::vector<::sqf::runtime::instruction::sptr>& set)
+bool sqf::parser::sqf::impl_default::instance::to_assembly(::sqf::parser::sqf::impl_default::astnode& node, std::vector<::sqf::runtime::instruction::sptr>& set)
 {
     // execute_parsing_callbacks(full, node, evaction::enter);
     switch (node.kind)

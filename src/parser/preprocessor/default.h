@@ -12,7 +12,7 @@
 
 namespace sqf::parser::preprocessor
 {
-	class default: public ::sqf::runtime::parser::preprocessor, public CanLog
+	class impl_default: public ::sqf::runtime::parser::preprocessor, public CanLog
 	{
 	public:
 		class preprocessorfileinfo
@@ -292,9 +292,9 @@ namespace sqf::parser::preprocessor
 			}
 			void pop_path(preprocessorfileinfo& preprocessorfileinfo);
 	public:
-		default(::Logger& logger);
+		impl_default(::Logger& logger);
 		virtual void push_back(::sqf::runtime::parser::macro m) override { m_macros[std::string(m.name())] = m; };
-		virtual ~default() override { }
+		virtual ~impl_default() override { }
 		virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) override;
 
 		std::optional<::sqf::runtime::parser::macro> get_try(const std::string macro_name) const

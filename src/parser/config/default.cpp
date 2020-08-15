@@ -32,7 +32,7 @@ VALUE = STRING | NUMBER | LOCALIZATION | ARRAY;
 namespace err = logmessage::config;
 using namespace ::sqf::runtime::util;
 
-void sqf::parser::config::default::instance::skip()
+void sqf::parser::config::impl_default::instance::skip()
 {
 	while (true)
 	{
@@ -86,9 +86,9 @@ void sqf::parser::config::default::instance::skip()
 }
 
 //endchr = [,;];
-size_t sqf::parser::config::default::instance::endchr(size_t off) { return util::is_match<';', ','>(m_contents[off]) ? 1 : 0; }
+size_t sqf::parser::config::impl_default::instance::endchr(size_t off) { return util::is_match<';', ','>(m_contents[off]) ? 1 : 0; }
 //identifier = [_a-zA-Z0-9]*;
-size_t sqf::parser::config::default::instance::identifier(size_t off)
+size_t sqf::parser::config::impl_default::instance::identifier(size_t off)
 {
 	return util::len_match<
 		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -96,7 +96,7 @@ size_t sqf::parser::config::default::instance::identifier(size_t off)
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
 }
 //operator_ = [-*+/a-zA-Z><=%_]+;
-size_t sqf::parser::config::default::instance::operator_(size_t off)
+size_t sqf::parser::config::impl_default::instance::operator_(size_t off)
 {
 	if (util::is_match<'+', '-', '*', '/', '%', '^', ':', '#'>(m_contents[off])) { return 1; }
 	if (util::is_match_repeated<2, '|'>(m_contents + off) ||
@@ -118,7 +118,7 @@ size_t sqf::parser::config::default::instance::operator_(size_t off)
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(m_contents + off);
 }
 //hexadecimal = [0-9a-fA-F]+;
-size_t sqf::parser::config::default::instance::hexadecimal(size_t off)
+size_t sqf::parser::config::impl_default::instance::hexadecimal(size_t off)
 {
 	return util::len_match<
 		'a', 'b', 'c', 'd', 'e', 'f',
@@ -126,22 +126,22 @@ size_t sqf::parser::config::default::instance::hexadecimal(size_t off)
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(m_contents + off);
 }
 //scalarsub = [0-9]+;
-size_t sqf::parser::config::default::instance::numsub(size_t off)
+size_t sqf::parser::config::impl_default::instance::numsub(size_t off)
 {
 	return util::len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(m_contents + off);
 }
 //scalar = scalarsub(.scalarsub)?;
-size_t sqf::parser::config::default::instance::num(size_t off) { size_t i = off + numsub(off); if (util::is_match_repeated<'.'>(m_contents + i)) i += numsub(i); return i - off; }
+size_t sqf::parser::config::impl_default::instance::num(size_t off) { size_t i = off + numsub(off); if (util::is_match_repeated<'.'>(m_contents + i)) i += numsub(i); return i - off; }
 //anytext = (?![ \t\r\n;])+;
-size_t sqf::parser::config::default::instance::anytext(size_t off)
+size_t sqf::parser::config::impl_default::instance::anytext(size_t off)
 {
 	return util::len_match_inv<' ', '\t', '\r', '\n', '\0', ';'>(m_contents + off);
 }
 
 
 // NODELIST = { NODE ';' { ';' } };
-bool sqf::parser::config::default::instance::NODELIST_start(size_t off) { return true; }
-void sqf::parser::config::default::instance::NODELIST(::sqf::parser::config::default::astnode& root, bool& errflag)
+bool sqf::parser::config::impl_default::instance::NODELIST_start(size_t off) { return true; }
+void sqf::parser::config::impl_default::instance::NODELIST(::sqf::parser::config::impl_default::astnode& root, bool& errflag)
 {
 	skip();
 	// Iterate over statements as long as it is an instruction start.
@@ -169,8 +169,8 @@ void sqf::parser::config::default::instance::NODELIST(::sqf::parser::config::def
 	}
 }
 // NODE = CONFIGNODE | VALUENODE | DELETENODE;
-bool sqf::parser::config::default::instance::NODE_start(size_t off) { return CONFIGNODE_start(off) || VALUENODE_start(off); }
-void sqf::parser::config::default::instance::NODE(::sqf::parser::config::default::astnode & root, bool& errflag)
+bool sqf::parser::config::impl_default::instance::NODE_start(size_t off) { return CONFIGNODE_start(off) || VALUENODE_start(off); }
+void sqf::parser::config::impl_default::instance::NODE(::sqf::parser::config::impl_default::astnode & root, bool& errflag)
 {
 	if (CONFIGNODE_start(m_info.offset))
 	{
@@ -187,8 +187,8 @@ void sqf::parser::config::default::instance::NODE(::sqf::parser::config::default
 	}
 }
 // CONFIGNODE = 'class' ident [ ':' ident ] [ '{' NODELIST '}' ]
-bool sqf::parser::config::default::instance::CONFIGNODE_start(size_t off) { return util::is_string_match(m_contents.begin() + off, "class"); }
-void sqf::parser::config::default::instance::CONFIGNODE(::sqf::parser::config::default::astnode & root, bool& errflag)
+bool sqf::parser::config::impl_default::instance::CONFIGNODE_start(size_t off) { return util::is_string_match(m_contents.begin() + off, "class"); }
+void sqf::parser::config::impl_default::instance::CONFIGNODE(::sqf::parser::config::impl_default::astnode & root, bool& errflag)
 {
 	size_t len;
 	auto thisnode = astnode();
@@ -263,14 +263,14 @@ void sqf::parser::config::default::instance::CONFIGNODE(::sqf::parser::config::d
 	}
 }
 // DELETENODE = delete ident;
-bool sqf::parser::config::default::instance::DELETENODE_start(size_t off)
+bool sqf::parser::config::impl_default::instance::DELETENODE_start(size_t off)
 {
 	const char* txt = "delete";
 	return std::equal(
 		m_contents.begin() + off, m_contents.end() + ::sqf::runtime::util::strlen(txt),
 		txt, txt + ::sqf::runtime::util::strlen(txt));
 }
-void sqf::parser::config::default::instance::DELETENODE(::sqf::parser::config::default::astnode & root, bool& errflag)
+void sqf::parser::config::impl_default::instance::DELETENODE(::sqf::parser::config::impl_default::astnode & root, bool& errflag)
 {
 	size_t len;
 	auto thisnode = astnode();
@@ -297,8 +297,8 @@ void sqf::parser::config::default::instance::DELETENODE(::sqf::parser::config::d
 	}
 }
 // VALUENODE = ident ('=' (STRING | NUMBER | LOCALIZATION) | '[' ']' ( '=' | '+=' ) ARRAY);
-bool sqf::parser::config::default::instance::VALUENODE_start(size_t off) { return identifier(off) > 0; }
-void sqf::parser::config::default::instance::VALUENODE(::sqf::parser::config::default::astnode & root, bool& errflag)
+bool sqf::parser::config::impl_default::instance::VALUENODE_start(size_t off) { return identifier(off) > 0; }
+void sqf::parser::config::impl_default::instance::VALUENODE(::sqf::parser::config::impl_default::astnode & root, bool& errflag)
 {
 	size_t len;
 	bool isarr = false;
@@ -436,8 +436,8 @@ void sqf::parser::config::default::instance::VALUENODE(::sqf::parser::config::de
 	root.children.push_back(thisnode);
 }
 //STRING = '"' { any | "\"\"" } '"' | '\'' { any | "''" } '\'';
-bool sqf::parser::config::default::instance::STRING_start(size_t off) { return util::is_match<'"', '\''>(m_contents[off]); }
-void sqf::parser::config::default::instance::STRING(::sqf::parser::config::default::astnode & root, bool& errflag)
+bool sqf::parser::config::impl_default::instance::STRING_start(size_t off) { return util::is_match<'"', '\''>(m_contents[off]); }
+void sqf::parser::config::impl_default::instance::STRING(::sqf::parser::config::impl_default::astnode & root, bool& errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = nodetype::STRING;
@@ -475,8 +475,8 @@ void sqf::parser::config::default::instance::STRING(::sqf::parser::config::defau
 	root.children.push_back(thisnode);
 }
 //NUMBER = "0x" hexadecimal | [ '-' ]scalar;
-bool sqf::parser::config::default::instance::NUMBER_start(size_t off) { return util::is_match<'-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(m_contents[off]); }
-void sqf::parser::config::default::instance::NUMBER(::sqf::parser::config::default::astnode & root, bool& errflag)
+bool sqf::parser::config::impl_default::instance::NUMBER_start(size_t off) { return util::is_match<'-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(m_contents[off]); }
+void sqf::parser::config::impl_default::instance::NUMBER(::sqf::parser::config::impl_default::astnode & root, bool& errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = nodetype::NUMBER;
@@ -545,8 +545,8 @@ void sqf::parser::config::default::instance::NUMBER(::sqf::parser::config::defau
 	root.children.push_back(thisnode);
 }
 //LOCALIZATION = '$' ident;
-bool sqf::parser::config::default::instance::LOCALIZATION_start(size_t off) { return util::is_match<'$'>(m_contents[off]); }
-void sqf::parser::config::default::instance::LOCALIZATION(::sqf::parser::config::default::astnode & root, bool& errflag)
+bool sqf::parser::config::impl_default::instance::LOCALIZATION_start(size_t off) { return util::is_match<'$'>(m_contents[off]); }
+void sqf::parser::config::impl_default::instance::LOCALIZATION(::sqf::parser::config::impl_default::astnode & root, bool& errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = nodetype::LOCALIZATION;
@@ -566,8 +566,8 @@ void sqf::parser::config::default::instance::LOCALIZATION(::sqf::parser::config:
 	root.children.push_back(thisnode);
 }
 //ARRAY = '{' [ VALUE { ',' VALUE } ] '}'
-bool sqf::parser::config::default::instance::ARRAY_start(size_t off) { return util::is_match<'{'>(m_contents[off]); }
-void sqf::parser::config::default::instance::ARRAY(::sqf::parser::config::default::astnode & root, bool& errflag)
+bool sqf::parser::config::impl_default::instance::ARRAY_start(size_t off) { return util::is_match<'{'>(m_contents[off]); }
+void sqf::parser::config::impl_default::instance::ARRAY(::sqf::parser::config::impl_default::astnode & root, bool& errflag)
 {
 	auto thisnode = astnode();
 	thisnode.kind = nodetype::ARRAY;
@@ -615,8 +615,8 @@ void sqf::parser::config::default::instance::ARRAY(::sqf::parser::config::defaul
 	root.children.push_back(thisnode);
 }
 //VALUE = STRING | NUMBER | LOCALIZATION | ARRAY;
-bool sqf::parser::config::default::instance::VALUE_start(size_t off) { return STRING_start(off) || NUMBER_start(off) || LOCALIZATION_start(off) || ARRAY_start(off); }
-void sqf::parser::config::default::instance::VALUE(::sqf::parser::config::default::astnode & root, bool& errflag)
+bool sqf::parser::config::impl_default::instance::VALUE_start(size_t off) { return STRING_start(off) || NUMBER_start(off) || LOCALIZATION_start(off) || ARRAY_start(off); }
+void sqf::parser::config::impl_default::instance::VALUE(::sqf::parser::config::impl_default::astnode & root, bool& errflag)
 {
 	//auto thisnode = astnode();
 	//thisnode.offset = m_info.offset;
@@ -647,7 +647,7 @@ void sqf::parser::config::default::instance::VALUE(::sqf::parser::config::defaul
 }
 
 
-sqf::parser::config::default::astnode sqf::parser::config::default::instance::parse(bool& errflag)
+sqf::parser::config::impl_default::astnode sqf::parser::config::impl_default::instance::parse(bool& errflag)
 {
 	astnode node;
 	node.kind = nodetype::NODELIST;
@@ -674,7 +674,7 @@ sqf::parser::config::default::astnode sqf::parser::config::default::instance::pa
 	return node;
 }
 
-bool sqf::parser::config::default::apply_to_confighost(sqf::parser::config::default::astnode& node, ::sqf::runtime::confighost& confighost, ::sqf::runtime::confignav parent)
+bool sqf::parser::config::impl_default::apply_to_confighost(sqf::parser::config::impl_default::astnode& node, ::sqf::runtime::confighost& confighost, ::sqf::runtime::confignav parent)
 {
 	// ToDo: Check if a corresponding config already exists in confighost before creating it to avoid duplicates
 

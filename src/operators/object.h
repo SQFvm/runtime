@@ -32,7 +32,7 @@ namespace sqf
 				size_t m_id;
 				std::shared_ptr<object> m_player;
 			public:
-				object_storage() : m_id(0), m_inner() {}
+				object_storage() : m_inner(), m_id(0) {}
 				virtual ~object_storage() override {}
 				size_t push_back(std::shared_ptr<object> obj) { m_inner.push_back(obj); return ++m_id; }
 				void erase(std::shared_ptr<object> obj) { auto it = std::find(m_inner.begin(), m_inner.end(), obj); if (it != m_inner.end()) { *it = m_inner.back(); m_inner.pop_back(); } }

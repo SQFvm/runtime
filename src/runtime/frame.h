@@ -169,6 +169,7 @@ namespace sqf::runtime
                 return result::ok;
             case behavior::result::fail:
                 return result::error;
+            case behavior::result::ok: /* do nothing */ break;
             }
             return result::ok;
         }
@@ -291,6 +292,8 @@ namespace sqf::runtime
 
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                     goto start; // do not call here, reuse current stack
+                case behavior::result::fail: /* do nothing */ break;
+                case behavior::result::ok: /* do nothing */ break;
                 }
             }
             return res;
