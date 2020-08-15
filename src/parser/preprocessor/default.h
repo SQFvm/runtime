@@ -292,7 +292,7 @@ namespace sqf::parser::preprocessor
 			}
 			void pop_path(preprocessorfileinfo& preprocessorfileinfo);
 	public:
-		impl_default(::Logger& logger);
+		impl_default(Logger& logger);
 		virtual void push_back(::sqf::runtime::parser::macro m) override { m_macros[std::string(m.name())] = m; };
 		virtual ~impl_default() override { }
 		virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) override;

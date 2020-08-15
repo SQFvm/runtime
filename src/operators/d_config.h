@@ -21,7 +21,7 @@ namespace sqf
 		class d_config : public sqf::runtime::data
 		{
 		public:
-			static sqf::runtime::type cexp_type() { return sqf::runtime::t_config(); }
+			using data_type = sqf::runtime::t_config;
 		private:
 			sqf::runtime::config m_value;
 		protected:
@@ -42,16 +42,22 @@ namespace sqf
 			{
 				return std::string(m_value.name());
 			}
-			sqf::runtime::type type() const override { return cexp_type(); }
+			sqf::runtime::type type() const override { return data_type(); }
 			sqf::runtime::config value() const { return m_value; }
 			void value(sqf::runtime::config conf) { m_value = conf; }
 
 			operator sqf::runtime::config() { return m_value; }
 		};
 
-		inline std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::config conf)
+		template<>
+		inline std::shared_ptr<sqf::runtime::data> to_data<sqf::runtime::config>(sqf::runtime::config conf)
 		{
 			return std::make_shared<d_config>(conf);
+		}
+		template<>
+		inline std::shared_ptr<sqf::runtime::data> to_data<sqf::runtime::confignav>(sqf::runtime::confignav confignav)
+		{
+			return std::make_shared<d_config>(*confignav);
 		}
 	}
 }

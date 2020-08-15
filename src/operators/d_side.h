@@ -58,7 +58,7 @@ namespace sqf
 					return "UNKNOWN";
 				}
 			}
-			static sqf::runtime::type cexp_type() { return sqf::runtime::t_side(); }
+			using data_type = sqf::runtime::t_side;
 		private:
 			side m_value;
 		protected:
@@ -73,7 +73,7 @@ namespace sqf
 			std::string to_string_sqf() const override { return to_string(m_value); }
 			std::string to_string() const override { return to_string_sqf(); }
 
-			sqf::runtime::type type() const override { return cexp_type(); }
+			sqf::runtime::type type() const override { return data_type(); }
 
 			side value() const { return m_value; }
 			void value(side flag) { m_value = flag; }
@@ -105,7 +105,8 @@ namespace sqf
 			static bool is_friendly_to(side self, side other) { return friendly_map(self, other); }
 			static void set_friendly_to(side self, side other, bool flag) { friendly_map(self, other) = flag; }
 		};
-		inline std::shared_ptr<sqf::runtime::data> to_data(d_side::side side)
+		template<>
+		inline std::shared_ptr<sqf::runtime::data> to_data<d_side::side>(d_side::side side)
 		{
 			return std::make_shared<d_side>(side);
 		}

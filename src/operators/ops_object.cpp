@@ -571,7 +571,7 @@ namespace
 			runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 0, std::array<sqf::runtime::type, 2> { t_array(), t_object() }, arr->at(0).type()));
 			return {};
 		}
-		if (!arr->at(1).is< t_array>())
+		if (!arr->at(1).is<t_array>())
 		{
 			runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 1, t_array(), arr->at(1).type()));
 			return {};

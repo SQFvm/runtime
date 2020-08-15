@@ -18,7 +18,7 @@ namespace sqf
 		class d_boolean : public sqf::runtime::data
 		{
 		public:
-			static sqf::runtime::type cexp_type() { return sqf::runtime::t_boolean(); }
+			using data_type = sqf::runtime::t_boolean;
 		private:
 			bool m_value;
 		protected:
@@ -39,7 +39,7 @@ namespace sqf
 				return m_value ? "true" : "false";
 			}
 
-			sqf::runtime::type type() const override { return cexp_type(); }
+			sqf::runtime::type type() const override { return data_type(); }
 
 			bool value() const { return m_value; }
 			void value(bool flag) { m_value = flag; }
@@ -49,7 +49,8 @@ namespace sqf
 				return m_value;
 			}
 		};
-		inline std::shared_ptr<sqf::runtime::data> to_data(bool flag)
+		template<>
+		inline std::shared_ptr<sqf::runtime::data> to_data<bool>(bool flag)
 		{
 			return std::make_shared<d_boolean>(flag);
 		}

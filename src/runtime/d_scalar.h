@@ -18,7 +18,7 @@ namespace sqf
 		class d_scalar : public sqf::runtime::data
 		{
 		public:
-			static sqf::runtime::type cexp_type() { return sqf::runtime::t_scalar(); }
+			using data_type = sqf::runtime::t_scalar;
 		private:
 			float m_value;
 			inline static int s_decimals = 0;
@@ -43,22 +43,23 @@ namespace sqf
 			std::string to_string_sqf() const override;
 			std::string to_string() const override;
 
-			sqf::runtime::type type() const override { return cexp_type(); }
+			sqf::runtime::type type() const override { return data_type(); }
 			float value() const { return m_value; }
 			void value(float f) { m_value = f; }
 			operator float() { return m_value; }
 			static void set_decimals(int val) { s_decimals = val; }
 		};
-		inline std::shared_ptr<sqf::runtime::data> to_data(int8_t  value)  { return std::make_shared<d_scalar>(value); }
-		inline std::shared_ptr<sqf::runtime::data> to_data(int16_t value)  { return std::make_shared<d_scalar>(value); }
-		inline std::shared_ptr<sqf::runtime::data> to_data(int32_t value)  { return std::make_shared<d_scalar>(value); }
-		inline std::shared_ptr<sqf::runtime::data> to_data(int64_t value)  { return std::make_shared<d_scalar>(value); }
-		inline std::shared_ptr<sqf::runtime::data> to_data(uint8_t  value) { return std::make_shared<d_scalar>(value); }
-		inline std::shared_ptr<sqf::runtime::data> to_data(uint16_t value) { return std::make_shared<d_scalar>(value); }
-		inline std::shared_ptr<sqf::runtime::data> to_data(uint32_t value) { return std::make_shared<d_scalar>(value); }
-		inline std::shared_ptr<sqf::runtime::data> to_data(uint64_t value) { return std::make_shared<d_scalar>(value); }
-		inline std::shared_ptr<sqf::runtime::data> to_data(float value)    { return std::make_shared<d_scalar>(value); }
-		inline std::shared_ptr<sqf::runtime::data> to_data(double value)   { return std::make_shared<d_scalar>(value); }
+
+		template<> inline std::shared_ptr<sqf::runtime::data> to_data<int8_t>(int8_t  value)    { return std::make_shared<d_scalar>(value); }
+		template<> inline std::shared_ptr<sqf::runtime::data> to_data<int16_t>(int16_t value)   { return std::make_shared<d_scalar>(value); }
+		template<> inline std::shared_ptr<sqf::runtime::data> to_data<int32_t>(int32_t value)   { return std::make_shared<d_scalar>(value); }
+		template<> inline std::shared_ptr<sqf::runtime::data> to_data<int64_t>(int64_t value)   { return std::make_shared<d_scalar>(value); }
+		template<> inline std::shared_ptr<sqf::runtime::data> to_data<uint8_t>(uint8_t  value)  { return std::make_shared<d_scalar>(value); }
+		template<> inline std::shared_ptr<sqf::runtime::data> to_data<uint16_t>(uint16_t value) { return std::make_shared<d_scalar>(value); }
+		template<> inline std::shared_ptr<sqf::runtime::data> to_data<uint32_t>(uint32_t value) { return std::make_shared<d_scalar>(value); }
+		template<> inline std::shared_ptr<sqf::runtime::data> to_data<uint64_t>(uint64_t value) { return std::make_shared<d_scalar>(value); }
+		template<> inline std::shared_ptr<sqf::runtime::data> to_data<float>(float value)       { return std::make_shared<d_scalar>(value); }
+		template<> inline std::shared_ptr<sqf::runtime::data> to_data<double>(double value)     { return std::make_shared<d_scalar>(value); }
 	}
 
 }

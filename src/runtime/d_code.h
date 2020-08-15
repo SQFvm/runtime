@@ -21,7 +21,7 @@ namespace sqf
         class d_code : public sqf::runtime::data
         {
         public:
-            static sqf::runtime::type cexp_type() { return sqf::runtime::t_code(); }
+            using data_type = sqf::runtime::t_code;
         private:
             sqf::runtime::instruction_set m_value;
 
@@ -79,7 +79,7 @@ namespace sqf
                 return sstream.str();
             }
 
-            sqf::runtime::type type() const override { return cexp_type(); }
+            sqf::runtime::type type() const override { return data_type(); }
 
             const sqf::runtime::instruction_set& value() const { return m_value; }
             void value(sqf::runtime::instruction_set flag) { m_value = flag; }
@@ -88,7 +88,8 @@ namespace sqf
             operator sqf::runtime::instruction_set&() { return m_value; }
         };
 
-        inline std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::instruction_set set)
+        template<>
+        inline std::shared_ptr<sqf::runtime::data> to_data<sqf::runtime::instruction_set>(sqf::runtime::instruction_set set)
         {
             return std::make_shared<d_code>(set);
         }

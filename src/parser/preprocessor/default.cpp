@@ -1115,7 +1115,7 @@ void sqf::parser::preprocessor::impl_default::pop_path(preprocessorfileinfo & pr
     m_path_tree.pop_back();
     m_inside_ppf_tree.pop_back();
 }
-sqf::parser::preprocessor::impl_default::default(::Logger & logger) : CanLog(logger)
+sqf::parser::preprocessor::impl_default::impl_default(Logger& logger) : CanLog(logger)
 {
     m_macros["__LINE__"s] = { "__LINE__"s, line_macro_callback };
     m_macros["__EXEC"s] = { "__EXEC"s, { "EXPRESSION"s }, eval_macro_callback };
