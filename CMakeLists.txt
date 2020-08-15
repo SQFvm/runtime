@@ -26,7 +26,6 @@ include_directories("${PROJECT_SOURCE_DIR}/include/tclap-1.2.2/include")
 
 file(GLOB vm_src 
     "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c"
-    "${PROJECT_SOURCE_DIR}/src/sqc/*.h" "${PROJECT_SOURCE_DIR}/src/sqc/*.cpp" "${PROJECT_SOURCE_DIR}/src/sqc/*.c"
     "${PROJECT_SOURCE_DIR}/src/types/*.h" "${PROJECT_SOURCE_DIR}/src/types/*.cpp" "${PROJECT_SOURCE_DIR}/src/types/*.c"
     "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c"
     "${PROJECT_SOURCE_DIR}/src/parser/config/*.h" "${PROJECT_SOURCE_DIR}/src/parser/config/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser/config/*.c"
@@ -39,6 +38,13 @@ file(GLOB vm_src
     "${PROJECT_SOURCE_DIR}/src/runtime/parser/*.h" "${PROJECT_SOURCE_DIR}/src/runtime/parser/*.cpp" "${PROJECT_SOURCE_DIR}/src/runtime/parser/*.c"
     "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.h" "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.cpp" "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.c"
     "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp"
+    
+    
+    "${PROJECT_SOURCE_DIR}/src/sqc/*.h"
+    "${PROJECT_SOURCE_DIR}/src/sqc/*.hh"
+    "${PROJECT_SOURCE_DIR}/src/sqc/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/sqc/*.c"
+    "${PROJECT_SOURCE_DIR}/src/sqc/*.cc"
 )
 
 # Get the local git revision hash and put it into a header we can use
