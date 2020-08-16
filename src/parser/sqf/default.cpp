@@ -1364,7 +1364,7 @@ bool sqf::parser::sqf::impl_default::instance::to_assembly(::sqf::parser::sqf::i
     {
         try
         {
-            auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>(std::stol(node.content, nullptr, 16))));
+            auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>((int64_t)std::stol(node.content, nullptr, 16))));
             inst->diag_info({ node.line, node.col, node.offset, node.path, create_code_segment(m_contents, node.offset, node.length) });
             set.push_back(inst);
         }
@@ -1381,7 +1381,7 @@ bool sqf::parser::sqf::impl_default::instance::to_assembly(::sqf::parser::sqf::i
     {
         try
         {
-            auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>(std::stod(node.content))));
+            auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>((double)std::stod(node.content))));
             inst->diag_info({ node.line, node.col, node.offset, node.path, create_code_segment(m_contents, node.offset, node.length) });
             set.push_back(inst);
         }
