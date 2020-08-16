@@ -372,6 +372,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
                         }
                         iterator = m_contexts.begin();
                     } break;
+                    case sqf::runtime::runtime::result::invalid:
                     case sqf::runtime::runtime::result::action_error:
                     case sqf::runtime::runtime::result::runtime_error:
                         goto start_loop_exit;
