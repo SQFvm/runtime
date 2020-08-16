@@ -392,7 +392,6 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             case sqf::runtime::runtime::result::runtime_error:
                 m_state = state::halted_error;
                 break;
-            case sqf::runtime::runtime::result::invalid:
             }
             if (m_is_exit_requested)
             {
@@ -433,7 +432,6 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             case sqf::runtime::runtime::result::runtime_error:
                 m_state = state::halted_error;
                 break;
-            case sqf::runtime::runtime::result::invalid:
             }
             if (m_is_exit_requested)
             {
@@ -501,7 +499,6 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             case sqf::runtime::runtime::result::runtime_error:
                 m_state = state::halted_error;
                 break;
-            case sqf::runtime::runtime::result::invalid:
             }
             if (m_is_exit_requested)
             {
