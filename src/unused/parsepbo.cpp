@@ -109,7 +109,7 @@ int PboEntryBuffer::underflow() {
     return std::char_traits<char>::to_int_type(*this->gptr());
 }
 
-int64_t PboEntryBuffer::xsgetn(char* _Ptr, int64_t _Count) {
+std::streamsize PboEntryBuffer::xsgetn(char* _Ptr, std::streamsize _Count) {
     // get _Count characters from stream
     const int64_t _Start_count = _Count;
 
