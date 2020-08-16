@@ -308,7 +308,7 @@ namespace
 	{
 		auto type = left.data<d_string, std::string>();
 		auto arr = right.data<d_array>();
-		double skill = 0.5;
+		// double skill = 0.5;
 		std::string rank = "PRIVATE";
 
 		if (arr->size() < 2)
