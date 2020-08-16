@@ -8,6 +8,7 @@
 
 #ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 #include <iostream>
+#include <iomanip>
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, size_t exit_after)
