@@ -703,7 +703,7 @@ namespace
             }
         }
 
-        std::sort(arr->begin(), arr->end(), [sort_flag](const auto& a, const auto& b) -> bool {
+        std::sort(arr->begin(), arr->end(), [sort_flag](sqf::runtime::value::cref a, sqf::runtime::value::cref b) -> bool {
 
             if (a.is<t_array>())
             {
