@@ -36,4 +36,4 @@ before_install:
 script:
   - cmake .
   - make -j4
-  - ./sqfvm -a --no-execute-print --load . -i tests/runTests.sqf
+  - ./sqfvm -a --no-execute-print -i tests/runTests.sqf
