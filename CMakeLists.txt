@@ -66,7 +66,7 @@ if (SQFVM_BUILD_EXECUTABLE)
     
     target_compile_options(sqfvm PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-          -Wall>
+          -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:
           /W4>)
 endif ()
@@ -86,7 +86,7 @@ if (SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE)
     
     target_compile_options(sqfvm PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-          -Wall>
+          -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:
           /W4>)
 endif ()
@@ -100,7 +100,7 @@ if (SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD)
     
     target_compile_options(sqfvm PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-          -Wall>
+          -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:
           /W4>)
 endif ()
@@ -114,7 +114,7 @@ if (SQFVM_BUILD_LIBRARY)
     target_include_directories(libsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
     target_compile_options(sqfvm PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-          -Wall>
+          -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:
           /W4>)
     SET_TARGET_PROPERTIES(libsqfvm PROPERTIES PREFIX "")
@@ -127,7 +127,7 @@ if (SQFVM_BUILD_STATIC_LIBRARY)
     target_include_directories(slibsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
     target_compile_options(sqfvm PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-          -Wall>
+          -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:
           /W4>)
     SET_TARGET_PROPERTIES(slibsqfvm PROPERTIES PREFIX "")
