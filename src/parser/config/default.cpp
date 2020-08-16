@@ -732,10 +732,10 @@ bool sqf::parser::config::impl_default::apply_to_confighost(sqf::parser::config:
 		parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_string>(node.content)));
 		break;
 	case nodetype::NUMBER:
-		parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_scalar>(std::stod(node.content))));
+		parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_scalar>((double)std::stod(node.content))));
 		break;
 	case nodetype::HEXNUMBER:
-		parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_scalar>(std::stol(node.content, nullptr, 16))));
+		parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_scalar>((int64_t)std::stol(node.content, nullptr, 16))));
 		break;
 	case nodetype::LOCALIZATION:
 		parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_string>(node.content)));

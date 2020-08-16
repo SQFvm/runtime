@@ -32,12 +32,10 @@ namespace sqf
 			d_scalar(int8_t  value)       : m_value((float)value) {}
 			d_scalar(int16_t value)       : m_value((float)value) {}
 			d_scalar(int32_t value)       : m_value((float)value) {}
-			d_scalar(long value)          : m_value((float)value) {}
 			d_scalar(int64_t value)       : m_value((float)value) {}
 			d_scalar(uint8_t  value)      : m_value((float)value) {}
 			d_scalar(uint16_t value)      : m_value((float)value) {}
 			d_scalar(uint32_t value)      : m_value((float)value) {}
-			d_scalar(unsigned long value) : m_value((float)value) {}
 			d_scalar(uint64_t value)      : m_value((float)value) {}
 			d_scalar(float value)         : m_value((float)value) {}
 			d_scalar(double value)        : m_value((float)value) {}
