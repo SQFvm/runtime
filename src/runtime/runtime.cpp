@@ -268,7 +268,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             m_is_halt_requested = false;
             auto scopeNum = m_context_active->frames_size() - 1;
             m_state = state::running;
-            while (!m_is_exit_requested && !m_is_halt_requested && m_contexts.size() != 0)
+            while (!m_is_exit_requested && !m_is_halt_requested && !m_contexts.empty())
             {
                 res = execute_do(*this, 1);
                 perform_evaluate();
@@ -462,7 +462,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             bool success;
             m_state = state::running;
             std::optional<diagnostics::diag_info> dinf;
-            while (!m_is_exit_requested && !m_is_halt_requested && m_contexts.size() != 0)
+            while (!m_is_exit_requested && !m_is_halt_requested && !m_contexts.empty())
             {
                 if (!dinf.has_value())
                 {
