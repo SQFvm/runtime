@@ -27,6 +27,9 @@ bld/
 [Oo]bj/
 [Ll]og/
 
+# Visual Studio CMake
+out/
+
 *.tlog
 [Rr]el[Ww]ith[Dd]eb[Ii]nfo/
 

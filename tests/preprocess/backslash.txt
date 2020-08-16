@@ -1,2 +1,2 @@
-#line 0 "__preprocess__"
+#line 0 ""
 foobar
