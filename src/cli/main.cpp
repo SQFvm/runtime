@@ -23,6 +23,7 @@
 
 #include "interactive_helper.h"
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
@@ -137,6 +138,14 @@ int main(int argc, char** argv)
     action_SIGSEGV.sa_handler = handle_SIGSEGV;
     sigaction(SIGSEGV, &action_SIGSEGV, NULL);
 #endif
+
+#ifdef DF__CLI_PRINT_INPUT_ARGS
+    std::cout << "\x1B[95m[CLI-INARG-PRINT]\033[0m" << "Got arguments:" << std::endl;
+    for (size_t i = 0; i < argc; i++)
+    {
+        std::cout << "\x1B[95m[CLI-INARG-PRINT]\033[0m" << "    " << std::setw(3) << i << ": `" << argv[i] << "`" << std::endl;
+    }
+#endif // DF__CLI_PRINT_INPUT_ARGS
 
     std::string executable_path; 
     {
@@ -255,6 +264,15 @@ int main(int argc, char** argv)
     cmd.getArgList().reverse();
 
     cmd.parse(argc, argv);
+
+    if (verboseArg.getValue())
+    {
+        std::cout << "Got arguments:" << std::endl;
+        for (size_t i = 0; i < argc; i++)
+        {
+            std::cout << "    " << std::setw(3) << i << ": `" << argv[i] << "`" << std::endl;
+        }
+    }
 
     // ALWAYS needs to be parsed first!
     if (!cliFileArg.getValue().empty())
