@@ -265,6 +265,37 @@ int main(int argc, char** argv)
 
     cmd.parse(argc, argv);
 
+#ifdef DF__CLI_PRINT_TCLAP_ARGUMENTS
+    std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "Got arguments:" << std::endl;
+    for (auto arg : cmd.getArgList())
+    {
+        std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "    " << arg->getName() << ":" << std::endl;
+        auto valueArgLong = dynamic_cast<TCLAP::ValueArg<long>*>(arg);
+        auto multiArgString = dynamic_cast<TCLAP::MultiArg<std::string>*>(arg);
+        auto switchArg = dynamic_cast<TCLAP::SwitchArg*>(arg);
+        if (valueArgLong)
+        {
+            std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "    " << "    " << valueArgLong->getValue() << std::endl;
+        }
+        else if (multiArgString)
+        {
+            for (auto str : multiArgString->getValue())
+            {
+                std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "    " << "    `" << str << "`" << std::endl;
+            }
+        }
+        else if (switchArg)
+        {
+            std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "    " << "    " << (switchArg->getValue() ? "true" : "false") << std::endl;
+        }
+        else
+        {
+            std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "    " << "    " << "TYPE NOT MAPPED IN DIAGNOSTICS" << std::endl;
+        }
+    }
+#endif // DF__CLI_PRINT_TCLAP_ARGUMENTS
+
+
     if (verboseArg.getValue())
     {
         std::cout << "Got arguments:" << std::endl;

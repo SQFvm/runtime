@@ -68,6 +68,7 @@ WIP, for now please refer to the Discord.
 | `DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE`    | `\x1B[94m[CNF-PARSE-PROGR]\033[0m` | Counts the lines in a config-to-parse and reports progress according to it to stdout.            |
 | `DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG`         | `\x1B[94m[VALUE-SCOPE-DBG]\033[0m` | Every variable-change,-get,-set is logged to console.                                            |
 | `DF__CLI_PRINT_INPUT_ARGS`                   | `\x1B[95m[CLI-INARG-PRINT]\033[0m` | Tells the CLI to print out the arguments received.                                               |
+| `DF__CLI_PRINT_TCLAP_ARGUMENTS`              | `\x1B[95m[CLI-TCLAP-CNTNT]\033[0m` | Tells the CLI to print out the parsed arguments available.                                       |
 
 
 
