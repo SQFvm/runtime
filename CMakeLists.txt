@@ -84,6 +84,7 @@ if (SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__CLI_PRINT_INPUT_ARGS)
+    target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__CLI_PRINT_TCLAP_ARGUMENTS)
     
     target_compile_options(sqfvm PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
