@@ -12,6 +12,7 @@
 #endif // DF__SQF_FILEIO__TRACE_REESOLVE
 
 using namespace std::literals::string_literals;
+using namespace std::literals::string_view_literals;
 
 template<char delimiter>
 class StringDelimiter : public std::string
@@ -135,7 +136,18 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
             }
             else
             {
-                if (nodes.back()->next.find(*it) == nodes.back()->next.end())
+                if (nodes.empty())
+                {
+#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
+                    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
+                        "        " <<
+                        "        " <<
+                        "    " << "\x1B[36mget_info_virtual\033[0m" <<
+                        "    " << "    " << "Nodes are empty. Aborting." << std::endl;
+#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+                    break;
+                }
+                else if (nodes.back()->next.find(*it) == nodes.back()->next.end())
                 { /* Dead-End.  */
 #ifdef DF__SQF_FILEIO__TRACE_REESOLVE
                     std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
@@ -234,19 +246,37 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
         "    " << "\x1B[36mget_info_physical\033[0m" <<
         "    " << "    " << "Attempting to find physical path for '" << viewVirtual << "'" << std::endl;
 #endif // DF__SQF_FILEIO__TRACE_REESOLVE
+
+    std::filesystem::path toFindPath(viewVirtual);
+    if (viewVirtual.size() > 3 && viewVirtual.substr(0, 3) == "../"sv)
+    {
+        if (std::filesystem::is_regular_file(current.physical))
+        {
+            auto tmp = std::filesystem::path(current.physical);
+            auto tmp2 = tmp.parent_path();
+            toFindPath = tmp2 / toFindPath;
+        }
+        else
+        {
+            toFindPath = current.physical / toFindPath;
+        }
+        toFindPath = toFindPath.lexically_normal();
+    }
     for (auto& it : m_path_elements)
     {
         for (auto& phys : it->physical)
         {
-            auto str = phys.string();
 #ifdef DF__SQF_FILEIO__TRACE_REESOLVE
             std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
                 "        " <<
                 "        " <<
                 "    " << "\x1B[36mget_info_physical\033[0m" <<
-                "    " << "    " << "Comparing against '" << str << "'" << std::endl;
+                "    " << "    " << "Comparing against '" << phys << "'" << std::endl;
 #endif // DF__SQF_FILEIO__TRACE_REESOLVE
-            if (viewVirtual.size() >= str.size() && viewVirtual.substr(0, str.size()) == str)
+            auto pair = std::mismatch(phys.begin(), phys.end(), toFindPath.begin());
+            auto rootEnd = std::get<0>(pair);
+            auto nothing = std::get<0>(pair);
+            if (rootEnd == phys.end() && !std::equal(phys.begin(), phys.end(), toFindPath.begin(), toFindPath.end()))
             {
 #ifdef DF__SQF_FILEIO__TRACE_REESOLVE
                 std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
@@ -255,7 +285,8 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
                     "    " << "\x1B[36mget_info_physical\033[0m" <<
                     "    " << "    " << "Match! Passing to get_info_virtual" << std::endl;
 #endif // DF__SQF_FILEIO__TRACE_REESOLVE
-                auto res = get_info_virtual(it->virtual_full + std::string(viewVirtual.substr(str.size())), current);
+                auto toFindString = toFindPath.string();
+                auto res = get_info_virtual(it->virtual_full + toFindString.substr(phys.string().size() + 1), current);
                 if (res.has_value())
                 {
                     return res;
@@ -303,7 +334,7 @@ void sqf::fileio::impl_default::add_mapping(std::string_view viewPhysical, std::
     }
 
     // Add physical path to final tree node
-    tree->physical.push_back(phys);
+    tree->physical.push_back(std::filesystem::path(phys).lexically_normal());
 }
 
 std::string sqf::fileio::impl_default::read_file(sqf::runtime::fileio::pathinfo info) const
