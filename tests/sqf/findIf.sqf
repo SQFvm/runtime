@@ -11,8 +11,7 @@
                 private _out = [];
                 [1, 2] findIf
                 {
-                    if !isNil "_something" then
-                    {
+                    if !isNil "_something" then {
                         _out pushBack _i;
                     };
                     _something = 1;
