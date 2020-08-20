@@ -36,9 +36,9 @@ void sqf::parser::config::impl_default::instance::skip()
 {
 	while (true)
 	{
-		switch (m_contents[m_info.offset])
+		switch (m_contents[m_info.file_offset])
 		{
-		case ' ': m_info.offset++; m_info.column++; continue;
+		case ' ': m_info.offset++; m_info.file_offset++; m_info.column++; continue;
 		case '\t': m_info.offset++; m_info.column++; continue;
 		case '\r': m_info.offset++; m_info.column++; continue;
 		case '\n':
@@ -55,27 +55,29 @@ void sqf::parser::config::impl_default::instance::skip()
 			}
 #endif // DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
 			m_info.offset++;
+			m_info.file_offset++;
 			m_info.line++;
 			m_info.column = 0;
 		} continue;
 		case '#':
-			if ((m_contents[m_info.offset + 1] == 'l' || m_contents[m_info.offset + 1] == 'L') &&
-				(m_contents[m_info.offset + 2] == 'i' || m_contents[m_info.offset + 1] == 'I') &&
-				(m_contents[m_info.offset + 3] == 'n' || m_contents[m_info.offset + 1] == 'N') &&
-				(m_contents[m_info.offset + 4] == 'e' || m_contents[m_info.offset + 1] == 'E'))
+			if ((m_contents[m_info.file_offset + 1] == 'l' || m_contents[m_info.file_offset + 1] == 'L') &&
+				(m_contents[m_info.file_offset + 2] == 'i' || m_contents[m_info.file_offset + 1] == 'I') &&
+				(m_contents[m_info.file_offset + 3] == 'n' || m_contents[m_info.file_offset + 1] == 'N') &&
+				(m_contents[m_info.file_offset + 4] == 'e' || m_contents[m_info.file_offset + 1] == 'E'))
 			{
-				m_info.offset += 6;
-				size_t start = m_info.offset;
-				for (; m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n' && m_contents[m_info.offset] != ' '; m_info.offset++);
-				auto str_tmp = std::string(m_contents.substr(start, m_info.offset - start));
+				auto tmpoff = m_info.file_offset;
+				m_info.file_offset += 6;
+				size_t start = m_info.file_offset;
+				for (; m_contents[m_info.file_offset] != '\0' && m_contents[m_info.file_offset] != '\n' && m_contents[m_info.file_offset] != ' '; m_info.file_offset++);
+				auto str_tmp = std::string(m_contents.substr(start, m_info.file_offset - start));
 				m_info.line = static_cast<size_t>(std::stoul(str_tmp));
 
-				for (; m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n' && m_contents[m_info.offset] == ' '; m_info.offset++);
-				if (m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n')
+				for (; m_contents[m_info.file_offset] != '\0' && m_contents[m_info.file_offset] != '\n' && m_contents[m_info.file_offset] == ' '; m_info.file_offset++);
+				if (m_contents[m_info.file_offset] != '\0' && m_contents[m_info.file_offset] != '\n')
 				{
-					start = m_info.offset;
-					for (; m_contents[m_info.offset] != '\0' && m_contents[m_info.offset] != '\n'; m_info.offset++);
-					auto str = std::string(m_contents.substr(start, m_info.offset - start));
+					start = m_info.file_offset;
+					for (; m_contents[m_info.file_offset] != '\0' && m_contents[m_info.file_offset] != '\n'; m_info.file_offset++);
+					auto str = std::string(m_contents.substr(start, m_info.file_offset - start));
 					m_info.path = { strip_quotes(str), {} };
 				}
 				break;
@@ -145,12 +147,12 @@ void sqf::parser::config::impl_default::instance::NODELIST(::sqf::parser::config
 {
 	skip();
 	// Iterate over statements as long as it is an instruction start.
-	while (NODE_start(m_info.offset))
+	while (NODE_start(m_info.file_offset))
 	{
 		NODE(root, errflag);
 		skip();
 		// Make sure at least one endchr is available unless no statement follows
-		if (!endchr(m_info.offset) && NODE_start(m_info.offset))
+		if (!endchr(m_info.file_offset) && NODE_start(m_info.file_offset))
 		{
 			owner.log(err::ExpectedStatementTerminator(m_info));
 			errflag = true;
@@ -159,9 +161,10 @@ void sqf::parser::config::impl_default::instance::NODELIST(::sqf::parser::config
 		{
 			size_t endchrlen;
 			// Add endchr up until no semicolon is left
-			while ((endchrlen = endchr(m_info.offset)) > 0)
+			while ((endchrlen = endchr(m_info.file_offset)) > 0)
 			{
 				m_info.offset += endchrlen;
+				m_info.file_offset += endchrlen;
 				m_info.column += endchrlen;
 				skip();
 			}
@@ -172,11 +175,11 @@ void sqf::parser::config::impl_default::instance::NODELIST(::sqf::parser::config
 bool sqf::parser::config::impl_default::instance::NODE_start(size_t off) { return CONFIGNODE_start(off) || VALUENODE_start(off); }
 void sqf::parser::config::impl_default::instance::NODE(::sqf::parser::config::impl_default::astnode & root, bool& errflag)
 {
-	if (CONFIGNODE_start(m_info.offset))
+	if (CONFIGNODE_start(m_info.file_offset))
 	{
 		CONFIGNODE(root, errflag);
 	}
-	else if (VALUENODE_start(m_info.offset))
+	else if (VALUENODE_start(m_info.file_offset))
 	{
 		VALUENODE(root, errflag);
 	}
@@ -196,16 +199,18 @@ void sqf::parser::config::impl_default::instance::CONFIGNODE(::sqf::parser::conf
 	thisnode.kind = nodetype::CONFIGNODE;
 
 	m_info.offset += ::sqf::runtime::util::strlen("class");
+	m_info.file_offset += ::sqf::runtime::util::strlen("class");
 	m_info.column += ::sqf::runtime::util::strlen("class");
 	skip();
 	std::string ident;
-	if ((len = identifier(m_info.offset)) > 0)
+	if ((len = identifier(m_info.file_offset)) > 0)
 	{
-		ident = std::string(m_contents.substr(m_info.offset, len));
+		ident = std::string(m_contents.substr(m_info.file_offset, len));
 		thisnode.content = ident;
 		thisnode.line = m_info.line;
 		thisnode.path = m_info.path;
 		m_info.offset += len;
+		m_info.file_offset += len;
 		m_info.column += len;
 	}
 	else
@@ -214,14 +219,15 @@ void sqf::parser::config::impl_default::instance::CONFIGNODE(::sqf::parser::conf
 		errflag = true;
 	}
 	skip();
-	if (m_contents[m_info.offset] == ':')
+	if (m_contents[m_info.file_offset] == ':')
 	{
 		m_info.offset++;
+		m_info.file_offset++;
 		m_info.column++;
 		skip();
-		if ((len = identifier(m_info.offset)) > 0)
+		if ((len = identifier(m_info.file_offset)) > 0)
 		{
-			ident = std::string(m_contents.substr(m_info.offset, len));
+			ident = std::string(m_contents.substr(m_info.file_offset, len));
 			astnode parentidentnode;
 			parentidentnode.offset = m_info.offset;
 			parentidentnode.length = len;
@@ -230,6 +236,7 @@ void sqf::parser::config::impl_default::instance::CONFIGNODE(::sqf::parser::conf
 			parentidentnode.content = ident;
 			parentidentnode.kind = nodetype::CONFIGNODE_PARENTIDENT;
 			m_info.offset += len;
+			m_info.file_offset += len;
 			m_info.column += len;
 			thisnode.children.push_back(parentidentnode);
 		}
@@ -240,16 +247,18 @@ void sqf::parser::config::impl_default::instance::CONFIGNODE(::sqf::parser::conf
 		}
 		skip();
 	}
-	if (m_contents[m_info.offset] == '{')
+	if (m_contents[m_info.file_offset] == '{')
 	{
 		m_info.offset++;;
+		m_info.file_offset++;;
 		m_info.column++;
 		skip();
 
 		NODELIST(thisnode, errflag);
-		if (m_contents[m_info.offset] == '}')
+		if (m_contents[m_info.file_offset] == '}')
 		{
 			m_info.offset++;;
+			m_info.file_offset++;;
 			m_info.column++;
 		}
 		else
@@ -258,7 +267,7 @@ void sqf::parser::config::impl_default::instance::CONFIGNODE(::sqf::parser::conf
 			errflag = true;
 		}
 
-		thisnode.length = m_info.offset - thisnode.offset;
+		thisnode.length = m_info.file_offset - thisnode.offset;
 		root.children.push_back(thisnode);
 	}
 }
@@ -274,20 +283,22 @@ void sqf::parser::config::impl_default::instance::DELETENODE(::sqf::parser::conf
 {
 	size_t len;
 	auto thisnode = astnode();
-	thisnode.offset = m_info.offset;
+	thisnode.offset = m_info.file_offset;
 	thisnode.kind = nodetype::DELETENODE;
 
 	m_info.offset += ::sqf::runtime::util::strlen("delete");
+	m_info.file_offset += ::sqf::runtime::util::strlen("delete");
 	m_info.column += ::sqf::runtime::util::strlen("delete");
 	skip();
 	std::string ident;
-	if ((len = identifier(m_info.offset)) > 0)
+	if ((len = identifier(m_info.file_offset)) > 0)
 	{
-		ident = std::string(m_contents.substr(m_info.offset, len));
+		ident = std::string(m_contents.substr(m_info.file_offset, len));
 		thisnode.content = ident;
 		thisnode.line = m_info.line;
 		thisnode.path = m_info.path;
 		m_info.offset += len;
+		m_info.file_offset += len;
 		m_info.column += len;
 	}
 	else
@@ -306,13 +317,14 @@ void sqf::parser::config::impl_default::instance::VALUENODE(::sqf::parser::confi
 	thisnode.offset = m_info.offset;
 	thisnode.kind = nodetype::VALUENODE;
 
-	if ((len = identifier(m_info.offset)) > 0)
+	if ((len = identifier(m_info.file_offset)) > 0)
 	{
-		auto ident = std::string(m_contents.substr(m_info.offset, len));
+		auto ident = std::string(m_contents.substr(m_info.file_offset, len));
 		thisnode.content = ident;
 		thisnode.line = m_info.line;
 		thisnode.path = m_info.path;
 		m_info.offset += len;
+		m_info.file_offset += len;
 		m_info.column += len;
 		skip();
 	}
@@ -322,15 +334,17 @@ void sqf::parser::config::impl_default::instance::VALUENODE(::sqf::parser::confi
 		errflag = true;
 	}
 
-	if (m_contents[m_info.offset] == '[')
+	if (m_contents[m_info.file_offset] == '[')
 	{
 		isarr = true;
-		m_info.offset++;;
+		m_info.offset++;
+		m_info.file_offset++;
 		m_info.column++;
 		skip();
-		if (m_contents[m_info.offset] == ']')
+		if (m_contents[m_info.file_offset] == ']')
 		{
 			m_info.offset++;;
+			m_info.file_offset++;;
 			m_info.column++;
 			skip();
 		}
@@ -339,17 +353,20 @@ void sqf::parser::config::impl_default::instance::VALUENODE(::sqf::parser::confi
 			owner.log(err::MissingSquareClosingBracket(m_info));
 			errflag = true;
 		}
-		if (m_contents[m_info.offset] == '=')
+		if (m_contents[m_info.file_offset] == '=')
 		{
 			m_info.offset++;
+			m_info.file_offset++;
 			m_info.column++;
 			skip();
 		}
-		else if (m_contents[m_info.offset] == '+' && m_contents[m_info.offset + 1] == '=')
+		else if (m_contents[m_info.file_offset] == '+' && m_contents[m_info.file_offset + 1] == '=')
 		{
 			thisnode.kind = nodetype::VALUENODE_ADDARRAY;
 			m_info.offset++;
 			m_info.offset++;
+			m_info.file_offset++;
+			m_info.file_offset++;
 			m_info.column++;
 			m_info.column++;
 			skip();
@@ -362,9 +379,10 @@ void sqf::parser::config::impl_default::instance::VALUENODE(::sqf::parser::confi
 	}
 	else
 	{
-		if (m_contents[m_info.offset] == '=')
+		if (m_contents[m_info.file_offset] == '=')
 		{
 			m_info.offset++;;
+			m_info.file_offset++;;
 			m_info.column++;
 			skip();
 		}
@@ -377,7 +395,7 @@ void sqf::parser::config::impl_default::instance::VALUENODE(::sqf::parser::confi
 
 	if (isarr)
 	{
-		if (ARRAY_start(m_info.offset))
+		if (ARRAY_start(m_info.file_offset))
 		{
 			ARRAY(thisnode, errflag);
 		}
@@ -393,38 +411,39 @@ void sqf::parser::config::impl_default::instance::VALUENODE(::sqf::parser::confi
 		size_t tmp_col = m_info.column;
 		size_t tmp_off = m_info.offset;
 		bool was_handled = false;
-		if (STRING_start(m_info.offset))
+		if (STRING_start(m_info.file_offset))
 		{
 			was_handled = true;
 			STRING(thisnode, errflag);
 		}
-		else if (NUMBER_start(m_info.offset))
+		else if (NUMBER_start(m_info.file_offset))
 		{
 			was_handled = true;
 			NUMBER(thisnode, errflag);
 		}
-		else if (LOCALIZATION_start(m_info.offset))
+		else if (LOCALIZATION_start(m_info.file_offset))
 		{
 			was_handled = true;
 			LOCALIZATION(thisnode, errflag);
 		}
 		skip();
-		if (m_contents[m_info.offset] != ';')
+		if (m_contents[m_info.file_offset] != ';')
 		{
 			if (was_handled)
 			{
 				thisnode.children.pop_back();
 			}
-			while (m_contents[m_info.offset] != ';' && m_contents[m_info.offset] != '\0')
+			while (m_contents[m_info.file_offset] != ';' && m_contents[m_info.file_offset] != '\0')
 			{
-				m_info.offset++;;
+				m_info.offset++;
+				m_info.file_offset++;
 			}
 			auto magicstringnode = astnode();
 			magicstringnode.kind = nodetype::STRING;
 			magicstringnode.col = tmp_col;
 			magicstringnode.line = tmp_line;
 			magicstringnode.path = m_info.path;
-			auto fullstring = std::string("\"").append(m_contents.substr(tmp_off, m_info.offset - tmp_off)).append("\"");
+			auto fullstring = std::string("\"").append(m_contents.substr(tmp_off, m_info.file_offset - tmp_off)).append("\"");
 			magicstringnode.content = fullstring;
 			magicstringnode.length = m_info.offset - tmp_off;
 			magicstringnode.offset = tmp_off;
@@ -445,9 +464,9 @@ void sqf::parser::config::impl_default::instance::STRING(::sqf::parser::config::
 	thisnode.line = m_info.line;
 	thisnode.path = m_file;
 	size_t i;
-	auto startchr = m_contents[m_info.offset];
+	auto startchr = m_contents[m_info.file_offset];
 	m_info.column++;
-	for (i = m_info.offset + 1; m_contents[i] != '\0' && (m_contents[i] != startchr || m_contents[i + 1] == startchr); i++)
+	for (i = m_info.file_offset + 1; m_contents[i] != '\0' && (m_contents[i] != startchr || m_contents[i + 1] == startchr); i++)
 	{
 		if (m_contents[i] == startchr)
 		{
@@ -467,11 +486,12 @@ void sqf::parser::config::impl_default::instance::STRING(::sqf::parser::config::
 	}
 	i++;
 	m_info.column++;
-	auto fullstring = i - m_info.offset - 2 < 0 ? "" : std::string(m_contents.substr(m_info.offset + 1, i - m_info.offset - 2));
+	auto fullstring = i - m_info.file_offset - 2 < 0 ? "" : std::string(m_contents.substr(m_info.file_offset + 1, i - m_info.file_offset - 2));
 	thisnode.content = fullstring;
 	thisnode.length = i - m_info.offset;
 	thisnode.offset = m_info.offset;
-	m_info.offset = i;
+	m_info.offset += i - m_info.file_offset;
+	m_info.file_offset = i;
 	root.children.push_back(thisnode);
 }
 //NUMBER = "0x" hexadecimal | [ '-' ]scalar;
@@ -483,21 +503,22 @@ void sqf::parser::config::impl_default::instance::NUMBER(::sqf::parser::config::
 	thisnode.col = m_info.column;
 	thisnode.line = m_info.line;
 	thisnode.path = m_file;
-	if (m_contents[m_info.offset] == '0' && m_contents[m_info.offset + 1] == 'x')
+	if (m_contents[m_info.file_offset] == '0' && m_contents[m_info.file_offset + 1] == 'x')
 	{
 		thisnode.kind = nodetype::HEXNUMBER;
 		size_t i;
-		for (i = m_info.offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
-		auto ident = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
+		for (i = m_info.file_offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
+		auto ident = std::string(m_contents.substr(m_info.file_offset, i - m_info.file_offset));
 		thisnode.content = ident;
 		thisnode.offset = m_info.offset;
 		thisnode.length = i - m_info.offset;
 		m_info.column += i - m_info.offset;
-		m_info.offset = i;
+		m_info.offset += i - m_info.file_offset;
+		m_info.file_offset = i;
 	}
 	else
 	{
-		size_t i = m_info.offset;
+		size_t i = m_info.file_offset;
 		bool numhaddot = false;
 		unsigned short numhadexp = 0;
 		if (m_contents[i] == '-')
@@ -535,12 +556,13 @@ void sqf::parser::config::impl_default::instance::NUMBER(::sqf::parser::config::
 			}
 
 		}
-		auto ident = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
+		auto ident = std::string(m_contents.substr(m_info.file_offset, i - m_info.file_offset));
 		thisnode.content = ident;
 		thisnode.offset = m_info.offset;
-		thisnode.length = i - m_info.offset;
-		m_info.column += i - m_info.offset;
-		m_info.offset = i;
+		thisnode.length = i - m_info.file_offset;
+		m_info.column += i - m_info.file_offset;
+		m_info.offset += i - m_info.file_offset;
+		m_info.file_offset = i;
 	}
 	root.children.push_back(thisnode);
 }
@@ -552,9 +574,10 @@ void sqf::parser::config::impl_default::instance::LOCALIZATION(::sqf::parser::co
 	thisnode.kind = nodetype::LOCALIZATION;
 	thisnode.path = m_file;
 	m_info.offset++;;
+	m_info.file_offset++;;
 	m_info.column++;
-	auto len = identifier(m_info.offset);
-	auto ident = std::string(m_contents.substr(m_info.offset, len));
+	auto len = identifier(m_info.file_offset);
+	auto ident = std::string(m_contents.substr(m_info.file_offset, len));
 	thisnode.content = ident;
 	thisnode.length = len;
 	thisnode.offset = m_info.offset;
@@ -562,6 +585,7 @@ void sqf::parser::config::impl_default::instance::LOCALIZATION(::sqf::parser::co
 	thisnode.line = m_info.line;
 
 	m_info.offset += len;
+	m_info.file_offset += len;
 	m_info.column += len;
 	root.children.push_back(thisnode);
 }
@@ -575,20 +599,22 @@ void sqf::parser::config::impl_default::instance::ARRAY(::sqf::parser::config::i
 	thisnode.col = m_info.column;
 	thisnode.line = m_info.line;
 	thisnode.path = m_info.path;
-	m_info.offset++;;
+	m_info.offset++;
+	m_info.file_offset++;
 	m_info.column++;
 	skip();
-	if (VALUE_start(m_info.offset))
+	if (VALUE_start(m_info.file_offset))
 	{
 		VALUE(thisnode, errflag);
 		skip();
-		while (m_contents[m_info.offset] == ',')
+		while (m_contents[m_info.file_offset] == ',')
 		{
 			m_info.column++;
-			m_info.offset++;;
+			m_info.offset++;
+			m_info.file_offset++;
 			skip();
 
-			if (VALUE_start(m_info.offset))
+			if (VALUE_start(m_info.file_offset))
 			{
 				VALUE(thisnode, errflag);
 				skip();
@@ -600,9 +626,10 @@ void sqf::parser::config::impl_default::instance::ARRAY(::sqf::parser::config::i
 			}
 		}
 	}
-	if (m_contents[m_info.offset] == '}')
+	if (m_contents[m_info.file_offset] == '}')
 	{
-		m_info.offset++;;
+		m_info.offset++;
+		m_info.file_offset++;
 		m_info.column++;
 	}
 	else
@@ -621,19 +648,19 @@ void sqf::parser::config::impl_default::instance::VALUE(::sqf::parser::config::i
 	//auto thisnode = astnode();
 	//thisnode.offset = m_info.offset;
 	//thisnode.kind = nodetype::VALUE;
-	if (STRING_start(m_info.offset))
+	if (STRING_start(m_info.file_offset))
 	{
 		STRING(root, errflag);
 	}
-	else if (NUMBER_start(m_info.offset))
+	else if (NUMBER_start(m_info.file_offset))
 	{
 		NUMBER(root, errflag);
 	}
-	else if (LOCALIZATION_start(m_info.offset))
+	else if (LOCALIZATION_start(m_info.file_offset))
 	{
 		LOCALIZATION(root, errflag);
 	}
-	else if (ARRAY_start(m_info.offset))
+	else if (ARRAY_start(m_info.file_offset))
 	{
 		ARRAY(root, errflag);
 	}
@@ -665,12 +692,12 @@ sqf::parser::config::impl_default::astnode sqf::parser::config::impl_default::in
 #endif // DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE
 	NODELIST(node, errflag);
 	skip();
-	if (!errflag && m_info.offset < m_contents.size())
+	if (!errflag && m_info.file_offset < m_contents.size())
 	{
 		owner.log(err::EndOfFileNotReached(m_info));
 		errflag = true;
 	}
-	node.length = m_info.offset;
+	node.length = m_info.file_offset;
 	return node;
 }
 
