@@ -12,7 +12,7 @@
 
 namespace sqf::parser::preprocessor
 {
-	class impl_default: public ::sqf::runtime::parser::preprocessor, public CanLog
+	class impl_default : public ::sqf::runtime::parser::preprocessor, public CanLog
 	{
 	public:
 		class preprocessorfileinfo
@@ -143,7 +143,7 @@ namespace sqf::parser::preprocessor
 				size_t off_end = off;
 				while (
 					(c = next()) != '\0' && (
-					(c >= 'A' && c <= 'Z') ||
+						(c >= 'A' && c <= 'Z') ||
 						(c >= 'a' && c <= 'z') ||
 						(c >= '0' && c <= '9') ||
 						c == '_'
@@ -228,12 +228,17 @@ namespace sqf::parser::preprocessor
 			operator ::sqf::runtime::fileio::pathinfo() const { return pathinf; }
 		};
 	private:
-		std::vector<std::string> m_path_tree;
-		std::vector<bool> m_inside_ppf_tree;
-		bool m_inside_ppif_err_flag = false;
 		std::unordered_map<std::string, ::sqf::runtime::parser::macro> m_macros;
-		bool m_errflag = false;
-		bool m_allowwrite = true;
+		class instance : public CanLog
+		{
+		public:
+			instance(Logger& logger, std::unordered_map<std::string, ::sqf::runtime::parser::macro> macros) : CanLog(logger), m_macros(macros) {};
+			std::vector<std::string> m_path_tree;
+			std::vector<bool> m_inside_ppf_tree;
+			bool m_inside_ppif_err_flag = false;
+			bool m_errflag = false;
+			bool m_allowwrite = true;
+			std::unordered_map<std::string, ::sqf::runtime::parser::macro> m_macros;
 
 			void replace_stringify(
 				::sqf::runtime::runtime& runtime,
@@ -291,6 +296,17 @@ namespace sqf::parser::preprocessor
 				m_inside_ppf_tree.push_back(false);
 			}
 			void pop_path(preprocessorfileinfo& preprocessorfileinfo);
+
+			std::optional<::sqf::runtime::parser::macro> get_try(const std::string macro_name) const
+			{
+				auto res = m_macros.find(macro_name);
+				if (res == m_macros.end())
+				{
+					return {};
+				}
+				return res->second;
+			}
+		};
 	public:
 		impl_default(Logger& logger);
 		virtual void push_back(::sqf::runtime::parser::macro m) override { m_macros[std::string(m.name())] = m; };
