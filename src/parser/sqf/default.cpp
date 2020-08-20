@@ -89,31 +89,31 @@ void ::sqf::parser::sqf::impl_default::instance::skip(::sqf::runtime::diagnostic
 {
     while (true)
     {
-        switch (m_contents[info.offset])
+        switch (m_contents[info.file_offset])
         {
         case '\0': return;
-        case ' ': info.offset++; info.column++; continue;
-        case '\t': info.offset++; info.column++; continue;
-        case '\r': info.offset++; info.column++; continue;
-        case '\n': info.offset++; info.line++; info.column = 0; continue;
+        case ' ': info.offset++; info.file_offset++; info.column++; continue;
+        case '\t': info.offset++; info.file_offset++; info.column++; continue;
+        case '\r': info.offset++; info.file_offset++; info.column++; continue;
+        case '\n': info.offset++; info.file_offset++; info.line++; info.column = 0; continue;
         case '#':
-            if ((m_contents[info.offset + 1] == 'l' || m_contents[info.offset + 1] == 'L') &&
-                (m_contents[info.offset + 2] == 'i' || m_contents[info.offset + 1] == 'I') &&
-                (m_contents[info.offset + 3] == 'n' || m_contents[info.offset + 1] == 'N') &&
-                (m_contents[info.offset + 4] == 'e' || m_contents[info.offset + 1] == 'E'))
+            if ((m_contents[info.file_offset + 1] == 'l' || m_contents[info.file_offset + 1] == 'L') &&
+                (m_contents[info.file_offset + 2] == 'i' || m_contents[info.file_offset + 1] == 'I') &&
+                (m_contents[info.file_offset + 3] == 'n' || m_contents[info.file_offset + 1] == 'N') &&
+                (m_contents[info.file_offset + 4] == 'e' || m_contents[info.file_offset + 1] == 'E'))
             {
-                info.offset += 6;
-                size_t start = info.offset;
-                for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n' && m_contents[info.offset] != ' '; info.offset++);
-                auto str_tmp = std::string(m_contents.substr(start, info.offset - start));
+                info.file_offset += 6;
+                size_t start = info.file_offset;
+                for (; m_contents[info.file_offset] != '\0' && m_contents[info.file_offset] != '\n' && m_contents[info.file_offset] != ' '; info.file_offset++);
+                auto str_tmp = std::string(m_contents.substr(start, info.file_offset - start));
                 info.line = static_cast<size_t>(std::stoul(str_tmp));
 
-                for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n' && m_contents[info.offset] == ' '; info.offset++);
-                if (m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n')
+                for (; m_contents[info.file_offset] != '\0' && m_contents[info.file_offset] != '\n' && m_contents[info.file_offset] == ' '; info.file_offset++);
+                if (m_contents[info.file_offset] != '\0' && m_contents[info.file_offset] != '\n')
                 {
-                    start = info.offset;
-                    for (; m_contents[info.offset] != '\0' && m_contents[info.offset] != '\n'; info.offset++);
-                    auto str = std::string(m_contents.substr(start, info.offset - start));
+                    start = info.file_offset;
+                    for (; m_contents[info.file_offset] != '\0' && m_contents[info.file_offset] != '\n'; info.file_offset++);
+                    auto str = std::string(m_contents.substr(start, info.file_offset - start));
                     info.path = { strip_quotes(str), {} };
                 }
                 break;
@@ -205,19 +205,20 @@ void ::sqf::parser::sqf::impl_default::instance::SQF(astnode& root, bool& errfla
 {
     skip(m_info);
     size_t endchrlen;
-    while ((endchrlen = endchr(m_info.offset)) > 0)
+    while ((endchrlen = endchr(m_info.file_offset)) > 0)
     {
         m_info.offset += endchrlen;
+        m_info.file_offset += endchrlen;
         m_info.column += endchrlen;
         skip(m_info);
     }
     //Iterate over statements as long as it is an instruction start.
-    while (STATEMENT_start(m_info.offset))
+    while (STATEMENT_start(m_info.file_offset))
     {
         STATEMENT(root, errflag);
         skip(m_info);
         // Make sure at least one endchr is available unless no statement follows
-        if (!endchr(m_info.offset) && STATEMENT_start(m_info.offset))
+        if (!endchr(m_info.file_offset) && STATEMENT_start(m_info.file_offset))
         {
             m_owner.log(err::ExpectedStatementTerminator(m_info));
             errflag = true;
@@ -225,9 +226,10 @@ void ::sqf::parser::sqf::impl_default::instance::SQF(astnode& root, bool& errfla
         else
         {
             //Add endchr up until no semicolon is left
-            while ((endchrlen = endchr(m_info.offset)) > 0)
+            while ((endchrlen = endchr(m_info.file_offset)) > 0)
             {
                 m_info.offset += endchrlen;
+                m_info.file_offset += endchrlen;
                 m_info.column += endchrlen;
                 skip(m_info);
             }
@@ -238,11 +240,11 @@ void ::sqf::parser::sqf::impl_default::instance::SQF(astnode& root, bool& errfla
 bool ::sqf::parser::sqf::impl_default::instance::STATEMENT_start(size_t curoff) { return ASSIGNMENT_start(curoff) | BINARYEXPRESSION_start(curoff); }
 void ::sqf::parser::sqf::impl_default::instance::STATEMENT(astnode& root, bool& errflag)
 {
-    if (ASSIGNMENT_start(m_info.offset))
+    if (ASSIGNMENT_start(m_info.file_offset))
     {
         ASSIGNMENT(root, errflag);
     }
-    else if (BINARYEXPRESSION_start(m_info.offset))
+    else if (BINARYEXPRESSION_start(m_info.file_offset))
     {
         BINARYEXPRESSION(root, errflag);
     }
@@ -298,19 +300,20 @@ void ::sqf::parser::sqf::impl_default::instance::ASSIGNMENT(astnode& root, bool&
 #endif
 
     if (std::equal(
-        m_contents + m_info.offset, m_contents + m_info.offset + ::sqf::runtime::util::strlen(priv),
+        m_contents + m_info.file_offset, m_contents + m_info.file_offset + ::sqf::runtime::util::strlen(priv),
         priv, priv + ::sqf::runtime::util::strlen(priv),
         [](char l, char r) { return std::tolower(l) == std::tolower(r); }))
     {
         m_info.offset += ::sqf::runtime::util::strlen(priv);
+        m_info.file_offset += ::sqf::runtime::util::strlen(priv);
         m_info.column += ::sqf::runtime::util::strlen(priv);
         skip(m_info);
         assignlocal = true;
         thisnode.kind = nodetype::ASSIGNMENTLOCAL;
     }
     //receive the ident
-    len = assidentifier(m_info.offset);
-    auto ident = std::string(m_contents.substr(m_info.offset, len));
+    len = assidentifier(m_info.file_offset);
+    auto ident = std::string(m_contents.substr(m_info.file_offset, len));
     thisnode.length = len;
     thisnode.line = m_info.line;
     thisnode.col = m_info.column;
@@ -334,14 +337,16 @@ void ::sqf::parser::sqf::impl_default::instance::ASSIGNMENT(astnode& root, bool&
         m_owner.log(err::InvalidStartOfGlobalVariable(m_info, ident));
     }
     m_info.offset += len;
+    m_info.file_offset += len;
     m_info.column += len;
     skip(m_info);
     //skip the '=' (is confirmed to be present in ASSIGNMENT_start)
     m_info.offset++;
+    m_info.file_offset++;
     m_info.column++;
     skip(m_info);
 
-    if (BINARYEXPRESSION_start(m_info.offset))
+    if (BINARYEXPRESSION_start(m_info.file_offset))
     {
         BINARYEXPRESSION(thisnode, errflag);
     }
@@ -399,7 +404,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp10(astnode& root, bool& err
     size_t oplen;
     std::string op;
     skip(m_info);
-    if (PRIMARYEXPRESSION_start(m_info.offset))
+    if (PRIMARYEXPRESSION_start(m_info.file_offset))
     {
         PRIMARYEXPRESSION(thisnode, errflag);
     }
@@ -410,7 +415,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp10(astnode& root, bool& err
         errflag = true;
     }
     skip(m_info);
-    if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 10))
+    if ((oplen = operator_(m_info.file_offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.file_offset, oplen)), 10))
     {
         auto node = astnode();
         node.content = op;
@@ -422,9 +427,10 @@ void ::sqf::parser::sqf::impl_default::instance::bexp10(astnode& root, bool& err
         node.path = m_info.path;
         thisnode.children.emplace_back(std::move(node));
         m_info.offset += oplen;
+        m_info.file_offset += oplen;
         m_info.column += oplen;
         skip(m_info);
-        if (bexp10_start(m_info.offset))
+        if (bexp10_start(m_info.file_offset))
         {
             bexp10(thisnode, errflag);
         }
@@ -452,7 +458,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp9(astnode& root, bool& errf
     size_t oplen;
     std::string op;
     skip(m_info);
-    if (bexp10_start(m_info.offset))
+    if (bexp10_start(m_info.file_offset))
     {
         bexp10(thisnode, errflag);
     }
@@ -462,7 +468,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp9(astnode& root, bool& errf
         errflag = true;
     }
     skip(m_info);
-    if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 9))
+    if ((oplen = operator_(m_info.file_offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.file_offset, oplen)), 9))
     {
         auto node = astnode();
         node.content = op;
@@ -474,9 +480,10 @@ void ::sqf::parser::sqf::impl_default::instance::bexp9(astnode& root, bool& errf
         node.path = m_info.path;
         thisnode.children.emplace_back(std::move(node));
         m_info.offset += oplen;
+        m_info.file_offset += oplen;
         m_info.column += oplen;
         skip(m_info);
-        if (bexp9_start(m_info.offset))
+        if (bexp9_start(m_info.file_offset))
         {
             bexp9(thisnode, errflag);
         }
@@ -504,7 +511,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp8(astnode& root, bool& errf
     size_t oplen;
     std::string op;
     skip(m_info);
-    if (bexp9_start(m_info.offset))
+    if (bexp9_start(m_info.file_offset))
     {
         bexp9(thisnode, errflag);
     }
@@ -514,7 +521,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp8(astnode& root, bool& errf
         errflag = true;
     }
     skip(m_info);
-    if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 8))
+    if ((oplen = operator_(m_info.file_offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.file_offset, oplen)), 8))
     {
         auto node = astnode();
         node.content = op;
@@ -526,9 +533,10 @@ void ::sqf::parser::sqf::impl_default::instance::bexp8(astnode& root, bool& errf
         node.path = m_info.path;
         thisnode.children.emplace_back(std::move(node));
         m_info.offset += oplen;
+        m_info.file_offset += oplen;
         m_info.column += oplen;
         skip(m_info);
-        if (bexp8_start(m_info.offset))
+        if (bexp8_start(m_info.file_offset))
         {
             bexp8(thisnode, errflag);
         }
@@ -556,7 +564,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp7(astnode& root, bool& errf
     size_t oplen;
     std::string op;
     skip(m_info);
-    if (bexp8_start(m_info.offset))
+    if (bexp8_start(m_info.file_offset))
     {
         bexp8(thisnode, errflag);
     }
@@ -566,7 +574,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp7(astnode& root, bool& errf
         errflag = true;
     }
     skip(m_info);
-    if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 7))
+    if ((oplen = operator_(m_info.file_offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.file_offset, oplen)), 7))
     {
         auto node = astnode();
         node.content = op;
@@ -578,9 +586,10 @@ void ::sqf::parser::sqf::impl_default::instance::bexp7(astnode& root, bool& errf
         node.path = m_info.path;
         thisnode.children.emplace_back(std::move(node));
         m_info.offset += oplen;
+        m_info.file_offset += oplen;
         m_info.column += oplen;
         skip(m_info);
-        if (bexp7_start(m_info.offset))
+        if (bexp7_start(m_info.file_offset))
         {
             bexp7(thisnode, errflag);
         }
@@ -608,7 +617,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp6(astnode& root, bool& errf
     size_t oplen;
     std::string op;
     skip(m_info);
-    if (bexp7_start(m_info.offset))
+    if (bexp7_start(m_info.file_offset))
     {
         bexp7(thisnode, errflag);
     }
@@ -618,7 +627,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp6(astnode& root, bool& errf
         errflag = true;
     }
     skip(m_info);
-    if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 6))
+    if ((oplen = operator_(m_info.file_offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.file_offset, oplen)), 6))
     {
         auto node = astnode();
         node.content = op;
@@ -630,9 +639,10 @@ void ::sqf::parser::sqf::impl_default::instance::bexp6(astnode& root, bool& errf
         node.path = m_info.path;
         thisnode.children.emplace_back(std::move(node));
         m_info.offset += oplen;
+        m_info.file_offset += oplen;
         m_info.column += oplen;
         skip(m_info);
-        if (bexp6_start(m_info.offset))
+        if (bexp6_start(m_info.file_offset))
         {
             bexp6(thisnode, errflag);
         }
@@ -660,7 +670,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp5(astnode& root, bool& errf
     size_t oplen;
     std::string op;
     skip(m_info);
-    if (bexp6_start(m_info.offset))
+    if (bexp6_start(m_info.file_offset))
     {
         bexp6(thisnode, errflag);
     }
@@ -670,7 +680,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp5(astnode& root, bool& errf
         errflag = true;
     }
     skip(m_info);
-    if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 5))
+    if ((oplen = operator_(m_info.file_offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.file_offset, oplen)), 5))
     {
         auto node = astnode();
         node.content = op;
@@ -682,9 +692,10 @@ void ::sqf::parser::sqf::impl_default::instance::bexp5(astnode& root, bool& errf
         node.path = m_info.path;
         thisnode.children.emplace_back(std::move(node));
         m_info.offset += oplen;
+        m_info.file_offset += oplen;
         m_info.column += oplen;
         skip(m_info);
-        if (bexp5_start(m_info.offset))
+        if (bexp5_start(m_info.file_offset))
         {
             bexp5(thisnode, errflag);
         }
@@ -712,7 +723,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp4(astnode& root, bool& errf
     size_t oplen;
     std::string op;
     skip(m_info);
-    if (bexp5_start(m_info.offset))
+    if (bexp5_start(m_info.file_offset))
     {
         bexp5(thisnode, errflag);
     }
@@ -722,7 +733,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp4(astnode& root, bool& errf
         errflag = true;
     }
     skip(m_info);
-    if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 4))
+    if ((oplen = operator_(m_info.file_offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.file_offset, oplen)), 4))
     {
         auto node = astnode();
         node.content = op;
@@ -734,9 +745,10 @@ void ::sqf::parser::sqf::impl_default::instance::bexp4(astnode& root, bool& errf
         node.path = m_info.path;
         thisnode.children.emplace_back(std::move(node));
         m_info.offset += oplen;
+        m_info.file_offset += oplen;
         m_info.column += oplen;
         skip(m_info);
-        if (bexp4_start(m_info.offset))
+        if (bexp4_start(m_info.file_offset))
         {
             bexp4(thisnode, errflag);
         }
@@ -764,7 +776,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp3(astnode& root, bool& errf
     size_t oplen;
     std::string op;
     skip(m_info);
-    if (bexp4_start(m_info.offset))
+    if (bexp4_start(m_info.file_offset))
     {
         bexp4(thisnode, errflag);
     }
@@ -774,7 +786,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp3(astnode& root, bool& errf
         errflag = true;
     }
     skip(m_info);
-    if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 3))
+    if ((oplen = operator_(m_info.file_offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.file_offset, oplen)), 3))
     {
         auto node = astnode();
         node.content = op;
@@ -786,9 +798,10 @@ void ::sqf::parser::sqf::impl_default::instance::bexp3(astnode& root, bool& errf
         node.path = m_info.path;
         thisnode.children.emplace_back(std::move(node));
         m_info.offset += oplen;
+        m_info.file_offset += oplen;
         m_info.column += oplen;
         skip(m_info);
-        if (bexp3_start(m_info.offset))
+        if (bexp3_start(m_info.file_offset))
         {
             bexp3(thisnode, errflag);
         }
@@ -816,7 +829,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp2(astnode& root, bool& errf
     size_t oplen;
     std::string op;
     skip(m_info);
-    if (bexp3_start(m_info.offset))
+    if (bexp3_start(m_info.file_offset))
     {
         bexp3(thisnode, errflag);
     }
@@ -826,7 +839,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp2(astnode& root, bool& errf
         errflag = true;
     }
     skip(m_info);
-    if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 2))
+    if ((oplen = operator_(m_info.file_offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.file_offset, oplen)), 2))
     {
         auto node = astnode();
         node.content = op;
@@ -838,9 +851,10 @@ void ::sqf::parser::sqf::impl_default::instance::bexp2(astnode& root, bool& errf
         node.path = m_info.path;
         thisnode.children.emplace_back(std::move(node));
         m_info.offset += oplen;
+        m_info.file_offset += oplen;
         m_info.column += oplen;
         skip(m_info);
-        if (bexp2_start(m_info.offset))
+        if (bexp2_start(m_info.file_offset))
         {
             bexp2(thisnode, errflag);
         }
@@ -868,7 +882,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp1(astnode& root, bool& errf
     size_t oplen;
     std::string op;
     skip(m_info);
-    if (bexp2_start(m_info.offset))
+    if (bexp2_start(m_info.file_offset))
     {
         bexp2(thisnode, errflag);
     }
@@ -878,7 +892,7 @@ void ::sqf::parser::sqf::impl_default::instance::bexp1(astnode& root, bool& errf
         errflag = true;
     }
     skip(m_info);
-    if ((oplen = operator_(m_info.offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.offset, oplen)), 1))
+    if ((oplen = operator_(m_info.file_offset)) > 0 && m_contains_binary(op = std::string(m_contents.substr(m_info.file_offset, oplen)), 1))
     {
         auto node = astnode();
         node.content = op;
@@ -890,9 +904,10 @@ void ::sqf::parser::sqf::impl_default::instance::bexp1(astnode& root, bool& errf
         node.path = m_info.path;
         thisnode.children.emplace_back(std::move(node));
         m_info.offset += oplen;
+        m_info.file_offset += oplen;
         m_info.column += oplen;
         skip(m_info);
-        if (bexp1_start(m_info.offset))
+        if (bexp1_start(m_info.file_offset))
         {
             bexp1(thisnode, errflag);
         }
@@ -923,9 +938,10 @@ void ::sqf::parser::sqf::impl_default::instance::BRACKETS(astnode& root, bool& e
     thisnode.offset = m_info.offset;
     thisnode.path = m_info.path;
     m_info.offset++;
+    m_info.file_offset++;
     m_info.column++;
     skip(m_info);
-    if (BINARYEXPRESSION_start(m_info.offset))
+    if (BINARYEXPRESSION_start(m_info.file_offset))
     {
         BINARYEXPRESSION(thisnode, errflag);
     }
@@ -935,9 +951,10 @@ void ::sqf::parser::sqf::impl_default::instance::BRACKETS(astnode& root, bool& e
         errflag = true;
     }
     skip(m_info);
-    if (m_contents[m_info.offset] == ')')
+    if (m_contents[m_info.file_offset] == ')')
     {
         m_info.offset++;
+        m_info.file_offset++;
         m_info.column++;
     }
     else
@@ -952,35 +969,35 @@ void ::sqf::parser::sqf::impl_default::instance::BRACKETS(astnode& root, bool& e
 bool ::sqf::parser::sqf::impl_default::instance::PRIMARYEXPRESSION_start(size_t curoff) { return NUMBER_start(curoff) || UNARYEXPRESSION_start(curoff) || NULAREXPRESSION_start(curoff) || VARIABLE_start(curoff) || STRING_start(curoff) || CODE_start(curoff) || BRACKETS_start(curoff) || ARRAY_start(curoff); }
 void ::sqf::parser::sqf::impl_default::instance::PRIMARYEXPRESSION(astnode& root, bool& errflag)
 {
-    if (NUMBER_start(m_info.offset))
+    if (NUMBER_start(m_info.file_offset))
     {
         NUMBER(root, errflag);
     }
-    else if (UNARYEXPRESSION_start(m_info.offset))
+    else if (UNARYEXPRESSION_start(m_info.file_offset))
     {
         UNARYEXPRESSION(root, errflag);
     }
-    else if (NULAREXPRESSION_start(m_info.offset))
+    else if (NULAREXPRESSION_start(m_info.file_offset))
     {
         NULAREXPRESSION(root, errflag);
     }
-    else if (VARIABLE_start(m_info.offset))
+    else if (VARIABLE_start(m_info.file_offset))
     {
         VARIABLE(root, errflag);
     }
-    else if (STRING_start(m_info.offset))
+    else if (STRING_start(m_info.file_offset))
     {
         STRING(root, errflag);
     }
-    else if (CODE_start(m_info.offset))
+    else if (CODE_start(m_info.file_offset))
     {
         CODE(root, errflag);
     }
-    else if (BRACKETS_start(m_info.offset))
+    else if (BRACKETS_start(m_info.file_offset))
     {
         BRACKETS(root, errflag);
     }
-    else if (ARRAY_start(m_info.offset))
+    else if (ARRAY_start(m_info.file_offset))
     {
         ARRAY(root, errflag);
     }
@@ -999,14 +1016,15 @@ void ::sqf::parser::sqf::impl_default::instance::NULAREXPRESSION(astnode& root, 
     auto thisnode = astnode();
     thisnode.kind = nodetype::NULAROP;
     thisnode.path = m_info.path;
-    auto len = operator_(m_info.offset);
-    auto ident = std::string(m_contents.substr(m_info.offset, len));
+    auto len = operator_(m_info.file_offset);
+    auto ident = std::string(m_contents.substr(m_info.file_offset, len));
     thisnode.content = ident;
     thisnode.length = len;
     thisnode.offset = m_info.offset;
     thisnode.col = m_info.column;
     thisnode.line = m_info.line;
     m_info.offset += len;
+    m_info.file_offset += len;
     m_info.column += len;
     root.children.emplace_back(std::move(thisnode));
 }
@@ -1021,8 +1039,8 @@ void ::sqf::parser::sqf::impl_default::instance::UNARYEXPRESSION(astnode& root, 
     thisnode.col = m_info.column;
     thisnode.line = m_info.line;
 
-    auto len = operator_(m_info.offset);
-    auto operatorname = std::string(m_contents.substr(m_info.offset, len));
+    auto len = operator_(m_info.file_offset);
+    auto operatorname = std::string(m_contents.substr(m_info.file_offset, len));
     auto opnode = astnode();
     opnode.kind = nodetype::UNARYOP;
     opnode.offset = m_info.offset;
@@ -1033,10 +1051,11 @@ void ::sqf::parser::sqf::impl_default::instance::UNARYEXPRESSION(astnode& root, 
     opnode.line = m_info.line;
     thisnode.children.emplace_back(std::move(opnode));
     m_info.offset += len;
+    m_info.file_offset += len;
     m_info.column += len;
     skip(m_info);
 
-    if (PRIMARYEXPRESSION_start(m_info.offset))
+    if (PRIMARYEXPRESSION_start(m_info.file_offset))
     {
         PRIMARYEXPRESSION(thisnode, errflag);
     }
@@ -1045,7 +1064,7 @@ void ::sqf::parser::sqf::impl_default::instance::UNARYEXPRESSION(astnode& root, 
         m_owner.log(err::MissingRightArgument(m_info, operatorname));
         errflag = true;
     }
-    thisnode.length = m_info.offset - thisnode.offset;
+    thisnode.length = m_info.file_offset - thisnode.offset;
     root.children.emplace_back(std::move(thisnode));
 }
 //NUMBER = ("0x" | '$' | '.') hexadecimal | scalar;
@@ -1066,33 +1085,35 @@ void ::sqf::parser::sqf::impl_default::instance::NUMBER(astnode& root, bool& err
     thisnode.col = m_info.column;
     thisnode.line = m_info.line;
     thisnode.path = m_info.path;
-    if (m_contents[m_info.offset] == '$')
+    if (m_contents[m_info.file_offset] == '$')
     {
         thisnode.kind = nodetype::HEXNUMBER;
         size_t i;
-        for (i = m_info.offset + 1; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
-        auto ident = std::string(m_contents.substr(m_info.offset + 1, i - m_info.offset));
+        for (i = m_info.file_offset + 1; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
+        auto ident = std::string(m_contents.substr(m_info.file_offset + 1, i - m_info.file_offset));
         thisnode.content = ident;
         thisnode.offset = m_info.offset;
-        thisnode.length = i - m_info.offset;
-        m_info.column += i - m_info.offset;
-        m_info.offset = i;
+        thisnode.length = i - m_info.file_offset;
+        m_info.column += i - m_info.file_offset;
+        m_info.offset += i - m_info.file_offset;
+        m_info.file_offset = i;
     }
-    else if (m_contents[m_info.offset] == '0' && m_contents[m_info.offset + 1] == 'x')
+    else if (m_contents[m_info.file_offset] == '0' && m_contents[m_info.file_offset + 1] == 'x')
     {
         thisnode.kind = nodetype::HEXNUMBER;
         size_t i;
-        for (i = m_info.offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
-        auto ident = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
+        for (i = m_info.file_offset + 2; (m_contents[i] >= '0' && m_contents[i] <= '9') || (m_contents[i] >= 'A' && m_contents[i] <= 'F') || (m_contents[i] >= 'a' && m_contents[i] <= 'f'); i++);
+        auto ident = std::string(m_contents.substr(m_info.file_offset, i - m_info.file_offset));
         thisnode.content = ident;
         thisnode.offset = m_info.offset;
-        thisnode.length = i - m_info.offset;
-        m_info.column += i - m_info.offset;
-        m_info.offset = i;
+        thisnode.length = i - m_info.file_offset;
+        m_info.column += i - m_info.file_offset;
+        m_info.offset += i - m_info.file_offset;
+        m_info.file_offset = i;
     }
     else
     {
-        size_t i = m_info.offset;
+        size_t i = m_info.file_offset;
         bool numhaddot = false;
         unsigned short numhadexp = 0;
         while (true)
@@ -1126,12 +1147,13 @@ void ::sqf::parser::sqf::impl_default::instance::NUMBER(astnode& root, bool& err
             }
 
         }
-        auto ident = std::string(m_contents.substr(m_info.offset, i));
+        auto ident = std::string(m_contents.substr(m_info.file_offset, i));
         thisnode.content = ident;
         thisnode.offset = m_info.offset;
-        thisnode.length = i - m_info.offset;
-        m_info.column += i - m_info.offset;
-        m_info.offset = i;
+        thisnode.length = i - m_info.file_offset;
+        m_info.column += i - m_info.file_offset;
+        m_info.offset += i - m_info.file_offset;
+        m_info.file_offset = i;
     }
     if (thisnode.content.empty())
     {
@@ -1151,8 +1173,8 @@ void ::sqf::parser::sqf::impl_default::instance::VARIABLE(astnode& root, bool& e
     auto thisnode = astnode();
     thisnode.kind = nodetype::VARIABLE;
     thisnode.path = m_info.path;
-    auto len = identifier(m_info.offset);
-    auto ident = std::string(m_contents.substr(m_info.offset, len));
+    auto len = identifier(m_info.file_offset);
+    auto ident = std::string(m_contents.substr(m_info.file_offset, len));
     thisnode.content = ident;
     thisnode.length = len;
     thisnode.offset = m_info.offset;
@@ -1160,6 +1182,7 @@ void ::sqf::parser::sqf::impl_default::instance::VARIABLE(astnode& root, bool& e
     thisnode.line = m_info.line;
 
     m_info.offset += len;
+    m_info.file_offset += len;
     m_info.column += len;
     root.children.emplace_back(std::move(thisnode));
 }
@@ -1173,9 +1196,9 @@ void ::sqf::parser::sqf::impl_default::instance::STRING(astnode& root, bool& err
     thisnode.line = m_info.line;
     thisnode.path = m_info.path;
     size_t i;
-    auto startchr = m_contents[m_info.offset];
+    auto startchr = m_contents[m_info.file_offset];
     m_info.column++;
-    for (i = m_info.offset + 1; (m_contents[i] != startchr || m_contents[i + 1] == startchr) && m_contents[i] != '\0'; i++)
+    for (i = m_info.file_offset + 1; (m_contents[i] != startchr || m_contents[i + 1] == startchr) && m_contents[i] != '\0'; i++)
     {
         if (m_contents[i] == startchr)
         {
@@ -1201,11 +1224,12 @@ void ::sqf::parser::sqf::impl_default::instance::STRING(astnode& root, bool& err
         i++;
     }
     m_info.column++;
-    auto fullstring = std::string(m_contents.substr(m_info.offset, i - m_info.offset));
+    auto fullstring = std::string(m_contents.substr(m_info.file_offset, i - m_info.file_offset));
     thisnode.content = fullstring;
-    thisnode.length = i - m_info.offset;
+    thisnode.length = i - m_info.file_offset;
     thisnode.offset = m_info.offset;
-    m_info.offset = i;
+    m_info.offset += i - m_info.file_offset;
+    m_info.file_offset = i;
     root.children.emplace_back(std::move(thisnode));
 }
 //CODE = "{" SQF "}";
@@ -1220,10 +1244,11 @@ void ::sqf::parser::sqf::impl_default::instance::CODE(astnode& root, bool& errfl
     thisnode.path = m_info.path;
     auto copy = m_info;
     m_info.offset++;
+    m_info.file_offset++;
     m_info.column++;
     skip(m_info);
 
-    if (SQF_start(m_info.offset))
+    if (SQF_start(m_info.file_offset))
     {
         SQF(thisnode, errflag);
     }
@@ -1233,9 +1258,10 @@ void ::sqf::parser::sqf::impl_default::instance::CODE(astnode& root, bool& errfl
         errflag = true;
     }
 
-    if (m_contents[m_info.offset] == '}')
+    if (m_contents[m_info.file_offset] == '}')
     {
         m_info.offset++;
+        m_info.file_offset++;
         m_info.column++;
     }
     else
@@ -1257,19 +1283,21 @@ void ::sqf::parser::sqf::impl_default::instance::ARRAY(astnode& root, bool& errf
     thisnode.line = m_info.line;
     thisnode.path = m_info.path;
     m_info.offset++;
+    m_info.file_offset++;
     m_info.column++;
     skip(m_info);
-    if (BINARYEXPRESSION_start(m_info.offset))
+    if (BINARYEXPRESSION_start(m_info.file_offset))
     {
         BINARYEXPRESSION(thisnode, errflag);
         skip(m_info);
-        while (m_contents[m_info.offset] == ',')
+        while (m_contents[m_info.file_offset] == ',')
         {
             m_info.column++;
             m_info.offset++;
+            m_info.file_offset++;
             skip(m_info);
 
-            if (BINARYEXPRESSION_start(m_info.offset))
+            if (BINARYEXPRESSION_start(m_info.file_offset))
             {
                 BINARYEXPRESSION(thisnode, errflag);
                 skip(m_info);
@@ -1281,9 +1309,10 @@ void ::sqf::parser::sqf::impl_default::instance::ARRAY(astnode& root, bool& errf
             }
         }
     }
-    if (m_contents[m_info.offset] == ']')
+    if (m_contents[m_info.file_offset] == ']')
     {
         m_info.offset++;
+        m_info.file_offset++;
         m_info.column++;
     }
     else
@@ -1306,7 +1335,7 @@ sqf::parser::sqf::impl_default::astnode sqf::parser::sqf::impl_default::instance
     SQF(node, errflag);
     node.length = m_info.offset;
     skip(m_info);
-    if (!errflag && m_info.offset < m_contents.size())
+    if (!errflag && m_info.file_offset < m_contents.size())
     {
         m_owner.log(err::EndOfFile(m_info));
         errflag = true;

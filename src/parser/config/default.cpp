@@ -697,7 +697,7 @@ sqf::parser::config::impl_default::astnode sqf::parser::config::impl_default::in
 		owner.log(err::EndOfFileNotReached(m_info));
 		errflag = true;
 	}
-	node.length = m_info.file_offset;
+	node.length = m_info.offset;
 	return node;
 }
 
