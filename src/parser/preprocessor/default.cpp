@@ -1133,7 +1133,7 @@ std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(:
     preprocessorfileinfo fileinfo(pathinfo);
     fileinfo.content = view;
     auto res = parse_file(runtime, fileinfo);
-    if (inside_ppif_err_flag())
+    if (inside_ppif_err_flag() || m_errflag)
     {
         return {};
     }
