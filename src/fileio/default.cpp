@@ -248,6 +248,7 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
 #endif // DF__SQF_FILEIO__TRACE_REESOLVE
 
     std::filesystem::path toFindPath(viewVirtual);
+    toFindPath = toFindPath.lexically_normal();
     if (viewVirtual.size() > 3 && viewVirtual.substr(0, 3) == "../"sv)
     {
         if (std::filesystem::is_regular_file(current.physical))
@@ -262,6 +263,13 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
         }
         toFindPath = toFindPath.lexically_normal();
     }
+#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
+    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
+        "        " <<
+        "        " <<
+        "    " << "\x1B[36mget_info_physical\033[0m" <<
+        "    " << "    " << "Adjusted path to '" << toFindPath.string() << "'" << std::endl;
+#endif // DF__SQF_FILEIO__TRACE_REESOLVE
     for (auto& it : m_path_elements)
     {
         for (auto& phys : it->physical)
