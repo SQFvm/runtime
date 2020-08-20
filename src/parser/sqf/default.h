@@ -151,6 +151,11 @@ namespace sqf::parser::sqf
 		) : CanLog(logger)
 		{
 		}
+		astnode get_ast(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file, bool* errflag)
+		{
+			instance i(runtime, *this, contents, file);
+			return i.parse(*errflag);
+		}
 		virtual ~impl_default() override { };
 		virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override
 		{
