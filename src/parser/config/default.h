@@ -32,18 +32,23 @@ namespace sqf::parser::config
 			ARRAY,
 			VALUE
 		};
-		struct astnode
+		struct astnode : ::sqf::runtime::diagnostics::diag_info
 		{
-			size_t offset;
-			size_t length;
-			size_t line;
-			size_t col;
 			std::string content;
-			::sqf::runtime::fileio::pathinfo path;
 			nodetype kind;
 			std::vector<astnode> children;
 
-			astnode() : offset(0), length(0), line(0), col(0), kind(nodetype::NA) {}
+			astnode(const ::sqf::runtime::diagnostics::diag_info& base) : kind(nodetype::NA)
+			{
+				line = base.line;
+				column = base.column;
+				adjusted_offset = base.adjusted_offset;
+				file_offset = base.file_offset;
+				path = base.path;
+				code_segment = base.code_segment;
+				length = base.length;
+			}
+			astnode() : ::sqf::runtime::diagnostics::diag_info(), kind(nodetype::NA) {}
 		};
 	private:
 		class instance
