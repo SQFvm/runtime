@@ -21,7 +21,6 @@ set(ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output)
 set(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output)
 set(RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output)
 
-include_directories("${PROJECT_SOURCE_DIR}/include/json/include")
 include_directories("${PROJECT_SOURCE_DIR}/include/tclap-1.2.2/include")
 
 file(GLOB vm_src 
@@ -86,7 +85,7 @@ if (SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__CLI_PRINT_INPUT_ARGS)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__CLI_PRINT_TCLAP_ARGUMENTS)
     
-    target_compile_options(sqfvm PRIVATE
+    target_compile_options(sqfvm_full_diagnose PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
           -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:
@@ -100,7 +99,7 @@ if (SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD)
     
     target_compile_definitions(sqfvm_a2 PUBLIC SQFVM_ARMA2_SYNTAX)
     
-    target_compile_options(sqfvm PRIVATE
+    target_compile_options(sqfvm_a2 PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
           -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:
@@ -114,7 +113,7 @@ if (SQFVM_BUILD_LIBRARY)
     add_library(libsqfvm SHARED ${vm_src})
     target_compile_definitions(libsqfvm PUBLIC DISABLE_CLIPBOARD)
     target_include_directories(libsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
-    target_compile_options(sqfvm PRIVATE
+    target_compile_options(libsqfvm PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
           -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:
@@ -127,7 +126,7 @@ if (SQFVM_BUILD_STATIC_LIBRARY)
 
     add_library(slibsqfvm STATIC ${vm_src})
     target_include_directories(slibsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
-    target_compile_options(sqfvm PRIVATE
+    target_compile_options(slibsqfvm PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
           -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:
