@@ -101,14 +101,20 @@ public:
 
 
 namespace logmessage {
-
+	class RuntimeLogMessageBase : public LogMessageBase
+	{
+	public:
+		RuntimeLogMessageBase(loglevel level, size_t errorCode, LogLocationInfo location) :
+			LogMessageBase(level, errorCode), m_location(std::move(location)) {}
+		LogLocationInfo location() const { return m_location; }
+	protected:
+		LogLocationInfo m_location;
+	};
     namespace preprocessor {
-        class PreprocBase : public LogMessageBase {
+        class PreprocBase : public RuntimeLogMessageBase {
         public:
-            PreprocBase(loglevel level, size_t errorCode, LogLocationInfo location) : 
-            LogMessageBase(level, errorCode), location(std::move(location)) {}
-        protected:
-            LogLocationInfo location;
+            PreprocBase(loglevel level, size_t errorCode, LogLocationInfo location) :
+				RuntimeLogMessageBase(level, errorCode, std::move(location)) {}
         };
 
         class ArgCountMissmatch : public PreprocBase {
@@ -232,12 +238,10 @@ namespace logmessage {
     }
 	namespace assembly
 	{
-		class AssemblyBase : public LogMessageBase {
+		class AssemblyBase : public RuntimeLogMessageBase {
 		public:
 			AssemblyBase(loglevel level, size_t errorCode, LogLocationInfo location) :
-				LogMessageBase(level, errorCode), location(std::move(location)) {}
-		protected:
-			LogLocationInfo location;
+				RuntimeLogMessageBase(level, errorCode, std::move(location)) {}
 		};
 
 		class ExpectedSemicolon : public AssemblyBase {
@@ -403,12 +407,10 @@ namespace logmessage {
 	}
 	namespace sqf
 	{
-		class SqfBase : public LogMessageBase {
+		class SqfBase : public RuntimeLogMessageBase {
 		public:
 			SqfBase(loglevel level, size_t errorCode, LogLocationInfo location) :
-				LogMessageBase(level, errorCode), location(std::move(location)) {}
-		protected:
-			LogLocationInfo location;
+				RuntimeLogMessageBase(level, errorCode, std::move(location)) {}
 		};
 
 		class ExpectedStatementTerminator : public SqfBase {
@@ -526,12 +528,10 @@ namespace logmessage {
 	}
 	namespace config
 	{
-		class ConfigBase : public LogMessageBase {
+		class ConfigBase : public RuntimeLogMessageBase {
 		public:
 			ConfigBase(loglevel level, size_t errorCode, LogLocationInfo location) :
-				LogMessageBase(level, errorCode), location(std::move(location)) {}
-		protected:
-			LogLocationInfo location;
+				RuntimeLogMessageBase(level, errorCode, std::move(location)) {}
 		};
 		class ExpectedStatementTerminator : public ConfigBase {
 			static const loglevel level = loglevel::error;
@@ -631,12 +631,10 @@ namespace logmessage {
 	}
 	namespace linting
 	{
-		class LintingBase : public LogMessageBase {
+		class LintingBase : public RuntimeLogMessageBase {
 		public:
 			LintingBase(loglevel level, size_t errorCode, LogLocationInfo location) :
-				LogMessageBase(level, errorCode), location(std::move(location)) {}
-		protected:
-			LogLocationInfo location;
+				RuntimeLogMessageBase(level, errorCode, std::move(location)) {}
 		};
 		class UnassignedVariable : public LintingBase {
 			static const loglevel level = loglevel::warning;
@@ -651,12 +649,10 @@ namespace logmessage {
 	}
 	namespace runtime
 	{
-		class RuntimeBase : public LogMessageBase {
+		class RuntimeBase : public RuntimeLogMessageBase {
 		public:
 			RuntimeBase(loglevel level, size_t errorCode, LogLocationInfo location) :
-				LogMessageBase(level, errorCode), location(std::move(location)) {}
-		protected:
-			LogLocationInfo location;
+				RuntimeLogMessageBase(level, errorCode, std::move(location)) {}
 		};
 		class Stacktrace : public RuntimeBase {
 			static const loglevel level = loglevel::fatal;
