@@ -5,9 +5,9 @@
 using namespace std::string_view_literals;
 
 #pragma region StdOutLogger
-void StdOutLogger::log(loglevel level, std::string_view message) {
+void StdOutLogger::log(const LogMessageBase& message) {
 	auto& logTarget = std::cout;
-    logTarget << Logger::loglevelstring(level) << ' ' << message << std::endl;
+    logTarget << Logger::loglevelstring(message.getLevel()) << ' ' << message.formatMessage() << std::endl;
 }
 #pragma endregion StdOutLogger
 
@@ -50,7 +50,7 @@ std::string LogLocationInfo::format() const {
 
 void CanLog::log(LogMessageBase& message) const {
     if (!m_logger.isEnabled(message.getLevel())) return;
-	m_logger.log(message.getLevel(), message.formatMessage());
+	m_logger.log(message);
 
 
     //log(logmessage::preprocessor::ArgCountMissmatch(LogLocationInfo()));
@@ -58,7 +58,7 @@ void CanLog::log(LogMessageBase& message) const {
 }
 void CanLog::log(LogMessageBase&& message) const {
     if (!m_logger.isEnabled(message.getLevel())) return;
-	m_logger.log(message.getLevel(), message.formatMessage());
+	m_logger.log(message);
 
 
     //log(logmessage::preprocessor::ArgCountMissmatch(LogLocationInfo()));

@@ -40,13 +40,16 @@ public:
     virtual ~LogMessageBase() = default;
 
     [[nodiscard]] virtual std::string formatMessage() const = 0;
-    virtual loglevel getLevel() {
+    virtual loglevel getLevel() const {
         return level;
     }
-    virtual size_t getErrorCode() {
+    virtual size_t getErrorCode() const {
         return errorCode;
     }
-    operator LogMessageBase*(){
+    operator LogMessageBase*() {
+        return this;
+    }
+    operator const LogMessageBase*() const {
         return this;
     }
 protected:
@@ -64,7 +67,6 @@ public:
 	void setEnabled(loglevel level, bool isEnabled) {
 		enabledWarningLevels[static_cast<size_t>(level)] = isEnabled;
 	}
-	virtual void log(loglevel, std::string_view message) = 0;
 	static std::string_view loglevelstring(loglevel level)
 	{
 		switch (level) {
@@ -77,12 +79,13 @@ public:
 		default: return "[???]"sv;
 		}
 	}
+	virtual void log(const LogMessageBase& message) = 0;
 };
 class StdOutLogger : public Logger {
 public:
 	StdOutLogger() : Logger() {}
 
-	virtual void log(loglevel, std::string_view message) override;
+	virtual void log(const LogMessageBase& message) override;
 };
 
 //Classes that can log, inherit from this
