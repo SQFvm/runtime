@@ -32,18 +32,18 @@ inline bool file_exists(std::filesystem::path p)
 
 std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_info_virtual(std::string_view viewVirtual, sqf::runtime::fileio::pathinfo current) const
 {
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-        "        " <<
-        "        " <<
-        "    " << "\x1B[36mget_info_virtual\033[0m(\x1B[90m" << viewVirtual << "\033[0m, \x1B[90m{" << current.physical << ", " << current.virtual_ << "}\033[0m) requested" << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
-
     // Create & Cleanse stuff
     auto virt = std::string(viewVirtual);
     std::replace(virt.begin(), virt.end(), '\\', '/');
     virt = std::string(sqf::runtime::util::trim(virt));
     std::string virtFull = virt;
+
+#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
+    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
+        "        " <<
+        "        " <<
+        "    " << "\x1B[36mget_info_virtual\033[0m(\x1B[90m" << virt << "\033[0m, \x1B[90m{" << current.physical << ", " << current.virtual_ << "}\033[0m) requested" << std::endl;
+#endif // DF__SQF_FILEIO__TRACE_REESOLVE
 
     // Abort conditions
     if (virt.empty())
@@ -63,9 +63,9 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
     nodes.push_back(m_virtual_file_root);
 
 #if WIN32
-    if (viewVirtual[0] != '/' && !(viewVirtual.length() >= 2 && viewVirtual[1] == ':'))
+    if (virt[0] != '/' && !(virt.length() >= 2 && virt[1] == ':'))
 #else
-    if (viewVirtual[0] != '/')
+    if (virt[0] != '/')
 #endif
     { // Navigate current virtual path if relative
 
