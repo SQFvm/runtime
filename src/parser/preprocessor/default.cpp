@@ -1128,12 +1128,31 @@ sqf::parser::preprocessor::impl_default::impl_default(Logger& logger) : CanLog(l
     m_macros["_SQFVM_DEBUG"s] = { "_DEBUG"s };
 #endif
 }
-std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo)
+std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(
+    ::sqf::runtime::runtime& runtime,
+    std::string_view view,
+    ::sqf::runtime::fileio::pathinfo pathinfo,
+    std::vector<std::string>* out_included,
+    std::vector<::sqf::runtime::parser::macro>* out_macros)
 {
     preprocessorfileinfo fileinfo(pathinfo);
     fileinfo.content = view;
     instance i(get_logger(), m_macros);
     auto res = i.parse_file(runtime, fileinfo);
+    if (out_included)
+    {
+        for (auto entry : i.m_visited)
+        {
+            out_included->push_back(entry);
+        }
+    }
+    if (out_macros)
+    {
+        for (auto entry : i.m_macros)
+        {
+            out_macros->push_back(entry.second);
+        }
+    }
     if (i.inside_ppif_err_flag() || i.errflag())
     {
         return {};

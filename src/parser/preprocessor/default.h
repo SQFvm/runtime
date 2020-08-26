@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <optional>
 
 
@@ -234,6 +235,7 @@ namespace sqf::parser::preprocessor
 		public:
 			instance(Logger& logger, std::unordered_map<std::string, ::sqf::runtime::parser::macro> macros) : CanLog(logger), m_macros(macros) {};
 			std::vector<std::string> m_path_tree;
+			std::unordered_set<std::string> m_visited;
 			std::vector<bool> m_inside_ppf_tree;
 			bool m_inside_ppif_err_flag = false;
 			bool m_errflag = false;
@@ -294,6 +296,7 @@ namespace sqf::parser::preprocessor
 			{
 				m_path_tree.push_back(s);
 				m_inside_ppf_tree.push_back(false);
+				m_visited.insert(s);
 			}
 			void pop_path(preprocessorfileinfo& preprocessorfileinfo);
 
@@ -309,9 +312,18 @@ namespace sqf::parser::preprocessor
 		};
 	public:
 		impl_default(Logger& logger);
+
+		std::optional<std::string> preprocess(
+			::sqf::runtime::runtime& runtime,
+			std::string_view view,
+			::sqf::runtime::fileio::pathinfo pathinfo,
+			std::vector<std::string>* out_included,
+			std::vector<::sqf::runtime::parser::macro>* out_macros);
+
 		virtual void push_back(::sqf::runtime::parser::macro m) override { m_macros[std::string(m.name())] = m; };
 		virtual ~impl_default() override { }
-		virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) override;
+		virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) override
+		{ return preprocess(runtime, view, pathinfo, nullptr, nullptr); }
 
 		std::optional<::sqf::runtime::parser::macro> get_try(const std::string macro_name) const
 		{
