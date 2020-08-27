@@ -578,7 +578,6 @@ namespace
                 }
             };
         };
-        auto start = std::chrono::high_resolution_clock::now();
         frame f = { runtime.default_value_scope(), {}, std::make_shared<behavior_measureoverhead>(right.data<d_code, sqf::runtime::instruction_set>(), 10000) };
         f["_this"] = {};
         f.bubble_variable(false);

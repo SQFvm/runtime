@@ -28,7 +28,7 @@ namespace sqf
         class d_namespace : public sqf::runtime::data
         {
         public:
-            static sqf::runtime::type cexp_type() { return sqf::runtime::t_namespace(); }
+            using data_type = sqf::runtime::t_namespace;
         private:
             std::weak_ptr<sqf::runtime::value_scope> m_scope;
         protected:
@@ -65,7 +65,7 @@ namespace sqf
             }
 
             virtual std::string to_string() const override { return to_string_sqf(); }
-            sqf::runtime::type type() const override { return cexp_type(); }
+            sqf::runtime::type type() const override { return data_type(); }
 
             std::shared_ptr<sqf::runtime::value_scope> value() { return m_scope.lock(); }
             operator std::shared_ptr<sqf::runtime::value_scope>() { return m_scope.lock(); }
@@ -73,12 +73,12 @@ namespace sqf
         class d_with : public sqf::types::d_namespace
         {
         public:
-            static sqf::runtime::type cexp_type() { return sqf::runtime::t_with(); }
+            using data_type = sqf::runtime::t_with;
         public:
             d_with() = default;
             d_with(std::shared_ptr<sqf::runtime::value_scope> scope) : d_namespace(scope) {}
 
-            sqf::runtime::type type() const override { return cexp_type(); }
+            sqf::runtime::type type() const override { return data_type(); }
         };
     }
 

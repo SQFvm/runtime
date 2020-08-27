@@ -23,6 +23,7 @@
 
 #include "interactive_helper.h"
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
@@ -152,6 +153,14 @@ int main(int argc, char** argv)
     sigaction(SIGSEGV, &action_SIGSEGV, NULL);
 #endif
 
+#ifdef DF__CLI_PRINT_INPUT_ARGS
+    std::cout << "\x1B[95m[CLI-INARG-PRINT]\033[0m" << "Got arguments:" << std::endl;
+    for (size_t i = 0; i < argc; i++)
+    {
+        std::cout << "\x1B[95m[CLI-INARG-PRINT]\033[0m" << "    " << std::setw(3) << i << ": `" << argv[i] << "`" << std::endl;
+    }
+#endif // DF__CLI_PRINT_INPUT_ARGS
+
     std::string executable_path; 
     {
 #if defined(_WIN32) || defined(_WIN64)
@@ -160,8 +169,10 @@ int main(int argc, char** argv)
         executable_path = buffer;
 #elif defined(__GNUC__)
         char buffer[PATH_MAX];
-        getcwd(buffer, PATH_MAX);
-        executable_path = buffer;
+        if (getcwd(buffer, PATH_MAX)) 
+        {
+            executable_path = buffer;
+        }
 #else
 #error "NO IMPLEMENTATION AVAILABLE"
 #endif
@@ -267,6 +278,46 @@ int main(int argc, char** argv)
     cmd.getArgList().reverse();
 
     cmd.parse(argc, argv);
+
+#ifdef DF__CLI_PRINT_TCLAP_ARGUMENTS
+    std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "Got arguments:" << std::endl;
+    for (auto arg : cmd.getArgList())
+    {
+        std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "    " << arg->getName() << ":" << std::endl;
+        auto valueArgLong = dynamic_cast<TCLAP::ValueArg<long>*>(arg);
+        auto multiArgString = dynamic_cast<TCLAP::MultiArg<std::string>*>(arg);
+        auto switchArg = dynamic_cast<TCLAP::SwitchArg*>(arg);
+        if (valueArgLong)
+        {
+            std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "    " << "    " << valueArgLong->getValue() << std::endl;
+        }
+        else if (multiArgString)
+        {
+            for (auto str : multiArgString->getValue())
+            {
+                std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "    " << "    `" << str << "`" << std::endl;
+            }
+        }
+        else if (switchArg)
+        {
+            std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "    " << "    " << (switchArg->getValue() ? "true" : "false") << std::endl;
+        }
+        else
+        {
+            std::cout << "\x1B[95m[CLI-TCLAP-CNTNT]\033[0m" << "    " << "    " << "TYPE NOT MAPPED IN DIAGNOSTICS" << std::endl;
+        }
+    }
+#endif // DF__CLI_PRINT_TCLAP_ARGUMENTS
+
+
+    if (verboseArg.getValue())
+    {
+        std::cout << "Got arguments:" << std::endl;
+        for (size_t i = 0; i < argc; i++)
+        {
+            std::cout << "    " << std::setw(3) << i << ": `" << argv[i] << "`" << std::endl;
+        }
+    }
 
     // ALWAYS needs to be parsed first!
     if (!cliFileArg.getValue().empty())
@@ -390,10 +441,10 @@ int main(int argc, char** argv)
     
 
     sqf::runtime::runtime runtime(logger, conf);
-    runtime.fileio(std::make_unique<sqf::fileio::default>());
-    runtime.parser_config(std::make_unique<sqf::parser::config::default>(logger));
-    runtime.parser_preprocessor(std::make_unique<sqf::parser::preprocessor::default>(logger));
-    runtime.parser_sqf(std::make_unique<sqf::parser::sqf::default>(logger));
+    runtime.fileio(std::make_unique<sqf::fileio::impl_default>());
+    runtime.parser_config(std::make_unique<sqf::parser::config::impl_default>(logger));
+    runtime.parser_preprocessor(std::make_unique<sqf::parser::preprocessor::impl_default>(logger));
+    runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
     sqf::operators::ops_config(runtime);
     sqf::operators::ops_diag(runtime);
     sqf::operators::ops_generic(runtime);

@@ -18,7 +18,7 @@ namespace sqf
 		class d_stacktrace : public sqf::runtime::data
 		{
 		public:
-			static sqf::runtime::type cexp_type() { return sqf::runtime::t_stacktrace(); }
+			using data_type = sqf::runtime::t_stacktrace;
 		private:
 			sqf::runtime::diagnostics::stacktrace m_value;
 		protected:
@@ -40,7 +40,7 @@ namespace sqf
 				return m_value.to_string();
 			}
 
-			sqf::runtime::type type() const override { return cexp_type(); }
+			sqf::runtime::type type() const override { return data_type(); }
 
 			sqf::runtime::diagnostics::stacktrace value() const { return m_value; }
 			void value(sqf::runtime::diagnostics::stacktrace stacktrace) { m_value = stacktrace; }
@@ -51,9 +51,12 @@ namespace sqf
 			}
 		};
 
-		inline std::shared_ptr<sqf::runtime::data> to_data(sqf::runtime::diagnostics::stacktrace str)
+		template<>
+		inline std::shared_ptr<sqf::runtime::data> to_data<sqf::runtime::diagnostics::stacktrace>(sqf::runtime::diagnostics::stacktrace str)
 		{
 			return std::make_shared<d_stacktrace>(str);
 		}
+
+
 	}
 }

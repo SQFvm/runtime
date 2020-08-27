@@ -11,6 +11,7 @@
 
 #ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 #include <iostream>
+#include <iomanip>
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 
@@ -126,7 +127,7 @@ namespace sqf::runtime
                 return value;
             }
         }
-        sqf::runtime::value::cref peek_value() { if (m_values.empty()) { return {}; } else { return m_values.back(); } }
+        sqf::runtime::value::cref peek_value() { return m_values.back(); }
 
         std::vector<sqf::runtime::frame>::reverse_iterator frames_rbegin() { return m_frames.rbegin(); }
         std::vector<sqf::runtime::frame>::reverse_iterator frames_rend() { return m_frames.rend(); }

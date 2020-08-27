@@ -59,12 +59,20 @@ void sqf::types::object::soldiers_::erase(std::shared_ptr<d_object> obj)
 #pragma region ::sqf::types::object
 
 sqf::types::object::object(sqf::runtime::config config, bool is_vehicle) :
-    m_soldiers(this),
+    m_netid(~(size_t)0),
+    m_config(config),
+    m_is_vehicle(is_vehicle),
+    m_varname(""),
+    m_damage(0),
+    m_group(),
     m_position({ 0,0,0 }),
     m_velocity({ 0,0,0 }),
-    m_varname(""),
-    m_config(config),
-    m_is_vehicle(is_vehicle)
+    m_parent_object(),
+    m_driver(),
+    m_gunner(),
+    m_commander(),
+    m_soldiers(this),
+    m_configuration()
 {
 }
 

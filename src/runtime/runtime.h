@@ -89,8 +89,8 @@ namespace sqf::runtime
             runtime_conf() :
                 max_runtime(std::chrono::milliseconds::zero()),
                 disable_sleep(false),
-                disable_networking(false),
                 enable_classname_check(true),
+                disable_networking(false),
                 print_context_work_to_log_on_exit(false)
             {}
         };
@@ -310,22 +310,24 @@ namespace sqf::runtime
     public:
         runtime(Logger& logger, runtime_conf config) :
             CanLog(logger),
-            m_state(state::halted),
-            m_run_atomic(false),
-            m_exit_code(0),
-            m_is_exit_requested(false),
             m_is_halt_requested(false),
+            m_is_exit_requested(false),
+            m_state(state::halted),
+            m_exit_code(0),
+            m_run_atomic(false),
+            m_breakpoints(),
             m_last_breakpoint_hit(~((size_t)0), {}),
+            m_default_scope_key("default"),
+            m_evaluate_halt(false),
             m_configuration(config),
+            m_runtime_timestamp(std::chrono::system_clock::now()),
             m_runtime_error(false),
+            m_created_timestamp(m_runtime_timestamp),
+            m_confighost(),
             m_fileio(std::make_unique<sqf::fileio::disabled>()),
             m_parser_sqf(std::make_unique<sqf::parser::sqf::disabled>()),
             m_parser_config(std::make_unique<sqf::parser::config::disabled>()),
-            m_parser_preprocessor(std::make_unique<sqf::parser::preprocessor::passthrough>()),
-            m_default_scope_key("default"),
-            m_evaluate_halt(false),
-            m_created_timestamp(std::chrono::system_clock::now()),
-            m_runtime_timestamp(m_created_timestamp)
+            m_parser_preprocessor(std::make_unique<sqf::parser::preprocessor::passthrough>())
         {
         }
 

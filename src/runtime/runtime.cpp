@@ -8,6 +8,7 @@
 
 #ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 #include <iostream>
+#include <iomanip>
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
 
 static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, size_t exit_after)
@@ -141,7 +142,7 @@ static sqf::runtime::runtime::result execute_do(sqf::runtime::runtime& runtime, 
 
             size_t values_index = 0;
             std::optional<size_t> nil_index = {};
-            for (auto& it = context_active.values_begin(); context_active.values_end() != it; ++it)
+            for (auto it = context_active.values_begin(); context_active.values_end() != it; ++it)
             {
                 auto sqf = (*it).to_string_sqf();
                 if (sqf == "nil")
@@ -267,7 +268,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             m_is_halt_requested = false;
             auto scopeNum = m_context_active->frames_size() - 1;
             m_state = state::running;
-            while (!m_is_exit_requested && !m_is_halt_requested && !m_contexts.size() == 0)
+            while (!m_is_exit_requested && !m_is_halt_requested && !m_contexts.empty())
             {
                 res = execute_do(*this, 1);
                 perform_evaluate();
@@ -356,7 +357,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
                         std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                             "        " <<
                             "        " <<
-                            "    " << "\x1B[36mERASE CONTEXT\033[0m \x1B[90" << ((*iterator)->name().empty() ? "<unnamed>" : (*iterator)->name().empty()) << "\033[0m" << std::endl;
+                            "    " << "\x1B[36mERASE CONTEXT\033[0m \x1B[90" << ((*iterator)->name().empty() ? "<unnamed>" : (*iterator)->name()) << "\033[0m" << std::endl;
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
                         auto opt_val = (*iterator)->pop_value(true);
                         if (opt_val.has_value() && configuration().print_context_work_to_log_on_exit)
@@ -375,6 +376,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
                     case sqf::runtime::runtime::result::action_error:
                     case sqf::runtime::runtime::result::runtime_error:
                         goto start_loop_exit;
+                    case sqf::runtime::runtime::result::ok: /* empty */ break;
                     }
                 }
             }
@@ -391,8 +393,6 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             case sqf::runtime::runtime::result::action_error:
             case sqf::runtime::runtime::result::runtime_error:
                 m_state = state::halted_error;
-                break;
-            default:
                 break;
             }
             if (m_is_exit_requested)
@@ -434,8 +434,6 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             case sqf::runtime::runtime::result::runtime_error:
                 m_state = state::halted_error;
                 break;
-            default:
-                break;
             }
             if (m_is_exit_requested)
             {
@@ -464,7 +462,7 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             bool success;
             m_state = state::running;
             std::optional<diagnostics::diag_info> dinf;
-            while (!m_is_exit_requested && !m_is_halt_requested && !m_contexts.size() == 0)
+            while (!m_is_exit_requested && !m_is_halt_requested && !m_contexts.empty())
             {
                 if (!dinf.has_value())
                 {
@@ -502,8 +500,6 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             case sqf::runtime::runtime::result::action_error:
             case sqf::runtime::runtime::result::runtime_error:
                 m_state = state::halted_error;
-                break;
-            default:
                 break;
             }
             if (m_is_exit_requested)

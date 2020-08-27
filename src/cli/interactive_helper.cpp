@@ -2,8 +2,10 @@
 #include "../runtime/runtime.h"
 #include <thread>
 #include <string>
+#include <string_view>
 #include <iostream>
 #include <cstring>
+#include <iomanip>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -36,6 +38,8 @@ void interactive_helper::virtualmachine_thread()
 		case sqf::runtime::runtime::state::halted_error:
 			std::cout << "runtime Error!" << std::endl;
 			break;
+        case sqf::runtime::runtime::state::running: /* nothing */ break;
+        case sqf::runtime::runtime::state::evaluating: /* nothing */ break;
 		}
 	}
 }

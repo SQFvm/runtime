@@ -1,16 +1,17 @@
 #pragma once
+#include "vec.h"
+#include "data.h"
+#include "type.h"
+#include "value.h"
+#include "d_scalar.h"
+
 #include <string>
 #include <memory>
 #include <vector>
 #include <algorithm>
 #include <sstream>
 #include <array>
-
-#include "vec.h"
-#include "data.h"
-#include "type.h"
-#include "value.h"
-#include "d_scalar.h"
+#include <cmath>
 
 namespace sqf
 {
@@ -23,7 +24,7 @@ namespace sqf
 		class d_array : public sqf::runtime::data
 		{
 		public:
-			static sqf::runtime::type cexp_type() { return sqf::runtime::t_array(); }
+			using data_type = sqf::runtime::t_array;
 			using iterator = std::vector<sqf::runtime::value>::iterator;
 		private:
 			std::vector<sqf::runtime::value> m_value;
@@ -31,7 +32,7 @@ namespace sqf
 			{
 				for (auto& it : m_value)
 				{
-					if (it.type() == cexp_type())
+					if (it.type() == data_type())
 					{
 						// Get child
 						auto arr = it.data<sqf::types::d_array>();
@@ -180,7 +181,7 @@ namespace sqf
 					}
 				}
 			}
-			sqf::runtime::type type() const override { return cexp_type(); }
+			sqf::runtime::type type() const override { return data_type(); }
 
 			std::vector<sqf::runtime::value> value() const { return m_value; }
 			std::vector<sqf::runtime::value>& value() { return m_value; }
@@ -210,12 +211,8 @@ namespace sqf
 			template<size_t size>
 			bool check_type(sqf::runtime::runtime& runtime, const std::array<sqf::runtime::type, size>& arr, size_t optionalstart) const { return check_type(runtime, arr.data(), size, optionalstart); }
 		};
-		template<size_t size>
-		std::shared_ptr<sqf::runtime::data> to_data(std::array<sqf::runtime::value, size> arr)
-		{
-			return std::make_shared<d_array>(arr.begin(), arr.end());
-		}
-		inline std::shared_ptr<sqf::runtime::data> to_data(std::vector<sqf::runtime::value> arr)
+		template<>
+		inline std::shared_ptr<sqf::runtime::data> to_data<std::vector<sqf::runtime::value>>(std::vector<sqf::runtime::value> arr)
 		{
 			return std::make_shared<d_array>(arr);
 		}
@@ -247,5 +244,46 @@ namespace sqf
 		{ return std::sqrt(distance2dsqr(l, r)); }
 		inline float distance2d(std::array<float, 2> l, std::array<float, 2> r)
 		{ return std::sqrt(distance2dsqr(l, r)); }
+
+
+
+#define SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER(SIZE)\
+			template<>inline std::shared_ptr<sqf::runtime::data>to_data<std::array<sqf::runtime::value,SIZE>>(std::array<sqf::runtime::value,SIZE>arr)\
+			{return std::make_shared<d_array>(arr.begin(),arr.end());}
+#define SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_10(SIZEX10)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER((SIZEX10) + 0)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER((SIZEX10) + 1)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER((SIZEX10) + 2)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER((SIZEX10) + 3)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER((SIZEX10) + 4)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER((SIZEX10) + 5)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER((SIZEX10) + 6)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER((SIZEX10) + 7)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER((SIZEX10) + 8)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER((SIZEX10) + 9)
+#define SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_100(SIZEX100)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_10((SIZEX100) + 00)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_10((SIZEX100) + 10)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_10((SIZEX100) + 20)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_10((SIZEX100) + 30)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_10((SIZEX100) + 40)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_10((SIZEX100) + 50)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_10((SIZEX100) + 60)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_10((SIZEX100) + 70)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_10((SIZEX100) + 80)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_10((SIZEX100) + 90)
+#define SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_1000(SIZEX100)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_100((SIZEX100) + 000)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_100((SIZEX100) + 100)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_100((SIZEX100) + 200)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_100((SIZEX100) + 300)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_100((SIZEX100) + 400)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_100((SIZEX100) + 500)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_100((SIZEX100) + 600)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_100((SIZEX100) + 700)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_100((SIZEX100) + 800)\
+			SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_100((SIZEX100) + 900)
+
+		SQF_RUNTIME_D_ARRAY_EXPANDO_TO_DATA_HELPER_1000(0)
 	}
 }

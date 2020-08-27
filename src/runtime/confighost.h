@@ -140,7 +140,7 @@ namespace sqf::runtime
 			iterator_base(const iterator_base<recursive>& copy) :
 				m_confighost(copy.m_confighost),
 				m_index(copy.m_index),
-				m_id(copy.m_id), {}
+				m_id(copy.m_id) {}
 			iterator_base(confighost& confighost, size_t config_index) :
 				m_confighost(confighost),
 				m_index(0),

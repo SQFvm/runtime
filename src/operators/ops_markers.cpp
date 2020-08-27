@@ -207,19 +207,19 @@ namespace
 		}
 		auto& marker = runtime.storage<sqf::operators::markers_storage>().at(name);
 		auto shapename = right.data<d_string, std::string>();
-		if (strcmpi(shapename.c_str(), "ICON") == 0)
+		if (::sqf::parser::util::is_string_match(shapename.c_str(), "ICON"))
 		{
 			marker.set_shape(sqf::operators::markers_storage::marker::shape::Icon);
 		}
-		else if (strcmpi(shapename.c_str(), "RECTANGLE") == 0)
+		else if (::sqf::parser::util::is_string_match(shapename.c_str(), "RECTANGLE"))
 		{
 			marker.set_shape(sqf::operators::markers_storage::marker::shape::Rectangle);
 		}
-		else if (strcmpi(shapename.c_str(), "ELLIPSE") == 0)
+		else if (::sqf::parser::util::is_string_match(shapename.c_str(), "ELLIPSE"))
 		{
 			marker.set_shape(sqf::operators::markers_storage::marker::shape::Ellipse);
 		}
-		else if (strcmpi(shapename.c_str(), "POLYLINE") == 0)
+		else if (::sqf::parser::util::is_string_match(shapename.c_str(), "POLYLINE"))
 		{
 			marker.set_shape(sqf::operators::markers_storage::marker::shape::Polyline);
 		}

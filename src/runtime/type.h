@@ -62,7 +62,7 @@ namespace sqf
 			template<class T>
 			bool is() const
 			{
-				static_assert(std::is_base_of<type, TStorage>::value,
+				static_assert(std::is_base_of<type, T>::value,
 					"sqf::runtime::type::is<T>() expects T to be a derivative of sqf::runtime::type.");
 				return m_value == (short)(T());
 			}

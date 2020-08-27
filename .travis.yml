@@ -28,12 +28,12 @@ matrix:
             - libc++-8-dev
       env:
         - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-#    - os: osx
-#      osx_image: xcode9.4
+    - os: osx
+      osx_image: xcode11.6
 
 before_install:
   - eval "${MATRIX_EVAL}"
 script:
   - cmake .
   - make -j4
-  - ./sqfvm -a --no-execute-print --load . -i tests/runTests.sqf
+  - ./sqfvm -a --no-execute-print -i tests/runTests.sqf

@@ -61,8 +61,8 @@ namespace sqf::opcodes
                 return;
             }
 
-            auto tleft = left_value->operator sqf::runtime::type();
-            auto tright = right_value->operator sqf::runtime::type();
+            auto tleft = left_value->type();
+            auto tright = right_value->type();
             sqf::runtime::sqfop_binary::key key = { m_operator_name, tleft, tright };
 
             if (!vm.sqfop_exists(key))

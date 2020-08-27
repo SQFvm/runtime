@@ -22,14 +22,14 @@ namespace err = logmessage::preprocessor;
 using namespace std::string_literals;
 using namespace sqf::runtime::util;
 
-void sqf::parser::preprocessor::default::replace_stringify(
-    ::sqf::runtime::runtime & runtime,
-    preprocessorfileinfo & local_fileinfo,
-    preprocessorfileinfo & original_fileinfo,
-    const ::sqf::runtime::parser::macro & m,
-    std::vector<std::string> & params,
-    std::stringstream & sstream,
-    const std::unordered_map<std::string, std::string> & param_map)
+void sqf::parser::preprocessor::impl_default::instance::replace_stringify(
+    ::sqf::runtime::runtime& runtime,
+    preprocessorfileinfo& local_fileinfo,
+    preprocessorfileinfo& original_fileinfo,
+    const ::sqf::runtime::parser::macro& m,
+    std::vector<std::string>& params,
+    std::stringstream& sstream,
+    const std::unordered_map<std::string, std::string>& param_map)
 {
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
     auto ___begin = sstream.tellp();
@@ -122,14 +122,14 @@ void sqf::parser::preprocessor::default::replace_stringify(
     std::cout << ")\033[0m:" << sstream.str().substr(___begin) << std::endl;
 #endif
 }
-void sqf::parser::preprocessor::default::replace_concat(
-    ::sqf::runtime::runtime & runtime,
-    preprocessorfileinfo & local_fileinfo,
-    preprocessorfileinfo & original_fileinfo,
-    const ::sqf::runtime::parser::macro & m,
-    std::vector<std::string> & params,
-    std::stringstream & sstream,
-    const std::unordered_map<std::string, std::string> & param_map)
+void sqf::parser::preprocessor::impl_default::instance::replace_concat(
+    ::sqf::runtime::runtime& runtime,
+    preprocessorfileinfo& local_fileinfo,
+    preprocessorfileinfo& original_fileinfo,
+    const ::sqf::runtime::parser::macro& m,
+    std::vector<std::string>& params,
+    std::stringstream& sstream,
+    const std::unordered_map<std::string, std::string>& param_map)
 {
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
     auto ___begin = sstream.tellp();
@@ -194,7 +194,7 @@ void sqf::parser::preprocessor::default::replace_concat(
         std::cout << it;
     }
     std::cout << " }";
-        
+
     std::cout << ", stringstream, unordered_map<string, string>: ";
     std::cout << "{ ";
     ___first = false;
@@ -215,7 +215,7 @@ void sqf::parser::preprocessor::default::replace_concat(
 #endif
 }
 
-size_t sqf::parser::preprocessor::default::replace_find_wordend(::sqf::runtime::runtime & runtime, preprocessorfileinfo fileinfo)
+size_t sqf::parser::preprocessor::impl_default::instance::replace_find_wordend(::sqf::runtime::runtime& runtime, preprocessorfileinfo fileinfo)
 {
     auto currentOffset = fileinfo.off;
     size_t res;
@@ -255,7 +255,7 @@ exit:
 #endif
     return res;
 }
-void sqf::parser::preprocessor::default::replace_skip(::sqf::runtime::runtime & runtime, preprocessorfileinfo & fileinfo, std::stringstream & sstream)
+void sqf::parser::preprocessor::impl_default::instance::replace_skip(::sqf::runtime::runtime& runtime, preprocessorfileinfo& fileinfo, std::stringstream& sstream)
 {
     bool flag = true;
     bool in_string = false;
@@ -312,7 +312,7 @@ void sqf::parser::preprocessor::default::replace_skip(::sqf::runtime::runtime & 
         "    " << "\x1B[36mreplace_skip(runtime, preprocessorfileinfo, stringstream)\033[0m: " << sstream.str().substr(___begin) << std::endl;
 #endif
 }
-std::string sqf::parser::preprocessor::default::replace(::sqf::runtime::runtime & runtime, preprocessorfileinfo & original_fileinfo, const ::sqf::runtime::parser::macro & m, std::vector<std::string> & params)
+std::string sqf::parser::preprocessor::impl_default::instance::replace(::sqf::runtime::runtime& runtime, preprocessorfileinfo& original_fileinfo, const ::sqf::runtime::parser::macro& m, std::vector<std::string>& params)
 {
     if (m.args().size() != params.size())
     {
@@ -453,7 +453,7 @@ std::string sqf::parser::preprocessor::default::replace(::sqf::runtime::runtime 
 #endif
     return sstream.str();
 }
-std::string sqf::parser::preprocessor::default::handle_arg(::sqf::runtime::runtime & runtime, preprocessorfileinfo & local_fileinfo, preprocessorfileinfo & original_fileinfo, size_t endindex, const std::unordered_map<std::string, std::string> & param_map)
+std::string sqf::parser::preprocessor::impl_default::instance::handle_arg(::sqf::runtime::runtime& runtime, preprocessorfileinfo& local_fileinfo, preprocessorfileinfo& original_fileinfo, size_t endindex, const std::unordered_map<std::string, std::string>& param_map)
 {
     size_t word_start = local_fileinfo.off;
     bool inside_word = false;
@@ -551,7 +551,7 @@ std::string sqf::parser::preprocessor::default::handle_arg(::sqf::runtime::runti
     }
     return sstream.str();
 }
-std::string sqf::parser::preprocessor::default::handle_macro(::sqf::runtime::runtime & runtime, preprocessorfileinfo & local_fileinfo, preprocessorfileinfo & original_fileinfo, const ::sqf::runtime::parser::macro & m, const std::unordered_map<std::string, std::string> & param_map)
+std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(::sqf::runtime::runtime& runtime, preprocessorfileinfo& local_fileinfo, preprocessorfileinfo& original_fileinfo, const ::sqf::runtime::parser::macro& m, const std::unordered_map<std::string, std::string>& param_map)
 { // Needs to handle 'NAME(ARG1, ARG2, ARGN)' not more, not less!
     std::vector<std::string> params;
 
@@ -675,12 +675,12 @@ std::string sqf::parser::preprocessor::default::handle_macro(::sqf::runtime::run
     std::cout << "\x1B[33m[PREPROCESSOR-RS]\033[0m" <<
         "        " <<
         "        " <<
-        "    " << "\x1B[36mhandle_macro(...)\033[0m starting replace."<< std::endl;
+        "    " << "\x1B[36mhandle_macro(...)\033[0m starting replace." << std::endl;
 #endif
     return replace(runtime, original_fileinfo, m, params);
 }
 
-std::string sqf::parser::preprocessor::default::parse_ppinstruction(::sqf::runtime::runtime & runtime, preprocessorfileinfo & fileinfo)
+std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstruction(::sqf::runtime::runtime& runtime, preprocessorfileinfo& fileinfo)
 {
     auto inst = fileinfo.get_word();
     std::string line{ trim(fileinfo.get_line(true)) };
@@ -935,7 +935,7 @@ std::string sqf::parser::preprocessor::default::parse_ppinstruction(::sqf::runti
         return "";
     }
 }
-std::string sqf::parser::preprocessor::default::parse_file(::sqf::runtime::runtime & runtime, preprocessorfileinfo & fileinfo)
+std::string sqf::parser::preprocessor::impl_default::instance::parse_file(::sqf::runtime::runtime& runtime, preprocessorfileinfo& fileinfo)
 {
     push_path(fileinfo.pathinf.physical);
     char c;
@@ -1068,29 +1068,29 @@ std::string sqf::parser::preprocessor::default::parse_file(::sqf::runtime::runti
 }
 
 std::string line_macro_callback(
-    const ::sqf::runtime::parser::macro & m,
+    const ::sqf::runtime::parser::macro& m,
     const ::sqf::runtime::diagnostics::diag_info dinf,
     const ::sqf::runtime::fileio::pathinfo local,
-    const std::vector<std::string> & params,
-    ::sqf::runtime::runtime & runtime)
+    const std::vector<std::string>& params,
+    ::sqf::runtime::runtime& runtime)
 {
     return std::to_string(dinf.line);
 }
 std::string file_macro_callback(
-    const ::sqf::runtime::parser::macro & m,
+    const ::sqf::runtime::parser::macro& m,
     const ::sqf::runtime::diagnostics::diag_info dinf,
     const ::sqf::runtime::fileio::pathinfo local,
-    const std::vector<std::string> & params,
-    ::sqf::runtime::runtime & runtime)
+    const std::vector<std::string>& params,
+    ::sqf::runtime::runtime& runtime)
 {
     return '"' + local.physical + '"';
 }
 std::string eval_macro_callback(
-    const ::sqf::runtime::parser::macro & m,
+    const ::sqf::runtime::parser::macro& m,
     const ::sqf::runtime::diagnostics::diag_info dinf,
     const ::sqf::runtime::fileio::pathinfo local,
-    const std::vector<std::string> & params,
-    ::sqf::runtime::runtime & runtime)
+    const std::vector<std::string>& params,
+    ::sqf::runtime::runtime& runtime)
 {
     if (params.empty())
     {
@@ -1105,7 +1105,7 @@ std::string eval_macro_callback(
 }
 
 
-void sqf::parser::preprocessor::default::pop_path(preprocessorfileinfo & preprocessorfileinfo)
+void sqf::parser::preprocessor::impl_default::instance::pop_path(preprocessorfileinfo& preprocessorfileinfo)
 {
     if (inside_ppif())
     {
@@ -1115,7 +1115,7 @@ void sqf::parser::preprocessor::default::pop_path(preprocessorfileinfo & preproc
     m_path_tree.pop_back();
     m_inside_ppf_tree.pop_back();
 }
-sqf::parser::preprocessor::default::default(::Logger & logger) : CanLog(logger)
+sqf::parser::preprocessor::impl_default::impl_default(Logger& logger) : CanLog(logger)
 {
     m_macros["__LINE__"s] = { "__LINE__"s, line_macro_callback };
     m_macros["__EXEC"s] = { "__EXEC"s, { "EXPRESSION"s }, eval_macro_callback };
@@ -1128,12 +1128,13 @@ sqf::parser::preprocessor::default::default(::Logger & logger) : CanLog(logger)
     m_macros["_SQFVM_DEBUG"s] = { "_DEBUG"s };
 #endif
 }
-std::optional<std::string> sqf::parser::preprocessor::default::preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo)
+std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo)
 {
     preprocessorfileinfo fileinfo(pathinfo);
     fileinfo.content = view;
-    auto res = parse_file(runtime, fileinfo);
-    if (inside_ppif_err_flag())
+    instance i(get_logger(), m_macros);
+    auto res = i.parse_file(runtime, fileinfo);
+    if (i.inside_ppif_err_flag() || i.errflag())
     {
         return {};
     }

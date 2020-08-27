@@ -42,7 +42,11 @@ namespace sqf
 			public:
 				macro() = default;
 				macro(diagnostics::diag_info diag_info, std::string name, std::vector<std::string> args, std::string content, callback callback) :
-					m_name(name), m_content(content), m_args(args), m_diag_info(diag_info), m_callback(callback) {}
+					m_name(name),
+					m_content(content),
+					m_args(args),
+					m_callback(callback),
+					m_diag_info(diag_info) {}
 
 				macro(diagnostics::diag_info diag_info, std::string name) : macro(diag_info, name, {}, {}, nullptr) {}
 				macro(diagnostics::diag_info diag_info, std::string name, std::string content) : macro(diag_info, name, {}, content, nullptr) {}

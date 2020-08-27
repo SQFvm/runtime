@@ -13,7 +13,7 @@
 
 namespace sqf::parser::sqf
 {
-	class default : public ::sqf::runtime::parser::sqf, public CanLog
+	class impl_default : public ::sqf::runtime::parser::sqf, public CanLog
 	{
 	public:
 		enum class nodetype
@@ -47,18 +47,23 @@ namespace sqf::parser::sqf
 			CODE,
 			ARRAY
 		};
-		struct astnode
+		struct astnode : ::sqf::runtime::diagnostics::diag_info
 		{
-			size_t offset;
-			size_t length;
-			size_t line;
-			size_t col;
 			std::string content;
-			::sqf::runtime::fileio::pathinfo path;
 			nodetype kind;
 			std::vector<astnode> children;
 
-			astnode() : offset(0), length(0), line(0), col(0), kind(nodetype::NA) {}
+			astnode(const ::sqf::runtime::diagnostics::diag_info& base) : kind(nodetype::NA)
+			{
+				line = base.line;
+				column = base.column;
+				adjusted_offset = base.adjusted_offset;
+				file_offset = base.file_offset;
+				path = base.path;
+				code_segment = base.code_segment;
+				length = base.length;
+			}
+			astnode() : ::sqf::runtime::diagnostics::diag_info(), kind(nodetype::NA) {}
 		};
 	private:
 
@@ -66,13 +71,13 @@ namespace sqf::parser::sqf
 		{
 		private:
 			::sqf::runtime::runtime& m_runtime;
-			default& m_owner;
+			impl_default& m_owner;
 			::sqf::parser::util::string_ref m_contents;
 			::sqf::runtime::fileio::pathinfo m_file;
 			::sqf::runtime::diagnostics::diag_info m_info;
 
 		public:
-			instance(::sqf::runtime::runtime& runtime, default& owner, std::string& contents, ::sqf::runtime::fileio::pathinfo file) :
+			instance(::sqf::runtime::runtime& runtime, impl_default& owner, std::string& contents, ::sqf::runtime::fileio::pathinfo file) :
 				m_runtime(runtime), m_owner(owner), m_contents(contents), m_file(file)
 			{
 				::sqf::runtime::diagnostics::diag_info dinf(1, 0, 0, m_file, {});
@@ -146,12 +151,17 @@ namespace sqf::parser::sqf
 			bool to_assembly(astnode& root, std::vector<::sqf::runtime::instruction::sptr>& set);
 		};
 	public:
-		default(
+		impl_default(
 			Logger& logger
 		) : CanLog(logger)
 		{
 		}
-		virtual ~default() override { };
+		astnode get_ast(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file, bool* errflag)
+		{
+			instance i(runtime, *this, contents, file);
+			return i.parse(*errflag);
+		}
+		virtual ~impl_default() override { };
 		virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override
 		{
 			bool errflag = false;

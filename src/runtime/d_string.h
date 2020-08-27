@@ -20,7 +20,7 @@ namespace sqf
 		class d_string : public sqf::runtime::data
 		{
 		public:
-			static sqf::runtime::type cexp_type() { return sqf::runtime::t_string(); }
+			using data_type = sqf::runtime::t_string;
 		private:
 			std::string m_value;
 		protected:
@@ -90,7 +90,7 @@ namespace sqf
 				}
 				return std::string(arr.data(), arr.size());
 			}
-			sqf::runtime::type type() const override { return cexp_type(); }
+			sqf::runtime::type type() const override { return data_type(); }
 			std::string value() const { return m_value; }
 			void value(std::string string) { m_value = string; }
 
@@ -98,8 +98,13 @@ namespace sqf
 			operator std::string_view() { return m_value; }
 		};
 
-		inline std::shared_ptr<sqf::runtime::data> to_data(char value) { return std::make_shared<d_string>(std::string(&value, &value + 1)); }
-		inline std::shared_ptr<sqf::runtime::data> to_data(std::string str) { return std::make_shared<d_string>(str); }
-		inline std::shared_ptr<sqf::runtime::data> to_data(std::string_view str) { return std::make_shared<d_string>(str); }
+		template<>
+		inline std::shared_ptr<sqf::runtime::data> to_data<const char*>(const char* str) { return std::make_shared<d_string>(std::string(str)); }
+		template<>
+		inline std::shared_ptr<sqf::runtime::data> to_data<char>(char value) { return std::make_shared<d_string>(std::string(&value, &value + 1)); }
+		template<>
+		inline std::shared_ptr<sqf::runtime::data> to_data<std::string>(std::string str) { return std::make_shared<d_string>(str); }
+		template<>
+		inline std::shared_ptr<sqf::runtime::data> to_data<std::string_view>(std::string_view str) { return std::make_shared<d_string>(str); }
 	}
 }

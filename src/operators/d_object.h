@@ -20,7 +20,7 @@ namespace sqf
 		class d_object : public sqf::runtime::data
 		{
 		public:
-			static sqf::runtime::type cexp_type() { return sqf::runtime::t_object(); }
+			using data_type = sqf::runtime::t_object;
 		private:
 			std::weak_ptr<object> m_value;
 		protected:
@@ -53,7 +53,7 @@ namespace sqf
 			}
 			std::string to_string() const override { return to_string_sqf(); }
 
-			sqf::runtime::type type() const override { return cexp_type(); }
+			sqf::runtime::type type() const override { return data_type(); }
 
 			bool is_null() const { return m_value.expired(); }
 
@@ -69,7 +69,8 @@ namespace sqf
 
 			operator std::shared_ptr<::sqf::types::object>() { return value(); }
 		};
-		inline std::shared_ptr<sqf::runtime::data> to_data(std::shared_ptr<sqf::types::object> value)
+		template<>
+		inline std::shared_ptr<sqf::runtime::data> to_data<std::shared_ptr<sqf::types::object>>(std::shared_ptr<sqf::types::object> value)
 		{
 			return std::make_shared<d_object>(value);
 		}

@@ -5,9 +5,9 @@
 using namespace std::string_view_literals;
 
 #pragma region StdOutLogger
-void StdOutLogger::log(loglevel level, std::string_view message) {
+void StdOutLogger::log(const LogMessageBase& message) {
 	auto& logTarget = std::cout;
-    logTarget << Logger::loglevelstring(level) << ' ' << message << std::endl;
+    logTarget << Logger::loglevelstring(message.getLevel()) << ' ' << message.formatMessage() << std::endl;
 }
 #pragma endregion StdOutLogger
 
@@ -50,7 +50,7 @@ std::string LogLocationInfo::format() const {
 
 void CanLog::log(LogMessageBase& message) const {
     if (!m_logger.isEnabled(message.getLevel())) return;
-	m_logger.log(message.getLevel(), message.formatMessage());
+	m_logger.log(message);
 
 
     //log(logmessage::preprocessor::ArgCountMissmatch(LogLocationInfo()));
@@ -58,7 +58,7 @@ void CanLog::log(LogMessageBase& message) const {
 }
 void CanLog::log(LogMessageBase&& message) const {
     if (!m_logger.isEnabled(message.getLevel())) return;
-	m_logger.log(message.getLevel(), message.formatMessage());
+	m_logger.log(message);
 
 
     //log(logmessage::preprocessor::ArgCountMissmatch(LogLocationInfo()));
@@ -69,7 +69,7 @@ void CanLog::log(LogMessageBase&& message) const {
 namespace logmessage::preprocessor {
 
     std::string ArgCountMissmatch::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
         auto const message = "Arg Count Missmatch."sv;
 
         output.reserve(output.length() + message.length());
@@ -78,7 +78,7 @@ namespace logmessage::preprocessor {
     }
 
     std::string UnexpectedDataAfterInclude::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
         auto const message = "Unexpected data after include path."sv;
 
         output.reserve(output.length() + message.length());
@@ -88,7 +88,7 @@ namespace logmessage::preprocessor {
     }
 
     std::string RecursiveInclude::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
         auto const message = "Recursive include detected. Include Tree:"sv;
 
         output.reserve(output.length() + message.length() + includeTree.length());
@@ -98,21 +98,21 @@ namespace logmessage::preprocessor {
     }
 
     std::string IncludeFailed::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
 
         output.reserve(
             output.length() 
             + "Failed to include '"sv.length()
             + line.length()
             + "' into file '"sv.length()
-            + location.path.length()
+            + m_location.path.length()
             + "']\t':"sv.length()
             + m_exception.length()
         );
         output.append("Failed to include '"sv);
         output.append(line);
         output.append("' into file '"sv);
-        output.append(location.path);
+        output.append(m_location.path);
         output.append("']\t':"sv);
         output.append(m_exception);
         return output;
@@ -120,7 +120,7 @@ namespace logmessage::preprocessor {
     }
 
     std::string MacroDefinedTwice::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
 
         output.reserve(
             output.length() 
@@ -136,7 +136,7 @@ namespace logmessage::preprocessor {
     }
 
     std::string MacroNotFound::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
 
         output.reserve(
             output.length() 
@@ -152,7 +152,7 @@ namespace logmessage::preprocessor {
     }
 
     std::string UnexpectedIfdef::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
         const auto message = "Unexpected IFDEF. Already inside of a IFDEF or IFNDEF enclosure."sv;
 
         output.reserve(
@@ -165,7 +165,7 @@ namespace logmessage::preprocessor {
     }
 
     std::string UnexpectedIfndef::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
         const auto message = "Unexpected IFNDEF. Already inside of a IFDEF or IFNDEF enclosure."sv;
 
         output.reserve(
@@ -178,7 +178,7 @@ namespace logmessage::preprocessor {
     }
 
     std::string UnexpectedElse::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
         const auto message = "Unexpected ELSE. Not inside of a IFDEF or IFNDEF enclosure."sv;
 
         output.reserve(
@@ -191,7 +191,7 @@ namespace logmessage::preprocessor {
     }
 
     std::string UnexpectedEndif::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
         const auto message = "Unexpected ENDIF. Not inside of a IFDEF or IFNDEF enclosure."sv;
 
         output.reserve(
@@ -203,7 +203,7 @@ namespace logmessage::preprocessor {
         return output;
     }
     std::string MissingEndif::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
         const auto message = "Missing ENDIF. Still inside of a IFDEF or IFNDEF enclosure at end of file."sv;
 
         output.reserve(
@@ -216,7 +216,7 @@ namespace logmessage::preprocessor {
     }
 
     std::string UnknownInstruction::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
 
         output.reserve(
             output.length() 
@@ -232,7 +232,7 @@ namespace logmessage::preprocessor {
     }
 
     std::string EmptyArgument::formatMessage() const {
-        auto output = location.format();
+        auto output = m_location.format();
         const auto message = "Empty argument passed to macro."sv;
 
         output.reserve(
@@ -248,7 +248,7 @@ namespace logmessage::preprocessor {
 namespace logmessage::assembly {
 	std::string ExpectedSemicolon::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected Semicolon."sv;
 
 		output.reserve(
@@ -261,7 +261,7 @@ namespace logmessage::assembly {
 	}
 	std::string NoViableAlternativeInstructions::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No viable alternative at Instruction Path."sv 
 			"Expected: ENDSTATEMENT or CALLUNARY or CALLBINARY or ASSIGNTO" 
 			"or ASSIGNTOLOCAL or CALLNULAR or GETVARIABLE or MAKEARRAY or PUSH"sv;
@@ -276,7 +276,7 @@ namespace logmessage::assembly {
 	}
 	std::string NoViableAlternativeArg::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No viable alternative at Instruction Path."sv
 			"Expected: CALLUNARY or CALLBINARY or ASSIGNTO"
 			"or ASSIGNTOLOCAL or CALLNULAR or GETVARIABLE or MAKEARRAY"sv;
@@ -291,7 +291,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedEndStatement::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected literal 'endStatement'."sv;
 
 		output.reserve(
@@ -304,7 +304,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedCallNular::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected literal 'callNular'."sv;
 
 		output.reserve(
@@ -317,7 +317,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedNularOperator::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected name of nular operator."sv;
 
 		output.reserve(
@@ -330,7 +330,7 @@ namespace logmessage::assembly {
 	}
 	std::string UnknownNularOperator::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -346,7 +346,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedCallUnary::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected literal 'callUnary'."sv;
 
 		output.reserve(
@@ -359,7 +359,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedUnaryOperator::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected name of unary operator."sv;
 
 		output.reserve(
@@ -372,7 +372,7 @@ namespace logmessage::assembly {
 	}
 	std::string UnknownUnaryOperator::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -388,7 +388,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedCallBinary::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected literal 'callBinary'."sv;
 
 		output.reserve(
@@ -401,7 +401,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedBinaryOperator::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected name of binary operator."sv;
 
 		output.reserve(
@@ -414,7 +414,7 @@ namespace logmessage::assembly {
 	}
 	std::string UnknownBinaryOperator::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -430,7 +430,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedAssignTo::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected literal 'assignTo'."sv;
 
 		output.reserve(
@@ -443,7 +443,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedVariableName::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected variable name."sv;
 
 		output.reserve(
@@ -456,7 +456,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedAssignToLocal::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected literal 'assignToLocal'."sv;
 
 		output.reserve(
@@ -469,7 +469,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedGetVariable::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected literal 'getVariable'."sv;
 
 		output.reserve(
@@ -482,7 +482,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedMakeArray::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected literal 'makeArray'."sv;
 
 		output.reserve(
@@ -495,7 +495,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedInteger::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected integer."sv;
 
 		output.reserve(
@@ -508,7 +508,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedPush::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected literal 'push'."sv;
 
 		output.reserve(
@@ -521,7 +521,7 @@ namespace logmessage::assembly {
 	}
 	std::string ExpectedTypeName::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected type name."sv;
 
 		output.reserve(
@@ -534,7 +534,7 @@ namespace logmessage::assembly {
 	}
 	std::string NumberOutOfRange::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Number out of range. Creating NaN value."sv;
 
 		output.reserve(
@@ -551,7 +551,7 @@ namespace logmessage::sqf
 {
 	std::string ExpectedStatementTerminator::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected Statement termination using `;` or `,`."sv;
 
 		output.reserve(
@@ -564,7 +564,7 @@ namespace logmessage::sqf
 	}
 	std::string NoViableAlternativeStatement::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No viable alternative for Statement. Expected Assignment or Expression."sv;
 
 		output.reserve(
@@ -577,7 +577,7 @@ namespace logmessage::sqf
 	}
 	std::string MissingUnderscoreOnPrivateVariable::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -593,7 +593,7 @@ namespace logmessage::sqf
 	}
 	std::string ExpectedBinaryExpression::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected Expression."sv;
 
 		output.reserve(
@@ -607,7 +607,7 @@ namespace logmessage::sqf
 	std::string MissingRightArgument::formatMessage() const
 	{
 		// m_operator_name
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -623,7 +623,7 @@ namespace logmessage::sqf
 	}
 	std::string MissingRoundClosingBracket::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Missing round closing bracket (`)`)."sv;
 
 		output.reserve(
@@ -636,7 +636,7 @@ namespace logmessage::sqf
 	}
 	std::string MissingCurlyClosingBracket::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Missing curly closing bracket (`}`)."sv;
 
 		output.reserve(
@@ -649,7 +649,7 @@ namespace logmessage::sqf
 	}
 	std::string MissingSquareClosingBracket::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Missing square closing bracket (`]`)."sv;
 
 		output.reserve(
@@ -662,7 +662,7 @@ namespace logmessage::sqf
 	}
 	std::string NoViableAlternativePrimaryExpression::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No viable alternative for Primary Expression. Expected NUMBER or UNARYEXPRESSION or NULAREXPRESSION or VARIABLE or STRING or CODE or BRACKETS or ARRAY."sv;
 
 		output.reserve(
@@ -675,7 +675,7 @@ namespace logmessage::sqf
 	}
 	std::string EmptyNumber::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "The materialized numeric value is empty."sv;
 
 		output.reserve(
@@ -688,7 +688,7 @@ namespace logmessage::sqf
 	}
 	std::string ExpectedSQF::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected SQF."sv;
 
 		output.reserve(
@@ -701,7 +701,7 @@ namespace logmessage::sqf
 	}
 	std::string EndOfFile::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Unexpected end-of-file reached."sv;
 
 		output.reserve(
@@ -714,7 +714,7 @@ namespace logmessage::sqf
 	}
 	std::string InvalidStartOfGlobalVariable::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -730,7 +730,7 @@ namespace logmessage::sqf
 	}
 	std::string MissingStringTermination::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -746,7 +746,7 @@ namespace logmessage::config
 {
 	std::string ExpectedStatementTerminator::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected Statement termination using `;`."sv;
 
 		output.reserve(
@@ -759,7 +759,7 @@ namespace logmessage::config
 	}
 	std::string NoViableAlternativeNode::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No viable alternative for Statement. Expected Confignode or Valuenode."sv;
 
 		output.reserve(
@@ -772,7 +772,7 @@ namespace logmessage::config
 	}
 	std::string ExpectedIdentifier::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected Identifier."sv;
 
 		output.reserve(
@@ -785,7 +785,7 @@ namespace logmessage::config
 	}
 	std::string MissingRoundClosingBracket::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Missing round closing bracket (`)`)."sv;
 
 		output.reserve(
@@ -798,7 +798,7 @@ namespace logmessage::config
 	}
 	std::string MissingCurlyOpeningBracket::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Missing curly opening bracket (`{`)."sv;
 
 		output.reserve(
@@ -811,7 +811,7 @@ namespace logmessage::config
 	}
 	std::string MissingCurlyClosingBracket::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Missing curly closing bracket (`}`)."sv;
 
 		output.reserve(
@@ -824,7 +824,7 @@ namespace logmessage::config
 	}
 	std::string MissingSquareClosingBracket::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Missing square closing bracket (`]`)."sv;
 
 		output.reserve(
@@ -837,7 +837,7 @@ namespace logmessage::config
 	}
 	std::string MissingEqualSign::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Missing equal sign (`=`)."sv;
 
 		output.reserve(
@@ -850,7 +850,7 @@ namespace logmessage::config
 	}
 	std::string ExpectedArray::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected Array."sv;
 
 		output.reserve(
@@ -863,7 +863,7 @@ namespace logmessage::config
 	}
 	std::string ExpectedValue::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected Value."sv;
 
 		output.reserve(
@@ -876,7 +876,7 @@ namespace logmessage::config
 	}
 	std::string NoViableAlternativeValue::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No viable alternative for Value. Expected String or Number or Localization or Array."sv;
 
 		output.reserve(
@@ -889,7 +889,7 @@ namespace logmessage::config
 	}
 	std::string EndOfFileNotReached::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Parsing terminated before end of file was reached. "sv
 			"This usually means that your provided config contains errors that the parser could not catch."sv;
 
@@ -906,7 +906,7 @@ namespace logmessage::linting
 {
 	std::string UnassignedVariable::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -1016,12 +1016,12 @@ namespace logmessage::runtime
 	std::string Stacktrace::formatMessage() const
 	{
 		std::stringstream sstream;
-		sstream << location.format()  << "Stacktrace:" << m_stacktrace.to_string() << std::endl;
+		sstream << m_location.format()  << "Stacktrace:" << m_stacktrace.to_string() << std::endl;
 		return sstream.str();
 	}
 	std::string MaximumRuntimeReached::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto maximum_runtime = to_cardinal_string(m_maximum_runtime.count());
 
 		output.reserve(
@@ -1040,7 +1040,7 @@ namespace logmessage::runtime
 	{
 		if (m_expected_min == m_expected_max)
 		{
-			auto output = location.format();
+			auto output = m_location.format();
 			auto expected_min = to_cardinal_string(m_expected_min);
 			auto got = to_cardinal_string(m_got);
 
@@ -1062,7 +1062,7 @@ namespace logmessage::runtime
 		}
 		else
 		{
-			auto output = location.format();
+			auto output = m_location.format();
 			auto expected_min = to_cardinal_string(m_expected_min);
 			auto expected_max = to_cardinal_string(m_expected_max);
 			auto got = to_cardinal_string(m_got);
@@ -1092,7 +1092,7 @@ namespace logmessage::runtime
 	{
 		if (m_expected_min == m_expected_max)
 		{
-			auto output = location.format();
+			auto output = m_location.format();
 			auto expected_min = to_cardinal_string(m_expected_min);
 			auto got = to_cardinal_string(m_got);
 
@@ -1114,7 +1114,7 @@ namespace logmessage::runtime
 		}
 		else
 		{
-			auto output = location.format();
+			auto output = m_location.format();
 			auto expected_min = to_cardinal_string(m_expected_min);
 			auto expected_max = to_cardinal_string(m_expected_max);
 			auto got = to_cardinal_string(m_got);
@@ -1142,7 +1142,7 @@ namespace logmessage::runtime
 	}
 	std::string ExpectedMinimumArraySizeMissmatch::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto expected = to_cardinal_string(m_expected);
 		auto got = to_cardinal_string(m_got);
 
@@ -1164,7 +1164,7 @@ namespace logmessage::runtime
 	}
 	std::string ExpectedMinimumArraySizeMissmatchWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto expected = to_cardinal_string(m_expected);
 		auto got = to_cardinal_string(m_got);
 
@@ -1187,7 +1187,7 @@ namespace logmessage::runtime
 	std::string ExpectedArrayTypeMissmatch::formatMessage() const
 	{
 		std::stringstream sstream;
-		auto output = location.format();
+		auto output = m_location.format();
 		auto position = to_ordinal_string(m_position);
 		auto got = m_got.to_string();
 		sstream << output;
@@ -1212,7 +1212,7 @@ namespace logmessage::runtime
 	std::string ExpectedArrayTypeMissmatchWeak::formatMessage() const
 	{
 		std::stringstream sstream;
-		auto output = location.format();
+		auto output = m_location.format();
 		auto position = to_ordinal_string(m_position);
 		auto got = m_got.to_string();
 		sstream << output;
@@ -1236,7 +1236,7 @@ namespace logmessage::runtime
 	}
 	std::string IndexOutOfRange::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto range = to_cardinal_string(m_range);
 		auto index = to_cardinal_string(m_index);
 
@@ -1258,7 +1258,7 @@ namespace logmessage::runtime
 	}
 	std::string IndexOutOfRangeWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto range = to_cardinal_string(m_range);
 		auto index = to_cardinal_string(m_index);
 
@@ -1281,7 +1281,7 @@ namespace logmessage::runtime
 
 	std::string NegativeIndex::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "The requested index is negative."sv;
 
 		output.reserve(
@@ -1294,7 +1294,7 @@ namespace logmessage::runtime
 	}
 	std::string NegativeIndexWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "The requested index is negative."sv;
 
 		output.reserve(
@@ -1307,7 +1307,7 @@ namespace logmessage::runtime
 	}
 	std::string IndexEqualsRange::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto range = to_cardinal_string(m_range);
 		auto index = to_cardinal_string(m_index);
 
@@ -1329,7 +1329,7 @@ namespace logmessage::runtime
 	}
 	std::string ReturningNil::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Returning nil."sv;
 
 		output.reserve(
@@ -1342,7 +1342,7 @@ namespace logmessage::runtime
 	}
 	std::string ReturningEmptyArray::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Returning empty array."sv;
 
 		output.reserve(
@@ -1355,7 +1355,7 @@ namespace logmessage::runtime
 	}
 	std::string NegativeSize::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "The requested size is negative."sv;
 
 		output.reserve(
@@ -1368,7 +1368,7 @@ namespace logmessage::runtime
 	}
 	std::string NegativeSizeWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "The requested size is negative."sv;
 
 		output.reserve(
@@ -1381,7 +1381,7 @@ namespace logmessage::runtime
 	}
 	std::string ArrayRecursion::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Array recursion."sv;
 
 		output.reserve(
@@ -1394,7 +1394,7 @@ namespace logmessage::runtime
 	}
 	std::string InfoMessage::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -1412,7 +1412,7 @@ namespace logmessage::runtime
 	}
 	std::string SuspensionDisabled::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Suspension disabled."sv;
 
 		output.reserve(
@@ -1426,7 +1426,7 @@ namespace logmessage::runtime
 
 	std::string SuspensionInUnscheduledEnvironment::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Cannot suspend in non-scheduled environment."sv;
 
 		output.reserve(
@@ -1439,7 +1439,7 @@ namespace logmessage::runtime
 	}
 	std::string ReturningConfigNull::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Returning config null."sv;
 
 		output.reserve(
@@ -1452,7 +1452,7 @@ namespace logmessage::runtime
 	}
 	std::string AssertFailed::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Assertion Failed."sv;
 
 		output.reserve(
@@ -1465,7 +1465,7 @@ namespace logmessage::runtime
 	}
 	std::string StartIndexExceedsToIndex::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto from = to_cardinal_string(m_from);
 		auto to = to_cardinal_string(m_to);
 
@@ -1487,7 +1487,7 @@ namespace logmessage::runtime
 	}
 	std::string StartIndexExceedsToIndexWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto from = to_cardinal_string(m_from);
 		auto to = to_cardinal_string(m_to);
 
@@ -1509,7 +1509,7 @@ namespace logmessage::runtime
 	}
 	std::string MagicVariableTypeMissmatch::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto variable_name = m_variable_name;
 		auto expected = m_expected.to_string();
 		auto got = m_got.to_string();
@@ -1536,7 +1536,7 @@ namespace logmessage::runtime
 	}
 	std::string ScriptHandleAlreadyTerminated::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Scripthandle already terminated."sv;
 
 		output.reserve(
@@ -1549,7 +1549,7 @@ namespace logmessage::runtime
 	}
 	std::string ScriptHandleAlreadyFinished::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Scripthandle already finished."sv;
 
 		output.reserve(
@@ -1562,7 +1562,7 @@ namespace logmessage::runtime
 	}
 	std::string ExtensionLoaded::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto extension_name = m_extension_name;
 		auto version = m_version;
 
@@ -1584,7 +1584,7 @@ namespace logmessage::runtime
 	}
 	std::string ExtensionNotTerminatingVersionString::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto extension_name = m_extension_name;
 
 		output.reserve(
@@ -1602,7 +1602,7 @@ namespace logmessage::runtime
 
 	std::string ExtensionNotTerminatingCallExtensionBufferString::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto extension_name = m_extension_name;
 
 		output.reserve(
@@ -1619,7 +1619,7 @@ namespace logmessage::runtime
 	}
 	std::string ExtensionNotTerminatingCallExtensionArgBufferString::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto extension_name = m_extension_name;
 
 		output.reserve(
@@ -1636,7 +1636,7 @@ namespace logmessage::runtime
 	}
 	std::string LibraryNameContainsPath::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto extension_name = m_extension_name;
 
 		output.reserve(
@@ -1653,7 +1653,7 @@ namespace logmessage::runtime
 	}
 	std::string ReturningEmptyString::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Returning empty string."sv;
 
 		output.reserve(
@@ -1666,7 +1666,7 @@ namespace logmessage::runtime
 	}
 	std::string ExtensionRuntimeError::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto extension_name = m_extension_name;
 		auto what = m_what;
 
@@ -1688,7 +1688,7 @@ namespace logmessage::runtime
 	}
 	std::string FileNotFound::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto filename = m_filename;
 
 		output.reserve(
@@ -1705,7 +1705,7 @@ namespace logmessage::runtime
 	}
 	std::string ScopeNameAlreadySet::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Scropename already set."sv;
 
 		output.reserve(
@@ -1718,7 +1718,7 @@ namespace logmessage::runtime
 	}
 	std::string ScriptNameAlreadySet::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Scriptname already set."sv;
 
 		output.reserve(
@@ -1731,7 +1731,7 @@ namespace logmessage::runtime
 	}
 	std::string ReturningEmptyScriptHandle::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Returning empty script handle."sv;
 
 		output.reserve(
@@ -1744,7 +1744,7 @@ namespace logmessage::runtime
 	}
 	std::string ReturningErrorCode::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto error_code = m_error_code;
 
 		output.reserve(
@@ -1761,7 +1761,7 @@ namespace logmessage::runtime
 	std::string ExpectedSubArrayTypeMissmatch::formatMessage() const
 	{
 		std::stringstream sstream;
-		auto output = location.format();
+		auto output = m_location.format();
 		auto got = m_got.to_string();
 		sstream << "Expected the subarray at index "sv;
 		bool flag = false;
@@ -1793,7 +1793,7 @@ namespace logmessage::runtime
 	std::string ExpectedSubArrayTypeMissmatchWeak::formatMessage() const
 	{
 		std::stringstream sstream;
-		auto output = location.format();
+		auto output = m_location.format();
 		auto got = m_got.to_string();
 		sstream << "Expected the subarray at index "sv;
 		bool flag = false;
@@ -1824,7 +1824,7 @@ namespace logmessage::runtime
 	}
 	std::string ErrorMessage::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -1842,7 +1842,7 @@ namespace logmessage::runtime
 	}
 	std::string FileSystemDisabled::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Filesystem disabled."sv;
 
 		output.reserve(
@@ -1855,7 +1855,7 @@ namespace logmessage::runtime
 	}
 	std::string NetworkingDisabled::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Networking disabled."sv;
 
 		output.reserve(
@@ -1868,7 +1868,7 @@ namespace logmessage::runtime
 	}
 	std::string AlreadyConnected::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Failed to establish connection as one is existing already."sv;
 
 		output.reserve(
@@ -1881,7 +1881,7 @@ namespace logmessage::runtime
 	}
 	std::string NetworkingFormatMissmatch::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		
 
 		output.reserve(
@@ -1898,7 +1898,7 @@ namespace logmessage::runtime
 	}
 	std::string FailedToEstablishConnection::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Failed to establish connection for unknown reason."sv;
 
 		output.reserve(
@@ -1911,7 +1911,7 @@ namespace logmessage::runtime
 	}
 	std::string ExpectedArrayToHaveElements::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected array to have elements."sv;
 
 		output.reserve(
@@ -1924,7 +1924,7 @@ namespace logmessage::runtime
 	}
 	std::string ExpectedArrayToHaveElementsWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Expected array to have elements."sv;
 
 		output.reserve(
@@ -1938,7 +1938,7 @@ namespace logmessage::runtime
 
 	std::string ClipboardDisabled::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Clipboard disabled."sv;
 
 		output.reserve(
@@ -1951,7 +1951,7 @@ namespace logmessage::runtime
 	}
 	std::string FailedToCopyToClipboard::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Failed to copy to clipboard."sv;
 
 		output.reserve(
@@ -1964,7 +1964,7 @@ namespace logmessage::runtime
 	}
 	std::string FormatInvalidPlaceholder::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto index = to_cardinal_string(m_index);
 
 		output.reserve(
@@ -1985,7 +1985,7 @@ namespace logmessage::runtime
 	}
 	std::string ZeroDivisor::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Zero divisor."sv;
 
 		output.reserve(
@@ -1998,7 +1998,7 @@ namespace logmessage::runtime
 	}
 	std::string MarkerNotExisting::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -2014,7 +2014,7 @@ namespace logmessage::runtime
 	}
 	std::string ReturningDefaultArray::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -2034,7 +2034,7 @@ namespace logmessage::runtime
 	}
 	std::string ReturningScalarZero::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Returning zero (0)."sv;
 
 		output.reserve(
@@ -2047,7 +2047,7 @@ namespace logmessage::runtime
 	}
 	std::string ExpectedNonNullValue::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Provided value is null."sv;
 
 		output.reserve(
@@ -2060,7 +2060,7 @@ namespace logmessage::runtime
 	}
 	std::string ExpectedNonNullValueWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Provided value is null."sv;
 
 		output.reserve(
@@ -2073,7 +2073,7 @@ namespace logmessage::runtime
 	}
 	std::string ConfigEntryNotFound::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		size_t size = 0;
 		for (const auto& it : m_config_path)
 		{
@@ -2108,7 +2108,7 @@ namespace logmessage::runtime
 
 	std::string ConfigEntryNotFoundWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		size_t size = 0;
 		for (const auto& it : m_config_path)
 		{
@@ -2142,7 +2142,7 @@ namespace logmessage::runtime
 	}
 	std::string ExpectedVehicle::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Provided object was expected to be a vehicle, got unit."sv;
 
 		output.reserve(
@@ -2155,7 +2155,7 @@ namespace logmessage::runtime
 	}
 	std::string ExpectedVehicleWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Provided object was expected to be a vehicle, got unit."sv;
 
 		output.reserve(
@@ -2168,7 +2168,7 @@ namespace logmessage::runtime
 	}
 	std::string ExpectedUnit::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Provided object was expected to be a unit, got vehicle."sv;
 
 		output.reserve(
@@ -2181,7 +2181,7 @@ namespace logmessage::runtime
 	}
 	std::string ExpectedUnitWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Provided object was expected to be a unit, got vehicle."sv;
 
 		output.reserve(
@@ -2194,7 +2194,7 @@ namespace logmessage::runtime
 	}
 	std::string ReturningFalse::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Returning false."sv;
 
 		output.reserve(
@@ -2207,7 +2207,7 @@ namespace logmessage::runtime
 	}
 	std::string MarkerAlreadyExisting::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -2223,7 +2223,7 @@ namespace logmessage::runtime
 	}
 	std::string InvalidMarkershape::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -2239,7 +2239,7 @@ namespace logmessage::runtime
 	}
 	std::string TypeMissmatch::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto expected = m_expected.to_string();
 		auto got = m_got.to_string();
 
@@ -2261,7 +2261,7 @@ namespace logmessage::runtime
 	}
 	std::string TypeMissmatchWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto expected = m_expected.to_string();
 		auto got = m_got.to_string();
 
@@ -2284,7 +2284,7 @@ namespace logmessage::runtime
 
 	std::string VariableNotFound::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -2300,7 +2300,7 @@ namespace logmessage::runtime
 	}
 	std::string StackCorruptionMissingValues::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto expected = to_cardinal_string(m_expected);
 		auto got = to_cardinal_string(m_got);
 
@@ -2322,7 +2322,7 @@ namespace logmessage::runtime
 	}
 	std::string NoValueFoundForRightArgument::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No value found on value stack for right argument."sv;
 
 		output.reserve(
@@ -2335,7 +2335,7 @@ namespace logmessage::runtime
 	}
 	std::string NoValueFoundForRightArgumentWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No value found on value stack for right argument."sv;
 
 		output.reserve(
@@ -2348,7 +2348,7 @@ namespace logmessage::runtime
 	}
 	std::string NoValueFoundForLeftArgument::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No value found on value stack for left argument."sv;
 
 		output.reserve(
@@ -2361,7 +2361,7 @@ namespace logmessage::runtime
 	}
 	std::string NoValueFoundForLeftArgumentWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No value found on value stack for left argument."sv;
 
 		output.reserve(
@@ -2374,7 +2374,7 @@ namespace logmessage::runtime
 	}
 	std::string UnknownInputTypeCombinationBinary::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto left_got = m_left_got.to_string();
 		auto right_got = m_right_got.to_string();
 		output.reserve(
@@ -2399,7 +2399,7 @@ namespace logmessage::runtime
 	}
 	std::string UnknownInputTypeCombinationUnary::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto right_got = m_right_got.to_string();
 		output.reserve(
 			output.length()
@@ -2419,7 +2419,7 @@ namespace logmessage::runtime
 	}
 	std::string UnknownInputTypeCombinationNular::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		output.reserve(
 			output.length()
 			+ "Unknown input combination "sv.length()
@@ -2434,7 +2434,7 @@ namespace logmessage::runtime
 	}
 	std::string FoundNoValue::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No value found on value stack."sv;
 
 		output.reserve(
@@ -2447,7 +2447,7 @@ namespace logmessage::runtime
 	}
 	std::string FoundNoValueWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "No value found on value stack."sv;
 
 		output.reserve(
@@ -2460,7 +2460,7 @@ namespace logmessage::runtime
 	}
 	std::string CallstackFoundNoValue::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto callstack_name = m_callstack_name;
 
 		output.reserve(
@@ -2477,7 +2477,7 @@ namespace logmessage::runtime
 	}
 	std::string CallstackFoundNoValueWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto callstack_name = m_callstack_name;
 
 		output.reserve(
@@ -2494,7 +2494,7 @@ namespace logmessage::runtime
 	}
 	std::string GroupNotEmpty::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 
 		output.reserve(
 			output.length()
@@ -2510,7 +2510,7 @@ namespace logmessage::runtime
 	}
 	std::string ForStepVariableTypeMissmatch::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto expected = m_expected.to_string();
 		auto got = m_got.to_string();
 
@@ -2536,7 +2536,7 @@ namespace logmessage::runtime
 	}
 	std::string ForStepNoWorkShouldBeDone::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto step = to_string(m_step);
 		auto from = to_string(m_from);
 		auto to = to_string(m_to);
@@ -2563,7 +2563,7 @@ namespace logmessage::runtime
 	}
 	std::string ReconstructionOfCodeFailed::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Reconstructing code from assembly failed."sv;
 
 		output.reserve(
@@ -2576,7 +2576,7 @@ namespace logmessage::runtime
 	}
 	std::string WaitUntilMaxLoopReached::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Max-Loop reached for WaitUntil."sv;
 
 		output.reserve(
@@ -2589,7 +2589,7 @@ namespace logmessage::runtime
 	}
 	std::string ArraySizeChanged::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto before = to_string(m_before);
 		auto after = to_string(m_after);
 
@@ -2611,7 +2611,7 @@ namespace logmessage::runtime
 	}
 	std::string MagicVariableNotPresent::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto variable_name = m_variable_name;
 
 		output.reserve(
@@ -2628,7 +2628,7 @@ namespace logmessage::runtime
 	}
 	std::string GroupLeaderNotPartOfGroup::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Leader set is not part of group."sv;
 
 		output.reserve(
@@ -2641,7 +2641,7 @@ namespace logmessage::runtime
 	}
 	std::string AssigningNilValue::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		auto variable_name = m_variable_name;
 
 		output.reserve(
@@ -2658,7 +2658,7 @@ namespace logmessage::runtime
 	}
 	std::string ConditionEmpty::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Condition provided is empty."sv;
 
 		output.reserve(
@@ -2671,7 +2671,7 @@ namespace logmessage::runtime
 	}
 	std::string NilValueFoundForRightArgumentWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Nil value provided for right-handed argument."sv;
 
 		output.reserve(
@@ -2684,7 +2684,7 @@ namespace logmessage::runtime
 	}
 	std::string NilValueFoundForLeftArgumentWeak::formatMessage() const
 	{
-		auto output = location.format();
+		auto output = m_location.format();
 		const auto message = "Nil value provided for left-handed argument."sv;
 
 		output.reserve(

@@ -5,6 +5,7 @@
 #include "../runtime/d_boolean.h"
 #include "../runtime/d_code.h"
 #include "../runtime/context.h"
+#include "../runtime/instruction_set.h"
 
 #include <string>
 #include <memory>
@@ -20,35 +21,33 @@ namespace sqf
         struct t_for : public sqf::runtime::type::extend<t_for> { t_for() : extend() {} static const std::string name() { return "FOR"; } };;
         struct t_exception : public sqf::runtime::type::extend<t_exception> { t_exception() : extend() {} static const std::string name() { return "EXCEPTION"; } };
         class runtime;
-        class context;
-        class instruction_set;
     }
     namespace types
     {
         class d_if : public sqf::types::d_boolean
         {
         public:
-            static sqf::runtime::type cexp_type() { return sqf::runtime::t_if(); }
+            using data_type = sqf::runtime::t_if;
         public:
             d_if() = default;
             d_if(bool flag) : d_boolean(flag) {}
 
-            sqf::runtime::type type() const override { return cexp_type(); }
+            sqf::runtime::type type() const override { return data_type(); }
         };
         class d_exception : public sqf::types::d_code
         {
         public:
-            static sqf::runtime::type cexp_type() { return sqf::runtime::t_exception(); }
+            using data_type = sqf::runtime::t_exception;
         public:
             d_exception() = default;
             d_exception(sqf::runtime::instruction_set set) : d_code(set) {}
 
-            sqf::runtime::type type() const override { return cexp_type(); }
+            sqf::runtime::type type() const override { return data_type(); }
         };
         class d_script : public sqf::runtime::data
         {
         public:
-            static sqf::runtime::type cexp_type() { return sqf::runtime::t_script(); }
+            using data_type = sqf::runtime::t_script;
         private:
             std::weak_ptr<sqf::runtime::context> m_context;
         protected:
@@ -78,7 +77,7 @@ namespace sqf
                 }
             }
 
-            sqf::runtime::type type() const override { return cexp_type(); }
+            sqf::runtime::type type() const override { return data_type(); }
 
             std::shared_ptr<sqf::runtime::context> value() const { return m_context.lock(); }
             void value(std::weak_ptr<sqf::runtime::context> weak) { m_context = weak; }
@@ -88,7 +87,7 @@ namespace sqf
         class d_switch : public sqf::runtime::data
         {
         public:
-            static sqf::runtime::type cexp_type() { return sqf::runtime::t_switch(); }
+            using data_type = sqf::runtime::t_switch;
             inline static const std::string magic = "___switch";
         private:
             sqf::runtime::instruction_set m_target_code;
@@ -113,7 +112,7 @@ namespace sqf
                 return m_value.to_string();
             }
 
-            sqf::runtime::type type() const override { return cexp_type(); }
+            sqf::runtime::type type() const override { return data_type(); }
 
             sqf::runtime::instruction_set target_code() const { return m_target_code; }
             void target_code(sqf::runtime::instruction_set set) { m_target_code = set; }
@@ -130,17 +129,17 @@ namespace sqf
         class d_while : public sqf::types::d_code
         {
         public:
-            static sqf::runtime::type cexp_type() { return sqf::runtime::t_while(); }
+            using data_type = sqf::runtime::t_while;
         public:
             d_while() = default;
             d_while(sqf::runtime::instruction_set set) : d_code(set) {}
 
-            sqf::runtime::type type() const override { return cexp_type(); }
+            sqf::runtime::type type() const override { return data_type(); }
         };
         class d_for : public sqf::runtime::data
         {
         public:
-            static sqf::runtime::type cexp_type() { return sqf::runtime::t_for(); }
+            using data_type = sqf::runtime::t_for;
         private:
             std::string m_variable;
             float m_from;
@@ -164,7 +163,7 @@ namespace sqf
                 return "ForType <invisible>";
             }
 
-            sqf::runtime::type type() const override { return cexp_type(); }
+            sqf::runtime::type type() const override { return data_type(); }
 
             std::string variable() const { return m_variable; }
             void variable(std::string value) { m_variable = value; }

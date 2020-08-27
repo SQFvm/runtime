@@ -8,7 +8,7 @@
 
 namespace sqf::fileio
 {
-	class default : public sqf::runtime::fileio
+	class impl_default : public sqf::runtime::fileio
 	{
 	private:
 		struct path_element
@@ -49,7 +49,9 @@ namespace sqf::fileio
 		/// <returns>empty optional on filenotfound or the pathinfo to the actual file.</returns>
 		std::optional<sqf::runtime::fileio::pathinfo> get_info_physical(std::string_view view, sqf::runtime::fileio::pathinfo current) const;
 	public:
-		default() : m_path_elements(), m_virtual_file_root(std::make_shared<path_element>())
+		impl_default() : 
+            m_virtual_file_root(std::make_shared<path_element>()),
+            m_path_elements()
 		{
 			m_virtual_file_root->virtual_full = "/";
 			m_path_elements.push_back(m_virtual_file_root);

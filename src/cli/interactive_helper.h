@@ -38,9 +38,9 @@ public:
 		m_commands.push_back({ std::vector(names.begin(), names.end()), callback, description });
 	}
 	interactive_helper(sqf::runtime::runtime& vm) :
+		m_commands(),
 		m_runtime(vm),
 		m_runtime_apply_action(sqf::runtime::runtime::action::invalid),
-		m_commands(),
 		m_thread_die(false),
 		m_exit(false),
 		m_context_selected(),

@@ -1,6 +1,8 @@
 #include "stacktrace.h"
 #include "../logging.h"
 
+#include <iomanip>
+
 std::string sqf::runtime::diagnostics::stacktrace::to_string() const
 {
 	std::stringstream sstream;

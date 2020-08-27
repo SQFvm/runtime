@@ -20,7 +20,7 @@ namespace sqf
 		class d_group : public sqf::runtime::data
 		{
 		public:
-			static sqf::runtime::type cexp_type() { return sqf::runtime::t_group(); }
+			using data_type = sqf::runtime::t_group;
 		private:
 			std::weak_ptr<group> m_value;
 		protected:
@@ -54,7 +54,7 @@ namespace sqf
 			}
 			std::string to_string() const override { return to_string_sqf(); }
 
-			sqf::runtime::type type() const override { return cexp_type(); }
+			sqf::runtime::type type() const override { return data_type(); }
 
 			bool is_null() const { return m_value.expired(); }
 
