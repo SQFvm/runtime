@@ -6,6 +6,8 @@
 #include "../opcodes/common.h"
 #include "../runtime/d_array.h"
 #include "../runtime/d_string.h"
+#include "../runtime/d_boolean.h"
+#include "../runtime/d_code.h"
 #include <algorithm>
 #include <charconv>
 
@@ -569,7 +571,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, std::vector
 			}
 
 			// Emit binary operator
-			set.push_back(std::make_shared<opcodes::call_binary>("call"s, 4));
+			set.push_back(std::make_shared<opcodes::call_binary>("call"s, (short)4));
 		}
 	} break;
 	case ::sqf::sqc::bison::astkind::VAL_STRING: {
