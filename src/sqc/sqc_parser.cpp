@@ -12,7 +12,7 @@
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 
-void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, std::vector<::sqf::runtime::instruction::sptr>& set, std::vector<std::string> locals, ::sqf::sqc::bison::astnode& node)
+void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, std::vector<::sqf::runtime::instruction::sptr>& set, std::vector<std::string>& locals, ::sqf::sqc::bison::astnode& node)
 {
 	switch (node.kind)
 	{
@@ -75,7 +75,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, std::vector
 		{
 			auto var = std::string(child.token.contents);
 			auto lvar = "_"s + var;
-			locals.push_back(lvar);
+			locals.push_back(var);
 			set.push_back(std::make_shared<opcodes::push>(lvar));
 		}
 		set.push_back(std::make_shared<opcodes::make_array>(node.children.size()));
@@ -553,8 +553,23 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, std::vector
 		}
 		else
 		{
-			log(logmessage::runtime::ErrorMessage({}, "SQC", "unknown operator: " + opname));
-			set.push_back(std::make_shared<opcodes::call_nular>("nil"s));
+			// Emit Right-Argument
+			to_assembly(runtime, set, locals, node.children[1]);
+			set.push_back(std::make_shared<opcodes::make_array>(std::max(node.children[1].children.size(), (size_t)1)));
+
+			// Emit function
+			std::string var(node.children[0].token.contents);
+			if (std::find(locals.begin(), locals.end(), var) != locals.end())
+			{
+				set.push_back(std::make_shared<opcodes::get_variable>("_" + var));
+			}
+			else
+			{
+				set.push_back(std::make_shared<opcodes::get_variable>(var));
+			}
+
+			// Emit binary operator
+			set.push_back(std::make_shared<opcodes::call_binary>("call"s, 4));
 		}
 	} break;
 	case ::sqf::sqc::bison::astkind::VAL_STRING: {
@@ -590,7 +605,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, std::vector
 		set.push_back(std::make_shared<::sqf::opcodes::push>(runtime::value{}));
 	} break;
 	case ::sqf::sqc::bison::astkind::GET_VARIABLE: {
-		std::string var(node.children[0].token.contents);
+		std::string var(node.token.contents);
 		if (std::find(locals.begin(), locals.end(), var) != locals.end())
 		{
 			set.push_back(std::make_shared<opcodes::get_variable>("_" + var));
@@ -601,13 +616,17 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, std::vector
 		}
 	} break;
 	default:
+		for (auto child : node.children)
+		{
+			to_assembly(runtime, set, locals, child);
+		}
 		break;
 	}
 }
 
 bool sqf::sqc::parser::check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
 {
-	tokenizer t({}, {});
+	tokenizer t(contents.begin(), contents.end());
 	::sqf::sqc::bison::astnode res;
 	::sqf::sqc::bison::parser p(t, res);
 	bool success = p.parse() == 0;
@@ -615,7 +634,7 @@ bool sqf::sqc::parser::check_syntax(::sqf::runtime::runtime& runtime, std::strin
 }
 std::optional<::sqf::runtime::instruction_set> sqf::sqc::parser::parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
 {
-	tokenizer t({}, {});
+	tokenizer t(contents.begin(), contents.end());
 	::sqf::sqc::bison::astnode res;
 	::sqf::sqc::bison::parser p(t, res);
 	bool success = p.parse() == 0;

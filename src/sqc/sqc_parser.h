@@ -20,7 +20,7 @@ namespace sqf::sqc
 	{
 	private:
 		constexpr static const char* __scopename_function = "___sqc_func";
-		void to_assembly(::sqf::runtime::runtime& runtime, std::vector<::sqf::runtime::instruction::sptr>& set, std::vector<std::string> locals, ::sqf::sqc::bison::astnode& current_node);
+		void to_assembly(::sqf::runtime::runtime& runtime, std::vector<::sqf::runtime::instruction::sptr>& set, std::vector<std::string>& locals, ::sqf::sqc::bison::astnode& current_node);
 	public:
 		parser(Logger& logger) : CanLog(logger)
 		{

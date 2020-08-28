@@ -46,6 +46,7 @@
      {
           enum class astkind
           {
+               __TOKEN = -1,
                NA = 0,
                RETURN,
                THROW,
@@ -100,17 +101,32 @@
                astkind kind;
                std::vector<astnode> children;
 
-               astnode() : token(), kind(astkind::NA) {}
-               astnode(astkind kind) : token(), kind(kind) {}
-               astnode(sqf::sqc::tokenizer::token t) : token(t), kind(astkind::NA) {}
+               astnode() : token(), kind(astkind::NA)
+               {
+               }
+               astnode(astkind kind) : token(), kind(kind)
+               {
+               }
+               astnode(sqf::sqc::tokenizer::token t) : token(t), kind(astkind::__TOKEN)
+               {
+               }
                astnode(astkind kind, sqf::sqc::tokenizer::token t) : token(t), kind(kind) {}
 
-               void append(astnode node) { children.push_back(node); }
-               void append_children(const astnode& other) { for (auto node : other.children) { append(node); } }
+               void append(astnode node)
+               {
+                   children.push_back(node);
+               }
+               void append_children(const astnode& other)
+               { 
+                   for (auto node : other.children)
+                   {
+                       append(node); 
+                   } 
+               }
           };
      }
 
-#line 114 "parser.tab.hh" // lalr1.cc:377
+#line 130 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -187,7 +203,7 @@
 
 #line 8 "parser.y" // lalr1.cc:377
 namespace  sqf { namespace sqc { namespace bison  {
-#line 191 "parser.tab.hh" // lalr1.cc:377
+#line 207 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -771,7 +787,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 
     /// Build a parser object.
-    parser (sqf::sqc::tokenizer &tokenizer_yyarg, sqf::sqc::bison::astnode result_yyarg);
+    parser (sqf::sqc::tokenizer &tokenizer_yyarg, sqf::sqc::bison::astnode& result_yyarg);
     virtual ~parser ();
 
     /// Parse.
@@ -985,7 +1001,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
     // User arguments.
     sqf::sqc::tokenizer &tokenizer;
-    sqf::sqc::bison::astnode result;
+    sqf::sqc::bison::astnode& result;
   };
 
   // Symbol number corresponding to token number t.
@@ -1702,7 +1718,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 #line 8 "parser.y" // lalr1.cc:377
 } } } //  sqf::sqc::bison 
-#line 1706 "parser.tab.hh" // lalr1.cc:377
+#line 1722 "parser.tab.hh" // lalr1.cc:377
 
 
 

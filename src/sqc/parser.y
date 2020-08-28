@@ -18,6 +18,7 @@
      {
           enum class astkind
           {
+               __TOKEN = -1,
                NA = 0,
                RETURN,
                THROW,
@@ -72,13 +73,28 @@
                astkind kind;
                std::vector<astnode> children;
 
-               astnode() : token(), kind(astkind::NA) {}
-               astnode(astkind kind) : token(), kind(kind) {}
-               astnode(sqf::sqc::tokenizer::token t) : token(t), kind(astkind::NA) {}
+               astnode() : token(), kind(astkind::NA)
+               {
+               }
+               astnode(astkind kind) : token(), kind(kind)
+               {
+               }
+               astnode(sqf::sqc::tokenizer::token t) : token(t), kind(astkind::__TOKEN)
+               {
+               }
                astnode(astkind kind, sqf::sqc::tokenizer::token t) : token(t), kind(kind) {}
 
-               void append(astnode node) { children.push_back(node); }
-               void append_children(const astnode& other) { for (auto node : other.children) { append(node); } }
+               void append(astnode node)
+               {
+                   children.push_back(node);
+               }
+               void append_children(const astnode& other)
+               { 
+                   for (auto node : other.children)
+                   {
+                       append(node); 
+                   } 
+               }
           };
      }
 }
@@ -93,12 +109,13 @@
 
 %lex-param { sqf::sqc::tokenizer &tokenizer }
 %parse-param { sqf::sqc::tokenizer &tokenizer }
-%parse-param { sqf::sqc::bison::astnode result }
+%parse-param { sqf::sqc::bison::astnode& result }
 %locations
 %define parse.trace
 %define parse.error verbose
 
 %define api.token.prefix {}
+
 
 
 /* Tokens */
@@ -172,16 +189,16 @@
 /*** BEGIN - Change the grammar rules below ***/
 /*** BEGIN - Change the grammar rules below ***/
 start: %empty     
-     | statements                                 { result = $1; }
+     | statements                                 { result = sqf::sqc::bison::astnode{}; result.append_children($1); }
      ;
 
-statements: statement                             { $$ = {}; $$.append($1); }
-          | statement statements                  { $$ = {}; $$.append($1); $$.append_children($2); }
+statements: statement                             { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
+          | statement statements                  { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($2); }
           ;
 
-statement: "return" exp01 ";"                     { $$ = { astkind::RETURN }; $$.append($2); }
-         | "return" ";"                           { $$ = { astkind::RETURN }; }
-         | "throw" exp01 ";"                      { $$ = { astkind::THROW }; $$.append($2); }
+statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnode{ astkind::RETURN }; $$.append($2); }
+         | "return" ";"                           { $$ = sqf::sqc::bison::astnode{ astkind::RETURN }; }
+         | "throw" exp01 ";"                      { $$ = sqf::sqc::bison::astnode{ astkind::THROW }; $$.append($2); }
          | vardecl ";"                            { $$ = $1; }
          | funcdecl                               { $$ = $1; }
          | if                                     { $$ = $1; }
@@ -191,132 +208,137 @@ statement: "return" exp01 ";"                     { $$ = { astkind::RETURN }; $$
          | switch                                 { $$ = $1; }
          | assignment                             { $$ = $1; }
          | exp01 ";"                              { $$ = $1; }
-         | ";"                                    { $$ = {}; }
-         | error                                  { $$ = {}; }
+         | ";"                                    { $$ = sqf::sqc::bison::astnode{}; }
+         | error                                  { $$ = sqf::sqc::bison::astnode{}; }
          ;
 
-assignment: IDENT "=" exp01                       { $$ = { astkind::ASSIGNMENT }; $$.append($1); $$.append($3); }
+assignment: IDENT "=" exp01                       { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT }; $$.append($1); $$.append($3); }
           ;
 
-vardecl: "let" IDENT "=" exp01                    { $$ = { astkind::DECLARATION }; $$.append($2); $$.append($4); }
-       | "let" IDENT "be" exp01                   { $$ = { astkind::DECLARATION }; $$.append($2); $$.append($4); }
-       | "let" IDENT ";"                          { $$ = { astkind::FORWARD_DECLARATION }; $$.append($2); }
-       | "private" IDENT "=" exp01                { $$ = { astkind::DECLARATION }; $$.append($2); $$.append($4); }
-       | "private" IDENT "be" exp01               { $$ = { astkind::DECLARATION }; $$.append($2); $$.append($4); }
-       | "private" IDENT ";"                      { $$ = { astkind::FORWARD_DECLARATION }; $$.append($2); }
+vardecl: "let" IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
+       | "let" IDENT "be" exp01                   { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
+       | "let" IDENT ";"                          { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION }; $$.append($2); }
+       | "private" IDENT "=" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
+       | "private" IDENT "be" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
+       | "private" IDENT ";"                      { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION }; $$.append($2); }
        ;
 
-funcdecl: "function" IDENT funchead codeblock     { $$ = { astkind::FUNCTION_DECLARATION }; $$.append($2); $$.append($3); $$.append($4); }
+funcdecl: "function" IDENT funchead codeblock     { $$ = sqf::sqc::bison::astnode{ astkind::FUNCTION_DECLARATION }; $$.append($2); $$.append($3); $$.append($4); }
         ;
 
-function: "function" funchead codeblock           { $$ = { astkind::FUNCTION }; $$.append($2); $$.append($3); }
+function: "function" funchead codeblock           { $$ = sqf::sqc::bison::astnode{ astkind::FUNCTION }; $$.append($2); $$.append($3); }
         ;
 
-funchead: "(" ")"                                 { $$ = { astkind::ARGLIST }; }
-        | "(" arglist ")"                         { $$ = { astkind::ARGLIST }; $$.append_children($2); }
+funchead: "(" ")"                                 { $$ = sqf::sqc::bison::astnode{ astkind::ARGLIST }; }
+        | "(" arglist ")"                         { $$ = sqf::sqc::bison::astnode{ astkind::ARGLIST }; $$.append_children($2); }
         ;
 
-arglist: IDENT                                    { $$ = {}; $$.append($1); }
-       | IDENT ","                                { $$ = {}; $$.append($1); }
-       | IDENT "," arglist                        { $$ = {}; $$.append($1); $$.append_children($3); }
+arglist: IDENT                                    { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
+       | IDENT ","                                { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
+       | IDENT "," arglist                        { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($3); }
        ;
 
-codeblock: statement ";"                          { $$ = { astkind::CODEBLOCK }; $$.append($1); }
-         | "{" "}"                                { $$ = { astkind::CODEBLOCK }; }
-         | "{" statements "}"                     { $$ = { astkind::CODEBLOCK }; $$.append_children($2); }
+codeblock: statement ";"                          { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK }; $$.append($1); }
+         | "{" "}"                                { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK }; }
+         | "{" statements "}"                     { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK }; $$.append_children($2); }
          ;
 
-if: "if" "(" exp01 ")" codeblock                  { $$ = { astkind::IF }; $$.append($3); $$.append($5); }
-  | "if" "(" exp01 ")" codeblock "else" codeblock { $$ = { astkind::IFELSE }; $$.append($3); $$.append($5); $$.append($7); }
+if: "if" "(" exp01 ")" codeblock                  { $$ = sqf::sqc::bison::astnode{ astkind::IF }; $$.append($3); $$.append($5); }
+  | "if" "(" exp01 ")" codeblock "else" codeblock { $$ = sqf::sqc::bison::astnode{ astkind::IFELSE }; $$.append($3); $$.append($5); $$.append($7); }
   ;
 
-for: "for" IDENT "from" exp01 "to" exp01 codeblock                { $$ = { astkind::FOR }; $$.append($2); $$.append($4); $$.append($6); $$.append($7); }
-   | "for" IDENT "from" exp01 "to" exp01 "step" exp01 codeblock   { $$ = { astkind::FORSTEP }; $$.append($2); $$.append($4); $$.append($6); $$.append($8); $$.append($9); }
-   | "for" "(" IDENT ":" exp01 ")" codeblock                      { $$ = { astkind::FOREACH }; $$.append($3); $$.append($5); $$.append($7); }
+for: "for" IDENT "from" exp01 "to" exp01 codeblock                { $$ = sqf::sqc::bison::astnode{ astkind::FOR }; $$.append($2); $$.append($4); $$.append($6); $$.append($7); }
+   | "for" IDENT "from" exp01 "to" exp01 "step" exp01 codeblock   { $$ = sqf::sqc::bison::astnode{ astkind::FORSTEP }; $$.append($2); $$.append($4); $$.append($6); $$.append($8); $$.append($9); }
+   | "for" "(" IDENT ":" exp01 ")" codeblock                      { $$ = sqf::sqc::bison::astnode{ astkind::FOREACH }; $$.append($3); $$.append($5); $$.append($7); }
    ;
 
-while: "while" "(" exp01 ")" codeblock                    { $$ = { astkind::WHILE }; $$.append($3); $$.append($5); }
-     | "do" codeblock "while" "(" exp01 ")"               { $$ = { astkind::DOWHILE }; $$.append($2); $$.append($5); }
+while: "while" "(" exp01 ")" codeblock                    { $$ = sqf::sqc::bison::astnode{ astkind::WHILE }; $$.append($3); $$.append($5); }
+     | "do" codeblock "while" "(" exp01 ")"               { $$ = sqf::sqc::bison::astnode{ astkind::DOWHILE }; $$.append($2); $$.append($5); }
      ;
 
-trycatch: "try" codeblock "catch" "(" IDENT ")" codeblock { $$ = { astkind::TRYCATCH }; $$.append($2); $$.append($5); $$.append($7); }
+trycatch: "try" codeblock "catch" "(" IDENT ")" codeblock { $$ = sqf::sqc::bison::astnode{ astkind::TRYCATCH }; $$.append($2); $$.append($5); $$.append($7); }
         ;
 
-switch: "switch" "(" exp01 ")" "{" caselist "}"           { $$ = { astkind::SWITCH }; $$.append($3); $$.append_children($6); }
+switch: "switch" "(" exp01 ")" "{" caselist "}"           { $$ = sqf::sqc::bison::astnode{ astkind::SWITCH }; $$.append($3); $$.append_children($6); }
       ;
 
-caselist: case                        { $$ = {}; $$.append($1); }
-        | case caselist               { $$ = {}; $$.append($1); $$.append_children($2); }
+caselist: case                        { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
+        | case caselist               { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($2); }
         ;
 
-case: "case" exp01 ":" codeblock      { $$ = { astkind::CASE }; $$.append($2); $$.append($4); }
-    | "case" exp01 ":"                { $$ = { astkind::CASE }; $$.append($2); }
-    | "default" ":" codeblock         { $$ = { astkind::CASE_DEFAULT }; $$.append($3); }
+case: "case" exp01 ":" codeblock      { $$ = sqf::sqc::bison::astnode{ astkind::CASE }; $$.append($2); $$.append($4); }
+    | "case" exp01 ":"                { $$ = sqf::sqc::bison::astnode{ astkind::CASE }; $$.append($2); }
+    | "default" ":" codeblock         { $$ = sqf::sqc::bison::astnode{ astkind::CASE_DEFAULT }; $$.append($3); }
     ;
 
 exp01: exp02                          { $$ = $1; }
-     | exp02 "?" exp01 ":" exp01      { $$ = { astkind::OP_TERNARY }; $$.append($1); $$.append($3); $$.append($5); }
+     | exp02 "?" exp01 ":" exp01      { $$ = sqf::sqc::bison::astnode{ astkind::OP_TERNARY }; $$.append($1); $$.append($3); $$.append($5); }
      ;
 exp02: exp03                          { $$ = $1; }
-     | exp03 "||" exp01               { $$ = { astkind::OP_OR }; $$.append($1); $$.append($3); }
+     | exp03 "||" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_OR }; $$.append($1); $$.append($3); }
      ;
 exp03: exp04                          { $$ = $1; }
-     | exp04 "&&" exp01               { $$ = { astkind::OP_AND }; $$.append($1); $$.append($3); }
+     | exp04 "&&" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_AND }; $$.append($1); $$.append($3); }
      ;
 exp04: exp05                          { $$ = $1; }
-     | exp05 "===" exp01              { $$ = { astkind::OP_EQUALEXACT }; $$.append($1); $$.append($3); }
-     | exp05 "!==" exp01              { $$ = { astkind::OP_NOTEQUALEXACT }; $$.append($1); $$.append($3); }
-     | exp05 "==" exp01               { $$ = { astkind::OP_EQUAL }; $$.append($1); $$.append($3); }
-     | exp05 "!=" exp01               { $$ = { astkind::OP_NOTEQUAL }; $$.append($1); $$.append($3); }
+     | exp05 "===" exp01              { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUALEXACT }; $$.append($1); $$.append($3); }
+     | exp05 "!==" exp01              { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUALEXACT }; $$.append($1); $$.append($3); }
+     | exp05 "==" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUAL }; $$.append($1); $$.append($3); }
+     | exp05 "!=" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUAL }; $$.append($1); $$.append($3); }
      ;
 exp05: exp06                          { $$ = $1; }
-     | exp06 "<"  exp01               { $$ = { astkind::OP_LESSTHAN }; $$.append($1); $$.append($3); }
-     | exp06 "<=" exp01               { $$ = { astkind::OP_LESSTHANEQUAL }; $$.append($1); $$.append($3); }
-     | exp06 ">"  exp01               { $$ = { astkind::OP_GREATERTHAN }; $$.append($1); $$.append($3); }
-     | exp06 ">=" exp01               { $$ = { astkind::OP_GREATERTHANEQUAL }; $$.append($1); $$.append($3); }
+     | exp06 "<"  exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHAN }; $$.append($1); $$.append($3); }
+     | exp06 "<=" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHANEQUAL }; $$.append($1); $$.append($3); }
+     | exp06 ">"  exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHAN }; $$.append($1); $$.append($3); }
+     | exp06 ">=" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHANEQUAL }; $$.append($1); $$.append($3); }
      ;
 exp06: exp07                          { $$ = $1; }
-     | exp07 "+" exp01                { $$ = { astkind::OP_PLUS }; $$.append($1); $$.append($3); }
-     | exp07 "-" exp01                { $$ = { astkind::OP_MINUS }; $$.append($1); $$.append($3); }
+     | exp07 "+" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::OP_PLUS }; $$.append($1); $$.append($3); }
+     | exp07 "-" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MINUS }; $$.append($1); $$.append($3); }
      ;
 exp07: exp08                          { $$ = $1; }
-     | exp08 "*" exp01                { $$ = { astkind::OP_MULTIPLY }; $$.append($1); $$.append($3); }
-     | exp08 "/" exp01                { $$ = { astkind::OP_DIVIDE }; $$.append($1); $$.append($3); }
-     | exp08 "%" exp01                { $$ = { astkind::OP_REMAINDER }; $$.append($1); $$.append($3); }
+     | exp08 "*" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MULTIPLY }; $$.append($1); $$.append($3); }
+     | exp08 "/" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::OP_DIVIDE }; $$.append($1); $$.append($3); }
+     | exp08 "%" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::OP_REMAINDER }; $$.append($1); $$.append($3); }
      ;
 exp08: exp09                          { $$ = $1; }
-     | "!" exp09                      { $$ = { astkind::OP_NOT }; $$.append($2);  }
+     | "!" exp09                      { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOT }; $$.append($2);  }
      ;
 exp09: expp                           { $$ = $1; }
-     | expp "." IDENT "(" explist ")" { $$ = { astkind::OP_BINARY }; $$.append($1); $$.append($3); $$.append($5); }
+     | expp "." IDENT "(" explist ")" { $$ = sqf::sqc::bison::astnode{ astkind::OP_BINARY }; $$.append($1); $$.append($3); $$.append($5); }
      ;
 
 expp: "(" exp01 ")"                   { $$ = $2; }
-    | IDENT "(" explist ")"           { $$ = { astkind::OP_UNARY }; $$.append($1); $$.append($3); }
+    | IDENT "(" explist ")"           { $$ = sqf::sqc::bison::astnode{ astkind::OP_UNARY }; $$.append($1); $$.append($3); }
     | value                           { $$ = $1; }
     ;
 value: function                       { $$ = $1; }
-     | STRING                         { $$ = { astkind::VAL_STRING, $1 }; }
+     | STRING                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_STRING, $1 }; }
      | array                          { $$ = $1; }
-     | NUMBER                         { $$ = { astkind::VAL_NUMBER, $1 }; }
-     | "true"                         { $$ = { astkind::VAL_TRUE }; }
-     | "false"                        { $$ = { astkind::VAL_FALSE }; }
-     | "nil"                          { $$ = { astkind::VAL_NIL }; }
-     | IDENT                          { $$ = { astkind::GET_VARIABLE, $1 }; }
+     | NUMBER                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_NUMBER, $1 }; }
+     | "true"                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_TRUE }; }
+     | "false"                        { $$ = sqf::sqc::bison::astnode{ astkind::VAL_FALSE }; }
+     | "nil"                          { $$ = sqf::sqc::bison::astnode{ astkind::VAL_NIL }; }
+     | IDENT                          { $$ = sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $1 }; }
      ;
-array: "[" "]"                        { $$ = { astkind::VAL_ARRAY }; }
-     | "[" explist "]"                { $$ = { astkind::VAL_ARRAY }; $$.append_children($2); }
+array: "[" "]"                        { $$ = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY }; }
+     | "[" explist "]"                { $$ = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY }; $$.append_children($2); }
      ;
-explist: exp01                        { $$ = {}; $$.append($1); }
-       | exp01 ","                    { $$ = {}; $$.append($1); }
-       | exp01 "," explist            { $$ = {}; $$.append($1); $$.append_children($3); }
+explist: exp01                        { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
+       | exp01 ","                    { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
+       | exp01 "," explist            { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($3); }
        ;
 
 %%
 
 namespace sqf::sqc::bison
 {
-     inline parser::symbol_type yylex (sqf::sqc::bison::tokenizer& tokenizer)
+
+     void parser::error (const location_type& loc, const std::string& msg)
+     {
+          std::cout << "[SQC][L" << loc.begin.line << "|C" << loc.begin.column << "]" << "  " << msg << std::endl;
+     }
+     inline parser::symbol_type yylex (sqf::sqc::tokenizer& tokenizer)
      {
          auto token = tokenizer.next();
          parser::location_type loc;
@@ -329,6 +351,7 @@ namespace sqf::sqc::bison
          {
          case tokenizer::etoken::eof: return parser::make_NA(loc);
          case tokenizer::etoken::invalid: return yylex(tokenizer);
+         case tokenizer::etoken::m_line: return yylex(tokenizer);
          case tokenizer::etoken::i_comment_line: return yylex(tokenizer);
          case tokenizer::etoken::i_comment_block: return yylex(tokenizer);
          case tokenizer::etoken::i_whitespace: return yylex(tokenizer);
