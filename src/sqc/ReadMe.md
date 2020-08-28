@@ -1,5 +1,5 @@
 # Example
-```
+```js
     // Assign local values
     let a be 1;
     let b = 2;
@@ -26,4 +26,7 @@
 
     // Call a SQF binary operator (`getValue`)
     player.getValue("somevalue");
+    
+    // Create array and assign it to `arr`
+    private arr = [1,2,3];
 ```
