@@ -68,8 +68,8 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, std::vector
 	case ::sqf::sqc::bison::astkind::FUNCTION: {
 		std::vector<::sqf::runtime::instruction::sptr> local_set;
 		std::vector<std::string> new_locals;
+		to_assembly(runtime, local_set, new_locals, node.children[0]);
 		to_assembly(runtime, local_set, new_locals, node.children[1]);
-		to_assembly(runtime, local_set, new_locals, node.children[2]);
 		set.push_back(std::make_shared<opcodes::push>(runtime::instruction_set{ local_set }));
 	} break;
 	case ::sqf::sqc::bison::astkind::ARGLIST: {
