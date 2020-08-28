@@ -20,6 +20,7 @@
 #include "../parser/preprocessor/default.h"
 
 #include "../fileio/default.h"
+#include "../sqc/sqc_parser.h"
 
 #include "interactive_helper.h"
 #include <iostream>
@@ -127,22 +128,8 @@ std::string extension(std::string input)
     return input.substr(last_index + 1);
 }
 
-#include "../sqc/tokenizer.h"
-#include "../sqc/parser.h"
-
 int main(int argc, char** argv)
 {
-    {
-        std::string str = 
-            "function test(a, b)" "\n"
-            "{" "\n"
-            "    let a be 12;" "\n"
-            "    a = a + 12;" "\n"
-            "}" "\n";
-        sqf::sqc::parser p;
-        
-        std::cout << "Parser Test: " << p.test(str) << std::endl;
-    }
 #ifdef WIN32
     // ToDo: Implement StackTrace on error
 #else
@@ -218,6 +205,9 @@ int main(int argc, char** argv)
 
     TCLAP::MultiArg<std::string> commandDummyBinary("", "command-dummy-binary", "Adds the provided command as dummy. Note that you need to also provide a precedence. Example: 4|commandname", false, "PRECEDENCE|NAME");
     cmd.add(commandDummyBinary);
+
+    TCLAP::SwitchArg useSqcArg("", "use-sqc", "Enables SQC language as default code parser.", false);
+    cmd.add(useSqcArg);
 
     TCLAP::SwitchArg automatedArg("a", "automated", "Disables all possible prompts.", false);
     cmd.add(automatedArg);
@@ -444,7 +434,14 @@ int main(int argc, char** argv)
     runtime.fileio(std::make_unique<sqf::fileio::impl_default>());
     runtime.parser_config(std::make_unique<sqf::parser::config::impl_default>(logger));
     runtime.parser_preprocessor(std::make_unique<sqf::parser::preprocessor::impl_default>(logger));
-    runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
+    if (useSqcArg.getValue())
+    {
+        runtime.parser_sqf(std::make_unique<sqf::sqc::parser>(logger));
+    }
+    else
+    {
+        runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
+    }
     sqf::operators::ops_config(runtime);
     sqf::operators::ops_diag(runtime);
     sqf::operators::ops_generic(runtime);
