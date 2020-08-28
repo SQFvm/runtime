@@ -32,7 +32,7 @@
 
 /**
  ** \file position.hh
- ** Define the parse::position class.
+ ** Define the  sqf::sqc::bison ::position class.
  */
 
 #ifndef YY_YY_POSITION_HH_INCLUDED
@@ -50,8 +50,8 @@
 #  endif
 # endif
 
-#line 39 "parse.yy" // location.cc:296
-namespace parse {
+#line 8 "parser.y" // location.cc:296
+namespace  sqf { namespace sqc { namespace bison  {
 #line 56 "position.hh" // location.cc:296
   /// Abstract a position.
   class position
@@ -174,7 +174,7 @@ namespace parse {
     return ostr << pos.line << '.' << pos.column;
   }
 
-#line 39 "parse.yy" // location.cc:296
-} // parse
+#line 8 "parser.y" // location.cc:296
+} } } //  sqf::sqc::bison 
 #line 180 "position.hh" // location.cc:296
 #endif // !YY_YY_POSITION_HH_INCLUDED

@@ -32,7 +32,7 @@
 
 /**
  ** \file stack.hh
- ** Define the parse::stack class.
+ ** Define the  sqf::sqc::bison ::stack class.
  */
 
 #ifndef YY_YY_STACK_HH_INCLUDED
@@ -40,8 +40,8 @@
 
 # include <vector>
 
-#line 39 "parse.yy" // stack.hh:132
-namespace parse {
+#line 8 "parser.y" // stack.hh:132
+namespace  sqf { namespace sqc { namespace bison  {
 #line 46 "stack.hh" // stack.hh:132
   template <class T, class S = std::vector<T> >
   class stack
@@ -150,8 +150,8 @@ namespace parse {
     unsigned int range_;
   };
 
-#line 39 "parse.yy" // stack.hh:132
-} // parse
+#line 8 "parser.y" // stack.hh:132
+} } } //  sqf::sqc::bison 
 #line 156 "stack.hh" // stack.hh:132
 
 #endif // !YY_YY_STACK_HH_INCLUDED

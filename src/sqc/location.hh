@@ -32,7 +32,7 @@
 
 /**
  ** \file location.hh
- ** Define the parse::location class.
+ ** Define the  sqf::sqc::bison ::location class.
  */
 
 #ifndef YY_YY_LOCATION_HH_INCLUDED
@@ -40,8 +40,8 @@
 
 # include "position.hh"
 
-#line 39 "parse.yy" // location.cc:296
-namespace parse {
+#line 8 "parser.y" // location.cc:296
+namespace  sqf { namespace sqc { namespace bison  {
 #line 46 "location.hh" // location.cc:296
   /// Abstract a location.
   class location
@@ -186,7 +186,7 @@ namespace parse {
     return ostr;
   }
 
-#line 39 "parse.yy" // location.cc:296
-} // parse
+#line 8 "parser.y" // location.cc:296
+} } } //  sqf::sqc::bison 
 #line 192 "location.hh" // location.cc:296
 #endif // !YY_YY_LOCATION_HH_INCLUDED
