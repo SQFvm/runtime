@@ -4,6 +4,7 @@
 #include "../runtime/diagnostics/diag_info.h"
 #include "../runtime/fileio.h"
 #include "../runtime/util.h"
+#include "../runtime/instruction_set.h"
 
 #include <string>
 #include <string_view>
@@ -16,11 +17,15 @@ namespace sqf::sqc::bison
 }
 namespace sqf::sqc
 {
+	namespace util
+	{
+		class setbuilder;
+	}
 	class parser : public ::sqf::runtime::parser::sqf, public CanLog
 	{
 	private:
 		constexpr static const char* __scopename_function = "___sqc_func";
-		void to_assembly(::sqf::runtime::runtime& runtime, std::vector<::sqf::runtime::instruction::sptr>& set, std::vector<std::string>& locals, ::sqf::sqc::bison::astnode& current_node);
+		void to_assembly(::sqf::runtime::runtime& runtime, util::setbuilder& set, std::vector<std::string>& locals, ::sqf::sqc::bison::astnode& current_node);
 	public:
 		parser(Logger& logger) : CanLog(logger)
 		{
