@@ -53,9 +53,13 @@ namespace sqf
 
                 std::stringstream sstream;
                 sstream << "{ ";
-                for (auto& str : strs)
+                if (!strs.empty())
                 {
-                    sstream << str;
+                    sstream << strs.front();
+                    for (auto it = strs.begin() + 1; it != strs.end(); it++)
+                    {
+                        sstream << "; " << *it;
+                    }
                 }
                 sstream << " }";
 

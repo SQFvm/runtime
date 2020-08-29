@@ -21,6 +21,10 @@
 
 #include "../fileio/default.h"
 
+#if defined(SQF_SQC_SUPPORT)
+#include "../sqc/sqc_parser.h"
+#endif
+
 #include "interactive_helper.h"
 #include <iostream>
 #include <iomanip>
@@ -204,6 +208,19 @@ int main(int argc, char** argv)
 
     TCLAP::MultiArg<std::string> commandDummyBinary("", "command-dummy-binary", "Adds the provided command as dummy. Note that you need to also provide a precedence. Example: 4|commandname", false, "PRECEDENCE|NAME");
     cmd.add(commandDummyBinary);
+
+#if defined(SQF_SQC_SUPPORT)
+    TCLAP::MultiArg<std::string> compileArg("C", "compile", "Instructs SQF-VM to \"compile\" the targeted file into SQF. "
+        "Files will be outputted as `<filename>.sqf` (extension is changed to sqf). "
+        "Supported File Extensions: { '.sqc' }", false, "PATH");
+    cmd.add(compileArg);
+
+    TCLAP::MultiArg<std::string> compileAllArg("", "compile-all", "Implicitly adds all supported files in a given directory and the subdirectories to the `--compile PATH` arg.", false, "PATH");
+    cmd.add(compileAllArg);
+#endif
+
+    TCLAP::SwitchArg useSqcArg("", "use-sqc", "Enables SQC language as default code parser.", false);
+    cmd.add(useSqcArg);
 
     TCLAP::SwitchArg automatedArg("a", "automated", "Disables all possible prompts.", false);
     cmd.add(automatedArg);
@@ -430,7 +447,18 @@ int main(int argc, char** argv)
     runtime.fileio(std::make_unique<sqf::fileio::impl_default>());
     runtime.parser_config(std::make_unique<sqf::parser::config::impl_default>(logger));
     runtime.parser_preprocessor(std::make_unique<sqf::parser::preprocessor::impl_default>(logger));
+#if defined(SQF_SQC_SUPPORT)
+    if (useSqcArg.getValue())
+    {
+        runtime.parser_sqf(std::make_unique<sqf::sqc::parser>(logger));
+    }
+    else
+    {
+        runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
+    }
+#else
     runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
+#endif
     sqf::operators::ops_config(runtime);
     sqf::operators::ops_diag(runtime);
     sqf::operators::ops_generic(runtime);
@@ -565,6 +593,117 @@ int main(int argc, char** argv)
         return -1;
     }
 
+#if defined(SQF_SQC_SUPPORT)
+    std::vector<std::string> compileFiles = compileArg.getValue();
+    for (auto& f : compileAllArg)
+    {
+        for (
+            auto it = std::filesystem::recursive_directory_iterator(f, std::filesystem::directory_options::skip_permission_denied);
+            it != std::filesystem::recursive_directory_iterator();
+            ++it)
+        {
+            if (it->is_directory()) { continue; }
+            auto path = it->path();
+            auto ext = path.extension().string();
+            std::transform(ext.begin(), ext.end(), ext.begin(), [](char c) { return (char)std::tolower(c); });
+            if (ext == ".sqc")
+            {
+                compileFiles.push_back(path.string());
+            }
+        }
+    }
+    if (!compileFiles.empty())
+    {
+        auto parserSqc = sqf::sqc::parser(logger);
+        for (auto& f : compileArg.getValue())
+        {
+            auto path = std::filesystem::absolute((std::filesystem::path(executable_path) / f).lexically_normal());
+            auto sanitized = path.string();
+            try
+            {
+                if (sanitized.empty())
+                {
+                    continue;
+                }
+                if (verbose)
+                {
+                    std::cout << "Loading file '" << sanitized << "' for compilation ..." << std::endl;
+                }
+                auto file = sqf::runtime::fileio::read_file_from_disk(sanitized);
+                if (!file.has_value())
+                {
+                    std::cout << "Failed to load file '" << sanitized << "'" << std::endl;
+                    errflag = true;
+                    continue;
+                }
+                auto str = *file;
+                if (verbose)
+                {
+                    std::cout << "Preprocessing file '" << sanitized << std::endl;
+                }
+                auto ppedStr = runtime.parser_preprocessor().preprocess(runtime, str, { sanitized, {} });
+                if (ppedStr.has_value())
+                {
+                    if (verbose)
+                    {
+                        std::cout << "Parsing file '" << sanitized << std::endl;
+                    }
+                    auto ext = path.extension().string();
+                    std::transform(ext.begin(), ext.end(), ext.begin(), [](char c) { return (char)std::tolower(c); });
+                    std::optional<sqf::runtime::instruction_set> set;
+                    if (ext == ".sqc")
+                    {
+                        set = parserSqc.parse(runtime, *ppedStr, { sanitized, {} });
+                    }
+                    else
+                    {
+                        std::cout << "Failed to parse file '" << sanitized << "'. Extension '" << ext << "' is not supported by --compile." << std::endl;
+                        continue;
+                    }
+
+
+
+                    if (set.has_value())
+                    {
+                        path.replace_extension(".sqf");
+                        std::ofstream out_file(path, std::ios_base::trunc);
+                        if (out_file.good())
+                        {
+                            auto dcode = std::make_shared<sqf::types::d_code>(*set);
+                            auto str = dcode->to_string_sqf();
+                            if (str.length() > 2)
+                            {
+                                std::string_view view(str.data() + 1, str.length() - 2);
+                                view = sqf::runtime::util::trim(view, " \t\r\n");
+                                out_file << view;
+                            }
+                        }
+                        else
+                        {
+                            errflag = true;
+                            std::cout << "Failed to open file '" << path.string() << "' for writing." << std::endl;
+                        }
+                    }
+                    else
+                    {
+                        errflag = true;
+                        std::cout << "Failed to parse file '" << sanitized << "'" << std::endl;
+                    }
+                }
+                else
+                {
+                    errflag = true;
+                    std::cout << "Failed to preprocess file '" << sanitized << "'" << std::endl;
+                }
+            }
+            catch (const std::runtime_error& ex)
+            {
+                errflag = true;
+                std::cout << "Failed to load file '" << sanitized << "': " << ex.what() << std::endl;
+            }
+        }
+    }
+#endif
     // // Execute all possible Pretty-Print requests
     // for (auto& f : prettyPrintArg.getValue())
     // {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <string_view>
 
 #ifndef CONCAT_
@@ -42,6 +43,8 @@
 #endif
 
 #define ENVIRONMENTSTR STR(ENVIRONMENT)
+
+
 
 
 namespace sqf::runtime::util

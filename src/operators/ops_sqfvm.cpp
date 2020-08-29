@@ -44,7 +44,7 @@ namespace
     value assembly___code(runtime& runtime, value::cref right)
     {
         auto code = right.data<d_code>();
-        
+
         std::vector<value> outarr;
         for (auto it = code->value().begin(); it != code->value().end(); it++)
         {
@@ -78,7 +78,7 @@ namespace
         {
             outarr.push_back(std::vector<value> {
                 str,
-                pair->first.name
+                    pair->first.name
             });
         }
         str = "u";
@@ -86,8 +86,8 @@ namespace
         {
             outarr.push_back(std::vector<value> {
                 str,
-                pair->first.name,
-                pair->first.right_type.to_string()
+                    pair->first.name,
+                    pair->first.right_type.to_string()
             });
         }
         str = "b";
@@ -95,9 +95,9 @@ namespace
         {
             outarr.push_back(std::vector<value> {
                 str,
-                pair->first.left_type.to_string(),
-                pair->first.name,
-                pair->first.right_type.to_string()
+                    pair->first.left_type.to_string(),
+                    pair->first.name,
+                    pair->first.right_type.to_string()
             });
         }
         return outarr;
@@ -112,7 +112,7 @@ namespace
                 continue;
             outarr.push_back(std::vector<value> {
                 str,
-                pair->first.name
+                    pair->first.name
             });
         }
         str = "u";
@@ -122,8 +122,8 @@ namespace
                 continue;
             outarr.push_back(std::vector<value> {
                 str,
-                pair->first.name,
-                pair->first.right_type.to_string()
+                    pair->first.name,
+                    pair->first.right_type.to_string()
             });
         }
         str = "b";
@@ -133,9 +133,9 @@ namespace
                 continue;
             outarr.push_back(std::vector<value> {
                 str,
-                pair->first.left_type.to_string(),
-                pair->first.name,
-                pair->first.right_type.to_string()
+                    pair->first.left_type.to_string(),
+                    pair->first.name,
+                    pair->first.right_type.to_string()
             });
         }
         return outarr;
@@ -402,7 +402,7 @@ namespace
                 std::cout << "\x1B[94m[FILEIO-ALLFILES]\033[0m" << "    " << (skip ? "SKIPPED" : "PICKED ") << "    " << str << std::endl;
 #endif // DF__SQF_FILEIO__ALL_FILES
 
-                
+
             }
         }
         return files;
@@ -432,42 +432,42 @@ namespace
             }).base(), str.end());
         return str;
     }
-//    value remoteConnect___(runtime& runtime, value::cref right)
-//    {
-//        if (!runtime.allow_networking())
-//        {
-//            runtime.__logmsg(err::NetworkingDisabled(runtime.context_active().current_frame().diag_info_from_position()));
-//            return false;
-//        }
-//        networking_init();
-//        if (runtime.is_networking_set())
-//        {
-//            runtime.__logmsg(err::AlreadyConnected(runtime.context_active().current_frame().diag_info_from_position()));
-//            return {};
-//        }
-//        auto s = right.as_string();
-//        auto index = s.find(':');
-//        if (index == std::string::npos)
-//        {
-//            runtime.__logmsg(err::NetworkingFormatMissmatch(runtime.context_active().current_frame().diag_info_from_position(), s));
-//            return {};
-//        }
-//        auto address = s.substr(0, index);
-//        auto port = s.substr(index + 1);
-//        SOCKET socket;
-//        if (networking_create_client(address.c_str(), port.c_str(), &socket))
-//        {
-//            runtime.__logmsg(err::FailedToEstablishConnection(runtime.context_active().current_frame().diag_info_from_position()));
-//            return false;
-//        }
-//        runtime.set_networking(std::make_shared<networking::client>(socket));
-//        return true;
-//    }
-//    value closeconnection___(runtime& runtime)
-//    {
-//        runtime.release_networking();
-//        return {};
-//    }
+    //    value remoteConnect___(runtime& runtime, value::cref right)
+    //    {
+    //        if (!runtime.allow_networking())
+    //        {
+    //            runtime.__logmsg(err::NetworkingDisabled(runtime.context_active().current_frame().diag_info_from_position()));
+    //            return false;
+    //        }
+    //        networking_init();
+    //        if (runtime.is_networking_set())
+    //        {
+    //            runtime.__logmsg(err::AlreadyConnected(runtime.context_active().current_frame().diag_info_from_position()));
+    //            return {};
+    //        }
+    //        auto s = right.as_string();
+    //        auto index = s.find(':');
+    //        if (index == std::string::npos)
+    //        {
+    //            runtime.__logmsg(err::NetworkingFormatMissmatch(runtime.context_active().current_frame().diag_info_from_position(), s));
+    //            return {};
+    //        }
+    //        auto address = s.substr(0, index);
+    //        auto port = s.substr(index + 1);
+    //        SOCKET socket;
+    //        if (networking_create_client(address.c_str(), port.c_str(), &socket))
+    //        {
+    //            runtime.__logmsg(err::FailedToEstablishConnection(runtime.context_active().current_frame().diag_info_from_position()));
+    //            return false;
+    //        }
+    //        runtime.set_networking(std::make_shared<networking::client>(socket));
+    //        return true;
+    //    }
+    //    value closeconnection___(runtime& runtime)
+    //    {
+    //        runtime.release_networking();
+    //        return {};
+    //    }
     value vmctrl___string(runtime& runtime, value::cref right)
     {
         auto str = right.data<d_string, std::string>();
@@ -696,9 +696,9 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(nular("pwd__", "Current path determined by current instruction.", pwd___));
     runtime.register_sqfop(nular("currentDirectory__", "Current directory determined by current instruction.", currentdirectory___));
     runtime.register_sqfop(unary("trim__", t_string(), "Trims provided strings start and end.", trim___));
-//    runtime.register_sqfop(unary("remoteConnect__", t_string(), "Connects this as a client to the provided endpoint. Endpoint is expected to have the format ADDRESS:PORT. Returns TRUE on success, false if it failed. Note that IP-Address is required, not DNS names (eg. use '127.0.0.1' instead of 'localhost').", remoteConnect___));
-//    runtime.register_sqfop(nular("closeConnection__", "Closes the connection previously opened using remoteConnect__.", closeconnection___));
-    // runtime.register_sqfop(binary(4, "provide__", t_code(), t_array(), "Allows to provide an implementation for a given operator. Will NOT override existing definitions. Array is expected to be of the following formats: nular: [\"name\"], unary: [\"name\", \"type\"], binary: [\"ltype\", \"name\", \"rtype\"]", provide___code_string));
+    //    runtime.register_sqfop(unary("remoteConnect__", t_string(), "Connects this as a client to the provided endpoint. Endpoint is expected to have the format ADDRESS:PORT. Returns TRUE on success, false if it failed. Note that IP-Address is required, not DNS names (eg. use '127.0.0.1' instead of 'localhost').", remoteConnect___));
+    //    runtime.register_sqfop(nular("closeConnection__", "Closes the connection previously opened using remoteConnect__.", closeconnection___));
+        // runtime.register_sqfop(binary(4, "provide__", t_code(), t_array(), "Allows to provide an implementation for a given operator. Will NOT override existing definitions. Array is expected to be of the following formats: nular: [\"name\"], unary: [\"name\", \"type\"], binary: [\"ltype\", \"name\", \"rtype\"]", provide___code_string));
     runtime.register_sqfop(unary("measurePerformance__", t_code(), "Measures the time required to execute the provided piece of code by executing it 10000 times and pushes the average time required onto the stack in nanoseconds. Will try to compensate for the measure overhead.", measureperformance___CODE));
     runtime.register_sqfop(unary("noBubble__", t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", nobubble___code));
     runtime.register_sqfop(binary(4, "noBubble__", t_any(), t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", nobubble___any_code));
