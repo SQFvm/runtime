@@ -72,14 +72,17 @@ if (SQFVM_BUILD_EXECUTABLE)
 endif ()
 
 if (SQFVM_BUILD_EXECUTABLE_SQC_SUPPORT)
-    file(GLOB vm_src 
+    file(GLOB vm_src_sqc
         "${PROJECT_SOURCE_DIR}/src/sqc/*.h"
         "${PROJECT_SOURCE_DIR}/src/sqc/*.hh"
         "${PROJECT_SOURCE_DIR}/src/sqc/*.cpp"
         "${PROJECT_SOURCE_DIR}/src/sqc/*.c"
         "${PROJECT_SOURCE_DIR}/src/sqc/*.cc"
     )
-    add_executable(sqfvm_sqc ${vm_src})
+    list(APPEND vm_src_sqc ${vm_src})
+    
+    add_executable(sqfvm_sqc ${vm_src_sqc})
+    
     target_link_libraries(sqfvm_sqc ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
     target_include_directories(sqfvm_sqc PUBLIC ${PROJECT_SOURCE_DIR}/src)
     
