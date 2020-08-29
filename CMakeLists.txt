@@ -37,13 +37,6 @@ file(GLOB vm_src
     "${PROJECT_SOURCE_DIR}/src/runtime/parser/*.h" "${PROJECT_SOURCE_DIR}/src/runtime/parser/*.cpp" "${PROJECT_SOURCE_DIR}/src/runtime/parser/*.c"
     "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.h" "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.cpp" "${PROJECT_SOURCE_DIR}/src/runtime/diagnostics/*.c"
     "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp"
-    
-    
-    "${PROJECT_SOURCE_DIR}/src/sqc/*.h"
-    "${PROJECT_SOURCE_DIR}/src/sqc/*.hh"
-    "${PROJECT_SOURCE_DIR}/src/sqc/*.cpp"
-    "${PROJECT_SOURCE_DIR}/src/sqc/*.c"
-    "${PROJECT_SOURCE_DIR}/src/sqc/*.cc"
 )
 
 # Get the local git revision hash and put it into a header we can use
@@ -62,6 +55,7 @@ option(SQFVM_BUILD_EXECUTABLE "BUILD EXECUTABLE" ON)
 option(SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD "BUILD ARMA2 EXECUTABLE" ON)
 option(SQFVM_BUILD_LIBRARY "BUILD LIBRARY" ON)
 option(SQFVM_BUILD_STATIC_LIBRARY "BUILD STATIC LIBRARY" ON)
+option(SQFVM_BUILD_EXECUTABLE_SQC_SUPPORT "BUILD SQC EXECUTABLE" ON)
 option(SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE "BUILD DIAGNOSE EXECUTABLE" ON)
 
 
@@ -71,6 +65,27 @@ if (SQFVM_BUILD_EXECUTABLE)
     target_include_directories(sqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
     
     target_compile_options(sqfvm PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall -Wno-unknown-pragmas>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
+endif ()
+
+if (SQFVM_BUILD_EXECUTABLE_SQC_SUPPORT)
+    file(GLOB vm_src 
+        "${PROJECT_SOURCE_DIR}/src/sqc/*.h"
+        "${PROJECT_SOURCE_DIR}/src/sqc/*.hh"
+        "${PROJECT_SOURCE_DIR}/src/sqc/*.cpp"
+        "${PROJECT_SOURCE_DIR}/src/sqc/*.c"
+        "${PROJECT_SOURCE_DIR}/src/sqc/*.cc"
+    )
+    add_executable(sqfvm_sqc ${vm_src})
+    target_link_libraries(sqfvm_sqc ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
+    target_include_directories(sqfvm_sqc PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    
+    target_compile_definitions(sqfvm_sqc PUBLIC SQF_SQC_SUPPORT)
+    
+    target_compile_options(sqfvm_sqc PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
           -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:

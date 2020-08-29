@@ -20,7 +20,10 @@
 #include "../parser/preprocessor/default.h"
 
 #include "../fileio/default.h"
+
+#if defined(SQF_SQC_SUPPORT)
 #include "../sqc/sqc_parser.h"
+#endif
 
 #include "interactive_helper.h"
 #include <iostream>
@@ -206,10 +209,15 @@ int main(int argc, char** argv)
     TCLAP::MultiArg<std::string> commandDummyBinary("", "command-dummy-binary", "Adds the provided command as dummy. Note that you need to also provide a precedence. Example: 4|commandname", false, "PRECEDENCE|NAME");
     cmd.add(commandDummyBinary);
 
+#if defined(SQF_SQC_SUPPORT)
     TCLAP::MultiArg<std::string> compileArg("C", "compile", "Instructs SQF-VM to \"compile\" the targeted file into SQF. "
         "Files will be outputted as `<filename>.sqf` (extension is changed to sqf). "
         "Supported File Extensions: { '.sqc' }", false, "PATH");
     cmd.add(compileArg);
+
+    TCLAP::MultiArg<std::string> compileAllArg("", "compile-all", "Implicitly adds all supported files in a given directory and the subdirectories to the `--compile PATH` arg.", false, "PATH");
+    cmd.add(compileAllArg);
+#endif
 
     TCLAP::SwitchArg useSqcArg("", "use-sqc", "Enables SQC language as default code parser.", false);
     cmd.add(useSqcArg);
@@ -439,6 +447,7 @@ int main(int argc, char** argv)
     runtime.fileio(std::make_unique<sqf::fileio::impl_default>());
     runtime.parser_config(std::make_unique<sqf::parser::config::impl_default>(logger));
     runtime.parser_preprocessor(std::make_unique<sqf::parser::preprocessor::impl_default>(logger));
+#if defined(SQF_SQC_SUPPORT)
     if (useSqcArg.getValue())
     {
         runtime.parser_sqf(std::make_unique<sqf::sqc::parser>(logger));
@@ -447,6 +456,9 @@ int main(int argc, char** argv)
     {
         runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
     }
+#else
+    runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
+#endif
     sqf::operators::ops_config(runtime);
     sqf::operators::ops_diag(runtime);
     sqf::operators::ops_generic(runtime);
@@ -581,7 +593,26 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    if (!compileArg.getValue().empty())
+#if defined(SQF_SQC_SUPPORT)
+    std::vector<std::string> compileFiles = compileArg.getValue();
+    for (auto& f : compileAllArg)
+    {
+        for (
+            auto it = std::filesystem::recursive_directory_iterator(f, std::filesystem::directory_options::skip_permission_denied);
+            it != std::filesystem::recursive_directory_iterator();
+            ++it)
+        {
+            if (it->is_directory()) { continue; }
+            auto path = it->path();
+            auto ext = path.extension().string();
+            std::transform(ext.begin(), ext.end(), ext.begin(), [](char c) { return (char)std::tolower(c); });
+            if (ext == ".sqc")
+            {
+                compileFiles.push_back(path.string());
+            }
+        }
+    }
+    if (!compileFiles.empty())
     {
         auto parserSqc = sqf::sqc::parser(logger);
         for (auto& f : compileArg.getValue())
@@ -672,7 +703,7 @@ int main(int argc, char** argv)
             }
         }
     }
-
+#endif
     // // Execute all possible Pretty-Print requests
     // for (auto& f : prettyPrintArg.getValue())
     // {
