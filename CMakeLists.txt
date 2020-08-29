@@ -47,6 +47,14 @@ get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 configure_file("${PROJECT_SOURCE_DIR}/cmake/git_sha1.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp" @ONLY)
 list(APPEND vm_src "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp")
 
+file(GLOB vm_src_sqc
+	"${PROJECT_SOURCE_DIR}/src/sqc/*.h"
+	"${PROJECT_SOURCE_DIR}/src/sqc/*.hh"
+	"${PROJECT_SOURCE_DIR}/src/sqc/*.cpp"
+	"${PROJECT_SOURCE_DIR}/src/sqc/*.c"
+	"${PROJECT_SOURCE_DIR}/src/sqc/*.cc"
+)
+list(APPEND vm_src_sqc ${vm_src})
 
 find_package(Threads)
 
@@ -54,8 +62,10 @@ find_package(Threads)
 option(SQFVM_BUILD_EXECUTABLE "BUILD EXECUTABLE" ON)
 option(SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD "BUILD ARMA2 EXECUTABLE" ON)
 option(SQFVM_BUILD_LIBRARY "BUILD LIBRARY" ON)
+option(SQFVM_BUILD_LIBRARY_SQC_SUPPORT "BUILD LIBRARY WITH SQC SUPPORT" ON)
 option(SQFVM_BUILD_STATIC_LIBRARY "BUILD STATIC LIBRARY" ON)
-option(SQFVM_BUILD_EXECUTABLE_SQC_SUPPORT "BUILD SQC EXECUTABLE" ON)
+option(SQFVM_BUILD_STATIC_LIBRARY_SQC_SUPPORT "BUILD STATIC LIBRARY WITH SQC SUPPORT" ON)
+option(SQFVM_BUILD_EXECUTABLE_SQC_SUPPORT "BUILD EXECUTABLE WITH SQC SUPPORT" ON)
 option(SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE "BUILD DIAGNOSE EXECUTABLE" ON)
 
 
@@ -72,15 +82,6 @@ if (SQFVM_BUILD_EXECUTABLE)
 endif ()
 
 if (SQFVM_BUILD_EXECUTABLE_SQC_SUPPORT)
-    file(GLOB vm_src_sqc
-        "${PROJECT_SOURCE_DIR}/src/sqc/*.h"
-        "${PROJECT_SOURCE_DIR}/src/sqc/*.hh"
-        "${PROJECT_SOURCE_DIR}/src/sqc/*.cpp"
-        "${PROJECT_SOURCE_DIR}/src/sqc/*.c"
-        "${PROJECT_SOURCE_DIR}/src/sqc/*.cc"
-    )
-    list(APPEND vm_src_sqc ${vm_src})
-    
     add_executable(sqfvm_sqc ${vm_src_sqc})
     
     target_link_libraries(sqfvm_sqc ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
@@ -95,8 +96,23 @@ if (SQFVM_BUILD_EXECUTABLE_SQC_SUPPORT)
           /W4>)
 endif ()
 
+if (SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD)
+    add_executable(sqfvm_a2 ${vm_src})
+    target_link_libraries(sqfvm_a2 ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
+    target_include_directories(sqfvm_a2 PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    
+    target_compile_definitions(sqfvm_a2 PUBLIC SQFVM_ARMA2_SYNTAX)
+    
+    target_compile_options(sqfvm_a2 PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall -Wno-unknown-pragmas>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
+endif ()
+
 if (SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE)
-    add_executable(sqfvm_full_diagnose ${vm_src})
+	
+    add_executable(sqfvm_full_diagnose ${vm_src_sqc})
     target_link_libraries(sqfvm_full_diagnose ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
     target_include_directories(sqfvm_full_diagnose PUBLIC ${PROJECT_SOURCE_DIR}/src)
     
@@ -111,20 +127,6 @@ if (SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__CLI_PRINT_TCLAP_ARGUMENTS)
     
     target_compile_options(sqfvm_full_diagnose PRIVATE
-     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-          -Wall -Wno-unknown-pragmas>
-     $<$<CXX_COMPILER_ID:MSVC>:
-          /W4>)
-endif ()
-
-if (SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD)
-    add_executable(sqfvm_a2 ${vm_src})
-    target_link_libraries(sqfvm_a2 ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
-    target_include_directories(sqfvm_a2 PUBLIC ${PROJECT_SOURCE_DIR}/src)
-    
-    target_compile_definitions(sqfvm_a2 PUBLIC SQFVM_ARMA2_SYNTAX)
-    
-    target_compile_options(sqfvm_a2 PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
           -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:
@@ -146,6 +148,20 @@ if (SQFVM_BUILD_LIBRARY)
     SET_TARGET_PROPERTIES(libsqfvm PROPERTIES PREFIX "")
 endif ()
 
+if (SQFVM_BUILD_LIBRARY_SQC_SUPPORT)
+    list(REMOVE_ITEM vm_src_sqc "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
+    
+    add_library(libsqfvm_sqc SHARED ${vm_src_sqc})
+    target_compile_definitions(libsqfvm_sqc PUBLIC DISABLE_CLIPBOARD)
+    target_include_directories(libsqfvm_sqc PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    target_compile_options(libsqfvm_sqc PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall -Wno-unknown-pragmas>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
+    SET_TARGET_PROPERTIES(libsqfvm_sqc PROPERTIES PREFIX "")
+endif ()
+
 if (SQFVM_BUILD_STATIC_LIBRARY)
     list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
 
@@ -157,4 +173,17 @@ if (SQFVM_BUILD_STATIC_LIBRARY)
      $<$<CXX_COMPILER_ID:MSVC>:
           /W4>)
     SET_TARGET_PROPERTIES(slibsqfvm PROPERTIES PREFIX "")
+endif ()
+
+if (SQFVM_BUILD_STATIC_LIBRARY_SQC_SUPPORT)
+    list(REMOVE_ITEM vm_src_sqc "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
+
+    add_library(slibsqfvm_sqc STATIC ${vm_src_sqc})
+    target_include_directories(slibsqfvm_sqc PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    target_compile_options(slibsqfvm_sqc PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall -Wno-unknown-pragmas>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
+    SET_TARGET_PROPERTIES(slibsqfvm_sqc PROPERTIES PREFIX "")
 endif ()
