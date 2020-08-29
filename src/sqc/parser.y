@@ -238,7 +238,7 @@ arglist: IDENT                                    { $$ = sqf::sqc::bison::astnod
        | IDENT "," arglist                        { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($3); }
        ;
 
-codeblock: statement ";"                          { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK }; $$.append($1); }
+codeblock: statement                              { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK }; $$.append($1); }
          | "{" "}"                                { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK }; }
          | "{" statements "}"                     { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK }; $$.append_children($2); }
          ;
@@ -275,31 +275,31 @@ exp01: exp02                          { $$ = $1; }
      | exp02 "?" exp01 ":" exp01      { $$ = sqf::sqc::bison::astnode{ astkind::OP_TERNARY }; $$.append($1); $$.append($3); $$.append($5); }
      ;
 exp02: exp03                          { $$ = $1; }
-     | exp03 "||" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_OR }; $$.append($1); $$.append($3); }
+     | exp03 "||" exp03               { $$ = sqf::sqc::bison::astnode{ astkind::OP_OR }; $$.append($1); $$.append($3); }
      ;
 exp03: exp04                          { $$ = $1; }
-     | exp04 "&&" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_AND }; $$.append($1); $$.append($3); }
+     | exp04 "&&" exp04               { $$ = sqf::sqc::bison::astnode{ astkind::OP_AND }; $$.append($1); $$.append($3); }
      ;
 exp04: exp05                          { $$ = $1; }
-     | exp05 "===" exp01              { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUALEXACT }; $$.append($1); $$.append($3); }
-     | exp05 "!==" exp01              { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUALEXACT }; $$.append($1); $$.append($3); }
-     | exp05 "==" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUAL }; $$.append($1); $$.append($3); }
-     | exp05 "!=" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUAL }; $$.append($1); $$.append($3); }
+     | exp05 "===" exp05              { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUALEXACT }; $$.append($1); $$.append($3); }
+     | exp05 "!==" exp05              { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUALEXACT }; $$.append($1); $$.append($3); }
+     | exp05 "==" exp05               { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUAL }; $$.append($1); $$.append($3); }
+     | exp05 "!=" exp05               { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUAL }; $$.append($1); $$.append($3); }
      ;
 exp05: exp06                          { $$ = $1; }
-     | exp06 "<"  exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHAN }; $$.append($1); $$.append($3); }
-     | exp06 "<=" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHANEQUAL }; $$.append($1); $$.append($3); }
-     | exp06 ">"  exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHAN }; $$.append($1); $$.append($3); }
-     | exp06 ">=" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHANEQUAL }; $$.append($1); $$.append($3); }
+     | exp06 "<"  exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHAN }; $$.append($1); $$.append($3); }
+     | exp06 "<=" exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHANEQUAL }; $$.append($1); $$.append($3); }
+     | exp06 ">"  exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHAN }; $$.append($1); $$.append($3); }
+     | exp06 ">=" exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHANEQUAL }; $$.append($1); $$.append($3); }
      ;
 exp06: exp07                          { $$ = $1; }
-     | exp07 "+" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::OP_PLUS }; $$.append($1); $$.append($3); }
-     | exp07 "-" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MINUS }; $$.append($1); $$.append($3); }
+     | exp07 "+" exp07                { $$ = sqf::sqc::bison::astnode{ astkind::OP_PLUS }; $$.append($1); $$.append($3); }
+     | exp07 "-" exp07                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MINUS }; $$.append($1); $$.append($3); }
      ;
 exp07: exp08                          { $$ = $1; }
-     | exp08 "*" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MULTIPLY }; $$.append($1); $$.append($3); }
-     | exp08 "/" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::OP_DIVIDE }; $$.append($1); $$.append($3); }
-     | exp08 "%" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::OP_REMAINDER }; $$.append($1); $$.append($3); }
+     | exp08 "*" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MULTIPLY }; $$.append($1); $$.append($3); }
+     | exp08 "/" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_DIVIDE }; $$.append($1); $$.append($3); }
+     | exp08 "%" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_REMAINDER }; $$.append($1); $$.append($3); }
      ;
 exp08: exp09                          { $$ = $1; }
      | "!" exp09                      { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOT }; $$.append($2);  }
@@ -310,6 +310,7 @@ exp09: expp                           { $$ = $1; }
 
 expp: "(" exp01 ")"                   { $$ = $2; }
     | IDENT "(" explist ")"           { $$ = sqf::sqc::bison::astnode{ astkind::OP_UNARY }; $$.append($1); $$.append($3); }
+    | IDENT                           { $$ = sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $1 }; }
     | value                           { $$ = $1; }
     ;
 value: function                       { $$ = $1; }
@@ -319,7 +320,6 @@ value: function                       { $$ = $1; }
      | "true"                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_TRUE }; }
      | "false"                        { $$ = sqf::sqc::bison::astnode{ astkind::VAL_FALSE }; }
      | "nil"                          { $$ = sqf::sqc::bison::astnode{ astkind::VAL_NIL }; }
-     | IDENT                          { $$ = sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $1 }; }
      ;
 array: "[" "]"                        { $$ = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY }; }
      | "[" explist "]"                { $$ = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY }; $$.append_children($2); }

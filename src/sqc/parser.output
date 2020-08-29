@@ -4,7 +4,10 @@ Zustand 38 Konflikte: 1 Schiebe/Reduziere
 Zustand 39 Konflikte: 4 Schiebe/Reduziere
 Zustand 40 Konflikte: 4 Schiebe/Reduziere
 Zustand 41 Konflikte: 2 Schiebe/Reduziere
+Zustand 42 Konflikte: 3 Schiebe/Reduziere
+Zustand 44 Konflikte: 1 Schiebe/Reduziere
 Zustand 49 Konflikte: 1 Schiebe/Reduziere
+Zustand 158 Konflikte: 1 Schiebe/Reduziere
 
 
 Grammatik
@@ -52,7 +55,7 @@ Grammatik
    31        | IDENT ","
    32        | IDENT "," arglist
 
-   33 codeblock: statement ";"
+   33 codeblock: statement
    34          | "{" "}"
    35          | "{" statements "}"
 
@@ -81,31 +84,31 @@ Grammatik
    51      | exp02 "?" exp01 ":" exp01
 
    52 exp02: exp03
-   53      | exp03 "||" exp01
+   53      | exp03 "||" exp03
 
    54 exp03: exp04
-   55      | exp04 "&&" exp01
+   55      | exp04 "&&" exp04
 
    56 exp04: exp05
-   57      | exp05 "===" exp01
-   58      | exp05 "!==" exp01
-   59      | exp05 "==" exp01
-   60      | exp05 "!=" exp01
+   57      | exp05 "===" exp05
+   58      | exp05 "!==" exp05
+   59      | exp05 "==" exp05
+   60      | exp05 "!=" exp05
 
    61 exp05: exp06
-   62      | exp06 "<" exp01
-   63      | exp06 "<=" exp01
-   64      | exp06 ">" exp01
-   65      | exp06 ">=" exp01
+   62      | exp06 "<" exp06
+   63      | exp06 "<=" exp06
+   64      | exp06 ">" exp06
+   65      | exp06 ">=" exp06
 
    66 exp06: exp07
-   67      | exp07 "+" exp01
-   68      | exp07 "-" exp01
+   67      | exp07 "+" exp07
+   68      | exp07 "-" exp07
 
    69 exp07: exp08
-   70      | exp08 "*" exp01
-   71      | exp08 "/" exp01
-   72      | exp08 "%" exp01
+   70      | exp08 "*" exp08
+   71      | exp08 "/" exp08
+   72      | exp08 "%" exp08
 
    73 exp08: exp09
    74      | "!" exp09
@@ -115,16 +118,16 @@ Grammatik
 
    77 expp: "(" exp01 ")"
    78     | IDENT "(" explist ")"
-   79     | value
+   79     | IDENT
+   80     | value
 
-   80 value: function
-   81      | STRING
-   82      | array
-   83      | NUMBER
-   84      | "true"
-   85      | "false"
-   86      | "nil"
-   87      | IDENT
+   81 value: function
+   82      | STRING
+   83      | array
+   84      | NUMBER
+   85      | "true"
+   86      | "false"
+   87      | "nil"
 
    88 array: "[" "]"
    89      | "[" explist "]"
@@ -155,9 +158,9 @@ error (256) 18
 "switch" (272) 44
 "case" (273) 47 48
 "default" (274) 49
-"nil" (275) 86
-"true" (276) 84
-"false" (277) 85
+"nil" (275) 87
+"true" (276) 85
+"false" (277) 86
 "for" (278) 38 39 40
 "private" (279) 23 24 25
 ":" (280) 40 47 48 49 51
@@ -167,7 +170,7 @@ error (256) 18
 ")" (284) 28 29 36 37 40 41 42 43 44 76 77 78
 "[" (285) 88 89
 "]" (286) 88 89
-";" (287) 5 6 7 8 16 17 22 25 33
+";" (287) 5 6 7 8 16 17 22 25
 "," (288) 31 32 91 92
 "+" (289) 67
 "-" (290) 68
@@ -188,9 +191,9 @@ error (256) 18
 "?" (305) 51
 "||" (306) 53
 "." (307) 76
-NUMBER (308) 83
-IDENT (309) 19 20 21 22 23 24 25 26 30 31 32 38 39 40 43 76 78 87
-STRING (310) 81
+NUMBER (308) 84
+IDENT (309) 19 20 21 22 23 24 25 26 30 31 32 38 39 40 43 76 78 79
+STRING (310) 82
 
 
 Nicht-Terminal und die Regeln, in denen sie verwendet werden
@@ -212,7 +215,7 @@ vardecl (61)
 funcdecl (62)
     auf der linken Seite: 26, auf der rechten Seite: 9
 function (63)
-    auf der linken Seite: 27, auf der rechten Seite: 80
+    auf der linken Seite: 27, auf der rechten Seite: 81
 funchead (64)
     auf der linken Seite: 28 29, auf der rechten Seite: 26 27
 arglist (65)
@@ -236,8 +239,7 @@ case (73)
     auf der linken Seite: 47 48 49, auf der rechten Seite: 45 46
 exp01 (74)
     auf der linken Seite: 50 51, auf der rechten Seite: 5 7 16 19 20
-    21 23 24 36 37 38 39 40 41 42 44 47 48 51 53 55 57 58 59 60 62
-    63 64 65 67 68 70 71 72 77 90 91 92
+    21 23 24 36 37 38 39 40 41 42 44 47 48 51 77 90 91 92
 exp02 (75)
     auf der linken Seite: 52 53, auf der rechten Seite: 50 51
 exp03 (76)
@@ -259,12 +261,12 @@ exp08 (81)
 exp09 (82)
     auf der linken Seite: 75 76, auf der rechten Seite: 73 74
 expp (83)
-    auf der linken Seite: 77 78 79, auf der rechten Seite: 75 76
+    auf der linken Seite: 77 78 79 80, auf der rechten Seite: 75 76
 value (84)
-    auf der linken Seite: 80 81 82 83 84 85 86 87, auf der rechten Seite:
-    79
+    auf der linken Seite: 81 82 83 84 85 86 87, auf der rechten Seite:
+    80
 array (85)
-    auf der linken Seite: 88 89, auf der rechten Seite: 82
+    auf der linken Seite: 88 89, auf der rechten Seite: 83
 explist (86)
     auf der linken Seite: 90 91 92, auf der rechten Seite: 76 78 89
     92
@@ -544,23 +546,23 @@ Zustand 10
 
 Zustand 11
 
-   86 value: "nil" .
+   87 value: "nil" .
 
-    $default  reduziere mit Regel 86 (value)
+    $default  reduziere mit Regel 87 (value)
 
 
 Zustand 12
 
-   84 value: "true" .
+   85 value: "true" .
 
-    $default  reduziere mit Regel 84 (value)
+    $default  reduziere mit Regel 85 (value)
 
 
 Zustand 13
 
-   85 value: "false" .
+   86 value: "false" .
 
-    $default  reduziere mit Regel 85 (value)
+    $default  reduziere mit Regel 86 (value)
 
 
 Zustand 14
@@ -675,28 +677,28 @@ Zustand 19
 
 Zustand 20
 
-   83 value: NUMBER .
+   84 value: NUMBER .
 
-    $default  reduziere mit Regel 83 (value)
+    $default  reduziere mit Regel 84 (value)
 
 
 Zustand 21
 
    19 assignment: IDENT . "=" exp01
    78 expp: IDENT . "(" explist ")"
-   87 value: IDENT .
+   79     | IDENT .
 
     "("  schiebe und gehe zu Zustand 71 über
     "="  schiebe und gehe zu Zustand 72 über
 
-    $default  reduziere mit Regel 87 (value)
+    $default  reduziere mit Regel 79 (expp)
 
 
 Zustand 22
 
-   81 value: STRING .
+   82 value: STRING .
 
-    $default  reduziere mit Regel 81 (value)
+    $default  reduziere mit Regel 82 (value)
 
 
 Zustand 23
@@ -792,9 +794,9 @@ Zustand 28
 
 Zustand 29
 
-   80 value: function .
+   81 value: function .
 
-    $default  reduziere mit Regel 80 (value)
+    $default  reduziere mit Regel 81 (value)
 
 
 Zustand 30
@@ -853,7 +855,7 @@ Zustand 36
 Zustand 37
 
    52 exp02: exp03 .
-   53      | exp03 . "||" exp01
+   53      | exp03 . "||" exp03
 
     "||"  schiebe und gehe zu Zustand 78 über
 
@@ -864,7 +866,7 @@ Zustand 37
 Zustand 38
 
    54 exp03: exp04 .
-   55      | exp04 . "&&" exp01
+   55      | exp04 . "&&" exp04
 
     "&&"  schiebe und gehe zu Zustand 79 über
 
@@ -875,10 +877,10 @@ Zustand 38
 Zustand 39
 
    56 exp04: exp05 .
-   57      | exp05 . "===" exp01
-   58      | exp05 . "!==" exp01
-   59      | exp05 . "==" exp01
-   60      | exp05 . "!=" exp01
+   57      | exp05 . "===" exp05
+   58      | exp05 . "!==" exp05
+   59      | exp05 . "==" exp05
+   60      | exp05 . "!=" exp05
 
     "==="  schiebe und gehe zu Zustand 80 über
     "=="   schiebe und gehe zu Zustand 81 über
@@ -895,10 +897,10 @@ Zustand 39
 Zustand 40
 
    61 exp05: exp06 .
-   62      | exp06 . "<" exp01
-   63      | exp06 . "<=" exp01
-   64      | exp06 . ">" exp01
-   65      | exp06 . ">=" exp01
+   62      | exp06 . "<" exp06
+   63      | exp06 . "<=" exp06
+   64      | exp06 . ">" exp06
+   65      | exp06 . ">=" exp06
 
     "<="  schiebe und gehe zu Zustand 84 über
     "<"   schiebe und gehe zu Zustand 85 über
@@ -915,8 +917,8 @@ Zustand 40
 Zustand 41
 
    66 exp06: exp07 .
-   67      | exp07 . "+" exp01
-   68      | exp07 . "-" exp01
+   67      | exp07 . "+" exp07
+   68      | exp07 . "-" exp07
 
     "+"  schiebe und gehe zu Zustand 88 über
     "-"  schiebe und gehe zu Zustand 89 über
@@ -929,14 +931,17 @@ Zustand 41
 Zustand 42
 
    69 exp07: exp08 .
-   70      | exp08 . "*" exp01
-   71      | exp08 . "/" exp01
-   72      | exp08 . "%" exp01
+   70      | exp08 . "*" exp08
+   71      | exp08 . "/" exp08
+   72      | exp08 . "%" exp08
 
     "/"  schiebe und gehe zu Zustand 90 über
     "*"  schiebe und gehe zu Zustand 91 über
     "%"  schiebe und gehe zu Zustand 92 über
 
+    "/"       [reduziere mit Regel 69 (exp07)]
+    "*"       [reduziere mit Regel 69 (exp07)]
+    "%"       [reduziere mit Regel 69 (exp07)]
     $default  reduziere mit Regel 69 (exp07)
 
 
@@ -954,21 +959,22 @@ Zustand 44
 
     "."  schiebe und gehe zu Zustand 93 über
 
+    "."       [reduziere mit Regel 75 (exp09)]
     $default  reduziere mit Regel 75 (exp09)
 
 
 Zustand 45
 
-   79 expp: value .
+   80 expp: value .
 
-    $default  reduziere mit Regel 79 (expp)
+    $default  reduziere mit Regel 80 (expp)
 
 
 Zustand 46
 
-   82 value: array .
+   83 value: array .
 
-    $default  reduziere mit Regel 82 (value)
+    $default  reduziere mit Regel 83 (value)
 
 
 Zustand 47
@@ -990,12 +996,12 @@ Zustand 48
 Zustand 49
 
    78 expp: IDENT . "(" explist ")"
-   87 value: IDENT .
+   79     | IDENT .
 
     "("  schiebe und gehe zu Zustand 71 über
 
-    "("       [reduziere mit Regel 87 (value)]
-    $default  reduziere mit Regel 87 (value)
+    "("       [reduziere mit Regel 79 (expp)]
+    $default  reduziere mit Regel 79 (expp)
 
 
 Zustand 50
@@ -1213,23 +1219,23 @@ Zustand 58
 
 Zustand 59
 
-   33 codeblock: statement . ";"
+   33 codeblock: statement .
 
-    ";"  schiebe und gehe zu Zustand 108 über
+    $default  reduziere mit Regel 33 (codeblock)
 
 
 Zustand 60
 
    42 while: "do" codeblock . "while" "(" exp01 ")"
 
-    "while"  schiebe und gehe zu Zustand 109 über
+    "while"  schiebe und gehe zu Zustand 108 über
 
 
 Zustand 61
 
    43 trycatch: "try" codeblock . "catch" "(" IDENT ")" codeblock
 
-    "catch"  schiebe und gehe zu Zustand 110 über
+    "catch"  schiebe und gehe zu Zustand 109 über
 
 
 Zustand 62
@@ -1248,7 +1254,7 @@ Zustand 62
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 111 über
+    exp01     gehe zu Zustand 110 über
     exp02     gehe zu Zustand 36 über
     exp03     gehe zu Zustand 37 über
     exp04     gehe zu Zustand 38 über
@@ -1266,7 +1272,7 @@ Zustand 63
 
    40 for: "for" "(" . IDENT ":" exp01 ")" codeblock
 
-    IDENT  schiebe und gehe zu Zustand 112 über
+    IDENT  schiebe und gehe zu Zustand 111 über
 
 
 Zustand 64
@@ -1274,7 +1280,7 @@ Zustand 64
    38 for: "for" IDENT . "from" exp01 "to" exp01 codeblock
    39    | "for" IDENT . "from" exp01 "to" exp01 "step" exp01 codeblock
 
-    "from"  schiebe und gehe zu Zustand 113 über
+    "from"  schiebe und gehe zu Zustand 112 über
 
 
 Zustand 65
@@ -1283,16 +1289,16 @@ Zustand 65
    24        | "private" IDENT . "be" exp01
    25        | "private" IDENT . ";"
 
-    "be"  schiebe und gehe zu Zustand 114 über
-    ";"   schiebe und gehe zu Zustand 115 über
-    "="   schiebe und gehe zu Zustand 116 über
+    "be"  schiebe und gehe zu Zustand 113 über
+    ";"   schiebe und gehe zu Zustand 114 über
+    "="   schiebe und gehe zu Zustand 115 über
 
 
 Zustand 66
 
    77 expp: "(" exp01 . ")"
 
-    ")"  schiebe und gehe zu Zustand 117 über
+    ")"  schiebe und gehe zu Zustand 116 über
 
 
 Zustand 67
@@ -1308,7 +1314,7 @@ Zustand 68
    91        | exp01 . ","
    92        | exp01 . "," explist
 
-    ","  schiebe und gehe zu Zustand 118 über
+    ","  schiebe und gehe zu Zustand 117 über
 
     $default  reduziere mit Regel 90 (explist)
 
@@ -1317,7 +1323,7 @@ Zustand 69
 
    89 array: "[" explist . "]"
 
-    "]"  schiebe und gehe zu Zustand 119 über
+    "]"  schiebe und gehe zu Zustand 118 über
 
 
 Zustand 70
@@ -1355,7 +1361,7 @@ Zustand 71
     expp      gehe zu Zustand 44 über
     value     gehe zu Zustand 45 über
     array     gehe zu Zustand 46 über
-    explist   gehe zu Zustand 120 über
+    explist   gehe zu Zustand 119 über
 
 
 Zustand 72
@@ -1374,7 +1380,7 @@ Zustand 72
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 121 über
+    exp01     gehe zu Zustand 120 über
     exp02     gehe zu Zustand 36 über
     exp03     gehe zu Zustand 37 über
     exp04     gehe zu Zustand 38 über
@@ -1432,7 +1438,7 @@ Zustand 77
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 122 über
+    exp01     gehe zu Zustand 121 über
     exp02     gehe zu Zustand 36 über
     exp03     gehe zu Zustand 37 über
     exp04     gehe zu Zustand 38 über
@@ -1448,7 +1454,7 @@ Zustand 77
 
 Zustand 78
 
-   53 exp02: exp03 "||" . exp01
+   53 exp02: exp03 "||" . exp03
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1462,9 +1468,7 @@ Zustand 78
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 123 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
+    exp03     gehe zu Zustand 122 über
     exp04     gehe zu Zustand 38 über
     exp05     gehe zu Zustand 39 über
     exp06     gehe zu Zustand 40 über
@@ -1478,7 +1482,7 @@ Zustand 78
 
 Zustand 79
 
-   55 exp03: exp04 "&&" . exp01
+   55 exp03: exp04 "&&" . exp04
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1492,10 +1496,7 @@ Zustand 79
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 124 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
+    exp04     gehe zu Zustand 123 über
     exp05     gehe zu Zustand 39 über
     exp06     gehe zu Zustand 40 über
     exp07     gehe zu Zustand 41 über
@@ -1508,7 +1509,7 @@ Zustand 79
 
 Zustand 80
 
-   57 exp04: exp05 "===" . exp01
+   57 exp04: exp05 "===" . exp05
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1522,11 +1523,7 @@ Zustand 80
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 125 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
+    exp05     gehe zu Zustand 124 über
     exp06     gehe zu Zustand 40 über
     exp07     gehe zu Zustand 41 über
     exp08     gehe zu Zustand 42 über
@@ -1538,7 +1535,7 @@ Zustand 80
 
 Zustand 81
 
-   59 exp04: exp05 "==" . exp01
+   59 exp04: exp05 "==" . exp05
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1552,11 +1549,7 @@ Zustand 81
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 126 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
+    exp05     gehe zu Zustand 125 über
     exp06     gehe zu Zustand 40 über
     exp07     gehe zu Zustand 41 über
     exp08     gehe zu Zustand 42 über
@@ -1568,7 +1561,7 @@ Zustand 81
 
 Zustand 82
 
-   58 exp04: exp05 "!==" . exp01
+   58 exp04: exp05 "!==" . exp05
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1582,11 +1575,7 @@ Zustand 82
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 127 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
+    exp05     gehe zu Zustand 126 über
     exp06     gehe zu Zustand 40 über
     exp07     gehe zu Zustand 41 über
     exp08     gehe zu Zustand 42 über
@@ -1598,7 +1587,7 @@ Zustand 82
 
 Zustand 83
 
-   60 exp04: exp05 "!=" . exp01
+   60 exp04: exp05 "!=" . exp05
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1612,11 +1601,7 @@ Zustand 83
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 128 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
+    exp05     gehe zu Zustand 127 über
     exp06     gehe zu Zustand 40 über
     exp07     gehe zu Zustand 41 über
     exp08     gehe zu Zustand 42 über
@@ -1628,7 +1613,7 @@ Zustand 83
 
 Zustand 84
 
-   63 exp05: exp06 "<=" . exp01
+   63 exp05: exp06 "<=" . exp06
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1642,12 +1627,7 @@ Zustand 84
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 129 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
+    exp06     gehe zu Zustand 128 über
     exp07     gehe zu Zustand 41 über
     exp08     gehe zu Zustand 42 über
     exp09     gehe zu Zustand 43 über
@@ -1658,7 +1638,7 @@ Zustand 84
 
 Zustand 85
 
-   62 exp05: exp06 "<" . exp01
+   62 exp05: exp06 "<" . exp06
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1672,12 +1652,7 @@ Zustand 85
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 130 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
+    exp06     gehe zu Zustand 129 über
     exp07     gehe zu Zustand 41 über
     exp08     gehe zu Zustand 42 über
     exp09     gehe zu Zustand 43 über
@@ -1688,7 +1663,7 @@ Zustand 85
 
 Zustand 86
 
-   65 exp05: exp06 ">=" . exp01
+   65 exp05: exp06 ">=" . exp06
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1702,12 +1677,7 @@ Zustand 86
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 131 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
+    exp06     gehe zu Zustand 130 über
     exp07     gehe zu Zustand 41 über
     exp08     gehe zu Zustand 42 über
     exp09     gehe zu Zustand 43 über
@@ -1718,7 +1688,7 @@ Zustand 86
 
 Zustand 87
 
-   64 exp05: exp06 ">" . exp01
+   64 exp05: exp06 ">" . exp06
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1732,12 +1702,7 @@ Zustand 87
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 132 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
+    exp06     gehe zu Zustand 131 über
     exp07     gehe zu Zustand 41 über
     exp08     gehe zu Zustand 42 über
     exp09     gehe zu Zustand 43 über
@@ -1748,7 +1713,7 @@ Zustand 87
 
 Zustand 88
 
-   67 exp06: exp07 "+" . exp01
+   67 exp06: exp07 "+" . exp07
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1762,13 +1727,7 @@ Zustand 88
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 133 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
-    exp07     gehe zu Zustand 41 über
+    exp07     gehe zu Zustand 132 über
     exp08     gehe zu Zustand 42 über
     exp09     gehe zu Zustand 43 über
     expp      gehe zu Zustand 44 über
@@ -1778,7 +1737,7 @@ Zustand 88
 
 Zustand 89
 
-   68 exp06: exp07 "-" . exp01
+   68 exp06: exp07 "-" . exp07
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1792,13 +1751,7 @@ Zustand 89
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 134 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
-    exp07     gehe zu Zustand 41 über
+    exp07     gehe zu Zustand 133 über
     exp08     gehe zu Zustand 42 über
     exp09     gehe zu Zustand 43 über
     expp      gehe zu Zustand 44 über
@@ -1808,7 +1761,7 @@ Zustand 89
 
 Zustand 90
 
-   71 exp07: exp08 "/" . exp01
+   71 exp07: exp08 "/" . exp08
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1822,14 +1775,7 @@ Zustand 90
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 135 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
-    exp07     gehe zu Zustand 41 über
-    exp08     gehe zu Zustand 42 über
+    exp08     gehe zu Zustand 134 über
     exp09     gehe zu Zustand 43 über
     expp      gehe zu Zustand 44 über
     value     gehe zu Zustand 45 über
@@ -1838,7 +1784,7 @@ Zustand 90
 
 Zustand 91
 
-   70 exp07: exp08 "*" . exp01
+   70 exp07: exp08 "*" . exp08
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1852,14 +1798,7 @@ Zustand 91
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 136 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
-    exp07     gehe zu Zustand 41 über
-    exp08     gehe zu Zustand 42 über
+    exp08     gehe zu Zustand 135 über
     exp09     gehe zu Zustand 43 über
     expp      gehe zu Zustand 44 über
     value     gehe zu Zustand 45 über
@@ -1868,7 +1807,7 @@ Zustand 91
 
 Zustand 92
 
-   72 exp07: exp08 "%" . exp01
+   72 exp07: exp08 "%" . exp08
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -1882,14 +1821,7 @@ Zustand 92
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 137 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
-    exp07     gehe zu Zustand 41 über
-    exp08     gehe zu Zustand 42 über
+    exp08     gehe zu Zustand 136 über
     exp09     gehe zu Zustand 43 über
     expp      gehe zu Zustand 44 über
     value     gehe zu Zustand 45 über
@@ -1900,7 +1832,7 @@ Zustand 93
 
    76 exp09: expp "." . IDENT "(" explist ")"
 
-    IDENT  schiebe und gehe zu Zustand 138 über
+    IDENT  schiebe und gehe zu Zustand 137 über
 
 
 Zustand 94
@@ -1933,7 +1865,7 @@ Zustand 96
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 139 über
+    exp01     gehe zu Zustand 138 über
     exp02     gehe zu Zustand 36 über
     exp03     gehe zu Zustand 37 über
     exp04     gehe zu Zustand 38 über
@@ -1970,7 +1902,7 @@ Zustand 98
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 140 über
+    exp01     gehe zu Zustand 139 über
     exp02     gehe zu Zustand 36 über
     exp03     gehe zu Zustand 37 über
     exp04     gehe zu Zustand 38 über
@@ -1997,7 +1929,7 @@ Zustand 100
    31        | IDENT . ","
    32        | IDENT . "," arglist
 
-    ","  schiebe und gehe zu Zustand 141 über
+    ","  schiebe und gehe zu Zustand 140 über
 
     $default  reduziere mit Regel 30 (arglist)
 
@@ -2006,7 +1938,7 @@ Zustand 101
 
    29 funchead: "(" arglist . ")"
 
-    ")"  schiebe und gehe zu Zustand 142 über
+    ")"  schiebe und gehe zu Zustand 141 über
 
 
 Zustand 102
@@ -2042,7 +1974,7 @@ Zustand 102
     vardecl     gehe zu Zustand 27 über
     funcdecl    gehe zu Zustand 28 über
     function    gehe zu Zustand 29 über
-    codeblock   gehe zu Zustand 143 über
+    codeblock   gehe zu Zustand 142 über
     if          gehe zu Zustand 30 über
     for         gehe zu Zustand 31 über
     while       gehe zu Zustand 32 über
@@ -2074,14 +2006,14 @@ Zustand 104
    36 if: "if" "(" exp01 . ")" codeblock
    37   | "if" "(" exp01 . ")" codeblock "else" codeblock
 
-    ")"  schiebe und gehe zu Zustand 144 über
+    ")"  schiebe und gehe zu Zustand 143 über
 
 
 Zustand 105
 
    41 while: "while" "(" exp01 . ")" codeblock
 
-    ")"  schiebe und gehe zu Zustand 145 über
+    ")"  schiebe und gehe zu Zustand 144 über
 
 
 Zustand 106
@@ -2095,48 +2027,71 @@ Zustand 107
 
    35 codeblock: "{" statements . "}"
 
-    "}"  schiebe und gehe zu Zustand 146 über
+    "}"  schiebe und gehe zu Zustand 145 über
 
 
 Zustand 108
 
-   33 codeblock: statement ";" .
+   42 while: "do" codeblock "while" . "(" exp01 ")"
 
-    $default  reduziere mit Regel 33 (codeblock)
+    "("  schiebe und gehe zu Zustand 146 über
 
 
 Zustand 109
 
-   42 while: "do" codeblock "while" . "(" exp01 ")"
+   43 trycatch: "try" codeblock "catch" . "(" IDENT ")" codeblock
 
     "("  schiebe und gehe zu Zustand 147 über
 
 
 Zustand 110
 
-   43 trycatch: "try" codeblock "catch" . "(" IDENT ")" codeblock
+   44 switch: "switch" "(" exp01 . ")" "{" caselist "}"
 
-    "("  schiebe und gehe zu Zustand 148 über
+    ")"  schiebe und gehe zu Zustand 148 über
 
 
 Zustand 111
 
-   44 switch: "switch" "(" exp01 . ")" "{" caselist "}"
+   40 for: "for" "(" IDENT . ":" exp01 ")" codeblock
 
-    ")"  schiebe und gehe zu Zustand 149 über
+    ":"  schiebe und gehe zu Zustand 149 über
 
 
 Zustand 112
 
-   40 for: "for" "(" IDENT . ":" exp01 ")" codeblock
+   38 for: "for" IDENT "from" . exp01 "to" exp01 codeblock
+   39    | "for" IDENT "from" . exp01 "to" exp01 "step" exp01 codeblock
 
-    ":"  schiebe und gehe zu Zustand 150 über
+    "function"  schiebe und gehe zu Zustand 47 über
+    "nil"       schiebe und gehe zu Zustand 11 über
+    "true"      schiebe und gehe zu Zustand 12 über
+    "false"     schiebe und gehe zu Zustand 13 über
+    "("         schiebe und gehe zu Zustand 16 über
+    "["         schiebe und gehe zu Zustand 17 über
+    "!"         schiebe und gehe zu Zustand 19 über
+    NUMBER      schiebe und gehe zu Zustand 20 über
+    IDENT       schiebe und gehe zu Zustand 49 über
+    STRING      schiebe und gehe zu Zustand 22 über
+
+    function  gehe zu Zustand 29 über
+    exp01     gehe zu Zustand 150 über
+    exp02     gehe zu Zustand 36 über
+    exp03     gehe zu Zustand 37 über
+    exp04     gehe zu Zustand 38 über
+    exp05     gehe zu Zustand 39 über
+    exp06     gehe zu Zustand 40 über
+    exp07     gehe zu Zustand 41 über
+    exp08     gehe zu Zustand 42 über
+    exp09     gehe zu Zustand 43 über
+    expp      gehe zu Zustand 44 über
+    value     gehe zu Zustand 45 über
+    array     gehe zu Zustand 46 über
 
 
 Zustand 113
 
-   38 for: "for" IDENT "from" . exp01 "to" exp01 codeblock
-   39    | "for" IDENT "from" . exp01 "to" exp01 "step" exp01 codeblock
+   24 vardecl: "private" IDENT "be" . exp01
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -2166,7 +2121,14 @@ Zustand 113
 
 Zustand 114
 
-   24 vardecl: "private" IDENT "be" . exp01
+   25 vardecl: "private" IDENT ";" .
+
+    $default  reduziere mit Regel 25 (vardecl)
+
+
+Zustand 115
+
+   23 vardecl: "private" IDENT "=" . exp01
 
     "function"  schiebe und gehe zu Zustand 47 über
     "nil"       schiebe und gehe zu Zustand 11 über
@@ -2194,51 +2156,14 @@ Zustand 114
     array     gehe zu Zustand 46 über
 
 
-Zustand 115
-
-   25 vardecl: "private" IDENT ";" .
-
-    $default  reduziere mit Regel 25 (vardecl)
-
-
 Zustand 116
-
-   23 vardecl: "private" IDENT "=" . exp01
-
-    "function"  schiebe und gehe zu Zustand 47 über
-    "nil"       schiebe und gehe zu Zustand 11 über
-    "true"      schiebe und gehe zu Zustand 12 über
-    "false"     schiebe und gehe zu Zustand 13 über
-    "("         schiebe und gehe zu Zustand 16 über
-    "["         schiebe und gehe zu Zustand 17 über
-    "!"         schiebe und gehe zu Zustand 19 über
-    NUMBER      schiebe und gehe zu Zustand 20 über
-    IDENT       schiebe und gehe zu Zustand 49 über
-    STRING      schiebe und gehe zu Zustand 22 über
-
-    function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 153 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
-    exp07     gehe zu Zustand 41 über
-    exp08     gehe zu Zustand 42 über
-    exp09     gehe zu Zustand 43 über
-    expp      gehe zu Zustand 44 über
-    value     gehe zu Zustand 45 über
-    array     gehe zu Zustand 46 über
-
-
-Zustand 117
 
    77 expp: "(" exp01 ")" .
 
     $default  reduziere mit Regel 77 (expp)
 
 
-Zustand 118
+Zustand 117
 
    91 explist: exp01 "," .
    92        | exp01 "," . explist
@@ -2269,164 +2194,164 @@ Zustand 118
     expp      gehe zu Zustand 44 über
     value     gehe zu Zustand 45 über
     array     gehe zu Zustand 46 über
-    explist   gehe zu Zustand 154 über
+    explist   gehe zu Zustand 153 über
 
 
-Zustand 119
+Zustand 118
 
    89 array: "[" explist "]" .
 
     $default  reduziere mit Regel 89 (array)
 
 
-Zustand 120
+Zustand 119
 
    78 expp: IDENT "(" explist . ")"
 
-    ")"  schiebe und gehe zu Zustand 155 über
+    ")"  schiebe und gehe zu Zustand 154 über
 
 
-Zustand 121
+Zustand 120
 
    19 assignment: IDENT "=" exp01 .
 
     $default  reduziere mit Regel 19 (assignment)
 
 
-Zustand 122
+Zustand 121
 
    51 exp01: exp02 "?" exp01 . ":" exp01
 
-    ":"  schiebe und gehe zu Zustand 156 über
+    ":"  schiebe und gehe zu Zustand 155 über
 
 
-Zustand 123
+Zustand 122
 
-   53 exp02: exp03 "||" exp01 .
+   53 exp02: exp03 "||" exp03 .
 
     $default  reduziere mit Regel 53 (exp02)
 
 
-Zustand 124
+Zustand 123
 
-   55 exp03: exp04 "&&" exp01 .
+   55 exp03: exp04 "&&" exp04 .
 
     $default  reduziere mit Regel 55 (exp03)
 
 
-Zustand 125
+Zustand 124
 
-   57 exp04: exp05 "===" exp01 .
+   57 exp04: exp05 "===" exp05 .
 
     $default  reduziere mit Regel 57 (exp04)
 
 
-Zustand 126
+Zustand 125
 
-   59 exp04: exp05 "==" exp01 .
+   59 exp04: exp05 "==" exp05 .
 
     $default  reduziere mit Regel 59 (exp04)
 
 
-Zustand 127
+Zustand 126
 
-   58 exp04: exp05 "!==" exp01 .
+   58 exp04: exp05 "!==" exp05 .
 
     $default  reduziere mit Regel 58 (exp04)
 
 
-Zustand 128
+Zustand 127
 
-   60 exp04: exp05 "!=" exp01 .
+   60 exp04: exp05 "!=" exp05 .
 
     $default  reduziere mit Regel 60 (exp04)
 
 
-Zustand 129
+Zustand 128
 
-   63 exp05: exp06 "<=" exp01 .
+   63 exp05: exp06 "<=" exp06 .
 
     $default  reduziere mit Regel 63 (exp05)
 
 
-Zustand 130
+Zustand 129
 
-   62 exp05: exp06 "<" exp01 .
+   62 exp05: exp06 "<" exp06 .
 
     $default  reduziere mit Regel 62 (exp05)
 
 
-Zustand 131
+Zustand 130
 
-   65 exp05: exp06 ">=" exp01 .
+   65 exp05: exp06 ">=" exp06 .
 
     $default  reduziere mit Regel 65 (exp05)
 
 
-Zustand 132
+Zustand 131
 
-   64 exp05: exp06 ">" exp01 .
+   64 exp05: exp06 ">" exp06 .
 
     $default  reduziere mit Regel 64 (exp05)
 
 
-Zustand 133
+Zustand 132
 
-   67 exp06: exp07 "+" exp01 .
+   67 exp06: exp07 "+" exp07 .
 
     $default  reduziere mit Regel 67 (exp06)
 
 
-Zustand 134
+Zustand 133
 
-   68 exp06: exp07 "-" exp01 .
+   68 exp06: exp07 "-" exp07 .
 
     $default  reduziere mit Regel 68 (exp06)
 
 
-Zustand 135
+Zustand 134
 
-   71 exp07: exp08 "/" exp01 .
+   71 exp07: exp08 "/" exp08 .
 
     $default  reduziere mit Regel 71 (exp07)
 
 
-Zustand 136
+Zustand 135
 
-   70 exp07: exp08 "*" exp01 .
+   70 exp07: exp08 "*" exp08 .
 
     $default  reduziere mit Regel 70 (exp07)
 
 
-Zustand 137
+Zustand 136
 
-   72 exp07: exp08 "%" exp01 .
+   72 exp07: exp08 "%" exp08 .
 
     $default  reduziere mit Regel 72 (exp07)
 
 
-Zustand 138
+Zustand 137
 
    76 exp09: expp "." IDENT . "(" explist ")"
 
-    "("  schiebe und gehe zu Zustand 157 über
+    "("  schiebe und gehe zu Zustand 156 über
 
 
-Zustand 139
+Zustand 138
 
    21 vardecl: "let" IDENT "be" exp01 .
 
     $default  reduziere mit Regel 21 (vardecl)
 
 
-Zustand 140
+Zustand 139
 
    20 vardecl: "let" IDENT "=" exp01 .
 
     $default  reduziere mit Regel 20 (vardecl)
 
 
-Zustand 141
+Zustand 140
 
    31 arglist: IDENT "," .
    32        | IDENT "," . arglist
@@ -2435,27 +2360,80 @@ Zustand 141
 
     $default  reduziere mit Regel 31 (arglist)
 
-    arglist  gehe zu Zustand 158 über
+    arglist  gehe zu Zustand 157 über
 
 
-Zustand 142
+Zustand 141
 
    29 funchead: "(" arglist ")" .
 
     $default  reduziere mit Regel 29 (funchead)
 
 
-Zustand 143
+Zustand 142
 
    26 funcdecl: "function" IDENT funchead codeblock .
 
     $default  reduziere mit Regel 26 (funcdecl)
 
 
-Zustand 144
+Zustand 143
 
    36 if: "if" "(" exp01 ")" . codeblock
    37   | "if" "(" exp01 ")" . codeblock "else" codeblock
+
+    error       schiebe und gehe zu Zustand 1 über
+    "return"    schiebe und gehe zu Zustand 2 über
+    "throw"     schiebe und gehe zu Zustand 3 über
+    "let"       schiebe und gehe zu Zustand 4 über
+    "function"  schiebe und gehe zu Zustand 5 über
+    "if"        schiebe und gehe zu Zustand 6 über
+    "while"     schiebe und gehe zu Zustand 7 über
+    "do"        schiebe und gehe zu Zustand 8 über
+    "try"       schiebe und gehe zu Zustand 9 über
+    "switch"    schiebe und gehe zu Zustand 10 über
+    "nil"       schiebe und gehe zu Zustand 11 über
+    "true"      schiebe und gehe zu Zustand 12 über
+    "false"     schiebe und gehe zu Zustand 13 über
+    "for"       schiebe und gehe zu Zustand 14 über
+    "private"   schiebe und gehe zu Zustand 15 über
+    "{"         schiebe und gehe zu Zustand 58 über
+    "("         schiebe und gehe zu Zustand 16 über
+    "["         schiebe und gehe zu Zustand 17 über
+    ";"         schiebe und gehe zu Zustand 18 über
+    "!"         schiebe und gehe zu Zustand 19 über
+    NUMBER      schiebe und gehe zu Zustand 20 über
+    IDENT       schiebe und gehe zu Zustand 21 über
+    STRING      schiebe und gehe zu Zustand 22 über
+
+    statement   gehe zu Zustand 59 über
+    assignment  gehe zu Zustand 26 über
+    vardecl     gehe zu Zustand 27 über
+    funcdecl    gehe zu Zustand 28 über
+    function    gehe zu Zustand 29 über
+    codeblock   gehe zu Zustand 158 über
+    if          gehe zu Zustand 30 über
+    for         gehe zu Zustand 31 über
+    while       gehe zu Zustand 32 über
+    trycatch    gehe zu Zustand 33 über
+    switch      gehe zu Zustand 34 über
+    exp01       gehe zu Zustand 35 über
+    exp02       gehe zu Zustand 36 über
+    exp03       gehe zu Zustand 37 über
+    exp04       gehe zu Zustand 38 über
+    exp05       gehe zu Zustand 39 über
+    exp06       gehe zu Zustand 40 über
+    exp07       gehe zu Zustand 41 über
+    exp08       gehe zu Zustand 42 über
+    exp09       gehe zu Zustand 43 über
+    expp        gehe zu Zustand 44 über
+    value       gehe zu Zustand 45 über
+    array       gehe zu Zustand 46 über
+
+
+Zustand 144
+
+   41 while: "while" "(" exp01 ")" . codeblock
 
     error       schiebe und gehe zu Zustand 1 über
     "return"    schiebe und gehe zu Zustand 2 über
@@ -2508,7 +2486,287 @@ Zustand 144
 
 Zustand 145
 
-   41 while: "while" "(" exp01 ")" . codeblock
+   35 codeblock: "{" statements "}" .
+
+    $default  reduziere mit Regel 35 (codeblock)
+
+
+Zustand 146
+
+   42 while: "do" codeblock "while" "(" . exp01 ")"
+
+    "function"  schiebe und gehe zu Zustand 47 über
+    "nil"       schiebe und gehe zu Zustand 11 über
+    "true"      schiebe und gehe zu Zustand 12 über
+    "false"     schiebe und gehe zu Zustand 13 über
+    "("         schiebe und gehe zu Zustand 16 über
+    "["         schiebe und gehe zu Zustand 17 über
+    "!"         schiebe und gehe zu Zustand 19 über
+    NUMBER      schiebe und gehe zu Zustand 20 über
+    IDENT       schiebe und gehe zu Zustand 49 über
+    STRING      schiebe und gehe zu Zustand 22 über
+
+    function  gehe zu Zustand 29 über
+    exp01     gehe zu Zustand 160 über
+    exp02     gehe zu Zustand 36 über
+    exp03     gehe zu Zustand 37 über
+    exp04     gehe zu Zustand 38 über
+    exp05     gehe zu Zustand 39 über
+    exp06     gehe zu Zustand 40 über
+    exp07     gehe zu Zustand 41 über
+    exp08     gehe zu Zustand 42 über
+    exp09     gehe zu Zustand 43 über
+    expp      gehe zu Zustand 44 über
+    value     gehe zu Zustand 45 über
+    array     gehe zu Zustand 46 über
+
+
+Zustand 147
+
+   43 trycatch: "try" codeblock "catch" "(" . IDENT ")" codeblock
+
+    IDENT  schiebe und gehe zu Zustand 161 über
+
+
+Zustand 148
+
+   44 switch: "switch" "(" exp01 ")" . "{" caselist "}"
+
+    "{"  schiebe und gehe zu Zustand 162 über
+
+
+Zustand 149
+
+   40 for: "for" "(" IDENT ":" . exp01 ")" codeblock
+
+    "function"  schiebe und gehe zu Zustand 47 über
+    "nil"       schiebe und gehe zu Zustand 11 über
+    "true"      schiebe und gehe zu Zustand 12 über
+    "false"     schiebe und gehe zu Zustand 13 über
+    "("         schiebe und gehe zu Zustand 16 über
+    "["         schiebe und gehe zu Zustand 17 über
+    "!"         schiebe und gehe zu Zustand 19 über
+    NUMBER      schiebe und gehe zu Zustand 20 über
+    IDENT       schiebe und gehe zu Zustand 49 über
+    STRING      schiebe und gehe zu Zustand 22 über
+
+    function  gehe zu Zustand 29 über
+    exp01     gehe zu Zustand 163 über
+    exp02     gehe zu Zustand 36 über
+    exp03     gehe zu Zustand 37 über
+    exp04     gehe zu Zustand 38 über
+    exp05     gehe zu Zustand 39 über
+    exp06     gehe zu Zustand 40 über
+    exp07     gehe zu Zustand 41 über
+    exp08     gehe zu Zustand 42 über
+    exp09     gehe zu Zustand 43 über
+    expp      gehe zu Zustand 44 über
+    value     gehe zu Zustand 45 über
+    array     gehe zu Zustand 46 über
+
+
+Zustand 150
+
+   38 for: "for" IDENT "from" exp01 . "to" exp01 codeblock
+   39    | "for" IDENT "from" exp01 . "to" exp01 "step" exp01 codeblock
+
+    "to"  schiebe und gehe zu Zustand 164 über
+
+
+Zustand 151
+
+   24 vardecl: "private" IDENT "be" exp01 .
+
+    $default  reduziere mit Regel 24 (vardecl)
+
+
+Zustand 152
+
+   23 vardecl: "private" IDENT "=" exp01 .
+
+    $default  reduziere mit Regel 23 (vardecl)
+
+
+Zustand 153
+
+   92 explist: exp01 "," explist .
+
+    $default  reduziere mit Regel 92 (explist)
+
+
+Zustand 154
+
+   78 expp: IDENT "(" explist ")" .
+
+    $default  reduziere mit Regel 78 (expp)
+
+
+Zustand 155
+
+   51 exp01: exp02 "?" exp01 ":" . exp01
+
+    "function"  schiebe und gehe zu Zustand 47 über
+    "nil"       schiebe und gehe zu Zustand 11 über
+    "true"      schiebe und gehe zu Zustand 12 über
+    "false"     schiebe und gehe zu Zustand 13 über
+    "("         schiebe und gehe zu Zustand 16 über
+    "["         schiebe und gehe zu Zustand 17 über
+    "!"         schiebe und gehe zu Zustand 19 über
+    NUMBER      schiebe und gehe zu Zustand 20 über
+    IDENT       schiebe und gehe zu Zustand 49 über
+    STRING      schiebe und gehe zu Zustand 22 über
+
+    function  gehe zu Zustand 29 über
+    exp01     gehe zu Zustand 165 über
+    exp02     gehe zu Zustand 36 über
+    exp03     gehe zu Zustand 37 über
+    exp04     gehe zu Zustand 38 über
+    exp05     gehe zu Zustand 39 über
+    exp06     gehe zu Zustand 40 über
+    exp07     gehe zu Zustand 41 über
+    exp08     gehe zu Zustand 42 über
+    exp09     gehe zu Zustand 43 über
+    expp      gehe zu Zustand 44 über
+    value     gehe zu Zustand 45 über
+    array     gehe zu Zustand 46 über
+
+
+Zustand 156
+
+   76 exp09: expp "." IDENT "(" . explist ")"
+
+    "function"  schiebe und gehe zu Zustand 47 über
+    "nil"       schiebe und gehe zu Zustand 11 über
+    "true"      schiebe und gehe zu Zustand 12 über
+    "false"     schiebe und gehe zu Zustand 13 über
+    "("         schiebe und gehe zu Zustand 16 über
+    "["         schiebe und gehe zu Zustand 17 über
+    "!"         schiebe und gehe zu Zustand 19 über
+    NUMBER      schiebe und gehe zu Zustand 20 über
+    IDENT       schiebe und gehe zu Zustand 49 über
+    STRING      schiebe und gehe zu Zustand 22 über
+
+    function  gehe zu Zustand 29 über
+    exp01     gehe zu Zustand 68 über
+    exp02     gehe zu Zustand 36 über
+    exp03     gehe zu Zustand 37 über
+    exp04     gehe zu Zustand 38 über
+    exp05     gehe zu Zustand 39 über
+    exp06     gehe zu Zustand 40 über
+    exp07     gehe zu Zustand 41 über
+    exp08     gehe zu Zustand 42 über
+    exp09     gehe zu Zustand 43 über
+    expp      gehe zu Zustand 44 über
+    value     gehe zu Zustand 45 über
+    array     gehe zu Zustand 46 über
+    explist   gehe zu Zustand 166 über
+
+
+Zustand 157
+
+   32 arglist: IDENT "," arglist .
+
+    $default  reduziere mit Regel 32 (arglist)
+
+
+Zustand 158
+
+   36 if: "if" "(" exp01 ")" codeblock .
+   37   | "if" "(" exp01 ")" codeblock . "else" codeblock
+
+    "else"  schiebe und gehe zu Zustand 167 über
+
+    "else"    [reduziere mit Regel 36 (if)]
+    $default  reduziere mit Regel 36 (if)
+
+
+Zustand 159
+
+   41 while: "while" "(" exp01 ")" codeblock .
+
+    $default  reduziere mit Regel 41 (while)
+
+
+Zustand 160
+
+   42 while: "do" codeblock "while" "(" exp01 . ")"
+
+    ")"  schiebe und gehe zu Zustand 168 über
+
+
+Zustand 161
+
+   43 trycatch: "try" codeblock "catch" "(" IDENT . ")" codeblock
+
+    ")"  schiebe und gehe zu Zustand 169 über
+
+
+Zustand 162
+
+   44 switch: "switch" "(" exp01 ")" "{" . caselist "}"
+
+    "case"     schiebe und gehe zu Zustand 170 über
+    "default"  schiebe und gehe zu Zustand 171 über
+
+    caselist  gehe zu Zustand 172 über
+    case      gehe zu Zustand 173 über
+
+
+Zustand 163
+
+   40 for: "for" "(" IDENT ":" exp01 . ")" codeblock
+
+    ")"  schiebe und gehe zu Zustand 174 über
+
+
+Zustand 164
+
+   38 for: "for" IDENT "from" exp01 "to" . exp01 codeblock
+   39    | "for" IDENT "from" exp01 "to" . exp01 "step" exp01 codeblock
+
+    "function"  schiebe und gehe zu Zustand 47 über
+    "nil"       schiebe und gehe zu Zustand 11 über
+    "true"      schiebe und gehe zu Zustand 12 über
+    "false"     schiebe und gehe zu Zustand 13 über
+    "("         schiebe und gehe zu Zustand 16 über
+    "["         schiebe und gehe zu Zustand 17 über
+    "!"         schiebe und gehe zu Zustand 19 über
+    NUMBER      schiebe und gehe zu Zustand 20 über
+    IDENT       schiebe und gehe zu Zustand 49 über
+    STRING      schiebe und gehe zu Zustand 22 über
+
+    function  gehe zu Zustand 29 über
+    exp01     gehe zu Zustand 175 über
+    exp02     gehe zu Zustand 36 über
+    exp03     gehe zu Zustand 37 über
+    exp04     gehe zu Zustand 38 über
+    exp05     gehe zu Zustand 39 über
+    exp06     gehe zu Zustand 40 über
+    exp07     gehe zu Zustand 41 über
+    exp08     gehe zu Zustand 42 über
+    exp09     gehe zu Zustand 43 über
+    expp      gehe zu Zustand 44 über
+    value     gehe zu Zustand 45 über
+    array     gehe zu Zustand 46 über
+
+
+Zustand 165
+
+   51 exp01: exp02 "?" exp01 ":" exp01 .
+
+    $default  reduziere mit Regel 51 (exp01)
+
+
+Zustand 166
+
+   76 exp09: expp "." IDENT "(" explist . ")"
+
+    ")"  schiebe und gehe zu Zustand 176 über
+
+
+Zustand 167
+
+   37 if: "if" "(" exp01 ")" codeblock "else" . codeblock
 
     error       schiebe und gehe zu Zustand 1 über
     "return"    schiebe und gehe zu Zustand 2 über
@@ -2539,7 +2797,7 @@ Zustand 145
     vardecl     gehe zu Zustand 27 über
     funcdecl    gehe zu Zustand 28 über
     function    gehe zu Zustand 29 über
-    codeblock   gehe zu Zustand 160 über
+    codeblock   gehe zu Zustand 177 über
     if          gehe zu Zustand 30 über
     for         gehe zu Zustand 31 über
     while       gehe zu Zustand 32 über
@@ -2559,288 +2817,16 @@ Zustand 145
     array       gehe zu Zustand 46 über
 
 
-Zustand 146
-
-   35 codeblock: "{" statements "}" .
-
-    $default  reduziere mit Regel 35 (codeblock)
-
-
-Zustand 147
-
-   42 while: "do" codeblock "while" "(" . exp01 ")"
-
-    "function"  schiebe und gehe zu Zustand 47 über
-    "nil"       schiebe und gehe zu Zustand 11 über
-    "true"      schiebe und gehe zu Zustand 12 über
-    "false"     schiebe und gehe zu Zustand 13 über
-    "("         schiebe und gehe zu Zustand 16 über
-    "["         schiebe und gehe zu Zustand 17 über
-    "!"         schiebe und gehe zu Zustand 19 über
-    NUMBER      schiebe und gehe zu Zustand 20 über
-    IDENT       schiebe und gehe zu Zustand 49 über
-    STRING      schiebe und gehe zu Zustand 22 über
-
-    function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 161 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
-    exp07     gehe zu Zustand 41 über
-    exp08     gehe zu Zustand 42 über
-    exp09     gehe zu Zustand 43 über
-    expp      gehe zu Zustand 44 über
-    value     gehe zu Zustand 45 über
-    array     gehe zu Zustand 46 über
-
-
-Zustand 148
-
-   43 trycatch: "try" codeblock "catch" "(" . IDENT ")" codeblock
-
-    IDENT  schiebe und gehe zu Zustand 162 über
-
-
-Zustand 149
-
-   44 switch: "switch" "(" exp01 ")" . "{" caselist "}"
-
-    "{"  schiebe und gehe zu Zustand 163 über
-
-
-Zustand 150
-
-   40 for: "for" "(" IDENT ":" . exp01 ")" codeblock
-
-    "function"  schiebe und gehe zu Zustand 47 über
-    "nil"       schiebe und gehe zu Zustand 11 über
-    "true"      schiebe und gehe zu Zustand 12 über
-    "false"     schiebe und gehe zu Zustand 13 über
-    "("         schiebe und gehe zu Zustand 16 über
-    "["         schiebe und gehe zu Zustand 17 über
-    "!"         schiebe und gehe zu Zustand 19 über
-    NUMBER      schiebe und gehe zu Zustand 20 über
-    IDENT       schiebe und gehe zu Zustand 49 über
-    STRING      schiebe und gehe zu Zustand 22 über
-
-    function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 164 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
-    exp07     gehe zu Zustand 41 über
-    exp08     gehe zu Zustand 42 über
-    exp09     gehe zu Zustand 43 über
-    expp      gehe zu Zustand 44 über
-    value     gehe zu Zustand 45 über
-    array     gehe zu Zustand 46 über
-
-
-Zustand 151
-
-   38 for: "for" IDENT "from" exp01 . "to" exp01 codeblock
-   39    | "for" IDENT "from" exp01 . "to" exp01 "step" exp01 codeblock
-
-    "to"  schiebe und gehe zu Zustand 165 über
-
-
-Zustand 152
-
-   24 vardecl: "private" IDENT "be" exp01 .
-
-    $default  reduziere mit Regel 24 (vardecl)
-
-
-Zustand 153
-
-   23 vardecl: "private" IDENT "=" exp01 .
-
-    $default  reduziere mit Regel 23 (vardecl)
-
-
-Zustand 154
-
-   92 explist: exp01 "," explist .
-
-    $default  reduziere mit Regel 92 (explist)
-
-
-Zustand 155
-
-   78 expp: IDENT "(" explist ")" .
-
-    $default  reduziere mit Regel 78 (expp)
-
-
-Zustand 156
-
-   51 exp01: exp02 "?" exp01 ":" . exp01
-
-    "function"  schiebe und gehe zu Zustand 47 über
-    "nil"       schiebe und gehe zu Zustand 11 über
-    "true"      schiebe und gehe zu Zustand 12 über
-    "false"     schiebe und gehe zu Zustand 13 über
-    "("         schiebe und gehe zu Zustand 16 über
-    "["         schiebe und gehe zu Zustand 17 über
-    "!"         schiebe und gehe zu Zustand 19 über
-    NUMBER      schiebe und gehe zu Zustand 20 über
-    IDENT       schiebe und gehe zu Zustand 49 über
-    STRING      schiebe und gehe zu Zustand 22 über
-
-    function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 166 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
-    exp07     gehe zu Zustand 41 über
-    exp08     gehe zu Zustand 42 über
-    exp09     gehe zu Zustand 43 über
-    expp      gehe zu Zustand 44 über
-    value     gehe zu Zustand 45 über
-    array     gehe zu Zustand 46 über
-
-
-Zustand 157
-
-   76 exp09: expp "." IDENT "(" . explist ")"
-
-    "function"  schiebe und gehe zu Zustand 47 über
-    "nil"       schiebe und gehe zu Zustand 11 über
-    "true"      schiebe und gehe zu Zustand 12 über
-    "false"     schiebe und gehe zu Zustand 13 über
-    "("         schiebe und gehe zu Zustand 16 über
-    "["         schiebe und gehe zu Zustand 17 über
-    "!"         schiebe und gehe zu Zustand 19 über
-    NUMBER      schiebe und gehe zu Zustand 20 über
-    IDENT       schiebe und gehe zu Zustand 49 über
-    STRING      schiebe und gehe zu Zustand 22 über
-
-    function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 68 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
-    exp07     gehe zu Zustand 41 über
-    exp08     gehe zu Zustand 42 über
-    exp09     gehe zu Zustand 43 über
-    expp      gehe zu Zustand 44 über
-    value     gehe zu Zustand 45 über
-    array     gehe zu Zustand 46 über
-    explist   gehe zu Zustand 167 über
-
-
-Zustand 158
-
-   32 arglist: IDENT "," arglist .
-
-    $default  reduziere mit Regel 32 (arglist)
-
-
-Zustand 159
-
-   36 if: "if" "(" exp01 ")" codeblock .
-   37   | "if" "(" exp01 ")" codeblock . "else" codeblock
-
-    "else"  schiebe und gehe zu Zustand 168 über
-
-    $default  reduziere mit Regel 36 (if)
-
-
-Zustand 160
-
-   41 while: "while" "(" exp01 ")" codeblock .
-
-    $default  reduziere mit Regel 41 (while)
-
-
-Zustand 161
-
-   42 while: "do" codeblock "while" "(" exp01 . ")"
-
-    ")"  schiebe und gehe zu Zustand 169 über
-
-
-Zustand 162
-
-   43 trycatch: "try" codeblock "catch" "(" IDENT . ")" codeblock
-
-    ")"  schiebe und gehe zu Zustand 170 über
-
-
-Zustand 163
-
-   44 switch: "switch" "(" exp01 ")" "{" . caselist "}"
-
-    "case"     schiebe und gehe zu Zustand 171 über
-    "default"  schiebe und gehe zu Zustand 172 über
-
-    caselist  gehe zu Zustand 173 über
-    case      gehe zu Zustand 174 über
-
-
-Zustand 164
-
-   40 for: "for" "(" IDENT ":" exp01 . ")" codeblock
-
-    ")"  schiebe und gehe zu Zustand 175 über
-
-
-Zustand 165
-
-   38 for: "for" IDENT "from" exp01 "to" . exp01 codeblock
-   39    | "for" IDENT "from" exp01 "to" . exp01 "step" exp01 codeblock
-
-    "function"  schiebe und gehe zu Zustand 47 über
-    "nil"       schiebe und gehe zu Zustand 11 über
-    "true"      schiebe und gehe zu Zustand 12 über
-    "false"     schiebe und gehe zu Zustand 13 über
-    "("         schiebe und gehe zu Zustand 16 über
-    "["         schiebe und gehe zu Zustand 17 über
-    "!"         schiebe und gehe zu Zustand 19 über
-    NUMBER      schiebe und gehe zu Zustand 20 über
-    IDENT       schiebe und gehe zu Zustand 49 über
-    STRING      schiebe und gehe zu Zustand 22 über
-
-    function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 176 über
-    exp02     gehe zu Zustand 36 über
-    exp03     gehe zu Zustand 37 über
-    exp04     gehe zu Zustand 38 über
-    exp05     gehe zu Zustand 39 über
-    exp06     gehe zu Zustand 40 über
-    exp07     gehe zu Zustand 41 über
-    exp08     gehe zu Zustand 42 über
-    exp09     gehe zu Zustand 43 über
-    expp      gehe zu Zustand 44 über
-    value     gehe zu Zustand 45 über
-    array     gehe zu Zustand 46 über
-
-
-Zustand 166
-
-   51 exp01: exp02 "?" exp01 ":" exp01 .
-
-    $default  reduziere mit Regel 51 (exp01)
-
-
-Zustand 167
-
-   76 exp09: expp "." IDENT "(" explist . ")"
-
-    ")"  schiebe und gehe zu Zustand 177 über
-
-
 Zustand 168
 
-   37 if: "if" "(" exp01 ")" codeblock "else" . codeblock
+   42 while: "do" codeblock "while" "(" exp01 ")" .
+
+    $default  reduziere mit Regel 42 (while)
+
+
+Zustand 169
+
+   43 trycatch: "try" codeblock "catch" "(" IDENT ")" . codeblock
 
     error       schiebe und gehe zu Zustand 1 über
     "return"    schiebe und gehe zu Zustand 2 über
@@ -2891,67 +2877,7 @@ Zustand 168
     array       gehe zu Zustand 46 über
 
 
-Zustand 169
-
-   42 while: "do" codeblock "while" "(" exp01 ")" .
-
-    $default  reduziere mit Regel 42 (while)
-
-
 Zustand 170
-
-   43 trycatch: "try" codeblock "catch" "(" IDENT ")" . codeblock
-
-    error       schiebe und gehe zu Zustand 1 über
-    "return"    schiebe und gehe zu Zustand 2 über
-    "throw"     schiebe und gehe zu Zustand 3 über
-    "let"       schiebe und gehe zu Zustand 4 über
-    "function"  schiebe und gehe zu Zustand 5 über
-    "if"        schiebe und gehe zu Zustand 6 über
-    "while"     schiebe und gehe zu Zustand 7 über
-    "do"        schiebe und gehe zu Zustand 8 über
-    "try"       schiebe und gehe zu Zustand 9 über
-    "switch"    schiebe und gehe zu Zustand 10 über
-    "nil"       schiebe und gehe zu Zustand 11 über
-    "true"      schiebe und gehe zu Zustand 12 über
-    "false"     schiebe und gehe zu Zustand 13 über
-    "for"       schiebe und gehe zu Zustand 14 über
-    "private"   schiebe und gehe zu Zustand 15 über
-    "{"         schiebe und gehe zu Zustand 58 über
-    "("         schiebe und gehe zu Zustand 16 über
-    "["         schiebe und gehe zu Zustand 17 über
-    ";"         schiebe und gehe zu Zustand 18 über
-    "!"         schiebe und gehe zu Zustand 19 über
-    NUMBER      schiebe und gehe zu Zustand 20 über
-    IDENT       schiebe und gehe zu Zustand 21 über
-    STRING      schiebe und gehe zu Zustand 22 über
-
-    statement   gehe zu Zustand 59 über
-    assignment  gehe zu Zustand 26 über
-    vardecl     gehe zu Zustand 27 über
-    funcdecl    gehe zu Zustand 28 über
-    function    gehe zu Zustand 29 über
-    codeblock   gehe zu Zustand 179 über
-    if          gehe zu Zustand 30 über
-    for         gehe zu Zustand 31 über
-    while       gehe zu Zustand 32 über
-    trycatch    gehe zu Zustand 33 über
-    switch      gehe zu Zustand 34 über
-    exp01       gehe zu Zustand 35 über
-    exp02       gehe zu Zustand 36 über
-    exp03       gehe zu Zustand 37 über
-    exp04       gehe zu Zustand 38 über
-    exp05       gehe zu Zustand 39 über
-    exp06       gehe zu Zustand 40 über
-    exp07       gehe zu Zustand 41 über
-    exp08       gehe zu Zustand 42 über
-    exp09       gehe zu Zustand 43 über
-    expp        gehe zu Zustand 44 über
-    value       gehe zu Zustand 45 über
-    array       gehe zu Zustand 46 über
-
-
-Zustand 171
 
    47 case: "case" . exp01 ":" codeblock
    48     | "case" . exp01 ":"
@@ -2968,7 +2894,7 @@ Zustand 171
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 180 über
+    exp01     gehe zu Zustand 179 über
     exp02     gehe zu Zustand 36 über
     exp03     gehe zu Zustand 37 über
     exp04     gehe zu Zustand 38 über
@@ -2982,35 +2908,35 @@ Zustand 171
     array     gehe zu Zustand 46 über
 
 
-Zustand 172
+Zustand 171
 
    49 case: "default" . ":" codeblock
 
-    ":"  schiebe und gehe zu Zustand 181 über
+    ":"  schiebe und gehe zu Zustand 180 über
+
+
+Zustand 172
+
+   44 switch: "switch" "(" exp01 ")" "{" caselist . "}"
+
+    "}"  schiebe und gehe zu Zustand 181 über
 
 
 Zustand 173
 
-   44 switch: "switch" "(" exp01 ")" "{" caselist . "}"
-
-    "}"  schiebe und gehe zu Zustand 182 über
-
-
-Zustand 174
-
    45 caselist: case .
    46         | case . caselist
 
-    "case"     schiebe und gehe zu Zustand 171 über
-    "default"  schiebe und gehe zu Zustand 172 über
+    "case"     schiebe und gehe zu Zustand 170 über
+    "default"  schiebe und gehe zu Zustand 171 über
 
     $default  reduziere mit Regel 45 (caselist)
 
-    caselist  gehe zu Zustand 183 über
-    case      gehe zu Zustand 174 über
+    caselist  gehe zu Zustand 182 über
+    case      gehe zu Zustand 173 über
 
 
-Zustand 175
+Zustand 174
 
    40 for: "for" "(" IDENT ":" exp01 ")" . codeblock
 
@@ -3043,7 +2969,7 @@ Zustand 175
     vardecl     gehe zu Zustand 27 über
     funcdecl    gehe zu Zustand 28 über
     function    gehe zu Zustand 29 über
-    codeblock   gehe zu Zustand 184 über
+    codeblock   gehe zu Zustand 183 über
     if          gehe zu Zustand 30 über
     for         gehe zu Zustand 31 über
     while       gehe zu Zustand 32 über
@@ -3063,7 +2989,7 @@ Zustand 175
     array       gehe zu Zustand 46 über
 
 
-Zustand 176
+Zustand 175
 
    38 for: "for" IDENT "from" exp01 "to" exp01 . codeblock
    39    | "for" IDENT "from" exp01 "to" exp01 . "step" exp01 codeblock
@@ -3074,7 +3000,7 @@ Zustand 176
     "let"       schiebe und gehe zu Zustand 4 über
     "function"  schiebe und gehe zu Zustand 5 über
     "if"        schiebe und gehe zu Zustand 6 über
-    "step"      schiebe und gehe zu Zustand 185 über
+    "step"      schiebe und gehe zu Zustand 184 über
     "while"     schiebe und gehe zu Zustand 7 über
     "do"        schiebe und gehe zu Zustand 8 über
     "try"       schiebe und gehe zu Zustand 9 über
@@ -3098,7 +3024,7 @@ Zustand 176
     vardecl     gehe zu Zustand 27 über
     funcdecl    gehe zu Zustand 28 über
     function    gehe zu Zustand 29 über
-    codeblock   gehe zu Zustand 186 über
+    codeblock   gehe zu Zustand 185 über
     if          gehe zu Zustand 30 über
     for         gehe zu Zustand 31 über
     while       gehe zu Zustand 32 über
@@ -3118,36 +3044,36 @@ Zustand 176
     array       gehe zu Zustand 46 über
 
 
-Zustand 177
+Zustand 176
 
    76 exp09: expp "." IDENT "(" explist ")" .
 
     $default  reduziere mit Regel 76 (exp09)
 
 
-Zustand 178
+Zustand 177
 
    37 if: "if" "(" exp01 ")" codeblock "else" codeblock .
 
     $default  reduziere mit Regel 37 (if)
 
 
-Zustand 179
+Zustand 178
 
    43 trycatch: "try" codeblock "catch" "(" IDENT ")" codeblock .
 
     $default  reduziere mit Regel 43 (trycatch)
 
 
-Zustand 180
+Zustand 179
 
    47 case: "case" exp01 . ":" codeblock
    48     | "case" exp01 . ":"
 
-    ":"  schiebe und gehe zu Zustand 187 über
+    ":"  schiebe und gehe zu Zustand 186 über
 
 
-Zustand 181
+Zustand 180
 
    49 case: "default" ":" . codeblock
 
@@ -3180,7 +3106,7 @@ Zustand 181
     vardecl     gehe zu Zustand 27 über
     funcdecl    gehe zu Zustand 28 über
     function    gehe zu Zustand 29 über
-    codeblock   gehe zu Zustand 188 über
+    codeblock   gehe zu Zustand 187 über
     if          gehe zu Zustand 30 über
     for         gehe zu Zustand 31 über
     while       gehe zu Zustand 32 über
@@ -3200,28 +3126,28 @@ Zustand 181
     array       gehe zu Zustand 46 über
 
 
-Zustand 182
+Zustand 181
 
    44 switch: "switch" "(" exp01 ")" "{" caselist "}" .
 
     $default  reduziere mit Regel 44 (switch)
 
 
-Zustand 183
+Zustand 182
 
    46 caselist: case caselist .
 
     $default  reduziere mit Regel 46 (caselist)
 
 
-Zustand 184
+Zustand 183
 
    40 for: "for" "(" IDENT ":" exp01 ")" codeblock .
 
     $default  reduziere mit Regel 40 (for)
 
 
-Zustand 185
+Zustand 184
 
    39 for: "for" IDENT "from" exp01 "to" exp01 "step" . exp01 codeblock
 
@@ -3237,7 +3163,7 @@ Zustand 185
     STRING      schiebe und gehe zu Zustand 22 über
 
     function  gehe zu Zustand 29 über
-    exp01     gehe zu Zustand 189 über
+    exp01     gehe zu Zustand 188 über
     exp02     gehe zu Zustand 36 über
     exp03     gehe zu Zustand 37 über
     exp04     gehe zu Zustand 38 über
@@ -3251,14 +3177,14 @@ Zustand 185
     array     gehe zu Zustand 46 über
 
 
-Zustand 186
+Zustand 185
 
    38 for: "for" IDENT "from" exp01 "to" exp01 codeblock .
 
     $default  reduziere mit Regel 38 (for)
 
 
-Zustand 187
+Zustand 186
 
    47 case: "case" exp01 ":" . codeblock
    48     | "case" exp01 ":" .
@@ -3296,7 +3222,7 @@ Zustand 187
     vardecl     gehe zu Zustand 27 über
     funcdecl    gehe zu Zustand 28 über
     function    gehe zu Zustand 29 über
-    codeblock   gehe zu Zustand 190 über
+    codeblock   gehe zu Zustand 189 über
     if          gehe zu Zustand 30 über
     for         gehe zu Zustand 31 über
     while       gehe zu Zustand 32 über
@@ -3316,14 +3242,14 @@ Zustand 187
     array       gehe zu Zustand 46 über
 
 
-Zustand 188
+Zustand 187
 
    49 case: "default" ":" codeblock .
 
     $default  reduziere mit Regel 49 (case)
 
 
-Zustand 189
+Zustand 188
 
    39 for: "for" IDENT "from" exp01 "to" exp01 "step" exp01 . codeblock
 
@@ -3356,7 +3282,7 @@ Zustand 189
     vardecl     gehe zu Zustand 27 über
     funcdecl    gehe zu Zustand 28 über
     function    gehe zu Zustand 29 über
-    codeblock   gehe zu Zustand 191 über
+    codeblock   gehe zu Zustand 190 über
     if          gehe zu Zustand 30 über
     for         gehe zu Zustand 31 über
     while       gehe zu Zustand 32 über
@@ -3376,14 +3302,14 @@ Zustand 189
     array       gehe zu Zustand 46 über
 
 
-Zustand 190
+Zustand 189
 
    47 case: "case" exp01 ":" codeblock .
 
     $default  reduziere mit Regel 47 (case)
 
 
-Zustand 191
+Zustand 190
 
    39 for: "for" IDENT "from" exp01 "to" exp01 "step" exp01 codeblock .
 

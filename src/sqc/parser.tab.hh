@@ -990,7 +990,7 @@ namespace  sqf { namespace sqc { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 447,     ///< Last index in yytable_.
+      yylast_ = 475,     ///< Last index in yytable_.
       yynnts_ = 31,  ///< Number of nonterminal symbols.
       yyfinal_ = 73, ///< Termination state number.
       yyterror_ = 1,

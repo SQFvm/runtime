@@ -86,8 +86,8 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     case ::sqf::sqc::bison::astkind::FUNCTION_DECLARATION: {
         auto local_set = set.create_from();
         std::vector<std::string> new_locals;
-        set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
-        set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
+        local_set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
+        local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
         to_assembly(runtime, local_set, new_locals, node.children[1]);
         to_assembly(runtime, local_set, new_locals, node.children[2]);
@@ -97,8 +97,8 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     case ::sqf::sqc::bison::astkind::FUNCTION: {
         auto local_set = set.create_from();
         std::vector<std::string> new_locals;
-        set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
-        set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
+        local_set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
+        local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
         to_assembly(runtime, local_set, new_locals, node.children[0]);
         to_assembly(runtime, local_set, new_locals, node.children[1]);
@@ -617,9 +617,9 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         {
             to_assembly(runtime, set, locals, child);
         }
+        set.push_back(node.token, std::make_shared<opcodes::make_array>(node.children.size()));
     } break;
     case ::sqf::sqc::bison::astkind::VAL_NUMBER: {
-        set.push_back(node.token, std::make_shared<opcodes::push>(types::d_string::from_sqf(node.token.contents)));
         double d;
         try
         {
