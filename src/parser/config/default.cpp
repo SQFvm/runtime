@@ -65,7 +65,6 @@ void sqf::parser::config::impl_default::instance::skip()
 				(m_contents[m_info.adjusted_offset + 3] == 'n' || m_contents[m_info.adjusted_offset + 1] == 'N') &&
 				(m_contents[m_info.adjusted_offset + 4] == 'e' || m_contents[m_info.adjusted_offset + 1] == 'E'))
 			{
-				auto tmpoff = m_info.adjusted_offset;
 				m_info.adjusted_offset += 6;
 				size_t start = m_info.adjusted_offset;
 				for (; m_contents[m_info.adjusted_offset] != '\0' && m_contents[m_info.adjusted_offset] != '\n' && m_contents[m_info.adjusted_offset] != ' '; m_info.adjusted_offset++);

@@ -56,9 +56,9 @@ namespace sqf
                 if (!strs.empty())
                 {
                     sstream << strs.front();
-                    for (auto it = strs.begin() + 1; it != strs.end(); it++)
+                    for (auto it2 = strs.begin() + 1; it2 != strs.end(); it2++)
                     {
-                        sstream << "; " << *it;
+                        sstream << "; " << *it2;
                     }
                 }
                 sstream << " }";
