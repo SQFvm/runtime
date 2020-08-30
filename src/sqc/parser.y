@@ -356,7 +356,7 @@ namespace sqf::sqc::bison
          switch (token.type)
          {
          case tokenizer::etoken::eof: return parser::make_NA(loc);
-         case tokenizer::etoken::invalid: return yylex(tokenizer);
+         case tokenizer::etoken::invalid: return parser::make_NA(loc);
          case tokenizer::etoken::m_line: return yylex(tokenizer);
          case tokenizer::etoken::i_comment_line: return yylex(tokenizer);
          case tokenizer::etoken::i_comment_block: return yylex(tokenizer);
