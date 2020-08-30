@@ -740,6 +740,20 @@ namespace logmessage::sqf
 		output.append("Unterminated string."sv);
 		return output;
 	}
+	std::string ParseError::formatMessage() const
+	{
+		auto output = m_location.format();
+
+		output.reserve(
+			output.length()
+			+ "Parse Error: "sv.length()
+			+ msg.length()
+		);
+
+		output.append("Parse Error: "sv);
+		output.append(msg);
+		return output;
+	}
 }
 
 namespace logmessage::config

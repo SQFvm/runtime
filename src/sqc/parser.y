@@ -14,6 +14,10 @@
 
 %code requires
 {
+     namespace sqf::sqc
+     {
+          class parser;
+     }
      namespace sqf::sqc::bison
      {
           enum class astkind
@@ -110,6 +114,8 @@
 %lex-param { sqf::sqc::tokenizer &tokenizer }
 %parse-param { sqf::sqc::tokenizer &tokenizer }
 %parse-param { sqf::sqc::bison::astnode& result }
+%parse-param { sqf::sqc::parser& actual }
+%parse-param { std::string fpath }
 %locations
 %define parse.trace
 %define parse.error verbose
@@ -331,12 +337,12 @@ explist: exp01                        { $$ = sqf::sqc::bison::astnode{}; $$.appe
 
 %%
 
+#include "sqc_parser.h"
 namespace sqf::sqc::bison
 {
-
      void parser::error (const location_type& loc, const std::string& msg)
      {
-          std::cout << "[SQC][L" << loc.begin.line << "|C" << loc.begin.column << "]" << "  " << msg << std::endl;
+          actual.__log(logmessage::sqf::ParseError({ fpath, loc.begin.line, loc.begin.column }, msg));
      }
      inline parser::symbol_type yylex (sqf::sqc::tokenizer& tokenizer)
      {

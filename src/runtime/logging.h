@@ -24,7 +24,8 @@ enum class loglevel {
 class LogLocationInfo {
 public:
     LogLocationInfo() = default;
-    LogLocationInfo(const sqf::runtime::diagnostics::diag_info&);
+	LogLocationInfo(const sqf::runtime::diagnostics::diag_info&);
+	LogLocationInfo(std::string path, size_t line, size_t col) : path(path), line(line), col(col) {}
 
     std::string path;
     size_t line;
@@ -522,6 +523,16 @@ namespace logmessage {
 			static const size_t errorCode = 30014;
 		public:
 			MissingStringTermination(LogLocationInfo loc) :
+				SqfBase(level, errorCode, std::move(loc)) { }
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ParseError : public SqfBase {
+			static const loglevel level = loglevel::error;
+			static const size_t errorCode = 30015;
+			std::string_view msg;
+		public:
+			ParseError(LogLocationInfo loc, std::string_view msg) :
+				msg(msg),
 				SqfBase(level, errorCode, std::move(loc)) { }
 			[[nodiscard]] std::string formatMessage() const override;
 		};

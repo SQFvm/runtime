@@ -30,6 +30,10 @@ namespace sqf::sqc
 		parser(Logger& logger) : CanLog(logger)
 		{
 		}
+		void __log(LogMessageBase&& msg) const
+		{
+			log(msg);
+		}
 		virtual ~parser() override { };
 		virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;
 		virtual std::optional<::sqf::runtime::instruction_set> parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;
