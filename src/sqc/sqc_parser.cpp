@@ -73,6 +73,40 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>(var));
         }
     } break;
+    case ::sqf::sqc::bison::astkind::OP_ARRAY_SET: {
+        // Push actual array onto value stack
+        std::string var(node.children[0].token.contents);
+        if (std::find(locals.begin(), locals.end(), var) != locals.end())
+        {
+            set.push_back(node.token, std::make_shared<opcodes::get_variable>("_" + var));
+        }
+        else
+        {
+            set.push_back(node.token, std::make_shared<opcodes::get_variable>(var));
+        }
+
+        // Push Index-Expression to stack
+        to_assembly(runtime, set, locals, node.children[1]);
+
+        // Push Value-Expression to stack
+        to_assembly(runtime, set, locals, node.children[2]);
+
+        // Emit "makeArray" instruction to craft the right-handed argument
+        set.push_back(node.token, std::make_shared<opcodes::make_array>(2));
+
+        // Emit "set" to perform the array assignment
+        set.push_back(node.token, std::make_shared<opcodes::call_binary>("set"s, (short)4));
+    } break;
+    case ::sqf::sqc::bison::astkind::OP_ARRAY_GET: {
+        // Push actual array onto value stack
+        to_assembly(runtime, set, locals, node.children[0]);
+
+        // Push Index-Expression to stack
+        to_assembly(runtime, set, locals, node.children[1]);
+
+        // Emit "select" to perform the array index access
+        set.push_back(node.token, std::make_shared<opcodes::call_binary>("select"s, (short)4));
+    } break;
     case ::sqf::sqc::bison::astkind::DECLARATION: {
         to_assembly(runtime, set, locals, node.children[1]);
         std::string var(node.children[0].token.contents);
@@ -695,6 +729,7 @@ std::optional<::sqf::runtime::instruction_set> sqf::sqc::parser::parse(::sqf::ru
     util::setbuilder source(contents, file.physical);
     ::sqf::sqc::bison::astnode res;
     ::sqf::sqc::bison::parser p(t, res, *this, file.physical);
+    p.set_debug_level(1);
     bool success = p.parse() == 0;
     if (!success)
     {

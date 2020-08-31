@@ -91,6 +91,8 @@
                OP_NOT,
                OP_BINARY,
                OP_UNARY,
+               OP_ARRAY_GET,
+               OP_ARRAY_SET,
                VAL_STRING,
                VAL_ARRAY,
                VAL_NUMBER,
@@ -130,7 +132,7 @@
           };
      }
 
-#line 134 "parser.tab.hh" // lalr1.cc:377
+#line 136 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -207,7 +209,7 @@
 
 #line 8 "parser.y" // lalr1.cc:377
 namespace  sqf { namespace sqc { namespace bison  {
-#line 211 "parser.tab.hh" // lalr1.cc:377
+#line 213 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -994,9 +996,9 @@ namespace  sqf { namespace sqc { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 475,     ///< Last index in yytable_.
+      yylast_ = 480,     ///< Last index in yytable_.
       yynnts_ = 31,  ///< Number of nonterminal symbols.
-      yyfinal_ = 73, ///< Termination state number.
+      yyfinal_ = 74, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
       yyntokens_ = 56  ///< Number of tokens.
@@ -1724,7 +1726,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 #line 8 "parser.y" // lalr1.cc:377
 } } } //  sqf::sqc::bison 
-#line 1728 "parser.tab.hh" // lalr1.cc:377
+#line 1730 "parser.tab.hh" // lalr1.cc:377
 
 
 

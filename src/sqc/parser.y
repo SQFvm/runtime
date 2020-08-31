@@ -63,6 +63,8 @@
                OP_NOT,
                OP_BINARY,
                OP_UNARY,
+               OP_ARRAY_GET,
+               OP_ARRAY_SET,
                VAL_STRING,
                VAL_ARRAY,
                VAL_NUMBER,
@@ -117,7 +119,6 @@
 %parse-param { sqf::sqc::parser& actual }
 %parse-param { std::string fpath }
 %locations
-%define parse.trace
 %define parse.error verbose
 
 %define api.token.prefix {}
@@ -212,21 +213,22 @@ statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnod
          | while                                  { $$ = $1; }
          | trycatch                               { $$ = $1; }
          | switch                                 { $$ = $1; }
-         | assignment                             { $$ = $1; }
+         | assignment ";"                         { $$ = $1; }
          | exp01 ";"                              { $$ = $1; }
          | ";"                                    { $$ = sqf::sqc::bison::astnode{}; }
          | error                                  { $$ = sqf::sqc::bison::astnode{}; }
          ;
 
 assignment: IDENT "=" exp01                       { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT }; $$.append($1); $$.append($3); }
+          | IDENT "[" exp01 "]" "=" exp01         { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET }; $$.append($1); $$.append($3); $$.append($6); }
           ;
 
 vardecl: "let" IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
        | "let" IDENT "be" exp01                   { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
-       | "let" IDENT ";"                          { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION }; $$.append($2); }
+       | "let" IDENT                              { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION }; $$.append($2); }
        | "private" IDENT "=" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
        | "private" IDENT "be" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
-       | "private" IDENT ";"                      { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION }; $$.append($2); }
+       | "private" IDENT                          { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION }; $$.append($2); }
        ;
 
 funcdecl: "function" IDENT funchead codeblock     { $$ = sqf::sqc::bison::astnode{ astkind::FUNCTION_DECLARATION }; $$.append($2); $$.append($3); $$.append($4); }
@@ -312,6 +314,7 @@ exp08: exp09                          { $$ = $1; }
      ;
 exp09: expp                           { $$ = $1; }
      | expp "." IDENT "(" explist ")" { $$ = sqf::sqc::bison::astnode{ astkind::OP_BINARY }; $$.append($1); $$.append($3); $$.append($5); }
+     | exp09 "[" exp01 "]"             { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_GET }; $$.append($1); $$.append($3); }
      ;
 
 expp: "(" exp01 ")"                   { $$ = $2; }
