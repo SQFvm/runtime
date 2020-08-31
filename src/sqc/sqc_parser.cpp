@@ -19,18 +19,17 @@ namespace sqf::sqc::util
     class setbuilder {
     private:
         std::vector<::sqf::runtime::instruction::sptr> inner;
-        std::string_view m_path;
         std::string_view m_contents;
     public:
-        setbuilder(std::string_view contents, std::string_view path) : m_contents(contents), m_path(path) {}
+        setbuilder(std::string_view contents) : m_contents(contents) {}
 
         setbuilder create_from() const
         {
-            return { m_contents, m_path };
+            return { m_contents };
         }
         void push_back(const ::sqf::sqc::tokenizer::token& t, ::sqf::runtime::instruction::sptr ptr)
         {
-            ptr->diag_info({ t.line, t.column, t.offset, {}/*t.fiile*/, ::sqf::runtime::parser::sqf::create_code_segment(m_contents, t.offset, t.contents.length()) });
+            ptr->diag_info({ t.line, t.column, t.offset, { t.path, {} }, ::sqf::runtime::parser::sqf::create_code_segment(m_contents, t.offset, t.contents.length()) });
             inner.push_back(ptr);
         }
         operator ::sqf::runtime::instruction_set() const
@@ -717,7 +716,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
 bool sqf::sqc::parser::check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
 {
-    tokenizer t(contents.begin(), contents.end());
+    tokenizer t(contents.begin(), contents.end(), file.physical);
     ::sqf::sqc::bison::astnode res;
     ::sqf::sqc::bison::parser p(t, res, *this, file.physical);
     bool success = p.parse() == 0;
@@ -725,8 +724,8 @@ bool sqf::sqc::parser::check_syntax(::sqf::runtime::runtime& runtime, std::strin
 }
 std::optional<::sqf::runtime::instruction_set> sqf::sqc::parser::parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
 {
-    tokenizer t(contents.begin(), contents.end());
-    util::setbuilder source(contents, file.physical);
+    tokenizer t(contents.begin(), contents.end(), file.physical);
+    util::setbuilder source(contents);
     ::sqf::sqc::bison::astnode res;
     ::sqf::sqc::bison::parser p(t, res, *this, file.physical);
     // p.set_debug_level(1);

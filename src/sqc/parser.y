@@ -150,7 +150,6 @@
 %token FALSE                     "false"
 %token FOR                       "for"
 %token PRIVATE                   "private"
-%token COLON                     ":"
 %token CURLYO                    "{"
 %token CURLYC                    "}"
 %token ROUNDO                    "("
@@ -159,26 +158,27 @@
 %token SQUAREC                   "]"
 %token SEMICOLON                 ";"
 %token COMMA                     ","
-%token PLUS                      "+"
-%token MINUS                     "-"
-%token LTEQUAL                   "<="
-%token LT                        "<"
-%token GTEQUAL                   ">="
-%token GT                        ">"
-%token EQUALEQUALEQUAL           "==="
-%token EQUALEQUAL                "=="
-%token EXCLAMATIONMARKEQUALEQUAL "!=="
-%token EXCLAMATIONMARKEQUAL      "!="
-%token EXCLAMATIONMARK           "!"
 %token EQUAL                     "="
-%token ANDAND                    "&&"
-%token SLASH                     "/"
-%token STAR                      "*"
-%token PERCENT                   "%"
-%token QUESTIONMARK              "?"
-%token VLINEVLINE                "||"
 %token DOT                       "."
+%token QUESTIONMARK              "?"
 
+%token <tokenizer::token> ANDAND                    "&&"
+%token <tokenizer::token> SLASH                     "/"
+%token <tokenizer::token> STAR                      "*"
+%token <tokenizer::token> PERCENT                   "%"
+%token <tokenizer::token> VLINEVLINE                "||"
+%token <tokenizer::token> COLON                     ":"
+%token <tokenizer::token> PLUS                      "+"
+%token <tokenizer::token> MINUS                     "-"
+%token <tokenizer::token> LTEQUAL                   "<="
+%token <tokenizer::token> LT                        "<"
+%token <tokenizer::token> GTEQUAL                   ">="
+%token <tokenizer::token> GT                        ">"
+%token <tokenizer::token> EQUALEQUALEQUAL           "==="
+%token <tokenizer::token> EQUALEQUAL                "=="
+%token <tokenizer::token> EXCLAMATIONMARKEQUALEQUAL "!=="
+%token <tokenizer::token> EXCLAMATIONMARKEQUAL      "!="
+%token <tokenizer::token> EXCLAMATIONMARK           "!"
 %token <tokenizer::token> NUMBER 
 %token <tokenizer::token> IDENT  
 %token <tokenizer::token> STRING 
@@ -203,9 +203,9 @@ statements: statement                             { $$ = sqf::sqc::bison::astnod
           | statement statements                  { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($2); }
           ;
 
-statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnode{ astkind::RETURN }; $$.append($2); }
-         | "return" ";"                           { $$ = sqf::sqc::bison::astnode{ astkind::RETURN }; }
-         | "throw" exp01 ";"                      { $$ = sqf::sqc::bison::astnode{ astkind::THROW }; $$.append($2); }
+statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnode{ astkind::RETURN, tokenizer.create_token() }; $$.append($2); }
+         | "return" ";"                           { $$ = sqf::sqc::bison::astnode{ astkind::RETURN, tokenizer.create_token() }; }
+         | "throw" exp01 ";"                      { $$ = sqf::sqc::bison::astnode{ astkind::THROW, tokenizer.create_token() }; $$.append($2); }
          | vardecl ";"                            { $$ = $1; }
          | funcdecl                               { $$ = $1; }
          | if                                     { $$ = $1; }
@@ -219,106 +219,105 @@ statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnod
          | error                                  { $$ = sqf::sqc::bison::astnode{}; }
          ;
 
-assignment: IDENT "=" exp01                       { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT }; $$.append($1); $$.append($3); }
-          | IDENT "[" exp01 "]" "=" exp01         { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET }; $$.append($1); $$.append($3); $$.append($6); }
+assignment: IDENT "=" exp01                       { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT, tokenizer.create_token() }; $$.append($1); $$.append($3); }
+          | IDENT "[" exp01 "]" "=" exp01         { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET, tokenizer.create_token() }; $$.append($1); $$.append($3); $$.append($6); }
           ;
 
-vardecl: "let" IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
-       | "let" IDENT "be" exp01                   { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
-       | "let" IDENT                              { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION }; $$.append($2); }
-       | "private" IDENT "=" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
-       | "private" IDENT "be" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION }; $$.append($2); $$.append($4); }
-       | "private" IDENT                          { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION }; $$.append($2); }
+vardecl: "let" IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($4); }
+       | "let" IDENT "be" exp01                   { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($4); }
+       | "let" IDENT                              { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION, tokenizer.create_token() }; $$.append($2); }
+       | "private" IDENT "=" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($4); }
+       | "private" IDENT "be" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($4); }
+       | "private" IDENT                          { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION, tokenizer.create_token() }; $$.append($2); }
        ;
 
-funcdecl: "function" IDENT funchead codeblock     { $$ = sqf::sqc::bison::astnode{ astkind::FUNCTION_DECLARATION }; $$.append($2); $$.append($3); $$.append($4); }
+funcdecl: "function" IDENT funchead codeblock     { $$ = sqf::sqc::bison::astnode{ astkind::FUNCTION_DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($3); $$.append($4); }
         ;
 
-function: "function" funchead codeblock           { $$ = sqf::sqc::bison::astnode{ astkind::FUNCTION }; $$.append($2); $$.append($3); }
+function: "function" funchead codeblock           { $$ = sqf::sqc::bison::astnode{ astkind::FUNCTION, tokenizer.create_token() }; $$.append($2); $$.append($3); }
         ;
 
-funchead: "(" ")"                                 { $$ = sqf::sqc::bison::astnode{ astkind::ARGLIST }; }
-        | "(" arglist ")"                         { $$ = sqf::sqc::bison::astnode{ astkind::ARGLIST }; $$.append_children($2); }
+funchead: "(" ")"                                 { $$ = sqf::sqc::bison::astnode{ astkind::ARGLIST, tokenizer.create_token() }; }
+        | "(" arglist ")"                         { $$ = sqf::sqc::bison::astnode{ astkind::ARGLIST, tokenizer.create_token() }; $$.append_children($2); }
         ;
 
 arglist: IDENT                                    { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
        | IDENT ","                                { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
        | IDENT "," arglist                        { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($3); }
        ;
-
-codeblock: statement                              { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK }; $$.append($1); }
-         | "{" "}"                                { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK }; }
-         | "{" statements "}"                     { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK }; $$.append_children($2); }
+codeblock: statement                              { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; $$.append($1); }
+         | "{" "}"                                { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; }
+         | "{" statements "}"                     { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; $$.append_children($2); }
          ;
 
-if: "if" "(" exp01 ")" codeblock                  { $$ = sqf::sqc::bison::astnode{ astkind::IF }; $$.append($3); $$.append($5); }
-  | "if" "(" exp01 ")" codeblock "else" codeblock { $$ = sqf::sqc::bison::astnode{ astkind::IFELSE }; $$.append($3); $$.append($5); $$.append($7); }
+if: "if" "(" exp01 ")" codeblock                  { $$ = sqf::sqc::bison::astnode{ astkind::IF, tokenizer.create_token() }; $$.append($3); $$.append($5); }
+  | "if" "(" exp01 ")" codeblock "else" codeblock { $$ = sqf::sqc::bison::astnode{ astkind::IFELSE, tokenizer.create_token() }; $$.append($3); $$.append($5); $$.append($7); }
   ;
 
-for: "for" IDENT "from" exp01 "to" exp01 codeblock                { $$ = sqf::sqc::bison::astnode{ astkind::FOR }; $$.append($2); $$.append($4); $$.append($6); $$.append($7); }
-   | "for" IDENT "from" exp01 "to" exp01 "step" exp01 codeblock   { $$ = sqf::sqc::bison::astnode{ astkind::FORSTEP }; $$.append($2); $$.append($4); $$.append($6); $$.append($8); $$.append($9); }
-   | "for" "(" IDENT ":" exp01 ")" codeblock                      { $$ = sqf::sqc::bison::astnode{ astkind::FOREACH }; $$.append($3); $$.append($5); $$.append($7); }
+for: "for" IDENT "from" exp01 "to" exp01 codeblock                { $$ = sqf::sqc::bison::astnode{ astkind::FOR, tokenizer.create_token() }; $$.append($2); $$.append($4); $$.append($6); $$.append($7); }
+   | "for" IDENT "from" exp01 "to" exp01 "step" exp01 codeblock   { $$ = sqf::sqc::bison::astnode{ astkind::FORSTEP, tokenizer.create_token() }; $$.append($2); $$.append($4); $$.append($6); $$.append($8); $$.append($9); }
+   | "for" "(" IDENT ":" exp01 ")" codeblock                      { $$ = sqf::sqc::bison::astnode{ astkind::FOREACH, $4 }; $$.append($3); $$.append($5); $$.append($7); }
    ;
 
-while: "while" "(" exp01 ")" codeblock                    { $$ = sqf::sqc::bison::astnode{ astkind::WHILE }; $$.append($3); $$.append($5); }
-     | "do" codeblock "while" "(" exp01 ")"               { $$ = sqf::sqc::bison::astnode{ astkind::DOWHILE }; $$.append($2); $$.append($5); }
+while: "while" "(" exp01 ")" codeblock                    { $$ = sqf::sqc::bison::astnode{ astkind::WHILE, tokenizer.create_token() }; $$.append($3); $$.append($5); }
+     | "do" codeblock "while" "(" exp01 ")"               { $$ = sqf::sqc::bison::astnode{ astkind::DOWHILE, tokenizer.create_token() }; $$.append($2); $$.append($5); }
      ;
 
-trycatch: "try" codeblock "catch" "(" IDENT ")" codeblock { $$ = sqf::sqc::bison::astnode{ astkind::TRYCATCH }; $$.append($2); $$.append($5); $$.append($7); }
+trycatch: "try" codeblock "catch" "(" IDENT ")" codeblock { $$ = sqf::sqc::bison::astnode{ astkind::TRYCATCH, tokenizer.create_token() }; $$.append($2); $$.append($5); $$.append($7); }
         ;
 
-switch: "switch" "(" exp01 ")" "{" caselist "}"           { $$ = sqf::sqc::bison::astnode{ astkind::SWITCH }; $$.append($3); $$.append_children($6); }
+switch: "switch" "(" exp01 ")" "{" caselist "}"           { $$ = sqf::sqc::bison::astnode{ astkind::SWITCH, tokenizer.create_token() }; $$.append($3); $$.append_children($6); }
       ;
 
 caselist: case                        { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
         | case caselist               { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($2); }
         ;
 
-case: "case" exp01 ":" codeblock      { $$ = sqf::sqc::bison::astnode{ astkind::CASE }; $$.append($2); $$.append($4); }
-    | "case" exp01 ":"                { $$ = sqf::sqc::bison::astnode{ astkind::CASE }; $$.append($2); }
-    | "default" ":" codeblock         { $$ = sqf::sqc::bison::astnode{ astkind::CASE_DEFAULT }; $$.append($3); }
+case: "case" exp01 ":" codeblock      { $$ = sqf::sqc::bison::astnode{ astkind::CASE, $3 }; $$.append($2); $$.append($4); }
+    | "case" exp01 ":"                { $$ = sqf::sqc::bison::astnode{ astkind::CASE, $3 }; $$.append($2); }
+    | "default" ":" codeblock         { $$ = sqf::sqc::bison::astnode{ astkind::CASE_DEFAULT, $2 }; $$.append($3); }
     ;
 
 exp01: exp02                          { $$ = $1; }
-     | exp02 "?" exp01 ":" exp01      { $$ = sqf::sqc::bison::astnode{ astkind::OP_TERNARY }; $$.append($1); $$.append($3); $$.append($5); }
+     | exp02 "?" exp01 ":" exp01      { $$ = sqf::sqc::bison::astnode{ astkind::OP_TERNARY, $4 }; $$.append($1); $$.append($3); $$.append($5); }
      ;
 exp02: exp03                          { $$ = $1; }
-     | exp03 "||" exp03               { $$ = sqf::sqc::bison::astnode{ astkind::OP_OR }; $$.append($1); $$.append($3); }
+     | exp03 "||" exp03               { $$ = sqf::sqc::bison::astnode{ astkind::OP_OR, $2 }; $$.append($1); $$.append($3); }
      ;
 exp03: exp04                          { $$ = $1; }
-     | exp04 "&&" exp04               { $$ = sqf::sqc::bison::astnode{ astkind::OP_AND }; $$.append($1); $$.append($3); }
+     | exp04 "&&" exp04               { $$ = sqf::sqc::bison::astnode{ astkind::OP_AND, $2 }; $$.append($1); $$.append($3); }
      ;
 exp04: exp05                          { $$ = $1; }
-     | exp05 "===" exp05              { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUALEXACT }; $$.append($1); $$.append($3); }
-     | exp05 "!==" exp05              { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUALEXACT }; $$.append($1); $$.append($3); }
-     | exp05 "==" exp05               { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUAL }; $$.append($1); $$.append($3); }
-     | exp05 "!=" exp05               { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUAL }; $$.append($1); $$.append($3); }
+     | exp05 "===" exp05              { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUALEXACT, $2 }; $$.append($1); $$.append($3); }
+     | exp05 "!==" exp05              { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUALEXACT, $2 }; $$.append($1); $$.append($3); }
+     | exp05 "==" exp05               { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUAL, $2 }; $$.append($1); $$.append($3); }
+     | exp05 "!=" exp05               { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUAL, $2 }; $$.append($1); $$.append($3); }
      ;
 exp05: exp06                          { $$ = $1; }
-     | exp06 "<"  exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHAN }; $$.append($1); $$.append($3); }
-     | exp06 "<=" exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHANEQUAL }; $$.append($1); $$.append($3); }
-     | exp06 ">"  exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHAN }; $$.append($1); $$.append($3); }
-     | exp06 ">=" exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHANEQUAL }; $$.append($1); $$.append($3); }
+     | exp06 "<"  exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHAN, $2 }; $$.append($1); $$.append($3); }
+     | exp06 "<=" exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHANEQUAL, $2 }; $$.append($1); $$.append($3); }
+     | exp06 ">"  exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHAN, $2 }; $$.append($1); $$.append($3); }
+     | exp06 ">=" exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHANEQUAL, $2 }; $$.append($1); $$.append($3); }
      ;
 exp06: exp07                          { $$ = $1; }
-     | exp07 "+" exp07                { $$ = sqf::sqc::bison::astnode{ astkind::OP_PLUS }; $$.append($1); $$.append($3); }
-     | exp07 "-" exp07                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MINUS }; $$.append($1); $$.append($3); }
+     | exp07 "+" exp07                { $$ = sqf::sqc::bison::astnode{ astkind::OP_PLUS, $2 }; $$.append($1); $$.append($3); }
+     | exp07 "-" exp07                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MINUS, $2 }; $$.append($1); $$.append($3); }
      ;
 exp07: exp08                          { $$ = $1; }
-     | exp08 "*" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MULTIPLY }; $$.append($1); $$.append($3); }
-     | exp08 "/" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_DIVIDE }; $$.append($1); $$.append($3); }
-     | exp08 "%" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_REMAINDER }; $$.append($1); $$.append($3); }
+     | exp08 "*" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MULTIPLY, $2 }; $$.append($1); $$.append($3); }
+     | exp08 "/" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_DIVIDE, $2 }; $$.append($1); $$.append($3); }
+     | exp08 "%" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_REMAINDER, $2 }; $$.append($1); $$.append($3); }
      ;
 exp08: exp09                          { $$ = $1; }
-     | "!" exp09                      { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOT }; $$.append($2);  }
+     | "!" exp09                      { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOT, $1 }; $$.append($2);  }
      ;
 exp09: expp                           { $$ = $1; }
-     | expp "." IDENT "(" explist ")" { $$ = sqf::sqc::bison::astnode{ astkind::OP_BINARY }; $$.append($1); $$.append($3); $$.append($5); }
-     | exp09 "[" exp01 "]"             { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_GET }; $$.append($1); $$.append($3); }
+     | expp "." IDENT "(" explist ")" { $$ = sqf::sqc::bison::astnode{ astkind::OP_BINARY, $3 }; $$.append($1); $$.append($3); $$.append($5); }
+     | exp09 "[" exp01 "]"             { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_GET, tokenizer.create_token() }; $$.append($1); $$.append($3); }
      ;
 
 expp: "(" exp01 ")"                   { $$ = $2; }
-    | IDENT "(" explist ")"           { $$ = sqf::sqc::bison::astnode{ astkind::OP_UNARY }; $$.append($1); $$.append($3); }
+    | IDENT "(" explist ")"           { $$ = sqf::sqc::bison::astnode{ astkind::OP_UNARY, $1 }; $$.append($1); $$.append($3); }
     | IDENT                           { $$ = sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $1 }; }
     | value                           { $$ = $1; }
     ;
@@ -326,12 +325,12 @@ value: function                       { $$ = $1; }
      | STRING                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_STRING, $1 }; }
      | array                          { $$ = $1; }
      | NUMBER                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_NUMBER, $1 }; }
-     | "true"                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_TRUE }; }
-     | "false"                        { $$ = sqf::sqc::bison::astnode{ astkind::VAL_FALSE }; }
-     | "nil"                          { $$ = sqf::sqc::bison::astnode{ astkind::VAL_NIL }; }
+     | "true"                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_TRUE, tokenizer.create_token() }; }
+     | "false"                        { $$ = sqf::sqc::bison::astnode{ astkind::VAL_FALSE, tokenizer.create_token() }; }
+     | "nil"                          { $$ = sqf::sqc::bison::astnode{ astkind::VAL_NIL, tokenizer.create_token() }; }
      ;
-array: "[" "]"                        { $$ = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY }; }
-     | "[" explist "]"                { $$ = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY }; $$.append_children($2); }
+array: "[" "]"                        { $$ = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY, tokenizer.create_token() }; }
+     | "[" explist "]"                { $$ = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY, tokenizer.create_token() }; $$.append_children($2); }
      ;
 explist: exp01                        { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
        | exp01 ","                    { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
@@ -394,25 +393,25 @@ namespace sqf::sqc::bison
          case tokenizer::etoken::s_roundc: return parser::make_ROUNDC(loc);
          case tokenizer::etoken::s_edgeo: return parser::make_SQUAREO(loc);
          case tokenizer::etoken::s_edgec: return parser::make_SQUAREC(loc);
-         case tokenizer::etoken::s_equalequalequal: return parser::make_EQUALEQUALEQUAL(loc);
-         case tokenizer::etoken::s_equalequal: return parser::make_EQUALEQUAL(loc);
+         case tokenizer::etoken::s_equalequalequal: return parser::make_EQUALEQUALEQUAL(token, loc);
+         case tokenizer::etoken::s_equalequal: return parser::make_EQUALEQUAL(token, loc);
          case tokenizer::etoken::s_equal: return parser::make_EQUAL(loc);
-         case tokenizer::etoken::s_greaterthenequal: return parser::make_GTEQUAL(loc);
-         case tokenizer::etoken::s_greaterthen: return parser::make_GT(loc);
-         case tokenizer::etoken::s_lessthenequal: return parser::make_LTEQUAL(loc);
-         case tokenizer::etoken::s_lessthen: return parser::make_LT(loc);
-         case tokenizer::etoken::s_plus: return parser::make_PLUS(loc);
-         case tokenizer::etoken::s_minus: return parser::make_MINUS(loc);
-         case tokenizer::etoken::s_notequalequal: return parser::make_EXCLAMATIONMARKEQUALEQUAL(loc);
-         case tokenizer::etoken::s_notequal: return parser::make_EXCLAMATIONMARKEQUAL(loc);
-         case tokenizer::etoken::s_exclamationmark: return parser::make_EXCLAMATIONMARK(loc);
-         case tokenizer::etoken::s_percent: return parser::make_PERCENT(loc);
-         case tokenizer::etoken::s_star: return parser::make_STAR(loc);
-         case tokenizer::etoken::s_slash: return parser::make_SLASH(loc);
-         case tokenizer::etoken::s_andand: return parser::make_ANDAND(loc);
-         case tokenizer::etoken::s_oror: return parser::make_VLINEVLINE(loc);
+         case tokenizer::etoken::s_greaterthenequal: return parser::make_GTEQUAL(token, loc);
+         case tokenizer::etoken::s_greaterthen: return parser::make_GT(token, loc);
+         case tokenizer::etoken::s_lessthenequal: return parser::make_LTEQUAL(token, loc);
+         case tokenizer::etoken::s_lessthen: return parser::make_LT(token, loc);
+         case tokenizer::etoken::s_plus: return parser::make_PLUS(token, loc);
+         case tokenizer::etoken::s_minus: return parser::make_MINUS(token, loc);
+         case tokenizer::etoken::s_notequalequal: return parser::make_EXCLAMATIONMARKEQUALEQUAL(token, loc);
+         case tokenizer::etoken::s_notequal: return parser::make_EXCLAMATIONMARKEQUAL(token, loc);
+         case tokenizer::etoken::s_exclamationmark: return parser::make_EXCLAMATIONMARK(token, loc);
+         case tokenizer::etoken::s_percent: return parser::make_PERCENT(token, loc);
+         case tokenizer::etoken::s_star: return parser::make_STAR(token, loc);
+         case tokenizer::etoken::s_slash: return parser::make_SLASH(token, loc);
+         case tokenizer::etoken::s_andand: return parser::make_ANDAND(token, loc);
+         case tokenizer::etoken::s_oror: return parser::make_VLINEVLINE(token, loc);
          case tokenizer::etoken::s_questionmark: return parser::make_QUESTIONMARK(loc);
-         case tokenizer::etoken::s_colon: return parser::make_COLON(loc);
+         case tokenizer::etoken::s_colon: return parser::make_COLON(token, loc);
          case tokenizer::etoken::s_semicolon: return parser::make_SEMICOLON(loc);
          case tokenizer::etoken::s_comma: return parser::make_COMMA(loc);
          case tokenizer::etoken::s_dot: return parser::make_DOT(loc);

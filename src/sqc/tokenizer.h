@@ -81,12 +81,14 @@ namespace sqf::sqc
             size_t column;
             size_t offset;
             std::string_view contents;
+            std::string path;
         };
         using iterator = std::string::iterator;
     private:
         iterator m_start;
         iterator m_current;
         iterator m_end;
+        std::string m_path;
 
         size_t m_line;
         size_t m_column;
@@ -146,7 +148,7 @@ namespace sqf::sqc
 
         token try_match(std::initializer_list<etoken> tokens)
         {
-            token t = { etoken::invalid, m_line, m_column, (size_t)(m_current - m_start), {} };
+            token t = create_token();
             for (auto token_type : tokens)
             {
                 auto iter = m_current;
@@ -157,13 +159,27 @@ namespace sqf::sqc
 
                 case etoken::m_line: /* ToDo: Properly handle #line instruction */ {
                     // Check if line comment start
-                    if (is_match<'#'>(iter))
+                    if (len_ident_match(iter, "#line"))
                     {
-                        // find line comment end
-                        while (!is_match<'\n'>(++iter));
+                        iter += 6;
 
-                        // update position info
-                        m_line++;
+                        // Read in line num
+                        auto start = iter;
+                        for (; iter != m_end && *iter != '\n' && *iter != ' '; iter++);
+                        std::string str_tmp(start, iter);
+                        m_line = static_cast<size_t>(std::stoul(str_tmp));
+
+                        // Try skip to file
+                        iter += len_match<' ', '\t'>(iter);
+                        start = iter;
+                        for (; iter != m_end && *iter != '\n' && *iter != ' '; iter++);
+                        if (iter != m_end && iter - start >= 2)
+                        {
+                            // Read-in file
+                            m_path = { start + 1, iter - 1 };
+                        }
+
+                        // update column
                         m_column = 0;
 
                         // set length
@@ -338,7 +354,7 @@ namespace sqf::sqc
         }
 
     public:
-        tokenizer(iterator start, iterator end) : m_start(start), m_current(start), m_end(end), m_line(0), m_column(0) {}
+        tokenizer(iterator start, iterator end, std::string path) : m_start(start), m_current(start), m_end(end), m_line(0), m_column(0) {}
         token next()
         {
             if (m_current == m_end) { return { etoken::eof, m_line, m_column, (size_t)(m_current - m_start), {} }; };
@@ -411,6 +427,10 @@ namespace sqf::sqc
             case '#':           return try_match({ etoken::m_line });
             default:			return { etoken::invalid, m_line, m_column, (size_t)(m_current - m_start), {} };
             }
+        }
+        token create_token() const
+        {
+            return { etoken::invalid, m_line, m_column, (size_t)(m_current - m_start), m_path };
         }
         std::string_view to_string(etoken t) const
         {

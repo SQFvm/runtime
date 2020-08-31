@@ -204,7 +204,7 @@
 
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 
 #line 8 "parser.y" // lalr1.cc:377
@@ -387,6 +387,23 @@ namespace  sqf { namespace sqc { namespace bison  {
       // explist
       char dummy1[sizeof(sqf::sqc::bison::astnode)];
 
+      // "&&"
+      // "/"
+      // "*"
+      // "%"
+      // "||"
+      // ":"
+      // "+"
+      // "-"
+      // "<="
+      // "<"
+      // ">="
+      // ">"
+      // "==="
+      // "=="
+      // "!=="
+      // "!="
+      // "!"
       // NUMBER
       // IDENT
       // STRING
@@ -436,34 +453,34 @@ namespace  sqf { namespace sqc { namespace bison  {
         FALSE = 277,
         FOR = 278,
         PRIVATE = 279,
-        COLON = 280,
-        CURLYO = 281,
-        CURLYC = 282,
-        ROUNDO = 283,
-        ROUNDC = 284,
-        SQUAREO = 285,
-        SQUAREC = 286,
-        SEMICOLON = 287,
-        COMMA = 288,
-        PLUS = 289,
-        MINUS = 290,
-        LTEQUAL = 291,
-        LT = 292,
-        GTEQUAL = 293,
-        GT = 294,
-        EQUALEQUALEQUAL = 295,
-        EQUALEQUAL = 296,
-        EXCLAMATIONMARKEQUALEQUAL = 297,
-        EXCLAMATIONMARKEQUAL = 298,
-        EXCLAMATIONMARK = 299,
-        EQUAL = 300,
-        ANDAND = 301,
-        SLASH = 302,
-        STAR = 303,
-        PERCENT = 304,
-        QUESTIONMARK = 305,
-        VLINEVLINE = 306,
-        DOT = 307,
+        CURLYO = 280,
+        CURLYC = 281,
+        ROUNDO = 282,
+        ROUNDC = 283,
+        SQUAREO = 284,
+        SQUAREC = 285,
+        SEMICOLON = 286,
+        COMMA = 287,
+        EQUAL = 288,
+        DOT = 289,
+        QUESTIONMARK = 290,
+        ANDAND = 291,
+        SLASH = 292,
+        STAR = 293,
+        PERCENT = 294,
+        VLINEVLINE = 295,
+        COLON = 296,
+        PLUS = 297,
+        MINUS = 298,
+        LTEQUAL = 299,
+        LT = 300,
+        GTEQUAL = 301,
+        GT = 302,
+        EQUALEQUALEQUAL = 303,
+        EQUALEQUAL = 304,
+        EXCLAMATIONMARKEQUALEQUAL = 305,
+        EXCLAMATIONMARKEQUAL = 306,
+        EXCLAMATIONMARK = 307,
         NUMBER = 308,
         IDENT = 309,
         STRING = 310
@@ -669,10 +686,6 @@ namespace  sqf { namespace sqc { namespace bison  {
 
     static inline
     symbol_type
-    make_COLON (const location_type& l);
-
-    static inline
-    symbol_type
     make_CURLYO (const location_type& l);
 
     static inline
@@ -705,67 +718,11 @@ namespace  sqf { namespace sqc { namespace bison  {
 
     static inline
     symbol_type
-    make_PLUS (const location_type& l);
-
-    static inline
-    symbol_type
-    make_MINUS (const location_type& l);
-
-    static inline
-    symbol_type
-    make_LTEQUAL (const location_type& l);
-
-    static inline
-    symbol_type
-    make_LT (const location_type& l);
-
-    static inline
-    symbol_type
-    make_GTEQUAL (const location_type& l);
-
-    static inline
-    symbol_type
-    make_GT (const location_type& l);
-
-    static inline
-    symbol_type
-    make_EQUALEQUALEQUAL (const location_type& l);
-
-    static inline
-    symbol_type
-    make_EQUALEQUAL (const location_type& l);
-
-    static inline
-    symbol_type
-    make_EXCLAMATIONMARKEQUALEQUAL (const location_type& l);
-
-    static inline
-    symbol_type
-    make_EXCLAMATIONMARKEQUAL (const location_type& l);
-
-    static inline
-    symbol_type
-    make_EXCLAMATIONMARK (const location_type& l);
-
-    static inline
-    symbol_type
     make_EQUAL (const location_type& l);
 
     static inline
     symbol_type
-    make_ANDAND (const location_type& l);
-
-    static inline
-    symbol_type
-    make_SLASH (const location_type& l);
-
-    static inline
-    symbol_type
-    make_STAR (const location_type& l);
-
-    static inline
-    symbol_type
-    make_PERCENT (const location_type& l);
+    make_DOT (const location_type& l);
 
     static inline
     symbol_type
@@ -773,11 +730,71 @@ namespace  sqf { namespace sqc { namespace bison  {
 
     static inline
     symbol_type
-    make_VLINEVLINE (const location_type& l);
+    make_ANDAND (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_DOT (const location_type& l);
+    make_SLASH (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_STAR (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_PERCENT (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_VLINEVLINE (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_COLON (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_PLUS (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_MINUS (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_LTEQUAL (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_LT (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_GTEQUAL (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_GT (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_EQUALEQUALEQUAL (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_EQUALEQUAL (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_EXCLAMATIONMARKEQUALEQUAL (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_EXCLAMATIONMARKEQUAL (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_EXCLAMATIONMARK (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
@@ -996,7 +1013,7 @@ namespace  sqf { namespace sqc { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 480,     ///< Last index in yytable_.
+      yylast_ = 475,     ///< Last index in yytable_.
       yynnts_ = 31,  ///< Number of nonterminal symbols.
       yyfinal_ = 74, ///< Termination state number.
       yyterror_ = 1,
@@ -1119,6 +1136,23 @@ namespace  sqf { namespace sqc { namespace bison  {
         value.copy< sqf::sqc::bison::astnode > (other.value);
         break;
 
+      case 36: // "&&"
+      case 37: // "/"
+      case 38: // "*"
+      case 39: // "%"
+      case 40: // "||"
+      case 41: // ":"
+      case 42: // "+"
+      case 43: // "-"
+      case 44: // "<="
+      case 45: // "<"
+      case 46: // ">="
+      case 47: // ">"
+      case 48: // "==="
+      case 49: // "=="
+      case 50: // "!=="
+      case 51: // "!="
+      case 52: // "!"
       case 53: // NUMBER
       case 54: // IDENT
       case 55: // STRING
@@ -1174,6 +1208,23 @@ namespace  sqf { namespace sqc { namespace bison  {
         value.copy< sqf::sqc::bison::astnode > (v);
         break;
 
+      case 36: // "&&"
+      case 37: // "/"
+      case 38: // "*"
+      case 39: // "%"
+      case 40: // "||"
+      case 41: // ":"
+      case 42: // "+"
+      case 43: // "-"
+      case 44: // "<="
+      case 45: // "<"
+      case 46: // ">="
+      case 47: // ">"
+      case 48: // "==="
+      case 49: // "=="
+      case 50: // "!=="
+      case 51: // "!="
+      case 52: // "!"
       case 53: // NUMBER
       case 54: // IDENT
       case 55: // STRING
@@ -1267,6 +1318,23 @@ namespace  sqf { namespace sqc { namespace bison  {
         value.template destroy< sqf::sqc::bison::astnode > ();
         break;
 
+      case 36: // "&&"
+      case 37: // "/"
+      case 38: // "*"
+      case 39: // "%"
+      case 40: // "||"
+      case 41: // ":"
+      case 42: // "+"
+      case 43: // "-"
+      case 44: // "<="
+      case 45: // "<"
+      case 46: // ">="
+      case 47: // ">"
+      case 48: // "==="
+      case 49: // "=="
+      case 50: // "!=="
+      case 51: // "!="
+      case 52: // "!"
       case 53: // NUMBER
       case 54: // IDENT
       case 55: // STRING
@@ -1328,6 +1396,23 @@ namespace  sqf { namespace sqc { namespace bison  {
         value.move< sqf::sqc::bison::astnode > (s.value);
         break;
 
+      case 36: // "&&"
+      case 37: // "/"
+      case 38: // "*"
+      case 39: // "%"
+      case 40: // "||"
+      case 41: // ":"
+      case 42: // "+"
+      case 43: // "-"
+      case 44: // "<="
+      case 45: // "<"
+      case 46: // ">="
+      case 47: // ">"
+      case 48: // "==="
+      case 49: // "=="
+      case 50: // "!=="
+      case 51: // "!="
+      case 52: // "!"
       case 53: // NUMBER
       case 54: // IDENT
       case 55: // STRING
@@ -1538,12 +1623,6 @@ namespace  sqf { namespace sqc { namespace bison  {
   }
 
   parser::symbol_type
-  parser::make_COLON (const location_type& l)
-  {
-    return symbol_type (token::COLON, l);
-  }
-
-  parser::symbol_type
   parser::make_CURLYO (const location_type& l)
   {
     return symbol_type (token::CURLYO, l);
@@ -1592,99 +1671,15 @@ namespace  sqf { namespace sqc { namespace bison  {
   }
 
   parser::symbol_type
-  parser::make_PLUS (const location_type& l)
-  {
-    return symbol_type (token::PLUS, l);
-  }
-
-  parser::symbol_type
-  parser::make_MINUS (const location_type& l)
-  {
-    return symbol_type (token::MINUS, l);
-  }
-
-  parser::symbol_type
-  parser::make_LTEQUAL (const location_type& l)
-  {
-    return symbol_type (token::LTEQUAL, l);
-  }
-
-  parser::symbol_type
-  parser::make_LT (const location_type& l)
-  {
-    return symbol_type (token::LT, l);
-  }
-
-  parser::symbol_type
-  parser::make_GTEQUAL (const location_type& l)
-  {
-    return symbol_type (token::GTEQUAL, l);
-  }
-
-  parser::symbol_type
-  parser::make_GT (const location_type& l)
-  {
-    return symbol_type (token::GT, l);
-  }
-
-  parser::symbol_type
-  parser::make_EQUALEQUALEQUAL (const location_type& l)
-  {
-    return symbol_type (token::EQUALEQUALEQUAL, l);
-  }
-
-  parser::symbol_type
-  parser::make_EQUALEQUAL (const location_type& l)
-  {
-    return symbol_type (token::EQUALEQUAL, l);
-  }
-
-  parser::symbol_type
-  parser::make_EXCLAMATIONMARKEQUALEQUAL (const location_type& l)
-  {
-    return symbol_type (token::EXCLAMATIONMARKEQUALEQUAL, l);
-  }
-
-  parser::symbol_type
-  parser::make_EXCLAMATIONMARKEQUAL (const location_type& l)
-  {
-    return symbol_type (token::EXCLAMATIONMARKEQUAL, l);
-  }
-
-  parser::symbol_type
-  parser::make_EXCLAMATIONMARK (const location_type& l)
-  {
-    return symbol_type (token::EXCLAMATIONMARK, l);
-  }
-
-  parser::symbol_type
   parser::make_EQUAL (const location_type& l)
   {
     return symbol_type (token::EQUAL, l);
   }
 
   parser::symbol_type
-  parser::make_ANDAND (const location_type& l)
+  parser::make_DOT (const location_type& l)
   {
-    return symbol_type (token::ANDAND, l);
-  }
-
-  parser::symbol_type
-  parser::make_SLASH (const location_type& l)
-  {
-    return symbol_type (token::SLASH, l);
-  }
-
-  parser::symbol_type
-  parser::make_STAR (const location_type& l)
-  {
-    return symbol_type (token::STAR, l);
-  }
-
-  parser::symbol_type
-  parser::make_PERCENT (const location_type& l)
-  {
-    return symbol_type (token::PERCENT, l);
+    return symbol_type (token::DOT, l);
   }
 
   parser::symbol_type
@@ -1694,15 +1689,105 @@ namespace  sqf { namespace sqc { namespace bison  {
   }
 
   parser::symbol_type
-  parser::make_VLINEVLINE (const location_type& l)
+  parser::make_ANDAND (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::VLINEVLINE, l);
+    return symbol_type (token::ANDAND, v, l);
   }
 
   parser::symbol_type
-  parser::make_DOT (const location_type& l)
+  parser::make_SLASH (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::DOT, l);
+    return symbol_type (token::SLASH, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_STAR (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::STAR, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_PERCENT (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::PERCENT, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_VLINEVLINE (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::VLINEVLINE, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_COLON (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::COLON, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_PLUS (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::PLUS, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_MINUS (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::MINUS, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_LTEQUAL (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::LTEQUAL, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_LT (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::LT, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_GTEQUAL (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::GTEQUAL, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_GT (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::GT, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_EQUALEQUALEQUAL (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::EQUALEQUALEQUAL, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_EQUALEQUAL (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::EQUALEQUAL, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_EXCLAMATIONMARKEQUALEQUAL (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::EXCLAMATIONMARKEQUALEQUAL, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_EXCLAMATIONMARKEQUAL (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::EXCLAMATIONMARKEQUAL, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_EXCLAMATIONMARK (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::EXCLAMATIONMARK, v, l);
   }
 
   parser::symbol_type
@@ -1726,7 +1811,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 #line 8 "parser.y" // lalr1.cc:377
 } } } //  sqf::sqc::bison 
-#line 1730 "parser.tab.hh" // lalr1.cc:377
+#line 1815 "parser.tab.hh" // lalr1.cc:377
 
 
 
