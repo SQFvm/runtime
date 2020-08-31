@@ -47,6 +47,10 @@ namespace sqf
                     {
                         return {};
                     }
+                    if (opt.value().empty())
+                    {
+                        continue;
+                    }
                     strs.push_back(*opt);
                 }
                 std::reverse(strs.begin(), strs.end());
