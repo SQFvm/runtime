@@ -729,7 +729,7 @@ std::optional<::sqf::runtime::instruction_set> sqf::sqc::parser::parse(::sqf::ru
     util::setbuilder source(contents, file.physical);
     ::sqf::sqc::bison::astnode res;
     ::sqf::sqc::bison::parser p(t, res, *this, file.physical);
-    p.set_debug_level(1);
+    // p.set_debug_level(1);
     bool success = p.parse() == 0;
     if (!success)
     {
