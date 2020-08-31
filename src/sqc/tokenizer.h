@@ -384,7 +384,7 @@ namespace sqf::sqc
             case '+':           return try_match({ etoken::s_plus });
             case '-':           return try_match({ etoken::s_minus });
             case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block, etoken::s_slash });
-            case '*':           return try_match({ etoken::t_while });
+            case '*':           return try_match({ etoken::s_star });
             case '(':           return try_match({ etoken::s_roundo });
             case ')':           return try_match({ etoken::s_roundc });
             case '[':           return try_match({ etoken::s_edgeo });
