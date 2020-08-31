@@ -23,6 +23,15 @@ set(RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/output)
 
 include_directories("${PROJECT_SOURCE_DIR}/include/tclap-1.2.2/include")
 
+
+#####################
+##                 ##
+##  FILES SECTION  ##
+##                 ##
+#####################
+
+
+################################################################## vm_src (SQF-VM Base) ##################################################################
 file(GLOB vm_src 
     "${PROJECT_SOURCE_DIR}/src/*.h" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.c"
     "${PROJECT_SOURCE_DIR}/src/types/*.h" "${PROJECT_SOURCE_DIR}/src/types/*.cpp" "${PROJECT_SOURCE_DIR}/src/types/*.c"
@@ -47,14 +56,34 @@ get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 configure_file("${PROJECT_SOURCE_DIR}/cmake/git_sha1.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp" @ONLY)
 list(APPEND vm_src "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp")
 
+######################################################## vm_src_sqc (SQF-VM Base with SQC support) #######################################################
+
 file(GLOB vm_src_sqc
-	"${PROJECT_SOURCE_DIR}/src/sqc/*.h"
-	"${PROJECT_SOURCE_DIR}/src/sqc/*.hh"
-	"${PROJECT_SOURCE_DIR}/src/sqc/*.cpp"
-	"${PROJECT_SOURCE_DIR}/src/sqc/*.c"
-	"${PROJECT_SOURCE_DIR}/src/sqc/*.cc"
+    "${PROJECT_SOURCE_DIR}/src/sqc/*.h"
+    "${PROJECT_SOURCE_DIR}/src/sqc/*.hh"
+    "${PROJECT_SOURCE_DIR}/src/sqc/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/sqc/*.c"
+    "${PROJECT_SOURCE_DIR}/src/sqc/*.cc"
 )
 list(APPEND vm_src_sqc ${vm_src})
+
+############################################################### vm_lib_src (SQF-VM Library) ##############################################################
+
+list(APPEND vm_lib_src ${vm_src})
+list(REMOVE_ITEM vm_lib_src "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
+
+#################################################### vm_lib_src_sqc (SQF-VM Library with SQC support) ####################################################
+
+list(APPEND vm_lib_src_sqc ${vm_src_sqc})
+list(REMOVE_ITEM vm_lib_src_sqc "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
+list(REMOVE_ITEM vm_lib_src_sqc "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
+
+
+############################
+##                        ##
+##  DEPENDENCIES SECTION  ##
+##                        ##
+############################
 
 find_package(Threads)
 
@@ -135,9 +164,7 @@ endif ()
 
 
 if (SQFVM_BUILD_LIBRARY)
-    list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
-    
-    add_library(libsqfvm SHARED ${vm_src})
+    add_library(libsqfvm SHARED ${vm_lib_src})
     target_compile_definitions(libsqfvm PUBLIC DISABLE_CLIPBOARD)
     target_include_directories(libsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
     target_compile_options(libsqfvm PRIVATE
@@ -149,9 +176,7 @@ if (SQFVM_BUILD_LIBRARY)
 endif ()
 
 if (SQFVM_BUILD_LIBRARY_SQC_SUPPORT)
-    list(REMOVE_ITEM vm_src_sqc "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
-    
-    add_library(libsqfvm_sqc SHARED ${vm_src_sqc})
+    add_library(libsqfvm_sqc SHARED ${vm_lib_src_sqc})
     target_compile_definitions(libsqfvm_sqc PUBLIC DISABLE_CLIPBOARD)
     target_include_directories(libsqfvm_sqc PUBLIC ${PROJECT_SOURCE_DIR}/src)
     target_compile_options(libsqfvm_sqc PRIVATE
@@ -163,9 +188,7 @@ if (SQFVM_BUILD_LIBRARY_SQC_SUPPORT)
 endif ()
 
 if (SQFVM_BUILD_STATIC_LIBRARY)
-    list(REMOVE_ITEM vm_src "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
-
-    add_library(slibsqfvm STATIC ${vm_src})
+    add_library(slibsqfvm STATIC ${vm_lib_src})
     target_include_directories(slibsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
     target_compile_options(slibsqfvm PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
@@ -176,9 +199,7 @@ if (SQFVM_BUILD_STATIC_LIBRARY)
 endif ()
 
 if (SQFVM_BUILD_STATIC_LIBRARY_SQC_SUPPORT)
-    list(REMOVE_ITEM vm_src_sqc "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
-
-    add_library(slibsqfvm_sqc STATIC ${vm_src_sqc})
+    add_library(slibsqfvm_sqc STATIC ${vm_lib_src_sqc})
     target_include_directories(slibsqfvm_sqc PUBLIC ${PROJECT_SOURCE_DIR}/src)
     target_compile_options(slibsqfvm_sqc PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
