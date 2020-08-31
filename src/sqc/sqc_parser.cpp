@@ -333,8 +333,18 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // Emit "catch"
         {
-            // Create additional instruction_set vector for condition expression
+            // Create additional instruction_set vector
             auto local_set1 = set.create_from();
+
+            // Assign variable for _exception
+            set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>("_exception"s));
+            std::string var(node.children[0].token.contents);
+            std::string lvar = "_"s + var;
+            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to_local>(lvar));
+
+            // Create copy of locals where `_x` exists
+            auto locals_copy = locals;
+            locals_copy.push_back(var);
 
             // Fill actual instruction_set for code
             to_assembly(runtime, local_set1, locals, node.children[1]);
