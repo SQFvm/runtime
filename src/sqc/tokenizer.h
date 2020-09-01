@@ -377,8 +377,8 @@ namespace sqf::sqc
             case 'o': case 'O': return try_match({ etoken::t_ident });
             case 'p': case 'P': return try_match({ etoken::t_private, etoken::t_ident });
             case 'q': case 'Q': return try_match({ etoken::t_ident });
-            case 'r': case 'R': return try_match({ etoken::t_return, etoken::t_switch, etoken::t_ident });
-            case 's': case 'S': return try_match({ etoken::t_step, etoken::t_ident });
+            case 'r': case 'R': return try_match({ etoken::t_return, etoken::t_ident });
+            case 's': case 'S': return try_match({ etoken::t_step, etoken::t_switch, etoken::t_ident });
             case 't': case 'T': return try_match({ etoken::t_throw, etoken::t_to, etoken::t_try, etoken::t_true, etoken::t_ident });
             case 'u': case 'U': return try_match({ etoken::t_ident });
             case 'v': case 'V': return try_match({ etoken::t_ident });
