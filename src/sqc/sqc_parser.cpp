@@ -74,15 +74,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     } break;
     case ::sqf::sqc::bison::astkind::OP_ARRAY_SET: {
         // Push actual array onto value stack
-        std::string var(node.children[0].token.contents);
-        if (std::find(locals.begin(), locals.end(), var) != locals.end())
-        {
-            set.push_back(node.token, std::make_shared<opcodes::get_variable>("_" + var));
-        }
-        else
-        {
-            set.push_back(node.token, std::make_shared<opcodes::get_variable>(var));
-        }
+        to_assembly(runtime, set, locals, node.children[0]);
 
         // Push Index-Expression to stack
         to_assembly(runtime, set, locals, node.children[1]);

@@ -220,7 +220,7 @@ statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnod
          ;
 
 assignment: IDENT "=" exp01                       { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT, tokenizer.create_token() }; $$.append($1); $$.append($3); }
-          | IDENT "[" exp01 "]" "=" exp01         { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET, tokenizer.create_token() }; $$.append($1); $$.append($3); $$.append($6); }
+          | exp01 "[" exp01 "]" "=" exp01         { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET, tokenizer.create_token() }; $$.append($1); $$.append($3); $$.append($6); }
           ;
 
 vardecl: "let" IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($4); }
