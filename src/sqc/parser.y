@@ -129,30 +129,31 @@
 /* Tokens */
 
 %token NA 0
+%token BE                        "be"
+%token BREAK                     "break"
 %token RETURN                    "return"
 %token THROW                     "throw"
 %token LET                       "let"
-%token BE                        "be"
-%token BREAK                     "break"
 %token FUNCTION                  "function"
 %token FINAL                     "final"
+%token FALSE                     "false"
+%token FOR                       "for"
 %token IF                        "if"
 %token ELSE                      "else"
 %token FROM                      "from"
 %token TO                        "to"
-%token STEP                      "step"
-%token WHILE                     "while"
 %token DO                        "do"
 %token TRY                       "try"
 %token CATCH                     "catch"
+%token STEP                      "step"
 %token SWITCH                    "switch"
 %token CASE                      "case"
 %token DEFAULT                   "default"
 %token NIL                       "nil"
 %token TRUE                      "true"
-%token FALSE                     "false"
-%token FOR                       "for"
+%token PARAMS                    "params"
 %token PRIVATE                   "private"
+%token WHILE                     "while"
 %token CURLYO                    "{"
 %token CURLYC                    "}"
 %token ROUNDO                    "("
@@ -189,7 +190,7 @@
 %type <sqf::sqc::bison::astnode> statements statement assignment vardecl funcdecl function
 %type <sqf::sqc::bison::astnode> funchead arglist codeblock if for while trycatch switch
 %type <sqf::sqc::bison::astnode> caselist case exp01 exp02 exp03 exp04 exp05 exp06 exp07
-%type <sqf::sqc::bison::astnode> exp08 exp09 expp value array explist
+%type <sqf::sqc::bison::astnode> exp08 exp09 expp value array explist filehead
 
 %start start
 
@@ -198,9 +199,13 @@
 /*** BEGIN - Change the grammar rules below ***/
 /*** BEGIN - Change the grammar rules below ***/
 /*** BEGIN - Change the grammar rules below ***/
-start: %empty     
+start: %empty
+     | filehead statements                        { result = sqf::sqc::bison::astnode{}; result.append_children($1); result.append_children($2); }
      | statements                                 { result = sqf::sqc::bison::astnode{}; result.append_children($1); }
      ;
+
+filehead: "params" funchead                       { $$ = $2; }
+        ;
 
 statements: statement                             { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
           | statement statements                  { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($2); }

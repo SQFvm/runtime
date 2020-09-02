@@ -32,6 +32,7 @@ namespace sqf::sqc
             t_if,
             t_let,
             t_nil,
+            t_params,
             t_private,
             t_return,
             t_step,
@@ -269,6 +270,7 @@ namespace sqf::sqc
                 case etoken::t_let:              len = len_ident_match(iter, "let"); break;;
                 case etoken::t_if:               len = len_ident_match(iter, "if"); break;
                 case etoken::t_nil:              len = len_ident_match(iter, "nil"); break;
+                case etoken::t_params:           len = len_ident_match(iter, "params"); break;
                 case etoken::t_private:          len = len_ident_match(iter, "private"); break;
                 case etoken::t_return:           len = len_ident_match(iter, "return"); break;
                 case etoken::t_step:             len = len_ident_match(iter, "step"); break;
@@ -388,7 +390,7 @@ namespace sqf::sqc
             case 'm': case 'M': return try_match({ etoken::t_ident });
             case 'n': case 'N': return try_match({ etoken::t_nil, etoken::t_ident });
             case 'o': case 'O': return try_match({ etoken::t_ident });
-            case 'p': case 'P': return try_match({ etoken::t_private, etoken::t_ident });
+            case 'p': case 'P': return try_match({ etoken::t_private, etoken::t_params, etoken::t_ident });
             case 'q': case 'Q': return try_match({ etoken::t_ident });
             case 'r': case 'R': return try_match({ etoken::t_return, etoken::t_ident });
             case 's': case 'S': return try_match({ etoken::t_step, etoken::t_switch, etoken::t_ident });
@@ -463,7 +465,7 @@ namespace sqf::sqc
             case etoken::t_be:               return "be"sv;
             case etoken::t_break:            return "break"sv;
             case etoken::t_function:         return "function"sv;
-            case etoken::t_final:         return "final"sv;
+            case etoken::t_final:            return "final"sv;
             case etoken::t_if:               return "if"sv;
             case etoken::t_else:             return "else"sv;
             case etoken::t_from:             return "from"sv;
@@ -481,6 +483,7 @@ namespace sqf::sqc
             case etoken::t_false:            return "false"sv;
             case etoken::t_for:              return "for"sv;
             case etoken::t_private:          return "private"sv;
+            case etoken::t_params:           return "params"sv;
 
             case etoken::s_curlyo:           return "{"sv;
             case etoken::s_curlyc:           return "}"sv;
