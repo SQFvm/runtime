@@ -33,6 +33,10 @@
                FINAL_FUNCTION_DECLARATION,
                FUNCTION,
                ARGLIST,
+               ARGITEM,
+               ARGITEM_DEFAULT,
+               ARGITEM_TYPE,
+               ARGITEM_TYPE_DEFAULT,
                CODEBLOCK,
                IF,
                IFELSE,
@@ -190,7 +194,7 @@
 %type <sqf::sqc::bison::astnode> statements statement assignment vardecl funcdecl function
 %type <sqf::sqc::bison::astnode> funchead arglist codeblock if for while trycatch switch
 %type <sqf::sqc::bison::astnode> caselist case exp01 exp02 exp03 exp04 exp05 exp06 exp07
-%type <sqf::sqc::bison::astnode> exp08 exp09 expp value array explist filehead
+%type <sqf::sqc::bison::astnode> exp08 exp09 expp value array explist filehead argitem
 
 %start start
 
@@ -250,9 +254,14 @@ funchead: "(" ")"                                 { $$ = sqf::sqc::bison::astnod
         | "(" arglist ")"                         { $$ = sqf::sqc::bison::astnode{ astkind::ARGLIST, tokenizer.create_token() }; $$.append_children($2); }
         ;
 
-arglist: IDENT                                    { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
-       | IDENT ","                                { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
-       | IDENT "," arglist                        { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($3); }
+arglist: argitem                                  { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
+       | argitem ","                              { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
+       | argitem "," arglist                      { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($3); }
+       ;
+argitem: IDENT                                    { $$ = sqf::sqc::bison::astnode{ astkind::ARGITEM, $1 }; }
+       | IDENT "=" exp01                          { $$ = sqf::sqc::bison::astnode{ astkind::ARGITEM_DEFAULT, $1 }; $$.append($3); }
+       | IDENT IDENT                              { $$ = sqf::sqc::bison::astnode{ astkind::ARGITEM_TYPE, $2 }; $$.append($1); }
+       | IDENT IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnode{ astkind::ARGITEM_TYPE_DEFAULT, $2 }; $$.append($1); $$.append($4); }
        ;
 codeblock: statement                              { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; $$.append($1); }
          | "{" "}"                                { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; }

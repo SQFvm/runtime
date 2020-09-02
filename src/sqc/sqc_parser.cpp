@@ -63,13 +63,15 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     case ::sqf::sqc::bison::astkind::ASSIGNMENT: {
         to_assembly(runtime, set, locals, node.children[1]);
         std::string var(node.children[0].token.contents);
+        auto tmp = var;
+        std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
         if (std::find(locals.begin(), locals.end(), var) != locals.end())
         {
-            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>("_" + var));
+            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>("_" + tmp));
         }
         else
         {
-            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>(var));
+            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>(tmp));
         }
     } break;
     case ::sqf::sqc::bison::astkind::OP_ARRAY_SET: {
@@ -99,14 +101,29 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         set.push_back(node.token, std::make_shared<opcodes::call_binary>("select"s, (short)4));
     } break;
     case ::sqf::sqc::bison::astkind::DECLARATION: {
+        // Push assigned value
         to_assembly(runtime, set, locals, node.children[1]);
+
+        // Assign variable
         std::string var(node.children[0].token.contents);
-        locals.push_back(var);
         set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to_local>("_"s + var));
+
+        // Add variable to locals
+        std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
+        locals.push_back(var);
     } break;
     case ::sqf::sqc::bison::astkind::FORWARD_DECLARATION: {
-        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(node.children[0].token.contents));
+        // Push assigned value
+        to_assembly(runtime, set, locals, node.children[1]);
+
+        // Declare variable
+        std::string var(node.children[0].token.contents);
+        set.push_back(node.children[0].token, std::make_shared<opcodes::push>("_"s + var));
         set.push_back(node.token, std::make_shared<opcodes::call_unary>("private"s));
+
+        // Add variable to locals
+        std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
+        locals.push_back(var);
     } break;
     case ::sqf::sqc::bison::astkind::FUNCTION_DECLARATION: {
         auto local_set = set.create_from();
@@ -153,10 +170,97 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         {
             for (auto child : node.children)
             {
+                // Push the variable
                 auto var = std::string(child.token.contents);
+                std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
                 auto lvar = "_"s + var;
                 locals.push_back(var);
                 set.push_back(child.token, std::make_shared<opcodes::push>(lvar));
+
+                // Handle different argitem cases
+                switch (child.kind)
+                {
+                case ::sqf::sqc::bison::astkind::ARGITEM: { /* do nothing as we are already done */ } break;
+                case ::sqf::sqc::bison::astkind::ARGITEM_DEFAULT: {
+                    // push default value
+                    to_assembly(runtime, set, locals, child.children[0]);
+
+                    // Make array 
+                    set.push_back(node.token, std::make_shared<opcodes::make_array>(2));
+                } break;
+                case ::sqf::sqc::bison::astkind::ARGITEM_TYPE: {
+                    // push default value
+                    set.push_back(child.token, std::make_shared<opcodes::call_nular>("nil"));
+
+                    // Check most common data-types & push default type of it
+                    auto dataType = std::string(child.children[0].token.contents);
+                    std::transform(dataType.begin(), dataType.end(), dataType.begin(), [](char c) { return (char)std::tolower(c); });
+                    if (dataType == "array") { set.push_back(child.token, std::make_shared<opcodes::make_array>(0)); }
+                    else if (dataType == "bool") { set.push_back(child.token, std::make_shared<opcodes::push>(false)); }
+                    else if (dataType == "code") { set.push_back(child.token, std::make_shared<opcodes::push>(std::make_shared<::sqf::types::d_code>())); }
+                    else if (dataType == "config") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("confignull")); }
+                    else if (dataType == "control") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("controlnull")); }
+                    else if (dataType == "display") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("displaynull")); }
+                    else if (dataType == "group") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("grpnull")); }
+                    else if (dataType == "location") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("locationnull")); }
+                    else if (dataType == "object") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("objnull")); }
+                    else if (dataType == "scalar") { set.push_back(child.token, std::make_shared<opcodes::push>(0)); }
+                    else if (dataType == "script") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("scriptnull")); }
+                    else if (dataType == "side") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("civilian")); }
+                    else if (dataType == "string") { set.push_back(child.token, std::make_shared<opcodes::push>("")); }
+                    else if (dataType == "text") { set.push_back(child.token, std::make_shared<opcodes::push>("")); set.push_back(child.token, std::make_shared<opcodes::call_unary>("text")); }
+                    else if (dataType == "team_member") { log(logmessage::runtime::ErrorMessage({}, "SQC", "Cannot interpret type `TEAM_MEMBER`")); }
+                    else if (dataType == "namespace") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("missionNamespace")); }
+                    else if (dataType == "diary_record" || dataType == "diary" || dataType == "diaryrecord") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("diaryrecordnull")); }
+                    else if (dataType == "task") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("tasknull")); }
+                    else
+                    {
+                        std::transform(dataType.begin(), dataType.end(), dataType.begin(), [](char c) { return (char)std::toupper(c); });
+                        log(logmessage::runtime::ErrorMessage({}, "SQC", "Cannot interpret type `" + dataType + "`"));
+                    }
+                    // make type array
+                    set.push_back(node.token, std::make_shared<opcodes::make_array>(1));
+
+                    // Make array 
+                    set.push_back(node.token, std::make_shared<opcodes::make_array>(3));
+                } break;
+                case ::sqf::sqc::bison::astkind::ARGITEM_TYPE_DEFAULT: {
+                    // push default value
+                    to_assembly(runtime, set, locals, child.children[0]);
+
+                    // Check most common data-types & push default type of it
+                    auto dataType = std::string(child.children[0].token.contents);
+                    std::transform(dataType.begin(), dataType.end(), dataType.begin(), [](char c) { return (char)std::tolower(c); });
+                    if (dataType == "array") { set.push_back(child.token, std::make_shared<opcodes::make_array>(0)); }
+                    else if (dataType == "bool") { set.push_back(child.token, std::make_shared<opcodes::push>(false)); }
+                    else if (dataType == "code") { set.push_back(child.token, std::make_shared<opcodes::push>(std::make_shared<::sqf::types::d_code>())); }
+                    else if (dataType == "config") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("confignull")); }
+                    else if (dataType == "control") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("controlnull")); }
+                    else if (dataType == "display") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("displaynull")); }
+                    else if (dataType == "group") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("grpnull")); }
+                    else if (dataType == "location") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("locationnull")); }
+                    else if (dataType == "object") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("objnull")); }
+                    else if (dataType == "scalar") { set.push_back(child.token, std::make_shared<opcodes::push>(0)); }
+                    else if (dataType == "script") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("scriptnull")); }
+                    else if (dataType == "side") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("civilian")); }
+                    else if (dataType == "string") { set.push_back(child.token, std::make_shared<opcodes::push>("")); }
+                    else if (dataType == "text") { set.push_back(child.token, std::make_shared<opcodes::push>("")); set.push_back(child.token, std::make_shared<opcodes::call_unary>("text")); }
+                    else if (dataType == "team_member") { log(logmessage::runtime::ErrorMessage({}, "SQC", "Cannot interpret type `TEAM_MEMBER`")); }
+                    else if (dataType == "namespace") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("missionNamespace")); }
+                    else if (dataType == "diary_record" || dataType == "diary" || dataType == "diaryrecord") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("diaryrecordnull")); }
+                    else if (dataType == "task") { set.push_back(child.token, std::make_shared<opcodes::call_nular>("tasknull")); }
+                    else
+                    {
+                        std::transform(dataType.begin(), dataType.end(), dataType.begin(), [](char c) { return (char)std::toupper(c); });
+                        log(logmessage::runtime::ErrorMessage({}, "SQC", "Cannot interpret type `" + dataType + "`"));
+                    }
+                    // make type array
+                    set.push_back(node.token, std::make_shared<opcodes::make_array>(1));
+
+                    // Make array 
+                    set.push_back(node.token, std::make_shared<opcodes::make_array>(3));
+                } break;
+                }
             }
             set.push_back(node.token, std::make_shared<opcodes::make_array>(node.children.size()));
             set.push_back(node.token, std::make_shared<opcodes::call_unary>("params"s));
@@ -205,6 +309,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         // Emit "for"
         std::string for_var(node.children[0].token.contents);
         std::string for_lvar = "_"s + for_var;
+        std::transform(for_var.begin(), for_var.end(), for_var.begin(), [](char c) { return (char)std::tolower(c); });
         set.push_back(node.children[0].token, std::make_shared<opcodes::push>(for_lvar));
         set.push_back(node.children[0].token, std::make_shared<opcodes::call_unary>("for"s));
 
@@ -384,6 +489,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>("_exception"s));
             std::string var(node.children[0].token.contents);
             std::string lvar = "_"s + var;
+            std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
             set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to_local>(lvar));
 
             // Create copy of locals where `_x` exists

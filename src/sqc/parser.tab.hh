@@ -61,6 +61,10 @@
                FINAL_FUNCTION_DECLARATION,
                FUNCTION,
                ARGLIST,
+               ARGITEM,
+               ARGITEM_DEFAULT,
+               ARGITEM_TYPE,
+               ARGITEM_TYPE_DEFAULT,
                CODEBLOCK,
                IF,
                IFELSE,
@@ -133,7 +137,7 @@
           };
      }
 
-#line 137 "parser.tab.hh" // lalr1.cc:377
+#line 141 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -210,7 +214,7 @@
 
 #line 8 "parser.y" // lalr1.cc:377
 namespace  sqf { namespace sqc { namespace bison  {
-#line 214 "parser.tab.hh" // lalr1.cc:377
+#line 218 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -366,6 +370,7 @@ namespace  sqf { namespace sqc { namespace bison  {
       // function
       // funchead
       // arglist
+      // argitem
       // codeblock
       // if
       // for
@@ -1030,8 +1035,8 @@ namespace  sqf { namespace sqc { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 586,     ///< Last index in yytable_.
-      yynnts_ = 32,  ///< Number of nonterminal symbols.
+      yylast_ = 608,     ///< Last index in yytable_.
+      yynnts_ = 33,  ///< Number of nonterminal symbols.
       yyfinal_ = 78, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
@@ -1130,27 +1135,28 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 67: // function
       case 68: // funchead
       case 69: // arglist
-      case 70: // codeblock
-      case 71: // if
-      case 72: // for
-      case 73: // while
-      case 74: // trycatch
-      case 75: // switch
-      case 76: // caselist
-      case 77: // case
-      case 78: // exp01
-      case 79: // exp02
-      case 80: // exp03
-      case 81: // exp04
-      case 82: // exp05
-      case 83: // exp06
-      case 84: // exp07
-      case 85: // exp08
-      case 86: // exp09
-      case 87: // expp
-      case 88: // value
-      case 89: // array
-      case 90: // explist
+      case 70: // argitem
+      case 71: // codeblock
+      case 72: // if
+      case 73: // for
+      case 74: // while
+      case 75: // trycatch
+      case 76: // switch
+      case 77: // caselist
+      case 78: // case
+      case 79: // exp01
+      case 80: // exp02
+      case 81: // exp03
+      case 82: // exp04
+      case 83: // exp05
+      case 84: // exp06
+      case 85: // exp07
+      case 86: // exp08
+      case 87: // exp09
+      case 88: // expp
+      case 89: // value
+      case 90: // array
+      case 91: // explist
         value.copy< sqf::sqc::bison::astnode > (other.value);
         break;
 
@@ -1203,27 +1209,28 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 67: // function
       case 68: // funchead
       case 69: // arglist
-      case 70: // codeblock
-      case 71: // if
-      case 72: // for
-      case 73: // while
-      case 74: // trycatch
-      case 75: // switch
-      case 76: // caselist
-      case 77: // case
-      case 78: // exp01
-      case 79: // exp02
-      case 80: // exp03
-      case 81: // exp04
-      case 82: // exp05
-      case 83: // exp06
-      case 84: // exp07
-      case 85: // exp08
-      case 86: // exp09
-      case 87: // expp
-      case 88: // value
-      case 89: // array
-      case 90: // explist
+      case 70: // argitem
+      case 71: // codeblock
+      case 72: // if
+      case 73: // for
+      case 74: // while
+      case 75: // trycatch
+      case 76: // switch
+      case 77: // caselist
+      case 78: // case
+      case 79: // exp01
+      case 80: // exp02
+      case 81: // exp03
+      case 82: // exp04
+      case 83: // exp05
+      case 84: // exp06
+      case 85: // exp07
+      case 86: // exp08
+      case 87: // exp09
+      case 88: // expp
+      case 89: // value
+      case 90: // array
+      case 91: // explist
         value.copy< sqf::sqc::bison::astnode > (v);
         break;
 
@@ -1314,27 +1321,28 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 67: // function
       case 68: // funchead
       case 69: // arglist
-      case 70: // codeblock
-      case 71: // if
-      case 72: // for
-      case 73: // while
-      case 74: // trycatch
-      case 75: // switch
-      case 76: // caselist
-      case 77: // case
-      case 78: // exp01
-      case 79: // exp02
-      case 80: // exp03
-      case 81: // exp04
-      case 82: // exp05
-      case 83: // exp06
-      case 84: // exp07
-      case 85: // exp08
-      case 86: // exp09
-      case 87: // expp
-      case 88: // value
-      case 89: // array
-      case 90: // explist
+      case 70: // argitem
+      case 71: // codeblock
+      case 72: // if
+      case 73: // for
+      case 74: // while
+      case 75: // trycatch
+      case 76: // switch
+      case 77: // caselist
+      case 78: // case
+      case 79: // exp01
+      case 80: // exp02
+      case 81: // exp03
+      case 82: // exp04
+      case 83: // exp05
+      case 84: // exp06
+      case 85: // exp07
+      case 86: // exp08
+      case 87: // exp09
+      case 88: // expp
+      case 89: // value
+      case 90: // array
+      case 91: // explist
         value.template destroy< sqf::sqc::bison::astnode > ();
         break;
 
@@ -1393,27 +1401,28 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 67: // function
       case 68: // funchead
       case 69: // arglist
-      case 70: // codeblock
-      case 71: // if
-      case 72: // for
-      case 73: // while
-      case 74: // trycatch
-      case 75: // switch
-      case 76: // caselist
-      case 77: // case
-      case 78: // exp01
-      case 79: // exp02
-      case 80: // exp03
-      case 81: // exp04
-      case 82: // exp05
-      case 83: // exp06
-      case 84: // exp07
-      case 85: // exp08
-      case 86: // exp09
-      case 87: // expp
-      case 88: // value
-      case 89: // array
-      case 90: // explist
+      case 70: // argitem
+      case 71: // codeblock
+      case 72: // if
+      case 73: // for
+      case 74: // while
+      case 75: // trycatch
+      case 76: // switch
+      case 77: // caselist
+      case 78: // case
+      case 79: // exp01
+      case 80: // exp02
+      case 81: // exp03
+      case 82: // exp04
+      case 83: // exp05
+      case 84: // exp06
+      case 85: // exp07
+      case 86: // exp08
+      case 87: // exp09
+      case 88: // expp
+      case 89: // value
+      case 90: // array
+      case 91: // explist
         value.move< sqf::sqc::bison::astnode > (s.value);
         break;
 
@@ -1850,7 +1859,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 #line 8 "parser.y" // lalr1.cc:377
 } } } //  sqf::sqc::bison 
-#line 1854 "parser.tab.hh" // lalr1.cc:377
+#line 1863 "parser.tab.hh" // lalr1.cc:377
 
 
 
