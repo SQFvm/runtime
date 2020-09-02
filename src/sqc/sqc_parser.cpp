@@ -599,7 +599,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
             auto matchingOps = runtime.sqfop_binary_by_name(opname);
 
-            if (node.children[2].children.size() > 1 || matchingOps.front().get().right_type() == runtime::t_array())
+            if (node.children[2].children.size() > 1)
             {
                 // Emit Right-Argument
                 to_assembly(runtime, set, locals, node.children[2]);
@@ -627,7 +627,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         {
             auto matchingOps = runtime.sqfop_unary_by_name(opname);
 
-            if (node.children[1].children.size() > 1 || matchingOps.front().get().right_type() == runtime::t_array())
+            if (node.children[1].children.size() > 1)
             {
                 // Emit Right-Argument
                 to_assembly(runtime, set, locals, node.children[1]);
