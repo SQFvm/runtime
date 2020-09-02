@@ -343,7 +343,16 @@ namespace sqf::sqc
                         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(iter);
                 } break;
-                case etoken::t_number:          len = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter); break;
+                case etoken::t_number: {
+                    if (is_match<'-', '+'>(iter))
+                    {
+                        len = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter + 1) + 1; 
+                    }
+                    else
+                    {
+                        len = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter); 
+                    }
+                } break;
                 }
 
                 if (len > 0)
@@ -401,8 +410,8 @@ namespace sqf::sqc
             case '7':           return try_match({ etoken::t_number });
             case '8':           return try_match({ etoken::t_number });
             case '9':           return try_match({ etoken::t_number });
-            case '+':           return try_match({ etoken::s_plus });
-            case '-':           return try_match({ etoken::s_minus });
+            case '+':           return try_match({ etoken::t_number, etoken::s_plus });
+            case '-':           return try_match({ etoken::t_number, etoken::s_minus });
             case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block, etoken::s_slash });
             case '*':           return try_match({ etoken::s_star });
             case '(':           return try_match({ etoken::s_roundo });
