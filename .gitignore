@@ -352,3 +352,4 @@ build/git_sha1\.cpp
 /git_sha1.cpp
 
 *.diagsession
+src/sqc/parser.output
