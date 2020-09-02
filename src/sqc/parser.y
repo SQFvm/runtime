@@ -30,6 +30,7 @@
                DECLARATION,
                FORWARD_DECLARATION,
                FUNCTION_DECLARATION,
+               FINAL_FUNCTION_DECLARATION,
                FUNCTION,
                ARGLIST,
                CODEBLOCK,
@@ -132,7 +133,9 @@
 %token THROW                     "throw"
 %token LET                       "let"
 %token BE                        "be"
+%token BREAK                     "break"
 %token FUNCTION                  "function"
+%token FINAL                     "final"
 %token IF                        "if"
 %token ELSE                      "else"
 %token FROM                      "from"
@@ -231,7 +234,8 @@ vardecl: "let" IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnod
        | "private" IDENT                          { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION, tokenizer.create_token() }; $$.append($2); }
        ;
 
-funcdecl: "function" IDENT funchead codeblock     { $$ = sqf::sqc::bison::astnode{ astkind::FUNCTION_DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($3); $$.append($4); }
+funcdecl: "function" IDENT funchead codeblock         { $$ = sqf::sqc::bison::astnode{ astkind::FUNCTION_DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($3); $$.append($4); }
+        | "final" "function" IDENT funchead codeblock { $$ = sqf::sqc::bison::astnode{ astkind::FINAL_FUNCTION_DECLARATION, tokenizer.create_token() }; $$.append($3); $$.append($4); $$.append($5); }
         ;
 
 function: "function" funchead codeblock           { $$ = sqf::sqc::bison::astnode{ astkind::FUNCTION, tokenizer.create_token() }; $$.append($2); $$.append($3); }
@@ -368,7 +372,9 @@ namespace sqf::sqc::bison
          case tokenizer::etoken::t_throw: return parser::make_THROW(loc);
          case tokenizer::etoken::t_let: return parser::make_LET(loc);
          case tokenizer::etoken::t_be: return parser::make_BE(loc);
+         case tokenizer::etoken::t_break: return parser::make_BREAK(loc);
          case tokenizer::etoken::t_function: return parser::make_FUNCTION(loc);
+         case tokenizer::etoken::t_final: return parser::make_FINAL(loc);
          case tokenizer::etoken::t_if: return parser::make_IF(loc);
          case tokenizer::etoken::t_else: return parser::make_ELSE(loc);
          case tokenizer::etoken::t_from: return parser::make_FROM(loc);

@@ -18,28 +18,30 @@ namespace sqf::sqc
             i_comment_block,
             i_whitespace,
 
-            t_return,
-            t_throw,
-            t_let,
             t_be,
-            t_function,
-            t_if,
-            t_else,
-            t_from,
-            t_to,
-            t_step,
-            t_while,
-            t_do,
-            t_try,
-            t_catch,
-            t_switch,
             t_case,
+            t_catch,
+            t_do,
             t_default,
-            t_nil,
-            t_true,
-            t_false,
+            t_else,
+            t_function,
+            t_final,
             t_for,
+            t_from,
+            t_false,
+            t_if,
+            t_let,
+            t_nil,
             t_private,
+            t_return,
+            t_step,
+            t_switch,
+            t_to,
+            t_try,
+            t_true,
+            t_throw,
+            t_while,
+            t_break,
 
             s_curlyo,
             s_curlyc,
@@ -252,28 +254,30 @@ namespace sqf::sqc
                     len = iter - m_current;
                 } break;
 
-                case etoken::t_return:           len = len_ident_match(iter, "return"); break;
-                case etoken::t_throw:            len = len_ident_match(iter, "throw"); break;
-                case etoken::t_let:              len = len_ident_match(iter, "let"); break;
                 case etoken::t_be:               len = len_ident_match(iter, "be"); break;
-                case etoken::t_function:         len = len_ident_match(iter, "function"); break;
-                case etoken::t_if:               len = len_ident_match(iter, "if"); break;
-                case etoken::t_else:             len = len_ident_match(iter, "else"); break;
-                case etoken::t_from:             len = len_ident_match(iter, "from"); break;
-                case etoken::t_to:               len = len_ident_match(iter, "to"); break;
-                case etoken::t_step:             len = len_ident_match(iter, "step"); break;
-                case etoken::t_while:            len = len_ident_match(iter, "while"); break;
-                case etoken::t_do:               len = len_ident_match(iter, "do"); break;
-                case etoken::t_try:              len = len_ident_match(iter, "try"); break;
-                case etoken::t_catch:            len = len_ident_match(iter, "catch"); break;
-                case etoken::t_switch:           len = len_ident_match(iter, "switch"); break;
+                case etoken::t_break:            len = len_ident_match(iter, "break"); break;
                 case etoken::t_case:             len = len_ident_match(iter, "case"); break;
+                case etoken::t_catch:            len = len_ident_match(iter, "catch"); break;
+                case etoken::t_do:               len = len_ident_match(iter, "do"); break;
                 case etoken::t_default:          len = len_ident_match(iter, "default"); break;
-                case etoken::t_nil:              len = len_ident_match(iter, "nil"); break;
-                case etoken::t_true:             len = len_ident_match(iter, "true"); break;
+                case etoken::t_else:             len = len_ident_match(iter, "else"); break;
+                case etoken::t_function:         len = len_ident_match(iter, "function"); break;
+                case etoken::t_from:             len = len_ident_match(iter, "from"); break;
                 case etoken::t_false:            len = len_ident_match(iter, "false"); break;
                 case etoken::t_for:              len = len_ident_match(iter, "for"); break;
+                case etoken::t_final:            len = len_ident_match(iter, "final"); break;
+                case etoken::t_let:              len = len_ident_match(iter, "let"); break;;
+                case etoken::t_if:               len = len_ident_match(iter, "if"); break;
+                case etoken::t_nil:              len = len_ident_match(iter, "nil"); break;
                 case etoken::t_private:          len = len_ident_match(iter, "private"); break;
+                case etoken::t_return:           len = len_ident_match(iter, "return"); break;
+                case etoken::t_step:             len = len_ident_match(iter, "step"); break;
+                case etoken::t_switch:           len = len_ident_match(iter, "switch"); break;
+                case etoken::t_throw:            len = len_ident_match(iter, "throw"); break;
+                case etoken::t_to:               len = len_ident_match(iter, "to"); break;
+                case etoken::t_try:              len = len_ident_match(iter, "try"); break;
+                case etoken::t_true:             len = len_ident_match(iter, "true"); break;
+                case etoken::t_while:            len = len_ident_match(iter, "while"); break;
 
                 case etoken::s_curlyo:           len = is_match<'{'>(iter); break;
                 case etoken::s_curlyc:           len = is_match<'}'>(iter); break;
@@ -361,11 +365,11 @@ namespace sqf::sqc
             switch (*m_current)
             {
             case 'a': case 'A': return try_match({ etoken::t_ident });
-            case 'b': case 'B': return try_match({ etoken::t_be, etoken::t_ident });
+            case 'b': case 'B': return try_match({ etoken::t_be, etoken::t_break, etoken::t_ident });
             case 'c': case 'C': return try_match({ etoken::t_catch, etoken::t_case, etoken::t_ident });
             case 'd': case 'D': return try_match({ etoken::t_do, etoken::t_default, etoken::t_ident });
             case 'e': case 'E': return try_match({ etoken::t_else, etoken::t_ident });
-            case 'f': case 'F': return try_match({ etoken::t_function, etoken::t_from, etoken::t_for, etoken::t_false, etoken::t_ident });
+            case 'f': case 'F': return try_match({ etoken::t_function, etoken::t_final, etoken::t_from, etoken::t_for, etoken::t_false, etoken::t_ident });
             case 'g': case 'G': return try_match({ etoken::t_ident });
             case 'h': case 'H': return try_match({ etoken::t_ident });
             case 'i': case 'I': return try_match({ etoken::t_if, etoken::t_ident });
@@ -448,7 +452,9 @@ namespace sqf::sqc
             case etoken::t_throw:            return "throw"sv;
             case etoken::t_let:              return "let"sv;
             case etoken::t_be:               return "be"sv;
+            case etoken::t_break:            return "break"sv;
             case etoken::t_function:         return "function"sv;
+            case etoken::t_final:         return "final"sv;
             case etoken::t_if:               return "if"sv;
             case etoken::t_else:             return "else"sv;
             case etoken::t_from:             return "from"sv;

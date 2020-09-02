@@ -119,6 +119,25 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set }));
         set.push_back(node.token, std::make_shared<opcodes::assign_to>(std::string(node.children[0].token.contents)));
     } break;
+    case ::sqf::sqc::bison::astkind::FINAL_FUNCTION_DECLARATION: {
+        auto local_set = set.create_from();
+        std::vector<std::string> new_locals;
+        local_set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
+        local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
+
+        to_assembly(runtime, local_set, new_locals, node.children[1]);
+        to_assembly(runtime, local_set, new_locals, node.children[2]);
+
+        // Push instructions as string
+        auto code = std::make_shared<::sqf::types::d_code>(runtime::instruction_set{ local_set });
+        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(code->to_string_sqf()));
+
+        // Emit "compileFinal"
+        set.push_back(node.token, std::make_shared<opcodes::call_unary>("compilefinal"));
+
+        // Assign to variable
+        set.push_back(node.token, std::make_shared<opcodes::assign_to>(std::string(node.children[0].token.contents)));
+    } break;
     case ::sqf::sqc::bison::astkind::FUNCTION: {
         auto local_set = set.create_from();
         std::vector<std::string> new_locals;
