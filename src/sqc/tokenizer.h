@@ -348,11 +348,15 @@ namespace sqf::sqc
                 case etoken::t_number: {
                     if (is_match<'-', '+'>(iter))
                     {
-                        len = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter + 1) + 1; 
+                        len = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter + 1) + 1;
                     }
                     else
                     {
                         len = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter); 
+                    }
+                    if (len > 0 && is_match<'.'>(iter + len - 1))
+                    {
+                        len--;
                     }
                 } break;
                 }
