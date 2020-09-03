@@ -133,7 +133,6 @@
 /* Tokens */
 
 %token NA 0
-%token BE                        "be"
 %token BREAK                     "break"
 %token RETURN                    "return"
 %token THROW                     "throw"
@@ -166,10 +165,11 @@
 %token SQUAREC                   "]"
 %token SEMICOLON                 ";"
 %token COMMA                     ","
-%token EQUAL                     "="
 %token DOT                       "."
 %token QUESTIONMARK              "?"
 
+%token <tokenizer::token> BE                        "be"
+%token <tokenizer::token> EQUAL                     "="
 %token <tokenizer::token> ANDAND                    "&&"
 %token <tokenizer::token> SLASH                     "/"
 %token <tokenizer::token> STAR                      "*"
@@ -232,16 +232,16 @@ statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnod
          | error                                  { $$ = sqf::sqc::bison::astnode{}; }
          ;
 
-assignment: IDENT "=" exp01                       { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT, tokenizer.create_token() }; $$.append($1); $$.append($3); }
-          | arrget "=" exp01                      { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET, tokenizer.create_token() }; $$.append($1); $$.append($3); }
+assignment: IDENT "=" exp01                       { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT, $2 }; $$.append($1); $$.append($3); }
+          | arrget "=" exp01                      { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET, $2 }; $$.append($1); $$.append($3); }
           ;
 
-vardecl: "let" IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($4); }
-       | "let" IDENT "be" exp01                   { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($4); }
-       | "let" IDENT                              { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION, tokenizer.create_token() }; $$.append($2); }
-       | "private" IDENT "=" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($4); }
-       | "private" IDENT "be" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($4); }
-       | "private" IDENT                          { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION, tokenizer.create_token() }; $$.append($2); }
+vardecl: "let" IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, $3 }; $$.append($2); $$.append($4); }
+       | "let" IDENT "be" exp01                   { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, $3 }; $$.append($2); $$.append($4); }
+       | "let" IDENT                              { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION, $2 }; $$.append($2); }
+       | "private" IDENT "=" exp01                { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, $3 }; $$.append($2); $$.append($4); }
+       | "private" IDENT "be" exp01               { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, $3 }; $$.append($2); $$.append($4); }
+       | "private" IDENT                          { $$ = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION, $2 }; $$.append($2); }
        ;
 
 funcdecl: "function" IDENT funchead codeblock         { $$ = sqf::sqc::bison::astnode{ astkind::FUNCTION_DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($3); $$.append($4); }
@@ -387,7 +387,7 @@ namespace sqf::sqc::bison
          case tokenizer::etoken::t_return: return parser::make_RETURN(loc);
          case tokenizer::etoken::t_throw: return parser::make_THROW(loc);
          case tokenizer::etoken::t_let: return parser::make_LET(loc);
-         case tokenizer::etoken::t_be: return parser::make_BE(loc);
+         case tokenizer::etoken::t_be: return parser::make_BE(token, loc);
          case tokenizer::etoken::t_break: return parser::make_BREAK(loc);
          case tokenizer::etoken::t_function: return parser::make_FUNCTION(loc);
          case tokenizer::etoken::t_final: return parser::make_FINAL(loc);
@@ -417,7 +417,7 @@ namespace sqf::sqc::bison
          case tokenizer::etoken::s_edgec: return parser::make_SQUAREC(loc);
          case tokenizer::etoken::s_equalequalequal: return parser::make_EQUALEQUALEQUAL(token, loc);
          case tokenizer::etoken::s_equalequal: return parser::make_EQUALEQUAL(token, loc);
-         case tokenizer::etoken::s_equal: return parser::make_EQUAL(loc);
+         case tokenizer::etoken::s_equal: return parser::make_EQUAL(token, loc);
          case tokenizer::etoken::s_greaterthenequal: return parser::make_GTEQUAL(token, loc);
          case tokenizer::etoken::s_greaterthen: return parser::make_GT(token, loc);
          case tokenizer::etoken::s_lessthenequal: return parser::make_LTEQUAL(token, loc);

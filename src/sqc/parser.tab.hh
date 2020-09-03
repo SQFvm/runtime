@@ -395,6 +395,8 @@ namespace  sqf { namespace sqc { namespace bison  {
       // explist
       char dummy1[sizeof(sqf::sqc::bison::astnode)];
 
+      // "be"
+      // "="
       // "&&"
       // "/"
       // "*"
@@ -439,42 +441,42 @@ namespace  sqf { namespace sqc { namespace bison  {
       enum yytokentype
       {
         NA = 0,
-        BE = 258,
-        BREAK = 259,
-        RETURN = 260,
-        THROW = 261,
-        LET = 262,
-        FUNCTION = 263,
-        FINAL = 264,
-        FALSE = 265,
-        FOR = 266,
-        IF = 267,
-        ELSE = 268,
-        FROM = 269,
-        TO = 270,
-        DO = 271,
-        TRY = 272,
-        CATCH = 273,
-        STEP = 274,
-        SWITCH = 275,
-        CASE = 276,
-        DEFAULT = 277,
-        NIL = 278,
-        TRUE = 279,
-        PARAMS = 280,
-        PRIVATE = 281,
-        WHILE = 282,
-        CURLYO = 283,
-        CURLYC = 284,
-        ROUNDO = 285,
-        ROUNDC = 286,
-        SQUAREO = 287,
-        SQUAREC = 288,
-        SEMICOLON = 289,
-        COMMA = 290,
-        EQUAL = 291,
-        DOT = 292,
-        QUESTIONMARK = 293,
+        BREAK = 258,
+        RETURN = 259,
+        THROW = 260,
+        LET = 261,
+        FUNCTION = 262,
+        FINAL = 263,
+        FALSE = 264,
+        FOR = 265,
+        IF = 266,
+        ELSE = 267,
+        FROM = 268,
+        TO = 269,
+        DO = 270,
+        TRY = 271,
+        CATCH = 272,
+        STEP = 273,
+        SWITCH = 274,
+        CASE = 275,
+        DEFAULT = 276,
+        NIL = 277,
+        TRUE = 278,
+        PARAMS = 279,
+        PRIVATE = 280,
+        WHILE = 281,
+        CURLYO = 282,
+        CURLYC = 283,
+        ROUNDO = 284,
+        ROUNDC = 285,
+        SQUAREO = 286,
+        SQUAREC = 287,
+        SEMICOLON = 288,
+        COMMA = 289,
+        DOT = 290,
+        QUESTIONMARK = 291,
+        BE = 292,
+        EQUAL = 293,
         ANDAND = 294,
         SLASH = 295,
         STAR = 296,
@@ -609,10 +611,6 @@ namespace  sqf { namespace sqc { namespace bison  {
 
     static inline
     symbol_type
-    make_BE (const location_type& l);
-
-    static inline
-    symbol_type
     make_BREAK (const location_type& l);
 
     static inline
@@ -741,15 +739,19 @@ namespace  sqf { namespace sqc { namespace bison  {
 
     static inline
     symbol_type
-    make_EQUAL (const location_type& l);
-
-    static inline
-    symbol_type
     make_DOT (const location_type& l);
 
     static inline
     symbol_type
     make_QUESTIONMARK (const location_type& l);
+
+    static inline
+    symbol_type
+    make_BE (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_EQUAL (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
@@ -1036,7 +1038,7 @@ namespace  sqf { namespace sqc { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 617,     ///< Last index in yytable_.
+      yylast_ = 635,     ///< Last index in yytable_.
       yynnts_ = 34,  ///< Number of nonterminal symbols.
       yyfinal_ = 80, ///< Termination state number.
       yyterror_ = 1,
@@ -1162,6 +1164,8 @@ namespace  sqf { namespace sqc { namespace bison  {
         value.copy< sqf::sqc::bison::astnode > (other.value);
         break;
 
+      case 37: // "be"
+      case 38: // "="
       case 39: // "&&"
       case 40: // "/"
       case 41: // "*"
@@ -1237,6 +1241,8 @@ namespace  sqf { namespace sqc { namespace bison  {
         value.copy< sqf::sqc::bison::astnode > (v);
         break;
 
+      case 37: // "be"
+      case 38: // "="
       case 39: // "&&"
       case 40: // "/"
       case 41: // "*"
@@ -1350,6 +1356,8 @@ namespace  sqf { namespace sqc { namespace bison  {
         value.template destroy< sqf::sqc::bison::astnode > ();
         break;
 
+      case 37: // "be"
+      case 38: // "="
       case 39: // "&&"
       case 40: // "/"
       case 41: // "*"
@@ -1431,6 +1439,8 @@ namespace  sqf { namespace sqc { namespace bison  {
         value.move< sqf::sqc::bison::astnode > (s.value);
         break;
 
+      case 37: // "be"
+      case 38: // "="
       case 39: // "&&"
       case 40: // "/"
       case 41: // "*"
@@ -1523,12 +1533,6 @@ namespace  sqf { namespace sqc { namespace bison  {
   parser::make_NA (const location_type& l)
   {
     return symbol_type (token::NA, l);
-  }
-
-  parser::symbol_type
-  parser::make_BE (const location_type& l)
-  {
-    return symbol_type (token::BE, l);
   }
 
   parser::symbol_type
@@ -1724,12 +1728,6 @@ namespace  sqf { namespace sqc { namespace bison  {
   }
 
   parser::symbol_type
-  parser::make_EQUAL (const location_type& l)
-  {
-    return symbol_type (token::EQUAL, l);
-  }
-
-  parser::symbol_type
   parser::make_DOT (const location_type& l)
   {
     return symbol_type (token::DOT, l);
@@ -1739,6 +1737,18 @@ namespace  sqf { namespace sqc { namespace bison  {
   parser::make_QUESTIONMARK (const location_type& l)
   {
     return symbol_type (token::QUESTIONMARK, l);
+  }
+
+  parser::symbol_type
+  parser::make_BE (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::BE, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_EQUAL (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::EQUAL, v, l);
   }
 
   parser::symbol_type
@@ -1864,7 +1874,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 #line 8 "parser.y" // lalr1.cc:377
 } } } //  sqf::sqc::bison 
-#line 1868 "parser.tab.hh" // lalr1.cc:377
+#line 1878 "parser.tab.hh" // lalr1.cc:377
 
 
 
