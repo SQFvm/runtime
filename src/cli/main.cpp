@@ -207,10 +207,10 @@ int main(int argc, char** argv)
 
     TCLAP::MultiArg<std::string> compileAllArg("", "compile-all", "Implicitly adds all supported files in a given directory and the subdirectories to the `--compile PATH` arg.", false, "PATH");
     cmd.add(compileAllArg);
-#endif
 
     TCLAP::SwitchArg useSqcArg("", "use-sqc", "Enables SQC language as default code parser.", false);
     cmd.add(useSqcArg);
+#endif
 
     TCLAP::SwitchArg automatedArg("a", "automated", "Disables all possible prompts.", false);
     cmd.add(automatedArg);
