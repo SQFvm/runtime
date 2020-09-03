@@ -293,8 +293,11 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
                     "    " << "\x1B[36mget_info_physical\033[0m" <<
                     "    " << "    " << "Match! Passing to get_info_virtual" << std::endl;
 #endif // DF__SQF_FILEIO__TRACE_REESOLVE
+                toFindPath = it->virtual_full + "/" + toFindPath.string().substr(phys.string().size() + 1);
+                toFindPath = toFindPath.lexically_normal();
                 auto toFindString = toFindPath.string();
-                auto res = get_info_virtual(it->virtual_full + toFindString.substr(phys.string().size() + 1), current);
+                std::replace(toFindString.begin(), toFindString.end(), '\\', '/');
+                auto res = get_info_virtual(toFindString, current);
                 if (res.has_value())
                 {
                     return res;
