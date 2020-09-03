@@ -29,7 +29,7 @@ namespace sqf::opcodes
 				auto opt = vm.context_active().pop_value();
 				if (!opt.has_value())
 				{
-					vm.__logmsg(logmessage::runtime::StackCorruptionMissingValues(diag_info(), m_array_size, m_array_size - i));
+					vm.__logmsg(logmessage::runtime::StackCorruptionMissingValues(diag_info(), m_array_size, i));
 					break;
 				}
 				else
