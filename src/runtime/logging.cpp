@@ -1605,12 +1605,12 @@ namespace logmessage::runtime
 			output.length()
 			+ "Extension '"sv.length()
 			+ extension_name.length()
-			+ "' is not terminating the RVExtensionVersion buffer with a '\0'."sv.length()
+			+ "' is not terminating the RVExtensionVersion buffer with a '\\0'."sv.length()
 		);
 
 		output.append("Extension '"sv);
 		output.append(extension_name);
-		output.append("' is not terminating the RVExtensionVersion buffer with a '\0'."sv);
+		output.append("' is not terminating the RVExtensionVersion buffer with a '\\0'."sv);
 		return output;
 	}
 
@@ -1623,12 +1623,12 @@ namespace logmessage::runtime
 			output.length()
 			+ "Extension '"sv.length()
 			+ extension_name.length()
-			+ "' is not terminating the RVExtension buffer with a '\0'."sv.length()
+			+ "' is not terminating the RVExtension buffer with a '\\0'."sv.length()
 		);
 
 		output.append("Extension '"sv);
 		output.append(extension_name);
-		output.append("' is not terminating the RVExtension buffer with a '\0'."sv);
+		output.append("' is not terminating the RVExtension buffer with a '\\0'."sv);
 		return output;
 	}
 	std::string ExtensionNotTerminatingCallExtensionArgBufferString::formatMessage() const
@@ -1640,12 +1640,12 @@ namespace logmessage::runtime
 			output.length()
 			+ "Extension '"sv.length()
 			+ extension_name.length()
-			+ "' is not terminating the RVExtensionArgs buffer with a '\0'."sv.length()
+			+ "' is not terminating the RVExtensionArgs buffer with a '\\0'."sv.length()
 		);
 
 		output.append("Extension '"sv);
 		output.append(extension_name);
-		output.append("' is not terminating the RVExtensionArgs buffer with a '\0'."sv);
+		output.append("' is not terminating the RVExtensionArgs buffer with a '\\0'."sv);
 		return output;
 	}
 	std::string LibraryNameContainsPath::formatMessage() const
