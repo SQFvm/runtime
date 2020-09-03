@@ -1,0 +1,10 @@
+#line 0 ""
+
+
+
+TEST
+something-1 something-1 something-1
+EMPTY
+
+OTHER
+something-1: something-1 something-1 something-1
