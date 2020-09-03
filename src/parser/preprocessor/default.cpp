@@ -509,7 +509,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_arg(::sqf:
                 auto res = get_try(word);
                 if (res.has_value())
                 {
-                    if (!res.value().args().empty())
+                    if (res.value().is_callable())
                     {
                         local_fileinfo.move_back();
                     }
@@ -519,7 +519,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_arg(::sqf:
                         return "";
                     }
                     sstream << handled;
-                    if (res.value().args().empty() && !part_of_word)
+                    if (!res.value().is_callable() && !part_of_word)
                     {
                         local_fileinfo.move_back();
                     }
@@ -555,7 +555,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(::sq
 { // Needs to handle 'NAME(ARG1, ARG2, ARGN)' not more, not less!
     std::vector<std::string> params;
 
-    if (m.args().empty())
+    if (!m.is_callable())
     {
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
         std::cout << "\x1B[33m[PREPROCESSOR-RS]\033[0m" <<
@@ -808,27 +808,37 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
                 }
                 auto bracketsEndIndex = line.find(')');
                 auto argumentsString = line.substr(bracketsIndex + 1, bracketsEndIndex);
-
-                size_t arg_index = bracketsIndex;
-                size_t arg_start_index = bracketsIndex + 1;
-                bool ended = false;
+                std::string content;
                 std::vector<std::string> args;
-                while (!ended)
-                {
-                    arg_index = line.find(',', arg_start_index);
-                    if (arg_index == std::string::npos || arg_index > bracketsEndIndex)
+
+                if (bracketsIndex + 1 != bracketsEndIndex)
+                { // Non-Empty args list
+                    size_t arg_index = bracketsIndex;
+                    size_t arg_start_index = bracketsIndex + 1;
+                    bool ended = false;
+                    while (!ended)
                     {
-                        ended = true;
-                        arg_index = bracketsEndIndex;
+                        arg_index = line.find(',', arg_start_index);
+                        if (arg_index == std::string::npos || arg_index > bracketsEndIndex)
+                        {
+                            ended = true;
+                            arg_index = bracketsEndIndex;
+                        }
+                        std::string arg{ trim(line.substr(arg_start_index, arg_index - arg_start_index)) };
+                        if (!arg.empty())
+                        {
+                            args.emplace_back(std::move(arg));
+                            arg_start_index = arg_index + 1;
+                        }
                     }
-                    std::string arg{ trim(line.substr(arg_start_index, arg_index - arg_start_index)) };
-                    if (!arg.empty())
-                    {
-                        args.emplace_back(std::move(arg));
-                        arg_start_index = arg_index + 1;
-                    }
+                    // Special magic for '#define macro\'
+                    content = (trim(line.substr(line[arg_start_index] == ' ' ? arg_start_index + 1 : arg_start_index)));
                 }
-                std::string content(trim(line.substr(line[arg_start_index] == ' ' ? arg_start_index + 1 : arg_start_index))); // Special magic for '#define macro\'
+                else
+                { // Empty args list
+                  // Special magic for '#define macro\'
+                    content = (trim(line.substr(line[bracketsEndIndex + 1] == ' ' ? bracketsEndIndex + 2 : bracketsEndIndex + 1)));
+                }
 
                 m_macros[name_tmp] = { fileinfo, name_tmp, args, content };
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_PARSE
