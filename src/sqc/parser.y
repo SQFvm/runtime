@@ -70,6 +70,7 @@
                OP_UNARY,
                OP_ARRAY_GET,
                OP_ARRAY_SET,
+               SVAL_FORMAT_STRING,
                VAL_STRING,
                VAL_ARRAY,
                VAL_NUMBER,
@@ -190,12 +191,15 @@
 %token <tokenizer::token> NUMBER 
 %token <tokenizer::token> IDENT  
 %token <tokenizer::token> STRING 
-
+%token <tokenizer::token> FORMAT_STRING_START
+%token <tokenizer::token> FORMAT_STRING_CONTINUE
+%token <tokenizer::token> FORMAT_STRING_FINAL
 
 %type <sqf::sqc::bison::astnode> statements statement assignment vardecl funcdecl function
 %type <sqf::sqc::bison::astnode> funchead arglist codeblock if for while trycatch switch
 %type <sqf::sqc::bison::astnode> caselist case exp01 exp02 exp03 exp04 exp05 exp06 exp07
 %type <sqf::sqc::bison::astnode> exp08 exp09 expp value array explist filehead argitem arrget
+%type <sqf::sqc::bison::astnode> format_string format_string_match
 
 %start start
 
@@ -344,6 +348,7 @@ expp: "(" exp01 ")"                   { $$ = $2; }
 value: function                       { $$ = $1; }
      | STRING                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_STRING, $1 }; }
      | array                          { $$ = $1; }
+     | format_string                  { $$ = $1; }
      | NUMBER                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_NUMBER, $1 }; }
      | "true"                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_TRUE, tokenizer.create_token() }; }
      | "false"                        { $$ = sqf::sqc::bison::astnode{ astkind::VAL_FALSE, tokenizer.create_token() }; }
@@ -356,7 +361,14 @@ explist: exp01                        { $$ = sqf::sqc::bison::astnode{}; $$.appe
        | exp01 ","                    { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
        | exp01 "," explist            { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($3); }
        ;
-
+format_string  : FORMAT_STRING_START                                       { $$ = sqf::sqc::bison::astnode{ astkind::SVAL_FORMAT_STRING }; $$.append($1);}
+               | FORMAT_STRING_START format_string_match                   { $$ = sqf::sqc::bison::astnode{ astkind::SVAL_FORMAT_STRING }; $$.append($1); $$.append_children($2); }
+               ;
+format_string_match : FORMAT_STRING_CONTINUE format_string_match           { $$ = sqf::sqc::bison::astnode{}; $$.append(sqf::sqc::bison::astnode{ astkind::VAL_NIL, tokenizer.create_token() }); $$.append($1); $$.append_children($2); }
+                    | exp01 FORMAT_STRING_CONTINUE format_string_match     { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append($2); $$.append_children($3); }
+                    | FORMAT_STRING_FINAL                                  { $$ = sqf::sqc::bison::astnode{}; $$.append(sqf::sqc::bison::astnode{ astkind::VAL_NIL, tokenizer.create_token() });$$.append($1);  }
+                    | exp01 FORMAT_STRING_FINAL                            { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append($2); }
+                    ;
 %%
 
 #include "sqc_parser.h"
@@ -441,6 +453,9 @@ namespace sqf::sqc::bison
          case tokenizer::etoken::t_string: return parser::make_STRING(token, loc);
          case tokenizer::etoken::t_ident: return parser::make_IDENT(token, loc);
          case tokenizer::etoken::t_number: return parser::make_NUMBER(token, loc);
+         case tokenizer::etoken::t_formatted_string_start: return parser::make_FORMAT_STRING_START(token, loc);
+         case tokenizer::etoken::t_formatted_string_continue: return parser::make_FORMAT_STRING_CONTINUE(token, loc);
+         case tokenizer::etoken::t_formatted_string_final: return parser::make_FORMAT_STRING_FINAL(token, loc);
          default:
              return parser::make_NA(loc);
          }

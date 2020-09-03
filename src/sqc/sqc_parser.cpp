@@ -10,12 +10,33 @@
 #include "../runtime/d_code.h"
 #include <algorithm>
 #include <charconv>
+#include <sstream>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 
 namespace sqf::sqc::util
 {
+    static std::string strip_formatted(std::string_view sview)
+    {
+        if (sview.length() == 0) { return {}; }
+        if (sview.length() == 2) { return {}; }
+
+        std::vector<char> arr;
+        arr.reserve(sview.size());
+        for (size_t i = 1; i < sview.length() - 1; i++)
+        {
+            char c = sview[i];
+            if (::sqf::parser::util::is_match_repeated<2, '"'>(sview.data() + i) ||
+                ::sqf::parser::util::is_match_repeated<2, '{'>(sview.data() + i) ||
+                ::sqf::parser::util::is_match_repeated<2, '}'>(sview.data() + i))
+            { // Double "", {{, }} have to be escaped
+                i++;
+            }
+            arr.emplace_back(c);
+        }
+        return std::string(arr.data(), arr.size());
+    }
     class setbuilder {
     private:
         std::vector<::sqf::runtime::instruction::sptr> inner;
@@ -32,6 +53,11 @@ namespace sqf::sqc::util
             ptr->diag_info({ t.line, t.column, t.offset, { t.path, {} }, ::sqf::runtime::parser::sqf::create_code_segment(m_contents, t.offset, t.contents.length()) });
             inner.push_back(ptr);
         }
+        void push_back(const ::sqf::sqc::tokenizer::token& t, size_t custom_length, ::sqf::runtime::instruction::sptr ptr)
+        {
+            ptr->diag_info({ t.line, t.column, t.offset, { t.path, {} }, ::sqf::runtime::parser::sqf::create_code_segment(m_contents, t.offset, custom_length) });
+            inner.push_back(ptr);
+        }
         operator ::sqf::runtime::instruction_set() const
         {
             return { inner };
@@ -39,7 +65,7 @@ namespace sqf::sqc::util
     };
 }
 
-void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbuilder& set, std::vector<std::string>& locals, ::sqf::sqc::bison::astnode& node)
+void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbuilder& set, std::vector<std::string>& locals, const ::sqf::sqc::bison::astnode& node)
 {
     switch (node.kind)
     {
@@ -824,8 +850,68 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             set.push_back(node.token, std::make_shared<opcodes::get_variable>(var));
         }
     } break;
+    case ::sqf::sqc::bison::astkind::SVAL_FORMAT_STRING: {
+        if (node.children.size() == 1)
+        {
+            // Empty format string ($"..."), just shift by one and pass to push
+            set.push_back(node.children[0].token, std::make_shared<opcodes::push>(types::d_string::from_sqf(node.children[0].token.contents.substr(1))));
+        }
+        else
+        {
+            // Prepare sstream, will contain our actual format
+            std::stringstream sstream;
+
+            // Read the format-string parts into sstream
+            size_t index = 0; // Format arg index. Will also automagically contain the actual size of the format array
+            for (const auto& child : node.children)
+            {
+                switch (child.token.type)
+                {
+                case tokenizer::etoken::t_formatted_string_start:
+                    sstream << util::strip_formatted(child.token.contents.substr(1)) << "%" << ++index;
+                    break;
+
+                case tokenizer::etoken::t_formatted_string_continue:
+                    sstream << util::strip_formatted(child.token.contents) << "%" << ++index;
+                    break;
+
+                case tokenizer::etoken::t_formatted_string_final:
+                    sstream << util::strip_formatted(child.token.contents);
+                    break;
+                }
+            }
+
+            // Push the format string to stack
+            set.push_back(node.children[0].token, std::make_shared<opcodes::push>(sstream.str()));
+
+            // Push the values on the stack too
+            for (const auto& child : node.children)
+            {
+                switch (child.token.type)
+                {
+                case tokenizer::etoken::t_formatted_string_start:
+                case tokenizer::etoken::t_formatted_string_continue:
+                case tokenizer::etoken::t_formatted_string_final:
+                    break;
+                default:
+                    to_assembly(runtime, set, locals, child);
+                }
+            }
+            // Emit "makearray"
+            set.push_back(
+                node.children[0].token,
+                (node.children.back().token.offset + node.children.back().token.contents.length()) - node.children.front().token.offset,
+                std::make_shared<opcodes::make_array>(index + 1));
+
+            // Emit "callunary" `format`
+            set.push_back(
+                node.children[0].token,
+                (node.children.back().token.offset + node.children.back().token.contents.length()) - node.children.front().token.offset,
+                std::make_shared<opcodes::call_unary>("format"));
+        }
+    } break;
     default:
-        for (auto child : node.children)
+        for (const auto& child : node.children)
         {
             to_assembly(runtime, set, locals, child);
         }

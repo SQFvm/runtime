@@ -65,52 +65,52 @@ switch (5)
     case 3: { diag_log("codeblock with brackets"); }
     default: diag_log("also simple to do");
 }
+
+// Formatable string expressions
+diag_log($"test {"string"} to test {1} or {[1,2,3].select(1)} features of {""""}formatable"" strings! {{ empty btw. gets {} }}");
 ```
 
 # Same Example compiled to SQF
 ```sqf
 params ["_a", ["_b", nil, "], ["_c", 15, 0]];
+scopename "___sqc_func";
 private _a = 1;
 private _b = 2;
 private _c = 3;
 private _d = 4;
 private _f = {
-    scopename "___sqc_func";
+scopename "___sqc_func";
     params ["_arga", "_argb"];
     diag_log format ["%1 - %2", _arga, _argb] 
 };
 global = {
-    params [[scopename "___sqc_func", "_val", [0]]];
+    arams [[scopename "___sqc_func", "_val", [0]]];
     if (_val > 10) then {
-        true breakout "___sqc_func" 
+        true breakout "___sqc_func"
     } else {
         if (_val > 12) then {
             if (_val < 50) then { false }
-            else { true } breakout "___sqc_func" 
+            else { true } breakout "___sqc_func"
         }
     }
 };
-fnc_myFunc = "{
-    scopename ""___sqc_func"";
-    params [[""_msg"", nil, [""""]]];
-    diag_log _msg 
-}";
+fnc_myFunc = compilefinal "{ scopename ""___sqc_func""; params [[""_msg"", nil, [""""]]]; diag_log _msg }";
 ["sqc", "hello world"] call _f;
 diag_log "test";
 player getvariable "TAG_SomeVar";
 private _arr = [1, 2, 3];
 if (_arr select 0 == 1) then {
-    [1, 2, 3] 
+    _arr set [1, [1, 2, 3]]
 };
 if (_arr select 0 select (_arr select 3) == 3) then {
     diag_log "Chained Array Access Operators are cool";
-    arr select 0 set [arr select 3, 5]
+    _arr select 0 set [_arr select 3, 5]
 };
 switch 5 do {
     case 1 : { diag_log "single instruction, marking the end of case." };
     case 2;
     case 3 : { diag_log "codeblock with brackets" };
     default { diag_log "also simple to do" }
-}
-
+};
+diag_log format ["test %1 to test %2 or %3 features of %4formatable"" strings! { empty btw. gets %5 }", "string", 1, [1, 2, 3] select 1, """", nil]
 ```

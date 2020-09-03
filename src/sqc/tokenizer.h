@@ -75,7 +75,15 @@ namespace sqf::sqc
 
             t_string,
             t_ident,
-            t_number
+            t_number,
+            t_formatted_string_final,
+            t_formatted_string_start,
+            t_formatted_string_continue
+        };
+        enum class emode
+        {
+            normal,
+            formatable_string
         };
         struct token
         {
@@ -92,6 +100,7 @@ namespace sqf::sqc
         iterator m_current;
         iterator m_end;
         std::string m_path;
+        emode m_mode;
 
         size_t m_line;
         size_t m_column;
@@ -339,6 +348,82 @@ namespace sqf::sqc
                     // set length
                     len = iter - m_current;
                 } break;
+                case etoken::t_formatted_string_start: {
+                    if (!is_match<'"'>(iter + 1)) { break; }
+                    ++iter;
+                    ++iter;
+                    // find string end
+                    while (true)
+                    {
+                        if (is_match_repeated<2, '"'>(iter) || is_match_repeated<2, '{'>(iter) || is_match_repeated<2, '}'>(iter))
+                        {
+                            ++iter;
+                        }
+                        else if (is_match<'"'>(iter))
+                        {
+                            ++iter;
+                            break;
+                        }
+                        else if (is_match<'{'>(iter))
+                        {
+                            ++iter;
+                            m_mode = emode::formatable_string;
+                            break;
+                        }
+                        // update position info
+                        if (!is_match<'\n'>(iter))
+                        {
+                            m_column++;
+                        }
+                        else
+                        {
+                            m_line++;
+                            m_column = 0;
+                        }
+                        ++iter;
+                    }
+                    // set length
+                    len = iter - m_current;
+                } break;
+                case etoken::t_formatted_string_continue: {
+                    if (m_mode != emode::formatable_string) { /* only available in formatable_string mode */ break; }
+
+                    ++iter;
+                    // find string end
+                    while (true)
+                    {
+                        if (is_match_repeated<2, '"'>(iter) || is_match_repeated<2, '{'>(iter) || is_match_repeated<2, '}'>(iter))
+                        {
+                            ++iter;
+                        }
+                        else if (is_match<'"'>(iter))
+                        {
+                            // Retype as formatted_string final due to this the end
+                            token_type = etoken::t_formatted_string_final;
+                            m_mode = emode::normal;
+                            ++iter;
+                            break;
+                        }
+                        else if (is_match<'{'>(iter))
+                        {
+                            ++iter;
+                            break;
+                        }
+                        // update position info
+                        if (!is_match<'\n'>(iter))
+                        {
+                            m_column++;
+                        }
+                        else
+                        {
+                            m_line++;
+                            m_column = 0;
+                        }
+                        ++iter;
+                    }
+                    // set length
+                    len = iter - m_current;
+                } break;
                 case etoken::t_ident: {
                     len = len_match<
                         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -373,7 +458,7 @@ namespace sqf::sqc
         }
 
     public:
-        tokenizer(iterator start, iterator end, std::string path) : m_start(start), m_current(start), m_end(end), m_line(0), m_column(0) {}
+        tokenizer(iterator start, iterator end, std::string path) : m_start(start), m_current(start), m_end(end), m_line(0), m_column(0), m_mode(emode::normal) {}
         token next()
         {
             if (m_current == m_end) { return { etoken::eof, m_line, m_column, (size_t)(m_current - m_start), {} }; };
@@ -425,8 +510,9 @@ namespace sqf::sqc
             case '[':           return try_match({ etoken::s_edgeo });
             case ']':           return try_match({ etoken::s_edgec });
             case '{':           return try_match({ etoken::s_curlyo });
-            case '}':           return try_match({ etoken::s_curlyc });
+            case '}':           return try_match({ etoken::t_formatted_string_continue, etoken::s_curlyc });
             case '&':           return try_match({ etoken::s_andand });
+            case '$':           return try_match({ etoken::t_formatted_string_start });
             case '!':           return try_match({ etoken::s_notequalequal, etoken::s_notequal, etoken::s_exclamationmark });
             case '|':           return try_match({ etoken::s_oror });
             case '>':           return try_match({ etoken::s_greaterthenequal, etoken::s_greaterthen });
@@ -521,6 +607,9 @@ namespace sqf::sqc
             case etoken::t_string:           return "string"sv;
             case etoken::t_ident:            return "ident"sv;
             case etoken::t_number:           return "number"sv;
+            case etoken::t_formatted_string_final:    return "t_formatted_string"sv;
+            case etoken::t_formatted_string_start:    return "formatted_string_start"sv;
+            case etoken::t_formatted_string_continue: return "formatted_string_continue"sv;
             }
         }
     };
