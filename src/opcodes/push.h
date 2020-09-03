@@ -21,7 +21,14 @@ namespace sqf::opcodes
 			std::vector<sqf::runtime::instruction::sptr>::const_reverse_iterator end,
 			short parent_precedence, bool left_from_binary) const override
 		{
-			return m_value.data<::sqf::runtime::data>()->to_string_sqf();
+			if (!m_value.empty())
+			{
+				return m_value.data<::sqf::runtime::data>()->to_string_sqf();
+			}
+			else
+			{
+				return "nil";
+			}
 		}
 
 		virtual bool equals(const instruction* p_other) const override
