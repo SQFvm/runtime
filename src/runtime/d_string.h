@@ -70,12 +70,22 @@ namespace sqf
 			{
 				return m_value;
 			}
-			static std::string from_sqf(std::string_view sview)
+			static std::string from_sqf(std::string_view sview, const char* accepted = "\"'")
 			{
 				char start = sview[0];
 				if (sview.length() == 0) { return {}; }
-				if (start != '"' && start != '\'') { return {}; }
 				if (sview.length() == 2) { return {}; }
+
+				bool reached_end = true;
+				for (size_t i = 0; accepted[i] != '\0'; i++)
+				{
+					if (accepted[i] == start)
+					{
+						reached_end = false;
+						break;
+					}
+				}
+				if (reached_end) { return {}; }
 
 				std::vector<char> arr;
 				arr.reserve(sview.size());
