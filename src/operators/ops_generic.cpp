@@ -1390,7 +1390,7 @@ namespace
     }
     value callextension_string_string(runtime& runtime, value::cref left, value::cref right)
     {
-        std::unique_ptr<char[]> buffer = std::make_unique<char[]>(CALLEXTBUFFSIZE - 1);
+        std::unique_ptr<char[]> buffer = std::make_unique<char[]>(CALLEXTBUFFSIZE);
         auto libname = left.data<d_string, std::string>();
         if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
         {
@@ -1428,7 +1428,7 @@ namespace
     }
     value callextension_string_array(runtime& runtime, value::cref left, value::cref right)
     {
-        std::unique_ptr<char[]> buffer = std::make_unique<char[]>(CALLEXTBUFFSIZE - 1);
+        std::unique_ptr<char[]> buffer = std::make_unique<char[]>(CALLEXTBUFFSIZE);
         auto libname = left.data<d_string, std::string>();
         if (libname.find('/') != std::string::npos || libname.find('\\') != std::string::npos)
         {
