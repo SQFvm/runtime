@@ -96,6 +96,7 @@ option(SQFVM_BUILD_STATIC_LIBRARY "BUILD STATIC LIBRARY" ON)
 option(SQFVM_BUILD_STATIC_LIBRARY_SQC_SUPPORT "BUILD STATIC LIBRARY WITH SQC SUPPORT" ON)
 option(SQFVM_BUILD_EXECUTABLE_SQC_SUPPORT "BUILD EXECUTABLE WITH SQC SUPPORT" ON)
 option(SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE "BUILD DIAGNOSE EXECUTABLE" ON)
+option(SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD_FULL_DIAGNOSE "BUILD ARMA2 DIAGNOSE EXECUTABLE" ON)
 
 
 if (SQFVM_BUILD_EXECUTABLE)
@@ -156,6 +157,31 @@ if (SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__CLI_PRINT_TCLAP_ARGUMENTS)
     
     target_compile_options(sqfvm_full_diagnose PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall -Wno-unknown-pragmas>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
+endif ()
+
+if (SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD_FULL_DIAGNOSE)
+	
+    add_executable(sqfvm_a2_full_diagnose ${vm_src_sqc})
+    target_link_libraries(sqfvm_a2_full_diagnose ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
+    target_include_directories(sqfvm_a2_full_diagnose PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    
+    target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC SQFVM_ARMA2_SYNTAX)
+    
+    target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE)
+    target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC DF__SQF_FILEIO__ALL_FILES)
+    target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC DF__SQF_FILEIO__TRACE_REESOLVE)
+    target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC DF__SQF_PREPROC__TRACE_MACRO_RESOLVE)
+    target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC DF__SQF_PREPROC__TRACE_MACRO_PARSE)
+    target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC DF__SQF_CONFIG__REPORT_PROGRESS_BY_LINE)
+    target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC DF__SQF_RUNTIME__VALUE_SCOPE_DEBUG)
+    target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC DF__CLI_PRINT_INPUT_ARGS)
+    target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC DF__CLI_PRINT_TCLAP_ARGUMENTS)
+    
+    target_compile_options(sqfvm_a2_full_diagnose PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
           -Wall -Wno-unknown-pragmas>
      $<$<CXX_COMPILER_ID:MSVC>:

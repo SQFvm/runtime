@@ -1,0 +1,10 @@
+#line 0 ""
+
+
+
+TEST
+abc
+EMPTY
+
+OTHER
+abc
