@@ -388,6 +388,7 @@ namespace  sqf { namespace sqc { namespace bison  {
       // exp07
       // exp08
       // exp09
+      // arrget
       // expp
       // value
       // array
@@ -1035,9 +1036,9 @@ namespace  sqf { namespace sqc { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 608,     ///< Last index in yytable_.
-      yynnts_ = 33,  ///< Number of nonterminal symbols.
-      yyfinal_ = 78, ///< Termination state number.
+      yylast_ = 617,     ///< Last index in yytable_.
+      yynnts_ = 34,  ///< Number of nonterminal symbols.
+      yyfinal_ = 80, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
       yyntokens_ = 59  ///< Number of tokens.
@@ -1153,10 +1154,11 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 85: // exp07
       case 86: // exp08
       case 87: // exp09
-      case 88: // expp
-      case 89: // value
-      case 90: // array
-      case 91: // explist
+      case 88: // arrget
+      case 89: // expp
+      case 90: // value
+      case 91: // array
+      case 92: // explist
         value.copy< sqf::sqc::bison::astnode > (other.value);
         break;
 
@@ -1227,10 +1229,11 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 85: // exp07
       case 86: // exp08
       case 87: // exp09
-      case 88: // expp
-      case 89: // value
-      case 90: // array
-      case 91: // explist
+      case 88: // arrget
+      case 89: // expp
+      case 90: // value
+      case 91: // array
+      case 92: // explist
         value.copy< sqf::sqc::bison::astnode > (v);
         break;
 
@@ -1339,10 +1342,11 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 85: // exp07
       case 86: // exp08
       case 87: // exp09
-      case 88: // expp
-      case 89: // value
-      case 90: // array
-      case 91: // explist
+      case 88: // arrget
+      case 89: // expp
+      case 90: // value
+      case 91: // array
+      case 92: // explist
         value.template destroy< sqf::sqc::bison::astnode > ();
         break;
 
@@ -1419,10 +1423,11 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 85: // exp07
       case 86: // exp08
       case 87: // exp09
-      case 88: // expp
-      case 89: // value
-      case 90: // array
-      case 91: // explist
+      case 88: // arrget
+      case 89: // expp
+      case 90: // value
+      case 91: // array
+      case 92: // explist
         value.move< sqf::sqc::bison::astnode > (s.value);
         break;
 
@@ -1859,7 +1864,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 #line 8 "parser.y" // lalr1.cc:377
 } } } //  sqf::sqc::bison 
-#line 1863 "parser.tab.hh" // lalr1.cc:377
+#line 1868 "parser.tab.hh" // lalr1.cc:377
 
 
 

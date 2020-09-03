@@ -191,10 +191,11 @@
 %token <tokenizer::token> IDENT  
 %token <tokenizer::token> STRING 
 
+
 %type <sqf::sqc::bison::astnode> statements statement assignment vardecl funcdecl function
 %type <sqf::sqc::bison::astnode> funchead arglist codeblock if for while trycatch switch
 %type <sqf::sqc::bison::astnode> caselist case exp01 exp02 exp03 exp04 exp05 exp06 exp07
-%type <sqf::sqc::bison::astnode> exp08 exp09 expp value array explist filehead argitem
+%type <sqf::sqc::bison::astnode> exp08 exp09 expp value array explist filehead argitem arrget
 
 %start start
 
@@ -232,7 +233,7 @@ statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnod
          ;
 
 assignment: IDENT "=" exp01                       { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT, tokenizer.create_token() }; $$.append($1); $$.append($3); }
-          | exp01 "[" exp01 "]" "=" exp01         { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET, tokenizer.create_token() }; $$.append($1); $$.append($3); $$.append($6); }
+          | arrget "=" exp01                      { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET, tokenizer.create_token() }; $$.append($1); $$.append($3); }
           ;
 
 vardecl: "let" IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, tokenizer.create_token() }; $$.append($2); $$.append($4); }
@@ -331,9 +332,10 @@ exp08: exp09                          { $$ = $1; }
      ;
 exp09: expp                           { $$ = $1; }
      | expp "." IDENT "(" explist ")" { $$ = sqf::sqc::bison::astnode{ astkind::OP_BINARY, $3 }; $$.append($1); $$.append($3); $$.append($5); }
-     | exp09 "[" exp01 "]"             { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_GET, tokenizer.create_token() }; $$.append($1); $$.append($3); }
+     | arrget                         { $$ = $1; }
      ;
-
+arrget: exp09 "[" exp01 "]"           { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_GET, tokenizer.create_token() }; $$.append($1); $$.append($3); }
+      ;
 expp: "(" exp01 ")"                   { $$ = $2; }
     | IDENT "(" explist ")"           { $$ = sqf::sqc::bison::astnode{ astkind::OP_UNARY, $1 }; $$.append($1); $$.append($3); }
     | IDENT                           { $$ = sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $1 }; }

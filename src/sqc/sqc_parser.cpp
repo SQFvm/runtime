@@ -75,14 +75,16 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         }
     } break;
     case ::sqf::sqc::bison::astkind::OP_ARRAY_SET: {
-        // Push actual array onto value stack
-        to_assembly(runtime, set, locals, node.children[0]);
+        // Handle OP_ARRAY_GET
+        {
+            // Push actual array onto value stack
+            to_assembly(runtime, set, locals, node.children[0].children[0]);
 
-        // Push Index-Expression to stack
-        to_assembly(runtime, set, locals, node.children[1]);
-
+            // Push Index-Expression to stack
+            to_assembly(runtime, set, locals, node.children[0].children[1]);
+        }
         // Push Value-Expression to stack
-        to_assembly(runtime, set, locals, node.children[2]);
+        to_assembly(runtime, set, locals, node.children[1]);
 
         // Emit "makeArray" instruction to craft the right-handed argument
         set.push_back(node.token, std::make_shared<opcodes::make_array>(2));
