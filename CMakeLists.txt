@@ -146,6 +146,8 @@ if (SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE)
     target_link_libraries(sqfvm_full_diagnose ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
     target_include_directories(sqfvm_full_diagnose PUBLIC ${PROJECT_SOURCE_DIR}/src)
     
+    target_compile_definitions(sqfvm_full_diagnose PUBLIC SQF_SQC_SUPPORT)
+    
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__SQF_FILEIO__ALL_FILES)
     target_compile_definitions(sqfvm_full_diagnose PUBLIC DF__SQF_FILEIO__TRACE_REESOLVE)
@@ -170,6 +172,8 @@ if (SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD_FULL_DIAGNOSE)
     target_include_directories(sqfvm_a2_full_diagnose PUBLIC ${PROJECT_SOURCE_DIR}/src)
     
     target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC SQFVM_ARMA2_SYNTAX)
+    
+    target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC SQF_SQC_SUPPORT)
     
     target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE)
     target_compile_definitions(sqfvm_a2_full_diagnose PUBLIC DF__SQF_FILEIO__ALL_FILES)
@@ -205,6 +209,9 @@ if (SQFVM_BUILD_LIBRARY_SQC_SUPPORT)
     add_library(libsqfvm_sqc SHARED ${vm_lib_src_sqc})
     target_compile_definitions(libsqfvm_sqc PUBLIC DISABLE_CLIPBOARD)
     target_include_directories(libsqfvm_sqc PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    
+    target_compile_definitions(libsqfvm_sqc PUBLIC SQF_SQC_SUPPORT)
+    
     target_compile_options(libsqfvm_sqc PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
           -Wall -Wno-unknown-pragmas>
@@ -226,6 +233,7 @@ endif ()
 
 if (SQFVM_BUILD_STATIC_LIBRARY_SQC_SUPPORT)
     add_library(slibsqfvm_sqc STATIC ${vm_lib_src_sqc})
+    target_compile_definitions(slibsqfvm_sqc PUBLIC SQF_SQC_SUPPORT)
     target_include_directories(slibsqfvm_sqc PUBLIC ${PROJECT_SOURCE_DIR}/src)
     target_compile_options(slibsqfvm_sqc PRIVATE
      $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
