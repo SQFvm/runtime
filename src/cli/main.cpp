@@ -3,17 +3,7 @@
 #include "../runtime/git_sha1.h"
 
 #include "../operators/object.h"
-#include "../operators/ops_config.h"
-#include "../operators/ops_diag.h"
-#include "../operators/ops_generic.h"
-#include "../operators/ops_group.h"
-#include "../operators/ops_logic.h"
-#include "../operators/ops_markers.h"
-#include "../operators/ops_math.h"
-#include "../operators/ops_namespace.h"
-#include "../operators/ops_object.h"
-#include "../operators/ops_sqfvm.h"
-#include "../operators/ops_string.h"
+#include "../operators/ops.h"
 
 #include "../parser/config/default.h"
 #include "../parser/sqf/default.h"
@@ -459,17 +449,7 @@ int main(int argc, char** argv)
 #else
     runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
 #endif
-    sqf::operators::ops_config(runtime);
-    sqf::operators::ops_diag(runtime);
-    sqf::operators::ops_generic(runtime);
-    sqf::operators::ops_group(runtime);
-    sqf::operators::ops_logic(runtime);
-    sqf::operators::ops_markers(runtime);
-    sqf::operators::ops_math(runtime);
-    sqf::operators::ops_namespace(runtime);
-    sqf::operators::ops_object(runtime);
-    sqf::operators::ops_sqfvm(runtime);
-    sqf::operators::ops_string(runtime);
+    sqf::operators::ops(runtime);
 
     if (!noSpawnPlayerArg.getValue())
     {
