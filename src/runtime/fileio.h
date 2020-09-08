@@ -1,4 +1,5 @@
 #pragma once
+#include "logging.h"
 #include <string>
 #include <string_view>
 #include <optional>
@@ -9,7 +10,7 @@ namespace sqf
 {
 	namespace runtime
 	{
-		class fileio
+		class fileio : public CanLog
 		{
 		public:
 			struct pathinfo
@@ -42,6 +43,8 @@ namespace sqf
 				bool operator!=(const pathinfo& b) const { return physical != physical; }
 			};
 		public:
+			fileio(Logger& logger) : CanLog(logger) {}
+			virtual ~fileio() {}
 			/// <summary>
 			/// Convenience method to read a file from disk.
 			/// Will not use the filesystem to resolve the path but rather
@@ -59,7 +62,6 @@ namespace sqf
 			/// <returns>The contents of the file. Optional will be empty if file does not exist or could not be opened for any other reason.</returns>
 			static std::optional<std::string> read_file_from_disk(std::string physical_path) { return read_file_from_disk(std::string_view(physical_path)); }
 
-			virtual ~fileio() {}
 			/// <summary>
 			/// Method to receive path informations of a new path.
 			/// </summary>

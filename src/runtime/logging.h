@@ -1759,5 +1759,199 @@ namespace logmessage {
 			[[nodiscard]] std::string formatMessage() const override;
 		};
 	}
+	namespace fileio
+	{
+		class FileIoBase : public RuntimeLogMessageBase {
+		public:
+			FileIoBase(loglevel level, size_t errorCode, LogLocationInfo location) :
+				RuntimeLogMessageBase(level, errorCode, std::move(location)) {}
+		};
+		class ResolveVirtualRequested : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60001;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+		public:
+			ResolveVirtualRequested(std::string_view phys, std::string_view virt) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolveVirtualFileNotFound : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60002;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+		public:
+			ResolveVirtualFileNotFound(std::string_view phys, std::string_view virt) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolveVirtualFileMatched : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60003;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+			std::string_view m_match_physical;
+		public:
+			ResolveVirtualFileMatched(std::string_view phys, std::string_view virt, std::string_view match_phys) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt),
+				m_match_physical(match_phys) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolveVirtualNavigateUp : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60004;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+		public:
+			ResolveVirtualNavigateUp(std::string_view phys, std::string_view virt) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolveVirtualNavigateDown : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60005;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+			std::string_view m_matched;
+		public:
+			ResolveVirtualNavigateDown(std::string_view phys, std::string_view virt, std::string_view matched) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt),
+				m_matched(matched) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolveVirtualNavigateDeadEnd : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60006;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+			std::string_view m_matched;
+		public:
+			ResolveVirtualNavigateDeadEnd(std::string_view phys, std::string_view virt, std::string_view matched) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt),
+				m_matched(matched) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolveVirtualNavigateNoNodesLeftForExploring : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60007;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+		public:
+			ResolveVirtualNavigateNoNodesLeftForExploring(std::string_view phys, std::string_view virt) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolveVirtualTestFileExists : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60008;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+			std::string_view m_matched;
+		public:
+			ResolveVirtualTestFileExists(std::string_view phys, std::string_view virt, std::string_view matched) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt),
+				m_matched(matched) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolveVirtualGotRemainder : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60009;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+		public:
+			ResolveVirtualGotRemainder(std::string_view phys, std::string_view virt) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolvePhysicalRequested : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60010;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+			std::string_view m_matched;
+		public:
+			ResolvePhysicalRequested(std::string_view phys, std::string_view virt, std::string_view matched) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt),
+				m_matched(matched) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolvePhysicalAdjustedPath : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60011;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+			std::string_view m_matched;
+		public:
+			ResolvePhysicalAdjustedPath(std::string_view phys, std::string_view virt, std::string_view matched) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt),
+				m_matched(matched) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolvePhysicalTestingAgainst : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60012;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+			std::string_view m_matched;
+		public:
+			ResolvePhysicalTestingAgainst(std::string_view phys, std::string_view virt, std::string_view matched) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt),
+				m_matched(matched) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolvePhysicalMatched : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60013;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+			std::string_view m_matched;
+		public:
+			ResolvePhysicalMatched(std::string_view phys, std::string_view virt, std::string_view matched) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt),
+				m_matched(matched) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+		class ResolvePhysicalFailedToLookup : public FileIoBase {
+			static const loglevel level = loglevel::trace;
+			static const size_t errorCode = 60013;
+			std::string_view m_physical;
+			std::string_view m_virtual;
+			std::string_view m_matched;
+		public:
+			ResolvePhysicalFailedToLookup(std::string_view phys, std::string_view virt, std::string_view matched) :
+				FileIoBase(level, errorCode, {}),
+				m_physical(phys),
+				m_virtual(virt),
+				m_matched(matched) {}
+			[[nodiscard]] std::string formatMessage() const override;
+		};
+	}
 }
 

@@ -38,23 +38,12 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
     virt = std::string(sqf::runtime::util::trim(virt));
     std::string virtFull = virt;
 
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-        "        " <<
-        "        " <<
-        "    " << "\x1B[36mget_info_virtual\033[0m(\x1B[90m" << virt << "\033[0m, \x1B[90m{" << current.physical << ", " << current.virtual_ << "}\033[0m) requested" << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+    log(logmessage::fileio::ResolveVirtualRequested(current.physical, virt));
 
     // Abort conditions
     if (virt.empty())
     {
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-        std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-            "        " <<
-            "        " <<
-            "    " << "\x1B[36mget_info_virtual\033[0m" <<
-            "    " << "provided virtual path is empty. \x1B[31mReturning FileNotFound\033[0m." << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+        log(logmessage::fileio::ResolveVirtualFileNotFound(current.physical, virt));
         return {};
     }
 
@@ -72,14 +61,6 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
         // Iterate over the whole existing virtual path
         if (!current.virtual_.empty())
         {
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-            std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-                "        " <<
-                "        " <<
-                "    " << "\x1B[36mget_info_virtual\033[0m" <<
-                "    " << "Navigating Relative-Path provided:" << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
-
             virtFull = current.virtual_ + "/" + virt;
 
             std::istringstream stream_virt(current.virtual_);
@@ -92,23 +73,11 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
                 if (nodes.back()->next.find(*it) != nodes.back()->next.end())
                 {
                     nodes.push_back(nodes.back()->next.at(*it));
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-                    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-                        "        " <<
-                        "        " <<
-                        "    " << "\x1B[36mget_info_virtual\033[0m" <<
-                        "    " << "    " << "Navigated '" << *it << "'." << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+                    log(logmessage::fileio::ResolveVirtualNavigateDown(current.physical, virt, *it));
                 }
                 else
                 { /* Dead-End. File Not Found. */
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-                    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-                        "        " <<
-                        "        " <<
-                        "    " << "\x1B[36mget_info_virtual\033[0m" <<
-                        "    " << "    " << "Reached dead end with '" << *it << "'. \x1B[31mReturning FileNotFound\033[0m." << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+                    log(logmessage::fileio::ResolveVirtualFileNotFound(current.physical, virt));
                     return {};
                 }
             }
@@ -126,48 +95,24 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
             {
                 // Move dir-up
                 nodes.pop_back();
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-                std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-                    "        " <<
-                    "        " <<
-                    "    " << "\x1B[36mget_info_virtual\033[0m" <<
-                    "    " << "    " << "Moved dir up." << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+                log(logmessage::fileio::ResolveVirtualNavigateUp(current.physical, virt));
             }
             else
             {
                 if (nodes.empty())
                 {
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-                    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-                        "        " <<
-                        "        " <<
-                        "    " << "\x1B[36mget_info_virtual\033[0m" <<
-                        "    " << "    " << "Nodes are empty. Aborting." << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+                    log(logmessage::fileio::ResolveVirtualNavigateNoNodesLeftForExploring(current.physical, virt));
                     break;
                 }
                 else if (nodes.back()->next.find(*it) == nodes.back()->next.end())
                 { /* Dead-End.  */
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-                    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-                        "        " <<
-                        "        " <<
-                        "    " << "\x1B[36mget_info_virtual\033[0m" <<
-                        "    " << "    " << "Reached dead end while exploring path on '" << *it << "'." << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+                    log(logmessage::fileio::ResolveVirtualNavigateDeadEnd(current.physical, virt, *it));
                     break;
                 }
                 else
                 {
                     nodes.push_back(nodes.back()->next.at(*it));
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-                    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-                        "        " <<
-                        "        " <<
-                        "    " << "\x1B[36mget_info_virtual\033[0m" <<
-                        "    " << "    " << "Navigated '" << *it << "'." << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+                    log(logmessage::fileio::ResolveVirtualNavigateDown(current.physical, virt, *it));
                 }
             }
         }
@@ -176,13 +121,7 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
         if (nodes.empty())
         { /* Invalid path from our perspective. Return File-Not-Found. */
 
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-            std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-                "        " <<
-                "        " <<
-                "    " << "\x1B[36mget_info_virtual\033[0m" <<
-                "    " << "    " << "No navigation nodes found. \x1B[31mReturning FileNotFound\033[0m." << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+            log(logmessage::fileio::ResolveVirtualFileNotFound(current.physical, virt));
             return {};
         }
 
@@ -194,58 +133,29 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
             virt.append("/");
             virt.append(*it);
         }
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-        std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-            "        " <<
-            "        " <<
-            "    " << "\x1B[36mget_info_virtual\033[0m" <<
-            "    " << "    " << "Built remainder '" << virt << "'." << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+        log(logmessage::fileio::ResolveVirtualGotRemainder(current.physical, virt));
     }
     // Check every physical path in current tree_element if the file exists
     for (auto& phys : nodes.back()->physical)
     {
         auto tmp = phys.string() + virt;
         std::filesystem::path p(tmp);
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-        std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-            "        " <<
-            "        " <<
-            "    " << "\x1B[36mget_info_virtual\033[0m" <<
-            "    " << "    " << "Testing '" << p.string() << "'" << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+        log(logmessage::fileio::ResolveVirtualTestFileExists(current.physical, virt, p.string()));
         if (file_exists(p))
         {
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-            std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-                "        " <<
-                "        " <<
-                "    " << "\x1B[36mget_info_virtual\033[0m" <<
-                "    " << "    " << "Match!. \x1B[32mReturning " << p.string() << "\033[0m." << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
-            return { { p.string(), virtFull } };
+            auto actual = p.string();
+            log(logmessage::fileio::ResolveVirtualFileMatched(current.physical, virt, actual));
+            return { { actual, virtFull } };
         }
     }
 
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-        "        " <<
-        "        " <<
-        "    " << "\x1B[36mget_info_virtual\033[0m" <<
-        "    " << "    " << "No matching file found. \x1B[31mReturning FileNotFound\033[0m." << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+    log(logmessage::fileio::ResolveVirtualFileNotFound(current.physical, virt));
     // As we reached this, file-not-found
     return {};
 }
 std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_info_physical(std::string_view viewVirtual, sqf::runtime::fileio::pathinfo current) const
 {
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-        "        " <<
-        "        " <<
-        "    " << "\x1B[36mget_info_physical\033[0m" <<
-        "    " << "    " << "Attempting to find physical path for '" << viewVirtual << "'" << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+    log(logmessage::fileio::ResolvePhysicalRequested(current.physical, current.virtual_, viewVirtual));
 
     std::filesystem::path toFindPath(viewVirtual);
     toFindPath = toFindPath.lexically_normal();
@@ -263,36 +173,18 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
         }
         toFindPath = toFindPath.lexically_normal();
     }
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-    std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-        "        " <<
-        "        " <<
-        "    " << "\x1B[36mget_info_physical\033[0m" <<
-        "    " << "    " << "Adjusted path to '" << toFindPath.string() << "'" << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+    log(logmessage::fileio::ResolvePhysicalAdjustedPath(current.physical, current.virtual_, viewVirtual));
     for (auto& it : m_path_elements)
     {
         for (auto& phys : it->physical)
         {
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-            std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-                "        " <<
-                "        " <<
-                "    " << "\x1B[36mget_info_physical\033[0m" <<
-                "    " << "    " << "Comparing against '" << phys << "'" << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+            log(logmessage::fileio::ResolvePhysicalTestingAgainst(current.physical, current.virtual_, phys.string()));
             auto pair = std::mismatch(phys.begin(), phys.end(), toFindPath.begin());
             auto rootEnd = std::get<0>(pair);
             auto nothing = std::get<0>(pair);
             if (rootEnd == phys.end() && !std::equal(phys.begin(), phys.end(), toFindPath.begin(), toFindPath.end()))
             {
-#ifdef DF__SQF_FILEIO__TRACE_REESOLVE
-                std::cout << "\x1B[33m[FILEIO ASSERT]\033[0m" <<
-                    "        " <<
-                    "        " <<
-                    "    " << "\x1B[36mget_info_physical\033[0m" <<
-                    "    " << "    " << "Match! Passing to get_info_virtual" << std::endl;
-#endif // DF__SQF_FILEIO__TRACE_REESOLVE
+                log(logmessage::fileio::ResolvePhysicalMatched(current.physical, current.virtual_, phys.string()));
                 toFindPath = it->virtual_full + "/" + toFindPath.string().substr(phys.string().size() + 1);
                 toFindPath = toFindPath.lexically_normal();
                 auto toFindString = toFindPath.string();
@@ -305,6 +197,7 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
             }
         }
     }
+    log(logmessage::fileio::ResolvePhysicalFailedToLookup(current.physical, current.virtual_, viewVirtual));
     return {};
 }
 

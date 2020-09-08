@@ -49,7 +49,7 @@ namespace sqf::fileio
 		/// <returns>empty optional on filenotfound or the pathinfo to the actual file.</returns>
 		std::optional<sqf::runtime::fileio::pathinfo> get_info_physical(std::string_view view, sqf::runtime::fileio::pathinfo current) const;
 	public:
-		impl_default() : 
+		impl_default(Logger& logger) : sqf::runtime::fileio(logger),
             m_virtual_file_root(std::make_shared<path_element>()),
             m_path_elements()
 		{

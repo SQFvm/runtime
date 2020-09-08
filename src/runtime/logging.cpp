@@ -2728,3 +2728,369 @@ namespace logmessage::runtime
 		return output;
 	}
 }
+
+std::string logmessage::fileio::ResolveVirtualRequested::formatMessage() const
+{
+	const auto messageA = "Virtual Lookup of `"sv;
+	const auto messageB = "` got requested (Physical Reference Path: `"sv;
+	const auto messageC = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_virtual.length() +
+		messageB.length() +
+		m_physical.length() +
+		messageC.length()
+	);
+
+	output.append(messageA);
+	output.append(m_virtual);
+	output.append(messageB);
+	output.append(m_physical);
+	output.append(messageC);
+	return output;
+}
+
+std::string logmessage::fileio::ResolveVirtualFileNotFound::formatMessage() const
+{
+	const auto messageA = "Virtual Lookup could not locate a file for `"sv;
+	const auto messageB = "` (Physical Reference Path: `"sv;
+	const auto messageC = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_virtual.length() +
+		messageB.length() +
+		m_physical.length() +
+		messageC.length()
+	);
+
+	output.append(messageA);
+	output.append(m_virtual);
+	output.append(messageB);
+	output.append(m_physical);
+	output.append(messageC);
+	return output;
+}
+
+std::string logmessage::fileio::ResolveVirtualFileMatched::formatMessage() const
+{
+	const auto messageA = "Virtual Lookup succeeded for `"sv;
+	const auto messageB = "` with `"sv;
+	const auto messageC = "` (Physical Reference Path : `"sv;
+	const auto messageD = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_virtual.length() +
+		messageB.length() +
+		m_match_physical.length() +
+		messageC.length() +
+		m_physical.length() +
+		messageD.length()
+	);
+
+	output.append(messageA);
+	output.append(m_virtual);
+	output.append(messageB);
+	output.append(m_match_physical);
+	output.append(messageC);
+	output.append(m_physical);
+	output.append(messageD);
+	return output;
+}
+
+std::string logmessage::fileio::ResolveVirtualNavigateUp::formatMessage() const
+{
+	const auto messageA = "Virtual Lookup encountered `..`. Navigating up (Virtual Reference path: `"sv;
+	const auto messageB = "`, Physical Reference Path: `"sv;
+	const auto messageC = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_virtual.length() +
+		messageB.length() +
+		m_physical.length() +
+		messageC.length()
+	);
+
+	output.append(messageA);
+	output.append(m_virtual);
+	output.append(messageB);
+	output.append(m_physical);
+	output.append(messageC);
+	return output;
+}
+std::string logmessage::fileio::ResolveVirtualNavigateDown::formatMessage() const
+{
+	const auto messageA = "Virtual Lookup matched down-navigation path `"sv;
+	const auto messageB = "` (Virtual Reference path: `"sv;
+	const auto messageC = "`, Physical Reference Path : `"sv;
+	const auto messageD = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_matched.length() +
+		messageB.length() +
+		m_virtual.length() +
+		messageC.length() +
+		m_physical.length() +
+		messageD.length()
+	);
+
+	output.append(messageA);
+	output.append(m_matched);
+	output.append(messageB);
+	output.append(m_virtual);
+	output.append(messageC);
+	output.append(m_physical);
+	output.append(messageD);
+	return output;
+}
+
+std::string logmessage::fileio::ResolveVirtualNavigateDeadEnd::formatMessage() const
+{
+	const auto messageA = "Virtual Lookup failed to locate down-navigation path `"sv;
+	const auto messageB = "` (Virtual Reference path: `"sv;
+	const auto messageC = "`, Physical Reference Path : `"sv;
+	const auto messageD = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_matched.length() +
+		messageB.length() +
+		m_virtual.length() +
+		messageC.length() +
+		m_physical.length() +
+		messageD.length()
+	);
+
+	output.append(messageA);
+	output.append(m_matched);
+	output.append(messageB);
+	output.append(m_virtual);
+	output.append(messageC);
+	output.append(m_physical);
+	output.append(messageD);
+	return output;
+}
+
+std::string logmessage::fileio::ResolveVirtualNavigateNoNodesLeftForExploring::formatMessage() const
+{
+	const auto messageA = "Virtual Lookup got no more nodes left for exploring (Virtual Reference path: `"sv;
+	const auto messageB = "`, Physical Reference Path: `"sv;
+	const auto messageC = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_virtual.length() +
+		messageB.length() +
+		m_physical.length() +
+		messageC.length()
+	);
+
+	output.append(messageA);
+	output.append(m_virtual);
+	output.append(messageB);
+	output.append(m_physical);
+	output.append(messageC);
+	return output;
+}
+
+std::string logmessage::fileio::ResolveVirtualTestFileExists::formatMessage() const
+{
+	const auto messageA = "Virtual Lookup testing if file `"sv;
+	const auto messageB = "` exists (Virtual Reference path: `"sv;
+	const auto messageC = "`, Physical Reference Path : `"sv;
+	const auto messageD = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_matched.length() +
+		messageB.length() +
+		m_virtual.length() +
+		messageC.length() +
+		m_physical.length() +
+		messageD.length()
+	);
+
+	output.append(messageA);
+	output.append(m_matched);
+	output.append(messageB);
+	output.append(m_virtual);
+	output.append(messageC);
+	output.append(m_physical);
+	output.append(messageD);
+	return output;
+}
+
+std::string logmessage::fileio::ResolveVirtualGotRemainder::formatMessage() const
+{
+	const auto messageA = "Virtual Lookup reduced path to `"sv;
+	const auto messageB = "` (Physical Reference Path : `"sv;
+	const auto messageC = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_virtual.length() +
+		messageB.length() +
+		m_physical.length() +
+		messageC.length()
+	);
+
+	output.append(messageA);
+	output.append(m_virtual);
+	output.append(messageB);
+	output.append(m_physical);
+	output.append(messageC);
+	return output;
+}
+
+std::string logmessage::fileio::ResolvePhysicalRequested::formatMessage() const
+{
+	const auto messageA = "Physical Lookup requested for `"sv;
+	const auto messageB = "` (Virtual Reference path: `"sv;
+	const auto messageC = "`, Physical Reference Path : `"sv;
+	const auto messageD = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_matched.length() +
+		messageB.length() +
+		m_virtual.length() +
+		messageC.length() +
+		m_physical.length() +
+		messageD.length()
+	);
+
+	output.append(messageA);
+	output.append(m_matched);
+	output.append(messageB);
+	output.append(m_virtual);
+	output.append(messageC);
+	output.append(m_physical);
+	output.append(messageD);
+	return output;
+}
+
+std::string logmessage::fileio::ResolvePhysicalAdjustedPath::formatMessage() const
+{
+	const auto messageA = "Physical Lookup adjusted lookup path to `"sv;
+	const auto messageB = "` (Virtual Reference path: `"sv;
+	const auto messageC = "`, Physical Reference Path : `"sv;
+	const auto messageD = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_matched.length() +
+		messageB.length() +
+		m_virtual.length() +
+		messageC.length() +
+		m_physical.length() +
+		messageD.length()
+	);
+
+	output.append(messageA);
+	output.append(m_matched);
+	output.append(messageB);
+	output.append(m_virtual);
+	output.append(messageC);
+	output.append(m_physical);
+	output.append(messageD);
+	return output;
+}
+
+std::string logmessage::fileio::ResolvePhysicalTestingAgainst::formatMessage() const
+{
+	const auto messageA = "Physical Lookup testing against `"sv;
+	const auto messageB = "` (Virtual Reference path: `"sv;
+	const auto messageC = "`, Physical Reference Path : `"sv;
+	const auto messageD = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_matched.length() +
+		messageB.length() +
+		m_virtual.length() +
+		messageC.length() +
+		m_physical.length() +
+		messageD.length()
+	);
+
+	output.append(messageA);
+	output.append(m_matched);
+	output.append(messageB);
+	output.append(m_virtual);
+	output.append(messageC);
+	output.append(m_physical);
+	output.append(messageD);
+	return output;
+}
+
+std::string logmessage::fileio::ResolvePhysicalMatched::formatMessage() const
+{
+	const auto messageA = "Physical Lookup matched file `"sv;
+	const auto messageB = "` (Virtual Reference path: `"sv;
+	const auto messageC = "`, Physical Reference Path : `"sv;
+	const auto messageD = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_matched.length() +
+		messageB.length() +
+		m_virtual.length() +
+		messageC.length() +
+		m_physical.length() +
+		messageD.length()
+	);
+
+	output.append(messageA);
+	output.append(m_matched);
+	output.append(messageB);
+	output.append(m_virtual);
+	output.append(messageC);
+	output.append(m_physical);
+	output.append(messageD);
+	return output;
+}
+
+std::string logmessage::fileio::ResolvePhysicalFailedToLookup::formatMessage() const
+{
+	const auto messageA = "Physical Lookup failed to match file `"sv;
+	const auto messageB = "` (Virtual Reference path: `"sv;
+	const auto messageC = "`, Physical Reference Path : `"sv;
+	const auto messageD = "`)."sv;
+
+	std::string output;
+	output.reserve(
+		messageA.length() +
+		m_matched.length() +
+		messageB.length() +
+		m_virtual.length() +
+		messageC.length() +
+		m_physical.length() +
+		messageD.length()
+	);
+
+	output.append(messageA);
+	output.append(m_matched);
+	output.append(messageB);
+	output.append(m_virtual);
+	output.append(messageC);
+	output.append(m_physical);
+	output.append(messageD);
+	return output;
+}
