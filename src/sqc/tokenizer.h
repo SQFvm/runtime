@@ -58,13 +58,17 @@ namespace sqf::sqc
             s_lessthenequal,
             s_lessthen,
             s_plus,
+            s_plusassign,
             s_minus,
+            s_minusassign,
             s_notequalequal,
             s_notequal,
             s_exclamationmark,
             s_percent,
             s_star,
+            s_starassign,
             s_slash,
+            s_slashassign,
             s_andand,
             s_oror,
             s_questionmark,
@@ -304,13 +308,17 @@ namespace sqf::sqc
                 case etoken::s_lessthenequal:    len = is_match<'<'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
                 case etoken::s_lessthen:         len = is_match<'<'>(iter); break;
                 case etoken::s_plus:             len = is_match<'+'>(iter); break;
+                case etoken::s_plusassign:       len = is_match<'+'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
                 case etoken::s_minus:            len = is_match<'-'>(iter); break;
+                case etoken::s_minusassign:      len = is_match<'-'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
                 case etoken::s_notequalequal:    len = is_match<'!'>(iter) && is_match_repeated<2, '='>(iter + 1) ? 3 : 0; break;
                 case etoken::s_notequal:         len = is_match<'!'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
                 case etoken::s_exclamationmark:  len = is_match<'!'>(iter); break;
                 case etoken::s_percent:          len = is_match<'%'>(iter); break;
+                case etoken::s_starassign:       len = is_match<'*'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
                 case etoken::s_star:             len = is_match<'*'>(iter); break;
                 case etoken::s_slash:            len = is_match<'/'>(iter); break;
+                case etoken::s_slashassign:      len = is_match<'/'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
                 case etoken::s_andand:           len = is_match_repeated<2, '&'>(iter) ? 2 : 0; break;
                 case etoken::s_oror:             len = is_match_repeated<2, '|'>(iter) ? 2 : 0; break;
                 case etoken::s_questionmark:     len = is_match<'?'>(iter); break;
@@ -501,10 +509,10 @@ namespace sqf::sqc
             case '7':           return try_match({ etoken::t_number });
             case '8':           return try_match({ etoken::t_number });
             case '9':           return try_match({ etoken::t_number });
-            case '+':           return try_match({ etoken::t_number, etoken::s_plus });
-            case '-':           return try_match({ etoken::t_number, etoken::s_minus });
-            case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block, etoken::s_slash });
-            case '*':           return try_match({ etoken::s_star });
+            case '+':           return try_match({ etoken::t_number, etoken::s_plusassign, etoken::s_plus });
+            case '-':           return try_match({ etoken::t_number, etoken::s_minusassign, etoken::s_minus });
+            case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block, etoken::s_slashassign, etoken::s_slash });
+            case '*':           return try_match({ etoken::s_starassign, etoken::s_star });
             case '(':           return try_match({ etoken::s_roundo });
             case ')':           return try_match({ etoken::s_roundc });
             case '[':           return try_match({ etoken::s_edgeo });
@@ -589,13 +597,17 @@ namespace sqf::sqc
             case etoken::s_lessthenequal:    return "<="sv;
             case etoken::s_lessthen:         return "<"sv;
             case etoken::s_plus:             return "+"sv;
+            case etoken::s_plusassign:       return "+="sv;
             case etoken::s_minus:            return "-"sv;
+            case etoken::s_minusassign:      return "-="sv;
             case etoken::s_notequalequal:    return "!=="sv;
             case etoken::s_notequal:         return "!="sv;
             case etoken::s_exclamationmark:  return "!"sv;
             case etoken::s_percent:          return "%"sv;
             case etoken::s_star:             return "*"sv;
+            case etoken::s_starassign:       return "*="sv;
             case etoken::s_slash:            return "/"sv;
+            case etoken::s_slashassign:      return "/="sv;
             case etoken::s_andand:           return "&&"sv;
             case etoken::s_oror:             return "||"sv;
             case etoken::s_questionmark:     return "?"sv;

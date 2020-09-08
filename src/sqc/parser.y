@@ -27,6 +27,10 @@
                RETURN,
                THROW,
                ASSIGNMENT,
+               ASSIGNMENT_PLUS,
+               ASSIGNMENT_MINUS,
+               ASSIGNMENT_STAR,
+               ASSIGNMENT_SLASH,
                DECLARATION,
                FORWARD_DECLARATION,
                FUNCTION_DECLARATION,
@@ -70,6 +74,10 @@
                OP_UNARY,
                OP_ARRAY_GET,
                OP_ARRAY_SET,
+               OP_ARRAY_SET_PLUS,
+               OP_ARRAY_SET_MINUS,
+               OP_ARRAY_SET_STAR,
+               OP_ARRAY_SET_SLASH,
                SVAL_FORMAT_STRING,
                VAL_STRING,
                VAL_ARRAY,
@@ -173,12 +181,16 @@
 %token <tokenizer::token> EQUAL                     "="
 %token <tokenizer::token> ANDAND                    "&&"
 %token <tokenizer::token> SLASH                     "/"
+%token <tokenizer::token> SLASHASSIGN               "/="
 %token <tokenizer::token> STAR                      "*"
+%token <tokenizer::token> STARASSIGN                "*="
 %token <tokenizer::token> PERCENT                   "%"
 %token <tokenizer::token> VLINEVLINE                "||"
 %token <tokenizer::token> COLON                     ":"
 %token <tokenizer::token> PLUS                      "+"
+%token <tokenizer::token> PLUSASSIGN                "+="
 %token <tokenizer::token> MINUS                     "-"
+%token <tokenizer::token> MINUSASSIGN               "-="
 %token <tokenizer::token> LTEQUAL                   "<="
 %token <tokenizer::token> LT                        "<"
 %token <tokenizer::token> GTEQUAL                   ">="
@@ -237,7 +249,15 @@ statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnod
          ;
 
 assignment: IDENT "=" exp01                       { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT, $2 }; $$.append($1); $$.append($3); }
+          | IDENT "+=" exp01                      { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT_PLUS, $2 }; $$.append($1); $$.append($3); }
+          | IDENT "-=" exp01                      { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT_MINUS, $2 }; $$.append($1); $$.append($3); }
+          | IDENT "*=" exp01                      { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT_STAR, $2 }; $$.append($1); $$.append($3); }
+          | IDENT "/=" exp01                      { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT_SLASH, $2 }; $$.append($1); $$.append($3); }
           | arrget "=" exp01                      { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET, $2 }; $$.append($1); $$.append($3); }
+          | arrget "+=" exp01                     { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET_PLUS, $2 }; $$.append($1); $$.append($3); }
+          | arrget "-=" exp01                     { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET_MINUS, $2 }; $$.append($1); $$.append($3); }
+          | arrget "*=" exp01                     { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET_STAR, $2 }; $$.append($1); $$.append($3); }
+          | arrget "/=" exp01                     { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET_SLASH, $2 }; $$.append($1); $$.append($3); }
           ;
 
 vardecl: "let" IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnode{ astkind::DECLARATION, $3 }; $$.append($2); $$.append($4); }
@@ -435,13 +455,17 @@ namespace sqf::sqc::bison
          case tokenizer::etoken::s_lessthenequal: return parser::make_LTEQUAL(token, loc);
          case tokenizer::etoken::s_lessthen: return parser::make_LT(token, loc);
          case tokenizer::etoken::s_plus: return parser::make_PLUS(token, loc);
+         case tokenizer::etoken::s_plusassign: return parser::make_PLUSASSIGN(token, loc);
          case tokenizer::etoken::s_minus: return parser::make_MINUS(token, loc);
+         case tokenizer::etoken::s_minusassign: return parser::make_MINUSASSIGN(token, loc);
          case tokenizer::etoken::s_notequalequal: return parser::make_EXCLAMATIONMARKEQUALEQUAL(token, loc);
          case tokenizer::etoken::s_notequal: return parser::make_EXCLAMATIONMARKEQUAL(token, loc);
          case tokenizer::etoken::s_exclamationmark: return parser::make_EXCLAMATIONMARK(token, loc);
          case tokenizer::etoken::s_percent: return parser::make_PERCENT(token, loc);
          case tokenizer::etoken::s_star: return parser::make_STAR(token, loc);
+         case tokenizer::etoken::s_starassign: return parser::make_STARASSIGN(token, loc);
          case tokenizer::etoken::s_slash: return parser::make_SLASH(token, loc);
+         case tokenizer::etoken::s_slashassign: return parser::make_SLASHASSIGN(token, loc);
          case tokenizer::etoken::s_andand: return parser::make_ANDAND(token, loc);
          case tokenizer::etoken::s_oror: return parser::make_VLINEVLINE(token, loc);
          case tokenizer::etoken::s_questionmark: return parser::make_QUESTIONMARK(loc);

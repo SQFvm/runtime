@@ -87,10 +87,64 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         set.push_back(node.token, std::make_shared<opcodes::call_unary>("throw"s));
     } break;
     case ::sqf::sqc::bison::astkind::ASSIGNMENT: {
+        // Push Value
         to_assembly(runtime, set, locals, node.children[1]);
+
+        // Assign Value
         std::string var(node.children[0].token.contents);
         auto tmp = var;
         std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
+        if (std::find(locals.begin(), locals.end(), var) != locals.end())
+        {
+            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>("_" + tmp));
+        }
+        else
+        {
+            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>(tmp));
+        }
+    } break;
+    case ::sqf::sqc::bison::astkind::ASSIGNMENT_PLUS:
+    case ::sqf::sqc::bison::astkind::ASSIGNMENT_MINUS:
+    case ::sqf::sqc::bison::astkind::ASSIGNMENT_STAR:
+    case ::sqf::sqc::bison::astkind::ASSIGNMENT_SLASH: {
+        std::string var(node.children[0].token.contents);
+        auto tmp = var;
+        std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
+
+        // Push Left-Value (self)
+        if (std::find(locals.begin(), locals.end(), var) != locals.end())
+        {
+            set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>("_" + tmp));
+        }
+        else
+        {
+            set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>(tmp));
+        }
+
+        // Push Right-Value
+        to_assembly(runtime, set, locals, node.children[1]);
+
+        switch (node.kind)
+        {
+        case ::sqf::sqc::bison::astkind::ASSIGNMENT_PLUS:
+            // Emit "+"
+            set.push_back(node.token, std::make_shared<opcodes::call_binary>("+"s, (short)6)); 
+            break;
+        case ::sqf::sqc::bison::astkind::ASSIGNMENT_MINUS:
+            // Emit "-"
+            set.push_back(node.token, std::make_shared<opcodes::call_binary>("-"s, (short)6));
+            break;
+        case ::sqf::sqc::bison::astkind::ASSIGNMENT_STAR:
+            // Emit "*"
+            set.push_back(node.token, std::make_shared<opcodes::call_binary>("*"s, (short)7));
+            break;
+        case ::sqf::sqc::bison::astkind::ASSIGNMENT_SLASH:
+            // Emit "/"
+            set.push_back(node.token, std::make_shared<opcodes::call_binary>("/"s, (short)7));
+            break;
+        }
+
+        // Assign Value
         if (std::find(locals.begin(), locals.end(), var) != locals.end())
         {
             set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>("_" + tmp));
@@ -115,6 +169,48 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         // Emit "makeArray" instruction to craft the right-handed argument
         set.push_back(node.token, std::make_shared<opcodes::make_array>(2));
 
+        // Emit "set" to perform the array assignment
+        set.push_back(node.token, std::make_shared<opcodes::call_binary>("set"s, (short)4));
+    } break;
+    case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_PLUS:
+    case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_MINUS:
+    case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_STAR:
+    case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_SLASH: {
+        // Push actual array onto value stack (LEFT from set)
+        to_assembly(runtime, set, locals, node.children[0].children[0]);
+
+        { // RIGHT from set
+            // Push Index-Expression to stack
+            to_assembly(runtime, set, locals, node.children[0].children[1]);
+
+            // Push actual value onto value stack (LEFT from op)
+            to_assembly(runtime, set, locals, node.children[0]);
+
+            // Push Value-Expression to stack (RIGHT from op)
+            to_assembly(runtime, set, locals, node.children[1]);
+            switch (node.kind)
+            {
+            case ::sqf::sqc::bison::astkind::ASSIGNMENT_PLUS:
+                // Emit "+"
+                set.push_back(node.token, std::make_shared<opcodes::call_binary>("+"s, (short)6));
+                break;
+            case ::sqf::sqc::bison::astkind::ASSIGNMENT_MINUS:
+                // Emit "-"
+                set.push_back(node.token, std::make_shared<opcodes::call_binary>("-"s, (short)6));
+                break;
+            case ::sqf::sqc::bison::astkind::ASSIGNMENT_STAR:
+                // Emit "*"
+                set.push_back(node.token, std::make_shared<opcodes::call_binary>("*"s, (short)7));
+                break;
+            case ::sqf::sqc::bison::astkind::ASSIGNMENT_SLASH:
+                // Emit "/"
+                set.push_back(node.token, std::make_shared<opcodes::call_binary>("/"s, (short)7));
+                break;
+            }
+
+            // Emit "makeArray" instruction to craft the right-handed argument
+            set.push_back(node.token, std::make_shared<opcodes::make_array>(2));
+        }
         // Emit "set" to perform the array assignment
         set.push_back(node.token, std::make_shared<opcodes::call_binary>("set"s, (short)4));
     } break;
