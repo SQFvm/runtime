@@ -228,6 +228,9 @@ int main(int argc, char** argv)
     TCLAP::SwitchArg suppressWelcomeArg("", "suppress-welcome", "Suppresses the welcome message during execution.", false);
     cmd.add(suppressWelcomeArg);
 
+    TCLAP::SwitchArg noOperatorsArg("", "no-operators", "If provided, SQF-VM will not be loaded using the default set of operators it comes with (except for SQF-VM specific operators).", false);
+    cmd.add(noOperatorsArg);
+
 
 
     // TCLAP::MultiArg<std::string> loadArg("l", "load", "Adds provided path to the allowed locations list. " RELPATHHINT "\n"
@@ -449,7 +452,14 @@ int main(int argc, char** argv)
 #else
     runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
 #endif
-    sqf::operators::ops(runtime);
+    if (noOperatorsArg.getValue())
+    {
+        sqf::operators::ops_sqfvm(runtime);
+    }
+    else
+    {
+        sqf::operators::ops(runtime);
+    }
 
     if (!noSpawnPlayerArg.getValue())
     {
