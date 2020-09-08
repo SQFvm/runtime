@@ -188,7 +188,7 @@ namespace sqf::sqc
                         // Try skip to file
                         iter += len_match<' ', '\t'>(iter);
                         start = iter;
-                        for (; iter != m_end && *iter != '\n' && *iter != ' '; iter++);
+                        for (; iter != m_end && *iter != '\n'; iter++);
                         if (iter != m_end && iter - start >= 2)
                         {
                             // Read-in file
