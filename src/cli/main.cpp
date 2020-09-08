@@ -437,7 +437,7 @@ int main(int argc, char** argv)
     
 
     sqf::runtime::runtime runtime(logger, conf);
-    runtime.fileio(std::make_unique<sqf::fileio::impl_default>());
+    runtime.fileio(std::make_unique<sqf::fileio::impl_default>(logger));
     runtime.parser_config(std::make_unique<sqf::parser::config::impl_default>(logger));
     runtime.parser_preprocessor(std::make_unique<sqf::parser::preprocessor::impl_default>(logger));
 #if defined(SQF_SQC_SUPPORT)

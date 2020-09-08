@@ -1,5 +1,4 @@
 #pragma once
-#include "logging.h"
 #include <string>
 #include <string_view>
 #include <optional>
@@ -10,7 +9,7 @@ namespace sqf
 {
 	namespace runtime
 	{
-		class fileio : public CanLog
+		class fileio
 		{
 		public:
 			struct pathinfo
@@ -43,7 +42,6 @@ namespace sqf
 				bool operator!=(const pathinfo& b) const { return physical != physical; }
 			};
 		public:
-			fileio(Logger& logger) : CanLog(logger) {}
 			virtual ~fileio() {}
 			/// <summary>
 			/// Convenience method to read a file from disk.
