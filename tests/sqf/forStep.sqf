@@ -27,7 +27,7 @@
         [
             "Loop with step=0 loops endless.",
             {
-                local _i = 0;
+                private _i = 0;
 				for "_" from 0 to 1 step 0 do
 				{
 					_i = _i + 1;
