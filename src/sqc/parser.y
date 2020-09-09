@@ -38,6 +38,7 @@
                FUNCTION,
                ARGLIST,
                ARGITEM,
+               ARGITEM_EMPLACE,
                ARGITEM_DEFAULT,
                ARGITEM_TYPE,
                ARGITEM_TYPE_DEFAULT,
@@ -287,6 +288,7 @@ argitem: IDENT                                    { $$ = sqf::sqc::bison::astnod
        | IDENT "=" exp01                          { $$ = sqf::sqc::bison::astnode{ astkind::ARGITEM_DEFAULT, $1 }; $$.append($3); }
        | IDENT IDENT                              { $$ = sqf::sqc::bison::astnode{ astkind::ARGITEM_TYPE, $2 }; $$.append($1); }
        | IDENT IDENT "=" exp01                    { $$ = sqf::sqc::bison::astnode{ astkind::ARGITEM_TYPE_DEFAULT, $2 }; $$.append($1); $$.append($4); }
+       | STRING ":" IDENT                         { $$ = sqf::sqc::bison::astnode{ astkind::ARGITEM_EMPLACE, $2 }; $$.append($1); }
        ;
 codeblock: statement                              { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; $$.append($1); }
          | "{" "}"                                { $$ = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; }

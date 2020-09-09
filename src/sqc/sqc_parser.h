@@ -24,8 +24,13 @@ namespace sqf::sqc
 	class parser : public ::sqf::runtime::parser::sqf, public CanLog
 	{
 	private:
+		struct emplace
+		{
+			std::string ident;
+			std::string replace;
+		};
 		constexpr static const char* __scopename_function = "___sqc_func";
-		void to_assembly(::sqf::runtime::runtime& runtime, util::setbuilder& set, std::vector<std::string>& locals, const ::sqf::sqc::bison::astnode& current_node);
+		void to_assembly(::sqf::runtime::runtime& runtime, util::setbuilder& set, std::vector<emplace>& locals, const ::sqf::sqc::bison::astnode& current_node);
 	public:
 		parser(Logger& logger) : CanLog(logger)
 		{

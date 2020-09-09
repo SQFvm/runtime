@@ -65,7 +65,7 @@ namespace sqf::sqc::util
     };
 }
 
-void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbuilder& set, std::vector<std::string>& locals, const ::sqf::sqc::bison::astnode& node)
+void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbuilder& set, std::vector<emplace>& locals, const ::sqf::sqc::bison::astnode& node)
 {
     switch (node.kind)
     {
@@ -94,9 +94,10 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         std::string var(node.children[0].token.contents);
         auto tmp = var;
         std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
-        if (std::find(locals.begin(), locals.end(), var) != locals.end())
+        auto fres = std::find(locals.begin(), locals.end(), var);
+        if (fres != locals.end())
         {
-            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>("_" + tmp));
+            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>(fres->replace));
         }
         else
         {
@@ -112,9 +113,10 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
 
         // Push Left-Value (self)
-        if (std::find(locals.begin(), locals.end(), var) != locals.end())
+        auto fres = std::find(locals.begin(), locals.end(), var);
+        if (fres != locals.end())
         {
-            set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>("_" + tmp));
+            set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>(fres->replace));
         }
         else
         {
@@ -145,9 +147,10 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         }
 
         // Assign Value
-        if (std::find(locals.begin(), locals.end(), var) != locals.end())
+        fres = std::find(locals.begin(), locals.end(), var);
+        if (fres != locals.end())
         {
-            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>("_" + tmp));
+            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>(fres->replace));
         }
         else
         {
@@ -230,11 +233,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // Assign variable
         std::string var(node.children[0].token.contents);
-        set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to_local>("_"s + var));
+        auto lvar = "_"s + var;
+        set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to_local>(lvar));
 
         // Add variable to locals
         std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
-        locals.push_back(var);
+        locals.push_back({ var ,lvar });
     } break;
     case ::sqf::sqc::bison::astkind::FORWARD_DECLARATION: {
         // Push assigned value
@@ -242,16 +246,17 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // Declare variable
         std::string var(node.children[0].token.contents);
-        set.push_back(node.children[0].token, std::make_shared<opcodes::push>("_"s + var));
+        auto lvar = "_"s + var;
+        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(lvar));
         set.push_back(node.token, std::make_shared<opcodes::call_unary>("private"s));
 
         // Add variable to locals
         std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
-        locals.push_back(var);
+        locals.push_back({ var ,lvar });
     } break;
     case ::sqf::sqc::bison::astkind::FUNCTION_DECLARATION: {
         auto local_set = set.create_from();
-        std::vector<std::string> new_locals;
+        std::vector<emplace> new_locals;
         local_set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
         local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
@@ -262,7 +267,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     } break;
     case ::sqf::sqc::bison::astkind::FINAL_FUNCTION_DECLARATION: {
         auto local_set = set.create_from();
-        std::vector<std::string> new_locals;
+        std::vector<emplace> new_locals;
         local_set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
         local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
@@ -281,7 +286,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     } break;
     case ::sqf::sqc::bison::astkind::FUNCTION: {
         auto local_set = set.create_from();
-        std::vector<std::string> new_locals;
+        std::vector<emplace> new_locals;
         local_set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
         local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
@@ -290,16 +295,23 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         set.push_back(node.token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set }));
     } break;
     case ::sqf::sqc::bison::astkind::ARGLIST: {
-        if (!node.children.empty())
+        size_t param_count = 0;
+        for (auto child : node.children)
         {
-            for (auto child : node.children)
+            // Push the variable
+            auto var = std::string(child.token.contents);
+            std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
+            if (child.kind == ::sqf::sqc::bison::astkind::ARGITEM_EMPLACE)
             {
-                // Push the variable
-                auto var = std::string(child.token.contents);
-                std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
+                auto lvar = types::d_string::from_sqf(node.token.contents);
+                locals.push_back({ var, lvar });
+            }
+            else
+            {
                 auto lvar = "_"s + var;
-                locals.push_back(var);
+                locals.push_back({ var, lvar });
                 set.push_back(child.token, std::make_shared<opcodes::push>(lvar));
+                param_count++;
 
                 // Handle different argitem cases
                 switch (child.kind)
@@ -386,6 +398,9 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 } break;
                 }
             }
+        }
+        if (param_count > 0)
+        {
             set.push_back(node.token, std::make_shared<opcodes::make_array>(node.children.size()));
             set.push_back(node.token, std::make_shared<opcodes::call_unary>("params"s));
         }
@@ -431,10 +446,10 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     } break;
     case ::sqf::sqc::bison::astkind::FOR: {
         // Emit "for"
-        std::string for_var(node.children[0].token.contents);
-        std::string for_lvar = "_"s + for_var;
-        std::transform(for_var.begin(), for_var.end(), for_var.begin(), [](char c) { return (char)std::tolower(c); });
-        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(for_lvar));
+        std::string var(node.children[0].token.contents);
+        std::string lvar = "_"s + var;
+        std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
+        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(lvar));
         set.push_back(node.children[0].token, std::make_shared<opcodes::call_unary>("for"s));
 
         // Emit "from"
@@ -450,9 +465,9 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             // Create additional instruction_set vector
             auto local_set1 = set.create_from();
 
-            // Create copy of locals where for_var exists
+            // Create copy of locals where var exists
             auto locals_copy = locals;
-            locals_copy.push_back(for_var);
+            locals_copy.push_back({ var ,lvar });
 
             // Fill actual instruction_set
             to_assembly(runtime, local_set1, locals_copy, node.children[3]);
@@ -464,9 +479,9 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     } break;
     case ::sqf::sqc::bison::astkind::FORSTEP: {
         // Emit "for"
-        std::string for_var(node.children[0].token.contents);
-        std::string for_lvar = "_"s + for_var;
-        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(for_lvar));
+        std::string var(node.children[0].token.contents);
+        std::string lvar = "_"s + var;
+        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(lvar));
         set.push_back(node.children[0].token, std::make_shared<opcodes::call_unary>("for"s));
 
         // Emit "from"
@@ -486,9 +501,9 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             // Create additional instruction_set vector
             auto local_set1 = set.create_from();
 
-            // Create copy of locals where for_var exists
+            // Create copy of locals where var exists
             auto locals_copy = locals;
-            locals_copy.push_back(for_var);
+            locals_copy.push_back({ var ,lvar });
 
             // Fill actual instruction_set
             to_assembly(runtime, local_set1, locals_copy, node.children[4]);
@@ -506,14 +521,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             auto local_set1 = set.create_from();
 
             // Assign variable for forEach _x
-            set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>("_x"s));
             std::string var(node.children[0].token.contents);
             std::string lvar = "_"s + var;
-            set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to_local>(lvar));
 
             // Create copy of locals where `_x` exists
             auto locals_copy = locals;
-            locals_copy.push_back(var);
+            locals_copy.push_back({ var ,lvar });
 
             // Fill actual instruction_set
             to_assembly(runtime, local_set1, locals_copy, node.children[2]);
@@ -618,7 +631,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
             // Create copy of locals where `_x` exists
             auto locals_copy = locals;
-            locals_copy.push_back(var);
+            locals_copy.push_back({ var ,lvar });
 
             // Fill actual instruction_set for code
             to_assembly(runtime, local_set1, locals, node.children[1]);
@@ -880,9 +893,10 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
             // Emit function
             std::string var(node.children[0].token.contents);
-            if (std::find(locals.begin(), locals.end(), var) != locals.end())
+            auto fres = std::find(locals.begin(), locals.end(), var);
+            if (fres != locals.end())
             {
-                set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>("_" + var));
+                set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>(fres->replace));
             }
             else
             {
@@ -937,9 +951,10 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     } break;
     case ::sqf::sqc::bison::astkind::GET_VARIABLE: {
         std::string var(node.token.contents);
-        if (std::find(locals.begin(), locals.end(), var) != locals.end())
+        auto fres = std::find(locals.begin(), locals.end(), var);
+        if (fres != locals.end())
         {
-            set.push_back(node.token, std::make_shared<opcodes::get_variable>("_" + var));
+            set.push_back(node.token, std::make_shared<opcodes::get_variable>(fres->replace));
         }
         else
         {
@@ -1035,7 +1050,7 @@ std::optional<::sqf::runtime::instruction_set> sqf::sqc::parser::parse(::sqf::ru
     {
         return {};
     }
-    std::vector<std::string> locals;
+    std::vector<emplace> locals;
     to_assembly(runtime, source, locals, res);
     return source;
 }

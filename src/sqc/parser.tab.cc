@@ -57,7 +57,7 @@
 
 #line 59 "parser.tab.cc" // lalr1.cc:412
 // Unqualified %code blocks.
-#line 122 "parser.y" // lalr1.cc:413
+#line 123 "parser.y" // lalr1.cc:413
 
      namespace sqf::sqc::bison
      {
@@ -734,584 +734,584 @@ namespace  sqf { namespace sqc { namespace bison  {
           switch (yyn)
             {
   case 3:
-#line 224 "parser.y" // lalr1.cc:859
+#line 225 "parser.y" // lalr1.cc:859
     { result = sqf::sqc::bison::astnode{}; result.append_children(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); result.append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 740 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 4:
-#line 225 "parser.y" // lalr1.cc:859
+#line 226 "parser.y" // lalr1.cc:859
     { result = sqf::sqc::bison::astnode{}; result.append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 746 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 5:
-#line 228 "parser.y" // lalr1.cc:859
+#line 229 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 752 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 6:
-#line 231 "parser.y" // lalr1.cc:859
+#line 232 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 758 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 7:
-#line 232 "parser.y" // lalr1.cc:859
+#line 233 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 764 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 8:
-#line 235 "parser.y" // lalr1.cc:859
+#line 236 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::RETURN, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 770 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 9:
-#line 236 "parser.y" // lalr1.cc:859
+#line 237 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::RETURN, tokenizer.create_token() }; }
 #line 776 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 10:
-#line 237 "parser.y" // lalr1.cc:859
+#line 238 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::THROW, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 782 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 11:
-#line 238 "parser.y" // lalr1.cc:859
+#line 239 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[1].value.as< sqf::sqc::bison::astnode > (); }
 #line 788 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 12:
-#line 239 "parser.y" // lalr1.cc:859
+#line 240 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 794 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 13:
-#line 240 "parser.y" // lalr1.cc:859
+#line 241 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 800 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 14:
-#line 241 "parser.y" // lalr1.cc:859
+#line 242 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 806 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 15:
-#line 242 "parser.y" // lalr1.cc:859
+#line 243 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 812 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 16:
-#line 243 "parser.y" // lalr1.cc:859
+#line 244 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 818 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 17:
-#line 244 "parser.y" // lalr1.cc:859
+#line 245 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 824 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 18:
-#line 245 "parser.y" // lalr1.cc:859
+#line 246 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[1].value.as< sqf::sqc::bison::astnode > (); }
 #line 830 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 19:
-#line 246 "parser.y" // lalr1.cc:859
+#line 247 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[1].value.as< sqf::sqc::bison::astnode > (); }
 #line 836 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 20:
-#line 247 "parser.y" // lalr1.cc:859
+#line 248 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; }
 #line 842 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 21:
-#line 248 "parser.y" // lalr1.cc:859
+#line 249 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; }
 #line 848 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 22:
-#line 251 "parser.y" // lalr1.cc:859
+#line 252 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 854 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 23:
-#line 252 "parser.y" // lalr1.cc:859
+#line 253 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT_PLUS, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 860 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 24:
-#line 253 "parser.y" // lalr1.cc:859
+#line 254 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT_MINUS, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 866 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 25:
-#line 254 "parser.y" // lalr1.cc:859
+#line 255 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT_STAR, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 872 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 26:
-#line 255 "parser.y" // lalr1.cc:859
+#line 256 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT_SLASH, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 878 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 27:
-#line 256 "parser.y" // lalr1.cc:859
+#line 257 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 884 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 28:
-#line 257 "parser.y" // lalr1.cc:859
+#line 258 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET_PLUS, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 890 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 29:
-#line 258 "parser.y" // lalr1.cc:859
+#line 259 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET_MINUS, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 896 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 30:
-#line 259 "parser.y" // lalr1.cc:859
+#line 260 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET_STAR, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 902 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 31:
-#line 260 "parser.y" // lalr1.cc:859
+#line 261 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_SET_SLASH, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 908 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 32:
-#line 263 "parser.y" // lalr1.cc:859
+#line 264 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::DECLARATION, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 914 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 33:
-#line 264 "parser.y" // lalr1.cc:859
+#line 265 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::DECLARATION, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 920 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 34:
-#line 265 "parser.y" // lalr1.cc:859
+#line 266 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION, yystack_[0].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< tokenizer::token > ()); }
 #line 926 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 35:
-#line 266 "parser.y" // lalr1.cc:859
+#line 267 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::DECLARATION, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 932 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 36:
-#line 267 "parser.y" // lalr1.cc:859
+#line 268 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::DECLARATION, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 938 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 37:
-#line 268 "parser.y" // lalr1.cc:859
+#line 269 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::FORWARD_DECLARATION, yystack_[0].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< tokenizer::token > ()); }
 #line 944 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 38:
-#line 271 "parser.y" // lalr1.cc:859
+#line 272 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::FUNCTION_DECLARATION, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 950 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 39:
-#line 272 "parser.y" // lalr1.cc:859
+#line 273 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::FINAL_FUNCTION_DECLARATION, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 956 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 40:
-#line 275 "parser.y" // lalr1.cc:859
+#line 276 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::FUNCTION, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 962 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 41:
-#line 278 "parser.y" // lalr1.cc:859
+#line 279 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ARGLIST, tokenizer.create_token() }; }
 #line 968 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 42:
-#line 279 "parser.y" // lalr1.cc:859
+#line 280 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ARGLIST, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 974 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 43:
-#line 282 "parser.y" // lalr1.cc:859
+#line 283 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 980 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 44:
-#line 283 "parser.y" // lalr1.cc:859
+#line 284 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 986 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 45:
-#line 284 "parser.y" // lalr1.cc:859
+#line 285 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 992 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 46:
-#line 286 "parser.y" // lalr1.cc:859
+#line 287 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ARGITEM, yystack_[0].value.as< tokenizer::token > () }; }
 #line 998 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 47:
-#line 287 "parser.y" // lalr1.cc:859
+#line 288 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ARGITEM_DEFAULT, yystack_[2].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1004 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 48:
-#line 288 "parser.y" // lalr1.cc:859
+#line 289 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ARGITEM_TYPE, yystack_[0].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< tokenizer::token > ()); }
 #line 1010 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 49:
-#line 289 "parser.y" // lalr1.cc:859
+#line 290 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ARGITEM_TYPE_DEFAULT, yystack_[2].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[3].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1016 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 50:
 #line 291 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::ARGITEM_EMPLACE, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); }
 #line 1022 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 51:
-#line 292 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; }
+#line 293 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1028 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 52:
-#line 293 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
+#line 294 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; }
 #line 1034 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 53:
-#line 296 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::IF, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 295 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CODEBLOCK, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1040 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 54:
-#line 297 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::IFELSE, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[4].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 298 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::IF, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1046 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 55:
-#line 300 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::FOR, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[5].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[3].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 299 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::IFELSE, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[4].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1052 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 56:
-#line 301 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::FORSTEP, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[7].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[5].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[3].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 302 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::FOR, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[5].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[3].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1058 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 57:
-#line 302 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::FOREACH, yystack_[3].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[4].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 303 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::FORSTEP, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[7].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[5].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[3].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1064 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 58:
-#line 305 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::WHILE, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 304 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::FOREACH, yystack_[3].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[4].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1070 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 59:
-#line 306 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::DOWHILE, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[4].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
+#line 307 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::WHILE, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1076 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 60:
-#line 309 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::TRYCATCH, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[5].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 308 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::DOWHILE, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[4].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1082 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 61:
-#line 312 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::SWITCH, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[4].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
+#line 311 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::TRYCATCH, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[5].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1088 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 62:
-#line 315 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 314 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::SWITCH, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[4].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1094 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 63:
-#line 316 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 317 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1100 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 64:
-#line 319 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CASE, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 318 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1106 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 65:
-#line 320 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CASE, yystack_[0].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
+#line 321 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CASE, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1112 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 66:
-#line 321 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CASE_DEFAULT, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 322 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CASE, yystack_[0].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1118 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 67:
-#line 324 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+#line 323 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::CASE_DEFAULT, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1124 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 68:
-#line 325 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_TERNARY, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[4].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 326 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1130 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 69:
 #line 327 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_TERNARY, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[4].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1136 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 70:
-#line 328 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_OR, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 329 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1142 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 71:
 #line 330 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_OR, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1148 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 72:
-#line 331 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_AND, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 332 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1154 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 73:
 #line 333 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_AND, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1160 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 74:
-#line 334 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_EQUALEXACT, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 335 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1166 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 75:
-#line 335 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUALEXACT, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 336 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_EQUALEXACT, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1172 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 76:
-#line 336 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_EQUAL, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 337 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUALEXACT, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1178 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 77:
-#line 337 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUAL, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 338 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_EQUAL, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1184 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 78:
 #line 339 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUAL, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1190 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 79:
-#line 340 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_LESSTHAN, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 341 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1196 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 80:
-#line 341 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_LESSTHANEQUAL, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 342 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_LESSTHAN, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1202 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 81:
-#line 342 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHAN, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 343 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_LESSTHANEQUAL, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1208 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 82:
-#line 343 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHANEQUAL, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 344 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHAN, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1214 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 83:
 #line 345 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHANEQUAL, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1220 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 84:
-#line 346 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_PLUS, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 347 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1226 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 85:
-#line 347 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_MINUS, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 348 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_PLUS, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1232 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 86:
 #line 349 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_MINUS, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1238 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 87:
-#line 350 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_MULTIPLY, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 351 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1244 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 88:
-#line 351 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_DIVIDE, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 352 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_MULTIPLY, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1250 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 89:
-#line 352 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_REMAINDER, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 353 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_DIVIDE, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1256 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 90:
 #line 354 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_REMAINDER, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1262 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 91:
-#line 355 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_NOT, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ());  }
+#line 356 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1268 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 92:
 #line 357 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_NOT, yystack_[1].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ());  }
 #line 1274 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 93:
-#line 358 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_BINARY, yystack_[3].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[5].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[3].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
+#line 359 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1280 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 94:
-#line 359 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+#line 360 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_BINARY, yystack_[3].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[5].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[3].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1286 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 95:
 #line 361 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_GET, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[3].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1292 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 96:
 #line 363 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[1].value.as< sqf::sqc::bison::astnode > (); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_GET, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[3].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1298 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 97:
-#line 364 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_UNARY, yystack_[3].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[3].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
+#line 365 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[1].value.as< sqf::sqc::bison::astnode > (); }
 #line 1304 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 98:
-#line 365 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, yystack_[0].value.as< tokenizer::token > () }; }
+#line 366 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OP_UNARY, yystack_[3].value.as< tokenizer::token > () }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[3].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1310 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 99:
-#line 366 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+#line 367 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, yystack_[0].value.as< tokenizer::token > () }; }
 #line 1316 "parser.tab.cc" // lalr1.cc:859
     break;
 
@@ -1322,115 +1322,121 @@ namespace  sqf { namespace sqc { namespace bison  {
     break;
 
   case 101:
-#line 369 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_STRING, yystack_[0].value.as< tokenizer::token > () }; }
+#line 370 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1328 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 102:
-#line 370 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
+#line 371 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_STRING, yystack_[0].value.as< tokenizer::token > () }; }
 #line 1334 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 103:
-#line 371 "parser.y" // lalr1.cc:859
+#line 372 "parser.y" // lalr1.cc:859
     { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1340 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 104:
-#line 372 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_NUMBER, yystack_[0].value.as< tokenizer::token > () }; }
+#line 373 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = yystack_[0].value.as< sqf::sqc::bison::astnode > (); }
 #line 1346 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 105:
-#line 373 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_TRUE, tokenizer.create_token() }; }
+#line 374 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_NUMBER, yystack_[0].value.as< tokenizer::token > () }; }
 #line 1352 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 106:
-#line 374 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_FALSE, tokenizer.create_token() }; }
+#line 375 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_TRUE, tokenizer.create_token() }; }
 #line 1358 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 107:
-#line 375 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_NIL, tokenizer.create_token() }; }
+#line 376 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_FALSE, tokenizer.create_token() }; }
 #line 1364 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 108:
 #line 377 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY, tokenizer.create_token() }; }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_NIL, tokenizer.create_token() }; }
 #line 1370 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 109:
-#line 378 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
+#line 379 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY, tokenizer.create_token() }; }
 #line 1376 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 110:
 #line 380 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::VAL_ARRAY, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1382 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 111:
-#line 381 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
+#line 382 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1388 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 112:
-#line 382 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 383 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1394 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 113:
 #line 384 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::SVAL_FORMAT_STRING }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< tokenizer::token > ());}
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1400 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 114:
-#line 385 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::SVAL_FORMAT_STRING }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 386 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::SVAL_FORMAT_STRING }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< tokenizer::token > ());}
 #line 1406 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 115:
 #line 387 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(sqf::sqc::bison::astnode{ astkind::VAL_NIL, tokenizer.create_token() }); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::SVAL_FORMAT_STRING }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1412 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 116:
-#line 388 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+#line 389 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(sqf::sqc::bison::astnode{ astkind::VAL_NIL, tokenizer.create_token() }); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1418 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 117:
-#line 389 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(sqf::sqc::bison::astnode{ astkind::VAL_NIL, tokenizer.create_token() });yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< tokenizer::token > ());  }
+#line 390 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< tokenizer::token > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1424 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 118:
-#line 390 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< tokenizer::token > ()); }
+#line 391 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(sqf::sqc::bison::astnode{ astkind::VAL_NIL, tokenizer.create_token() });yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< tokenizer::token > ());  }
 #line 1430 "parser.tab.cc" // lalr1.cc:859
     break;
 
+  case 119:
+#line 392 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{}; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[0].value.as< tokenizer::token > ()); }
+#line 1436 "parser.tab.cc" // lalr1.cc:859
+    break;
 
-#line 1434 "parser.tab.cc" // lalr1.cc:859
+
+#line 1440 "parser.tab.cc" // lalr1.cc:859
             default:
               break;
             }
@@ -1685,82 +1691,84 @@ namespace  sqf { namespace sqc { namespace bison  {
   }
 
 
-  const signed char parser::yypact_ninf_ = -86;
+  const signed char parser::yypact_ninf_ = -85;
 
-  const signed char parser::yytable_ninf_ = -66;
+  const signed char parser::yytable_ninf_ = -67;
 
   const short int
   parser::yypact_[] =
   {
-     265,   -86,    69,   667,   -41,   -26,    16,   -86,   -17,    -4,
-     518,   518,    23,   -86,   -86,    39,     2,    41,   667,    50,
-     -86,   149,   -86,    10,   -86,   649,    61,   644,   -86,   329,
-      42,    47,   -86,   -86,   -86,   -86,   -86,   -86,   -86,    57,
-      29,    52,    62,    48,   -11,   -31,   -10,    83,   -24,    88,
-     -86,   -86,   -86,    39,   -86,    97,   100,   -86,   110,    12,
-     -15,    39,   518,    89,    90,   131,   667,   581,   -86,   126,
-     136,   667,   -86,    18,   667,   125,   -86,   123,   127,    83,
-     667,   667,   667,   667,   667,   667,   649,   -86,   -27,   -86,
-     -86,   -86,   -86,   -86,   -86,   -86,   667,   667,   667,   667,
-     667,   667,   667,   667,   667,   667,   667,   667,   667,   667,
-     667,   667,   667,   667,   667,   667,   667,   667,    99,   -86,
-     -86,   667,   667,   -86,   -25,   132,   129,   518,   -86,    39,
-     118,   667,   135,   -86,   138,   139,   140,   137,   667,   667,
-     143,   -86,   667,   -86,   144,   -86,   -86,   -86,   -86,   -86,
-     -86,   649,   -86,   124,   -86,   -86,   -86,   -86,   -86,   -86,
-     -86,   -86,   -86,   -86,   -86,   -86,   -86,   -86,   -86,   145,
-     -86,   -86,   -86,   -86,   -86,   146,   -86,   -86,   667,   141,
-     -86,   115,   -86,   518,   667,   168,   518,   -86,   667,   128,
-     157,   -86,   -86,   518,   -86,   -86,   -86,   667,   -86,   667,
-     -86,   667,   -86,   -86,   155,   667,   176,   160,   162,    87,
-     -86,   -86,   164,   -86,   518,   455,   518,   -86,   518,   667,
-     150,   167,    87,   -86,   -86,   667,   -86,   -86,   -86,   151,
-     518,   -86,   -86,   518,   392,   -86,   -86,   -86
+     262,   -85,    71,   138,   -37,   -17,    29,   -85,   -16,     9,
+     515,   515,    17,   -85,   -85,    34,   -35,    41,   138,    50,
+     -85,   664,   -85,   125,   -85,   646,    58,   641,   -85,   326,
+      59,    68,   -85,   -85,   -85,   -85,   -85,   -85,   -85,    70,
+      78,    46,    82,   -15,    -3,   -31,   -25,    98,   -18,   104,
+     -85,   -85,   -85,    34,   -85,   111,   108,   -85,   115,    15,
+     -27,    34,   515,    83,    88,   137,   138,   578,   -85,   126,
+     134,   138,   -85,    18,   138,   123,   -85,   124,   127,    98,
+     138,   138,   138,   138,   138,   138,   646,   -85,     1,   -85,
+     -85,   -85,   -85,   -85,   -85,   -85,   138,   138,   138,   138,
+     138,   138,   138,   138,   138,   138,   138,   138,   138,   138,
+     138,   138,   138,   138,   138,   138,   138,   138,    96,   -85,
+     -85,   138,   138,   -85,   -24,   116,   135,   130,   515,   -85,
+      34,   128,   138,   140,   -85,   143,   147,   148,   142,   138,
+     138,   149,   -85,   138,   -85,   150,   -85,   -85,   -85,   -85,
+     -85,   -85,   646,   -85,   132,   -85,   -85,   -85,   -85,   -85,
+     -85,   -85,   -85,   -85,   -85,   -85,   -85,   -85,   -85,   -85,
+     151,   -85,   -85,   -85,   -85,   -85,   152,   -85,   -85,   138,
+     146,   129,   -85,    -1,   -85,   515,   138,   172,   515,   -85,
+     138,   131,   160,   -85,   -85,   515,   -85,   -85,   -85,   138,
+     -85,   138,   -85,   138,   -85,   -85,   -85,   161,   138,   182,
+     166,   173,    55,   -85,   -85,   175,   -85,   515,   452,   515,
+     -85,   515,   138,   162,   179,    55,   -85,   -85,   138,   -85,
+     -85,   -85,   163,   515,   -85,   -85,   515,   389,   -85,   -85,
+     -85
   };
 
   const unsigned char
   parser::yydefact_[] =
   {
-       0,    21,     0,     0,     0,     0,     0,   106,     0,     0,
-       0,     0,     0,   107,   105,     0,     0,     0,     0,     0,
-      20,     0,   104,    98,   101,   113,     0,     0,     4,     0,
-       0,     0,    12,   100,    13,    14,    15,    16,    17,     0,
-      67,    69,    71,    73,    78,    83,    86,    90,    94,    92,
-      99,   102,   103,     0,     9,    98,     0,    94,     0,    34,
-       0,     0,     0,     0,     0,     0,     0,     0,    50,     0,
-       0,     0,     5,    37,     0,     0,   108,   110,     0,    91,
-       0,     0,     0,     0,     0,     0,     0,   117,     0,   114,
+       0,    21,     0,     0,     0,     0,     0,   107,     0,     0,
+       0,     0,     0,   108,   106,     0,     0,     0,     0,     0,
+      20,     0,   105,    99,   102,   114,     0,     0,     4,     0,
+       0,     0,    12,   101,    13,    14,    15,    16,    17,     0,
+      68,    70,    72,    74,    79,    84,    87,    91,    95,    93,
+     100,   103,   104,     0,     9,    99,     0,    95,     0,    34,
+       0,     0,     0,     0,     0,     0,     0,     0,    51,     0,
+       0,     0,     5,    37,     0,     0,   109,   111,     0,    92,
+       0,     0,     0,     0,     0,     0,     0,   118,     0,   115,
        1,     3,     7,    18,    11,    19,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     8,
-      10,     0,     0,    41,    46,     0,    43,     0,    40,     0,
-       0,     0,     0,    51,     0,     0,     0,     0,     0,     0,
-       0,    96,   111,   109,     0,    22,    26,    25,    23,    24,
-     115,     0,   118,     0,    70,    72,    74,    76,    75,    77,
-      80,    79,    82,    81,    84,    85,    88,    87,    89,     0,
-      27,    31,    30,    28,    29,     0,    33,    32,     0,    48,
-      42,    44,    38,     0,     0,     0,     0,    52,     0,     0,
-       0,    36,    35,     0,   112,    97,   116,     0,    95,     0,
-      47,     0,    45,    39,     0,     0,    53,     0,     0,     0,
-      58,    68,     0,    49,     0,     0,     0,    59,     0,     0,
-       0,     0,    62,    93,    57,     0,    55,    54,    60,     0,
-       0,    61,    63,     0,     0,    66,    56,    64
+      10,     0,     0,    41,    46,     0,     0,    43,     0,    40,
+       0,     0,     0,     0,    52,     0,     0,     0,     0,     0,
+       0,     0,    97,   112,   110,     0,    22,    26,    25,    23,
+      24,   116,     0,   119,     0,    71,    73,    75,    77,    76,
+      78,    81,    80,    83,    82,    85,    86,    89,    88,    90,
+       0,    27,    31,    30,    28,    29,     0,    33,    32,     0,
+      48,     0,    42,    44,    38,     0,     0,     0,     0,    53,
+       0,     0,     0,    36,    35,     0,   113,    98,   117,     0,
+      96,     0,    47,     0,    50,    45,    39,     0,     0,    54,
+       0,     0,     0,    59,    69,     0,    49,     0,     0,     0,
+      60,     0,     0,     0,     0,    63,    94,    58,     0,    56,
+      55,    61,     0,     0,    62,    64,     0,     0,    67,    57,
+      65
   };
 
   const short int
   parser::yypgoto_[] =
   {
-     -86,   -86,   -86,   -20,     4,   -86,   -86,   -86,   -86,    -7,
-      17,   -86,    34,   -86,   -86,   -86,   -86,   -86,   -23,   -86,
-       3,   -86,   104,   105,    36,    43,    32,   -16,   184,     0,
-     -86,   -86,   -86,   -78,   -86,   -85
+     -85,   -85,   -85,   -20,     4,   -85,   -85,   -85,   -85,    -7,
+      31,   -85,    28,   -85,   -85,   -85,   -85,   -85,   -13,   -85,
+       3,   -85,   113,   117,    -4,     2,    19,    27,   199,     0,
+     -85,   -85,   -85,   -79,   -85,   -84
   };
 
   const short int
   parser::yydefgoto_[] =
   {
       -1,    26,    27,    28,    68,    30,    31,    32,    33,    62,
-     125,   126,    69,    34,    35,    36,    37,    38,   221,   222,
+     126,   127,    69,    34,    35,    36,    37,    38,   224,   225,
       39,    40,    41,    42,    43,    44,    45,    46,    47,    57,
       49,    50,    51,    78,    52,    89
   };
@@ -1768,159 +1776,157 @@ namespace  sqf { namespace sqc { namespace bison  {
   const short int
   parser::yytable_[] =
   {
-      48,   150,   144,    60,    29,    56,    58,    91,    72,    92,
-      48,    48,    64,   178,   113,   123,   107,   114,   108,   115,
-      59,    75,    77,    63,   116,    66,   117,    48,    88,    48,
-     109,    29,   110,    29,   111,    61,   179,   151,   152,    80,
-     103,   104,   105,   106,    65,    70,   124,   134,    81,   121,
-     122,    82,    71,    83,   127,   138,   139,    53,    84,     7,
-      85,    90,    48,    73,   194,    96,   196,    48,    60,   132,
-      74,    29,    13,    14,   137,    93,    53,   140,     7,    18,
-      94,    19,    76,    77,   145,   146,   147,   148,   149,    88,
-      95,    13,    14,   166,   167,   168,   128,    97,    18,   153,
-      19,    98,    54,    99,   100,   101,   102,   219,   220,    21,
-      22,    55,    24,    25,   112,   169,   170,   171,   172,   173,
-     174,   212,   183,   118,   176,   177,    80,    48,    21,    22,
-      55,    24,    25,   119,   185,   156,   157,   158,   159,   164,
-     165,   191,   192,   120,   131,    77,   160,   161,   162,   163,
-     129,   130,   135,   136,    88,   141,    53,   142,     7,   143,
-     175,   182,   180,   181,   184,   186,   187,   190,   188,   189,
-     197,    13,    14,   193,   195,   199,   124,   198,    18,   201,
-      19,   200,   205,    48,   209,   214,    48,   204,   216,   208,
-     217,   207,   218,    48,   223,   231,   230,   234,   202,   232,
-     211,   154,    77,   155,   213,    79,     0,     0,   215,    22,
-      55,    24,    25,     0,    48,    48,    48,   203,    48,     0,
-     206,     0,   229,     0,     0,     0,     0,   210,   233,     0,
-      48,     0,     0,    48,    48,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,   224,   226,
-     227,     0,   228,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,   235,    -2,     1,   236,   237,     2,
-       3,     4,     5,     6,     7,     8,     9,     0,     0,     0,
-      10,    11,     0,     0,    12,     0,     0,    13,    14,    15,
-      16,    17,     0,     0,    18,     0,    19,     0,    20,     0,
+      48,   145,   151,   123,    29,    56,    58,    91,    72,    92,
+      48,    48,    60,    64,   179,   109,   107,   110,   108,   111,
+     113,    75,    77,   114,    59,   115,    73,    48,    88,    48,
+     116,    29,   117,    29,   124,   125,    63,   180,    66,    70,
+      99,   100,   101,   102,    61,    65,    71,   135,   103,   104,
+     105,   106,   121,   122,   128,   139,   140,    53,    90,     7,
+     124,   125,    48,    60,   196,   152,   153,    48,   198,   133,
+      74,    29,    13,    14,   138,   222,   223,   141,    53,    18,
+       7,    19,    76,    77,   146,   147,   148,   149,   150,    88,
+     129,    97,    93,    13,    14,   157,   158,   159,   160,   154,
+      18,    94,    19,    95,    54,   161,   162,   163,   164,    21,
+      22,    55,    24,    25,    96,   170,   171,   172,   173,   174,
+     175,    98,   215,   185,   177,   178,   165,   166,    48,   112,
+      21,    22,    55,    24,    25,   187,   167,   168,   169,   118,
+      80,   119,   193,   194,   130,    53,    77,     7,   120,   131,
+     132,   137,   136,   142,    80,    88,   184,   176,   143,   144,
+      13,    14,   181,    81,   183,   182,    82,    18,    83,    19,
+     188,   189,   192,    84,   186,    85,   190,   191,   199,   195,
+     197,   201,   202,   200,   203,    48,   208,   212,    48,   207,
+     204,   217,   211,   210,   219,    48,   220,    21,    22,    55,
+      24,    25,   214,   221,    77,   226,   216,   234,   233,   237,
+     155,   218,   235,   206,   205,   156,   209,    48,    48,    48,
+      79,    48,     0,   213,     0,   232,     0,     0,     0,     0,
+       0,   236,     0,    48,     0,     0,    48,    48,     0,     0,
+       0,     0,     0,     0,     0,   227,   229,   230,     0,   231,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,   238,    -2,     1,   239,   240,     2,     3,     4,     5,
+       6,     7,     8,     9,     0,     0,     0,    10,    11,     0,
+       0,    12,     0,     0,    13,    14,    15,    16,    17,     0,
+       0,    18,     0,    19,     0,    20,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,    21,    22,    23,    24,    25,    -6,
+       0,    21,    22,    23,    24,    25,    -6,     1,     0,     0,
+       2,     3,     4,     5,     6,     7,     8,     9,     0,     0,
+       0,    10,    11,     0,     0,    12,     0,     0,    13,    14,
+       0,    16,    17,     0,    -6,    18,     0,    19,     0,    20,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,    21,    22,    23,    24,    25,
        1,     0,     0,     2,     3,     4,     5,     6,     7,     8,
-       9,     0,     0,     0,    10,    11,     0,     0,    12,     0,
-       0,    13,    14,     0,    16,    17,     0,    -6,    18,     0,
+       9,     0,     0,     0,    10,    11,     0,     0,    12,   -66,
+     -66,    13,    14,     0,    16,    17,    67,   -66,    18,     0,
       19,     0,    20,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,    21,    22,
       23,    24,    25,     1,     0,     0,     2,     3,     4,     5,
        6,     7,     8,     9,     0,     0,     0,    10,    11,     0,
-       0,    12,   -65,   -65,    13,    14,     0,    16,    17,    67,
-     -65,    18,     0,    19,     0,    20,     0,     0,     0,     0,
+     228,    12,     0,     0,    13,    14,     0,    16,    17,    67,
+       0,    18,     0,    19,     0,    20,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,    21,    22,    23,    24,    25,     1,     0,     0,     2,
        3,     4,     5,     6,     7,     8,     9,     0,     0,     0,
-      10,    11,     0,   225,    12,     0,     0,    13,    14,     0,
+      10,    11,     0,     0,    12,     0,     0,    13,    14,     0,
       16,    17,    67,     0,    18,     0,    19,     0,    20,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,    21,    22,    23,    24,    25,     1,
        0,     0,     2,     3,     4,     5,     6,     7,     8,     9,
        0,     0,     0,    10,    11,     0,     0,    12,     0,     0,
-      13,    14,     0,    16,    17,    67,     0,    18,     0,    19,
+      13,    14,     0,    16,    17,     0,   134,    18,     0,    19,
        0,    20,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,    21,    22,    23,
       24,    25,     1,     0,     0,     2,     3,     4,     5,     6,
-       7,     8,     9,     0,     0,     0,    10,    11,     0,     0,
-      12,     0,     0,    13,    14,     0,    16,    17,     0,   133,
-      18,     0,    19,     0,    20,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-      21,    22,    23,    24,    25,     1,     0,     0,     2,     3,
-       4,     5,     6,     7,     8,     9,    53,     0,     7,    10,
-      11,     0,     0,    12,     0,     0,    13,    14,     0,    16,
-      17,    13,    14,    18,    53,    19,     7,    20,    18,     0,
-      19,     0,     0,     0,     0,     0,     0,     0,     0,    13,
-      14,     0,     0,     0,     0,     0,    18,     0,    19,     0,
-       0,     0,     0,    21,    22,    23,    24,    25,    21,    22,
-      55,    24,    25,    86,    87,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,    21,    22,    55,    24,
-      25
+       7,     8,     9,    53,     0,     7,    10,    11,     0,     0,
+      12,     0,     0,    13,    14,     0,    16,    17,    13,    14,
+      18,    53,    19,     7,    20,    18,     0,    19,     0,     0,
+       0,     0,     0,     0,     0,     0,    13,    14,     0,     0,
+       0,     0,     0,    18,     0,    19,     0,     0,     0,     0,
+      21,    22,    23,    24,    25,    21,    22,    55,    24,    25,
+      86,    87,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,    22,    55,    24,    25
   };
 
   const short int
   parser::yycheck_[] =
   {
-       0,    86,    80,    29,     0,     2,     3,    27,    15,    29,
-      10,    11,    29,    38,    38,    30,    47,    41,    49,    43,
-      61,    18,    19,     7,    48,    29,    50,    27,    25,    29,
-      40,    27,    42,    29,    44,    61,    61,    64,    65,    29,
-      51,    52,    53,    54,    61,    11,    61,    67,    38,    37,
-      38,    41,    29,    43,    61,    37,    38,     7,    48,     9,
-      50,     0,    62,    61,   142,    36,   151,    67,    29,    66,
-      29,    67,    22,    23,    71,    33,     7,    74,     9,    29,
-      33,    31,    32,    80,    81,    82,    83,    84,    85,    86,
-      33,    22,    23,   109,   110,   111,    62,    45,    29,    96,
-      31,    39,    33,    55,    56,    57,    58,    20,    21,    59,
-      60,    61,    62,    63,    31,   112,   113,   114,   115,   116,
-     117,   199,   129,    35,   121,   122,    29,   127,    59,    60,
-      61,    62,    63,    33,   131,    99,   100,   101,   102,   107,
-     108,   138,   139,    33,    13,   142,   103,   104,   105,   106,
-      61,    61,    26,    17,   151,    30,     7,    34,     9,    32,
-      61,   127,    30,    34,    46,    30,    28,    30,    29,    29,
-      46,    22,    23,    30,    30,    29,    61,    32,    29,    38,
-      31,   178,    14,   183,    27,    30,   186,   184,    12,    61,
-      30,   188,    30,   193,    30,    28,    46,    46,   181,   222,
-     197,    97,   199,    98,   201,    21,    -1,    -1,   205,    60,
-      61,    62,    63,    -1,   214,   215,   216,   183,   218,    -1,
-     186,    -1,   219,    -1,    -1,    -1,    -1,   193,   225,    -1,
-     230,    -1,    -1,   233,   234,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,   214,   215,
-     216,    -1,   218,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,   230,     0,     1,   233,   234,     4,
-       5,     6,     7,     8,     9,    10,    11,    -1,    -1,    -1,
-      15,    16,    -1,    -1,    19,    -1,    -1,    22,    23,    24,
-      25,    26,    -1,    -1,    29,    -1,    31,    -1,    33,    -1,
+       0,    80,    86,    30,     0,     2,     3,    27,    15,    29,
+      10,    11,    29,    29,    38,    40,    47,    42,    49,    44,
+      38,    18,    19,    41,    61,    43,    61,    27,    25,    29,
+      48,    27,    50,    29,    61,    62,     7,    61,    29,    11,
+      55,    56,    57,    58,    61,    61,    29,    67,    51,    52,
+      53,    54,    37,    38,    61,    37,    38,     7,     0,     9,
+      61,    62,    62,    29,   143,    64,    65,    67,   152,    66,
+      29,    67,    22,    23,    71,    20,    21,    74,     7,    29,
+       9,    31,    32,    80,    81,    82,    83,    84,    85,    86,
+      62,    45,    33,    22,    23,    99,   100,   101,   102,    96,
+      29,    33,    31,    33,    33,   103,   104,   105,   106,    59,
+      60,    61,    62,    63,    36,   112,   113,   114,   115,   116,
+     117,    39,   201,   130,   121,   122,   107,   108,   128,    31,
+      59,    60,    61,    62,    63,   132,   109,   110,   111,    35,
+      29,    33,   139,   140,    61,     7,   143,     9,    33,    61,
+      13,    17,    26,    30,    29,   152,   128,    61,    34,    32,
+      22,    23,    46,    38,    34,    30,    41,    29,    43,    31,
+      30,    28,    30,    48,    46,    50,    29,    29,    46,    30,
+      30,    29,   179,    32,    38,   185,    14,    27,   188,   186,
+      61,    30,    61,   190,    12,   195,    30,    59,    60,    61,
+      62,    63,   199,    30,   201,    30,   203,    28,    46,    46,
+      97,   208,   225,   185,   183,    98,   188,   217,   218,   219,
+      21,   221,    -1,   195,    -1,   222,    -1,    -1,    -1,    -1,
+      -1,   228,    -1,   233,    -1,    -1,   236,   237,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,   217,   218,   219,    -1,   221,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,   233,     0,     1,   236,   237,     4,     5,     6,     7,
+       8,     9,    10,    11,    -1,    -1,    -1,    15,    16,    -1,
+      -1,    19,    -1,    -1,    22,    23,    24,    25,    26,    -1,
+      -1,    29,    -1,    31,    -1,    33,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    59,    60,    61,    62,    63,     0,
+      -1,    59,    60,    61,    62,    63,     0,     1,    -1,    -1,
+       4,     5,     6,     7,     8,     9,    10,    11,    -1,    -1,
+      -1,    15,    16,    -1,    -1,    19,    -1,    -1,    22,    23,
+      -1,    25,    26,    -1,    28,    29,    -1,    31,    -1,    33,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    59,    60,    61,    62,    63,
        1,    -1,    -1,     4,     5,     6,     7,     8,     9,    10,
-      11,    -1,    -1,    -1,    15,    16,    -1,    -1,    19,    -1,
-      -1,    22,    23,    -1,    25,    26,    -1,    28,    29,    -1,
+      11,    -1,    -1,    -1,    15,    16,    -1,    -1,    19,    20,
+      21,    22,    23,    -1,    25,    26,    27,    28,    29,    -1,
       31,    -1,    33,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    59,    60,
       61,    62,    63,     1,    -1,    -1,     4,     5,     6,     7,
        8,     9,    10,    11,    -1,    -1,    -1,    15,    16,    -1,
-      -1,    19,    20,    21,    22,    23,    -1,    25,    26,    27,
-      28,    29,    -1,    31,    -1,    33,    -1,    -1,    -1,    -1,
+      18,    19,    -1,    -1,    22,    23,    -1,    25,    26,    27,
+      -1,    29,    -1,    31,    -1,    33,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    59,    60,    61,    62,    63,     1,    -1,    -1,     4,
        5,     6,     7,     8,     9,    10,    11,    -1,    -1,    -1,
-      15,    16,    -1,    18,    19,    -1,    -1,    22,    23,    -1,
+      15,    16,    -1,    -1,    19,    -1,    -1,    22,    23,    -1,
       25,    26,    27,    -1,    29,    -1,    31,    -1,    33,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    59,    60,    61,    62,    63,     1,
       -1,    -1,     4,     5,     6,     7,     8,     9,    10,    11,
       -1,    -1,    -1,    15,    16,    -1,    -1,    19,    -1,    -1,
-      22,    23,    -1,    25,    26,    27,    -1,    29,    -1,    31,
+      22,    23,    -1,    25,    26,    -1,    28,    29,    -1,    31,
       -1,    33,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    59,    60,    61,
       62,    63,     1,    -1,    -1,     4,     5,     6,     7,     8,
-       9,    10,    11,    -1,    -1,    -1,    15,    16,    -1,    -1,
-      19,    -1,    -1,    22,    23,    -1,    25,    26,    -1,    28,
-      29,    -1,    31,    -1,    33,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      59,    60,    61,    62,    63,     1,    -1,    -1,     4,     5,
-       6,     7,     8,     9,    10,    11,     7,    -1,     9,    15,
-      16,    -1,    -1,    19,    -1,    -1,    22,    23,    -1,    25,
-      26,    22,    23,    29,     7,    31,     9,    33,    29,    -1,
-      31,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    22,
-      23,    -1,    -1,    -1,    -1,    -1,    29,    -1,    31,    -1,
-      -1,    -1,    -1,    59,    60,    61,    62,    63,    59,    60,
-      61,    62,    63,    64,    65,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    59,    60,    61,    62,
-      63
+       9,    10,    11,     7,    -1,     9,    15,    16,    -1,    -1,
+      19,    -1,    -1,    22,    23,    -1,    25,    26,    22,    23,
+      29,     7,    31,     9,    33,    29,    -1,    31,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    22,    23,    -1,    -1,
+      -1,    -1,    -1,    29,    -1,    31,    -1,    -1,    -1,    -1,
+      59,    60,    61,    62,    63,    59,    60,    61,    62,    63,
+      64,    65,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    60,    61,    62,    63
   };
 
   const unsigned char
@@ -1938,18 +1944,19 @@ namespace  sqf { namespace sqc { namespace bison  {
        0,    69,    69,    33,    33,    33,    36,    45,    39,    55,
       56,    57,    58,    51,    52,    53,    54,    47,    49,    40,
       42,    44,    31,    38,    41,    43,    48,    50,    35,    33,
-      33,    37,    38,    30,    61,    76,    77,    75,    78,    61,
-      61,    13,    86,    28,    69,    26,    17,    86,    37,    38,
-      86,    30,    34,    32,    99,    86,    86,    86,    86,    86,
-     101,    64,    65,    86,    88,    89,    90,    90,    90,    90,
-      91,    91,    91,    91,    92,    92,    93,    93,    93,    86,
-      86,    86,    86,    86,    86,    61,    86,    86,    38,    61,
-      30,    34,    78,    75,    46,    86,    30,    28,    29,    29,
-      30,    86,    86,    30,    99,    30,   101,    46,    32,    29,
-      86,    38,    76,    78,    86,    14,    78,    86,    61,    27,
-      78,    86,    99,    86,    30,    86,    12,    30,    30,    20,
-      21,    84,    85,    30,    78,    18,    78,    78,    78,    86,
-      46,    28,    84,    86,    46,    78,    78,    78
+      33,    37,    38,    30,    61,    62,    76,    77,    75,    78,
+      61,    61,    13,    86,    28,    69,    26,    17,    86,    37,
+      38,    86,    30,    34,    32,    99,    86,    86,    86,    86,
+      86,   101,    64,    65,    86,    88,    89,    90,    90,    90,
+      90,    91,    91,    91,    91,    92,    92,    93,    93,    93,
+      86,    86,    86,    86,    86,    86,    61,    86,    86,    38,
+      61,    46,    30,    34,    78,    75,    46,    86,    30,    28,
+      29,    29,    30,    86,    86,    30,    99,    30,   101,    46,
+      32,    29,    86,    38,    61,    76,    78,    86,    14,    78,
+      86,    61,    27,    78,    86,    99,    86,    30,    86,    12,
+      30,    30,    20,    21,    84,    85,    30,    78,    18,    78,
+      78,    78,    86,    46,    28,    84,    86,    46,    78,    78,
+      78
   };
 
   const unsigned char
@@ -1960,13 +1967,13 @@ namespace  sqf { namespace sqc { namespace bison  {
       70,    70,    71,    71,    71,    71,    71,    71,    71,    71,
       71,    71,    72,    72,    72,    72,    72,    72,    73,    73,
       74,    75,    75,    76,    76,    76,    77,    77,    77,    77,
-      78,    78,    78,    79,    79,    80,    80,    80,    81,    81,
-      82,    83,    84,    84,    85,    85,    85,    86,    86,    87,
-      87,    88,    88,    89,    89,    89,    89,    89,    90,    90,
-      90,    90,    90,    91,    91,    91,    92,    92,    92,    92,
-      93,    93,    94,    94,    94,    95,    96,    96,    96,    96,
-      97,    97,    97,    97,    97,    97,    97,    97,    98,    98,
-      99,    99,    99,   100,   100,   101,   101,   101,   101
+      77,    78,    78,    78,    79,    79,    80,    80,    80,    81,
+      81,    82,    83,    84,    84,    85,    85,    85,    86,    86,
+      87,    87,    88,    88,    89,    89,    89,    89,    89,    90,
+      90,    90,    90,    90,    91,    91,    91,    92,    92,    92,
+      92,    93,    93,    94,    94,    94,    95,    96,    96,    96,
+      96,    97,    97,    97,    97,    97,    97,    97,    97,    98,
+      98,    99,    99,    99,   100,   100,   101,   101,   101,   101
   };
 
   const unsigned char
@@ -1977,13 +1984,13 @@ namespace  sqf { namespace sqc { namespace bison  {
        1,     1,     3,     3,     3,     3,     3,     3,     3,     3,
        3,     3,     4,     4,     2,     4,     4,     2,     4,     5,
        3,     2,     3,     1,     2,     3,     1,     3,     2,     4,
-       1,     2,     3,     5,     7,     7,     9,     7,     5,     6,
-       7,     7,     1,     2,     4,     3,     3,     1,     5,     1,
-       3,     1,     3,     1,     3,     3,     3,     3,     1,     3,
-       3,     3,     3,     1,     3,     3,     1,     3,     3,     3,
-       1,     2,     1,     6,     1,     4,     3,     4,     1,     1,
-       1,     1,     1,     1,     1,     1,     1,     1,     2,     3,
-       1,     2,     3,     1,     2,     2,     3,     1,     2
+       3,     1,     2,     3,     5,     7,     7,     9,     7,     5,
+       6,     7,     7,     1,     2,     4,     3,     3,     1,     5,
+       1,     3,     1,     3,     1,     3,     3,     3,     3,     1,
+       3,     3,     3,     3,     1,     3,     3,     1,     3,     3,
+       3,     1,     2,     1,     6,     1,     4,     3,     4,     1,
+       1,     1,     1,     1,     1,     1,     1,     1,     1,     2,
+       3,     1,     2,     3,     1,     2,     2,     3,     1,     2
   };
 
 
@@ -2016,18 +2023,18 @@ namespace  sqf { namespace sqc { namespace bison  {
   const unsigned short int
   parser::yyrline_[] =
   {
-       0,   223,   223,   224,   225,   228,   231,   232,   235,   236,
-     237,   238,   239,   240,   241,   242,   243,   244,   245,   246,
-     247,   248,   251,   252,   253,   254,   255,   256,   257,   258,
-     259,   260,   263,   264,   265,   266,   267,   268,   271,   272,
-     275,   278,   279,   282,   283,   284,   286,   287,   288,   289,
-     291,   292,   293,   296,   297,   300,   301,   302,   305,   306,
-     309,   312,   315,   316,   319,   320,   321,   324,   325,   327,
-     328,   330,   331,   333,   334,   335,   336,   337,   339,   340,
-     341,   342,   343,   345,   346,   347,   349,   350,   351,   352,
-     354,   355,   357,   358,   359,   361,   363,   364,   365,   366,
-     368,   369,   370,   371,   372,   373,   374,   375,   377,   378,
-     380,   381,   382,   384,   385,   387,   388,   389,   390
+       0,   224,   224,   225,   226,   229,   232,   233,   236,   237,
+     238,   239,   240,   241,   242,   243,   244,   245,   246,   247,
+     248,   249,   252,   253,   254,   255,   256,   257,   258,   259,
+     260,   261,   264,   265,   266,   267,   268,   269,   272,   273,
+     276,   279,   280,   283,   284,   285,   287,   288,   289,   290,
+     291,   293,   294,   295,   298,   299,   302,   303,   304,   307,
+     308,   311,   314,   317,   318,   321,   322,   323,   326,   327,
+     329,   330,   332,   333,   335,   336,   337,   338,   339,   341,
+     342,   343,   344,   345,   347,   348,   349,   351,   352,   353,
+     354,   356,   357,   359,   360,   361,   363,   365,   366,   367,
+     368,   370,   371,   372,   373,   374,   375,   376,   377,   379,
+     380,   382,   383,   384,   386,   387,   389,   390,   391,   392
   };
 
   // Print the state stack on the debug stream.
@@ -2062,8 +2069,8 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 #line 8 "parser.y" // lalr1.cc:1167
 } } } //  sqf::sqc::bison 
-#line 2066 "parser.tab.cc" // lalr1.cc:1167
-#line 392 "parser.y" // lalr1.cc:1168
+#line 2073 "parser.tab.cc" // lalr1.cc:1167
+#line 394 "parser.y" // lalr1.cc:1168
 
 
 #include "sqc_parser.h"

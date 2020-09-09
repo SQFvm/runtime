@@ -66,6 +66,7 @@
                FUNCTION,
                ARGLIST,
                ARGITEM,
+               ARGITEM_EMPLACE,
                ARGITEM_DEFAULT,
                ARGITEM_TYPE,
                ARGITEM_TYPE_DEFAULT,
@@ -146,7 +147,7 @@
           };
      }
 
-#line 150 "parser.tab.hh" // lalr1.cc:377
+#line 151 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -218,12 +219,12 @@
 
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 
 #line 8 "parser.y" // lalr1.cc:377
 namespace  sqf { namespace sqc { namespace bison  {
-#line 227 "parser.tab.hh" // lalr1.cc:377
+#line 228 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -1091,7 +1092,7 @@ namespace  sqf { namespace sqc { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 730,     ///< Last index in yytable_.
+      yylast_ = 727,     ///< Last index in yytable_.
       yynnts_ = 36,  ///< Number of nonterminal symbols.
       yyfinal_ = 90, ///< Termination state number.
       yyterror_ = 1,
@@ -2007,7 +2008,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 #line 8 "parser.y" // lalr1.cc:377
 } } } //  sqf::sqc::bison 
-#line 2011 "parser.tab.hh" // lalr1.cc:377
+#line 2012 "parser.tab.hh" // lalr1.cc:377
 
 
 
