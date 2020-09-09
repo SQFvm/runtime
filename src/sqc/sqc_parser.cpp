@@ -94,7 +94,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         std::string var(node.children[0].token.contents);
         auto tmp = var;
         std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
-        auto fres = std::find(locals.begin(), locals.end(), var);
+        auto fres = std::find_if(locals.begin(), locals.end(), [&var](auto& it) { return it.ident == var; });
         if (fres != locals.end())
         {
             set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>(fres->replace));
@@ -113,7 +113,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
 
         // Push Left-Value (self)
-        auto fres = std::find(locals.begin(), locals.end(), var);
+        auto fres = std::find_if(locals.begin(), locals.end(), [&var](auto& it) { return it.ident == var; });
         if (fres != locals.end())
         {
             set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>(fres->replace));
@@ -147,7 +147,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         }
 
         // Assign Value
-        fres = std::find(locals.begin(), locals.end(), var);
+        fres = std::find_if(locals.begin(), locals.end(), [&var](auto& it) { return it.ident == var; });
         if (fres != locals.end())
         {
             set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>(fres->replace));
@@ -893,7 +893,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
             // Emit function
             std::string var(node.children[0].token.contents);
-            auto fres = std::find(locals.begin(), locals.end(), var);
+            auto fres = std::find_if(locals.begin(), locals.end(), [&var](auto& it) { return it.ident == var; });
             if (fres != locals.end())
             {
                 set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>(fres->replace));
@@ -951,7 +951,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     } break;
     case ::sqf::sqc::bison::astkind::GET_VARIABLE: {
         std::string var(node.token.contents);
-        auto fres = std::find(locals.begin(), locals.end(), var);
+        auto fres = std::find_if(locals.begin(), locals.end(), [&var](auto& it) { return it.ident == var; });
         if (fres != locals.end())
         {
             set.push_back(node.token, std::make_shared<opcodes::get_variable>(fres->replace));
