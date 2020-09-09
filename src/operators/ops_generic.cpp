@@ -445,7 +445,7 @@ namespace
                 {
                     // Check if exit condition is met
                     auto updated = *value + m_for.step();
-                    if (m_for.step() > 0 ?
+                    if (m_for.step() >= 0 ?
                         updated > m_for.to() :
                         updated < m_for.to())
                     {
