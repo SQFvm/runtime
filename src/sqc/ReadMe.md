@@ -68,6 +68,9 @@ switch (5)
 
 // Formatable string expressions
 diag_log($"test {"string"} to test {1} or {[1,2,3].select(1)} features of {""""}formatable"" strings! {{ empty btw. gets {} }}");
+
+// select range from array > 2
+arr.select(function(it: "_x") { return it > 2; });
 ```
 
 # Same Example compiled to SQF
@@ -112,5 +115,6 @@ switch 5 do {
     case 3 : { diag_log "codeblock with brackets" };
     default { diag_log "also simple to do" }
 };
-diag_log format ["test %1 to test %2 or %3 features of %4formatable"" strings! { empty btw. gets %5 }", "string", 1, [1, 2, 3] select 1, """", nil]
+diag_log format ["test %1 to test %2 or %3 features of %4formatable"" strings! { empty btw. gets %5 }", "string", 1, [1, 2, 3] select 1, """", nil];
+_arr select { scopename "___sqc_func"; _x > 2 }
 ```
