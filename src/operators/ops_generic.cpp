@@ -254,7 +254,7 @@ namespace
     {
         if (left.data<d_boolean, bool>())
         {
-            runtime.context_active().current_frame().seek(0, frame::seekpos::end);
+            runtime.context_active().current_frame().die();
             runtime.context_active().push_frame({ runtime.default_value_scope(), right.data<d_code, instruction_set>() });
             return {};
         }

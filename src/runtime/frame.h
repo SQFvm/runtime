@@ -89,6 +89,7 @@ namespace sqf::runtime
         std::shared_ptr<sqf::runtime::value_scope> m_globals_value_scope;
         bool m_bubble_variable;
         bool m_started;
+        bool m_die;
         size_t m_value_stack_pos;
 
     private:
@@ -112,7 +113,8 @@ namespace sqf::runtime
             m_error_behavior(error_behavior),
             m_globals_value_scope(globals_scope),
             m_bubble_variable(true),
-            m_started(false)
+            m_started(false),
+            m_die(false)
         {}
 
 #ifdef DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
@@ -251,6 +253,11 @@ namespace sqf::runtime
             if (m_position == m_instruction_set.size()) { return result::done; }
             return ++m_position == m_instruction_set.size() ? result::done : result::ok;
         }
+        void die()
+        {
+            seek(0, ::sqf::runtime::frame::seekpos::end);
+            m_die = true;
+        }
         /// <summary>
         /// Moves current to next instruction.
         /// </summary>
@@ -259,7 +266,7 @@ namespace sqf::runtime
         {
         start:
             auto res = next();
-            if (m_position == m_instruction_set.size() && m_exit_behavior)
+            if (m_position == m_instruction_set.size() && m_exit_behavior && !m_die)
             {
             rerun:
                 switch (m_exit_behavior->enact(runtime, *this))
