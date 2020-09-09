@@ -261,7 +261,26 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
         to_assembly(runtime, local_set, new_locals, node.children[1]);
-        to_assembly(runtime, local_set, new_locals, node.children[2]);
+        if (!node.children[2].children.empty())
+        {
+            auto locals_copy = locals;
+            auto& codeset = node.children[2];
+            auto lastChild = codeset.children.begin() + 1;
+            for (auto it = codeset.children.begin(); it != codeset.children.end(); ++it)
+            {
+                if (it == lastChild && it->kind == ::sqf::sqc::bison::astkind::RETURN)
+                {
+                    if (!it->children.empty())
+                    {
+                        to_assembly(runtime, set, locals, it->children[0]);
+                    }
+                }
+                else
+                {
+                    to_assembly(runtime, set, locals_copy, *it);
+                }
+            }
+        }
         set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set }));
         set.push_back(node.token, std::make_shared<opcodes::assign_to>(std::string(node.children[0].token.contents)));
     } break;
@@ -272,7 +291,26 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
         to_assembly(runtime, local_set, new_locals, node.children[1]);
-        to_assembly(runtime, local_set, new_locals, node.children[2]);
+        if (!node.children[2].children.empty())
+        {
+            auto locals_copy = locals;
+            auto& codeset = node.children[2];
+            auto lastChild = codeset.children.begin() + 1;
+            for (auto it = codeset.children.begin(); it != codeset.children.end(); ++it)
+            {
+                if (it == lastChild && it->kind == ::sqf::sqc::bison::astkind::RETURN)
+                {
+                    if (!it->children.empty())
+                    {
+                        to_assembly(runtime, set, locals, it->children[0]);
+                    }
+                }
+                else
+                {
+                    to_assembly(runtime, set, locals_copy, *it);
+                }
+            }
+        }
 
         // Push instructions as string
         auto code = std::make_shared<::sqf::types::d_code>(runtime::instruction_set{ local_set });
@@ -291,7 +329,26 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
         to_assembly(runtime, local_set, new_locals, node.children[0]);
-        to_assembly(runtime, local_set, new_locals, node.children[1]);
+        if (!node.children[1].children.empty())
+        {
+            auto locals_copy = locals;
+            auto& codeset = node.children[1];
+            auto lastChild = codeset.children.begin() + 1;
+            for (auto it = codeset.children.begin(); it != codeset.children.end(); ++it)
+            {
+                if (it == lastChild && it->kind == ::sqf::sqc::bison::astkind::RETURN)
+                {
+                    if (!it->children.empty())
+                    {
+                        to_assembly(runtime, set, locals, it->children[0]);
+                    }
+                }
+                else
+                {
+                    to_assembly(runtime, set, locals_copy, *it);
+                }
+            }
+        }
         set.push_back(node.token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set }));
     } break;
     case ::sqf::sqc::bison::astkind::ARGLIST: {
