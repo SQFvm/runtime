@@ -245,8 +245,11 @@ int main(int argc, char** argv)
         "Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. " RELPATHHINT, false, "PATH|VIRTUAL");
     cmd.add(virtualArg);
 
-    TCLAP::SwitchArg verboseArg("", "verbose", "Enables additional output.", false);
+    TCLAP::SwitchArg verboseArg("V", "verbose", "Enables additional output.", false);
     cmd.add(verboseArg);
+
+    TCLAP::SwitchArg traceArg("T", "trace", "Enables trace output.", false);
+    cmd.add(traceArg);
 
     TCLAP::SwitchArg parseOnlyArg("", "parse-only", "Disables code execution and performs only parsing.", false);
     cmd.add(parseOnlyArg);
@@ -430,6 +433,8 @@ int main(int argc, char** argv)
 
 
     StdOutLogger logger;
+    logger.setEnabled(loglevel::verbose, verboseArg.getValue());
+    logger.setEnabled(loglevel::trace, traceArg.getValue());
     sqf::runtime::runtime::runtime_conf conf;
     conf.enable_classname_check = enableClassnameCheckArg.getValue();
     conf.print_context_work_to_log_on_exit = !noWrokPrintArg.getValue();
