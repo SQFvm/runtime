@@ -439,17 +439,25 @@ namespace sqf::sqc
                         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(iter);
                 } break;
                 case etoken::t_number: {
-                    if (is_match<'-', '+'>(iter))
+                    size_t res = 0;
+                    // match (optional) prefix
+                    res = is_match<'-', '+'>(iter);
+                    len += res; iter += res;
+
+                    // match first part of number
+                    res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter);
+                    if (res == 0) { len = 0; break; }
+                    len += res; iter += res;
+
+                    // match optional dot
+                    if (is_match<'.'>(iter))
                     {
-                        len = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter + 1) + 1;
-                    }
-                    else
-                    {
-                        len = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter); 
-                    }
-                    if (len > 0 && is_match<'.'>(iter + len - 1))
-                    {
-                        len--;
+                        len++; iter++;
+
+                        // match second part of number
+                        res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter);
+                        if (res == 0) { len--; iter--; }
+                        else { len += res; iter += res; }
                     }
                 } break;
                 }

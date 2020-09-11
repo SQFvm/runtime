@@ -272,12 +272,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 {
                     if (!it->children.empty())
                     {
-                        to_assembly(runtime, set, locals, it->children[0]);
+                        to_assembly(runtime, local_set, locals, it->children[0]);
                     }
                 }
                 else
                 {
-                    to_assembly(runtime, set, locals_copy, *it);
+                    to_assembly(runtime, local_set, locals_copy, *it);
                 }
             }
         }
@@ -302,12 +302,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 {
                     if (!it->children.empty())
                     {
-                        to_assembly(runtime, set, locals, it->children[0]);
+                        to_assembly(runtime, local_set, locals, it->children[0]);
                     }
                 }
                 else
                 {
-                    to_assembly(runtime, set, locals_copy, *it);
+                    to_assembly(runtime, local_set, locals_copy, *it);
                 }
             }
         }
@@ -340,12 +340,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 {
                     if (!it->children.empty())
                     {
-                        to_assembly(runtime, set, locals, it->children[0]);
+                        to_assembly(runtime, local_set, locals, it->children[0]);
                     }
                 }
                 else
                 {
-                    to_assembly(runtime, set, locals_copy, *it);
+                    to_assembly(runtime, local_set, locals_copy, *it);
                 }
             }
         }

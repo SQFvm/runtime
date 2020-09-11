@@ -327,37 +327,37 @@ exp01: exp02                          { $$ = $1; }
      | exp02 "?" exp01 ":" exp01      { $$ = sqf::sqc::bison::astnode{ astkind::OP_TERNARY, $4 }; $$.append($1); $$.append($3); $$.append($5); }
      ;
 exp02: exp03                          { $$ = $1; }
-     | exp03 "||" exp03               { $$ = sqf::sqc::bison::astnode{ astkind::OP_OR, $2 }; $$.append($1); $$.append($3); }
+     | exp02 "||" exp03               { $$ = sqf::sqc::bison::astnode{ astkind::OP_OR, $2 }; $$.append($1); $$.append($3); }
      ;
 exp03: exp04                          { $$ = $1; }
-     | exp04 "&&" exp04               { $$ = sqf::sqc::bison::astnode{ astkind::OP_AND, $2 }; $$.append($1); $$.append($3); }
+     | exp03 "&&" exp04               { $$ = sqf::sqc::bison::astnode{ astkind::OP_AND, $2 }; $$.append($1); $$.append($3); }
      ;
 exp04: exp05                          { $$ = $1; }
-     | exp05 "===" exp05              { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUALEXACT, $2 }; $$.append($1); $$.append($3); }
-     | exp05 "!==" exp05              { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUALEXACT, $2 }; $$.append($1); $$.append($3); }
-     | exp05 "==" exp05               { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUAL, $2 }; $$.append($1); $$.append($3); }
-     | exp05 "!=" exp05               { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUAL, $2 }; $$.append($1); $$.append($3); }
+     | exp04 "===" exp05              { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUALEXACT, $2 }; $$.append($1); $$.append($3); }
+     | exp04 "!==" exp05              { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUALEXACT, $2 }; $$.append($1); $$.append($3); }
+     | exp04 "==" exp05               { $$ = sqf::sqc::bison::astnode{ astkind::OP_EQUAL, $2 }; $$.append($1); $$.append($3); }
+     | exp04 "!=" exp05               { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOTEQUAL, $2 }; $$.append($1); $$.append($3); }
      ;
 exp05: exp06                          { $$ = $1; }
-     | exp06 "<"  exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHAN, $2 }; $$.append($1); $$.append($3); }
-     | exp06 "<=" exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHANEQUAL, $2 }; $$.append($1); $$.append($3); }
-     | exp06 ">"  exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHAN, $2 }; $$.append($1); $$.append($3); }
-     | exp06 ">=" exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHANEQUAL, $2 }; $$.append($1); $$.append($3); }
+     | exp05 "<"  exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHAN, $2 }; $$.append($1); $$.append($3); }
+     | exp05 "<=" exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_LESSTHANEQUAL, $2 }; $$.append($1); $$.append($3); }
+     | exp05 ">"  exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHAN, $2 }; $$.append($1); $$.append($3); }
+     | exp05 ">=" exp06               { $$ = sqf::sqc::bison::astnode{ astkind::OP_GREATERTHANEQUAL, $2 }; $$.append($1); $$.append($3); }
      ;
 exp06: exp07                          { $$ = $1; }
-     | exp07 "+" exp07                { $$ = sqf::sqc::bison::astnode{ astkind::OP_PLUS, $2 }; $$.append($1); $$.append($3); }
-     | exp07 "-" exp07                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MINUS, $2 }; $$.append($1); $$.append($3); }
+     | exp06 "+" exp07                { $$ = sqf::sqc::bison::astnode{ astkind::OP_PLUS, $2 }; $$.append($1); $$.append($3); }
+     | exp06 "-" exp07                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MINUS, $2 }; $$.append($1); $$.append($3); }
      ;
 exp07: exp08                          { $$ = $1; }
-     | exp08 "*" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MULTIPLY, $2 }; $$.append($1); $$.append($3); }
-     | exp08 "/" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_DIVIDE, $2 }; $$.append($1); $$.append($3); }
-     | exp08 "%" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_REMAINDER, $2 }; $$.append($1); $$.append($3); }
+     | exp07 "*" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_MULTIPLY, $2 }; $$.append($1); $$.append($3); }
+     | exp07 "/" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_DIVIDE, $2 }; $$.append($1); $$.append($3); }
+     | exp07 "%" exp08                { $$ = sqf::sqc::bison::astnode{ astkind::OP_REMAINDER, $2 }; $$.append($1); $$.append($3); }
      ;
 exp08: exp09                          { $$ = $1; }
-     | "!" exp09                      { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOT, $1 }; $$.append($2);  }
+     | "!" exp08                      { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOT, $1 }; $$.append($2);  }
      ;
 exp09: expp                           { $$ = $1; }
-     | expp "." IDENT "(" explist ")" { $$ = sqf::sqc::bison::astnode{ astkind::OP_BINARY, $3 }; $$.append($1); $$.append($3); $$.append($5); }
+     | exp09 "." IDENT "(" explist ")" { $$ = sqf::sqc::bison::astnode{ astkind::OP_BINARY, $3 }; $$.append($1); $$.append($3); $$.append($5); }
      | arrget                         { $$ = $1; }
      ;
 arrget: exp09 "[" exp01 "]"           { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_GET, tokenizer.create_token() }; $$.append($1); $$.append($3); }
