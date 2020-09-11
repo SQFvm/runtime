@@ -263,7 +263,6 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         to_assembly(runtime, local_set, new_locals, node.children[1]);
         if (!node.children[2].children.empty())
         {
-            auto locals_copy = locals;
             auto& codeset = node.children[2];
             auto lastChild = codeset.children.begin() + 1;
             for (auto it = codeset.children.begin(); it != codeset.children.end(); ++it)
@@ -272,12 +271,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 {
                     if (!it->children.empty())
                     {
-                        to_assembly(runtime, local_set, locals, it->children[0]);
+                        to_assembly(runtime, local_set, new_locals, it->children[0]);
                     }
                 }
                 else
                 {
-                    to_assembly(runtime, local_set, locals_copy, *it);
+                    to_assembly(runtime, local_set, new_locals, *it);
                 }
             }
         }
@@ -293,7 +292,6 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         to_assembly(runtime, local_set, new_locals, node.children[1]);
         if (!node.children[2].children.empty())
         {
-            auto locals_copy = locals;
             auto& codeset = node.children[2];
             auto lastChild = codeset.children.begin() + 1;
             for (auto it = codeset.children.begin(); it != codeset.children.end(); ++it)
@@ -302,12 +300,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 {
                     if (!it->children.empty())
                     {
-                        to_assembly(runtime, local_set, locals, it->children[0]);
+                        to_assembly(runtime, local_set, new_locals, it->children[0]);
                     }
                 }
                 else
                 {
-                    to_assembly(runtime, local_set, locals_copy, *it);
+                    to_assembly(runtime, local_set, new_locals, *it);
                 }
             }
         }
@@ -331,7 +329,6 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         to_assembly(runtime, local_set, new_locals, node.children[0]);
         if (!node.children[1].children.empty())
         {
-            auto locals_copy = locals;
             auto& codeset = node.children[1];
             auto lastChild = codeset.children.begin() + 1;
             for (auto it = codeset.children.begin(); it != codeset.children.end(); ++it)
@@ -340,12 +337,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 {
                     if (!it->children.empty())
                     {
-                        to_assembly(runtime, local_set, locals, it->children[0]);
+                        to_assembly(runtime, local_set, new_locals, it->children[0]);
                     }
                 }
                 else
                 {
-                    to_assembly(runtime, local_set, locals_copy, *it);
+                    to_assembly(runtime, local_set, new_locals, *it);
                 }
             }
         }
@@ -360,7 +357,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
             if (child.kind == ::sqf::sqc::bison::astkind::ARGITEM_EMPLACE)
             {
-                auto lvar = types::d_string::from_sqf(node.token.contents);
+                auto lvar = types::d_string::from_sqf(child.children[0].token.contents);
                 locals.push_back({ var, lvar });
             }
             else
@@ -1008,10 +1005,15 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     } break;
     case ::sqf::sqc::bison::astkind::GET_VARIABLE: {
         std::string var(node.token.contents);
+        std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
         auto fres = std::find_if(locals.begin(), locals.end(), [&var](auto& it) { return it.ident == var; });
         if (fres != locals.end())
         {
             set.push_back(node.token, std::make_shared<opcodes::get_variable>(fres->replace));
+        }
+        else if (runtime.sqfop_exists(::sqf::runtime::sqfop_nular::key{ var }))
+        {
+            set.push_back(node.token, std::make_shared<opcodes::call_nular>(var));
         }
         else
         {
