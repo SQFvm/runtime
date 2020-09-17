@@ -13,6 +13,7 @@
 #include "ops_dummy_nular.h"
 #include "ops_dummy_unary.h"
 #include "ops_dummy_binary.h"
+#include "ops_osspecific.h"
 
 namespace sqf
 {
@@ -39,6 +40,7 @@ namespace sqf
             sqf::operators::ops_dummy_nular(runtime);
             sqf::operators::ops_dummy_unary(runtime);
             sqf::operators::ops_dummy_binary(runtime);
+            sqf::operators::ops_osspecific(runtime);
         }
     }
 }
