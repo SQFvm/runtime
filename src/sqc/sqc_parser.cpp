@@ -1012,16 +1012,24 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         {
             auto matchingOps = runtime.sqfop_unary_by_name(opname);
 
-            if (node.children[1].children.size() > 1)
+            if (node.children.size() == 1)
             {
-                // Emit Right-Argument
-                to_assembly(runtime, set, locals, node.children[1]);
-                set.push_back(node.children[1].token, std::make_shared<opcodes::make_array>(std::max(node.children[1].children.size(), (size_t)1)));
+                log(logmessage::assembly::ExpectedPush({}));
+                set.push_back(node.token, std::make_shared<opcodes::call_nular>("nil"s));
             }
             else
             {
-                // Emit Right-Argument
-                to_assembly(runtime, set, locals, node.children[1]);
+                if (node.children[1].children.size() > 1)
+                { // No arg provided
+                    // Emit Right-Argument
+                    to_assembly(runtime, set, locals, node.children[1]);
+                    set.push_back(node.children[1].token, std::make_shared<opcodes::make_array>(std::max(node.children[1].children.size(), (size_t)1)));
+                }
+                else
+                {
+                    // Emit Right-Argument
+                    to_assembly(runtime, set, locals, node.children[1]);
+                }
             }
 
             // Emit binary operator
@@ -1030,8 +1038,15 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         else
         {
             // Emit Right-Argument
-            to_assembly(runtime, set, locals, node.children[1]);
-            set.push_back(node.token, std::make_shared<opcodes::make_array>(std::max(node.children[1].children.size(), (size_t)1)));
+            if (node.children.size() == 1)
+            { // No arg provided
+                set.push_back(node.token, std::make_shared<opcodes::push>(::sqf::runtime::value({ 0 })));
+            }
+            else
+            {
+                to_assembly(runtime, set, locals, node.children[1]);
+                set.push_back(node.token, std::make_shared<opcodes::make_array>(std::max(node.children[1].children.size(), (size_t)1)));
+            }
 
             // Emit function
             std::string var(node.children[0].token.contents);

@@ -370,6 +370,7 @@ exp09: expp                           { $$ = $1; }
 arrget: exp09 "[" exp01 "]"           { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_GET, tokenizer.create_token() }; $$.append($1); $$.append($3); }
       ;
 expp: "(" exp01 ")"                   { $$ = $2; }
+    | IDENT "(" ")"                   { $$ = sqf::sqc::bison::astnode{ astkind::OP_UNARY, $1 }; $$.append($1); }
     | IDENT "(" explist ")"           { $$ = sqf::sqc::bison::astnode{ astkind::OP_UNARY, $1 }; $$.append($1); $$.append($3); }
     | IDENT                           { $$ = sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $1 }; }
     | "++" IDENT                      { $$ = sqf::sqc::bison::astnode{ astkind::INC_PRE, $1 }; $$.append(sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $2 }); }
