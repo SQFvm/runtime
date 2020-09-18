@@ -15,6 +15,9 @@ namespace sqf::opcodes
 	class get_variable : public sqf::runtime::instruction
 	{
 	private:
+#if _DEBUG
+		std::string ___TYPE = "get_variable";
+#endif
 		std::string m_variable_name;
 	public:
 		get_variable(std::string variable_name) : m_variable_name(variable_name) {}

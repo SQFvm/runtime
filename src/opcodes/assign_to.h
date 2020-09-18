@@ -9,6 +9,9 @@ namespace sqf::opcodes
 	class assign_to : public sqf::runtime::instruction
 	{
 	private:
+#if _DEBUG
+		std::string ___TYPE = "assign_to";
+#endif
 		std::string m_variable_name;
 
 	public:

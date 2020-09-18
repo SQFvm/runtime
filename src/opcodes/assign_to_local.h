@@ -9,6 +9,9 @@ namespace sqf::opcodes
 	class assign_to_local : public sqf::runtime::instruction
 	{
 	private:
+#if _DEBUG
+		std::string ___TYPE = "assign_to_local";
+#endif
 		std::string m_variable_name;
 
 	public:

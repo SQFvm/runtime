@@ -15,6 +15,9 @@ namespace sqf::opcodes
 {
     class call_nular : public sqf::runtime::instruction
     {
+#if _DEBUG
+        std::string ___TYPE = "call_nular";
+#endif
     private:
         std::string m_operator_name;
 

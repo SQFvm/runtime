@@ -9,6 +9,9 @@ namespace sqf::opcodes
 	class push : public sqf::runtime::instruction
 	{
 	private:
+#if _DEBUG
+		std::string ___TYPE = "push";
+#endif
 		sqf::runtime::value m_value;
 
 	public:

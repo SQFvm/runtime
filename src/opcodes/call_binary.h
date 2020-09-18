@@ -11,6 +11,9 @@ namespace sqf::opcodes
 {
     class call_binary : public sqf::runtime::instruction
     {
+#if _DEBUG
+        std::string ___TYPE = "call_binary";
+#endif
     private:
         std::string m_operator_name;
         short m_precedence;

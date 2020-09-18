@@ -10,6 +10,9 @@ namespace sqf::opcodes
 {
     class call_unary : public sqf::runtime::instruction
     {
+#if _DEBUG
+        std::string ___TYPE = "call_unary";
+#endif
     private:
         std::string m_operator_name;
 

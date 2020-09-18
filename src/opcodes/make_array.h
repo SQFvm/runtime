@@ -16,6 +16,9 @@ namespace sqf::opcodes
 {
 	class make_array : public sqf::runtime::instruction
 	{
+#if _DEBUG
+		std::string ___TYPE = "make_array";
+#endif
 	private:
 		size_t m_array_size;
 
