@@ -42,10 +42,15 @@
                ARGITEM_DEFAULT,
                ARGITEM_TYPE,
                ARGITEM_TYPE_DEFAULT,
+               INC_PRE,
+               INC_POST,
+               DEC_PRE,
+               DEC_POST,
                CODEBLOCK,
                IF,
                IFELSE,
                FOR,
+               STATEMENTS,
                FORSTEP,
                FOREACH,
                WHILE,
@@ -189,8 +194,10 @@
 %token <tokenizer::token> VLINEVLINE                "||"
 %token <tokenizer::token> COLON                     ":"
 %token <tokenizer::token> PLUS                      "+"
+%token <tokenizer::token> PLUSPLUS                  "++"
 %token <tokenizer::token> PLUSASSIGN                "+="
 %token <tokenizer::token> MINUS                     "-"
+%token <tokenizer::token> MINUSMINUS                "--"
 %token <tokenizer::token> MINUSASSIGN               "-="
 %token <tokenizer::token> LTEQUAL                   "<="
 %token <tokenizer::token> LT                        "<"
@@ -222,15 +229,15 @@
 /*** BEGIN - Change the grammar rules below ***/
 /*** BEGIN - Change the grammar rules below ***/
 start: %empty
-     | filehead statements                        { result = sqf::sqc::bison::astnode{}; result.append_children($1); result.append_children($2); }
-     | statements                                 { result = sqf::sqc::bison::astnode{}; result.append_children($1); }
+     | filehead statements                        { result = sqf::sqc::bison::astnode{}; result.append_children($1); result.append($2); }
+     | statements                                 { result = sqf::sqc::bison::astnode{}; result.append($1); }
      ;
 
 filehead: "params" funchead                       { $$ = $2; }
         ;
 
-statements: statement                             { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
-          | statement statements                  { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($2); }
+statements: statement                             { $$ = sqf::sqc::bison::astnode{ astkind::STATEMENTS, tokenizer.create_token() }; $$.append($1); }
+          | statement statements                  { $$ = sqf::sqc::bison::astnode{ astkind::STATEMENTS, tokenizer.create_token() }; $$.append($1); $$.append_children($2); }
           ;
 
 statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnode{ astkind::RETURN, tokenizer.create_token() }; $$.append($2); }
@@ -365,6 +372,10 @@ arrget: exp09 "[" exp01 "]"           { $$ = sqf::sqc::bison::astnode{ astkind::
 expp: "(" exp01 ")"                   { $$ = $2; }
     | IDENT "(" explist ")"           { $$ = sqf::sqc::bison::astnode{ astkind::OP_UNARY, $1 }; $$.append($1); $$.append($3); }
     | IDENT                           { $$ = sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $1 }; }
+    | "++" IDENT                      { $$ = sqf::sqc::bison::astnode{ astkind::INC_PRE, $1 }; $$.append(sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $2 }); }
+    | "--" IDENT                      { $$ = sqf::sqc::bison::astnode{ astkind::DEC_PRE, $1 }; $$.append(sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $2 }); }
+    | IDENT "++"                      { $$ = sqf::sqc::bison::astnode{ astkind::INC_POST, $2 }; $$.append(sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $1 }); }
+    | IDENT "--"                      { $$ = sqf::sqc::bison::astnode{ astkind::DEC_POST, $2 }; $$.append(sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $1 }); }
     | value                           { $$ = $1; }
     ;
 value: function                       { $$ = $1; }
@@ -458,8 +469,10 @@ namespace sqf::sqc::bison
          case tokenizer::etoken::s_lessthenequal: return parser::make_LTEQUAL(token, loc);
          case tokenizer::etoken::s_lessthen: return parser::make_LT(token, loc);
          case tokenizer::etoken::s_plus: return parser::make_PLUS(token, loc);
+         case tokenizer::etoken::s_plusplus: return parser::make_PLUSPLUS(token, loc);
          case tokenizer::etoken::s_plusassign: return parser::make_PLUSASSIGN(token, loc);
          case tokenizer::etoken::s_minus: return parser::make_MINUS(token, loc);
+         case tokenizer::etoken::s_minusminus: return parser::make_MINUSMINUS(token, loc);
          case tokenizer::etoken::s_minusassign: return parser::make_MINUSASSIGN(token, loc);
          case tokenizer::etoken::s_notequalequal: return parser::make_EXCLAMATIONMARKEQUALEQUAL(token, loc);
          case tokenizer::etoken::s_notequal: return parser::make_EXCLAMATIONMARKEQUAL(token, loc);

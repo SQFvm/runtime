@@ -58,8 +58,10 @@ namespace sqf::sqc
             s_lessthenequal,
             s_lessthen,
             s_plus,
+            s_plusplus,
             s_plusassign,
             s_minus,
+            s_minusminus,
             s_minusassign,
             s_notequalequal,
             s_notequal,
@@ -308,8 +310,10 @@ namespace sqf::sqc
                 case etoken::s_lessthenequal:    len = is_match<'<'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
                 case etoken::s_lessthen:         len = is_match<'<'>(iter); break;
                 case etoken::s_plus:             len = is_match<'+'>(iter); break;
+                case etoken::s_plusplus:         len = is_match_repeated<2, '+'>(iter) ? 2 : 0; break;
                 case etoken::s_plusassign:       len = is_match<'+'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
                 case etoken::s_minus:            len = is_match<'-'>(iter); break;
+                case etoken::s_minusminus:       len = is_match_repeated<2, '-'>(iter) ? 2 : 0; break;
                 case etoken::s_minusassign:      len = is_match<'-'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
                 case etoken::s_notequalequal:    len = is_match<'!'>(iter) && is_match_repeated<2, '='>(iter + 1) ? 3 : 0; break;
                 case etoken::s_notequal:         len = is_match<'!'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
@@ -517,8 +521,8 @@ namespace sqf::sqc
             case '7':           return try_match({ etoken::t_number });
             case '8':           return try_match({ etoken::t_number });
             case '9':           return try_match({ etoken::t_number });
-            case '+':           return try_match({ etoken::t_number, etoken::s_plusassign, etoken::s_plus });
-            case '-':           return try_match({ etoken::t_number, etoken::s_minusassign, etoken::s_minus });
+            case '+':           return try_match({ etoken::t_number, etoken::s_plusassign, etoken::s_plusplus, etoken::s_plus });
+            case '-':           return try_match({ etoken::t_number, etoken::s_minusassign, etoken::s_minusminus, etoken::s_minus });
             case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block, etoken::s_slashassign, etoken::s_slash });
             case '*':           return try_match({ etoken::s_starassign, etoken::s_star });
             case '(':           return try_match({ etoken::s_roundo });

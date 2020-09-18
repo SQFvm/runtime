@@ -6,6 +6,7 @@
 #include "../opcodes/common.h"
 #include "../runtime/d_array.h"
 #include "../runtime/d_string.h"
+#include "../runtime/d_scalar.h"
 #include "../runtime/d_boolean.h"
 #include "../runtime/d_code.h"
 #include <algorithm>
@@ -38,8 +39,63 @@ namespace sqf::sqc::util
         return std::string(arr.data(), arr.size());
     }
     class setbuilder {
+    public:
+        enum position
+        {
+            before,
+            current,
+            after
+        };
+    private:
+        struct region_impl
+        {
+            friend class setbuilder;
+            setbuilder& owner;
+            std::vector<::sqf::runtime::instruction::sptr> pre;
+            std::vector<::sqf::runtime::instruction::sptr> actual;
+            std::vector<::sqf::runtime::instruction::sptr> post;
+            region_impl(setbuilder& owning) : owner(owning) {}
+            void push_back(::sqf::runtime::instruction::sptr ptr, position pos)
+            {
+                switch (pos)
+                {
+                case before:
+                    pre.push_back(ptr);
+                    break;
+                case current:
+                    actual.push_back(ptr);
+                    break;
+                case after:
+                    post.push_back(ptr);
+                    break;
+                }
+            }
+            ~region_impl()
+            {
+                owner.inner.insert(owner.inner.end(), pre.begin(), pre.end());
+                owner.inner.insert(owner.inner.end(), actual.begin(), actual.end());
+                owner.inner.insert(owner.inner.end(), post.begin(), post.end());
+            }
+        };
+    public:
+        class region
+        {
+            friend class setbuilder;
+            setbuilder& m_ref;
+            region(const region& copy) = delete;
+        public:
+            region(setbuilder& sb) : m_ref(sb)
+            {
+                m_ref.regions.emplace_back(m_ref);
+            }
+            ~region()
+            {
+                m_ref.regions.pop_back();
+            }
+        };
     private:
         std::vector<::sqf::runtime::instruction::sptr> inner;
+        std::vector<region_impl> regions;
         std::string_view m_contents;
     public:
         setbuilder(std::string_view contents) : m_contents(contents) {}
@@ -48,15 +104,29 @@ namespace sqf::sqc::util
         {
             return { m_contents };
         }
-        void push_back(const ::sqf::sqc::tokenizer::token& t, ::sqf::runtime::instruction::sptr ptr)
+        void push_back(const ::sqf::sqc::tokenizer::token& t, ::sqf::runtime::instruction::sptr ptr, position pos = current)
         {
             ptr->diag_info({ t.line, t.column, t.offset, { t.path, {} }, ::sqf::runtime::parser::sqf::create_code_segment(m_contents, t.offset, t.contents.length()) });
-            inner.push_back(ptr);
+            if (regions.empty())
+            {
+                inner.push_back(ptr);
+            }
+            else
+            {
+                regions.back().push_back(ptr, pos);
+            }
         }
-        void push_back(const ::sqf::sqc::tokenizer::token& t, size_t custom_length, ::sqf::runtime::instruction::sptr ptr)
+        void push_back(const ::sqf::sqc::tokenizer::token& t, size_t custom_length, ::sqf::runtime::instruction::sptr ptr, position pos = current)
         {
             ptr->diag_info({ t.line, t.column, t.offset, { t.path, {} }, ::sqf::runtime::parser::sqf::create_code_segment(m_contents, t.offset, custom_length) });
-            inner.push_back(ptr);
+            if (regions.empty())
+            {
+                inner.push_back(ptr);
+            }
+            else
+            {
+                regions.back().push_back(ptr, pos);
+            }
         }
         operator ::sqf::runtime::instruction_set() const
         {
@@ -67,6 +137,8 @@ namespace sqf::sqc::util
 
 void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbuilder& set, std::vector<emplace>& locals, const ::sqf::sqc::bison::astnode& node)
 {
+    util::setbuilder::position icpp_pos;
+    float icpp_value;
     switch (node.kind)
     {
     case ::sqf::sqc::bison::astkind::RETURN: {
@@ -77,16 +149,19 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         }
         else
         {
+            util::setbuilder::region __region(set);
             to_assembly(runtime, set, locals, node.children[0]);
             set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
             set.push_back(node.token, std::make_shared<opcodes::call_binary>("breakout"s, (short)4));
         }
     } break;
     case ::sqf::sqc::bison::astkind::THROW: {
+        util::setbuilder::region __region(set);
         to_assembly(runtime, set, locals, node.children[0]);
         set.push_back(node.token, std::make_shared<opcodes::call_unary>("throw"s));
     } break;
     case ::sqf::sqc::bison::astkind::ASSIGNMENT: {
+        util::setbuilder::region __region(set);
         // Push Value
         to_assembly(runtime, set, locals, node.children[1]);
 
@@ -108,6 +183,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     case ::sqf::sqc::bison::astkind::ASSIGNMENT_MINUS:
     case ::sqf::sqc::bison::astkind::ASSIGNMENT_STAR:
     case ::sqf::sqc::bison::astkind::ASSIGNMENT_SLASH: {
+        util::setbuilder::region __region(set);
         std::string var(node.children[0].token.contents);
         auto tmp = var;
         std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
@@ -158,6 +234,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         }
     } break;
     case ::sqf::sqc::bison::astkind::OP_ARRAY_SET: {
+        util::setbuilder::region __region(set);
         // Handle OP_ARRAY_GET
         {
             // Push actual array onto value stack
@@ -179,6 +256,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_MINUS:
     case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_STAR:
     case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_SLASH: {
+        util::setbuilder::region __region(set);
         // Push actual array onto value stack (LEFT from set)
         to_assembly(runtime, set, locals, node.children[0].children[0]);
 
@@ -267,6 +345,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             auto lastChild = codeset.children.begin() + 1;
             for (auto it = codeset.children.begin(); it != codeset.children.end(); ++it)
             {
+                util::setbuilder::region __region(local_set);
                 if (it == lastChild && it->kind == ::sqf::sqc::bison::astkind::RETURN)
                 {
                     if (!it->children.empty())
@@ -296,6 +375,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             auto lastChild = codeset.children.begin() + 1;
             for (auto it = codeset.children.begin(); it != codeset.children.end(); ++it)
             {
+                util::setbuilder::region __region(local_set);
                 if (it == lastChild && it->kind == ::sqf::sqc::bison::astkind::RETURN)
                 {
                     if (!it->children.empty())
@@ -333,6 +413,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             auto lastChild = codeset.children.begin() + 1;
             for (auto it = codeset.children.begin(); it != codeset.children.end(); ++it)
             {
+                util::setbuilder::region __region(local_set);
                 if (it == lastChild && it->kind == ::sqf::sqc::bison::astkind::RETURN)
                 {
                     if (!it->children.empty())
@@ -465,10 +546,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         auto locals_copy = locals;
         for (auto child : node.children)
         {
+            util::setbuilder::region __region(set);
             to_assembly(runtime, set, locals_copy, child);
         }
     } break;
     case ::sqf::sqc::bison::astkind::IF: {
+        util::setbuilder::region __region(set);
         // Emit condition
         to_assembly(runtime, set, locals, node.children[0]);
         set.push_back(node.children[0].token, std::make_shared<opcodes::call_unary>("if"s));
@@ -481,6 +564,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     } break;
     case ::sqf::sqc::bison::astkind::OP_TERNARY: /* fallthrough */
     case ::sqf::sqc::bison::astkind::IFELSE: {
+        util::setbuilder::region __region(set);
         // Emit condition
         to_assembly(runtime, set, locals, node.children[0]);
         set.push_back(node.children[0].token, std::make_shared<opcodes::call_unary>("if"s));
@@ -499,6 +583,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         set.push_back(node.token, std::make_shared<opcodes::call_binary>("then"s, (short)4));
     } break;
     case ::sqf::sqc::bison::astkind::FOR: {
+        util::setbuilder::region __region(set);
         // Emit "for"
         std::string var(node.children[0].token.contents);
         std::string lvar = "_"s + var;
@@ -532,6 +617,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         set.push_back(node.token, std::make_shared<opcodes::call_binary>("do"s, (short)4));
     } break;
     case ::sqf::sqc::bison::astkind::FORSTEP: {
+        util::setbuilder::region __region(set);
         // Emit "for"
         std::string var(node.children[0].token.contents);
         std::string lvar = "_"s + var;
@@ -568,7 +654,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         set.push_back(node.token, std::make_shared<opcodes::call_binary>("do"s, (short)4));
     } break;
     case ::sqf::sqc::bison::astkind::FOREACH: {
-
+        util::setbuilder::region __region(set);
         // Emit Codeblock
         {
             // Create additional instruction_set vector
@@ -593,7 +679,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         set.push_back(node.token, std::make_shared<opcodes::call_binary>("foreach"s, (short)4));
     } break;
     case ::sqf::sqc::bison::astkind::WHILE: {
-
+        util::setbuilder::region __region(set);
         // Emit "while"
         {
             // Create additional instruction_set vector for condition expression
@@ -619,7 +705,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         set.push_back(node.token, std::make_shared<opcodes::call_binary>("do"s, (short)4));
     } break;
     case ::sqf::sqc::bison::astkind::DOWHILE: {
-
+        util::setbuilder::region __region(set);
         // Emit call before while for the "do once"
         {
             // Create additional instruction_set vector for condition expression
@@ -694,6 +780,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         set.push_back(node.children[1].token, std::make_shared<opcodes::call_binary>("catch"s, (short)4));
     } break;
     case ::sqf::sqc::bison::astkind::SWITCH: {
+        util::setbuilder::region __region(set);
         // Emit switch
         to_assembly(runtime, set, locals, node.children[0]);
         set.push_back(node.children[0].token, std::make_shared<opcodes::call_unary>("switch"s));
@@ -715,6 +802,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         }
     } break;
     case ::sqf::sqc::bison::astkind::CASE: {
+        util::setbuilder::region __region(set);
         // Emit "case"
         to_assembly(runtime, set, locals, node.children[0]);
         set.push_back(node.children[0].token, std::make_shared<opcodes::call_unary>("case"s));
@@ -1080,12 +1168,76 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 std::make_shared<opcodes::call_unary>("format"));
         }
     } break;
-    default:
+
+    case ::sqf::sqc::bison::astkind::INC_PRE:
+        icpp_pos = util::setbuilder::before;
+        icpp_value = 1;
+        goto INC_DEC_PRE_POST;
+    case ::sqf::sqc::bison::astkind::INC_POST:
+        icpp_pos = util::setbuilder::after;
+        icpp_value = 1;
+        goto INC_DEC_PRE_POST;
+    case ::sqf::sqc::bison::astkind::DEC_PRE:
+        icpp_pos = util::setbuilder::before;
+        icpp_value = -1;
+        goto INC_DEC_PRE_POST;
+    case ::sqf::sqc::bison::astkind::DEC_POST:
+        icpp_pos = util::setbuilder::after;
+        icpp_value = -1;
+        goto INC_DEC_PRE_POST;
+    INC_DEC_PRE_POST:
+    {
+        // Emit the Pre-Fix
+        {
+            // Prepare variable name
+            std::string var(node.children[0].token.contents);
+            auto tmp = var;
+            std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
+
+            // Push Left-Value (self)
+            auto fres = std::find_if(locals.begin(), locals.end(), [&var](auto& it) { return it.ident == var; });
+            if (fres != locals.end())
+            {
+                set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>(fres->replace), icpp_pos);
+            }
+            else
+            {
+                set.push_back(node.children[0].token, std::make_shared<opcodes::get_variable>(tmp), icpp_pos);
+            }
+
+            // Push Right-Value
+            set.push_back(node.token, std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>(icpp_value))), icpp_pos);
+
+            // Emit "+"/"-"
+            set.push_back(node.token, std::make_shared<opcodes::call_binary>(icpp_value > 0 ? "+"s : "-"s, (short)6), icpp_pos);
+
+            // Assign Value
+            fres = std::find_if(locals.begin(), locals.end(), [&var](auto& it) { return it.ident == var; });
+            if (fres != locals.end())
+            {
+                set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>(fres->replace), icpp_pos);
+            }
+            else
+            {
+                set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>(tmp), icpp_pos);
+            }
+        }
+        // Emit the Get-Variable
+        to_assembly(runtime, set, locals, node.children[0]);
+    } break;
+    case ::sqf::sqc::bison::astkind::STATEMENTS: {
+        for (const auto& child : node.children)
+        {
+            util::setbuilder::region __region(set);
+            to_assembly(runtime, set, locals, child);
+        }
+    } break;
+    default: {
         for (const auto& child : node.children)
         {
             to_assembly(runtime, set, locals, child);
         }
-        break;
+    } break;
     }
 }
 
@@ -1100,7 +1252,7 @@ bool sqf::sqc::parser::check_syntax(::sqf::runtime::runtime& runtime, std::strin
 std::optional<::sqf::runtime::instruction_set> sqf::sqc::parser::parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
 {
     tokenizer t(contents.begin(), contents.end(), file.physical);
-    util::setbuilder source(contents);
+    util::setbuilder set(contents);
     ::sqf::sqc::bison::astnode res;
     ::sqf::sqc::bison::parser p(t, res, *this, file.physical);
     // p.set_debug_level(1);
@@ -1110,6 +1262,6 @@ std::optional<::sqf::runtime::instruction_set> sqf::sqc::parser::parse(::sqf::ru
         return {};
     }
     std::vector<emplace> locals;
-    to_assembly(runtime, source, locals, res);
-    return source;
+    to_assembly(runtime, set, locals, res);
+    return set;
 }
