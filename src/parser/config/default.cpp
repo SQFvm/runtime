@@ -483,7 +483,7 @@ void sqf::parser::config::impl_default::instance::STRING(::sqf::parser::config::
 	root.children.push_back(thisnode);
 }
 //NUMBER = "0x" hexadecimal | [ '-' ]scalar;
-bool sqf::parser::config::impl_default::instance::NUMBER_start(size_t off) { return util::is_match<'-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(m_contents[off]); }
+bool sqf::parser::config::impl_default::instance::NUMBER_start(size_t off) { return util::is_match<'-', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(m_contents[off]); }
 void sqf::parser::config::impl_default::instance::NUMBER(::sqf::parser::config::impl_default::astnode & root, bool& errflag)
 {
 	auto thisnode = astnode(m_info);
