@@ -21,7 +21,7 @@ namespace sqf
 			using data_type = sqf::runtime::t_scalar;
 		private:
 			float m_value;
-			inline static int s_decimals = 0;
+			inline static int s_decimals = -1;
 		protected:
 			bool do_equals(std::shared_ptr<data> other, bool invariant) const override
 			{
