@@ -466,6 +466,23 @@ namespace
         };
 
         auto fordata = left.data<d_for>();
+        {
+            /*
+                for "_i" from 0 to  0 do {}; // will do once, with _i = 0
+                for "_i" from 0 to -1 do {}; // will not do
+                for "_i" from 0 to  1 step 0 do {}; // will loop forever
+            */
+            auto from = fordata->from();
+            auto to = fordata->to();
+            auto step = fordata->step();
+
+
+            auto step_is_rero = std::abs(step) <= std::numeric_limits<float>::epsilon(); 
+            if (!step_is_rero && (step > 0 ? from > to : to > from))
+            {
+                return {};
+            }
+        }
         frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_for_exit>(fordata));
         f[fordata->variable()] = fordata->from();
         runtime.context_active().push_frame(f);

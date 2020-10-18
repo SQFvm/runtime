@@ -43,7 +43,8 @@ namespace
 	value divide_scalar_scalar(runtime& runtime, value::cref left, value::cref right)
 	{
 		auto r = (right.data<d_scalar, float>());
-		if (r == 0)
+		auto r_is_rero = std::abs(r) <= std::numeric_limits<float>::epsilon();
+		if (r_is_rero)
 		{
 			runtime.__logmsg(err::ZeroDivisor(runtime.context_active().current_frame().diag_info_from_position()));
 			return 0;
