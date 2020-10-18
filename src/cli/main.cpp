@@ -797,7 +797,8 @@ int main(int argc, char** argv)
                 }
                 if (parseOnlyArg.getValue())
                 {
-                    errflag = runtime.parser_sqf().check_syntax(runtime, *ppedStr, { sanitized, {} });
+                    auto success = runtime.parser_sqf().check_syntax(runtime, *ppedStr, { sanitized, {} });
+                    errflag = !success;
                 }
                 else
                 {
@@ -868,12 +869,13 @@ int main(int argc, char** argv)
                 }
                 if (parseOnlyArg.getValue())
                 {
-                    errflag = runtime.parser_config().check_syntax(*ppedStr, { sanitized, {} });
+                    auto success = !runtime.parser_config().check_syntax(*ppedStr, { sanitized, {} });
+                    errflag = !success;
                 }
                 else
                 {
-                    auto res = runtime.parser_config().parse(runtime.confighost(), *ppedStr, { sanitized, {} });
-                    if (!res)
+                    auto success = runtime.parser_config().parse(runtime.confighost(), *ppedStr, { sanitized, {} });
+                    if (!success)
                     {
                         errflag = true;
                         std::cout << "Failed to parse file '" << sanitized << "'" << std::endl;
