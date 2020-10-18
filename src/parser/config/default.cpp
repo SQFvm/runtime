@@ -162,7 +162,7 @@ void sqf::parser::config::impl_default::instance::NODELIST(::sqf::parser::config
 			// Add endchr up until no semicolon is left
 			while ((endchrlen = endchr(m_info.adjusted_offset)) > 0)
 			{
-				m_info.adjusted_offset += endchrlen;
+				m_info.file_offset += endchrlen;
 				m_info.adjusted_offset += endchrlen;
 				m_info.column += endchrlen;
 				skip();
