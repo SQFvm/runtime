@@ -6,7 +6,7 @@
    ["assertTrue",      { true }],
    ["assertFalse",     { false }],
    ["assertTrue",      { 1 <= 1 }],
-   ["assertEqual",     { 0.5 }, "0.5"],
+   ["assertEqual",     { str 0.5 }, "0.5"],
    ["assertEqual",     { toLower "UPPER" }, "upper"],
    ["assertEqual",     { toUpper "lower" }, "LOWER"],
    ["assertEqual",     { toArray "123" }, [49,50,51]],

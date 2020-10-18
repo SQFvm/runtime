@@ -22,6 +22,12 @@ using namespace sqf::types;
 
 namespace
 {
+	inline float rad(float f) {
+		return f * util::pi() / 180.0;
+	}
+	inline float deg(float f) {
+		return f * 180.0 / util::pi();
+	}
 	value plus_scalar_scalar(runtime& runtime, value::cref left, value::cref right)
 	{
 		return (left.data<d_scalar, float>()) + (right.data<d_scalar, float>());
@@ -51,11 +57,11 @@ namespace
 	}
 	value atan2_scalar_scalar(runtime& runtime, value::cref left, value::cref right)
 	{
-		return std::atan2(left.data<d_scalar, float>(), right.data<d_scalar, float>());
+		return deg(std::atan2(rad(left.data<d_scalar, float>()), rad(right.data<d_scalar, float>())));
 	}
 	value deg_scalar(runtime& runtime, value::cref right)
 	{
-		return right.data<d_scalar, float>() * (180 / util::pi());
+		return deg(right.data<d_scalar, float>());
 	}
     value log_scalar(runtime& runtime, value::cref right)
 	{
@@ -67,11 +73,11 @@ namespace
 	}
 	value sin_scalar(runtime& runtime, value::cref right)
 	{
-		return std::sin(right.data<d_scalar, float>());
+		return std::sin(rad(right.data<d_scalar, float>()));
 	}
 	value acos_scalar(runtime& runtime, value::cref right)
 	{
-		return std::acos(right.data<d_scalar, float>());
+		return deg(std::acos(right.data<d_scalar, float>()));
 	}
 	value exp_scalar(runtime& runtime, value::cref right)
 	{
@@ -79,7 +85,7 @@ namespace
 	}
     value rad_scalar(runtime& runtime, value::cref right)
 	{
-		return right.data<d_scalar, float>() * (util::pi() / 180);
+		return rad(right.data<d_scalar, float>());
 	}
 	value sqrt_scalar(runtime& runtime, value::cref right)
 	{
@@ -87,7 +93,7 @@ namespace
 	}
 	value tan_scalar(runtime& runtime, value::cref right)
 	{
-		return std::tan(right.data<d_scalar, float>());
+		return std::tan(rad(right.data<d_scalar, float>()));
 	}
     value random_scalar(runtime& runtime, value::cref right)
 	{
@@ -118,17 +124,17 @@ namespace
 	value asin_scalar(runtime& runtime, value::cref right)
 	{
 		auto r = right.data<d_scalar, float>();
-		return std::asin(r);
+		return deg(std::asin(r));
 	}
 	value atan_scalar(runtime& runtime, value::cref right)
 	{
 		auto r = right.data<d_scalar, float>();
-		return std::atan(r);
+		return deg(std::atan(r));
 	}
 	value cos_scalar(runtime& runtime, value::cref right)
 	{
 		auto r = right.data<d_scalar, float>();
-		return std::cos(r);
+		return std::cos(rad(r));
 	}
     value ln_scalar(runtime& runtime, value::cref right)
 	{
