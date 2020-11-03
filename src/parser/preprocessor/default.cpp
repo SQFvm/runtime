@@ -1095,15 +1095,6 @@ std::string file_macro_callback(
 {
     return dinf.path.physical;
 }
-std::string file_macro_callback(
-    const ::sqf::runtime::parser::macro& m,
-    const ::sqf::runtime::diagnostics::diag_info dinf,
-    const ::sqf::runtime::fileio::pathinfo local,
-    const std::vector<std::string>& params,
-    ::sqf::runtime::runtime& runtime)
-{
-    return '"' + local.physical + '"';
-}
 std::string eval_macro_callback(
     const ::sqf::runtime::parser::macro& m,
     const ::sqf::runtime::diagnostics::diag_info dinf,
