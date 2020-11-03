@@ -497,7 +497,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 } break;
                 case ::sqf::sqc::bison::astkind::ARGITEM_TYPE_DEFAULT: {
                     // push default value
-                    to_assembly(runtime, set, locals, child.children[0]);
+                    to_assembly(runtime, set, locals, child.children[1]);
 
                     // Check most common data-types & push default type of it
                     auto dataType = std::string(child.children[0].token.contents);
