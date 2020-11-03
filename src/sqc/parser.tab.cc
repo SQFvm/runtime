@@ -741,7 +741,7 @@ namespace  sqf { namespace sqc { namespace bison  {
             {
   case 3:
 #line 232 "parser.y" // lalr1.cc:859
-    { result = sqf::sqc::bison::astnode{}; result.append_children(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); result.append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
+    { result = sqf::sqc::bison::astnode{}; result.append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); result.append(yystack_[0].value.as< sqf::sqc::bison::astnode > ()); }
 #line 746 "parser.tab.cc" // lalr1.cc:859
     break;
 
