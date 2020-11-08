@@ -39,6 +39,18 @@
 #include <execinfo.h>
 #endif
 
+//#define MEM_LEAK_TEST
+
+
+#if defined(_WIN32) && defined(_DEBUG) && defined(MEM_LEAK_TEST)
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#define CRTDBG(CONTENT) CONTENT
+#else
+#define CRTDBG(CONTENT)
+#endif
+
 #ifdef _WIN32
 #define RELPATHHINT "Supports absolute and relative pathing using '.\\path\\to\\file' or 'C:\\path\\to\\file'."
 #else
@@ -120,8 +132,14 @@ std::string extension(std::string input)
     }
     return input.substr(last_index + 1);
 }
-
 int main(int argc, char** argv)
+{
+    CRTDBG(_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF));
+    CRTDBG(_CrtSetBreakAlloc(2294));
+    auto res = main_actual(argc, argv);
+    return res;
+}
+int main_actual(int argc, char** argv)
 {
 #ifdef WIN32
     // ToDo: Implement StackTrace on error
@@ -376,7 +394,7 @@ int main(int argc, char** argv)
                 }
             }
 
-            main(static_cast<int>(args.size()), args.data());
+            main_actual(static_cast<int>(args.size()), args.data());
 
             if (args.size() > 1)
             {

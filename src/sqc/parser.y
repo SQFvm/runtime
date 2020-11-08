@@ -229,7 +229,7 @@
 /*** BEGIN - Change the grammar rules below ***/
 /*** BEGIN - Change the grammar rules below ***/
 start: %empty
-     | filehead statements                        { result = sqf::sqc::bison::astnode{}; result.append_children($1); result.append($2); }
+     | filehead statements                        { result = sqf::sqc::bison::astnode{}; result.append($1); result.append($2); }
      | statements                                 { result = sqf::sqc::bison::astnode{}; result.append($1); }
      ;
 

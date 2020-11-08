@@ -1093,7 +1093,7 @@ std::string file_macro_callback(
     const std::vector<std::string>& params,
     ::sqf::runtime::runtime& runtime)
 {
-    return '"' + local.physical + '"';
+    return dinf.path.physical;
 }
 std::string eval_macro_callback(
     const ::sqf::runtime::parser::macro& m,
@@ -1113,6 +1113,26 @@ std::string eval_macro_callback(
     auto res = runtime.evaluate_expression(params[0], success, false);
     return success ? res.data()->to_string_sqf() : "";
 }
+static int __counter__ = 0;
+std::string counter_macro_callback(
+    const ::sqf::runtime::parser::macro& m,
+    const ::sqf::runtime::diagnostics::diag_info dinf,
+    const ::sqf::runtime::fileio::pathinfo local,
+    const std::vector<std::string>& params,
+    ::sqf::runtime::runtime& runtime)
+{
+    return std::to_string(__counter__++);
+}
+std::string counter_reset_macro_callback(
+    const ::sqf::runtime::parser::macro& m,
+    const ::sqf::runtime::diagnostics::diag_info dinf,
+    const ::sqf::runtime::fileio::pathinfo local,
+    const std::vector<std::string>& params,
+    ::sqf::runtime::runtime& runtime)
+{
+    __counter__ = 0;
+    return "";
+}
 
 
 void sqf::parser::preprocessor::impl_default::instance::pop_path(preprocessorfileinfo& preprocessorfileinfo)
@@ -1127,6 +1147,26 @@ void sqf::parser::preprocessor::impl_default::instance::pop_path(preprocessorfil
 }
 sqf::parser::preprocessor::impl_default::impl_default(Logger& logger) : CanLog(logger)
 {
+    // m_macros["__DATE_ARR__"s] = { "__DATE_ARR__"s, counter_macro_callback }; // 2020,10,28,15,17,42
+    // m_macros["__DATE_STR__"s] = { "__DATE_STR__"s, counter_macro_callback }; // "2020/10/28, 15:17:42"
+    // m_macros["__DATE_STR_ISO8601__"s] = { "__DATE_STR_ISO8601__"s, counter_macro_callback }; // "2020-10-28T14:17:42Z"
+    // m_macros["__TIME__"s] = { "__TIME__"s, counter_macro_callback }; // 15:17:42
+    // m_macros["__TIME_UTC__"s] = { "__TIME_UTC__"s, counter_macro_callback }; // 14:17:42
+    // m_macros["__RAND_INT8__"s] = { "__RAND_INT8__"s, counter_macro_callback };
+    // m_macros["__RAND_UINT8__"s] = { "__RAND_UINT8__"s, counter_macro_callback };
+    // m_macros["__RAND_INT16__"s] = { "__RAND_INT16__"s, counter_macro_callback };
+    // m_macros["__RAND_UINT16__"s] = { "__RAND_UINT16__"s, counter_macro_callback };
+    // m_macros["__RAND_INT32__"s] = { "__RAND_INT32__"s, counter_macro_callback };
+    // m_macros["__RAND_UINT32__"s] = { "__RAND_UINT32__"s, counter_macro_callback };
+    // m_macros["__RAND_INT64__"s] = { "__RAND_INT64__"s, counter_macro_callback };
+    // m_macros["__RAND_UINT64__"s] = { "__RAND_UINT64__"s, counter_macro_callback };
+    m_macros["__GAME_VER__"s] = { "__GAME_VER__"s, STR(SQFVM_RUNTIME_VERSION_MAJOR) "." STR(SQFVM_RUNTIME_VERSION_MINOR) "." STR(SQFVM_RUNTIME_VERSION_REVISION) };
+    m_macros["__GAME_VER_MAJ__"s] = { "__GAME_VER_MAJ__"s, STR(SQFVM_RUNTIME_VERSION_MAJOR) };
+    m_macros["__GAME_VER_MIN__"s] = { "__GAME_VER_MIN__"s, STR(SQFVM_RUNTIME_VERSION_MINOR) };
+    m_macros["__GAME_BUILD__"s] = { "__GAME_BUILD__"s, STR(SQFVM_RUNTIME_VERSION_REVISION) };
+    m_macros["__COUNTER__"s] = { "__COUNTER__"s, counter_macro_callback };
+    m_macros["__COUNTER_RESET__"s] = { "__COUNTER_RESET__"s, counter_reset_macro_callback };
+    m_macros["__FILE__"s] = { "__FILE__"s, file_macro_callback };
     m_macros["__LINE__"s] = { "__LINE__"s, line_macro_callback };
     m_macros["__EXEC"s] = { "__EXEC"s, { "EXPRESSION"s }, eval_macro_callback };
     m_macros["__EVAL"s] = { "__EVAL"s, { "EXPRESSION"s }, eval_macro_callback };
@@ -1137,6 +1177,7 @@ sqf::parser::preprocessor::impl_default::impl_default(Logger& logger) : CanLog(l
 #if defined(_DEBUG)
     m_macros["_SQFVM_DEBUG"s] = { "_DEBUG"s };
 #endif
+
 }
 std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(
     ::sqf::runtime::runtime& runtime,
