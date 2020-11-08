@@ -27,57 +27,57 @@
 
 dlops::dlops(std::string path)
 {
-	handle = DLOPS_LIB_OPEN(path.c_str());
-	if (nullptr == handle)
-	{
-		std::stringstream sstream;
-		sstream << "Loading Library failed with error code '" << DLOPS_LIB_GETLASTERROR() << "'";
-		throw std::runtime_error(sstream.str());
-	}
-	mpath = path;
+    handle = DLOPS_LIB_OPEN(path.c_str());
+    if (nullptr == handle)
+    {
+        std::stringstream sstream;
+        sstream << "Loading Library failed with error code '" << DLOPS_LIB_GETLASTERROR() << "'";
+        throw std::runtime_error(sstream.str());
+    }
+    mpath = path;
 }
 
 void* dlops::resolve(std::string name)
 {
-	if (nullptr == handle)
-		return nullptr;
-	auto res = DLOPS_LIB_SYM(static_cast<DLOPS_LIB_HANDLE>(handle), name.c_str());
-	if (nullptr == res)
-	{
-		std::stringstream sstream;
-		sstream << "Receiving symbol failed with error '" << DLOPS_LIB_GETLASTERROR() << "'";
-		throw std::runtime_error(sstream.str());
-	}
-	else
-	{
-		return res;
-	}
+    if (nullptr == handle)
+        return nullptr;
+    auto res = DLOPS_LIB_SYM(static_cast<DLOPS_LIB_HANDLE>(handle), name.c_str());
+    if (nullptr == res)
+    {
+        std::stringstream sstream;
+        sstream << "Receiving symbol failed with error '" << DLOPS_LIB_GETLASTERROR() << "'";
+        throw std::runtime_error(sstream.str());
+    }
+    else
+    {
+        return res;
+    }
 };
 
 bool dlops::try_resolve(std::string name, void** outptr)
 {
-	if (nullptr == handle)
-		return false;
-	*outptr = DLOPS_LIB_SYM(static_cast<DLOPS_LIB_HANDLE>(handle), name.c_str());
-	return *outptr;
+    if (nullptr == handle)
+        return false;
+    *outptr = DLOPS_LIB_SYM(static_cast<DLOPS_LIB_HANDLE>(handle), name.c_str());
+    return *outptr;
 }
 
 void dlops::close()
 {
-	if (nullptr == handle)
-		return;
+    if (nullptr == handle)
+        return;
 #if defined(__linux__)
-	if (DLOPS_LIB_CLOSE(handle))
+    if (DLOPS_LIB_CLOSE(handle))
 #elif defined(_WIN32)
-	if (!DLOPS_LIB_CLOSE(static_cast<DLOPS_LIB_HANDLE>(handle)))
+    if (!DLOPS_LIB_CLOSE(static_cast<DLOPS_LIB_HANDLE>(handle)))
 #else
-	if (DLOPS_LIB_CLOSE(handle))
+    if (DLOPS_LIB_CLOSE(handle))
 #endif
-	{
-		std::stringstream sstream;
-		sstream << "Closing library failed with error code '" << DLOPS_LIB_GETLASTERROR() << "'";
-		throw std::runtime_error(sstream.str());
-	}
+    {
+        std::stringstream sstream;
+        sstream << "Closing library failed with error code '" << DLOPS_LIB_GETLASTERROR() << "'";
+        throw std::runtime_error(sstream.str());
+    }
 }
 
 

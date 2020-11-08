@@ -8,14 +8,14 @@
 
 namespace sqf::runtime::diagnostics
 {
-	struct stacktrace
-	{
-		std::vector<sqf::runtime::frame> frames;
-		sqf::runtime::value value;
+    struct stacktrace
+    {
+        std::vector<sqf::runtime::frame> frames;
+        sqf::runtime::value value;
 
-		stacktrace() {}
-		stacktrace(std::vector<sqf::runtime::frame> f) : frames(f) {}
+        stacktrace() {}
+        stacktrace(std::vector<sqf::runtime::frame> f) : frames(f) {}
 
-		std::string to_string() const;
-	};
+        std::string to_string() const;
+    };
 }
