@@ -1371,6 +1371,10 @@ namespace
     {
         std::string dlname = name;
 
+        #ifdef ENVIRONMENT64
+            dlname += "_x64";
+        #endif
+
         #ifndef _WIN32 // Append .so for Linux
             dlname += ".so";
         #endif
