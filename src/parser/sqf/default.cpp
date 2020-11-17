@@ -1050,7 +1050,7 @@ void ::sqf::parser::sqf::impl_default::instance::NUMBER(astnode& root, bool& err
             }
 
         }
-        auto ident = std::string(m_contents.substr(m_info.adjusted_offset, i));
+        auto ident = std::string(m_contents.substr(m_info.adjusted_offset, i - m_info.adjusted_offset));
         thisnode.content = ident;
         thisnode.length = i - m_info.adjusted_offset;
         m_info.column += i - m_info.adjusted_offset;
