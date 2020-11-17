@@ -230,16 +230,24 @@ namespace sqf::parser::preprocessor
         };
     private:
         std::unordered_map<std::string, ::sqf::runtime::parser::macro> m_macros;
+        struct condition_scope
+        {
+            bool allow_write;
+            ::sqf::runtime::diagnostics::diag_info info_if;
+            ::sqf::runtime::diagnostics::diag_info info_else;
+        };
+        struct file_scope
+        {
+            ::sqf::runtime::fileio::pathinfo path;
+            std::vector<condition_scope> conditions;
+        };
         class instance : public CanLog
         {
         public:
             instance(Logger& logger, std::unordered_map<std::string, ::sqf::runtime::parser::macro> macros) : CanLog(logger), m_macros(macros) {};
-            std::vector<std::string> m_path_tree;
+            std::vector<file_scope> m_file_scopes;
             std::unordered_set<std::string> m_visited;
-            std::vector<bool> m_inside_ppf_tree;
-            bool m_inside_ppif_err_flag = false;
             bool m_errflag = false;
-            bool m_allowwrite = true;
             std::unordered_map<std::string, ::sqf::runtime::parser::macro> m_macros;
 
             void replace_stringify(
@@ -288,16 +296,10 @@ namespace sqf::parser::preprocessor
 
             void replace_skip(::sqf::runtime::runtime& runtime, preprocessorfileinfo& fileinfo, std::stringstream& sstream);
 
-            bool inside_ppif_err_flag() { return m_inside_ppif_err_flag; }
-            bool inside_ppif() { return m_inside_ppf_tree.back(); }
+            bool allow_write() const { return m_file_scopes.back().conditions.empty() || m_file_scopes.back().conditions.back().allow_write; }
             bool errflag() { return m_errflag; }
-            void inside_ppif(bool flag) { m_inside_ppf_tree.back() = flag; }
-            void push_path(const std::string s)
-            {
-                m_path_tree.push_back(s);
-                m_inside_ppf_tree.push_back(false);
-                m_visited.insert(s);
-            }
+            file_scope& current_file_scope() { return m_file_scopes.back(); }
+            void push_path(const ::sqf::runtime::fileio::pathinfo pathinfo);
             void pop_path(preprocessorfileinfo& preprocessorfileinfo);
 
             std::optional<::sqf::runtime::parser::macro> get_try(const std::string macro_name) const
