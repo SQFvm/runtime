@@ -57,6 +57,8 @@
                DOWHILE,
                TRYCATCH,
                SWITCH,
+               OBJECT_ITEMS,
+               OBJECT_ITEM,
                CASE,
                CASE_DEFAULT,
                OP_TERNARY,
@@ -91,7 +93,8 @@
                VAL_TRUE,
                VAL_FALSE,
                VAL_NIL,
-               GET_VARIABLE
+               GET_VARIABLE,
+               OBJECT
           };
           struct astnode
           {
@@ -219,7 +222,7 @@
 %type <sqf::sqc::bison::astnode> funchead arglist codeblock if for while trycatch switch
 %type <sqf::sqc::bison::astnode> caselist case exp01 exp02 exp03 exp04 exp05 exp06 exp07
 %type <sqf::sqc::bison::astnode> exp08 exp09 expp value array explist filehead argitem arrget
-%type <sqf::sqc::bison::astnode> format_string format_string_match
+%type <sqf::sqc::bison::astnode> format_string format_string_match obj obj_item obj_items
 
 %start start
 
@@ -379,10 +382,19 @@ expp: "(" exp01 ")"                   { $$ = $2; }
     | IDENT "--"                      { $$ = sqf::sqc::bison::astnode{ astkind::DEC_POST, $2 }; $$.append(sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $1 }); }
     | value                           { $$ = $1; }
     ;
+obj: "{" "}"                          { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, $1 }; }
+   | "{" obj_items "}"                { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, $1 }; $$.append($2); }
+   ;
+obj_item: IDENT ":" value             { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT_ITEM, $1 }; $$.append($3); }
+        ;
+obj_items: obj_item                   { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT_ITEMS, tokenizer.create_token() }; $$.append($1); }
+         | obj_items obj_item         { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT_ITEMS, tokenizer.create_token() }; $$.append($1); $$.append_children($2); }
+         ;
 value: function                       { $$ = $1; }
      | STRING                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_STRING, $1 }; }
      | array                          { $$ = $1; }
      | format_string                  { $$ = $1; }
+     | obj                            { $$ = $1; }
      | NUMBER                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_NUMBER, $1 }; }
      | "true"                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_TRUE, tokenizer.create_token() }; }
      | "false"                        { $$ = sqf::sqc::bison::astnode{ astkind::VAL_FALSE, tokenizer.create_token() }; }
