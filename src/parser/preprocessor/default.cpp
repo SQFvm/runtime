@@ -1135,15 +1135,20 @@ std::string counter_reset_macro_callback(
 }
 
 
+void sqf::parser::preprocessor::impl_default::instance::push_path(const::sqf::runtime::fileio::pathinfo pathinfo)
+{
+    m_file_scopes.push_back({ pathinfo, {} });
+    m_visited.insert(pathinfo.physical);
+}
+
 void sqf::parser::preprocessor::impl_default::instance::pop_path(preprocessorfileinfo& preprocessorfileinfo)
 {
-    if (inside_ppif())
+    if (!m_file_scopes.back().conditions.empty())
     {
         log(logmessage::preprocessor::MissingEndif(preprocessorfileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
-        m_inside_ppif_err_flag = true;
+        m_errflag = true;
     }
-    m_path_tree.pop_back();
-    m_inside_ppf_tree.pop_back();
+    m_file_scopes.pop_back();
 }
 sqf::parser::preprocessor::impl_default::impl_default(Logger& logger) : CanLog(logger)
 {
