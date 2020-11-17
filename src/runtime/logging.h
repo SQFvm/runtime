@@ -178,7 +178,7 @@ namespace logmessage {
         };
 
         class UnexpectedIfdef : public PreprocBase {
-            static const loglevel level = loglevel::error;
+            static const loglevel level = loglevel::warning;
             static const size_t errorCode = 10007;
         public:
             UnexpectedIfdef(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
@@ -186,7 +186,7 @@ namespace logmessage {
         };
 
         class UnexpectedIfndef : public PreprocBase {
-            static const loglevel level = loglevel::error;
+            static const loglevel level = loglevel::warning;
             static const size_t errorCode = 10008;
         public:
             UnexpectedIfndef(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}

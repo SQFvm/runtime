@@ -688,7 +688,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
     if (inst == "INCLUDE")
     { // #include "file/path"
         // Trim
-        if (!m_allowwrite)
+        if (!(current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write))
         {
             return "\n";
         }
@@ -711,14 +711,15 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
                 return "";
             }
             const auto& physical = include_path_info->physical;
-            auto res = std::find_if(m_path_tree.begin(), m_path_tree.end(), [physical](std::string& parent) -> bool { return parent == physical; });
-            if (res != m_path_tree.end())
+            auto res = std::find_if(m_file_scopes.begin(), m_file_scopes.end(),
+                [physical](file_scope& parent) -> bool { return parent.path.physical == physical; });
+            if (res != m_file_scopes.end())
             {
                 m_errflag = true;
                 std::stringstream includeTree;
-                for (size_t i = 0; i < m_path_tree.size(); i++)
+                for (size_t i = 0; i < m_file_scopes.size(); i++)
                 {
-                    includeTree << i << ". " << m_path_tree[i] << std::endl;
+                    includeTree << i << ". " << m_file_scopes[i].path.physical << " [" << m_file_scopes[i].path.virtual_ << "]\n";
                 }
                 log(err::RecursiveInclude(fileinfo.operator ::sqf::runtime::diagnostics::diag_info(), includeTree.str()));
                 return "";
@@ -749,7 +750,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
     }
     else if (inst == "DEFINE")
     { // #define TEST(A, B, C) A #B##C
-        if (!m_allowwrite)
+        if (!(current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write))
         {
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_PARSE
             std::cout << "\x1B[33m[PP-DEFINE-PARSE]\033[0m" <<
@@ -853,7 +854,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
     }
     else if (inst == "UNDEF")
     { // #undef TEST
-        if (!m_allowwrite)
+        if (!(current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write))
         {
             return "\n";
         }
@@ -871,71 +872,44 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
     }
     else if (inst == "IFDEF")
     { // #ifdef TEST
-        if (inside_ppif())
+        if (!current_file_scope().conditions.empty())
         {
-            m_errflag = true;
             log(err::UnexpectedIfdef(fileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
-            return "";
-        }
-        else
-        {
-            inside_ppif(true);
         }
         auto res = m_macros.find(static_cast<std::string>(line));
-        if (res == m_macros.end())
-        {
-            m_allowwrite = false;
-        }
-        else
-        {
-            m_allowwrite = true;
-        }
+        current_file_scope().conditions.push_back({ res != m_macros.end(), fileinfo, fileinfo });
         return "\n";
     }
     else if (inst == "IFNDEF")
     { // #ifndef TEST
-        if (inside_ppif())
+        if (!current_file_scope().conditions.empty())
         {
-            m_errflag = true;
             log(err::UnexpectedIfndef(fileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
-            return "";
-        }
-        else
-        {
-            inside_ppif(true);
         }
         auto res = m_macros.find(static_cast<std::string>(line));
-        if (res == m_macros.end())
-        {
-            m_allowwrite = true;
-        }
-        else
-        {
-            m_allowwrite = false;
-        }
+        current_file_scope().conditions.push_back({ res == m_macros.end(), fileinfo, fileinfo });
         return "\n";
     }
     else if (inst == "ELSE")
     { // #else
-        if (!inside_ppif())
+        if (current_file_scope().conditions.empty())
         {
             m_errflag = true;
             log(err::UnexpectedElse(fileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
             return "";
         }
-        m_allowwrite = !m_allowwrite;
+        current_file_scope().conditions.back().allow_write = !current_file_scope().conditions.back().allow_write;
         return "\n";
     }
     else if (inst == "ENDIF")
     { // #endif
-        if (!inside_ppif())
+        if (current_file_scope().conditions.empty())
         {
             m_errflag = true;
             log(err::UnexpectedEndif(fileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
             return "";
         }
-        inside_ppif(false);
-        m_allowwrite = true;
+        current_file_scope().conditions.pop_back();
         return "\n";
     }
     else
@@ -947,7 +921,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
 }
 std::string sqf::parser::preprocessor::impl_default::instance::parse_file(::sqf::runtime::runtime& runtime, preprocessorfileinfo& fileinfo)
 {
-    push_path(fileinfo.pathinf.physical);
+    push_path(fileinfo.pathinf);
     char c;
     std::stringstream sstream;
     std::stringstream wordstream;
@@ -963,7 +937,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(::sqf:
             {
                 is_in_string = false;
             }
-            if (m_allowwrite)
+            if (current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write)
                 sstream << c;
             continue;
         }
@@ -974,7 +948,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(::sqf:
             is_in_string = true;
             auto word = wordstream.str();
             wordstream.str("");
-            if (m_allowwrite)
+            if (current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write)
                 sstream << word << c;
         } break;
         case '\n':
@@ -1001,7 +975,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(::sqf:
             {
                 was_new_line = false;
             }
-            if (m_allowwrite)
+            if (current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write)
             {
                 if (wordstream.rdbuf()->in_avail() > 0)
                 {
@@ -1047,7 +1021,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(::sqf:
         case '3': case '4': case '5': case '6': case '7':
         case '8': case '9': case '_':
         {
-            if (m_allowwrite)
+            if (current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write)
                 wordstream << c;
             was_new_line = false;
         } break;
@@ -1209,7 +1183,7 @@ std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(
             out_macros->push_back(entry.second);
         }
     }
-    if (i.inside_ppif_err_flag() || i.errflag())
+    if (!i.current_file_scope().conditions.empty() || i.errflag())
     {
         return {};
     }

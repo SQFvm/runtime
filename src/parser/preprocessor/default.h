@@ -248,7 +248,6 @@ namespace sqf::parser::preprocessor
             std::vector<file_scope> m_file_scopes;
             std::unordered_set<std::string> m_visited;
             bool m_errflag = false;
-            bool m_allowwrite = true;
             std::unordered_map<std::string, ::sqf::runtime::parser::macro> m_macros;
 
             void replace_stringify(
@@ -299,6 +298,7 @@ namespace sqf::parser::preprocessor
 
             bool allow_write() const { return m_file_scopes.back().conditions.empty() || m_file_scopes.back().conditions.back().allow_write; }
             bool errflag() { return m_errflag; }
+            file_scope& current_file_scope() { return m_file_scopes.back(); }
             void push_path(const ::sqf::runtime::fileio::pathinfo pathinfo);
             void pop_path(preprocessorfileinfo& preprocessorfileinfo);
 
