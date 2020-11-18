@@ -1369,19 +1369,27 @@ namespace
 
     std::shared_ptr<dlops> helpermethod_callextension_loadlibrary(runtime& runtime, std::string name)
     {
+        std::string dlname = name;
+
+        #ifdef ENVIRONMENT64
+            dlname += "_x64";
+        #endif
+
+        #ifndef _WIN32 // Append .so for Linux
+            dlname += ".so";
+        #endif
+
         static char buffer[CALLEXTVERSIONBUFFSIZE + 1] = { 0 };
         for (auto it : runtime.storage<dlops, sqf::operators::dlops_storage>())
         {
-            if (it->path() == name)
+            if (it->path() == dlname)
             {
                 return it;
             }
         }
-#ifdef _WIN32
-        auto dl = std::make_shared<dlops>(name);
-#else
-        auto dl = std::make_shared<dlops>(name + ".so");
-#endif
+
+        auto dl = std::make_shared<dlops>(dlname);
+
         runtime.storage<dlops, sqf::operators::dlops_storage>().push_back(dl);
         void* sym = nullptr;
         if (dl->try_resolve("RVExtensionVersion", &sym))
