@@ -1,0 +1,1660 @@
+Grammatik
+
+    0 $accept: start NA
+
+    1 start: %empty
+    2      | statements
+
+    3 statements: statement
+    4           | statements ";" statement
+    5           | statements "," statement
+
+    6 statement: assignment
+    7          | expression
+
+    8 value: STRING
+    9      | IDENT_N
+   10      | IDENT
+   11      | NUMBER
+   12      | "true"
+   13      | "false"
+   14      | code
+   15      | array
+
+   16 value_list: value
+   17           | value_list "," value
+
+   18 code: "{" statements "}"
+   19     | "{" "}"
+
+   20 array: "[" value_list "]"
+   21      | "[" "]"
+
+   22 assignment: "private" IDENT "=" expression
+   23           | IDENT "=" expression
+
+   24 expression: exp0
+
+   25 exp0: exp1
+   26     | exp1 OPERATOR_0 exp0
+   27     | exp1 IDENT_0 exp0
+
+   28 exp1: exp2
+   29     | exp2 OPERATOR_1 exp1
+   30     | exp2 IDENT_1 exp1
+
+   31 exp2: exp3
+   32     | exp3 OPERATOR_2 exp2
+   33     | exp3 IDENT_2 exp2
+
+   34 exp3: exp4
+   35     | exp4 OPERATOR_3 exp3
+   36     | exp4 IDENT_3 exp3
+
+   37 exp4: exp5
+   38     | exp5 OPERATOR_4 exp4
+   39     | exp5 IDENT_4 exp4
+
+   40 exp5: exp6
+   41     | exp6 OPERATOR_5 exp5
+   42     | exp6 IDENT_5 exp5
+
+   43 exp6: exp7
+   44     | exp7 OPERATOR_6 exp6
+   45     | exp7 IDENT_6 exp6
+
+   46 exp7: exp8
+   47     | exp8 OPERATOR_7 exp7
+   48     | exp8 IDENT_7 exp7
+
+   49 exp8: exp9
+   50     | exp9 OPERATOR_8 exp8
+   51     | exp9 IDENT_8 exp8
+
+   52 exp9: expu
+   53     | expu OPERATOR_9 exp9
+   54     | expu IDENT_9 exp9
+
+   55 expu: OPERATOR_U expu
+   56     | IDENT_U expu
+   57     | "private" expu
+   58     | "(" expression ")"
+   59     | value
+
+
+Terminale und die Regeln, in denen sie verwendet werden
+
+NA (0) 0
+error (256)
+"false" (258) 13
+"true" (259) 12
+"private" (260) 22 57
+"{" (261) 18 19
+"}" (262) 18 19
+"(" (263) 58
+")" (264) 58
+"[" (265) 20 21
+"]" (266) 20 21
+";" (267) 4
+"," (268) 5 17
+"=" (269) 22 23
+OPERATOR_0 (270) 26
+IDENT_0 (271) 27
+OPERATOR_1 (272) 29
+IDENT_1 (273) 30
+OPERATOR_2 (274) 32
+IDENT_2 (275) 33
+OPERATOR_3 (276) 35
+IDENT_3 (277) 36
+OPERATOR_4 (278) 38
+IDENT_4 (279) 39
+OPERATOR_5 (280) 41
+IDENT_5 (281) 42
+OPERATOR_6 (282) 44
+IDENT_6 (283) 45
+OPERATOR_7 (284) 47
+IDENT_7 (285) 48
+OPERATOR_8 (286) 50
+IDENT_8 (287) 51
+OPERATOR_9 (288) 53
+IDENT_9 (289) 54
+OPERATOR_U (290) 55
+IDENT_U (291) 56
+IDENT_N (292) 9
+IDENT (293) 10 22 23
+NUMBER (294) 11
+STRING (295) 8
+
+
+Nicht-Terminal und die Regeln, in denen sie verwendet werden
+
+$accept (41)
+    auf der linken Seite: 0
+start (42)
+    auf der linken Seite: 1 2, auf der rechten Seite: 0
+statements (43)
+    auf der linken Seite: 3 4 5, auf der rechten Seite: 2 4 5 18
+statement (44)
+    auf der linken Seite: 6 7, auf der rechten Seite: 3 4 5
+value (45)
+    auf der linken Seite: 8 9 10 11 12 13 14 15, auf der rechten Seite:
+    16 17 59
+value_list (46)
+    auf der linken Seite: 16 17, auf der rechten Seite: 17 20
+code (47)
+    auf der linken Seite: 18 19, auf der rechten Seite: 14
+array (48)
+    auf der linken Seite: 20 21, auf der rechten Seite: 15
+assignment (49)
+    auf der linken Seite: 22 23, auf der rechten Seite: 6
+expression (50)
+    auf der linken Seite: 24, auf der rechten Seite: 7 22 23 58
+exp0 (51)
+    auf der linken Seite: 25 26 27, auf der rechten Seite: 24 26 27
+exp1 (52)
+    auf der linken Seite: 28 29 30, auf der rechten Seite: 25 26 27
+    29 30
+exp2 (53)
+    auf der linken Seite: 31 32 33, auf der rechten Seite: 28 29 30
+    32 33
+exp3 (54)
+    auf der linken Seite: 34 35 36, auf der rechten Seite: 31 32 33
+    35 36
+exp4 (55)
+    auf der linken Seite: 37 38 39, auf der rechten Seite: 34 35 36
+    38 39
+exp5 (56)
+    auf der linken Seite: 40 41 42, auf der rechten Seite: 37 38 39
+    41 42
+exp6 (57)
+    auf der linken Seite: 43 44 45, auf der rechten Seite: 40 41 42
+    44 45
+exp7 (58)
+    auf der linken Seite: 46 47 48, auf der rechten Seite: 43 44 45
+    47 48
+exp8 (59)
+    auf der linken Seite: 49 50 51, auf der rechten Seite: 46 47 48
+    50 51
+exp9 (60)
+    auf der linken Seite: 52 53 54, auf der rechten Seite: 49 50 51
+    53 54
+expu (61)
+    auf der linken Seite: 55 56 57 58 59, auf der rechten Seite: 52
+    53 54 55 56 57
+
+
+Zustand 0
+
+    0 $accept: . start NA
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 3 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 10 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    $default  reduziere mit Regel 1 (start)
+
+    start       gehe zu Zustand 13 über
+    statements  gehe zu Zustand 14 über
+    statement   gehe zu Zustand 15 über
+    value       gehe zu Zustand 16 über
+    code        gehe zu Zustand 17 über
+    array       gehe zu Zustand 18 über
+    assignment  gehe zu Zustand 19 über
+    expression  gehe zu Zustand 20 über
+    exp0        gehe zu Zustand 21 über
+    exp1        gehe zu Zustand 22 über
+    exp2        gehe zu Zustand 23 über
+    exp3        gehe zu Zustand 24 über
+    exp4        gehe zu Zustand 25 über
+    exp5        gehe zu Zustand 26 über
+    exp6        gehe zu Zustand 27 über
+    exp7        gehe zu Zustand 28 über
+    exp8        gehe zu Zustand 29 über
+    exp9        gehe zu Zustand 30 über
+    expu        gehe zu Zustand 31 über
+
+
+Zustand 1
+
+   13 value: "false" .
+
+    $default  reduziere mit Regel 13 (value)
+
+
+Zustand 2
+
+   12 value: "true" .
+
+    $default  reduziere mit Regel 12 (value)
+
+
+Zustand 3
+
+   22 assignment: "private" . IDENT "=" expression
+   57 expu: "private" . expu
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 33 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    expu   gehe zu Zustand 34 über
+
+
+Zustand 4
+
+   18 code: "{" . statements "}"
+   19     | "{" . "}"
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 3 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "}"         schiebe und gehe zu Zustand 35 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 10 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    statements  gehe zu Zustand 36 über
+    statement   gehe zu Zustand 15 über
+    value       gehe zu Zustand 16 über
+    code        gehe zu Zustand 17 über
+    array       gehe zu Zustand 18 über
+    assignment  gehe zu Zustand 19 über
+    expression  gehe zu Zustand 20 über
+    exp0        gehe zu Zustand 21 über
+    exp1        gehe zu Zustand 22 über
+    exp2        gehe zu Zustand 23 über
+    exp3        gehe zu Zustand 24 über
+    exp4        gehe zu Zustand 25 über
+    exp5        gehe zu Zustand 26 über
+    exp6        gehe zu Zustand 27 über
+    exp7        gehe zu Zustand 28 über
+    exp8        gehe zu Zustand 29 über
+    exp9        gehe zu Zustand 30 über
+    expu        gehe zu Zustand 31 über
+
+
+Zustand 5
+
+   58 expu: "(" . expression ")"
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value       gehe zu Zustand 16 über
+    code        gehe zu Zustand 17 über
+    array       gehe zu Zustand 18 über
+    expression  gehe zu Zustand 38 über
+    exp0        gehe zu Zustand 21 über
+    exp1        gehe zu Zustand 22 über
+    exp2        gehe zu Zustand 23 über
+    exp3        gehe zu Zustand 24 über
+    exp4        gehe zu Zustand 25 über
+    exp5        gehe zu Zustand 26 über
+    exp6        gehe zu Zustand 27 über
+    exp7        gehe zu Zustand 28 über
+    exp8        gehe zu Zustand 29 über
+    exp9        gehe zu Zustand 30 über
+    expu        gehe zu Zustand 31 über
+
+
+Zustand 6
+
+   20 array: "[" . value_list "]"
+   21      | "[" . "]"
+
+    "false"  schiebe und gehe zu Zustand 1 über
+    "true"   schiebe und gehe zu Zustand 2 über
+    "{"      schiebe und gehe zu Zustand 4 über
+    "["      schiebe und gehe zu Zustand 6 über
+    "]"      schiebe und gehe zu Zustand 39 über
+    IDENT_N  schiebe und gehe zu Zustand 9 über
+    IDENT    schiebe und gehe zu Zustand 37 über
+    NUMBER   schiebe und gehe zu Zustand 11 über
+    STRING   schiebe und gehe zu Zustand 12 über
+
+    value       gehe zu Zustand 40 über
+    value_list  gehe zu Zustand 41 über
+    code        gehe zu Zustand 17 über
+    array       gehe zu Zustand 18 über
+
+
+Zustand 7
+
+   55 expu: OPERATOR_U . expu
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    expu   gehe zu Zustand 42 über
+
+
+Zustand 8
+
+   56 expu: IDENT_U . expu
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    expu   gehe zu Zustand 43 über
+
+
+Zustand 9
+
+    9 value: IDENT_N .
+
+    $default  reduziere mit Regel 9 (value)
+
+
+Zustand 10
+
+   10 value: IDENT .
+   23 assignment: IDENT . "=" expression
+
+    "="  schiebe und gehe zu Zustand 44 über
+
+    $default  reduziere mit Regel 10 (value)
+
+
+Zustand 11
+
+   11 value: NUMBER .
+
+    $default  reduziere mit Regel 11 (value)
+
+
+Zustand 12
+
+    8 value: STRING .
+
+    $default  reduziere mit Regel 8 (value)
+
+
+Zustand 13
+
+    0 $accept: start . NA
+
+    NA  schiebe und gehe zu Zustand 45 über
+
+
+Zustand 14
+
+    2 start: statements .
+    4 statements: statements . ";" statement
+    5           | statements . "," statement
+
+    ";"  schiebe und gehe zu Zustand 46 über
+    ","  schiebe und gehe zu Zustand 47 über
+
+    $default  reduziere mit Regel 2 (start)
+
+
+Zustand 15
+
+    3 statements: statement .
+
+    $default  reduziere mit Regel 3 (statements)
+
+
+Zustand 16
+
+   59 expu: value .
+
+    $default  reduziere mit Regel 59 (expu)
+
+
+Zustand 17
+
+   14 value: code .
+
+    $default  reduziere mit Regel 14 (value)
+
+
+Zustand 18
+
+   15 value: array .
+
+    $default  reduziere mit Regel 15 (value)
+
+
+Zustand 19
+
+    6 statement: assignment .
+
+    $default  reduziere mit Regel 6 (statement)
+
+
+Zustand 20
+
+    7 statement: expression .
+
+    $default  reduziere mit Regel 7 (statement)
+
+
+Zustand 21
+
+   24 expression: exp0 .
+
+    $default  reduziere mit Regel 24 (expression)
+
+
+Zustand 22
+
+   25 exp0: exp1 .
+   26     | exp1 . OPERATOR_0 exp0
+   27     | exp1 . IDENT_0 exp0
+
+    OPERATOR_0  schiebe und gehe zu Zustand 48 über
+    IDENT_0     schiebe und gehe zu Zustand 49 über
+
+    $default  reduziere mit Regel 25 (exp0)
+
+
+Zustand 23
+
+   28 exp1: exp2 .
+   29     | exp2 . OPERATOR_1 exp1
+   30     | exp2 . IDENT_1 exp1
+
+    OPERATOR_1  schiebe und gehe zu Zustand 50 über
+    IDENT_1     schiebe und gehe zu Zustand 51 über
+
+    $default  reduziere mit Regel 28 (exp1)
+
+
+Zustand 24
+
+   31 exp2: exp3 .
+   32     | exp3 . OPERATOR_2 exp2
+   33     | exp3 . IDENT_2 exp2
+
+    OPERATOR_2  schiebe und gehe zu Zustand 52 über
+    IDENT_2     schiebe und gehe zu Zustand 53 über
+
+    $default  reduziere mit Regel 31 (exp2)
+
+
+Zustand 25
+
+   34 exp3: exp4 .
+   35     | exp4 . OPERATOR_3 exp3
+   36     | exp4 . IDENT_3 exp3
+
+    OPERATOR_3  schiebe und gehe zu Zustand 54 über
+    IDENT_3     schiebe und gehe zu Zustand 55 über
+
+    $default  reduziere mit Regel 34 (exp3)
+
+
+Zustand 26
+
+   37 exp4: exp5 .
+   38     | exp5 . OPERATOR_4 exp4
+   39     | exp5 . IDENT_4 exp4
+
+    OPERATOR_4  schiebe und gehe zu Zustand 56 über
+    IDENT_4     schiebe und gehe zu Zustand 57 über
+
+    $default  reduziere mit Regel 37 (exp4)
+
+
+Zustand 27
+
+   40 exp5: exp6 .
+   41     | exp6 . OPERATOR_5 exp5
+   42     | exp6 . IDENT_5 exp5
+
+    OPERATOR_5  schiebe und gehe zu Zustand 58 über
+    IDENT_5     schiebe und gehe zu Zustand 59 über
+
+    $default  reduziere mit Regel 40 (exp5)
+
+
+Zustand 28
+
+   43 exp6: exp7 .
+   44     | exp7 . OPERATOR_6 exp6
+   45     | exp7 . IDENT_6 exp6
+
+    OPERATOR_6  schiebe und gehe zu Zustand 60 über
+    IDENT_6     schiebe und gehe zu Zustand 61 über
+
+    $default  reduziere mit Regel 43 (exp6)
+
+
+Zustand 29
+
+   46 exp7: exp8 .
+   47     | exp8 . OPERATOR_7 exp7
+   48     | exp8 . IDENT_7 exp7
+
+    OPERATOR_7  schiebe und gehe zu Zustand 62 über
+    IDENT_7     schiebe und gehe zu Zustand 63 über
+
+    $default  reduziere mit Regel 46 (exp7)
+
+
+Zustand 30
+
+   49 exp8: exp9 .
+   50     | exp9 . OPERATOR_8 exp8
+   51     | exp9 . IDENT_8 exp8
+
+    OPERATOR_8  schiebe und gehe zu Zustand 64 über
+    IDENT_8     schiebe und gehe zu Zustand 65 über
+
+    $default  reduziere mit Regel 49 (exp8)
+
+
+Zustand 31
+
+   52 exp9: expu .
+   53     | expu . OPERATOR_9 exp9
+   54     | expu . IDENT_9 exp9
+
+    OPERATOR_9  schiebe und gehe zu Zustand 66 über
+    IDENT_9     schiebe und gehe zu Zustand 67 über
+
+    $default  reduziere mit Regel 52 (exp9)
+
+
+Zustand 32
+
+   57 expu: "private" . expu
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    expu   gehe zu Zustand 34 über
+
+
+Zustand 33
+
+   10 value: IDENT .
+   22 assignment: "private" IDENT . "=" expression
+
+    "="  schiebe und gehe zu Zustand 68 über
+
+    $default  reduziere mit Regel 10 (value)
+
+
+Zustand 34
+
+   57 expu: "private" expu .
+
+    $default  reduziere mit Regel 57 (expu)
+
+
+Zustand 35
+
+   19 code: "{" "}" .
+
+    $default  reduziere mit Regel 19 (code)
+
+
+Zustand 36
+
+    4 statements: statements . ";" statement
+    5           | statements . "," statement
+   18 code: "{" statements . "}"
+
+    "}"  schiebe und gehe zu Zustand 69 über
+    ";"  schiebe und gehe zu Zustand 46 über
+    ","  schiebe und gehe zu Zustand 47 über
+
+
+Zustand 37
+
+   10 value: IDENT .
+
+    $default  reduziere mit Regel 10 (value)
+
+
+Zustand 38
+
+   58 expu: "(" expression . ")"
+
+    ")"  schiebe und gehe zu Zustand 70 über
+
+
+Zustand 39
+
+   21 array: "[" "]" .
+
+    $default  reduziere mit Regel 21 (array)
+
+
+Zustand 40
+
+   16 value_list: value .
+
+    $default  reduziere mit Regel 16 (value_list)
+
+
+Zustand 41
+
+   17 value_list: value_list . "," value
+   20 array: "[" value_list . "]"
+
+    "]"  schiebe und gehe zu Zustand 71 über
+    ","  schiebe und gehe zu Zustand 72 über
+
+
+Zustand 42
+
+   55 expu: OPERATOR_U expu .
+
+    $default  reduziere mit Regel 55 (expu)
+
+
+Zustand 43
+
+   56 expu: IDENT_U expu .
+
+    $default  reduziere mit Regel 56 (expu)
+
+
+Zustand 44
+
+   23 assignment: IDENT "=" . expression
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value       gehe zu Zustand 16 über
+    code        gehe zu Zustand 17 über
+    array       gehe zu Zustand 18 über
+    expression  gehe zu Zustand 73 über
+    exp0        gehe zu Zustand 21 über
+    exp1        gehe zu Zustand 22 über
+    exp2        gehe zu Zustand 23 über
+    exp3        gehe zu Zustand 24 über
+    exp4        gehe zu Zustand 25 über
+    exp5        gehe zu Zustand 26 über
+    exp6        gehe zu Zustand 27 über
+    exp7        gehe zu Zustand 28 über
+    exp8        gehe zu Zustand 29 über
+    exp9        gehe zu Zustand 30 über
+    expu        gehe zu Zustand 31 über
+
+
+Zustand 45
+
+    0 $accept: start NA .
+
+    $default  annehmen
+
+
+Zustand 46
+
+    4 statements: statements ";" . statement
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 3 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 10 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    statement   gehe zu Zustand 74 über
+    value       gehe zu Zustand 16 über
+    code        gehe zu Zustand 17 über
+    array       gehe zu Zustand 18 über
+    assignment  gehe zu Zustand 19 über
+    expression  gehe zu Zustand 20 über
+    exp0        gehe zu Zustand 21 über
+    exp1        gehe zu Zustand 22 über
+    exp2        gehe zu Zustand 23 über
+    exp3        gehe zu Zustand 24 über
+    exp4        gehe zu Zustand 25 über
+    exp5        gehe zu Zustand 26 über
+    exp6        gehe zu Zustand 27 über
+    exp7        gehe zu Zustand 28 über
+    exp8        gehe zu Zustand 29 über
+    exp9        gehe zu Zustand 30 über
+    expu        gehe zu Zustand 31 über
+
+
+Zustand 47
+
+    5 statements: statements "," . statement
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 3 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 10 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    statement   gehe zu Zustand 75 über
+    value       gehe zu Zustand 16 über
+    code        gehe zu Zustand 17 über
+    array       gehe zu Zustand 18 über
+    assignment  gehe zu Zustand 19 über
+    expression  gehe zu Zustand 20 über
+    exp0        gehe zu Zustand 21 über
+    exp1        gehe zu Zustand 22 über
+    exp2        gehe zu Zustand 23 über
+    exp3        gehe zu Zustand 24 über
+    exp4        gehe zu Zustand 25 über
+    exp5        gehe zu Zustand 26 über
+    exp6        gehe zu Zustand 27 über
+    exp7        gehe zu Zustand 28 über
+    exp8        gehe zu Zustand 29 über
+    exp9        gehe zu Zustand 30 über
+    expu        gehe zu Zustand 31 über
+
+
+Zustand 48
+
+   26 exp0: exp1 OPERATOR_0 . exp0
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp0   gehe zu Zustand 76 über
+    exp1   gehe zu Zustand 22 über
+    exp2   gehe zu Zustand 23 über
+    exp3   gehe zu Zustand 24 über
+    exp4   gehe zu Zustand 25 über
+    exp5   gehe zu Zustand 26 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 49
+
+   27 exp0: exp1 IDENT_0 . exp0
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp0   gehe zu Zustand 77 über
+    exp1   gehe zu Zustand 22 über
+    exp2   gehe zu Zustand 23 über
+    exp3   gehe zu Zustand 24 über
+    exp4   gehe zu Zustand 25 über
+    exp5   gehe zu Zustand 26 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 50
+
+   29 exp1: exp2 OPERATOR_1 . exp1
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp1   gehe zu Zustand 78 über
+    exp2   gehe zu Zustand 23 über
+    exp3   gehe zu Zustand 24 über
+    exp4   gehe zu Zustand 25 über
+    exp5   gehe zu Zustand 26 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 51
+
+   30 exp1: exp2 IDENT_1 . exp1
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp1   gehe zu Zustand 79 über
+    exp2   gehe zu Zustand 23 über
+    exp3   gehe zu Zustand 24 über
+    exp4   gehe zu Zustand 25 über
+    exp5   gehe zu Zustand 26 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 52
+
+   32 exp2: exp3 OPERATOR_2 . exp2
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp2   gehe zu Zustand 80 über
+    exp3   gehe zu Zustand 24 über
+    exp4   gehe zu Zustand 25 über
+    exp5   gehe zu Zustand 26 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 53
+
+   33 exp2: exp3 IDENT_2 . exp2
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp2   gehe zu Zustand 81 über
+    exp3   gehe zu Zustand 24 über
+    exp4   gehe zu Zustand 25 über
+    exp5   gehe zu Zustand 26 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 54
+
+   35 exp3: exp4 OPERATOR_3 . exp3
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp3   gehe zu Zustand 82 über
+    exp4   gehe zu Zustand 25 über
+    exp5   gehe zu Zustand 26 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 55
+
+   36 exp3: exp4 IDENT_3 . exp3
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp3   gehe zu Zustand 83 über
+    exp4   gehe zu Zustand 25 über
+    exp5   gehe zu Zustand 26 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 56
+
+   38 exp4: exp5 OPERATOR_4 . exp4
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp4   gehe zu Zustand 84 über
+    exp5   gehe zu Zustand 26 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 57
+
+   39 exp4: exp5 IDENT_4 . exp4
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp4   gehe zu Zustand 85 über
+    exp5   gehe zu Zustand 26 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 58
+
+   41 exp5: exp6 OPERATOR_5 . exp5
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp5   gehe zu Zustand 86 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 59
+
+   42 exp5: exp6 IDENT_5 . exp5
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp5   gehe zu Zustand 87 über
+    exp6   gehe zu Zustand 27 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 60
+
+   44 exp6: exp7 OPERATOR_6 . exp6
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp6   gehe zu Zustand 88 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 61
+
+   45 exp6: exp7 IDENT_6 . exp6
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp6   gehe zu Zustand 89 über
+    exp7   gehe zu Zustand 28 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 62
+
+   47 exp7: exp8 OPERATOR_7 . exp7
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp7   gehe zu Zustand 90 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 63
+
+   48 exp7: exp8 IDENT_7 . exp7
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp7   gehe zu Zustand 91 über
+    exp8   gehe zu Zustand 29 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 64
+
+   50 exp8: exp9 OPERATOR_8 . exp8
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp8   gehe zu Zustand 92 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 65
+
+   51 exp8: exp9 IDENT_8 . exp8
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp8   gehe zu Zustand 93 über
+    exp9   gehe zu Zustand 30 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 66
+
+   53 exp9: expu OPERATOR_9 . exp9
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp9   gehe zu Zustand 94 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 67
+
+   54 exp9: expu IDENT_9 . exp9
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 16 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+    exp9   gehe zu Zustand 95 über
+    expu   gehe zu Zustand 31 über
+
+
+Zustand 68
+
+   22 assignment: "private" IDENT "=" . expression
+
+    "false"     schiebe und gehe zu Zustand 1 über
+    "true"      schiebe und gehe zu Zustand 2 über
+    "private"   schiebe und gehe zu Zustand 32 über
+    "{"         schiebe und gehe zu Zustand 4 über
+    "("         schiebe und gehe zu Zustand 5 über
+    "["         schiebe und gehe zu Zustand 6 über
+    OPERATOR_U  schiebe und gehe zu Zustand 7 über
+    IDENT_U     schiebe und gehe zu Zustand 8 über
+    IDENT_N     schiebe und gehe zu Zustand 9 über
+    IDENT       schiebe und gehe zu Zustand 37 über
+    NUMBER      schiebe und gehe zu Zustand 11 über
+    STRING      schiebe und gehe zu Zustand 12 über
+
+    value       gehe zu Zustand 16 über
+    code        gehe zu Zustand 17 über
+    array       gehe zu Zustand 18 über
+    expression  gehe zu Zustand 96 über
+    exp0        gehe zu Zustand 21 über
+    exp1        gehe zu Zustand 22 über
+    exp2        gehe zu Zustand 23 über
+    exp3        gehe zu Zustand 24 über
+    exp4        gehe zu Zustand 25 über
+    exp5        gehe zu Zustand 26 über
+    exp6        gehe zu Zustand 27 über
+    exp7        gehe zu Zustand 28 über
+    exp8        gehe zu Zustand 29 über
+    exp9        gehe zu Zustand 30 über
+    expu        gehe zu Zustand 31 über
+
+
+Zustand 69
+
+   18 code: "{" statements "}" .
+
+    $default  reduziere mit Regel 18 (code)
+
+
+Zustand 70
+
+   58 expu: "(" expression ")" .
+
+    $default  reduziere mit Regel 58 (expu)
+
+
+Zustand 71
+
+   20 array: "[" value_list "]" .
+
+    $default  reduziere mit Regel 20 (array)
+
+
+Zustand 72
+
+   17 value_list: value_list "," . value
+
+    "false"  schiebe und gehe zu Zustand 1 über
+    "true"   schiebe und gehe zu Zustand 2 über
+    "{"      schiebe und gehe zu Zustand 4 über
+    "["      schiebe und gehe zu Zustand 6 über
+    IDENT_N  schiebe und gehe zu Zustand 9 über
+    IDENT    schiebe und gehe zu Zustand 37 über
+    NUMBER   schiebe und gehe zu Zustand 11 über
+    STRING   schiebe und gehe zu Zustand 12 über
+
+    value  gehe zu Zustand 97 über
+    code   gehe zu Zustand 17 über
+    array  gehe zu Zustand 18 über
+
+
+Zustand 73
+
+   23 assignment: IDENT "=" expression .
+
+    $default  reduziere mit Regel 23 (assignment)
+
+
+Zustand 74
+
+    4 statements: statements ";" statement .
+
+    $default  reduziere mit Regel 4 (statements)
+
+
+Zustand 75
+
+    5 statements: statements "," statement .
+
+    $default  reduziere mit Regel 5 (statements)
+
+
+Zustand 76
+
+   26 exp0: exp1 OPERATOR_0 exp0 .
+
+    $default  reduziere mit Regel 26 (exp0)
+
+
+Zustand 77
+
+   27 exp0: exp1 IDENT_0 exp0 .
+
+    $default  reduziere mit Regel 27 (exp0)
+
+
+Zustand 78
+
+   29 exp1: exp2 OPERATOR_1 exp1 .
+
+    $default  reduziere mit Regel 29 (exp1)
+
+
+Zustand 79
+
+   30 exp1: exp2 IDENT_1 exp1 .
+
+    $default  reduziere mit Regel 30 (exp1)
+
+
+Zustand 80
+
+   32 exp2: exp3 OPERATOR_2 exp2 .
+
+    $default  reduziere mit Regel 32 (exp2)
+
+
+Zustand 81
+
+   33 exp2: exp3 IDENT_2 exp2 .
+
+    $default  reduziere mit Regel 33 (exp2)
+
+
+Zustand 82
+
+   35 exp3: exp4 OPERATOR_3 exp3 .
+
+    $default  reduziere mit Regel 35 (exp3)
+
+
+Zustand 83
+
+   36 exp3: exp4 IDENT_3 exp3 .
+
+    $default  reduziere mit Regel 36 (exp3)
+
+
+Zustand 84
+
+   38 exp4: exp5 OPERATOR_4 exp4 .
+
+    $default  reduziere mit Regel 38 (exp4)
+
+
+Zustand 85
+
+   39 exp4: exp5 IDENT_4 exp4 .
+
+    $default  reduziere mit Regel 39 (exp4)
+
+
+Zustand 86
+
+   41 exp5: exp6 OPERATOR_5 exp5 .
+
+    $default  reduziere mit Regel 41 (exp5)
+
+
+Zustand 87
+
+   42 exp5: exp6 IDENT_5 exp5 .
+
+    $default  reduziere mit Regel 42 (exp5)
+
+
+Zustand 88
+
+   44 exp6: exp7 OPERATOR_6 exp6 .
+
+    $default  reduziere mit Regel 44 (exp6)
+
+
+Zustand 89
+
+   45 exp6: exp7 IDENT_6 exp6 .
+
+    $default  reduziere mit Regel 45 (exp6)
+
+
+Zustand 90
+
+   47 exp7: exp8 OPERATOR_7 exp7 .
+
+    $default  reduziere mit Regel 47 (exp7)
+
+
+Zustand 91
+
+   48 exp7: exp8 IDENT_7 exp7 .
+
+    $default  reduziere mit Regel 48 (exp7)
+
+
+Zustand 92
+
+   50 exp8: exp9 OPERATOR_8 exp8 .
+
+    $default  reduziere mit Regel 50 (exp8)
+
+
+Zustand 93
+
+   51 exp8: exp9 IDENT_8 exp8 .
+
+    $default  reduziere mit Regel 51 (exp8)
+
+
+Zustand 94
+
+   53 exp9: expu OPERATOR_9 exp9 .
+
+    $default  reduziere mit Regel 53 (exp9)
+
+
+Zustand 95
+
+   54 exp9: expu IDENT_9 exp9 .
+
+    $default  reduziere mit Regel 54 (exp9)
+
+
+Zustand 96
+
+   22 assignment: "private" IDENT "=" expression .
+
+    $default  reduziere mit Regel 22 (assignment)
+
+
+Zustand 97
+
+   17 value_list: value_list "," value .
+
+    $default  reduziere mit Regel 17 (value_list)
