@@ -54,32 +54,34 @@
      {
         enum class astkind
         {
+            ENDOFFILE = -3,
+            INVALID = -2,
             __TOKEN = -1,
             NA = 0,
-            ENDOFFILE,
-            INVALID,
-            M_LINE,
-            I_COMMENT_LINE,
-            I_COMMENT_BLOCK,
-            I_WHITESPACE,
-
-            T_TRUE,
-            T_FALSE,
-            T_PRIVATE,
-
-            S_CURLYO,
-            S_CURLYC,
-            S_ROUNDO,
-            S_ROUNDC,
-            S_EDGEO,
-            S_EDGEC,
-            S_SEMICOLON,
-            S_COMMA,
-
-            T_OPERATOR,
-            T_STRING,
-            T_IDENT,
-            T_NUMBER
+            STATEMENTS,
+            STATEMENT,
+            IDENT,
+            NUMBER,
+            HEXNUMBER,
+            STRING,
+            BOOLEAN,
+            VALUE_LIST,
+            CODE,
+            ARRAY,
+            ASSIGNMENT,
+            ASSIGNMENT_LOCAL,
+            EXPN,
+            EXP0,
+            EXP1,
+            EXP2,
+            EXP3,
+            EXP4,
+            EXP5,
+            EXP6,
+            EXP7,
+            EXP8,
+            EXP9,
+            EXPU
         };
         struct astnode
         {
@@ -106,7 +108,7 @@
         };
      }
 
-#line 110 "parser.tab.hh" // lalr1.cc:377
+#line 112 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -183,7 +185,7 @@
 
 #line 9 "parser.y" // lalr1.cc:377
 namespace sqf { namespace parser { namespace sqf { namespace bison  {
-#line 187 "parser.tab.hh" // lalr1.cc:377
+#line 189 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -330,6 +332,39 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
+      // statements
+      // statement
+      // value
+      // value_list
+      // code
+      // array
+      // assignment
+      // expression
+      // exp0
+      // exp1
+      // exp2
+      // exp3
+      // exp4
+      // exp5
+      // exp6
+      // exp7
+      // exp8
+      // exp9
+      // expu
+      char dummy1[sizeof(::sqf::parser::sqf::bison::astnode)];
+
+      // "false"
+      // "true"
+      // "private"
+      // "{"
+      // "}"
+      // "("
+      // ")"
+      // "["
+      // "]"
+      // ";"
+      // ","
+      // "="
       // OPERATOR_0
       // IDENT_0
       // OPERATOR_1
@@ -355,8 +390,9 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       // IDENT_N
       // IDENT
       // NUMBER
+      // HEXNUMBER
       // STRING
-      char dummy1[sizeof(tokenizer::token)];
+      char dummy2[sizeof(tokenizer::token)];
 };
 
     /// Symbol semantic values.
@@ -417,7 +453,8 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
         IDENT_N = 292,
         IDENT = 293,
         NUMBER = 294,
-        STRING = 295
+        HEXNUMBER = 295,
+        STRING = 296
       };
     };
 
@@ -454,6 +491,8 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       /// Constructor for valueless symbols, and symbols from each type.
 
   basic_symbol (typename Base::kind_type t, const location_type& l);
+
+  basic_symbol (typename Base::kind_type t, const ::sqf::parser::sqf::bison::astnode v, const location_type& l);
 
   basic_symbol (typename Base::kind_type t, const tokenizer::token v, const location_type& l);
 
@@ -530,51 +569,51 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
 
     static inline
     symbol_type
-    make_FALSE (const location_type& l);
+    make_FALSE (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_TRUE (const location_type& l);
+    make_TRUE (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_PRIVATE (const location_type& l);
+    make_PRIVATE (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_CURLYO (const location_type& l);
+    make_CURLYO (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_CURLYC (const location_type& l);
+    make_CURLYC (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_ROUNDO (const location_type& l);
+    make_ROUNDO (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_ROUNDC (const location_type& l);
+    make_ROUNDC (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_SQUAREO (const location_type& l);
+    make_SQUAREO (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_SQUAREC (const location_type& l);
+    make_SQUAREC (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_SEMICOLON (const location_type& l);
+    make_SEMICOLON (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_COMMA (const location_type& l);
+    make_COMMA (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_EQUAL (const location_type& l);
+    make_EQUAL (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
@@ -675,6 +714,10 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     static inline
     symbol_type
     make_NUMBER (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_HEXNUMBER (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
@@ -885,12 +928,12 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 151,     ///< Last index in yytable_.
+      yylast_ = 164,     ///< Last index in yytable_.
       yynnts_ = 21,  ///< Number of nonterminal symbols.
-      yyfinal_ = 45, ///< Termination state number.
+      yyfinal_ = 46, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 41  ///< Number of tokens.
+      yyntokens_ = 42  ///< Number of tokens.
     };
 
 
@@ -940,9 +983,9 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    40
+      35,    36,    37,    38,    39,    40,    41
     };
-    const unsigned int user_token_number_max_ = 295;
+    const unsigned int user_token_number_max_ = 296;
     const token_number_type undef_token_ = 2;
 
     if (static_cast<int>(t) <= yyeof_)
@@ -975,6 +1018,40 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
   {
       switch (other.type_get ())
     {
+      case 44: // statements
+      case 45: // statement
+      case 46: // value
+      case 47: // value_list
+      case 48: // code
+      case 49: // array
+      case 50: // assignment
+      case 51: // expression
+      case 52: // exp0
+      case 53: // exp1
+      case 54: // exp2
+      case 55: // exp3
+      case 56: // exp4
+      case 57: // exp5
+      case 58: // exp6
+      case 59: // exp7
+      case 60: // exp8
+      case 61: // exp9
+      case 62: // expu
+        value.copy< ::sqf::parser::sqf::bison::astnode > (other.value);
+        break;
+
+      case 3: // "false"
+      case 4: // "true"
+      case 5: // "private"
+      case 6: // "{"
+      case 7: // "}"
+      case 8: // "("
+      case 9: // ")"
+      case 10: // "["
+      case 11: // "]"
+      case 12: // ";"
+      case 13: // ","
+      case 14: // "="
       case 15: // OPERATOR_0
       case 16: // IDENT_0
       case 17: // OPERATOR_1
@@ -1000,7 +1077,8 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       case 37: // IDENT_N
       case 38: // IDENT
       case 39: // NUMBER
-      case 40: // STRING
+      case 40: // HEXNUMBER
+      case 41: // STRING
         value.copy< tokenizer::token > (other.value);
         break;
 
@@ -1021,6 +1099,40 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     (void) v;
       switch (this->type_get ())
     {
+      case 44: // statements
+      case 45: // statement
+      case 46: // value
+      case 47: // value_list
+      case 48: // code
+      case 49: // array
+      case 50: // assignment
+      case 51: // expression
+      case 52: // exp0
+      case 53: // exp1
+      case 54: // exp2
+      case 55: // exp3
+      case 56: // exp4
+      case 57: // exp5
+      case 58: // exp6
+      case 59: // exp7
+      case 60: // exp8
+      case 61: // exp9
+      case 62: // expu
+        value.copy< ::sqf::parser::sqf::bison::astnode > (v);
+        break;
+
+      case 3: // "false"
+      case 4: // "true"
+      case 5: // "private"
+      case 6: // "{"
+      case 7: // "}"
+      case 8: // "("
+      case 9: // ")"
+      case 10: // "["
+      case 11: // "]"
+      case 12: // ";"
+      case 13: // ","
+      case 14: // "="
       case 15: // OPERATOR_0
       case 16: // IDENT_0
       case 17: // OPERATOR_1
@@ -1046,7 +1158,8 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       case 37: // IDENT_N
       case 38: // IDENT
       case 39: // NUMBER
-      case 40: // STRING
+      case 40: // HEXNUMBER
+      case 41: // STRING
         value.copy< tokenizer::token > (v);
         break;
 
@@ -1062,6 +1175,13 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
   parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const location_type& l)
     : Base (t)
     , value ()
+    , location (l)
+  {}
+
+  template <typename Base>
+  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const ::sqf::parser::sqf::bison::astnode v, const location_type& l)
+    : Base (t)
+    , value (v)
     , location (l)
   {}
 
@@ -1098,6 +1218,40 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     // Type destructor.
     switch (yytype)
     {
+      case 44: // statements
+      case 45: // statement
+      case 46: // value
+      case 47: // value_list
+      case 48: // code
+      case 49: // array
+      case 50: // assignment
+      case 51: // expression
+      case 52: // exp0
+      case 53: // exp1
+      case 54: // exp2
+      case 55: // exp3
+      case 56: // exp4
+      case 57: // exp5
+      case 58: // exp6
+      case 59: // exp7
+      case 60: // exp8
+      case 61: // exp9
+      case 62: // expu
+        value.template destroy< ::sqf::parser::sqf::bison::astnode > ();
+        break;
+
+      case 3: // "false"
+      case 4: // "true"
+      case 5: // "private"
+      case 6: // "{"
+      case 7: // "}"
+      case 8: // "("
+      case 9: // ")"
+      case 10: // "["
+      case 11: // "]"
+      case 12: // ";"
+      case 13: // ","
+      case 14: // "="
       case 15: // OPERATOR_0
       case 16: // IDENT_0
       case 17: // OPERATOR_1
@@ -1123,7 +1277,8 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       case 37: // IDENT_N
       case 38: // IDENT
       case 39: // NUMBER
-      case 40: // STRING
+      case 40: // HEXNUMBER
+      case 41: // STRING
         value.template destroy< tokenizer::token > ();
         break;
 
@@ -1150,6 +1305,40 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     super_type::move(s);
       switch (this->type_get ())
     {
+      case 44: // statements
+      case 45: // statement
+      case 46: // value
+      case 47: // value_list
+      case 48: // code
+      case 49: // array
+      case 50: // assignment
+      case 51: // expression
+      case 52: // exp0
+      case 53: // exp1
+      case 54: // exp2
+      case 55: // exp3
+      case 56: // exp4
+      case 57: // exp5
+      case 58: // exp6
+      case 59: // exp7
+      case 60: // exp8
+      case 61: // exp9
+      case 62: // expu
+        value.move< ::sqf::parser::sqf::bison::astnode > (s.value);
+        break;
+
+      case 3: // "false"
+      case 4: // "true"
+      case 5: // "private"
+      case 6: // "{"
+      case 7: // "}"
+      case 8: // "("
+      case 9: // ")"
+      case 10: // "["
+      case 11: // "]"
+      case 12: // ";"
+      case 13: // ","
+      case 14: // "="
       case 15: // OPERATOR_0
       case 16: // IDENT_0
       case 17: // OPERATOR_1
@@ -1175,7 +1364,8 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       case 37: // IDENT_N
       case 38: // IDENT
       case 39: // NUMBER
-      case 40: // STRING
+      case 40: // HEXNUMBER
+      case 41: // STRING
         value.move< tokenizer::token > (s.value);
         break;
 
@@ -1238,7 +1428,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
      285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
-     295
+     295,   296
     };
     return static_cast<token_type> (yytoken_number_[type]);
   }
@@ -1250,75 +1440,75 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
   }
 
   parser::symbol_type
-  parser::make_FALSE (const location_type& l)
+  parser::make_FALSE (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::FALSE, l);
+    return symbol_type (token::FALSE, v, l);
   }
 
   parser::symbol_type
-  parser::make_TRUE (const location_type& l)
+  parser::make_TRUE (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::TRUE, l);
+    return symbol_type (token::TRUE, v, l);
   }
 
   parser::symbol_type
-  parser::make_PRIVATE (const location_type& l)
+  parser::make_PRIVATE (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::PRIVATE, l);
+    return symbol_type (token::PRIVATE, v, l);
   }
 
   parser::symbol_type
-  parser::make_CURLYO (const location_type& l)
+  parser::make_CURLYO (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::CURLYO, l);
+    return symbol_type (token::CURLYO, v, l);
   }
 
   parser::symbol_type
-  parser::make_CURLYC (const location_type& l)
+  parser::make_CURLYC (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::CURLYC, l);
+    return symbol_type (token::CURLYC, v, l);
   }
 
   parser::symbol_type
-  parser::make_ROUNDO (const location_type& l)
+  parser::make_ROUNDO (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::ROUNDO, l);
+    return symbol_type (token::ROUNDO, v, l);
   }
 
   parser::symbol_type
-  parser::make_ROUNDC (const location_type& l)
+  parser::make_ROUNDC (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::ROUNDC, l);
+    return symbol_type (token::ROUNDC, v, l);
   }
 
   parser::symbol_type
-  parser::make_SQUAREO (const location_type& l)
+  parser::make_SQUAREO (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::SQUAREO, l);
+    return symbol_type (token::SQUAREO, v, l);
   }
 
   parser::symbol_type
-  parser::make_SQUAREC (const location_type& l)
+  parser::make_SQUAREC (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::SQUAREC, l);
+    return symbol_type (token::SQUAREC, v, l);
   }
 
   parser::symbol_type
-  parser::make_SEMICOLON (const location_type& l)
+  parser::make_SEMICOLON (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::SEMICOLON, l);
+    return symbol_type (token::SEMICOLON, v, l);
   }
 
   parser::symbol_type
-  parser::make_COMMA (const location_type& l)
+  parser::make_COMMA (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::COMMA, l);
+    return symbol_type (token::COMMA, v, l);
   }
 
   parser::symbol_type
-  parser::make_EQUAL (const location_type& l)
+  parser::make_EQUAL (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::EQUAL, l);
+    return symbol_type (token::EQUAL, v, l);
   }
 
   parser::symbol_type
@@ -1472,6 +1662,12 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
   }
 
   parser::symbol_type
+  parser::make_HEXNUMBER (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::HEXNUMBER, v, l);
+  }
+
+  parser::symbol_type
   parser::make_STRING (const tokenizer::token& v, const location_type& l)
   {
     return symbol_type (token::STRING, v, l);
@@ -1480,7 +1676,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
 
 #line 9 "parser.y" // lalr1.cc:377
 } } } } //  ::sqf::parser::sqf::bison 
-#line 1484 "parser.tab.hh" // lalr1.cc:377
+#line 1680 "parser.tab.hh" // lalr1.cc:377
 
 
 

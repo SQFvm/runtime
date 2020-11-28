@@ -27,32 +27,34 @@
      {
         enum class astkind
         {
+            ENDOFFILE = -3,
+            INVALID = -2,
             __TOKEN = -1,
             NA = 0,
-            ENDOFFILE,
-            INVALID,
-            M_LINE,
-            I_COMMENT_LINE,
-            I_COMMENT_BLOCK,
-            I_WHITESPACE,
-
-            T_TRUE,
-            T_FALSE,
-            T_PRIVATE,
-
-            S_CURLYO,
-            S_CURLYC,
-            S_ROUNDO,
-            S_ROUNDC,
-            S_EDGEO,
-            S_EDGEC,
-            S_SEMICOLON,
-            S_COMMA,
-
-            T_OPERATOR,
-            T_STRING,
-            T_IDENT,
-            T_NUMBER
+            STATEMENTS,
+            STATEMENT,
+            IDENT,
+            NUMBER,
+            HEXNUMBER,
+            STRING,
+            BOOLEAN,
+            VALUE_LIST,
+            CODE,
+            ARRAY,
+            ASSIGNMENT,
+            ASSIGNMENT_LOCAL,
+            EXPN,
+            EXP0,
+            EXP1,
+            EXP2,
+            EXP3,
+            EXP4,
+            EXP5,
+            EXP6,
+            EXP7,
+            EXP8,
+            EXP9,
+            EXPU
         };
         struct astnode
         {
@@ -107,18 +109,18 @@
 /* Tokens */
 
 %token NA 0
-%token FALSE                     "false"
-%token TRUE                      "true"
-%token PRIVATE                   "private"
-%token CURLYO                    "{"
-%token CURLYC                    "}"
-%token ROUNDO                    "("
-%token ROUNDC                    ")"
-%token SQUAREO                   "["
-%token SQUAREC                   "]"
-%token SEMICOLON                 ";"
-%token COMMA                     ","
-%token EQUAL                     "="
+%token <tokenizer::token> FALSE                     "false"
+%token <tokenizer::token> TRUE                      "true"
+%token <tokenizer::token> PRIVATE                   "private"
+%token <tokenizer::token> CURLYO                    "{"
+%token <tokenizer::token> CURLYC                    "}"
+%token <tokenizer::token> ROUNDO                    "("
+%token <tokenizer::token> ROUNDC                    ")"
+%token <tokenizer::token> SQUAREO                   "["
+%token <tokenizer::token> SQUAREC                   "]"
+%token <tokenizer::token> SEMICOLON                 ";"
+%token <tokenizer::token> COMMA                     ","
+%token <tokenizer::token> EQUAL                     "="
 
 %token <tokenizer::token> OPERATOR_0
 %token <tokenizer::token> IDENT_0
@@ -145,11 +147,12 @@
 %token <tokenizer::token> IDENT_N
 %token <tokenizer::token> IDENT
 %token <tokenizer::token> NUMBER
+%token <tokenizer::token> HEXNUMBER
 %token <tokenizer::token> STRING
 
-// %type <::sqf::parser::sqf::bison::astnode> statement statements value value_list code array
-// %type <::sqf::parser::sqf::bison::astnode> assignment expression exp0 exp1 exp2 exp3 exp4 
-// %type <::sqf::parser::sqf::bison::astnode> exp5 exp6 exp7 exp8 exp9 expu
+%type <::sqf::parser::sqf::bison::astnode> statement statements value value_list code array
+%type <::sqf::parser::sqf::bison::astnode> assignment expression exp0 exp1 exp2 exp3 exp4 
+%type <::sqf::parser::sqf::bison::astnode> exp5 exp6 exp7 exp8 exp9 expu
 
 %start start
 
@@ -158,85 +161,86 @@
 /*** BEGIN - Change the grammar rules below ***/
 /*** BEGIN - Change the grammar rules below ***/
 /*** BEGIN - Change the grammar rules below ***/
-start: %empty
-     | statements
+start: %empty                               { result = ::sqf::parser::sqf::bison::astnode{}; }
+     | statements                           { result = ::sqf::parser::sqf::bison::astnode{}; result.append($1); }
      ;
-statements: statement
-          | statements ";" statement
-          | statements "," statement
+statements: statement                       { $$ = ::sqf::parser::sqf::bison::astnode{}; $$.append($1); }
+          | statements ";" statement        { $$ = $1; $$.append($3); }
+          | statements "," statement        { $$ = $1; $$.append($3); }
           ;
-statement: assignment
-         | expression
+statement: assignment                       { $$ = $1; }
+         | expression                       { $$ = $1; }
          ;
 
-value: STRING
-     | IDENT_N
-     | IDENT
-     | NUMBER
-     | "true"
-     | "false"
-     | code
-     | array
+value: STRING                               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::STRING, $1 }; }
+     | IDENT_N                              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | IDENT                                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::IDENT, $1 }; }
+     | NUMBER                               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::NUMBER, $1 }; }
+     | HEXNUMBER                            { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::HEXNUMBER, $1 }; }
+     | "true"                               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::BOOLEAN, $1 }; }
+     | "false"                              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::BOOLEAN, $1 }; }
+     | code                                 { $$ = $1; }
+     | array                                { $$ = $1; }
      ;
-value_list: value
-          | value_list "," value
+value_list: value                           { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::VALUE_LIST }; $$.append($1); }
+          | value_list "," value            { $$ = $1; $$.append($3); }
           ;
-code: "{" statements "}"
-    | "{" "}"
+code: "{" statements "}"                    { $$ = ::sqf::parser::sqf::bison::astnode{  astkind::CODE, $1 }; $$.append($2); }
+    | "{" "}"                               { $$ = ::sqf::parser::sqf::bison::astnode{  astkind::CODE, $1 }; }
     ;
-array: "[" value_list "]"
-     | "[" "]"
+array: "[" value_list "]"                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ARRAY, $1 }; $$.append_children($2); }
+     | "[" "]"                              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ARRAY, $1 }; }
      ;
-assignment: "private" IDENT "=" expression
-          | IDENT "=" expression
+assignment: "private" IDENT "=" expression  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ASSIGNMENT, $2 }; $$.append($4); }
+          | IDENT "=" expression            { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ASSIGNMENT_LOCAL, $1 }; $$.append($3); }
           ;
-expression: exp0
+expression: exp0                            { $$ = $1; }
           ;
-exp0: exp1
-    | exp1 OPERATOR_0 exp0;
-    | exp1 IDENT_0 exp0;
+exp0: exp1                                  { $$ = $1; }
+    | exp1 OPERATOR_0 exp0                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP0, $2 }; $$.append($1); $$.append($3); }
+    | exp1 IDENT_0 exp0                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP0, $2 }; $$.append($1); $$.append($3); }
     ;
-exp1: exp2
-    | exp2 OPERATOR_1 exp1;
-    | exp2 IDENT_1 exp1;
+exp1: exp2                                  { $$ = $1; }
+    | exp2 OPERATOR_1 exp1                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP1, $2 }; $$.append($1); $$.append($3); }
+    | exp2 IDENT_1 exp1                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP1, $2 }; $$.append($1); $$.append($3); }
     ;
-exp2: exp3
-    | exp3 OPERATOR_2 exp2;
-    | exp3 IDENT_2 exp2;
+exp2: exp3                                  { $$ = $1; }
+    | exp3 OPERATOR_2 exp2                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP2, $2 }; $$.append($1); $$.append($3); }
+    | exp3 IDENT_2 exp2                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP2, $2 }; $$.append($1); $$.append($3); }
     ;
-exp3: exp4
-    | exp4 OPERATOR_3 exp3;
-    | exp4 IDENT_3 exp3;
+exp3: exp4                                  { $$ = $1; }
+    | exp4 OPERATOR_3 exp3                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP3, $2 }; $$.append($1); $$.append($3); }
+    | exp4 IDENT_3 exp3                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP3, $2 }; $$.append($1); $$.append($3); }
     ;
-exp4: exp5
-    | exp5 OPERATOR_4 exp4;
-    | exp5 IDENT_4 exp4;
+exp4: exp5                                  { $$ = $1; }
+    | exp5 OPERATOR_4 exp4                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP4, $2 }; $$.append($1); $$.append($3); }
+    | exp5 IDENT_4 exp4                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP4, $2 }; $$.append($1); $$.append($3); }
     ;
-exp5: exp6
-    | exp6 OPERATOR_5 exp5;
-    | exp6 IDENT_5 exp5;
+exp5: exp6                                  { $$ = $1; }
+    | exp6 OPERATOR_5 exp5                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP5, $2 }; $$.append($1); $$.append($3); }
+    | exp6 IDENT_5 exp5                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP5, $2 }; $$.append($1); $$.append($3); }
     ;
-exp6: exp7
-    | exp7 OPERATOR_6 exp6;
-    | exp7 IDENT_6 exp6;
+exp6: exp7                                  { $$ = $1; }
+    | exp7 OPERATOR_6 exp6                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP6, $2 }; $$.append($1); $$.append($3); }
+    | exp7 IDENT_6 exp6                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP6, $2 }; $$.append($1); $$.append($3); }
     ;
-exp7: exp8
-    | exp8 OPERATOR_7 exp7;
-    | exp8 IDENT_7 exp7;
+exp7: exp8                                  { $$ = $1; }
+    | exp8 OPERATOR_7 exp7                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP7, $2 }; $$.append($1); $$.append($3); }
+    | exp8 IDENT_7 exp7                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP7, $2 }; $$.append($1); $$.append($3); }
     ;
-exp8: exp9
-    | exp9 OPERATOR_8 exp8;
-    | exp9 IDENT_8 exp8;
+exp8: exp9                                  { $$ = $1; }
+    | exp9 OPERATOR_8 exp8                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP8, $2 }; $$.append($1); $$.append($3); }
+    | exp9 IDENT_8 exp8                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP8, $2 }; $$.append($1); $$.append($3); }
     ;
-exp9: expu
-    | expu OPERATOR_9 exp9;
-    | expu IDENT_9 exp9;
+exp9: expu                                  { $$ = $1; }
+    | expu OPERATOR_9 exp9                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP9, $2 }; $$.append($1); $$.append($3); }
+    | expu IDENT_9 exp9                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP9, $2 }; $$.append($1); $$.append($3); }
     ;
-expu: OPERATOR_U expu
-    | IDENT_U expu
-    | "private" expu
-    | "(" expression ")"
-    | value
+expu: OPERATOR_U expu                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | IDENT_U expu                          { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | "private" expu                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | "(" expression ")"                    { $$ = $2; }
+    | value                                 { $$ = $1; }
     ;
 
 
@@ -267,18 +271,18 @@ namespace sqf::parser::sqf::bison
          case tokenizer::etoken::i_comment_block: return yylex(runtime, tokenizer);
          case tokenizer::etoken::i_whitespace: return yylex(runtime, tokenizer);
          
-         case tokenizer::etoken::t_false: return parser::make_FALSE(loc);
-         case tokenizer::etoken::t_private: return parser::make_PRIVATE(loc);
-         case tokenizer::etoken::t_true: return parser::make_TRUE(loc);
+         case tokenizer::etoken::t_false: return parser::make_FALSE(token, loc);
+         case tokenizer::etoken::t_private: return parser::make_PRIVATE(token, loc);
+         case tokenizer::etoken::t_true: return parser::make_TRUE(token, loc);
 
-         case tokenizer::etoken::s_curlyo: return parser::make_CURLYO(loc);
-         case tokenizer::etoken::s_curlyc: return parser::make_CURLYC(loc);
-         case tokenizer::etoken::s_roundo: return parser::make_ROUNDO(loc);
-         case tokenizer::etoken::s_roundc: return parser::make_ROUNDC(loc);
-         case tokenizer::etoken::s_edgeo: return parser::make_SQUAREO(loc);
-         case tokenizer::etoken::s_edgec: return parser::make_SQUAREC(loc);
-         case tokenizer::etoken::s_semicolon: return parser::make_SEMICOLON(loc);
-         case tokenizer::etoken::s_comma: return parser::make_COMMA(loc);
+         case tokenizer::etoken::s_curlyo: return parser::make_CURLYO(token, loc);
+         case tokenizer::etoken::s_curlyc: return parser::make_CURLYC(token, loc);
+         case tokenizer::etoken::s_roundo: return parser::make_ROUNDO(token, loc);
+         case tokenizer::etoken::s_roundc: return parser::make_ROUNDC(token, loc);
+         case tokenizer::etoken::s_edgeo: return parser::make_SQUAREO(token, loc);
+         case tokenizer::etoken::s_edgec: return parser::make_SQUAREC(token, loc);
+         case tokenizer::etoken::s_semicolon: return parser::make_SEMICOLON(token, loc);
+         case tokenizer::etoken::s_comma: return parser::make_COMMA(token, loc);
 
          case tokenizer::etoken::t_ident:
          {
@@ -342,7 +346,7 @@ namespace sqf::parser::sqf::bison
          case tokenizer::etoken::t_string_double: return parser::make_STRING(token, loc);
          case tokenizer::etoken::t_string_single: return parser::make_STRING(token, loc);
          case tokenizer::etoken::t_number: return parser::make_NUMBER(token, loc);
-         case tokenizer::etoken::t_hexadecimal: return parser::make_NUMBER(token, loc);
+         case tokenizer::etoken::t_hexadecimal: return parser::make_HEXNUMBER(token, loc);
          default:
              return parser::make_NA(loc);
          }

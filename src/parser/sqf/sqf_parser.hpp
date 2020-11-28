@@ -21,11 +21,7 @@ namespace sqf::parser::sqf
     class parser : public ::sqf::runtime::parser::sqf, public CanLog
     {
     private:
-        struct emplace
-        {
-            std::string ident;
-            std::string replace;
-        };
+        bool to_assembly(std::string_view contents, const ::sqf::parser::sqf::bison::astnode& node, std::vector<::sqf::runtime::instruction_set> set);
     public:
         parser(Logger& logger) : CanLog(logger)
         {
