@@ -4,6 +4,9 @@
 #include "../runtime/data.h"
 #include "../runtime/runtime.h"
 
+#include <string>
+#include <string_view>
+
 namespace sqf::opcodes
 {
     class assign_to : public sqf::runtime::instruction
@@ -16,6 +19,7 @@ namespace sqf::opcodes
 
     public:
         assign_to(std::string value) : m_variable_name(value) {}
+        assign_to(std::string_view value) : m_variable_name(value.begin(), value.end()) {}
         virtual void execute(sqf::runtime::runtime& vm) const override
         {
             auto& context = vm.context_active();

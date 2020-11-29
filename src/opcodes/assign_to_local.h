@@ -16,6 +16,7 @@ namespace sqf::opcodes
 
     public:
         assign_to_local(std::string value) : m_variable_name(value) {}
+        assign_to_local(std::string_view value) : m_variable_name(value.begin(), value.end()) {}
         virtual void execute(sqf::runtime::runtime& vm) const override
         {
             auto& context = vm.context_active();
