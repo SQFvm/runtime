@@ -1183,7 +1183,7 @@ std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(
             out_macros->push_back(entry.second);
         }
     }
-    if (!i.current_file_scope().conditions.empty() || i.errflag())
+    if (i.errflag())
     {
         return {};
     }
