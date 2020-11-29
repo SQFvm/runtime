@@ -39,7 +39,7 @@ namespace sqf::parser::sqf::util
     }
 }
 
-void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::sqf::parser::sqf::bison::astnode& node, std::vector<::sqf::runtime::instruction::sptr> set)
+void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::sqf::parser::sqf::bison::astnode& node, std::vector<::sqf::runtime::instruction::sptr>& set)
 {
 
     switch (node.kind)
@@ -56,21 +56,21 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
     case bison::astkind::EXP9:
     {
         to_assembly(contents, node.children[0], set);
-        to_assembly(contents, node.children[2], set);
-        auto s = std::string(node.children[1].token.contents);
+        to_assembly(contents, node.children[1], set);
+        auto s = std::string(node.token.contents);
         std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
         auto inst = std::make_shared<::sqf::opcodes::call_binary>(s, (short)(((short)node.kind - (short)bison::astkind::EXP0) + 1));
-        inst->diag_info({ node.children[1].token.line, node.children[1].token.column, node.children[1].token.offset, { node.children[1].token.path, {} }, create_code_segment(contents, node.children[1].token.offset, node.children[1].token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
     case bison::astkind::EXPU:
     {
-        to_assembly(contents, node.children[1], set);
-        auto s = std::string(node.children[0].token.contents);
+        to_assembly(contents, node.children[0], set);
+        auto s = std::string(node.token.contents);
         std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
         auto inst = std::make_shared<::sqf::opcodes::call_unary>(s);
-        inst->diag_info({ node.children[0].token.line, node.children[0].token.column, node.children[0].token.offset, { node.children[0].token.path, {} }, create_code_segment(contents, node.children[0].token.offset, node.children[0].token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
@@ -158,16 +158,16 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
     break;
     case bison::astkind::ASSIGNMENT:
     {
-        to_assembly(contents, node.children[1], set);
-        auto inst = std::make_shared<::sqf::opcodes::assign_to>(node.children[0].token.contents);
+        to_assembly(contents, node.children[0], set);
+        auto inst = std::make_shared<::sqf::opcodes::assign_to>(node.token.contents);
         inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
     case bison::astkind::ASSIGNMENT_LOCAL:
     {
-        to_assembly(contents, node.children[1], set);
-        auto inst = std::make_shared<::sqf::opcodes::assign_to_local>(node.children[0].token.contents);
+        to_assembly(contents, node.children[0], set);
+        auto inst = std::make_shared<::sqf::opcodes::assign_to_local>(node.token.contents);
         inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
@@ -202,7 +202,7 @@ std::optional<sqf::runtime::instruction_set> sqf::parser::sqf::parser::parse(::s
     tokenizer t(contents.begin(), contents.end(), file.physical);
     ::sqf::parser::sqf::bison::astnode res;
     ::sqf::parser::sqf::bison::parser p(t, res, *this, runtime, file.physical);
-    // p.set_debug_level(1);
+    p.set_debug_level(1);
     bool success = p.parse() == 0;
     if (!success)
     {
@@ -210,7 +210,7 @@ std::optional<sqf::runtime::instruction_set> sqf::parser::sqf::parser::parse(::s
     }
     std::vector<::sqf::runtime::instruction::sptr> vec;
     to_assembly(contents, res, vec);
-    return {};
+    return vec;
 }
 
 bool ::sqf::parser::sqf::parser::check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)

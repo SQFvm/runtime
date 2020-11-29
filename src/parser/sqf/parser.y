@@ -11,6 +11,7 @@
     #include "tokenizer.hpp"
     #include <string>
     #include <vector>
+    #include <algorithm>
 }
 
 %code requires
@@ -38,7 +39,7 @@
             HEXNUMBER,
             STRING,
             BOOLEAN,
-            VALUE_LIST,
+            EXPRESSION_LIST,
             CODE,
             ARRAY,
             ASSIGNMENT,
@@ -122,35 +123,55 @@
 %token <tokenizer::token> COMMA                     ","
 %token <tokenizer::token> EQUAL                     "="
 
-%token <tokenizer::token> OPERATOR_0
-%token <tokenizer::token> IDENT_0
-%token <tokenizer::token> OPERATOR_1
-%token <tokenizer::token> IDENT_1
-%token <tokenizer::token> OPERATOR_2
-%token <tokenizer::token> IDENT_2
-%token <tokenizer::token> OPERATOR_3
-%token <tokenizer::token> IDENT_3
-%token <tokenizer::token> OPERATOR_4
-%token <tokenizer::token> IDENT_4
-%token <tokenizer::token> OPERATOR_5
-%token <tokenizer::token> IDENT_5
-%token <tokenizer::token> OPERATOR_6
-%token <tokenizer::token> IDENT_6
-%token <tokenizer::token> OPERATOR_7
-%token <tokenizer::token> IDENT_7
-%token <tokenizer::token> OPERATOR_8
-%token <tokenizer::token> IDENT_8
-%token <tokenizer::token> OPERATOR_9
-%token <tokenizer::token> IDENT_9
+%token <tokenizer::token> OPERATOR_B_0
+%token <tokenizer::token> OPERATOR_B_1
+%token <tokenizer::token> OPERATOR_B_2
+%token <tokenizer::token> OPERATOR_B_3
+%token <tokenizer::token> OPERATOR_B_4
+%token <tokenizer::token> OPERATOR_B_5
+%token <tokenizer::token> OPERATOR_B_6
+%token <tokenizer::token> OPERATOR_B_7
+%token <tokenizer::token> OPERATOR_B_8
+%token <tokenizer::token> OPERATOR_B_9
+%token <tokenizer::token> OPERATOR_BU_0
+%token <tokenizer::token> OPERATOR_BU_1
+%token <tokenizer::token> OPERATOR_BU_2
+%token <tokenizer::token> OPERATOR_BU_3
+%token <tokenizer::token> OPERATOR_BU_4
+%token <tokenizer::token> OPERATOR_BU_5
+%token <tokenizer::token> OPERATOR_BU_6
+%token <tokenizer::token> OPERATOR_BU_7
+%token <tokenizer::token> OPERATOR_BU_8
+%token <tokenizer::token> OPERATOR_BU_9
+%token <tokenizer::token> OPERATOR_BN_0
+%token <tokenizer::token> OPERATOR_BN_1
+%token <tokenizer::token> OPERATOR_BN_2
+%token <tokenizer::token> OPERATOR_BN_3
+%token <tokenizer::token> OPERATOR_BN_4
+%token <tokenizer::token> OPERATOR_BN_5
+%token <tokenizer::token> OPERATOR_BN_6
+%token <tokenizer::token> OPERATOR_BN_7
+%token <tokenizer::token> OPERATOR_BN_8
+%token <tokenizer::token> OPERATOR_BN_9
+%token <tokenizer::token> OPERATOR_BUN_0
+%token <tokenizer::token> OPERATOR_BUN_1
+%token <tokenizer::token> OPERATOR_BUN_2
+%token <tokenizer::token> OPERATOR_BUN_3
+%token <tokenizer::token> OPERATOR_BUN_4
+%token <tokenizer::token> OPERATOR_BUN_5
+%token <tokenizer::token> OPERATOR_BUN_6
+%token <tokenizer::token> OPERATOR_BUN_7
+%token <tokenizer::token> OPERATOR_BUN_8
+%token <tokenizer::token> OPERATOR_BUN_9
 %token <tokenizer::token> OPERATOR_U
-%token <tokenizer::token> IDENT_U
-%token <tokenizer::token> IDENT_N
+%token <tokenizer::token> OPERATOR_N
+%token <tokenizer::token> OPERATOR_UN
 %token <tokenizer::token> IDENT
 %token <tokenizer::token> NUMBER
 %token <tokenizer::token> HEXNUMBER
 %token <tokenizer::token> STRING
 
-%type <::sqf::parser::sqf::bison::astnode> statement statements value value_list code array
+%type <::sqf::parser::sqf::bison::astnode> statement statements value exp_list code array
 %type <::sqf::parser::sqf::bison::astnode> assignment expression exp0 exp1 exp2 exp3 exp4 
 %type <::sqf::parser::sqf::bison::astnode> exp5 exp6 exp7 exp8 exp9 expu
 
@@ -164,16 +185,42 @@
 start: %empty                               { result = ::sqf::parser::sqf::bison::astnode{}; }
      | statements                           { result = ::sqf::parser::sqf::bison::astnode{}; result.append($1); }
      ;
-statements: statement                       { $$ = ::sqf::parser::sqf::bison::astnode{}; $$.append($1); }
-          | statements ";" statement        { $$ = $1; $$.append($3); }
-          | statements "," statement        { $$ = $1; $$.append($3); }
+statements: statement                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::STATEMENTS }; $$.append($1); }
+          | statements separators           { $$ = $1; }
+          | statements separators statement { $$ = $1; $$.append($3); }
           ;
 statement: assignment                       { $$ = $1; }
          | expression                       { $$ = $1; }
          ;
+separator: ";"
+         | ","
+         ;
+separators: separator
+         | separators separator
+         ;
 
 value: STRING                               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::STRING, $1 }; }
-     | IDENT_N                              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_N                           { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BN_0                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BN_1                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BN_2                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BN_3                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BN_4                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BN_5                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BN_6                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BN_7                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BN_8                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BN_9                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BUN_0                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BUN_1                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BUN_2                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BUN_3                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BUN_4                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BUN_5                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BUN_6                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BUN_7                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BUN_8                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
+     | OPERATOR_BUN_9                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPN, $1 }; }
      | IDENT                                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::IDENT, $1 }; }
      | NUMBER                               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::NUMBER, $1 }; }
      | HEXNUMBER                            { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::HEXNUMBER, $1 }; }
@@ -182,63 +229,105 @@ value: STRING                               { $$ = ::sqf::parser::sqf::bison::as
      | code                                 { $$ = $1; }
      | array                                { $$ = $1; }
      ;
-value_list: value                           { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::VALUE_LIST }; $$.append($1); }
-          | value_list "," value            { $$ = $1; $$.append($3); }
-          ;
+exp_list: expression                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPRESSION_LIST }; $$.append($1); }
+        | exp_list "," expression           { $$ = $1; $$.append($3); }
+        ;
 code: "{" statements "}"                    { $$ = ::sqf::parser::sqf::bison::astnode{  astkind::CODE, $1 }; $$.append($2); }
+    | "{" separators statements "}"         { $$ = ::sqf::parser::sqf::bison::astnode{  astkind::CODE, $1 }; $$.append($3); }
+    | "{" separators "}"                    { $$ = ::sqf::parser::sqf::bison::astnode{  astkind::CODE, $1 }; }
     | "{" "}"                               { $$ = ::sqf::parser::sqf::bison::astnode{  astkind::CODE, $1 }; }
     ;
-array: "[" value_list "]"                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ARRAY, $1 }; $$.append_children($2); }
+array: "[" exp_list "]"                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ARRAY, $1 }; $$.append_children($2); }
      | "[" "]"                              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ARRAY, $1 }; }
      ;
-assignment: "private" IDENT "=" expression  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ASSIGNMENT, $2 }; $$.append($4); }
-          | IDENT "=" expression            { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ASSIGNMENT_LOCAL, $1 }; $$.append($3); }
+assignment: "private" IDENT "=" expression  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ASSIGNMENT_LOCAL, $2 }; $$.append($4); }
+          | IDENT "=" expression            { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ASSIGNMENT, $1 }; $$.append($3); }
           ;
 expression: exp0                            { $$ = $1; }
           ;
 exp0: exp1                                  { $$ = $1; }
-    | exp1 OPERATOR_0 exp0                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP0, $2 }; $$.append($1); $$.append($3); }
-    | exp1 IDENT_0 exp0                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP0, $2 }; $$.append($1); $$.append($3); }
+    | exp1 OPERATOR_B_0 exp0                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP0, $2 }; $$.append($1); $$.append($3); }
+    | exp1 OPERATOR_BUN_0 exp0              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP0, $2 }; $$.append($1); $$.append($3); }
+    | exp1 OPERATOR_BU_0 exp0               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP0, $2 }; $$.append($1); $$.append($3); }
+    | exp1 OPERATOR_BN_0 exp0               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP0, $2 }; $$.append($1); $$.append($3); }
     ;
 exp1: exp2                                  { $$ = $1; }
-    | exp2 OPERATOR_1 exp1                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP1, $2 }; $$.append($1); $$.append($3); }
-    | exp2 IDENT_1 exp1                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP1, $2 }; $$.append($1); $$.append($3); }
+    | exp2 OPERATOR_B_1 exp1                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP1, $2 }; $$.append($1); $$.append($3); }
+    | exp2 OPERATOR_BU_1 exp1               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP1, $2 }; $$.append($1); $$.append($3); }
+    | exp2 OPERATOR_BN_1 exp1               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP1, $2 }; $$.append($1); $$.append($3); }
+    | exp2 OPERATOR_BUN_1 exp1              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP1, $2 }; $$.append($1); $$.append($3); }
     ;
 exp2: exp3                                  { $$ = $1; }
-    | exp3 OPERATOR_2 exp2                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP2, $2 }; $$.append($1); $$.append($3); }
-    | exp3 IDENT_2 exp2                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP2, $2 }; $$.append($1); $$.append($3); }
+    | exp3 OPERATOR_B_2 exp2                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP2, $2 }; $$.append($1); $$.append($3); }
+    | exp3 OPERATOR_BU_2 exp2               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP2, $2 }; $$.append($1); $$.append($3); }
+    | exp3 OPERATOR_BN_2 exp2               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP2, $2 }; $$.append($1); $$.append($3); }
+    | exp3 OPERATOR_BUN_2 exp2              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP2, $2 }; $$.append($1); $$.append($3); }
     ;
 exp3: exp4                                  { $$ = $1; }
-    | exp4 OPERATOR_3 exp3                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP3, $2 }; $$.append($1); $$.append($3); }
-    | exp4 IDENT_3 exp3                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP3, $2 }; $$.append($1); $$.append($3); }
+    | exp4 OPERATOR_B_3 exp3                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP3, $2 }; $$.append($1); $$.append($3); }
+    | exp4 OPERATOR_BU_3 exp3               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP3, $2 }; $$.append($1); $$.append($3); }
+    | exp4 OPERATOR_BN_3 exp3               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP3, $2 }; $$.append($1); $$.append($3); }
+    | exp4 OPERATOR_BUN_3 exp3              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP3, $2 }; $$.append($1); $$.append($3); }
     ;
 exp4: exp5                                  { $$ = $1; }
-    | exp5 OPERATOR_4 exp4                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP4, $2 }; $$.append($1); $$.append($3); }
-    | exp5 IDENT_4 exp4                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP4, $2 }; $$.append($1); $$.append($3); }
+    | exp5 OPERATOR_B_4 exp4                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP4, $2 }; $$.append($1); $$.append($3); }
+    | exp5 OPERATOR_BU_4 exp4               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP4, $2 }; $$.append($1); $$.append($3); }
+    | exp5 OPERATOR_BN_4 exp4               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP4, $2 }; $$.append($1); $$.append($3); }
+    | exp5 OPERATOR_BUN_4 exp4              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP4, $2 }; $$.append($1); $$.append($3); }
     ;
 exp5: exp6                                  { $$ = $1; }
-    | exp6 OPERATOR_5 exp5                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP5, $2 }; $$.append($1); $$.append($3); }
-    | exp6 IDENT_5 exp5                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP5, $2 }; $$.append($1); $$.append($3); }
+    | exp6 OPERATOR_B_5 exp5                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP5, $2 }; $$.append($1); $$.append($3); }
+    | exp6 OPERATOR_BU_5 exp5               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP5, $2 }; $$.append($1); $$.append($3); }
+    | exp6 OPERATOR_BN_5 exp5               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP5, $2 }; $$.append($1); $$.append($3); }
+    | exp6 OPERATOR_BUN_5 exp5              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP5, $2 }; $$.append($1); $$.append($3); }
     ;
 exp6: exp7                                  { $$ = $1; }
-    | exp7 OPERATOR_6 exp6                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP6, $2 }; $$.append($1); $$.append($3); }
-    | exp7 IDENT_6 exp6                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP6, $2 }; $$.append($1); $$.append($3); }
+    | exp7 OPERATOR_B_6 exp6                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP6, $2 }; $$.append($1); $$.append($3); }
+    | exp7 OPERATOR_BU_6 exp6               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP6, $2 }; $$.append($1); $$.append($3); }
+    | exp7 OPERATOR_BN_6 exp6               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP6, $2 }; $$.append($1); $$.append($3); }
+    | exp7 OPERATOR_BUN_6 exp6              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP6, $2 }; $$.append($1); $$.append($3); }
     ;
 exp7: exp8                                  { $$ = $1; }
-    | exp8 OPERATOR_7 exp7                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP7, $2 }; $$.append($1); $$.append($3); }
-    | exp8 IDENT_7 exp7                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP7, $2 }; $$.append($1); $$.append($3); }
+    | exp8 OPERATOR_B_7 exp7                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP7, $2 }; $$.append($1); $$.append($3); }
+    | exp8 OPERATOR_BU_7 exp7               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP7, $2 }; $$.append($1); $$.append($3); }
+    | exp8 OPERATOR_BN_7 exp7               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP7, $2 }; $$.append($1); $$.append($3); }
+    | exp8 OPERATOR_BUN_7 exp7              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP7, $2 }; $$.append($1); $$.append($3); }
     ;
 exp8: exp9                                  { $$ = $1; }
-    | exp9 OPERATOR_8 exp8                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP8, $2 }; $$.append($1); $$.append($3); }
-    | exp9 IDENT_8 exp8                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP8, $2 }; $$.append($1); $$.append($3); }
+    | exp9 OPERATOR_B_8 exp8                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP8, $2 }; $$.append($1); $$.append($3); }
+    | exp9 OPERATOR_BU_8 exp8               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP8, $2 }; $$.append($1); $$.append($3); }
+    | exp9 OPERATOR_BN_8 exp8               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP8, $2 }; $$.append($1); $$.append($3); }
+    | exp9 OPERATOR_BUN_8 exp8              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP8, $2 }; $$.append($1); $$.append($3); }
     ;
 exp9: expu                                  { $$ = $1; }
-    | expu OPERATOR_9 exp9                  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP9, $2 }; $$.append($1); $$.append($3); }
-    | expu IDENT_9 exp9                     { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP9, $2 }; $$.append($1); $$.append($3); }
+    | expu OPERATOR_B_9 exp9                { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP9, $2 }; $$.append($1); $$.append($3); }
+    | expu OPERATOR_BU_9 exp9               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP9, $2 }; $$.append($1); $$.append($3); }
+    | expu OPERATOR_BN_9 exp9               { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP9, $2 }; $$.append($1); $$.append($3); }
+    | expu OPERATOR_BUN_9 exp9              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP9, $2 }; $$.append($1); $$.append($3); }
     ;
-expu: OPERATOR_U expu                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
-    | IDENT_U expu                          { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
-    | "private" expu                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+expu: "private" expu                        { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_U expu                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_UN expu                      { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BU_0 expu                    { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BU_1 expu                    { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BU_2 expu                    { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BU_3 expu                    { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BU_4 expu                    { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BU_5 expu                    { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BU_6 expu                    { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BU_7 expu                    { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BU_8 expu                    { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BU_9 expu                    { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BUN_0 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BUN_1 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BUN_2 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BUN_3 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BUN_4 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BUN_5 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BUN_6 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BUN_7 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BUN_8 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
+    | OPERATOR_BUN_9 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
     | "(" expression ")"                    { $$ = $2; }
     | value                                 { $$ = $1; }
     ;
@@ -284,69 +373,115 @@ namespace sqf::parser::sqf::bison
          case tokenizer::etoken::s_semicolon: return parser::make_SEMICOLON(token, loc);
          case tokenizer::etoken::s_comma: return parser::make_COMMA(token, loc);
 
+         case tokenizer::etoken::t_operator:
          case tokenizer::etoken::t_ident:
          {
              auto key = std::string(token.contents.begin(), token.contents.end());
+             short precedence = 0;
+             bool binary = false;
+             bool unary = false;
+             bool nular = false;
+             std::transform(key.begin(), key.end(), key.begin(), [](char c) -> char { return (char)std::tolower(c); });
              if (runtime.sqfop_exists_binary(key))
              {
                 auto bres = runtime.sqfop_binary_by_name(key);
-                auto p = bres.begin()->get().precedence();
-                switch (p)
+                precedence = bres.begin()->get().precedence();
+                binary = true;
+             }
+             if (runtime.sqfop_exists_unary(key))
+             {
+                 unary = true;
+             }
+             if (runtime.sqfop_exists(::sqf::runtime::sqfop_nular::key{key}))
+             {
+                 nular = true;
+             }
+             if (binary && !unary && !nular)
+             {
+                 
+                switch (precedence)
                 {
-                case 1: return parser::make_IDENT_0(token, loc);
-                case 2: return parser::make_IDENT_1(token, loc);
-                case 3: return parser::make_IDENT_2(token, loc);
-                case 4: return parser::make_IDENT_3(token, loc);
-                case 5: return parser::make_IDENT_4(token, loc);
-                case 6: return parser::make_IDENT_5(token, loc);
-                case 7: return parser::make_IDENT_6(token, loc);
-                case 8: return parser::make_IDENT_7(token, loc);
-                case 9: return parser::make_IDENT_8(token, loc);
-                case 10: return parser::make_IDENT_9(token, loc);
+                case 1:  return parser::make_OPERATOR_B_0(token, loc);
+                case 2:  return parser::make_OPERATOR_B_1(token, loc);
+                case 3:  return parser::make_OPERATOR_B_2(token, loc);
+                case 4:  return parser::make_OPERATOR_B_3(token, loc);
+                case 5:  return parser::make_OPERATOR_B_4(token, loc);
+                case 6:  return parser::make_OPERATOR_B_5(token, loc);
+                case 7:  return parser::make_OPERATOR_B_6(token, loc);
+                case 8:  return parser::make_OPERATOR_B_7(token, loc);
+                case 9:  return parser::make_OPERATOR_B_8(token, loc);
+                case 10: return parser::make_OPERATOR_B_9(token, loc);
                 }
              }
-             else if (runtime.sqfop_exists_unary(key))
+             else if (binary && !unary && nular)
              {
-                 return parser::make_IDENT_U(token, loc);
+                switch (precedence)
+                {
+                case 1:  return parser::make_OPERATOR_BN_0(token, loc);
+                case 2:  return parser::make_OPERATOR_BN_1(token, loc);
+                case 3:  return parser::make_OPERATOR_BN_2(token, loc);
+                case 4:  return parser::make_OPERATOR_BN_3(token, loc);
+                case 5:  return parser::make_OPERATOR_BN_4(token, loc);
+                case 6:  return parser::make_OPERATOR_BN_5(token, loc);
+                case 7:  return parser::make_OPERATOR_BN_6(token, loc);
+                case 8:  return parser::make_OPERATOR_BN_7(token, loc);
+                case 9:  return parser::make_OPERATOR_BN_8(token, loc);
+                case 10: return parser::make_OPERATOR_BN_9(token, loc);
+                }
              }
-             else if (runtime.sqfop_exists(::sqf::runtime::sqfop_nular::key{key}))
+             else if (binary && unary && !nular)
              {
-                 return parser::make_IDENT_N(token, loc);
+                switch (precedence)
+                {
+                case 1:  return parser::make_OPERATOR_BU_0(token, loc);
+                case 2:  return parser::make_OPERATOR_BU_1(token, loc);
+                case 3:  return parser::make_OPERATOR_BU_2(token, loc);
+                case 4:  return parser::make_OPERATOR_BU_3(token, loc);
+                case 5:  return parser::make_OPERATOR_BU_4(token, loc);
+                case 6:  return parser::make_OPERATOR_BU_5(token, loc);
+                case 7:  return parser::make_OPERATOR_BU_6(token, loc);
+                case 8:  return parser::make_OPERATOR_BU_7(token, loc);
+                case 9:  return parser::make_OPERATOR_BU_8(token, loc);
+                case 10: return parser::make_OPERATOR_BU_9(token, loc);
+                }
              }
-             return parser::make_IDENT(token, loc);
-         }
-         case tokenizer::etoken::t_operator:
-         {
-             auto key = std::string(token.contents.begin(), token.contents.end());
-             if (runtime.sqfop_exists_binary(key))
+             else if (binary && unary && nular)
              {
-                 auto bres = runtime.sqfop_binary_by_name(key);
-                 auto p = bres.begin()->get().precedence();
-                 switch (p)
-                 {
-                 case 1: return parser::make_OPERATOR_0(token, loc);
-                 case 2: return parser::make_OPERATOR_1(token, loc);
-                 case 3: return parser::make_OPERATOR_2(token, loc);
-                 case 4: return parser::make_OPERATOR_3(token, loc);
-                 case 5: return parser::make_OPERATOR_4(token, loc);
-                 case 6: return parser::make_OPERATOR_5(token, loc);
-                 case 7: return parser::make_OPERATOR_6(token, loc);
-                 case 8: return parser::make_OPERATOR_7(token, loc);
-                 case 9: return parser::make_OPERATOR_8(token, loc);
-                 case 10: return parser::make_OPERATOR_9(token, loc);
-                 }
+                switch (precedence)
+                {
+                case 1:  return parser::make_OPERATOR_BUN_0(token, loc);
+                case 2:  return parser::make_OPERATOR_BUN_1(token, loc);
+                case 3:  return parser::make_OPERATOR_BUN_2(token, loc);
+                case 4:  return parser::make_OPERATOR_BUN_3(token, loc);
+                case 5:  return parser::make_OPERATOR_BUN_4(token, loc);
+                case 6:  return parser::make_OPERATOR_BUN_5(token, loc);
+                case 7:  return parser::make_OPERATOR_BUN_6(token, loc);
+                case 8:  return parser::make_OPERATOR_BUN_7(token, loc);
+                case 9:  return parser::make_OPERATOR_BUN_8(token, loc);
+                case 10: return parser::make_OPERATOR_BUN_9(token, loc);
+                }
              }
-             else if (runtime.sqfop_exists_unary(key))
+             else if (!binary && !unary && nular)
+             {
+                 return parser::make_OPERATOR_N(token, loc);
+             }
+             else if (!binary && unary && !nular)
              {
                  return parser::make_OPERATOR_U(token, loc);
              }
-             return parser::make_NA(loc);
+             else if (!binary && unary && nular)
+             {
+                 return parser::make_OPERATOR_UN(token, loc);
+             }
+             
+             return token.type == tokenizer::etoken::t_ident ? parser::make_IDENT(token, loc) : parser::make_NA(loc);
          }
 
          case tokenizer::etoken::t_string_double: return parser::make_STRING(token, loc);
          case tokenizer::etoken::t_string_single: return parser::make_STRING(token, loc);
          case tokenizer::etoken::t_number: return parser::make_NUMBER(token, loc);
          case tokenizer::etoken::t_hexadecimal: return parser::make_HEXNUMBER(token, loc);
+         case tokenizer::etoken::s_equal: return parser::make_EQUAL(token, loc);
          default:
              return parser::make_NA(loc);
          }

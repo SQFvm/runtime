@@ -40,7 +40,7 @@
 #ifndef YY_YY_PARSER_TAB_HH_INCLUDED
 # define YY_YY_PARSER_TAB_HH_INCLUDED
 // //                    "%code requires" blocks.
-#line 17 "parser.y" // lalr1.cc:377
+#line 18 "parser.y" // lalr1.cc:377
 
      namespace sqf::runtime
      {
@@ -65,7 +65,7 @@
             HEXNUMBER,
             STRING,
             BOOLEAN,
-            VALUE_LIST,
+            EXPRESSION_LIST,
             CODE,
             ARRAY,
             ASSIGNMENT,
@@ -180,7 +180,7 @@
 
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 
 #line 9 "parser.y" // lalr1.cc:377
@@ -335,7 +335,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       // statements
       // statement
       // value
-      // value_list
+      // exp_list
       // code
       // array
       // assignment
@@ -365,29 +365,49 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       // ";"
       // ","
       // "="
-      // OPERATOR_0
-      // IDENT_0
-      // OPERATOR_1
-      // IDENT_1
-      // OPERATOR_2
-      // IDENT_2
-      // OPERATOR_3
-      // IDENT_3
-      // OPERATOR_4
-      // IDENT_4
-      // OPERATOR_5
-      // IDENT_5
-      // OPERATOR_6
-      // IDENT_6
-      // OPERATOR_7
-      // IDENT_7
-      // OPERATOR_8
-      // IDENT_8
-      // OPERATOR_9
-      // IDENT_9
+      // OPERATOR_B_0
+      // OPERATOR_B_1
+      // OPERATOR_B_2
+      // OPERATOR_B_3
+      // OPERATOR_B_4
+      // OPERATOR_B_5
+      // OPERATOR_B_6
+      // OPERATOR_B_7
+      // OPERATOR_B_8
+      // OPERATOR_B_9
+      // OPERATOR_BU_0
+      // OPERATOR_BU_1
+      // OPERATOR_BU_2
+      // OPERATOR_BU_3
+      // OPERATOR_BU_4
+      // OPERATOR_BU_5
+      // OPERATOR_BU_6
+      // OPERATOR_BU_7
+      // OPERATOR_BU_8
+      // OPERATOR_BU_9
+      // OPERATOR_BN_0
+      // OPERATOR_BN_1
+      // OPERATOR_BN_2
+      // OPERATOR_BN_3
+      // OPERATOR_BN_4
+      // OPERATOR_BN_5
+      // OPERATOR_BN_6
+      // OPERATOR_BN_7
+      // OPERATOR_BN_8
+      // OPERATOR_BN_9
+      // OPERATOR_BUN_0
+      // OPERATOR_BUN_1
+      // OPERATOR_BUN_2
+      // OPERATOR_BUN_3
+      // OPERATOR_BUN_4
+      // OPERATOR_BUN_5
+      // OPERATOR_BUN_6
+      // OPERATOR_BUN_7
+      // OPERATOR_BUN_8
+      // OPERATOR_BUN_9
       // OPERATOR_U
-      // IDENT_U
-      // IDENT_N
+      // OPERATOR_N
+      // OPERATOR_UN
       // IDENT
       // NUMBER
       // HEXNUMBER
@@ -428,33 +448,53 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
         SEMICOLON = 267,
         COMMA = 268,
         EQUAL = 269,
-        OPERATOR_0 = 270,
-        IDENT_0 = 271,
-        OPERATOR_1 = 272,
-        IDENT_1 = 273,
-        OPERATOR_2 = 274,
-        IDENT_2 = 275,
-        OPERATOR_3 = 276,
-        IDENT_3 = 277,
-        OPERATOR_4 = 278,
-        IDENT_4 = 279,
-        OPERATOR_5 = 280,
-        IDENT_5 = 281,
-        OPERATOR_6 = 282,
-        IDENT_6 = 283,
-        OPERATOR_7 = 284,
-        IDENT_7 = 285,
-        OPERATOR_8 = 286,
-        IDENT_8 = 287,
-        OPERATOR_9 = 288,
-        IDENT_9 = 289,
-        OPERATOR_U = 290,
-        IDENT_U = 291,
-        IDENT_N = 292,
-        IDENT = 293,
-        NUMBER = 294,
-        HEXNUMBER = 295,
-        STRING = 296
+        OPERATOR_B_0 = 270,
+        OPERATOR_B_1 = 271,
+        OPERATOR_B_2 = 272,
+        OPERATOR_B_3 = 273,
+        OPERATOR_B_4 = 274,
+        OPERATOR_B_5 = 275,
+        OPERATOR_B_6 = 276,
+        OPERATOR_B_7 = 277,
+        OPERATOR_B_8 = 278,
+        OPERATOR_B_9 = 279,
+        OPERATOR_BU_0 = 280,
+        OPERATOR_BU_1 = 281,
+        OPERATOR_BU_2 = 282,
+        OPERATOR_BU_3 = 283,
+        OPERATOR_BU_4 = 284,
+        OPERATOR_BU_5 = 285,
+        OPERATOR_BU_6 = 286,
+        OPERATOR_BU_7 = 287,
+        OPERATOR_BU_8 = 288,
+        OPERATOR_BU_9 = 289,
+        OPERATOR_BN_0 = 290,
+        OPERATOR_BN_1 = 291,
+        OPERATOR_BN_2 = 292,
+        OPERATOR_BN_3 = 293,
+        OPERATOR_BN_4 = 294,
+        OPERATOR_BN_5 = 295,
+        OPERATOR_BN_6 = 296,
+        OPERATOR_BN_7 = 297,
+        OPERATOR_BN_8 = 298,
+        OPERATOR_BN_9 = 299,
+        OPERATOR_BUN_0 = 300,
+        OPERATOR_BUN_1 = 301,
+        OPERATOR_BUN_2 = 302,
+        OPERATOR_BUN_3 = 303,
+        OPERATOR_BUN_4 = 304,
+        OPERATOR_BUN_5 = 305,
+        OPERATOR_BUN_6 = 306,
+        OPERATOR_BUN_7 = 307,
+        OPERATOR_BUN_8 = 308,
+        OPERATOR_BUN_9 = 309,
+        OPERATOR_U = 310,
+        OPERATOR_N = 311,
+        OPERATOR_UN = 312,
+        IDENT = 313,
+        NUMBER = 314,
+        HEXNUMBER = 315,
+        STRING = 316
       };
     };
 
@@ -617,83 +657,163 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
 
     static inline
     symbol_type
-    make_OPERATOR_0 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_B_0 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_IDENT_0 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_B_1 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_OPERATOR_1 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_B_2 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_IDENT_1 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_B_3 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_OPERATOR_2 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_B_4 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_IDENT_2 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_B_5 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_OPERATOR_3 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_B_6 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_IDENT_3 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_B_7 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_OPERATOR_4 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_B_8 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_IDENT_4 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_B_9 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_OPERATOR_5 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_BU_0 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_IDENT_5 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_BU_1 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_OPERATOR_6 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_BU_2 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_IDENT_6 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_BU_3 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_OPERATOR_7 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_BU_4 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_IDENT_7 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_BU_5 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_OPERATOR_8 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_BU_6 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_IDENT_8 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_BU_7 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_OPERATOR_9 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_BU_8 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_IDENT_9 (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_BU_9 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BN_0 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BN_1 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BN_2 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BN_3 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BN_4 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BN_5 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BN_6 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BN_7 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BN_8 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BN_9 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BUN_0 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BUN_1 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BUN_2 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BUN_3 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BUN_4 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BUN_5 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BUN_6 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BUN_7 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BUN_8 (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_OPERATOR_BUN_9 (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
@@ -701,11 +821,11 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
 
     static inline
     symbol_type
-    make_IDENT_U (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_N (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
-    make_IDENT_N (const tokenizer::token& v, const location_type& l);
+    make_OPERATOR_UN (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
@@ -790,7 +910,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     // Tables.
   // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
   // STATE-NUM.
-  static const signed char yypact_[];
+  static const short int yypact_[];
 
   // YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
   // Performed when YYTABLE does not specify something else to do.  Zero
@@ -808,7 +928,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
   // number is the opposite.  If YYTABLE_NINF, syntax error.
   static const unsigned char yytable_[];
 
-  static const signed char yycheck_[];
+  static const short int yycheck_[];
 
   // YYSTOS[STATE-NUM] -- The (internal number of the) accessing
   // symbol of state STATE-NUM.
@@ -829,7 +949,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     static const char* const yytname_[];
 #if YYDEBUG
   // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-  static const unsigned char yyrline_[];
+  static const unsigned short int yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r);
     /// Print the state stack on the debug stream.
@@ -928,12 +1048,12 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 164,     ///< Last index in yytable_.
-      yynnts_ = 21,  ///< Number of nonterminal symbols.
-      yyfinal_ = 46, ///< Termination state number.
+      yylast_ = 529,     ///< Last index in yytable_.
+      yynnts_ = 23,  ///< Number of nonterminal symbols.
+      yyfinal_ = 100, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 42  ///< Number of tokens.
+      yyntokens_ = 62  ///< Number of tokens.
     };
 
 
@@ -983,9 +1103,11 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    40,    41
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
+      55,    56,    57,    58,    59,    60,    61
     };
-    const unsigned int user_token_number_max_ = 296;
+    const unsigned int user_token_number_max_ = 316;
     const token_number_type undef_token_ = 2;
 
     if (static_cast<int>(t) <= yyeof_)
@@ -1018,25 +1140,25 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
   {
       switch (other.type_get ())
     {
-      case 44: // statements
-      case 45: // statement
-      case 46: // value
-      case 47: // value_list
-      case 48: // code
-      case 49: // array
-      case 50: // assignment
-      case 51: // expression
-      case 52: // exp0
-      case 53: // exp1
-      case 54: // exp2
-      case 55: // exp3
-      case 56: // exp4
-      case 57: // exp5
-      case 58: // exp6
-      case 59: // exp7
-      case 60: // exp8
-      case 61: // exp9
-      case 62: // expu
+      case 64: // statements
+      case 65: // statement
+      case 68: // value
+      case 69: // exp_list
+      case 70: // code
+      case 71: // array
+      case 72: // assignment
+      case 73: // expression
+      case 74: // exp0
+      case 75: // exp1
+      case 76: // exp2
+      case 77: // exp3
+      case 78: // exp4
+      case 79: // exp5
+      case 80: // exp6
+      case 81: // exp7
+      case 82: // exp8
+      case 83: // exp9
+      case 84: // expu
         value.copy< ::sqf::parser::sqf::bison::astnode > (other.value);
         break;
 
@@ -1052,33 +1174,53 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       case 12: // ";"
       case 13: // ","
       case 14: // "="
-      case 15: // OPERATOR_0
-      case 16: // IDENT_0
-      case 17: // OPERATOR_1
-      case 18: // IDENT_1
-      case 19: // OPERATOR_2
-      case 20: // IDENT_2
-      case 21: // OPERATOR_3
-      case 22: // IDENT_3
-      case 23: // OPERATOR_4
-      case 24: // IDENT_4
-      case 25: // OPERATOR_5
-      case 26: // IDENT_5
-      case 27: // OPERATOR_6
-      case 28: // IDENT_6
-      case 29: // OPERATOR_7
-      case 30: // IDENT_7
-      case 31: // OPERATOR_8
-      case 32: // IDENT_8
-      case 33: // OPERATOR_9
-      case 34: // IDENT_9
-      case 35: // OPERATOR_U
-      case 36: // IDENT_U
-      case 37: // IDENT_N
-      case 38: // IDENT
-      case 39: // NUMBER
-      case 40: // HEXNUMBER
-      case 41: // STRING
+      case 15: // OPERATOR_B_0
+      case 16: // OPERATOR_B_1
+      case 17: // OPERATOR_B_2
+      case 18: // OPERATOR_B_3
+      case 19: // OPERATOR_B_4
+      case 20: // OPERATOR_B_5
+      case 21: // OPERATOR_B_6
+      case 22: // OPERATOR_B_7
+      case 23: // OPERATOR_B_8
+      case 24: // OPERATOR_B_9
+      case 25: // OPERATOR_BU_0
+      case 26: // OPERATOR_BU_1
+      case 27: // OPERATOR_BU_2
+      case 28: // OPERATOR_BU_3
+      case 29: // OPERATOR_BU_4
+      case 30: // OPERATOR_BU_5
+      case 31: // OPERATOR_BU_6
+      case 32: // OPERATOR_BU_7
+      case 33: // OPERATOR_BU_8
+      case 34: // OPERATOR_BU_9
+      case 35: // OPERATOR_BN_0
+      case 36: // OPERATOR_BN_1
+      case 37: // OPERATOR_BN_2
+      case 38: // OPERATOR_BN_3
+      case 39: // OPERATOR_BN_4
+      case 40: // OPERATOR_BN_5
+      case 41: // OPERATOR_BN_6
+      case 42: // OPERATOR_BN_7
+      case 43: // OPERATOR_BN_8
+      case 44: // OPERATOR_BN_9
+      case 45: // OPERATOR_BUN_0
+      case 46: // OPERATOR_BUN_1
+      case 47: // OPERATOR_BUN_2
+      case 48: // OPERATOR_BUN_3
+      case 49: // OPERATOR_BUN_4
+      case 50: // OPERATOR_BUN_5
+      case 51: // OPERATOR_BUN_6
+      case 52: // OPERATOR_BUN_7
+      case 53: // OPERATOR_BUN_8
+      case 54: // OPERATOR_BUN_9
+      case 55: // OPERATOR_U
+      case 56: // OPERATOR_N
+      case 57: // OPERATOR_UN
+      case 58: // IDENT
+      case 59: // NUMBER
+      case 60: // HEXNUMBER
+      case 61: // STRING
         value.copy< tokenizer::token > (other.value);
         break;
 
@@ -1099,25 +1241,25 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     (void) v;
       switch (this->type_get ())
     {
-      case 44: // statements
-      case 45: // statement
-      case 46: // value
-      case 47: // value_list
-      case 48: // code
-      case 49: // array
-      case 50: // assignment
-      case 51: // expression
-      case 52: // exp0
-      case 53: // exp1
-      case 54: // exp2
-      case 55: // exp3
-      case 56: // exp4
-      case 57: // exp5
-      case 58: // exp6
-      case 59: // exp7
-      case 60: // exp8
-      case 61: // exp9
-      case 62: // expu
+      case 64: // statements
+      case 65: // statement
+      case 68: // value
+      case 69: // exp_list
+      case 70: // code
+      case 71: // array
+      case 72: // assignment
+      case 73: // expression
+      case 74: // exp0
+      case 75: // exp1
+      case 76: // exp2
+      case 77: // exp3
+      case 78: // exp4
+      case 79: // exp5
+      case 80: // exp6
+      case 81: // exp7
+      case 82: // exp8
+      case 83: // exp9
+      case 84: // expu
         value.copy< ::sqf::parser::sqf::bison::astnode > (v);
         break;
 
@@ -1133,33 +1275,53 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       case 12: // ";"
       case 13: // ","
       case 14: // "="
-      case 15: // OPERATOR_0
-      case 16: // IDENT_0
-      case 17: // OPERATOR_1
-      case 18: // IDENT_1
-      case 19: // OPERATOR_2
-      case 20: // IDENT_2
-      case 21: // OPERATOR_3
-      case 22: // IDENT_3
-      case 23: // OPERATOR_4
-      case 24: // IDENT_4
-      case 25: // OPERATOR_5
-      case 26: // IDENT_5
-      case 27: // OPERATOR_6
-      case 28: // IDENT_6
-      case 29: // OPERATOR_7
-      case 30: // IDENT_7
-      case 31: // OPERATOR_8
-      case 32: // IDENT_8
-      case 33: // OPERATOR_9
-      case 34: // IDENT_9
-      case 35: // OPERATOR_U
-      case 36: // IDENT_U
-      case 37: // IDENT_N
-      case 38: // IDENT
-      case 39: // NUMBER
-      case 40: // HEXNUMBER
-      case 41: // STRING
+      case 15: // OPERATOR_B_0
+      case 16: // OPERATOR_B_1
+      case 17: // OPERATOR_B_2
+      case 18: // OPERATOR_B_3
+      case 19: // OPERATOR_B_4
+      case 20: // OPERATOR_B_5
+      case 21: // OPERATOR_B_6
+      case 22: // OPERATOR_B_7
+      case 23: // OPERATOR_B_8
+      case 24: // OPERATOR_B_9
+      case 25: // OPERATOR_BU_0
+      case 26: // OPERATOR_BU_1
+      case 27: // OPERATOR_BU_2
+      case 28: // OPERATOR_BU_3
+      case 29: // OPERATOR_BU_4
+      case 30: // OPERATOR_BU_5
+      case 31: // OPERATOR_BU_6
+      case 32: // OPERATOR_BU_7
+      case 33: // OPERATOR_BU_8
+      case 34: // OPERATOR_BU_9
+      case 35: // OPERATOR_BN_0
+      case 36: // OPERATOR_BN_1
+      case 37: // OPERATOR_BN_2
+      case 38: // OPERATOR_BN_3
+      case 39: // OPERATOR_BN_4
+      case 40: // OPERATOR_BN_5
+      case 41: // OPERATOR_BN_6
+      case 42: // OPERATOR_BN_7
+      case 43: // OPERATOR_BN_8
+      case 44: // OPERATOR_BN_9
+      case 45: // OPERATOR_BUN_0
+      case 46: // OPERATOR_BUN_1
+      case 47: // OPERATOR_BUN_2
+      case 48: // OPERATOR_BUN_3
+      case 49: // OPERATOR_BUN_4
+      case 50: // OPERATOR_BUN_5
+      case 51: // OPERATOR_BUN_6
+      case 52: // OPERATOR_BUN_7
+      case 53: // OPERATOR_BUN_8
+      case 54: // OPERATOR_BUN_9
+      case 55: // OPERATOR_U
+      case 56: // OPERATOR_N
+      case 57: // OPERATOR_UN
+      case 58: // IDENT
+      case 59: // NUMBER
+      case 60: // HEXNUMBER
+      case 61: // STRING
         value.copy< tokenizer::token > (v);
         break;
 
@@ -1218,25 +1380,25 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     // Type destructor.
     switch (yytype)
     {
-      case 44: // statements
-      case 45: // statement
-      case 46: // value
-      case 47: // value_list
-      case 48: // code
-      case 49: // array
-      case 50: // assignment
-      case 51: // expression
-      case 52: // exp0
-      case 53: // exp1
-      case 54: // exp2
-      case 55: // exp3
-      case 56: // exp4
-      case 57: // exp5
-      case 58: // exp6
-      case 59: // exp7
-      case 60: // exp8
-      case 61: // exp9
-      case 62: // expu
+      case 64: // statements
+      case 65: // statement
+      case 68: // value
+      case 69: // exp_list
+      case 70: // code
+      case 71: // array
+      case 72: // assignment
+      case 73: // expression
+      case 74: // exp0
+      case 75: // exp1
+      case 76: // exp2
+      case 77: // exp3
+      case 78: // exp4
+      case 79: // exp5
+      case 80: // exp6
+      case 81: // exp7
+      case 82: // exp8
+      case 83: // exp9
+      case 84: // expu
         value.template destroy< ::sqf::parser::sqf::bison::astnode > ();
         break;
 
@@ -1252,33 +1414,53 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       case 12: // ";"
       case 13: // ","
       case 14: // "="
-      case 15: // OPERATOR_0
-      case 16: // IDENT_0
-      case 17: // OPERATOR_1
-      case 18: // IDENT_1
-      case 19: // OPERATOR_2
-      case 20: // IDENT_2
-      case 21: // OPERATOR_3
-      case 22: // IDENT_3
-      case 23: // OPERATOR_4
-      case 24: // IDENT_4
-      case 25: // OPERATOR_5
-      case 26: // IDENT_5
-      case 27: // OPERATOR_6
-      case 28: // IDENT_6
-      case 29: // OPERATOR_7
-      case 30: // IDENT_7
-      case 31: // OPERATOR_8
-      case 32: // IDENT_8
-      case 33: // OPERATOR_9
-      case 34: // IDENT_9
-      case 35: // OPERATOR_U
-      case 36: // IDENT_U
-      case 37: // IDENT_N
-      case 38: // IDENT
-      case 39: // NUMBER
-      case 40: // HEXNUMBER
-      case 41: // STRING
+      case 15: // OPERATOR_B_0
+      case 16: // OPERATOR_B_1
+      case 17: // OPERATOR_B_2
+      case 18: // OPERATOR_B_3
+      case 19: // OPERATOR_B_4
+      case 20: // OPERATOR_B_5
+      case 21: // OPERATOR_B_6
+      case 22: // OPERATOR_B_7
+      case 23: // OPERATOR_B_8
+      case 24: // OPERATOR_B_9
+      case 25: // OPERATOR_BU_0
+      case 26: // OPERATOR_BU_1
+      case 27: // OPERATOR_BU_2
+      case 28: // OPERATOR_BU_3
+      case 29: // OPERATOR_BU_4
+      case 30: // OPERATOR_BU_5
+      case 31: // OPERATOR_BU_6
+      case 32: // OPERATOR_BU_7
+      case 33: // OPERATOR_BU_8
+      case 34: // OPERATOR_BU_9
+      case 35: // OPERATOR_BN_0
+      case 36: // OPERATOR_BN_1
+      case 37: // OPERATOR_BN_2
+      case 38: // OPERATOR_BN_3
+      case 39: // OPERATOR_BN_4
+      case 40: // OPERATOR_BN_5
+      case 41: // OPERATOR_BN_6
+      case 42: // OPERATOR_BN_7
+      case 43: // OPERATOR_BN_8
+      case 44: // OPERATOR_BN_9
+      case 45: // OPERATOR_BUN_0
+      case 46: // OPERATOR_BUN_1
+      case 47: // OPERATOR_BUN_2
+      case 48: // OPERATOR_BUN_3
+      case 49: // OPERATOR_BUN_4
+      case 50: // OPERATOR_BUN_5
+      case 51: // OPERATOR_BUN_6
+      case 52: // OPERATOR_BUN_7
+      case 53: // OPERATOR_BUN_8
+      case 54: // OPERATOR_BUN_9
+      case 55: // OPERATOR_U
+      case 56: // OPERATOR_N
+      case 57: // OPERATOR_UN
+      case 58: // IDENT
+      case 59: // NUMBER
+      case 60: // HEXNUMBER
+      case 61: // STRING
         value.template destroy< tokenizer::token > ();
         break;
 
@@ -1305,25 +1487,25 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     super_type::move(s);
       switch (this->type_get ())
     {
-      case 44: // statements
-      case 45: // statement
-      case 46: // value
-      case 47: // value_list
-      case 48: // code
-      case 49: // array
-      case 50: // assignment
-      case 51: // expression
-      case 52: // exp0
-      case 53: // exp1
-      case 54: // exp2
-      case 55: // exp3
-      case 56: // exp4
-      case 57: // exp5
-      case 58: // exp6
-      case 59: // exp7
-      case 60: // exp8
-      case 61: // exp9
-      case 62: // expu
+      case 64: // statements
+      case 65: // statement
+      case 68: // value
+      case 69: // exp_list
+      case 70: // code
+      case 71: // array
+      case 72: // assignment
+      case 73: // expression
+      case 74: // exp0
+      case 75: // exp1
+      case 76: // exp2
+      case 77: // exp3
+      case 78: // exp4
+      case 79: // exp5
+      case 80: // exp6
+      case 81: // exp7
+      case 82: // exp8
+      case 83: // exp9
+      case 84: // expu
         value.move< ::sqf::parser::sqf::bison::astnode > (s.value);
         break;
 
@@ -1339,33 +1521,53 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       case 12: // ";"
       case 13: // ","
       case 14: // "="
-      case 15: // OPERATOR_0
-      case 16: // IDENT_0
-      case 17: // OPERATOR_1
-      case 18: // IDENT_1
-      case 19: // OPERATOR_2
-      case 20: // IDENT_2
-      case 21: // OPERATOR_3
-      case 22: // IDENT_3
-      case 23: // OPERATOR_4
-      case 24: // IDENT_4
-      case 25: // OPERATOR_5
-      case 26: // IDENT_5
-      case 27: // OPERATOR_6
-      case 28: // IDENT_6
-      case 29: // OPERATOR_7
-      case 30: // IDENT_7
-      case 31: // OPERATOR_8
-      case 32: // IDENT_8
-      case 33: // OPERATOR_9
-      case 34: // IDENT_9
-      case 35: // OPERATOR_U
-      case 36: // IDENT_U
-      case 37: // IDENT_N
-      case 38: // IDENT
-      case 39: // NUMBER
-      case 40: // HEXNUMBER
-      case 41: // STRING
+      case 15: // OPERATOR_B_0
+      case 16: // OPERATOR_B_1
+      case 17: // OPERATOR_B_2
+      case 18: // OPERATOR_B_3
+      case 19: // OPERATOR_B_4
+      case 20: // OPERATOR_B_5
+      case 21: // OPERATOR_B_6
+      case 22: // OPERATOR_B_7
+      case 23: // OPERATOR_B_8
+      case 24: // OPERATOR_B_9
+      case 25: // OPERATOR_BU_0
+      case 26: // OPERATOR_BU_1
+      case 27: // OPERATOR_BU_2
+      case 28: // OPERATOR_BU_3
+      case 29: // OPERATOR_BU_4
+      case 30: // OPERATOR_BU_5
+      case 31: // OPERATOR_BU_6
+      case 32: // OPERATOR_BU_7
+      case 33: // OPERATOR_BU_8
+      case 34: // OPERATOR_BU_9
+      case 35: // OPERATOR_BN_0
+      case 36: // OPERATOR_BN_1
+      case 37: // OPERATOR_BN_2
+      case 38: // OPERATOR_BN_3
+      case 39: // OPERATOR_BN_4
+      case 40: // OPERATOR_BN_5
+      case 41: // OPERATOR_BN_6
+      case 42: // OPERATOR_BN_7
+      case 43: // OPERATOR_BN_8
+      case 44: // OPERATOR_BN_9
+      case 45: // OPERATOR_BUN_0
+      case 46: // OPERATOR_BUN_1
+      case 47: // OPERATOR_BUN_2
+      case 48: // OPERATOR_BUN_3
+      case 49: // OPERATOR_BUN_4
+      case 50: // OPERATOR_BUN_5
+      case 51: // OPERATOR_BUN_6
+      case 52: // OPERATOR_BUN_7
+      case 53: // OPERATOR_BUN_8
+      case 54: // OPERATOR_BUN_9
+      case 55: // OPERATOR_U
+      case 56: // OPERATOR_N
+      case 57: // OPERATOR_UN
+      case 58: // IDENT
+      case 59: // NUMBER
+      case 60: // HEXNUMBER
+      case 61: // STRING
         value.move< tokenizer::token > (s.value);
         break;
 
@@ -1428,7 +1630,9 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
      285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
-     295,   296
+     295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
+     305,   306,   307,   308,   309,   310,   311,   312,   313,   314,
+     315,   316
     };
     return static_cast<token_type> (yytoken_number_[type]);
   }
@@ -1512,123 +1716,243 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
   }
 
   parser::symbol_type
-  parser::make_OPERATOR_0 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_B_0 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::OPERATOR_0, v, l);
+    return symbol_type (token::OPERATOR_B_0, v, l);
   }
 
   parser::symbol_type
-  parser::make_IDENT_0 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_B_1 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_0, v, l);
+    return symbol_type (token::OPERATOR_B_1, v, l);
   }
 
   parser::symbol_type
-  parser::make_OPERATOR_1 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_B_2 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::OPERATOR_1, v, l);
+    return symbol_type (token::OPERATOR_B_2, v, l);
   }
 
   parser::symbol_type
-  parser::make_IDENT_1 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_B_3 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_1, v, l);
+    return symbol_type (token::OPERATOR_B_3, v, l);
   }
 
   parser::symbol_type
-  parser::make_OPERATOR_2 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_B_4 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::OPERATOR_2, v, l);
+    return symbol_type (token::OPERATOR_B_4, v, l);
   }
 
   parser::symbol_type
-  parser::make_IDENT_2 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_B_5 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_2, v, l);
+    return symbol_type (token::OPERATOR_B_5, v, l);
   }
 
   parser::symbol_type
-  parser::make_OPERATOR_3 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_B_6 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::OPERATOR_3, v, l);
+    return symbol_type (token::OPERATOR_B_6, v, l);
   }
 
   parser::symbol_type
-  parser::make_IDENT_3 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_B_7 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_3, v, l);
+    return symbol_type (token::OPERATOR_B_7, v, l);
   }
 
   parser::symbol_type
-  parser::make_OPERATOR_4 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_B_8 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::OPERATOR_4, v, l);
+    return symbol_type (token::OPERATOR_B_8, v, l);
   }
 
   parser::symbol_type
-  parser::make_IDENT_4 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_B_9 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_4, v, l);
+    return symbol_type (token::OPERATOR_B_9, v, l);
   }
 
   parser::symbol_type
-  parser::make_OPERATOR_5 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_BU_0 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::OPERATOR_5, v, l);
+    return symbol_type (token::OPERATOR_BU_0, v, l);
   }
 
   parser::symbol_type
-  parser::make_IDENT_5 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_BU_1 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_5, v, l);
+    return symbol_type (token::OPERATOR_BU_1, v, l);
   }
 
   parser::symbol_type
-  parser::make_OPERATOR_6 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_BU_2 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::OPERATOR_6, v, l);
+    return symbol_type (token::OPERATOR_BU_2, v, l);
   }
 
   parser::symbol_type
-  parser::make_IDENT_6 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_BU_3 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_6, v, l);
+    return symbol_type (token::OPERATOR_BU_3, v, l);
   }
 
   parser::symbol_type
-  parser::make_OPERATOR_7 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_BU_4 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::OPERATOR_7, v, l);
+    return symbol_type (token::OPERATOR_BU_4, v, l);
   }
 
   parser::symbol_type
-  parser::make_IDENT_7 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_BU_5 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_7, v, l);
+    return symbol_type (token::OPERATOR_BU_5, v, l);
   }
 
   parser::symbol_type
-  parser::make_OPERATOR_8 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_BU_6 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::OPERATOR_8, v, l);
+    return symbol_type (token::OPERATOR_BU_6, v, l);
   }
 
   parser::symbol_type
-  parser::make_IDENT_8 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_BU_7 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_8, v, l);
+    return symbol_type (token::OPERATOR_BU_7, v, l);
   }
 
   parser::symbol_type
-  parser::make_OPERATOR_9 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_BU_8 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::OPERATOR_9, v, l);
+    return symbol_type (token::OPERATOR_BU_8, v, l);
   }
 
   parser::symbol_type
-  parser::make_IDENT_9 (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_BU_9 (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_9, v, l);
+    return symbol_type (token::OPERATOR_BU_9, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BN_0 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BN_0, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BN_1 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BN_1, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BN_2 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BN_2, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BN_3 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BN_3, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BN_4 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BN_4, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BN_5 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BN_5, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BN_6 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BN_6, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BN_7 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BN_7, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BN_8 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BN_8, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BN_9 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BN_9, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BUN_0 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BUN_0, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BUN_1 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BUN_1, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BUN_2 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BUN_2, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BUN_3 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BUN_3, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BUN_4 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BUN_4, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BUN_5 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BUN_5, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BUN_6 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BUN_6, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BUN_7 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BUN_7, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BUN_8 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BUN_8, v, l);
+  }
+
+  parser::symbol_type
+  parser::make_OPERATOR_BUN_9 (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::OPERATOR_BUN_9, v, l);
   }
 
   parser::symbol_type
@@ -1638,15 +1962,15 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
   }
 
   parser::symbol_type
-  parser::make_IDENT_U (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_N (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_U, v, l);
+    return symbol_type (token::OPERATOR_N, v, l);
   }
 
   parser::symbol_type
-  parser::make_IDENT_N (const tokenizer::token& v, const location_type& l)
+  parser::make_OPERATOR_UN (const tokenizer::token& v, const location_type& l)
   {
-    return symbol_type (token::IDENT_N, v, l);
+    return symbol_type (token::OPERATOR_UN, v, l);
   }
 
   parser::symbol_type
@@ -1676,7 +2000,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
 
 #line 9 "parser.y" // lalr1.cc:377
 } } } } //  ::sqf::parser::sqf::bison 
-#line 1680 "parser.tab.hh" // lalr1.cc:377
+#line 2004 "parser.tab.hh" // lalr1.cc:377
 
 
 

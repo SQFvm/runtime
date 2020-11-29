@@ -30,6 +30,7 @@ namespace sqf::parser::sqf
             s_edgec,
             s_semicolon,
             s_comma,
+            s_equal,
 
             t_operator,
             t_string_double,
@@ -232,23 +233,23 @@ namespace sqf::parser::sqf
                 case etoken::s_roundc:           len = is_match<')'>(iter); break;
                 case etoken::s_edgeo:            len = is_match<'['>(iter); break;
                 case etoken::s_edgec:            len = is_match<']'>(iter); break;
+                case etoken::s_equal:            len = is_match<'='>(iter); break;
                 case etoken::t_operator:
                     len =
                         is_match_repeated<2, '='>(iter) ? 2 : 
-                        is_match<'='>(iter) ? 1 :
                         is_match<'<'>(iter) ? 1 :
-                        is_match<'<'>(iter) && is_match<'='>(iter + 1) ? 1 :
+                        is_match<'<'>(iter) && is_match<'='>(iter + 1) ? 2 :
                         is_match<'>'>(iter) ? 1 :
                         is_match_repeated<2, '>'>(iter) ? 2 :
-                        is_match<'>'>(iter) && is_match<'='>(iter + 1) ? 1 :
+                        is_match<'>'>(iter) && is_match<'='>(iter + 1) ? 2 :
                         is_match<'+'>(iter) ? 1 :
                         is_match<'-'>(iter) ? 1 :
                         is_match<'/'>(iter) ? 1 :
                         is_match<'*'>(iter) ? 1 :
                         is_match<'%'>(iter) ? 1 :
                         is_match<'^'>(iter) ? 1 :
+                        is_match<'!'>(iter) && is_match<'='>(iter + 1) ? 2 :
                         is_match<'!'>(iter) ? 1 :
-                        is_match<'!'>(iter) && is_match<'='>(iter + 1) ? 1 :
                         is_match<':'>(iter) ? 1 :
                         is_match<'#'>(iter) ? 1 :
                         is_match_repeated<2, '|'>(iter) ? 2 :
@@ -269,6 +270,35 @@ namespace sqf::parser::sqf
                             ++iter;
                         }
                         else if (is_match<'\''>(iter))
+                        {
+                            ++iter;
+                            break;
+                        }
+                        // update position info
+                        if (!is_match<'\n'>(iter))
+                        {
+                            m_column++;
+                        }
+                        else
+                        {
+                            m_line++;
+                            m_column = 0;
+                        }
+                        ++iter;
+                    }
+                    // set length
+                    len = iter - m_current;
+                } break;
+                case etoken::t_string_double: {
+                    ++iter;
+                    // find string end
+                    while (true)
+                    {
+                        if (is_match<'"'>(iter) && is_match<'"'>(iter + 1))
+                        {
+                            ++iter;
+                        }
+                        else if (is_match<'"'>(iter))
                         {
                             ++iter;
                             break;
@@ -404,7 +434,7 @@ namespace sqf::parser::sqf
             case '>':           return try_match({ etoken::t_operator });
             case '<':           return try_match({ etoken::t_operator });
             case '"':           return try_match({ etoken::t_string_double });
-            case '=':           return try_match({ etoken::t_operator });
+            case '=':           return try_match({ etoken::t_operator, etoken::s_equal });
             case '\'':          return try_match({ etoken::t_string_single });
             case '?':           return try_match({ });
             case ':':           return try_match({ etoken::t_operator });
@@ -448,6 +478,7 @@ namespace sqf::parser::sqf
             case etoken::s_edgec:            return "]"sv;
             case etoken::s_semicolon:        return ";"sv;
             case etoken::s_comma:            return ","sv;
+            case etoken::s_equal:            return "="sv;
 
             case etoken::t_operator:         return "operator"sv;
             case etoken::t_string_double:    return "dq string"sv;
