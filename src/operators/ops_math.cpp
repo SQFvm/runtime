@@ -23,10 +23,10 @@ using namespace sqf::types;
 namespace
 {
 	inline float rad(float f) {
-		return f * util::pi() / 180.0;
+		return (float)(f * util::pi() / 180.0);
 	}
 	inline float deg(float f) {
-		return f * 180.0 / util::pi();
+		return (float)(f * 180.0 / util::pi());
 	}
 	value plus_scalar_scalar(runtime& runtime, value::cref left, value::cref right)
 	{
@@ -179,7 +179,7 @@ namespace
 	}
 	float vectorMagnitudeSqr(vec3 arr)
 	{
-		return std::pow(arr.x, 2) + std::pow(arr.y, 2) + std::pow(arr.z, 2);
+		return (float)(std::pow(arr.x, 2) + std::pow(arr.y, 2) + std::pow(arr.z, 2));
 	}
 	float vectorMagnitude(vec3 arr)
 	{
@@ -187,7 +187,7 @@ namespace
 	}
 	float vectorDistanceSqr(vec3 left, vec3 right)
 	{
-		return std::pow(left.x - right.x, 2) + std::pow(left.y - right.y, 2) + std::pow(left.z - right.z, 2);
+		return (float)(std::pow(left.x - right.x, 2) + std::pow(left.y - right.y, 2) + std::pow(left.z - right.z, 2));
 	}
 	float vectorDistance(vec3 left, vec3 right)
 	{

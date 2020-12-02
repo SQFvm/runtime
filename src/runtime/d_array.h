@@ -220,9 +220,9 @@ namespace sqf
         float distance3dsqr(const std::shared_ptr<sqf::types::d_array>& l, const std::shared_ptr<sqf::types::d_array>& r);
         float distance3dsqr(const d_array* l, const d_array* r);
         inline float distance3dsqr(const ::sqf::runtime::vec3 l, const ::sqf::runtime::vec3 r)
-        { return std::pow(l.x - r.x, 2) + std::pow(l.y - r.y, 2) + std::pow(l.z - r.z, 2); }
+        { return (float)(std::pow(l.x - r.x, 2) + std::pow(l.y - r.y, 2) + std::pow(l.z - r.z, 2)); }
         inline float distance3dsqr(std::array<float, 3> l, std::array<float, 3> r)
-        { return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2) + std::pow(l[2] - r[2], 2); }
+        { return (float)(std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2) + std::pow(l[2] - r[2], 2)); }
 
         float distance3d(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
         float distance3d(const d_array* l, const d_array* r);
@@ -234,9 +234,9 @@ namespace sqf
         float distance2dsqr(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
         float distance2dsqr(const d_array* l, const d_array* r);
         inline float distance2dsqr(const ::sqf::runtime::vec3 l, const ::sqf::runtime::vec3 r) 
-        { return std::pow(l.x - r.x, 2) + std::pow(l.y - r.y, 2); }
+        { return (float)(std::pow(l.x - r.x, 2) + std::pow(l.y - r.y, 2)); }
         inline float distance2dsqr(std::array<float, 2> l, std::array<float, 2> r)
-        { return std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2); }
+        { return (float)(std::pow(l[0] - r[0], 2) + std::pow(l[1] - r[1], 2)); }
 
         float distance2d(const std::shared_ptr<d_array>& l, const std::shared_ptr<d_array>& r);
         float distance2d(const d_array* l, const d_array* r);
