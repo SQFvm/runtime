@@ -136,8 +136,8 @@ namespace sqf::sqc
         size_t len_match(iterator str)
         {
             iterator it = str;
-            while (it < m_end && is_match<TArgs...>(*it++)) {}
-            return it - str - 1;
+            while (it < m_end && is_match<TArgs...>(*it)) { ++it; }
+            return it - str;
         }
         size_t len_match(iterator start, const char* against)
         {
@@ -355,7 +355,15 @@ namespace sqf::sqc
                             m_line++;
                             m_column = 0;
                         }
-                        ++iter;
+                        if (iter == m_end)
+                        {
+                            len = 0;
+                            break;
+                        }
+                        else
+                        {
+                            ++iter;
+                        }
                     }
                     // set length
                     len = iter - m_current;
@@ -392,7 +400,15 @@ namespace sqf::sqc
                             m_line++;
                             m_column = 0;
                         }
-                        ++iter;
+                        if (iter == m_end)
+                        {
+                            len = 0;
+                            break;
+                        }
+                        else
+                        {
+                            ++iter;
+                        }
                     }
                     // set length
                     len = iter - m_current;
@@ -431,7 +447,15 @@ namespace sqf::sqc
                             m_line++;
                             m_column = 0;
                         }
-                        ++iter;
+                        if (iter == m_end)
+                        {
+                            len = 0;
+                            break;
+                        }
+                        else
+                        {
+                            ++iter;
+                        }
                     }
                     // set length
                     len = iter - m_current;

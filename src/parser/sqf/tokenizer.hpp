@@ -89,8 +89,8 @@ namespace sqf::parser::sqf
         size_t len_match(iterator str)
         {
             iterator it = str;
-            while (it < m_end && is_match<TArgs...>(*it++)) {}
-            return it - str - 1;
+            while (it < m_end && is_match<TArgs...>(*it)) { ++it; }
+            return it - str;
         }
         size_t len_match(iterator start, const char* against)
         {
@@ -313,7 +313,14 @@ namespace sqf::parser::sqf
                             m_line++;
                             m_column = 0;
                         }
-                        ++iter;
+                        if (iter == m_end)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            iter++;
+                        }
                     }
                     // set length
                     len = iter - m_current;
@@ -452,7 +459,15 @@ namespace sqf::parser::sqf
         }
         token create_token() const
         {
-            return { etoken::invalid, m_line, m_column, (size_t)(m_current - m_start), m_path };
+            return
+            {
+                etoken::invalid,
+                m_line,
+                m_column,
+                (size_t)(m_current - m_start),
+                {},
+                m_path
+            };
         }
         std::string_view to_string(etoken t) const
         {
