@@ -66,12 +66,24 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
     break;
     case bison::astkind::EXPU:
     {
-        to_assembly(contents, node.children[0], set);
         auto s = std::string(node.token.contents);
-        std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
-        auto inst = std::make_shared<::sqf::opcodes::call_unary>(s);
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
-        set.push_back(inst);
+        to_assembly(contents, node.children[0], set);
+        if (node.children[0].kind == bison::astkind::NUMBER && (s == "+" || s == "-"))
+        {
+            if (s == "-")
+            {
+                auto child = std::static_pointer_cast<::sqf::opcodes::push>(set.back());
+                auto scalar = child->value().data<::sqf::types::d_scalar>();
+                scalar->value(-scalar->value());
+            }
+        }
+        else
+        {
+            std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
+            auto inst = std::make_shared<::sqf::opcodes::call_unary>(s);
+            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+            set.push_back(inst);
+        }
     }
     break;
     case bison::astkind::EXPN:
@@ -87,7 +99,13 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
     {
         try
         {
-            auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>((int64_t)std::stol(std::string(node.token.contents), nullptr, 16))));
+            auto str = std::string(node.token.contents);
+            if (str[0] == '$') { str = "0x"s.append(str.substr(1)); }
+            auto hexnum = (int64_t)std::stol(str, nullptr, 16);
+            auto inst = std::make_shared<::sqf::opcodes::push>(
+                ::sqf::runtime::value(
+                    std::make_shared<::sqf::types::d_scalar>(
+                        hexnum)));
             inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
             set.push_back(inst);
         }
@@ -120,6 +138,20 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
     case bison::astkind::STRING:
     {
         auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_string>(::sqf::types::d_string::from_sqf(node.token.contents))));
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        set.push_back(inst);
+    }
+    break;
+    case bison::astkind::BOOLEAN_TRUE:
+    {
+        auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(true));
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        set.push_back(inst);
+    }
+    break;
+    case bison::astkind::BOOLEAN_FALSE:
+    {
+        auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(false));
         inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
@@ -202,7 +234,7 @@ std::optional<sqf::runtime::instruction_set> sqf::parser::sqf::parser::parse(::s
     tokenizer t(contents.begin(), contents.end(), file.physical);
     ::sqf::parser::sqf::bison::astnode res;
     ::sqf::parser::sqf::bison::parser p(t, res, *this, runtime, file.physical);
-    p.set_debug_level(1);
+    // p.set_debug_level(1);
     bool success = p.parse() == 0;
     if (!success)
     {

@@ -332,40 +332,48 @@ namespace sqf::parser::sqf
                         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_'>(iter);
                 } break;
                 case etoken::t_hexadecimal: {
-                    ++iter;
-                    size_t res = 0;
-                    res = is_match<'x'>(iter);
-                    if (res == 0) { len = 0; break; }
-                    ++iter;
+                    if (*iter == '$')
+                    {
+                        ++iter;
 
-                    // match first part of number
-                    res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                                    'A', 'B', 'C', 'D', 'E', 'F',
-                                    'a', 'b', 'c', 'd', 'e', 'f'>(iter);
-                    if (res == 0) { len = 0; break; }
-                    len = (iter + res) - m_current;
+                        size_t res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                            'A', 'B', 'C', 'D', 'E', 'F',
+                            'a', 'b', 'c', 'd', 'e', 'f'>(iter);
+                        if (res == 0) { len = 0; break; }
+                        len = (iter + res) - m_current;
+                    }
+                    else
+                    {
+                        ++iter;
+                        size_t res = 0;
+                        res = is_match<'x'>(iter);
+                        if (res == 0) { len = 0; break; }
+                        ++iter;
+
+                        res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                            'A', 'B', 'C', 'D', 'E', 'F',
+                            'a', 'b', 'c', 'd', 'e', 'f'>(iter);
+                        if (res == 0) { len = 0; break; }
+                        len = (iter + res) - m_current;
+                    }
                 } break;
                 case etoken::t_number: {
-                    size_t res = 0;
-                    // match (optional) prefix
-                    res = is_match<'-', '+'>(iter);
-                    len += res; iter += res;
-
-                    // match first part of number
-                    res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter);
-                    if (res == 0) { len = 0; break; }
-                    len += res; iter += res;
-
-                    // match optional dot
+                    if (!is_match<'.'>(iter))
+                    {
+                        // match first part of number
+                        auto res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(iter);
+                        if (res == 0) { len = 0; break; }
+                        else { iter += res; }
+                    }
                     if (is_match<'.'>(iter))
                     {
-                        len++; iter++;
-
+                        ++iter;
                         // match second part of number
-                        res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'>(iter);
-                        if (res == 0) { len--; iter--; }
-                        else { len += res; iter += res; }
+                        auto res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(iter);
+                        if (res == 0) { --iter; }
+                        else { iter += res; }
                     }
+                    len = iter - m_current;
                 } break;
                 }
 
@@ -426,7 +434,7 @@ namespace sqf::parser::sqf
             case '9':           return try_match({ etoken::t_number });
             case '+':           return try_match({ etoken::t_number, etoken::t_operator });
             case '-':           return try_match({ etoken::t_number, etoken::t_operator });
-            case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block });
+            case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block, etoken::t_operator });
             case '*':           return try_match({ etoken::t_operator });
             case '(':           return try_match({ etoken::s_roundo });
             case ')':           return try_match({ etoken::s_roundc });
@@ -435,7 +443,7 @@ namespace sqf::parser::sqf
             case '{':           return try_match({ etoken::s_curlyo });
             case '}':           return try_match({ etoken::s_curlyc });
             case '&':           return try_match({ etoken::t_operator });
-            case '$':           return try_match({ });
+            case '$':           return try_match({ etoken::t_hexadecimal });
             case '!':           return try_match({ etoken::t_operator });
             case '|':           return try_match({ etoken::t_operator });
             case '>':           return try_match({ etoken::t_operator });
@@ -448,7 +456,7 @@ namespace sqf::parser::sqf
             case '^':           return try_match({ etoken::t_operator });
             case ';':           return try_match({ etoken::s_semicolon });
             case ',':           return try_match({ etoken::s_comma });
-            case '.':           return try_match({ });
+            case '.':           return try_match({ etoken::t_number });
             case ' ':           return try_match({ etoken::i_whitespace });
             case '\r':          return try_match({ etoken::i_whitespace });
             case '\t':          return try_match({ etoken::i_whitespace });

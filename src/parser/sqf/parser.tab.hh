@@ -64,7 +64,8 @@
             NUMBER,
             HEXNUMBER,
             STRING,
-            BOOLEAN,
+            BOOLEAN_TRUE,
+            BOOLEAN_FALSE,
             EXPRESSION_LIST,
             CODE,
             ARRAY,
@@ -108,7 +109,7 @@
         };
      }
 
-#line 112 "parser.tab.hh" // lalr1.cc:377
+#line 113 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -185,7 +186,7 @@
 
 #line 9 "parser.y" // lalr1.cc:377
 namespace sqf { namespace parser { namespace sqf { namespace bison  {
-#line 189 "parser.tab.hh" // lalr1.cc:377
+#line 190 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -435,66 +436,67 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     {
       enum yytokentype
       {
-        NA = 0,
-        FALSE = 258,
-        TRUE = 259,
-        PRIVATE = 260,
-        CURLYO = 261,
-        CURLYC = 262,
-        ROUNDO = 263,
-        ROUNDC = 264,
-        SQUAREO = 265,
-        SQUAREC = 266,
-        SEMICOLON = 267,
-        COMMA = 268,
-        EQUAL = 269,
-        OPERATOR_B_0 = 270,
-        OPERATOR_B_1 = 271,
-        OPERATOR_B_2 = 272,
-        OPERATOR_B_3 = 273,
-        OPERATOR_B_4 = 274,
-        OPERATOR_B_5 = 275,
-        OPERATOR_B_6 = 276,
-        OPERATOR_B_7 = 277,
-        OPERATOR_B_8 = 278,
-        OPERATOR_B_9 = 279,
-        OPERATOR_BU_0 = 280,
-        OPERATOR_BU_1 = 281,
-        OPERATOR_BU_2 = 282,
-        OPERATOR_BU_3 = 283,
-        OPERATOR_BU_4 = 284,
-        OPERATOR_BU_5 = 285,
-        OPERATOR_BU_6 = 286,
-        OPERATOR_BU_7 = 287,
-        OPERATOR_BU_8 = 288,
-        OPERATOR_BU_9 = 289,
-        OPERATOR_BN_0 = 290,
-        OPERATOR_BN_1 = 291,
-        OPERATOR_BN_2 = 292,
-        OPERATOR_BN_3 = 293,
-        OPERATOR_BN_4 = 294,
-        OPERATOR_BN_5 = 295,
-        OPERATOR_BN_6 = 296,
-        OPERATOR_BN_7 = 297,
-        OPERATOR_BN_8 = 298,
-        OPERATOR_BN_9 = 299,
-        OPERATOR_BUN_0 = 300,
-        OPERATOR_BUN_1 = 301,
-        OPERATOR_BUN_2 = 302,
-        OPERATOR_BUN_3 = 303,
-        OPERATOR_BUN_4 = 304,
-        OPERATOR_BUN_5 = 305,
-        OPERATOR_BUN_6 = 306,
-        OPERATOR_BUN_7 = 307,
-        OPERATOR_BUN_8 = 308,
-        OPERATOR_BUN_9 = 309,
-        OPERATOR_U = 310,
-        OPERATOR_N = 311,
-        OPERATOR_UN = 312,
-        IDENT = 313,
-        NUMBER = 314,
-        HEXNUMBER = 315,
-        STRING = 316
+        END_OF_FILE = 0,
+        INVALID = 258,
+        FALSE = 259,
+        TRUE = 260,
+        PRIVATE = 261,
+        CURLYO = 262,
+        CURLYC = 263,
+        ROUNDO = 264,
+        ROUNDC = 265,
+        SQUAREO = 266,
+        SQUAREC = 267,
+        SEMICOLON = 268,
+        COMMA = 269,
+        EQUAL = 270,
+        OPERATOR_B_0 = 271,
+        OPERATOR_B_1 = 272,
+        OPERATOR_B_2 = 273,
+        OPERATOR_B_3 = 274,
+        OPERATOR_B_4 = 275,
+        OPERATOR_B_5 = 276,
+        OPERATOR_B_6 = 277,
+        OPERATOR_B_7 = 278,
+        OPERATOR_B_8 = 279,
+        OPERATOR_B_9 = 280,
+        OPERATOR_BU_0 = 281,
+        OPERATOR_BU_1 = 282,
+        OPERATOR_BU_2 = 283,
+        OPERATOR_BU_3 = 284,
+        OPERATOR_BU_4 = 285,
+        OPERATOR_BU_5 = 286,
+        OPERATOR_BU_6 = 287,
+        OPERATOR_BU_7 = 288,
+        OPERATOR_BU_8 = 289,
+        OPERATOR_BU_9 = 290,
+        OPERATOR_BN_0 = 291,
+        OPERATOR_BN_1 = 292,
+        OPERATOR_BN_2 = 293,
+        OPERATOR_BN_3 = 294,
+        OPERATOR_BN_4 = 295,
+        OPERATOR_BN_5 = 296,
+        OPERATOR_BN_6 = 297,
+        OPERATOR_BN_7 = 298,
+        OPERATOR_BN_8 = 299,
+        OPERATOR_BN_9 = 300,
+        OPERATOR_BUN_0 = 301,
+        OPERATOR_BUN_1 = 302,
+        OPERATOR_BUN_2 = 303,
+        OPERATOR_BUN_3 = 304,
+        OPERATOR_BUN_4 = 305,
+        OPERATOR_BUN_5 = 306,
+        OPERATOR_BUN_6 = 307,
+        OPERATOR_BUN_7 = 308,
+        OPERATOR_BUN_8 = 309,
+        OPERATOR_BUN_9 = 310,
+        OPERATOR_U = 311,
+        OPERATOR_N = 312,
+        OPERATOR_UN = 313,
+        IDENT = 314,
+        NUMBER = 315,
+        HEXNUMBER = 316,
+        STRING = 317
       };
     };
 
@@ -605,7 +607,11 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     // Symbol constructors declarations.
     static inline
     symbol_type
-    make_NA (const location_type& l);
+    make_END_OF_FILE (const location_type& l);
+
+    static inline
+    symbol_type
+    make_INVALID (const location_type& l);
 
     static inline
     symbol_type
@@ -918,7 +924,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
   static const unsigned char yydefact_[];
 
   // YYPGOTO[NTERM-NUM].
-  static const signed char yypgoto_[];
+  static const short int yypgoto_[];
 
   // YYDEFGOTO[NTERM-NUM].
   static const signed char yydefgoto_[];
@@ -1048,12 +1054,12 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 529,     ///< Last index in yytable_.
+      yylast_ = 536,     ///< Last index in yytable_.
       yynnts_ = 23,  ///< Number of nonterminal symbols.
-      yyfinal_ = 100, ///< Termination state number.
+      yyfinal_ = 101, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 62  ///< Number of tokens.
+      yyntokens_ = 63  ///< Number of tokens.
     };
 
 
@@ -1105,9 +1111,9 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
       45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
-      55,    56,    57,    58,    59,    60,    61
+      55,    56,    57,    58,    59,    60,    61,    62
     };
-    const unsigned int user_token_number_max_ = 316;
+    const unsigned int user_token_number_max_ = 317;
     const token_number_type undef_token_ = 2;
 
     if (static_cast<int>(t) <= yyeof_)
@@ -1140,87 +1146,87 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
   {
       switch (other.type_get ())
     {
-      case 64: // statements
-      case 65: // statement
-      case 68: // value
-      case 69: // exp_list
-      case 70: // code
-      case 71: // array
-      case 72: // assignment
-      case 73: // expression
-      case 74: // exp0
-      case 75: // exp1
-      case 76: // exp2
-      case 77: // exp3
-      case 78: // exp4
-      case 79: // exp5
-      case 80: // exp6
-      case 81: // exp7
-      case 82: // exp8
-      case 83: // exp9
-      case 84: // expu
+      case 65: // statements
+      case 66: // statement
+      case 69: // value
+      case 70: // exp_list
+      case 71: // code
+      case 72: // array
+      case 73: // assignment
+      case 74: // expression
+      case 75: // exp0
+      case 76: // exp1
+      case 77: // exp2
+      case 78: // exp3
+      case 79: // exp4
+      case 80: // exp5
+      case 81: // exp6
+      case 82: // exp7
+      case 83: // exp8
+      case 84: // exp9
+      case 85: // expu
         value.copy< ::sqf::parser::sqf::bison::astnode > (other.value);
         break;
 
-      case 3: // "false"
-      case 4: // "true"
-      case 5: // "private"
-      case 6: // "{"
-      case 7: // "}"
-      case 8: // "("
-      case 9: // ")"
-      case 10: // "["
-      case 11: // "]"
-      case 12: // ";"
-      case 13: // ","
-      case 14: // "="
-      case 15: // OPERATOR_B_0
-      case 16: // OPERATOR_B_1
-      case 17: // OPERATOR_B_2
-      case 18: // OPERATOR_B_3
-      case 19: // OPERATOR_B_4
-      case 20: // OPERATOR_B_5
-      case 21: // OPERATOR_B_6
-      case 22: // OPERATOR_B_7
-      case 23: // OPERATOR_B_8
-      case 24: // OPERATOR_B_9
-      case 25: // OPERATOR_BU_0
-      case 26: // OPERATOR_BU_1
-      case 27: // OPERATOR_BU_2
-      case 28: // OPERATOR_BU_3
-      case 29: // OPERATOR_BU_4
-      case 30: // OPERATOR_BU_5
-      case 31: // OPERATOR_BU_6
-      case 32: // OPERATOR_BU_7
-      case 33: // OPERATOR_BU_8
-      case 34: // OPERATOR_BU_9
-      case 35: // OPERATOR_BN_0
-      case 36: // OPERATOR_BN_1
-      case 37: // OPERATOR_BN_2
-      case 38: // OPERATOR_BN_3
-      case 39: // OPERATOR_BN_4
-      case 40: // OPERATOR_BN_5
-      case 41: // OPERATOR_BN_6
-      case 42: // OPERATOR_BN_7
-      case 43: // OPERATOR_BN_8
-      case 44: // OPERATOR_BN_9
-      case 45: // OPERATOR_BUN_0
-      case 46: // OPERATOR_BUN_1
-      case 47: // OPERATOR_BUN_2
-      case 48: // OPERATOR_BUN_3
-      case 49: // OPERATOR_BUN_4
-      case 50: // OPERATOR_BUN_5
-      case 51: // OPERATOR_BUN_6
-      case 52: // OPERATOR_BUN_7
-      case 53: // OPERATOR_BUN_8
-      case 54: // OPERATOR_BUN_9
-      case 55: // OPERATOR_U
-      case 56: // OPERATOR_N
-      case 57: // OPERATOR_UN
-      case 58: // IDENT
-      case 59: // NUMBER
-      case 60: // HEXNUMBER
-      case 61: // STRING
+      case 4: // "false"
+      case 5: // "true"
+      case 6: // "private"
+      case 7: // "{"
+      case 8: // "}"
+      case 9: // "("
+      case 10: // ")"
+      case 11: // "["
+      case 12: // "]"
+      case 13: // ";"
+      case 14: // ","
+      case 15: // "="
+      case 16: // OPERATOR_B_0
+      case 17: // OPERATOR_B_1
+      case 18: // OPERATOR_B_2
+      case 19: // OPERATOR_B_3
+      case 20: // OPERATOR_B_4
+      case 21: // OPERATOR_B_5
+      case 22: // OPERATOR_B_6
+      case 23: // OPERATOR_B_7
+      case 24: // OPERATOR_B_8
+      case 25: // OPERATOR_B_9
+      case 26: // OPERATOR_BU_0
+      case 27: // OPERATOR_BU_1
+      case 28: // OPERATOR_BU_2
+      case 29: // OPERATOR_BU_3
+      case 30: // OPERATOR_BU_4
+      case 31: // OPERATOR_BU_5
+      case 32: // OPERATOR_BU_6
+      case 33: // OPERATOR_BU_7
+      case 34: // OPERATOR_BU_8
+      case 35: // OPERATOR_BU_9
+      case 36: // OPERATOR_BN_0
+      case 37: // OPERATOR_BN_1
+      case 38: // OPERATOR_BN_2
+      case 39: // OPERATOR_BN_3
+      case 40: // OPERATOR_BN_4
+      case 41: // OPERATOR_BN_5
+      case 42: // OPERATOR_BN_6
+      case 43: // OPERATOR_BN_7
+      case 44: // OPERATOR_BN_8
+      case 45: // OPERATOR_BN_9
+      case 46: // OPERATOR_BUN_0
+      case 47: // OPERATOR_BUN_1
+      case 48: // OPERATOR_BUN_2
+      case 49: // OPERATOR_BUN_3
+      case 50: // OPERATOR_BUN_4
+      case 51: // OPERATOR_BUN_5
+      case 52: // OPERATOR_BUN_6
+      case 53: // OPERATOR_BUN_7
+      case 54: // OPERATOR_BUN_8
+      case 55: // OPERATOR_BUN_9
+      case 56: // OPERATOR_U
+      case 57: // OPERATOR_N
+      case 58: // OPERATOR_UN
+      case 59: // IDENT
+      case 60: // NUMBER
+      case 61: // HEXNUMBER
+      case 62: // STRING
         value.copy< tokenizer::token > (other.value);
         break;
 
@@ -1241,87 +1247,87 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     (void) v;
       switch (this->type_get ())
     {
-      case 64: // statements
-      case 65: // statement
-      case 68: // value
-      case 69: // exp_list
-      case 70: // code
-      case 71: // array
-      case 72: // assignment
-      case 73: // expression
-      case 74: // exp0
-      case 75: // exp1
-      case 76: // exp2
-      case 77: // exp3
-      case 78: // exp4
-      case 79: // exp5
-      case 80: // exp6
-      case 81: // exp7
-      case 82: // exp8
-      case 83: // exp9
-      case 84: // expu
+      case 65: // statements
+      case 66: // statement
+      case 69: // value
+      case 70: // exp_list
+      case 71: // code
+      case 72: // array
+      case 73: // assignment
+      case 74: // expression
+      case 75: // exp0
+      case 76: // exp1
+      case 77: // exp2
+      case 78: // exp3
+      case 79: // exp4
+      case 80: // exp5
+      case 81: // exp6
+      case 82: // exp7
+      case 83: // exp8
+      case 84: // exp9
+      case 85: // expu
         value.copy< ::sqf::parser::sqf::bison::astnode > (v);
         break;
 
-      case 3: // "false"
-      case 4: // "true"
-      case 5: // "private"
-      case 6: // "{"
-      case 7: // "}"
-      case 8: // "("
-      case 9: // ")"
-      case 10: // "["
-      case 11: // "]"
-      case 12: // ";"
-      case 13: // ","
-      case 14: // "="
-      case 15: // OPERATOR_B_0
-      case 16: // OPERATOR_B_1
-      case 17: // OPERATOR_B_2
-      case 18: // OPERATOR_B_3
-      case 19: // OPERATOR_B_4
-      case 20: // OPERATOR_B_5
-      case 21: // OPERATOR_B_6
-      case 22: // OPERATOR_B_7
-      case 23: // OPERATOR_B_8
-      case 24: // OPERATOR_B_9
-      case 25: // OPERATOR_BU_0
-      case 26: // OPERATOR_BU_1
-      case 27: // OPERATOR_BU_2
-      case 28: // OPERATOR_BU_3
-      case 29: // OPERATOR_BU_4
-      case 30: // OPERATOR_BU_5
-      case 31: // OPERATOR_BU_6
-      case 32: // OPERATOR_BU_7
-      case 33: // OPERATOR_BU_8
-      case 34: // OPERATOR_BU_9
-      case 35: // OPERATOR_BN_0
-      case 36: // OPERATOR_BN_1
-      case 37: // OPERATOR_BN_2
-      case 38: // OPERATOR_BN_3
-      case 39: // OPERATOR_BN_4
-      case 40: // OPERATOR_BN_5
-      case 41: // OPERATOR_BN_6
-      case 42: // OPERATOR_BN_7
-      case 43: // OPERATOR_BN_8
-      case 44: // OPERATOR_BN_9
-      case 45: // OPERATOR_BUN_0
-      case 46: // OPERATOR_BUN_1
-      case 47: // OPERATOR_BUN_2
-      case 48: // OPERATOR_BUN_3
-      case 49: // OPERATOR_BUN_4
-      case 50: // OPERATOR_BUN_5
-      case 51: // OPERATOR_BUN_6
-      case 52: // OPERATOR_BUN_7
-      case 53: // OPERATOR_BUN_8
-      case 54: // OPERATOR_BUN_9
-      case 55: // OPERATOR_U
-      case 56: // OPERATOR_N
-      case 57: // OPERATOR_UN
-      case 58: // IDENT
-      case 59: // NUMBER
-      case 60: // HEXNUMBER
-      case 61: // STRING
+      case 4: // "false"
+      case 5: // "true"
+      case 6: // "private"
+      case 7: // "{"
+      case 8: // "}"
+      case 9: // "("
+      case 10: // ")"
+      case 11: // "["
+      case 12: // "]"
+      case 13: // ";"
+      case 14: // ","
+      case 15: // "="
+      case 16: // OPERATOR_B_0
+      case 17: // OPERATOR_B_1
+      case 18: // OPERATOR_B_2
+      case 19: // OPERATOR_B_3
+      case 20: // OPERATOR_B_4
+      case 21: // OPERATOR_B_5
+      case 22: // OPERATOR_B_6
+      case 23: // OPERATOR_B_7
+      case 24: // OPERATOR_B_8
+      case 25: // OPERATOR_B_9
+      case 26: // OPERATOR_BU_0
+      case 27: // OPERATOR_BU_1
+      case 28: // OPERATOR_BU_2
+      case 29: // OPERATOR_BU_3
+      case 30: // OPERATOR_BU_4
+      case 31: // OPERATOR_BU_5
+      case 32: // OPERATOR_BU_6
+      case 33: // OPERATOR_BU_7
+      case 34: // OPERATOR_BU_8
+      case 35: // OPERATOR_BU_9
+      case 36: // OPERATOR_BN_0
+      case 37: // OPERATOR_BN_1
+      case 38: // OPERATOR_BN_2
+      case 39: // OPERATOR_BN_3
+      case 40: // OPERATOR_BN_4
+      case 41: // OPERATOR_BN_5
+      case 42: // OPERATOR_BN_6
+      case 43: // OPERATOR_BN_7
+      case 44: // OPERATOR_BN_8
+      case 45: // OPERATOR_BN_9
+      case 46: // OPERATOR_BUN_0
+      case 47: // OPERATOR_BUN_1
+      case 48: // OPERATOR_BUN_2
+      case 49: // OPERATOR_BUN_3
+      case 50: // OPERATOR_BUN_4
+      case 51: // OPERATOR_BUN_5
+      case 52: // OPERATOR_BUN_6
+      case 53: // OPERATOR_BUN_7
+      case 54: // OPERATOR_BUN_8
+      case 55: // OPERATOR_BUN_9
+      case 56: // OPERATOR_U
+      case 57: // OPERATOR_N
+      case 58: // OPERATOR_UN
+      case 59: // IDENT
+      case 60: // NUMBER
+      case 61: // HEXNUMBER
+      case 62: // STRING
         value.copy< tokenizer::token > (v);
         break;
 
@@ -1380,87 +1386,87 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     // Type destructor.
     switch (yytype)
     {
-      case 64: // statements
-      case 65: // statement
-      case 68: // value
-      case 69: // exp_list
-      case 70: // code
-      case 71: // array
-      case 72: // assignment
-      case 73: // expression
-      case 74: // exp0
-      case 75: // exp1
-      case 76: // exp2
-      case 77: // exp3
-      case 78: // exp4
-      case 79: // exp5
-      case 80: // exp6
-      case 81: // exp7
-      case 82: // exp8
-      case 83: // exp9
-      case 84: // expu
+      case 65: // statements
+      case 66: // statement
+      case 69: // value
+      case 70: // exp_list
+      case 71: // code
+      case 72: // array
+      case 73: // assignment
+      case 74: // expression
+      case 75: // exp0
+      case 76: // exp1
+      case 77: // exp2
+      case 78: // exp3
+      case 79: // exp4
+      case 80: // exp5
+      case 81: // exp6
+      case 82: // exp7
+      case 83: // exp8
+      case 84: // exp9
+      case 85: // expu
         value.template destroy< ::sqf::parser::sqf::bison::astnode > ();
         break;
 
-      case 3: // "false"
-      case 4: // "true"
-      case 5: // "private"
-      case 6: // "{"
-      case 7: // "}"
-      case 8: // "("
-      case 9: // ")"
-      case 10: // "["
-      case 11: // "]"
-      case 12: // ";"
-      case 13: // ","
-      case 14: // "="
-      case 15: // OPERATOR_B_0
-      case 16: // OPERATOR_B_1
-      case 17: // OPERATOR_B_2
-      case 18: // OPERATOR_B_3
-      case 19: // OPERATOR_B_4
-      case 20: // OPERATOR_B_5
-      case 21: // OPERATOR_B_6
-      case 22: // OPERATOR_B_7
-      case 23: // OPERATOR_B_8
-      case 24: // OPERATOR_B_9
-      case 25: // OPERATOR_BU_0
-      case 26: // OPERATOR_BU_1
-      case 27: // OPERATOR_BU_2
-      case 28: // OPERATOR_BU_3
-      case 29: // OPERATOR_BU_4
-      case 30: // OPERATOR_BU_5
-      case 31: // OPERATOR_BU_6
-      case 32: // OPERATOR_BU_7
-      case 33: // OPERATOR_BU_8
-      case 34: // OPERATOR_BU_9
-      case 35: // OPERATOR_BN_0
-      case 36: // OPERATOR_BN_1
-      case 37: // OPERATOR_BN_2
-      case 38: // OPERATOR_BN_3
-      case 39: // OPERATOR_BN_4
-      case 40: // OPERATOR_BN_5
-      case 41: // OPERATOR_BN_6
-      case 42: // OPERATOR_BN_7
-      case 43: // OPERATOR_BN_8
-      case 44: // OPERATOR_BN_9
-      case 45: // OPERATOR_BUN_0
-      case 46: // OPERATOR_BUN_1
-      case 47: // OPERATOR_BUN_2
-      case 48: // OPERATOR_BUN_3
-      case 49: // OPERATOR_BUN_4
-      case 50: // OPERATOR_BUN_5
-      case 51: // OPERATOR_BUN_6
-      case 52: // OPERATOR_BUN_7
-      case 53: // OPERATOR_BUN_8
-      case 54: // OPERATOR_BUN_9
-      case 55: // OPERATOR_U
-      case 56: // OPERATOR_N
-      case 57: // OPERATOR_UN
-      case 58: // IDENT
-      case 59: // NUMBER
-      case 60: // HEXNUMBER
-      case 61: // STRING
+      case 4: // "false"
+      case 5: // "true"
+      case 6: // "private"
+      case 7: // "{"
+      case 8: // "}"
+      case 9: // "("
+      case 10: // ")"
+      case 11: // "["
+      case 12: // "]"
+      case 13: // ";"
+      case 14: // ","
+      case 15: // "="
+      case 16: // OPERATOR_B_0
+      case 17: // OPERATOR_B_1
+      case 18: // OPERATOR_B_2
+      case 19: // OPERATOR_B_3
+      case 20: // OPERATOR_B_4
+      case 21: // OPERATOR_B_5
+      case 22: // OPERATOR_B_6
+      case 23: // OPERATOR_B_7
+      case 24: // OPERATOR_B_8
+      case 25: // OPERATOR_B_9
+      case 26: // OPERATOR_BU_0
+      case 27: // OPERATOR_BU_1
+      case 28: // OPERATOR_BU_2
+      case 29: // OPERATOR_BU_3
+      case 30: // OPERATOR_BU_4
+      case 31: // OPERATOR_BU_5
+      case 32: // OPERATOR_BU_6
+      case 33: // OPERATOR_BU_7
+      case 34: // OPERATOR_BU_8
+      case 35: // OPERATOR_BU_9
+      case 36: // OPERATOR_BN_0
+      case 37: // OPERATOR_BN_1
+      case 38: // OPERATOR_BN_2
+      case 39: // OPERATOR_BN_3
+      case 40: // OPERATOR_BN_4
+      case 41: // OPERATOR_BN_5
+      case 42: // OPERATOR_BN_6
+      case 43: // OPERATOR_BN_7
+      case 44: // OPERATOR_BN_8
+      case 45: // OPERATOR_BN_9
+      case 46: // OPERATOR_BUN_0
+      case 47: // OPERATOR_BUN_1
+      case 48: // OPERATOR_BUN_2
+      case 49: // OPERATOR_BUN_3
+      case 50: // OPERATOR_BUN_4
+      case 51: // OPERATOR_BUN_5
+      case 52: // OPERATOR_BUN_6
+      case 53: // OPERATOR_BUN_7
+      case 54: // OPERATOR_BUN_8
+      case 55: // OPERATOR_BUN_9
+      case 56: // OPERATOR_U
+      case 57: // OPERATOR_N
+      case 58: // OPERATOR_UN
+      case 59: // IDENT
+      case 60: // NUMBER
+      case 61: // HEXNUMBER
+      case 62: // STRING
         value.template destroy< tokenizer::token > ();
         break;
 
@@ -1487,87 +1493,87 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     super_type::move(s);
       switch (this->type_get ())
     {
-      case 64: // statements
-      case 65: // statement
-      case 68: // value
-      case 69: // exp_list
-      case 70: // code
-      case 71: // array
-      case 72: // assignment
-      case 73: // expression
-      case 74: // exp0
-      case 75: // exp1
-      case 76: // exp2
-      case 77: // exp3
-      case 78: // exp4
-      case 79: // exp5
-      case 80: // exp6
-      case 81: // exp7
-      case 82: // exp8
-      case 83: // exp9
-      case 84: // expu
+      case 65: // statements
+      case 66: // statement
+      case 69: // value
+      case 70: // exp_list
+      case 71: // code
+      case 72: // array
+      case 73: // assignment
+      case 74: // expression
+      case 75: // exp0
+      case 76: // exp1
+      case 77: // exp2
+      case 78: // exp3
+      case 79: // exp4
+      case 80: // exp5
+      case 81: // exp6
+      case 82: // exp7
+      case 83: // exp8
+      case 84: // exp9
+      case 85: // expu
         value.move< ::sqf::parser::sqf::bison::astnode > (s.value);
         break;
 
-      case 3: // "false"
-      case 4: // "true"
-      case 5: // "private"
-      case 6: // "{"
-      case 7: // "}"
-      case 8: // "("
-      case 9: // ")"
-      case 10: // "["
-      case 11: // "]"
-      case 12: // ";"
-      case 13: // ","
-      case 14: // "="
-      case 15: // OPERATOR_B_0
-      case 16: // OPERATOR_B_1
-      case 17: // OPERATOR_B_2
-      case 18: // OPERATOR_B_3
-      case 19: // OPERATOR_B_4
-      case 20: // OPERATOR_B_5
-      case 21: // OPERATOR_B_6
-      case 22: // OPERATOR_B_7
-      case 23: // OPERATOR_B_8
-      case 24: // OPERATOR_B_9
-      case 25: // OPERATOR_BU_0
-      case 26: // OPERATOR_BU_1
-      case 27: // OPERATOR_BU_2
-      case 28: // OPERATOR_BU_3
-      case 29: // OPERATOR_BU_4
-      case 30: // OPERATOR_BU_5
-      case 31: // OPERATOR_BU_6
-      case 32: // OPERATOR_BU_7
-      case 33: // OPERATOR_BU_8
-      case 34: // OPERATOR_BU_9
-      case 35: // OPERATOR_BN_0
-      case 36: // OPERATOR_BN_1
-      case 37: // OPERATOR_BN_2
-      case 38: // OPERATOR_BN_3
-      case 39: // OPERATOR_BN_4
-      case 40: // OPERATOR_BN_5
-      case 41: // OPERATOR_BN_6
-      case 42: // OPERATOR_BN_7
-      case 43: // OPERATOR_BN_8
-      case 44: // OPERATOR_BN_9
-      case 45: // OPERATOR_BUN_0
-      case 46: // OPERATOR_BUN_1
-      case 47: // OPERATOR_BUN_2
-      case 48: // OPERATOR_BUN_3
-      case 49: // OPERATOR_BUN_4
-      case 50: // OPERATOR_BUN_5
-      case 51: // OPERATOR_BUN_6
-      case 52: // OPERATOR_BUN_7
-      case 53: // OPERATOR_BUN_8
-      case 54: // OPERATOR_BUN_9
-      case 55: // OPERATOR_U
-      case 56: // OPERATOR_N
-      case 57: // OPERATOR_UN
-      case 58: // IDENT
-      case 59: // NUMBER
-      case 60: // HEXNUMBER
-      case 61: // STRING
+      case 4: // "false"
+      case 5: // "true"
+      case 6: // "private"
+      case 7: // "{"
+      case 8: // "}"
+      case 9: // "("
+      case 10: // ")"
+      case 11: // "["
+      case 12: // "]"
+      case 13: // ";"
+      case 14: // ","
+      case 15: // "="
+      case 16: // OPERATOR_B_0
+      case 17: // OPERATOR_B_1
+      case 18: // OPERATOR_B_2
+      case 19: // OPERATOR_B_3
+      case 20: // OPERATOR_B_4
+      case 21: // OPERATOR_B_5
+      case 22: // OPERATOR_B_6
+      case 23: // OPERATOR_B_7
+      case 24: // OPERATOR_B_8
+      case 25: // OPERATOR_B_9
+      case 26: // OPERATOR_BU_0
+      case 27: // OPERATOR_BU_1
+      case 28: // OPERATOR_BU_2
+      case 29: // OPERATOR_BU_3
+      case 30: // OPERATOR_BU_4
+      case 31: // OPERATOR_BU_5
+      case 32: // OPERATOR_BU_6
+      case 33: // OPERATOR_BU_7
+      case 34: // OPERATOR_BU_8
+      case 35: // OPERATOR_BU_9
+      case 36: // OPERATOR_BN_0
+      case 37: // OPERATOR_BN_1
+      case 38: // OPERATOR_BN_2
+      case 39: // OPERATOR_BN_3
+      case 40: // OPERATOR_BN_4
+      case 41: // OPERATOR_BN_5
+      case 42: // OPERATOR_BN_6
+      case 43: // OPERATOR_BN_7
+      case 44: // OPERATOR_BN_8
+      case 45: // OPERATOR_BN_9
+      case 46: // OPERATOR_BUN_0
+      case 47: // OPERATOR_BUN_1
+      case 48: // OPERATOR_BUN_2
+      case 49: // OPERATOR_BUN_3
+      case 50: // OPERATOR_BUN_4
+      case 51: // OPERATOR_BUN_5
+      case 52: // OPERATOR_BUN_6
+      case 53: // OPERATOR_BUN_7
+      case 54: // OPERATOR_BUN_8
+      case 55: // OPERATOR_BUN_9
+      case 56: // OPERATOR_U
+      case 57: // OPERATOR_N
+      case 58: // OPERATOR_UN
+      case 59: // IDENT
+      case 60: // NUMBER
+      case 61: // HEXNUMBER
+      case 62: // STRING
         value.move< tokenizer::token > (s.value);
         break;
 
@@ -1632,15 +1638,21 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
      285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
      295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
      305,   306,   307,   308,   309,   310,   311,   312,   313,   314,
-     315,   316
+     315,   316,   317
     };
     return static_cast<token_type> (yytoken_number_[type]);
   }
   // Implementation of make_symbol for each symbol type.
   parser::symbol_type
-  parser::make_NA (const location_type& l)
+  parser::make_END_OF_FILE (const location_type& l)
   {
-    return symbol_type (token::NA, l);
+    return symbol_type (token::END_OF_FILE, l);
+  }
+
+  parser::symbol_type
+  parser::make_INVALID (const location_type& l)
+  {
+    return symbol_type (token::INVALID, l);
   }
 
   parser::symbol_type
@@ -2000,7 +2012,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
 
 #line 9 "parser.y" // lalr1.cc:377
 } } } } //  ::sqf::parser::sqf::bison 
-#line 2004 "parser.tab.hh" // lalr1.cc:377
+#line 2016 "parser.tab.hh" // lalr1.cc:377
 
 
 
