@@ -240,7 +240,7 @@ filehead: "params" funchead                       { $$ = $2; }
         ;
 
 statements: statement                             { $$ = sqf::sqc::bison::astnode{ astkind::STATEMENTS, tokenizer.create_token() }; $$.append($1); }
-          | statement statements                  { $$ = sqf::sqc::bison::astnode{ astkind::STATEMENTS, tokenizer.create_token() }; $$.append($1); $$.append_children($2); }
+          | statements statement                  { $$ = $1; $$.append($2); }
           ;
 
 statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnode{ astkind::RETURN, tokenizer.create_token() }; $$.append($2); }
@@ -325,7 +325,7 @@ switch: "switch" "(" exp01 ")" "{" caselist "}"           { $$ = sqf::sqc::bison
       ;
 
 caselist: case                        { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
-        | case caselist               { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($2); }
+        | caselist case               { $$ = sqf::sqc::bison::astnode{}; $$.append_children($1); $$.append($2); }
         ;
 
 case: "case" exp01 ":" codeblock      { $$ = sqf::sqc::bison::astnode{ astkind::CASE, $3 }; $$.append($2); $$.append($4); }
@@ -405,7 +405,7 @@ array: "[" "]"                        { $$ = sqf::sqc::bison::astnode{ astkind::
      ;
 explist: exp01                        { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
        | exp01 ","                    { $$ = sqf::sqc::bison::astnode{}; $$.append($1); }
-       | exp01 "," explist            { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append_children($3); }
+       | explist "," exp01            { $$ = sqf::sqc::bison::astnode{}; $$.append_children($1); $$.append($3); }
        ;
 format_string  : FORMAT_STRING_START                                       { $$ = sqf::sqc::bison::astnode{ astkind::SVAL_FORMAT_STRING }; $$.append($1);}
                | FORMAT_STRING_START format_string_match                   { $$ = sqf::sqc::bison::astnode{ astkind::SVAL_FORMAT_STRING }; $$.append($1); $$.append_children($2); }

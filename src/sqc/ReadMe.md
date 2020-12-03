@@ -1,3 +1,137 @@
+This ReadMe is a Work-In-Progress documentation of the SQC language
+
+
+# Variable assignment
+A variable in SQC is assigned like this:
+
+```js
+    variable = <VALUE>;
+    variable be <VALUE>;
+```
+
+To make a variable private, you just add the `let` or `private` keyword in front of it:
+
+```js
+    let variable be <VALUE>;
+    private variable = <VALUE>;
+```
+
+
+# Calling a function or operator
+In SQC, you have no direct syntax to "call" sqf like one would in SQF.
+Instead, SQC attempts to automatically mangle the different types and functions for you.
+
+For example, a call to `diag_log` in SQC, treats `diag_log` as method which makes the call look like this: `diag_log("fooo bar")`.
+special attention should be given to operators, expecting arrays as their parameter though.
+For theese, SQC automatically transforms parameter lists into arrays (`nearestObjects(player, ["Tank"],500)`) however, given that only one argument
+gets passed to an operator expecting an array, the correct way to call that then is to pass the array then as a proper array (`private(["_someVar"])`)
+
+With Binary operators (eg. `in`), SQC gives you a somewhat OOP way to access them, making `player setPosition [1,2,3]` to `player.setPosition(1,2,3)`.
+Same rules apply here too. If you are expected to have an array on the right side with only one in-argument, you need to pass in an array.
+Note that the left side for the binary operators always will be evaluated "as is".
+
+User Functions are always treated as "normal" functions (`myFunc(arg0, arg1, arg2)`) and no special care has to be given to them.
+
+Translation Examples:
+
+```sqf
+    diag_log("foo bar")                <-> diag_log "foo bar"
+    diag_log(1, 2, 3)                  <-> diag_log [1, 2, 3]
+    player.in(player, vehicle(player)) <-> player in [player, vehicle player]
+    player.in(vehicle(player))         <-> player in vehicle player
+    myFunc(arg0, arg1, arg2)           <-> [arg0, arg1, arg2] call myFunc
+```
+
+# Functions
+In SQC, a function is made using the following syntax:
+(to make a function final, a `final` prefix may be added)
+
+```js
+    // Returns CODE type
+    function(<ARGS>) { }
+    // Assigns the function to a variable named fncName
+    function fncName(<ARGS>) { }
+    // Stringifies the function, calls compileFinal and assigns the value to fncName
+    final function fncName(<ARGS>) { }
+```
+
+`<ARGS>` are a comma separated list of "arguments" that the method shall receive.
+Theese can be typed. They follow the following syntax:
+
+```js
+    variableName
+    variableName = <VALUE>
+    <TYPE> variableName
+    <TYPE> variableName = <VALUE>
+    variableName: "actualVariableName"
+```
+
+The mentioned `<TYPE>` here is one of the many, valid arma types (eg. string, array, scalar).
+
+The last syntax example, `variableName: "actualVariableName"` is crafted for a special case.
+Given that one may want to use operators that provide existing arguments (eg. `ARRAY select CODE`), SQC needs a way to allow the programmer to denote
+existing variables in the function code. This is what that syntax does. It rewrites the `actualVariableName` onto the "virtual" `variableName`.
+
+Full example: `arr.select(function(it: "_x") { return it > 2; });` gets `arr select { _x > 2 }`
+
+# File Header
+SQC Files may start with a so called "params" directive. This is so, that CfgFunctions may be used to initialize theese methods.
+It lends itself the comma separated list of `<ARGS>` known from Functions and looks like this:
+
+```js
+    params(<ARGS>);
+```
+
+
+# Formatable Strings
+SQC features a formatable string which got pretty much stolen from C#.
+
+Translation Example:
+
+```sqf
+    $"This is a formatable string. The player position is {{ {position(player)} }}. His Vehicle is {vehicle(player)}"
+    <->
+    format["This is a formatable string. The player position is { %1 }. His Vehicle is %2", position player, vehicle player]
+```
+# Operators
+
+## Math
+
+## Logic
+
+## Increment/Decrement
+
+SQC has incremental and decremental pre- and postfix operators `++` and `--`.
+Using theese, will increase/decrease a given variable by one (1).
+
+Translation Example:
+```sqf
+    diag_log(x++); <-> diag_log x; x = x + 1;
+    diag_log(++x); <-> x = x + 1; diag_log x;
+    diag_log(x--); <-> diag_log x; x = x - 1;
+    diag_log(--x); <-> x = x - 1; diag_log x;
+```
+
+# Array Index operators - assignment & receiving
+
+# Control Structures
+
+## If
+
+## Switch
+
+## For Step
+
+## For Each
+
+## While
+
+## Do While
+
+## Try Catch
+
+
+
 # Example in SQC
 ```js
 // Declare file-header; Emits params at file start.

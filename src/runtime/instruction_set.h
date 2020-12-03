@@ -7,7 +7,7 @@
 namespace sqf::runtime
 {
     /// <summary>
-    /// A way to represent a "mutable" instruction set.
+    /// A way to represent a "immutable" instruction set.
     /// </summary>
     class instruction_set final
     {

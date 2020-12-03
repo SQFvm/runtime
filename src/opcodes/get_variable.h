@@ -21,6 +21,7 @@ namespace sqf::opcodes
         std::string m_variable_name;
     public:
         get_variable(std::string variable_name) : m_variable_name(variable_name) {}
+        get_variable(std::string_view value) : m_variable_name(value.begin(), value.end()) {}
         virtual void execute(sqf::runtime::runtime& vm) const override
         {
             if (m_variable_name[0] == '_')

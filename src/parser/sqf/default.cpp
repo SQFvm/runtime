@@ -1,4 +1,4 @@
-#include "default.h"
+#include "default.hpp"
 
 #include "../../opcodes/assign_to.h"
 #include "../../opcodes/assign_to_local.h"
