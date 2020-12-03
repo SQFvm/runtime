@@ -402,7 +402,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     } break;
     case ::sqf::sqc::bison::astkind::FUNCTION: {
         auto local_set = set.create_from();
-        std::vector<emplace> new_locals;
+        std::vector<emplace> new_locals = locals;
         local_set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
         local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
@@ -1277,6 +1277,8 @@ std::optional<::sqf::runtime::instruction_set> sqf::sqc::parser::parse(::sqf::ru
         return {};
     }
     std::vector<emplace> locals;
+    set.push_back({}, std::make_shared<opcodes::push>(__scopename_function));
+    set.push_back({}, std::make_shared<opcodes::call_unary>("scopename"));
     to_assembly(runtime, set, locals, res);
     return set;
 }
