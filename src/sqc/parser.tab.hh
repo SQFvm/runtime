@@ -85,6 +85,8 @@
                DOWHILE,
                TRYCATCH,
                SWITCH,
+               OBJECT_ITEMS,
+               OBJECT_ITEM,
                CASE,
                CASE_DEFAULT,
                OP_TERNARY,
@@ -104,7 +106,8 @@
                OP_DIVIDE,
                OP_REMAINDER,
                OP_NOT,
-               OP_BINARY,
+               OP_CALL,
+               OP_ACCESS,
                OP_UNARY,
                OP_ARRAY_GET,
                OP_ARRAY_SET,
@@ -119,7 +122,8 @@
                VAL_TRUE,
                VAL_FALSE,
                VAL_NIL,
-               GET_VARIABLE
+               GET_VARIABLE,
+               OBJECT
           };
           struct astnode
           {
@@ -152,7 +156,7 @@
           };
      }
 
-#line 156 "parser.tab.hh" // lalr1.cc:377
+#line 160 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -229,7 +233,7 @@
 
 #line 8 "parser.y" // lalr1.cc:377
 namespace  sqf { namespace sqc { namespace bison  {
-#line 233 "parser.tab.hh" // lalr1.cc:377
+#line 237 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -405,6 +409,9 @@ namespace  sqf { namespace sqc { namespace bison  {
       // exp09
       // arrget
       // expp
+      // obj
+      // obj_item
+      // obj_items
       // value
       // array
       // explist
@@ -1109,8 +1116,8 @@ namespace  sqf { namespace sqc { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 785,     ///< Last index in yytable_.
-      yynnts_ = 36,  ///< Number of nonterminal symbols.
+      yylast_ = 927,     ///< Last index in yytable_.
+      yynnts_ = 39,  ///< Number of nonterminal symbols.
       yyfinal_ = 96, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
@@ -1230,11 +1237,14 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 96: // exp09
       case 97: // arrget
       case 98: // expp
-      case 99: // value
-      case 100: // array
-      case 101: // explist
-      case 102: // format_string
-      case 103: // format_string_match
+      case 99: // obj
+      case 100: // obj_item
+      case 101: // obj_items
+      case 102: // value
+      case 103: // array
+      case 104: // explist
+      case 105: // format_string
+      case 106: // format_string_match
         value.copy< sqf::sqc::bison::astnode > (other.value);
         break;
 
@@ -1318,11 +1328,14 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 96: // exp09
       case 97: // arrget
       case 98: // expp
-      case 99: // value
-      case 100: // array
-      case 101: // explist
-      case 102: // format_string
-      case 103: // format_string_match
+      case 99: // obj
+      case 100: // obj_item
+      case 101: // obj_items
+      case 102: // value
+      case 103: // array
+      case 104: // explist
+      case 105: // format_string
+      case 106: // format_string_match
         value.copy< sqf::sqc::bison::astnode > (v);
         break;
 
@@ -1444,11 +1457,14 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 96: // exp09
       case 97: // arrget
       case 98: // expp
-      case 99: // value
-      case 100: // array
-      case 101: // explist
-      case 102: // format_string
-      case 103: // format_string_match
+      case 99: // obj
+      case 100: // obj_item
+      case 101: // obj_items
+      case 102: // value
+      case 103: // array
+      case 104: // explist
+      case 105: // format_string
+      case 106: // format_string_match
         value.template destroy< sqf::sqc::bison::astnode > ();
         break;
 
@@ -1538,11 +1554,14 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 96: // exp09
       case 97: // arrget
       case 98: // expp
-      case 99: // value
-      case 100: // array
-      case 101: // explist
-      case 102: // format_string
-      case 103: // format_string_match
+      case 99: // obj
+      case 100: // obj_item
+      case 101: // obj_items
+      case 102: // value
+      case 103: // array
+      case 104: // explist
+      case 105: // format_string
+      case 106: // format_string_match
         value.move< sqf::sqc::bison::astnode > (s.value);
         break;
 
@@ -2045,7 +2064,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 #line 8 "parser.y" // lalr1.cc:377
 } } } //  sqf::sqc::bison 
-#line 2049 "parser.tab.hh" // lalr1.cc:377
+#line 2068 "parser.tab.hh" // lalr1.cc:377
 
 
 

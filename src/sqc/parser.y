@@ -78,7 +78,8 @@
                OP_DIVIDE,
                OP_REMAINDER,
                OP_NOT,
-               OP_BINARY,
+               OP_CALL,
+               OP_ACCESS,
                OP_UNARY,
                OP_ARRAY_GET,
                OP_ARRAY_SET,
@@ -260,6 +261,7 @@ statement: "return" exp01 ";"                     { $$ = sqf::sqc::bison::astnod
          ;
 
 assignment: IDENT "=" exp01                       { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT, $2 }; $$.append($1); $$.append($3); }
+          | IDENT "=" obj                         { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT, $2 }; $$.append($1); $$.append($3); }
           | IDENT "+=" exp01                      { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT_PLUS, $2 }; $$.append($1); $$.append($3); }
           | IDENT "-=" exp01                      { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT_MINUS, $2 }; $$.append($1); $$.append($3); }
           | IDENT "*=" exp01                      { $$ = sqf::sqc::bison::astnode{ astkind::ASSIGNMENT_STAR, $2 }; $$.append($1); $$.append($3); }
@@ -367,7 +369,8 @@ exp08: exp09                          { $$ = $1; }
      | "!" exp08                      { $$ = sqf::sqc::bison::astnode{ astkind::OP_NOT, $1 }; $$.append($2);  }
      ;
 exp09: expp                           { $$ = $1; }
-     | exp09 "." IDENT "(" explist ")" { $$ = sqf::sqc::bison::astnode{ astkind::OP_BINARY, $3 }; $$.append($1); $$.append($3); $$.append($5); }
+     | exp09 "." IDENT "(" explist ")" { $$ = sqf::sqc::bison::astnode{ astkind::OP_CALL, $3 }; $$.append($1); $$.append($3); $$.append($5); }
+     | exp09 "." IDENT                { $$ = sqf::sqc::bison::astnode{ astkind::OP_ACCESS, $3 }; $$.append($1); $$.append($3); }
      | arrget                         { $$ = $1; }
      ;
 arrget: exp09 "[" exp01 "]"           { $$ = sqf::sqc::bison::astnode{ astkind::OP_ARRAY_GET, tokenizer.create_token() }; $$.append($1); $$.append($3); }
@@ -382,19 +385,19 @@ expp: "(" exp01 ")"                   { $$ = $2; }
     | IDENT "--"                      { $$ = sqf::sqc::bison::astnode{ astkind::DEC_POST, $2 }; $$.append(sqf::sqc::bison::astnode{ astkind::GET_VARIABLE, $1 }); }
     | value                           { $$ = $1; }
     ;
-obj: "{" "}"                          { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, $1 }; }
-   | "{" obj_items "}"                { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, $1 }; $$.append($2); }
+obj: "{" "}"                          { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; }
+   | "{" obj_items "}"                { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; $$.append($2); }
+   | "{" obj_items "," "}"            { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; $$.append($2); }
    ;
 obj_item: IDENT ":" value             { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT_ITEM, $1 }; $$.append($3); }
         ;
 obj_items: obj_item                   { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT_ITEMS, tokenizer.create_token() }; $$.append($1); }
-         | obj_items obj_item         { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT_ITEMS, tokenizer.create_token() }; $$.append($1); $$.append_children($2); }
+         | obj_items "," obj_item     { $$ = $1; $$.append($3); }
          ;
 value: function                       { $$ = $1; }
      | STRING                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_STRING, $1 }; }
      | array                          { $$ = $1; }
      | format_string                  { $$ = $1; }
-     | obj                            { $$ = $1; }
      | NUMBER                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_NUMBER, $1 }; }
      | "true"                         { $$ = sqf::sqc::bison::astnode{ astkind::VAL_TRUE, tokenizer.create_token() }; }
      | "false"                        { $$ = sqf::sqc::bison::astnode{ astkind::VAL_FALSE, tokenizer.create_token() }; }

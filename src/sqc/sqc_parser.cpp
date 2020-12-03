@@ -974,7 +974,20 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         // Emit "!"
         set.push_back(node.token, std::make_shared<opcodes::call_unary>("!"s));
     } break;
-    case ::sqf::sqc::bison::astkind::OP_BINARY: {
+    case ::sqf::sqc::bison::astkind::OBJECT: {
+        for (auto child : node.children[0].children)
+        {
+            to_assembly(runtime, set, locals, child);
+        }
+        set.push_back(node.token, std::make_shared<opcodes::make_array>(node.children[0].children.size()));
+        set.push_back(node.token, std::make_shared<opcodes::call_unary>("createhashmapfromarray"s));
+    } break;
+    case ::sqf::sqc::bison::astkind::OBJECT_ITEM: {
+        set.push_back(node.token, std::make_shared<opcodes::push>(std::string(node.token.contents.begin(), node.token.contents.end())));
+        to_assembly(runtime, set, locals, node.children[0]);
+        set.push_back(node.token, std::make_shared<opcodes::make_array>(2));
+    } break;
+    case ::sqf::sqc::bison::astkind::OP_CALL: {
         auto opname = std::string(node.children[1].token.contents);
         std::transform(opname.begin(), opname.end(), opname.begin(), [](char c) { return (char)std::tolower(c); });
         if (runtime.sqfop_exists_binary(opname))
@@ -1000,7 +1013,32 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             set.push_back(node.token, std::make_shared<opcodes::call_binary>(std::string(matchingOps.front().get().name()), matchingOps.front().get().precedence()));
         }
         else
-        {
+        { // Hashmap access
+            // Emit arguments
+            {
+                // Emit Right-Arguments
+                to_assembly(runtime, set, locals, node.children[2]);
+
+                // Emit Hashmap last (we might want to reuse the method and have no this then)
+                to_assembly(runtime, set, locals, node.children[0]);
+
+                // Emit array for hashmap and arguments
+                set.push_back(node.children[2].token, std::make_shared<opcodes::make_array>(node.children[2].children.size() + 1));
+            }
+
+            // Emit `call`
+            set.push_back(node.token, std::make_shared<opcodes::call_binary>("get", 4));
+
+            // Emit Hashmap
+            to_assembly(runtime, set, locals, node.children[0]);
+
+            // Emit operator as string
+            set.push_back(node.token, std::make_shared<opcodes::push>(std::string(node.children[1].token.contents.begin(), node.children[1].token.contents.end())));
+
+            // Emit `get`
+            set.push_back(node.token, std::make_shared<opcodes::call_binary>("get", 4));
+
+
             log(logmessage::runtime::ErrorMessage({}, "SQC", "unknown operator: " + opname));
             set.push_back(node.token, std::make_shared<opcodes::call_nular>("nil"s));
         }
