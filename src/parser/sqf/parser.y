@@ -12,6 +12,9 @@
         #pragma GCC diagnostic push
         #pragma GCC diagnostic ignored "-Wall"
     #endif
+    #ifdef _MSC_VER
+        #pragma warning(push, 0)
+    #endif
     #include "tokenizer.hpp"
     #include <string>
     #include <vector>
@@ -22,12 +25,18 @@
     #ifdef __GNUG__
         #pragma GCC diagnostic pop
     #endif
+    #ifdef _MSC_VER
+        #pragma warning(pop)
+    #endif
 }
 %code requires
 {
     #ifdef __GNUG__
         #pragma GCC diagnostic push
         #pragma GCC diagnostic ignored "-Wall"
+    #endif
+    #ifdef _MSC_VER
+        #pragma warning(push, 0)
     #endif
      namespace sqf::runtime
      {
@@ -351,6 +360,9 @@ expu: "private" expu                        { $$ = ::sqf::parser::sqf::bison::as
 %%
 #ifdef __GNUG__
     #pragma GCC diagnostic pop
+#endif
+#ifdef _MSC_VER
+    #pragma warning(pop)
 #endif
 
 #include "sqf_parser.hpp"

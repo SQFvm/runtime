@@ -5,6 +5,7 @@
 #include "../../runtime/fileio.h"
 #include "../../runtime/util.h"
 #include "../../runtime/instruction_set.h"
+#include "tokenizer.hpp"
 
 #include <string>
 #include <string_view>
@@ -30,6 +31,7 @@ namespace sqf::parser::sqf
         {
             log(msg);
         }
+        bool get_tree(::sqf::runtime::runtime& runtime, tokenizer& t, bison::astnode* out);
         virtual ~parser() override { };
         virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;
         virtual std::optional<::sqf::runtime::instruction_set> parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;

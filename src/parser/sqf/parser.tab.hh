@@ -40,11 +40,14 @@
 #ifndef YY_YY_PARSER_TAB_HH_INCLUDED
 # define YY_YY_PARSER_TAB_HH_INCLUDED
 // //                    "%code requires" blocks.
-#line 27 "parser.y" // lalr1.cc:377
+#line 33 "parser.y" // lalr1.cc:377
 
     #ifdef __GNUG__
         #pragma GCC diagnostic push
         #pragma GCC diagnostic ignored "-Wall"
+    #endif
+    #ifdef _MSC_VER
+        #pragma warning(push, 0)
     #endif
      namespace sqf::runtime
      {
@@ -113,7 +116,7 @@
         };
      }
 
-#line 117 "parser.tab.hh" // lalr1.cc:377
+#line 120 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -190,7 +193,7 @@
 
 #line 9 "parser.y" // lalr1.cc:377
 namespace sqf { namespace parser { namespace sqf { namespace bison  {
-#line 194 "parser.tab.hh" // lalr1.cc:377
+#line 197 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -2015,17 +2018,20 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
 
 #line 9 "parser.y" // lalr1.cc:377
 } } } } //  ::sqf::parser::sqf::bison 
-#line 2019 "parser.tab.hh" // lalr1.cc:377
+#line 2022 "parser.tab.hh" // lalr1.cc:377
 
 
 // //                    "%code provides" blocks.
-#line 21 "parser.y" // lalr1.cc:377
+#line 24 "parser.y" // lalr1.cc:377
 
     #ifdef __GNUG__
         #pragma GCC diagnostic pop
     #endif
+    #ifdef _MSC_VER
+        #pragma warning(pop)
+    #endif
 
-#line 2029 "parser.tab.hh" // lalr1.cc:377
+#line 2035 "parser.tab.hh" // lalr1.cc:377
 
 
 #endif // !YY_YY_PARSER_TAB_HH_INCLUDED
