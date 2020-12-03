@@ -8,6 +8,10 @@
 %define api.token.constructor
 %define api.namespace { ::sqf::parser::sqf::bison }
 %code top {
+    #ifdef __GNUG__
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wall"
+    #endif
     #include "tokenizer.hpp"
     #include <string>
     #include <vector>
@@ -15,10 +19,16 @@
 }
 %code provides
 {
-    /* %code provides */
+    #ifdef __GNUG__
+        #pragma GCC diagnostic pop
+    #endif
 }
 %code requires
 {
+    #ifdef __GNUG__
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wall"
+    #endif
      namespace sqf::runtime
      {
           class runtime;
@@ -339,6 +349,9 @@ expu: "private" expu                        { $$ = ::sqf::parser::sqf::bison::as
 
 
 %%
+#ifdef __GNUG__
+    #pragma GCC diagnostic pop
+#endif
 
 #include "sqf_parser.hpp"
 namespace sqf::parser::sqf::bison
