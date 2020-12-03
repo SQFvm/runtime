@@ -416,7 +416,8 @@ namespace
     }
     value currentdirectory___(runtime& runtime)
     {
-        auto path = std::filesystem::path(runtime.context_active().current_frame().diag_info_from_position().path.physical);
+        auto pathinfo = runtime.context_active().current_frame().diag_info_from_position().path;
+        auto path = std::filesystem::path(pathinfo.physical);
         auto str = std::filesystem::absolute(path.parent_path()).string();
         std::replace(str.begin(), str.end(), '\\', '/');
         return str;

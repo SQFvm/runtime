@@ -6,7 +6,7 @@
 #include "../operators/ops.h"
 
 #include "../parser/config/default.h"
-#include "../parser/sqf/default.h"
+#include "../parser/sqf/sqf_parser.hpp"
 #include "../parser/preprocessor/default.h"
 
 #include "../fileio/default.h"
@@ -470,10 +470,10 @@ int main_actual(int argc, char** argv)
     }
     else
     {
-        runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
+        runtime.parser_sqf(std::make_unique<sqf::parser::sqf::parser>(logger));
     }
 #else
-    runtime.parser_sqf(std::make_unique<sqf::parser::sqf::impl_default>(logger));
+    runtime.parser_sqf(std::make_unique<sqf::parser::sqf::parser>(logger));
 #endif
     if (noOperatorsArg.getValue())
     {

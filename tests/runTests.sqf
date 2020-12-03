@@ -239,7 +239,7 @@ private ___preprocessor_test_dir = currentDirectory__ + "/" + "preprocess";
         }
         except__
         {
-            private _msg = format["Exception during test execution of %1: %2%3", ___name___, endl, _exception];
+            private _msg = format["Exception during test execution of %1: %2%3", _x, endl, _exception];
             diag_log _msg;
             ___exceptions___ pushBack _msg;
             fatalError = true;
@@ -268,7 +268,7 @@ private ___preprocessor_test_dir = currentDirectory__ + "/" + "preprocess";
             }
             except__
             {
-                private _msg = format["Exception during test execution of %1: %2%3", ___name___, endl, _exception];
+                private _msg = format["Exception during test execution of %1: %2%3", _x, endl, _exception];
                 diag_log _msg;
                 ___exceptions___ pushBack _msg;
                 fatalError = true;
