@@ -40,7 +40,7 @@
 #ifndef YY_YY_PARSER_TAB_HH_INCLUDED
 # define YY_YY_PARSER_TAB_HH_INCLUDED
 // //                    "%code requires" blocks.
-#line 18 "parser.y" // lalr1.cc:377
+#line 21 "parser.y" // lalr1.cc:377
 
      namespace sqf::runtime
      {
@@ -851,7 +851,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
 
 
     /// Build a parser object.
-    parser (::sqf::parser::sqf::tokenizer &tokenizer_yyarg, ::sqf::parser::sqf::bison::astnode& result_yyarg, ::sqf::parser::sqf::parser& actual_yyarg, ::sqf::runtime::runtime &runtime_yyarg, std::string fpath_yyarg);
+    parser (::sqf::parser::sqf::tokenizer &tokenizer_yyarg, ::sqf::parser::sqf::bison::astnode& result_yyarg, ::sqf::parser::sqf::parser& actual_yyarg, ::sqf::runtime::runtime &runtime_yyarg);
     virtual ~parser ();
 
     /// Parse.
@@ -1068,7 +1068,6 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
     ::sqf::parser::sqf::bison::astnode& result;
     ::sqf::parser::sqf::parser& actual;
     ::sqf::runtime::runtime &runtime;
-    std::string fpath;
   };
 
   // Symbol number corresponding to token number t.
@@ -2012,9 +2011,15 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
 
 #line 9 "parser.y" // lalr1.cc:377
 } } } } //  ::sqf::parser::sqf::bison 
-#line 2016 "parser.tab.hh" // lalr1.cc:377
+#line 2015 "parser.tab.hh" // lalr1.cc:377
 
 
+// //                    "%code provides" blocks.
+#line 17 "parser.y" // lalr1.cc:377
+
+    /* %code provides */
+
+#line 2023 "parser.tab.hh" // lalr1.cc:377
 
 
 #endif // !YY_YY_PARSER_TAB_HH_INCLUDED

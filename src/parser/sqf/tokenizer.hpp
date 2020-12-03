@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <cctype>
+#include <vector>
 namespace sqf::parser::sqf
 {
     class tokenizer
@@ -51,14 +52,14 @@ namespace sqf::parser::sqf
             size_t column;
             size_t offset;
             std::string_view contents;
-            std::string path;
+            std::string* path;
         };
         using iterator = std::string::iterator;
     private:
+        std::vector<std::string*> m_strings;
         iterator m_start;
         iterator m_current;
         iterator m_end;
-        std::string m_path;
         emode m_mode;
 
         size_t m_line;
@@ -147,7 +148,7 @@ namespace sqf::parser::sqf
                         if (iter != m_end && iter - start >= 2)
                         {
                             // Read-in file
-                            m_path = { start + 1, iter - 1 };
+                            m_strings.push_back(new std::string(start + 1, iter - 1));
                         }
 
                         // update column
@@ -237,11 +238,11 @@ namespace sqf::parser::sqf
                 case etoken::t_operator:
                     len =
                         is_match_repeated<2, '='>(iter) ? 2 : 
-                        is_match<'<'>(iter) ? 1 :
                         is_match<'<'>(iter) && is_match<'='>(iter + 1) ? 2 :
-                        is_match<'>'>(iter) ? 1 :
-                        is_match_repeated<2, '>'>(iter) ? 2 :
+                        is_match<'<'>(iter) ? 1 :
                         is_match<'>'>(iter) && is_match<'='>(iter + 1) ? 2 :
+                        is_match_repeated<2, '>'>(iter) ? 2 :
+                        is_match<'>'>(iter) ? 1 :
                         is_match<'+'>(iter) ? 1 :
                         is_match<'-'>(iter) ? 1 :
                         is_match<'/'>(iter) ? 1 :
@@ -389,10 +390,26 @@ namespace sqf::parser::sqf
         }
 
     public:
-        tokenizer(iterator start, iterator end, std::string path) : m_start(start), m_current(start), m_end(end), m_line(0), m_column(0), m_mode(emode::normal) {}
+        tokenizer(iterator start, iterator end, std::string path) :
+            m_start(start),
+            m_current(start),
+            m_end(end),
+            m_line(0),
+            m_column(0),
+            m_mode(emode::normal)
+        {
+            m_strings.push_back(new std::string(path));
+        }
+        ~tokenizer()
+        {
+            for (auto ptr : m_strings)
+            {
+                delete ptr;
+            }
+        }
         token next()
         {
-            if (m_current == m_end) { return { etoken::eof, m_line, m_column, (size_t)(m_current - m_start), {} }; };
+            if (m_current == m_end) { return create_token(etoken::eof); };
             switch (*m_current)
             {
             case 'a': case 'A': return try_match({ etoken::t_ident });
@@ -462,19 +479,19 @@ namespace sqf::parser::sqf
             case '\t':          return try_match({ etoken::i_whitespace });
             case '\n':          return try_match({ etoken::i_whitespace });
             case '#':           return try_match({ etoken::m_line, etoken::t_operator });
-            default:            return { etoken::invalid, m_line, m_column, (size_t)(m_current - m_start), {} };
+            default:            return create_token();
             }
         }
-        token create_token() const
+        token create_token(etoken token_type = etoken::invalid) const
         {
             return
             {
-                etoken::invalid,
+                token_type,
                 m_line,
                 m_column,
                 (size_t)(m_current - m_start),
                 {},
-                m_path
+                m_strings.back()
             };
         }
         std::string_view to_string(etoken t) const

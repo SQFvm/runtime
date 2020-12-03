@@ -13,7 +13,10 @@
     #include <vector>
     #include <algorithm>
 }
-
+%code provides
+{
+    /* %code provides */
+}
 %code requires
 {
      namespace sqf::runtime
@@ -90,22 +93,21 @@
      namespace sqf::parser::sqf::bison
      {
           // Return the next token.
-          parser::symbol_type yylex (parser* self, ::sqf::runtime::runtime &runtime, ::sqf::parser::sqf::tokenizer&);
+          parser::symbol_type yylex (::sqf::runtime::runtime &runtime, ::sqf::parser::sqf::tokenizer&);
      }
 }
 
-%lex-param { this }
 %lex-param { ::sqf::runtime::runtime &runtime }
 %lex-param { ::sqf::parser::sqf::tokenizer &tokenizer }
 %parse-param { ::sqf::parser::sqf::tokenizer &tokenizer }
 %parse-param { ::sqf::parser::sqf::bison::astnode& result }
 %parse-param { ::sqf::parser::sqf::parser& actual }
 %parse-param { ::sqf::runtime::runtime &runtime }
-%parse-param { std::string fpath }
 %locations
 %define parse.error verbose
 
 %define api.token.prefix {}
+
 
 
 
@@ -341,28 +343,28 @@ expu: "private" expu                        { $$ = ::sqf::parser::sqf::bison::as
 #include "sqf_parser.hpp"
 namespace sqf::parser::sqf::bison
 {
-     void parser::error (const location_type& loc, const std::string& msg)
-     {
-          actual.__log(logmessage::sqf::ParseError({ fpath, loc.begin.line, loc.begin.column }, msg));
-     }
-     inline parser::symbol_type yylex (parser* self, ::sqf::runtime::runtime& runtime, ::sqf::parser::sqf::tokenizer& tokenizer)
-     {
+    void parser::error (const location_type& loc, const std::string& msg)
+    {
+        actual.__log(logmessage::sqf::ParseError({ *loc.begin.filename, loc.begin.line, loc.begin.column }, msg));
+    }
+    inline parser::symbol_type yylex (::sqf::runtime::runtime& runtime, ::sqf::parser::sqf::tokenizer& tokenizer)
+    {
          auto token = tokenizer.next();
          parser::location_type loc;
          loc.begin.line = token.line;
          loc.begin.column = token.column;
          loc.end.line = token.line;
          loc.end.column = token.column + token.contents.length();
-         self->fpath = token.path;
+         loc.begin.filename = loc.end.filename = token.path;
 
          switch (token.type)
          {
          case tokenizer::etoken::eof: return parser::make_END_OF_FILE(loc);
          case tokenizer::etoken::invalid: return parser::make_INVALID(loc);
-         case tokenizer::etoken::m_line: return yylex(self, runtime, tokenizer);
-         case tokenizer::etoken::i_comment_line: return yylex(self, runtime, tokenizer);
-         case tokenizer::etoken::i_comment_block: return yylex(self, runtime, tokenizer);
-         case tokenizer::etoken::i_whitespace: return yylex(self, runtime, tokenizer);
+         case tokenizer::etoken::m_line: return yylex(runtime, tokenizer);
+         case tokenizer::etoken::i_comment_line: return yylex(runtime, tokenizer);
+         case tokenizer::etoken::i_comment_block: return yylex(runtime, tokenizer);
+         case tokenizer::etoken::i_whitespace: return yylex(runtime, tokenizer);
          
          case tokenizer::etoken::t_false: return parser::make_FALSE(token, loc);
          case tokenizer::etoken::t_private: return parser::make_PRIVATE(token, loc);

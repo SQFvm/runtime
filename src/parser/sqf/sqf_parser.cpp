@@ -60,7 +60,7 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
         auto s = std::string(node.token.contents);
         std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
         auto inst = std::make_shared<::sqf::opcodes::call_binary>(s, (short)(((short)node.kind - (short)bison::astkind::EXP0) + 1));
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
@@ -81,7 +81,7 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
         {
             std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
             auto inst = std::make_shared<::sqf::opcodes::call_unary>(s);
-            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
             set.push_back(inst);
         }
     }
@@ -91,7 +91,7 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
         auto s = std::string(node.token.contents);
         std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
         auto inst = std::make_shared<::sqf::opcodes::call_nular>(s);
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
@@ -106,13 +106,13 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
                 ::sqf::runtime::value(
                     std::make_shared<::sqf::types::d_scalar>(
                         hexnum)));
-            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
             set.push_back(inst);
         }
         catch (std::out_of_range&)
         {
             auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>(std::nanf(""))));
-            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
             __log(logmessage::assembly::NumberOutOfRange(inst->diag_info()));
             set.push_back(inst);
         }
@@ -123,13 +123,13 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
         try
         {
             auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>((double)std::stod(std::string(node.token.contents)))));
-            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
             set.push_back(inst);
         }
         catch (std::out_of_range&)
         {
             auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_scalar>(std::nanf(""))));
-            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
             __log(logmessage::assembly::NumberOutOfRange(inst->diag_info()));
             set.push_back(inst);
         }
@@ -138,21 +138,21 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
     case bison::astkind::STRING:
     {
         auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_string>(::sqf::types::d_string::from_sqf(node.token.contents))));
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
     case bison::astkind::BOOLEAN_TRUE:
     {
         auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(true));
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
     case bison::astkind::BOOLEAN_FALSE:
     {
         auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(false));
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
@@ -165,7 +165,7 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
             if (i != 0)
             {
                 auto inst = std::make_shared<::sqf::opcodes::end_statement>();
-                inst->diag_info({ previous_node.token.line, previous_node.token.column + previous_node.token.contents.length(), previous_node.token.offset, { previous_node.token.path, {} }, create_code_segment(contents, previous_node.token.offset, previous_node.token.contents.length()) });
+                inst->diag_info({ previous_node.token.line, previous_node.token.column + previous_node.token.contents.length(), previous_node.token.offset, { *previous_node.token.path, {} }, create_code_segment(contents, previous_node.token.offset, previous_node.token.contents.length()) });
                 tmp_set.push_back(inst);
             }
             previous_node = node.children[i];
@@ -173,7 +173,7 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
         }
         auto inst_set = ::sqf::runtime::instruction_set(tmp_set);
         auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_code>(inst_set)));
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
@@ -184,7 +184,7 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
             to_assembly(contents, subnode, set);
         }
         auto inst = std::make_shared<::sqf::opcodes::make_array>(node.children.size());
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
@@ -192,7 +192,7 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
     {
         to_assembly(contents, node.children[0], set);
         auto inst = std::make_shared<::sqf::opcodes::assign_to>(node.token.contents);
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
@@ -200,14 +200,14 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
     {
         to_assembly(contents, node.children[0], set);
         auto inst = std::make_shared<::sqf::opcodes::assign_to_local>(node.token.contents);
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
     case bison::astkind::IDENT:
     {
         auto inst = std::make_shared<::sqf::opcodes::get_variable>(node.token.contents);
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
     }
     break;
@@ -219,7 +219,7 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
             if (i != 0)
             {
                 auto inst = std::make_shared<::sqf::opcodes::end_statement>();
-                inst->diag_info({ previous_node.token.line, previous_node.token.column + previous_node.token.contents.length(), previous_node.token.offset, { previous_node.token.path, {} }, create_code_segment(contents, previous_node.token.offset, previous_node.token.contents.length()) });
+                inst->diag_info({ previous_node.token.line, previous_node.token.column + previous_node.token.contents.length(), previous_node.token.offset, { *previous_node.token.path, {} }, create_code_segment(contents, previous_node.token.offset, previous_node.token.contents.length()) });
                 set.push_back(inst);
             }
             previous_node = node.children[i];
@@ -233,7 +233,7 @@ std::optional<sqf::runtime::instruction_set> sqf::parser::sqf::parser::parse(::s
 {
     tokenizer t(contents.begin(), contents.end(), file.physical);
     ::sqf::parser::sqf::bison::astnode res;
-    ::sqf::parser::sqf::bison::parser p(t, res, *this, runtime, file.physical);
+    ::sqf::parser::sqf::bison::parser p(t, res, *this, runtime);
     // p.set_debug_level(1);
     bool success = p.parse() == 0;
     if (!success)
@@ -249,7 +249,7 @@ bool ::sqf::parser::sqf::parser::check_syntax(::sqf::runtime::runtime& runtime, 
 {
     tokenizer t(contents.begin(), contents.end(), file.physical);
     ::sqf::parser::sqf::bison::astnode res;
-    ::sqf::parser::sqf::bison::parser p(t, res, *this, runtime, file.physical);
+    ::sqf::parser::sqf::bison::parser p(t, res, *this, runtime);
     bool success = p.parse() == 0;
     return success;
 }
