@@ -263,6 +263,7 @@ namespace sqf::parser::sqf
 
                 case etoken::t_string_single: {
                     ++iter;
+                    m_column++;
                     // find string end
                     while (true)
                     {
@@ -273,6 +274,7 @@ namespace sqf::parser::sqf
                         else if (is_match<'\''>(iter))
                         {
                             ++iter;
+                            m_column++;
                             break;
                         }
                         // update position info
@@ -292,6 +294,7 @@ namespace sqf::parser::sqf
                 } break;
                 case etoken::t_string_double: {
                     ++iter;
+                    m_column++;
                     // find string end
                     while (true)
                     {
@@ -302,6 +305,7 @@ namespace sqf::parser::sqf
                         else if (is_match<'"'>(iter))
                         {
                             ++iter;
+                            m_column++;
                             break;
                         }
                         // update position info
@@ -383,6 +387,21 @@ namespace sqf::parser::sqf
                     t.type = token_type;
                     t.contents = { &*m_current,  len }; // Dirty hack thanks to std::string_view not accepting iterators ...
                     m_current += len;
+                    switch (token_type)
+                    {
+                    case etoken::eof:
+                    case etoken::invalid:
+                    case etoken::m_line:
+                    case etoken::i_comment_line:
+                    case etoken::i_comment_block:
+                    case etoken::i_whitespace:
+                    case etoken::t_string_double:
+                    case etoken::t_string_single:
+                        break;
+                    default:
+                        m_column += len;
+                        break;
+                    }
                     return t;
                 }
             }
