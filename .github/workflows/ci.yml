@@ -14,7 +14,8 @@ jobs:
         env:
           CC: gcc-8
           CXX: g++-8
-
+      - name: Run Tests
+        run: build/sqfvm -a -i tests/runTests.sqf
       - name: Upload Linux x64 binaries
         uses: actions/upload-artifact@v2
         with:
