@@ -1279,6 +1279,7 @@ std::optional<::sqf::runtime::instruction_set> sqf::sqc::parser::parse(::sqf::ru
     std::vector<emplace> locals;
     set.push_back({}, std::make_shared<opcodes::push>(__scopename_function));
     set.push_back({}, std::make_shared<opcodes::call_unary>("scopename"));
+    set.push_back({}, std::make_shared<opcodes::end_statement>());
     to_assembly(runtime, set, locals, res);
     return set;
 }
