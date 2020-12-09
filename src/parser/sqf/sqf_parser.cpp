@@ -1,4 +1,5 @@
 #include "sqf_parser.hpp"
+#include "sqf_parser.hpp"
 #include "tokenizer.hpp"
 #include "parser.tab.hh"
 
@@ -227,6 +228,13 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
         }
     }
     }
+}
+
+bool sqf::parser::sqf::parser::get_tree(::sqf::runtime::runtime& runtime, ::sqf::parser::sqf::tokenizer& t, ::sqf::parser::sqf::bison::astnode* out)
+{
+    ::sqf::parser::sqf::bison::parser p(t, *out, *this, runtime);
+    bool success = p.parse() == 0;
+    return success;
 }
 
 std::optional<sqf::runtime::instruction_set> sqf::parser::sqf::parser::parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
