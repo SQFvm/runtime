@@ -116,6 +116,22 @@ namespace sqf
 
             template<class TData, typename TValue>
             TValue data() const { return (TValue)(*data<TData>()); }
+
+            std::size_t hash() const
+            {
+                return empty() ? 0 : m_data->hash();
+            }
         };
     }
+}
+
+namespace std
+{
+    template<> struct hash<sqf::runtime::value>
+    {
+        std::size_t operator()(sqf::runtime::value const& val) const noexcept
+        {
+            return val.hash();
+        }
+    };
 }

@@ -2041,6 +2041,29 @@ namespace
     {
         return execvm_any_string(runtime, {}, right);
     }
+    value breakout_any_string(runtime& runtime, value::cref left, value::cref right)
+    {
+        auto target_scope = right.data<d_string>()->value();
+        auto& context = runtime.context_active();
+        size_t pop_frame_count = 0;
+        for (auto it = context.frames_rbegin(); it != context.frames_rend(); ++it, ++pop_frame_count)
+        {
+            if (it->scope_name() == target_scope)
+            {
+                for (; pop_frame_count != 0; --pop_frame_count)
+                {
+                    context.pop_frame();
+                }
+                return left;
+            }
+        }
+        runtime.__logmsg(err::ScopeNameNotFound(runtime.context_active().current_frame().diag_info_from_position(), target_scope));
+        return {};
+    }
+    value breakout_string(runtime& runtime, value::cref right)
+    {
+        return breakout_any_string(runtime, {}, right);
+    }
 }
 void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
 {
@@ -2137,6 +2160,8 @@ void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(unary("preprocessFile", t_string(), "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
     runtime.register_sqfop(unary("scopeName", t_string(), "Defines name of current scope. Name is visible in debugger, and name is also used as reference in some commands like breakOut and breakTo. Scope name should be defined only once per scope. Trying to set a different name on the scope that has already defined scope name will result in error.", scopename_string));
     runtime.register_sqfop(unary("scriptName", t_string(), "Assign a user friendly name to the runtime script this command is executed from. Once name is assigned, it cannot be changed.", scriptname_string));
+    runtime.register_sqfop(unary("breakOut", t_string(), "Breaks the code execution out of the scope with the name as provided and previously set using `scopeName`.", breakout_string));
+    runtime.register_sqfop(binary(4, "breakOut", t_any(), t_string(), "Breaks the code execution out of the scope with the name as provided and previously set using `scopeName`.", breakout_any_string));
     runtime.register_sqfop(binary(4, "in", t_any(), t_array(), "Checks whether value is in array. String values will be compared casesensitive.", in_any_array));
     runtime.register_sqfop(binary(4, "in", t_string(), t_string(), "Checks whether string is in string. Values will be compared casesensitive.", in_string_string));
     runtime.register_sqfop(unary("throw", t_any(), "Throws an exception. The exception is processed by first catch block. This command will terminate further execution of the code.", throw_any));

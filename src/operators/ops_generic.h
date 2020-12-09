@@ -78,6 +78,7 @@ namespace sqf
             }
 
             sqf::runtime::type type() const override { return data_type(); }
+            virtual std::size_t hash() const override { return 0; }
 
             std::shared_ptr<sqf::runtime::context> value() const { return m_context.lock(); }
             void value(std::weak_ptr<sqf::runtime::context> weak) { m_context = weak; }
@@ -113,6 +114,7 @@ namespace sqf
             }
 
             sqf::runtime::type type() const override { return data_type(); }
+            virtual std::size_t hash() const override { return std::hash<sqf::runtime::value>()(m_value); }
 
             sqf::runtime::instruction_set target_code() const { return m_target_code; }
             void target_code(sqf::runtime::instruction_set set) { m_target_code = set; }
@@ -164,6 +166,15 @@ namespace sqf
             }
 
             sqf::runtime::type type() const override { return data_type(); }
+            virtual std::size_t hash() const override
+            {
+                size_t hash = 0x9e3779b9;
+                hash ^= std::hash<std::string>()(m_variable) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+                hash ^= std::hash<float>()(m_from) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+                hash ^= std::hash<float>()(m_to) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+                hash ^= std::hash<float>()(m_step) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+                return hash;
+            }
 
             std::string variable() const { return m_variable; }
             void variable(std::string value) { m_variable = value; }

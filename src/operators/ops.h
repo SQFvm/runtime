@@ -14,6 +14,7 @@
 #include "ops_dummy_unary.h"
 #include "ops_dummy_binary.h"
 #include "ops_osspecific.h"
+#include "ops_hashmap.h"
 
 namespace sqf
 {
@@ -41,6 +42,7 @@ namespace sqf
             sqf::operators::ops_dummy_unary(runtime);
             sqf::operators::ops_dummy_binary(runtime);
             sqf::operators::ops_osspecific(runtime);
+            sqf::operators::ops_hashmap(runtime);
         }
     }
 }

@@ -182,6 +182,15 @@ namespace sqf
                 }
             }
             sqf::runtime::type type() const override { return data_type(); }
+            virtual std::size_t hash() const override
+            {
+                size_t hash = 0x9e3779b9;
+                for (auto& it : m_value)
+                {
+                    hash ^= std::hash<sqf::runtime::value>()(it) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+                }
+                return hash;
+            }
 
             std::vector<sqf::runtime::value> value() const { return m_value; }
             std::vector<sqf::runtime::value>& value() { return m_value; }

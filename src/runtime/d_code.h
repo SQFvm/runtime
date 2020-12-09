@@ -88,6 +88,7 @@ namespace sqf
             }
 
             sqf::runtime::type type() const override { return data_type(); }
+            virtual std::size_t hash() const override { return std::hash<std::string>()(to_string_sqf()); }
 
             const sqf::runtime::instruction_set& value() const { return m_value; }
             void value(sqf::runtime::instruction_set flag) { m_value = flag; }

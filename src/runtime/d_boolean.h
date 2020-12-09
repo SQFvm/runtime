@@ -40,6 +40,7 @@ namespace sqf
             }
 
             sqf::runtime::type type() const override { return data_type(); }
+            virtual std::size_t hash() const override { return std::hash<bool>()(m_value); }
 
             bool value() const { return m_value; }
             void value(bool flag) { m_value = flag; }
