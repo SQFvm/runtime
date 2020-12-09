@@ -49,6 +49,7 @@ namespace sqf
             {
                 return m_value;
             }
+            virtual std::size_t hash() const override { return std::hash<std::string>()(to_string_sqf()); }
         };
 
         template<>

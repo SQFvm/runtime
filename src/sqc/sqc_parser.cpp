@@ -86,51 +86,86 @@ namespace sqf::sqc::util
         public:
             region(setbuilder& sb) : m_ref(sb)
             {
-                m_ref.regions.emplace_back(m_ref);
+                m_ref.m_regions.emplace_back(m_ref);
             }
             ~region()
             {
-                m_ref.regions.pop_back();
+                m_ref.m_regions.pop_back();
+            }
+        };
+        class parent_lock
+        {
+            friend class setbuilder;
+            setbuilder& m_ref;
+            parent_lock(const parent_lock& copy) = delete;
+        public:
+            parent_lock(setbuilder& sb, ::sqf::sqc::bison::astkind kind) : m_ref(sb)
+            {
+                m_ref.m_parents.emplace_back(kind);
+            }
+            ~parent_lock()
+            {
+                m_ref.m_parents.pop_back();
             }
         };
     private:
         std::vector<::sqf::runtime::instruction::sptr> inner;
-        std::vector<region_impl> regions;
+        std::vector<region_impl> m_regions;
+        std::vector<::sqf::sqc::bison::astkind> m_parents;
         std::string_view m_contents;
+        setbuilder(std::string_view contents, std::vector<::sqf::sqc::bison::astkind> m_parents) : m_contents(contents), m_parents(m_parents) {}
     public:
         setbuilder(std::string_view contents) : m_contents(contents) {}
 
         setbuilder create_from() const
         {
-            return { m_contents };
+            return { m_contents, m_parents };
         }
         void push_back(const ::sqf::sqc::tokenizer::token& t, ::sqf::runtime::instruction::sptr ptr, position pos = current)
         {
             ptr->diag_info({ t.line, t.column, t.offset, { t.path, {} }, ::sqf::runtime::parser::sqf::create_code_segment(m_contents, t.offset, t.contents.length()) });
-            if (regions.empty())
+            if (m_regions.empty())
             {
                 inner.push_back(ptr);
             }
             else
             {
-                regions.back().push_back(ptr, pos);
+                m_regions.back().push_back(ptr, pos);
             }
         }
         void push_back(const ::sqf::sqc::tokenizer::token& t, size_t custom_length, ::sqf::runtime::instruction::sptr ptr, position pos = current)
         {
             ptr->diag_info({ t.line, t.column, t.offset, { t.path, {} }, ::sqf::runtime::parser::sqf::create_code_segment(m_contents, t.offset, custom_length) });
-            if (regions.empty())
+            if (m_regions.empty())
             {
                 inner.push_back(ptr);
             }
             else
             {
-                regions.back().push_back(ptr, pos);
+                m_regions.back().push_back(ptr, pos);
             }
         }
         operator ::sqf::runtime::instruction_set() const
         {
             return { inner };
+        }
+        parent_lock lock_parent(::sqf::sqc::bison::astkind kind)
+        {
+            return parent_lock(*this, kind);
+        }
+        ::sqf::sqc::bison::astkind parent() const
+        {
+            if (m_parents.empty()) return {};
+            return m_parents.back();
+        }
+        bool has_parent(::sqf::sqc::bison::astkind kind, size_t max_hirarchy = ~0) const
+        {
+            max_hirarchy = m_parents.size() < max_hirarchy ? m_parents.size() : max_hirarchy;
+            for (size_t i = m_parents.size() - 1; max_hirarchy-- != 0; --i)
+            {
+                if (m_parents[i] == kind) return true;
+            }
+            return false;
         }
     };
 }
@@ -139,19 +174,20 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 {
     util::setbuilder::position icpp_pos;
     float icpp_value;
+    auto parent_lock = set.lock_parent(node.kind);
     switch (node.kind)
     {
     case ::sqf::sqc::bison::astkind::RETURN: {
         if (node.children.empty())
         {
-            set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
+            set.push_back(node.token, std::make_shared<opcodes::push>(key_scopename_function));
             set.push_back(node.token, std::make_shared<opcodes::call_unary>("breakout"s));
         }
         else
         {
             util::setbuilder::region __region(set);
             to_assembly(runtime, set, locals, node.children[0]);
-            set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
+            set.push_back(node.token, std::make_shared<opcodes::push>(key_scopename_function));
             set.push_back(node.token, std::make_shared<opcodes::call_binary>("breakout"s, (short)4));
         }
     } break;
@@ -271,19 +307,19 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             to_assembly(runtime, set, locals, node.children[1]);
             switch (node.kind)
             {
-            case ::sqf::sqc::bison::astkind::ASSIGNMENT_PLUS:
+            case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_PLUS:
                 // Emit "+"
                 set.push_back(node.token, std::make_shared<opcodes::call_binary>("+"s, (short)6));
                 break;
-            case ::sqf::sqc::bison::astkind::ASSIGNMENT_MINUS:
+            case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_MINUS:
                 // Emit "-"
                 set.push_back(node.token, std::make_shared<opcodes::call_binary>("-"s, (short)6));
                 break;
-            case ::sqf::sqc::bison::astkind::ASSIGNMENT_STAR:
+            case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_STAR:
                 // Emit "*"
                 set.push_back(node.token, std::make_shared<opcodes::call_binary>("*"s, (short)7));
                 break;
-            case ::sqf::sqc::bison::astkind::ASSIGNMENT_SLASH:
+            case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_SLASH:
                 // Emit "/"
                 set.push_back(node.token, std::make_shared<opcodes::call_binary>("/"s, (short)7));
                 break;
@@ -304,6 +340,81 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // Emit "select" to perform the array index access
         set.push_back(node.token, std::make_shared<opcodes::call_binary>("select"s, (short)4));
+    } break;
+    case ::sqf::sqc::bison::astkind::OP_ACCESS_SET: {
+        util::setbuilder::region __region(set);
+        // Handle OP_ACCESS_GET
+        {
+            // Push actual array onto value stack
+            to_assembly(runtime, set, locals, node.children[0].children[0]);
+
+            // Push ident as string to stack
+            std::string access(node.children[0].children[1].token.contents.begin(), node.children[0].children[1].token.contents.end());
+            set.push_back(node.children[0].children[1].token, std::make_shared<opcodes::push>(access));
+        }
+        // Push Value-Expression to stack
+        to_assembly(runtime, set, locals, node.children[1]);
+
+        // Emit "makeArray" instruction to craft the right-handed argument
+        set.push_back(node.token, std::make_shared<opcodes::make_array>(2));
+
+        // Emit "set" to perform the array assignment
+        set.push_back(node.token, std::make_shared<opcodes::call_binary>("set"s, (short)4));
+    } break;
+    case ::sqf::sqc::bison::astkind::OP_ACCESS_SET_PLUS:
+    case ::sqf::sqc::bison::astkind::OP_ACCESS_SET_MINUS:
+    case ::sqf::sqc::bison::astkind::OP_ACCESS_SET_STAR:
+    case ::sqf::sqc::bison::astkind::OP_ACCESS_SET_SLASH: {
+        util::setbuilder::region __region(set);
+        // Push actual array onto value stack (LEFT from set)
+        to_assembly(runtime, set, locals, node.children[0].children[0]);
+
+        { // RIGHT from set
+            // Push ident as string to stack
+            std::string access(node.children[0].children[1].token.contents.begin(), node.children[0].children[1].token.contents.end());
+            set.push_back(node.children[0].children[1].token, std::make_shared<opcodes::push>(access));
+
+            // Push actual value onto value stack (LEFT from op)
+            to_assembly(runtime, set, locals, node.children[0]);
+
+            // Push Value-Expression to stack (RIGHT from op)
+            to_assembly(runtime, set, locals, node.children[1]);
+            switch (node.kind)
+            {
+            case ::sqf::sqc::bison::astkind::OP_ACCESS_SET_PLUS:
+                // Emit "+"
+                set.push_back(node.token, std::make_shared<opcodes::call_binary>("+"s, (short)6));
+                break;
+            case ::sqf::sqc::bison::astkind::OP_ACCESS_SET_MINUS:
+                // Emit "-"
+                set.push_back(node.token, std::make_shared<opcodes::call_binary>("-"s, (short)6));
+                break;
+            case ::sqf::sqc::bison::astkind::OP_ACCESS_SET_STAR:
+                // Emit "*"
+                set.push_back(node.token, std::make_shared<opcodes::call_binary>("*"s, (short)7));
+                break;
+            case ::sqf::sqc::bison::astkind::OP_ACCESS_SET_SLASH:
+                // Emit "/"
+                set.push_back(node.token, std::make_shared<opcodes::call_binary>("/"s, (short)7));
+                break;
+            }
+
+            // Emit "makeArray" instruction to craft the right-handed argument
+            set.push_back(node.token, std::make_shared<opcodes::make_array>(2));
+        }
+        // Emit "set" to perform the array assignment
+        set.push_back(node.token, std::make_shared<opcodes::call_binary>("set"s, (short)4));
+    } break;
+    case ::sqf::sqc::bison::astkind::OP_ACCESS_GET: {
+        // Push actual array onto value stack
+        to_assembly(runtime, set, locals, node.children[0]);
+
+        // Push ident as string to stack
+        std::string access(node.children[1].token.contents.begin(), node.children[1].token.contents.end());
+        set.push_back(node.children[1].token, std::make_shared<opcodes::push>(access));
+
+        // Emit "select" to perform the array index access
+        set.push_back(node.token, std::make_shared<opcodes::call_binary>("get"s, (short)4));
     } break;
     case ::sqf::sqc::bison::astkind::DECLARATION: {
         // Push assigned value
@@ -335,7 +446,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     case ::sqf::sqc::bison::astkind::FUNCTION_DECLARATION: {
         auto local_set = set.create_from();
         std::vector<emplace> new_locals;
-        local_set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
+        local_set.push_back(node.token, std::make_shared<opcodes::push>(key_scopename_function));
         local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
         to_assembly(runtime, local_set, new_locals, node.children[1]);
@@ -365,7 +476,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     case ::sqf::sqc::bison::astkind::FINAL_FUNCTION_DECLARATION: {
         auto local_set = set.create_from();
         std::vector<emplace> new_locals;
-        local_set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
+        local_set.push_back(node.token, std::make_shared<opcodes::push>(key_scopename_function));
         local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
         to_assembly(runtime, local_set, new_locals, node.children[1]);
@@ -403,7 +514,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     case ::sqf::sqc::bison::astkind::FUNCTION: {
         auto local_set = set.create_from();
         std::vector<emplace> new_locals;
-        local_set.push_back(node.token, std::make_shared<opcodes::push>(__scopename_function));
+        local_set.push_back(node.token, std::make_shared<opcodes::push>(key_scopename_function));
         local_set.push_back(node.token, std::make_shared<opcodes::call_unary>("scopename"));
 
         to_assembly(runtime, local_set, new_locals, node.children[0]);
@@ -534,9 +645,14 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 }
             }
         }
+        if (set.has_parent(::sqf::sqc::bison::astkind::OP_ACCESS_SET, 3) || set.has_parent(::sqf::sqc::bison::astkind::OBJECT_ITEM, 3))
+        {
+            ++param_count;
+            set.push_back(node.token, std::make_shared<opcodes::push>(std::string(key_self)));
+        }
         if (param_count > 0)
         {
-            set.push_back(node.token, std::make_shared<opcodes::make_array>(node.children.size()));
+            set.push_back(node.token, std::make_shared<opcodes::make_array>(param_count));
             set.push_back(node.token, std::make_shared<opcodes::call_unary>("params"s));
         }
     } break;
@@ -1003,10 +1119,16 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 to_assembly(runtime, set, locals, node.children[2]);
                 set.push_back(node.children[2].token, std::make_shared<opcodes::make_array>(std::max(node.children[2].children.size(), (size_t)1)));
             }
-            else
+            else if (node.children.size() == 3)
             {
                 // Emit Right-Argument
                 to_assembly(runtime, set, locals, node.children[2]);
+            }
+            else
+            {
+
+                log(logmessage::runtime::ErrorMessage({}, "SQC", "Empty right-arguments for binary operator: " + opname));
+                set.push_back(node.token, std::make_shared<opcodes::call_nular>("nil"s));
             }
 
             // Emit binary operator
@@ -1016,31 +1138,42 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         { // Hashmap access
             // Emit arguments
             {
-                // Emit Right-Arguments
-                to_assembly(runtime, set, locals, node.children[2]);
+                if (node.children.size() == 3)
+                {
+                    // Emit Right-Arguments
+                    to_assembly(runtime, set, locals, node.children[2]);
 
-                // Emit Hashmap last (we might want to reuse the method and have no this then)
-                to_assembly(runtime, set, locals, node.children[0]);
+                    // Emit Hashmap last (we might want to reuse the method and have no this then)
+                    to_assembly(runtime, set, locals, node.children[0]);
 
-                // Emit array for hashmap and arguments
-                set.push_back(node.children[2].token, std::make_shared<opcodes::make_array>(node.children[2].children.size() + 1));
+                    // Emit array for hashmap and arguments
+                    set.push_back(node.children[2].token, std::make_shared<opcodes::make_array>(node.children[2].children.size() + 1));
+                }
+                else
+                {
+                    // Emit Hashmap
+                    to_assembly(runtime, set, locals, node.children[0]);
+
+                    // Emit array for hashmap
+                    set.push_back(node.children[0].token, std::make_shared<opcodes::make_array>(1));
+                }
             }
 
-            // Emit `call`
-            set.push_back(node.token, std::make_shared<opcodes::call_binary>("get", 4));
+            // Emit `Hashmap`
+            {
+                // Emit Hashmap
+                to_assembly(runtime, set, locals, node.children[0]);
 
-            // Emit Hashmap
-            to_assembly(runtime, set, locals, node.children[0]);
+                // Push ident as string to stack
+                std::string access(node.children[1].token.contents.begin(), node.children[1].token.contents.end());
+                set.push_back(node.children[1].token, std::make_shared<opcodes::push>(access));
 
-            // Emit operator as string
-            set.push_back(node.token, std::make_shared<opcodes::push>(std::string(node.children[1].token.contents.begin(), node.children[1].token.contents.end())));
+                // Emit `get`
+                set.push_back(node.token, std::make_shared<opcodes::call_binary>("get", 4));
+            }
 
-            // Emit `get`
-            set.push_back(node.token, std::make_shared<opcodes::call_binary>("get", 4));
-
-
-            log(logmessage::runtime::ErrorMessage({}, "SQC", "unknown operator: " + opname));
-            set.push_back(node.token, std::make_shared<opcodes::call_nular>("nil"s));
+            // Emit binary operator
+            set.push_back(node.token, std::make_shared<opcodes::call_binary>("call"s, (short)4));
         }
     } break;
     case ::sqf::sqc::bison::astkind::OP_UNARY: {
@@ -1143,6 +1276,9 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     } break;
     case ::sqf::sqc::bison::astkind::VAL_NIL: {
         set.push_back(node.token, std::make_shared<::sqf::opcodes::push>(runtime::value{}));
+    } break;
+    case ::sqf::sqc::bison::astkind::VAL_THIS: {
+        set.push_back(node.token, std::make_shared<opcodes::get_variable>(std::string(key_self)));
     } break;
     case ::sqf::sqc::bison::astkind::GET_VARIABLE: {
         std::string var(node.token.contents);

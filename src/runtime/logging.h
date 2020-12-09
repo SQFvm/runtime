@@ -1758,6 +1758,16 @@ namespace logmessage {
             {}
             [[nodiscard]] std::string formatMessage() const override;
         };
+        class ScopeNameNotFound : public RuntimeBase {
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 60037;
+            std::string m_scope_name;
+        public:
+            ScopeNameNotFound(LogLocationInfo loc, std::string scope_name) :
+                RuntimeBase(level, errorCode, std::move(loc)), m_scope_name(scope_name)
+            {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
     }
     namespace fileio
     {
@@ -1768,7 +1778,7 @@ namespace logmessage {
         };
         class ResolveVirtualRequested : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60001;
+            static const size_t errorCode = 70001;
             std::string_view m_physical;
             std::string_view m_virtual;
         public:
@@ -1780,7 +1790,7 @@ namespace logmessage {
         };
         class ResolveVirtualFileNotFound : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60002;
+            static const size_t errorCode = 70002;
             std::string_view m_physical;
             std::string_view m_virtual;
         public:
@@ -1792,7 +1802,7 @@ namespace logmessage {
         };
         class ResolveVirtualFileMatched : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60003;
+            static const size_t errorCode = 70003;
             std::string_view m_physical;
             std::string_view m_virtual;
             std::string_view m_match_physical;
@@ -1806,7 +1816,7 @@ namespace logmessage {
         };
         class ResolveVirtualNavigateUp : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60004;
+            static const size_t errorCode = 70004;
             std::string_view m_physical;
             std::string_view m_virtual;
         public:
@@ -1818,7 +1828,7 @@ namespace logmessage {
         };
         class ResolveVirtualNavigateDown : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60005;
+            static const size_t errorCode = 70005;
             std::string_view m_physical;
             std::string_view m_virtual;
             std::string_view m_matched;
@@ -1832,7 +1842,7 @@ namespace logmessage {
         };
         class ResolveVirtualNavigateDeadEnd : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60006;
+            static const size_t errorCode = 70006;
             std::string_view m_physical;
             std::string_view m_virtual;
             std::string_view m_matched;
@@ -1846,7 +1856,7 @@ namespace logmessage {
         };
         class ResolveVirtualNavigateNoNodesLeftForExploring : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60007;
+            static const size_t errorCode = 70007;
             std::string_view m_physical;
             std::string_view m_virtual;
         public:
@@ -1858,7 +1868,7 @@ namespace logmessage {
         };
         class ResolveVirtualTestFileExists : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60008;
+            static const size_t errorCode = 70008;
             std::string_view m_physical;
             std::string_view m_virtual;
             std::string_view m_matched;
@@ -1872,7 +1882,7 @@ namespace logmessage {
         };
         class ResolveVirtualGotRemainder : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60009;
+            static const size_t errorCode = 70009;
             std::string_view m_physical;
             std::string_view m_virtual;
         public:
@@ -1884,7 +1894,7 @@ namespace logmessage {
         };
         class ResolvePhysicalRequested : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60010;
+            static const size_t errorCode = 70010;
             std::string_view m_physical;
             std::string_view m_virtual;
             std::string_view m_matched;
@@ -1898,7 +1908,7 @@ namespace logmessage {
         };
         class ResolvePhysicalAdjustedPath : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60011;
+            static const size_t errorCode = 70011;
             std::string_view m_physical;
             std::string_view m_virtual;
             std::string_view m_matched;
@@ -1912,7 +1922,7 @@ namespace logmessage {
         };
         class ResolvePhysicalTestingAgainst : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60012;
+            static const size_t errorCode = 70012;
             std::string_view m_physical;
             std::string_view m_virtual;
             std::string_view m_matched;
@@ -1926,7 +1936,7 @@ namespace logmessage {
         };
         class ResolvePhysicalMatched : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60013;
+            static const size_t errorCode = 70013;
             std::string_view m_physical;
             std::string_view m_virtual;
             std::string_view m_matched;
@@ -1940,7 +1950,7 @@ namespace logmessage {
         };
         class ResolvePhysicalFailedToLookup : public FileIoBase {
             static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 60013;
+            static const size_t errorCode = 70013;
             std::string_view m_physical;
             std::string_view m_virtual;
             std::string_view m_matched;

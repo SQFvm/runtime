@@ -91,6 +91,7 @@ namespace sqf
                 return std::string(arr.data(), arr.size());
             }
             sqf::runtime::type type() const override { return data_type(); }
+            virtual std::size_t hash() const override { return std::hash<std::string>()(m_value); }
             std::string value() const { return m_value; }
             void value(std::string string) { m_value = string; }
 

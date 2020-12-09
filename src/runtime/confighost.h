@@ -99,6 +99,7 @@ namespace sqf::runtime
         confignav navigate(confighost& host) const;
         std::string_view name() const { return m_name; }
         bool is_null() const { return m_container_id == invalid_id; }
+        size_t container_id() const { return m_container_id; }
     };
     class confighost
     {

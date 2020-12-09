@@ -55,6 +55,7 @@ namespace sqf
             std::string to_string() const override { return to_string_sqf(); }
 
             sqf::runtime::type type() const override { return data_type(); }
+            virtual std::size_t hash() const override { return 0; }
 
             bool is_null() const { return m_value.expired(); }
 

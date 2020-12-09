@@ -74,6 +74,7 @@ namespace sqf
             std::string to_string() const override { return to_string_sqf(); }
 
             sqf::runtime::type type() const override { return data_type(); }
+            virtual std::size_t hash() const override { return std::hash<size_t>()(static_cast<size_t>(m_value)); }
 
             side value() const { return m_value; }
             void value(side flag) { m_value = flag; }

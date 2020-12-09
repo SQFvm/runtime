@@ -9,6 +9,26 @@ namespace sqf::runtime
     class runtime;
     class data
     {
+        template <typename T>
+        struct empty_delete
+        {
+            empty_delete() /* noexcept */
+            {
+            }
+
+            template <typename U>
+            empty_delete(const empty_delete<U>&,
+                typename std::enable_if<
+                std::is_convertible<U*, T*>::value
+                >::type* = nullptr) /* noexcept */
+            {
+            }
+
+            void operator()(T* const) const /* noexcept */
+            {
+                // do nothing
+            }
+        };
     protected:
         /// <summary>
         /// Performs the actual comparison.
@@ -61,5 +81,17 @@ namespace sqf::runtime
         /// </summary>
         /// <returns></returns>
         virtual ::sqf::runtime::type type() const = 0;
+
+        virtual std::size_t hash() const = 0;
+    };
+}
+namespace std
+{
+    template<> struct hash<sqf::runtime::data>
+    {
+        std::size_t operator()(sqf::runtime::data const& s) const noexcept
+        {
+            return s.hash();
+        }
     };
 }

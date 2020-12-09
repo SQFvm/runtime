@@ -42,6 +42,7 @@ namespace sqf::sqc
             t_true,
             t_throw,
             t_while,
+            t_this,
             t_break,
 
             s_curlyo,
@@ -293,6 +294,7 @@ namespace sqf::sqc
                 case etoken::t_throw:            len = len_ident_match(iter, "throw"); break;
                 case etoken::t_to:               len = len_ident_match(iter, "to"); break;
                 case etoken::t_try:              len = len_ident_match(iter, "try"); break;
+                case etoken::t_this:             len = len_ident_match(iter, "this"); break;
                 case etoken::t_true:             len = len_ident_match(iter, "true"); break;
                 case etoken::t_while:            len = len_ident_match(iter, "while"); break;
 
@@ -527,7 +529,7 @@ namespace sqf::sqc
             case 'q': case 'Q': return try_match({ etoken::t_ident });
             case 'r': case 'R': return try_match({ etoken::t_return, etoken::t_ident });
             case 's': case 'S': return try_match({ etoken::t_step, etoken::t_switch, etoken::t_ident });
-            case 't': case 'T': return try_match({ etoken::t_throw, etoken::t_to, etoken::t_try, etoken::t_true, etoken::t_ident });
+            case 't': case 'T': return try_match({ etoken::t_throw, etoken::t_this, etoken::t_to, etoken::t_try, etoken::t_true, etoken::t_ident });
             case 'u': case 'U': return try_match({ etoken::t_ident });
             case 'v': case 'V': return try_match({ etoken::t_ident });
             case 'w': case 'W': return try_match({ etoken::t_while, etoken::t_ident });
@@ -608,6 +610,7 @@ namespace sqf::sqc
             case etoken::t_while:            return "while"sv;
             case etoken::t_do:               return "do"sv;
             case etoken::t_try:              return "try"sv;
+            case etoken::t_this:             return "this"sv;
             case etoken::t_catch:            return "catch"sv;
             case etoken::t_switch:           return "switch"sv;
             case etoken::t_case:             return "case"sv;

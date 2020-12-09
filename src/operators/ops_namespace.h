@@ -66,6 +66,7 @@ namespace sqf
 
             virtual std::string to_string() const override { return to_string_sqf(); }
             sqf::runtime::type type() const override { return data_type(); }
+            virtual std::size_t hash() const override { return 0; }
 
             std::shared_ptr<sqf::runtime::value_scope> value() { return m_scope.lock(); }
             operator std::shared_ptr<sqf::runtime::value_scope>() { return m_scope.lock(); }

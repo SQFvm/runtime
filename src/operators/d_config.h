@@ -43,6 +43,7 @@ namespace sqf
                 return std::string(m_value.name());
             }
             sqf::runtime::type type() const override { return data_type(); }
+            virtual std::size_t hash() const override { return std::hash<size_t>()(m_value.container_id()); }
             sqf::runtime::config value() const { return m_value; }
             void value(sqf::runtime::config conf) { m_value = conf; }
 
