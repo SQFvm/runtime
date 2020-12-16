@@ -1,7 +1,39 @@
 This ReadMe is a Work-In-Progress documentation of the SQC language
 
-
-# Variable assignment
+# Table of Contents
+- [Table of Contents](#table-of-contents)
+- [Language Reference](#language-reference)
+  - [Variable assignment](#variable-assignment)
+  - [Calling Mechanisms](#calling-mechanisms)
+    - [Calling binary operators](#calling-binary-operators)
+    - [Calling unary operators](#calling-unary-operators)
+    - [Calling nular operators](#calling-nular-operators)
+    - [Calling SQF/SQC functions](#calling-sqfsqc-functions)
+    - [Calling Object-functions](#calling-object-functions)
+  - [Functions](#functions)
+    - [Function Args](#function-args)
+  - [File Header](#file-header)
+  - [Formatable Strings](#formatable-strings)
+  - [Objects](#objects)
+    - [Syntax](#syntax)
+  - [Operators](#operators)
+    - [Math](#math)
+    - [Logic](#logic)
+    - [Other](#other)
+  - [Control Structures](#control-structures)
+    - [If](#if)
+    - [Switch](#switch)
+    - [For Step](#for-step)
+    - [For Each](#for-each)
+    - [While](#while)
+    - [Do While](#do-while)
+    - [Try Catch](#try-catch)
+- [Examples](#examples)
+- [SQC features mixed](#sqc-features-mixed)
+    - [SQC](#sqc)
+    - [Transpiled to SQF](#transpiled-to-sqf)
+# Language Reference
+## Variable assignment
 A variable in SQC is assigned like this:
 
 ```js
@@ -15,9 +47,7 @@ To make a variable private, you just add the `let` or `private` keyword in front
     let variable be <VALUE>;
     private variable = <VALUE>;
 ```
-
-
-# Calling a function or operator
+## Calling Mechanisms
 In SQC, you have no direct syntax to "call" sqf like one would in SQF.
 Instead, SQC attempts to automatically mangle the different types and functions for you.
 
@@ -32,17 +62,53 @@ Note that the left side for the binary operators always will be evaluated "as is
 
 User Functions are always treated as "normal" functions (`myFunc(arg0, arg1, arg2)`) and no special care has to be given to them.
 
-Translation Examples:
+### Calling binary operators
+Given the binary operator `ANY in ARRAY` with an array `arr = [1, 2, 3]`
 
-```sqf
-    diag_log("foo bar")                <-> diag_log "foo bar"
-    diag_log(1, 2, 3)                  <-> diag_log [1, 2, 3]
-    player.in(player, vehicle(player)) <-> player in [player, vehicle player]
-    player.in(vehicle(player))         <-> player in vehicle player
-    myFunc(arg0, arg1, arg2)           <-> [arg0, arg1, arg2] call myFunc
-```
+    // All fine here
+    2.in(4, 5, 6)                       <-> 2 in [4, 5, 6]
+    2.in(arr)                           <-> player in arr
 
-# Functions
+    // Important! Passing single in args will not create arrays
+    2.in(5)                             <-> 2 in 5
+
+    // To fix, do the following:
+    2.in([5])                           <-> 2 in [5]
+### Calling unary operators
+Given the unary operator `diag_log ANY`
+
+    // All fine here
+    diag_log("foo")                     <-> diag_log "foo"
+
+    // Important! Passing multiple in args will create an array
+    diag_log(1, 2, 3)                   <-> diag_log [1, 2, 3]
+
+### Calling nular operators
+Given the nular operator `player` with the unary operator `vehicle OBJECT`
+
+    // Nular operators behave like variables
+    private playerVehicle = vehicle(player);    <-> private _playerVehicle = vehicle player;
+
+    // Important! Be careful not to locally override nular operators:
+    private player = "...".createVehicle(...)
+    private playerVehicle = vehicle(player);    <-> private playerVehicle = vehicle _player;
+
+### Calling SQF/SQC functions
+Given the function `func1` with a single input parameter and `func3` with three input parameters
+
+    // Calling them utilizes the same syntax as with unary operators
+    func1("foo");                               <-> ["foo"] call func1
+    func3(2, "foo", "bar")                      <-> [2, "foo", "bar"] call func3
+
+### Calling Object-functions
+Given the object `obj = { func: function(){...}, nested: { otherFunc: function() {...} } }`
+
+    // Calling object functions resembles binary calling syntax
+    // Notice the fact, that the obj is passed inside of itself
+    // which is to supply the `this` keyword of SQC
+    obj.func()                                  <-> [obj] call (obj get "func") 
+    obj.nestedObj.otherFunc()                   <-> [obj get "nestedObj"] call (obj get "nestedObj" get "otherFunc")
+## Functions
 In SQC, a function is made using the following syntax:
 (to make a function final, a `final` prefix may be added)
 
@@ -54,7 +120,7 @@ In SQC, a function is made using the following syntax:
     // Stringifies the function, calls compileFinal and assigns the value to fncName
     final function fncName(<ARGS>) { }
 ```
-
+### Function Args
 `<ARGS>` are a comma separated list of "arguments" that the method shall receive.
 Theese can be typed. They follow the following syntax:
 
@@ -73,17 +139,14 @@ Given that one may want to use operators that provide existing arguments (eg. `A
 existing variables in the function code. This is what that syntax does. It rewrites the `actualVariableName` onto the "virtual" `variableName`.
 
 Full example: `arr.select(function(it: "_x") { return it > 2; });` gets `arr select { _x > 2 }`
-
-# File Header
+## File Header
 SQC Files may start with a so called "params" directive. This is so, that CfgFunctions may be used to initialize theese methods.
 It lends itself the comma separated list of `<ARGS>` known from Functions and looks like this:
 
 ```js
     params(<ARGS>);
 ```
-
-
-# Formatable Strings
+## Formatable Strings
 SQC features a formatable string which got pretty much stolen from C#.
 
 Translation Example:
@@ -93,46 +156,76 @@ Translation Example:
     <->
     format["This is a formatable string. The player position is { %1 }. His Vehicle is %2", position player, vehicle player]
 ```
-# Operators
+## Objects
+In SQC you can create objects, thanks to SQF hashmaps.
+Inside of object methods, you can use the `this` keyword to refer to the owning object instance.
+### Syntax
+The object syntax is contained of a list of keys (`<name>`) and values of any type received using any meaning (`<value>`)
 
-## Math
+    private obj = {
+        // basic structure
+        <name>: <value>,
 
-## Logic
+        log: function(data) { ... },
+        loggerName: "myLogger",
+        instanceCount: getLoggerInstanceCount()
+    }
 
-## Increment/Decrement
+## Operators
+### Math
+|  Name  |    SQC    |    SQF    |
+|--------|-----------|-----------|
+|Plus    |`ANY + ANY`|`ANY + ANY`|
+|Minus   |`ANY - ANY`|`ANY - ANY`|
+|Multiply|`ANY * ANY`|`ANY * ANY`|
+|Devide  |`ANY / ANY`|`ANY / ANY`|
+|Modulo  |`ANY % ANY`|`ANY % ANY`|
+### Logic
+|           Name        |    SQC      |         SQF          |
+|-----------------------|-------------|----------------------|
+|And                    |`ANY && ANY` |`ANY && ANY`          |
+|Or                     |`ANY || ANY` |`ANY || ANY`          |
+|Greater than           |`ANY > ANY`  |`ANY * ANY`           |
+|Greater than or equal  |`ANY >= ANY` |`ANY / ANY`           |
+|Less than              |`ANY < ANY`  |`ANY % ANY`           |
+|Less than or equal     |`ANY <= ANY` |`ANY % ANY`           |
+|equals                 |`ANY == ANY` |`ANY == ANY`          |
+|equals exact           |`ANY === ANY`|`ANY isEqualTo ANY`   |
+|not equals             |`ANY != ANY` |`ANY != ANY`          |
+|not equals exact       |`ANY !== ANY`|`!(ANY isEqualTo ANY)`|
+|not                    |`!ANY`       |`!ANY`                |
 
-SQC has incremental and decremental pre- and postfix operators `++` and `--`.
-Using theese, will increase/decrease a given variable by one (1).
+### Other
+|     Name     |        SQC        |                    SQF                       |
+|--------------|-------------------|----------------------------------------------|
+|Pre increment |`func(++VARIABLE)` |`VARIABLE = VARIABLE + 1; VARIABLE call func;`|
+|Post increment|`func(VARIABLE++)` |`VARIABLE call func; VARIABLE = VARIABLE + 1;`|
+|Pre decrement |`func(--VARIABLE)` |`VARIABLE = VARIABLE - 1; VARIABLE call func;`|
+|Post decrement|`func(VARIABLE--)` |`VARIABLE call func; VARIABLE = VARIABLE - 1;`|
+|Array access  |`ARRAY[VALUE]`     |`ARRAY select VALUE`                          |
+|Object access |`OBJECT.IDENTIFIER`|`OBJECT get "IDENTIFIER"`                     |
 
-Translation Example:
-```sqf
-    diag_log(x++); <-> diag_log x; x = x + 1;
-    diag_log(++x); <-> x = x + 1; diag_log x;
-    diag_log(x--); <-> diag_log x; x = x - 1;
-    diag_log(--x); <-> x = x - 1; diag_log x;
-```
+## Control Structures
 
-# Array Index operators - assignment & receiving
+### If
 
-# Control Structures
+### Switch
 
-## If
+### For Step
 
-## Switch
+### For Each
 
-## For Step
+### While
 
-## For Each
+### Do While
 
-## While
-
-## Do While
-
-## Try Catch
+### Try Catch
 
 
 
-# Example in SQC
+# Examples
+# SQC features mixed
+### SQC
 ```js
 // Declare file-header; Emits params at file start.
 params(a, string b, scalar c = 15);
@@ -207,7 +300,7 @@ diag_log($"test {"string"} to test {1} or {[1,2,3].select(1)} features of {""""}
 arr.select(function(it: "_x") { return it > 2; });
 ```
 
-# Same Example compiled to SQF
+### Transpiled to SQF
 ```sqf
 params ["_a", ["_b", nil, "], ["_c", 15, 0]];
 scopename "___sqc_func";
