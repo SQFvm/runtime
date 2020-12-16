@@ -15,7 +15,7 @@ This ReadMe is a Work-In-Progress documentation of the SQC language
   - [File Header](#file-header)
   - [Formatable Strings](#formatable-strings)
   - [Objects](#objects)
-    - [Syntax](#syntax)
+    - [Example](#example)
   - [Operators](#operators)
     - [Math](#math)
     - [Logic](#logic)
@@ -159,14 +159,13 @@ Translation Example:
 ## Objects
 In SQC you can create objects, thanks to SQF hashmaps.
 Inside of object methods, you can use the `this` keyword to refer to the owning object instance.
-### Syntax
+### Example
 The object syntax is contained of a list of keys (`<name>`) and values of any type received using any meaning (`<value>`)
 
-    private obj = {
-        // basic structure
-        <name>: <value>,
-
-        log: function(data) { ... },
+    private logger = {
+        log: function(data) {
+            diag_log($"Logger{this.instanceCount}: {data}");
+        },
         loggerName: "myLogger",
         instanceCount: getLoggerInstanceCount()
     }
@@ -181,47 +180,169 @@ The object syntax is contained of a list of keys (`<name>`) and values of any ty
 |Devide  |`ANY / ANY`|`ANY / ANY`|
 |Modulo  |`ANY % ANY`|`ANY % ANY`|
 ### Logic
-|           Name        |    SQC      |         SQF          |
-|-----------------------|-------------|----------------------|
-|And                    |`ANY && ANY` |`ANY && ANY`          |
-|Or                     |`ANY || ANY` |`ANY || ANY`          |
-|Greater than           |`ANY > ANY`  |`ANY * ANY`           |
-|Greater than or equal  |`ANY >= ANY` |`ANY / ANY`           |
-|Less than              |`ANY < ANY`  |`ANY % ANY`           |
-|Less than or equal     |`ANY <= ANY` |`ANY % ANY`           |
-|equals                 |`ANY == ANY` |`ANY == ANY`          |
-|equals exact           |`ANY === ANY`|`ANY isEqualTo ANY`   |
-|not equals             |`ANY != ANY` |`ANY != ANY`          |
-|not equals exact       |`ANY !== ANY`|`!(ANY isEqualTo ANY)`|
-|not                    |`!ANY`       |`!ANY`                |
+|           Name        |      SQC      |         SQF          |
+|-----------------------|---------------|----------------------|
+|And                    |`ANY && ANY`   |`ANY && ANY`          |
+|Or                     |`ANY \|\| ANY` |`ANY \|\| ANY`        |
+|Greater than           |`ANY > ANY`    |`ANY * ANY`           |
+|Greater than or equal  |`ANY >= ANY`   |`ANY / ANY`           |
+|Less than              |`ANY < ANY`    |`ANY % ANY`           |
+|Less than or equal     |`ANY <= ANY`   |`ANY % ANY`           |
+|equals                 |`ANY == ANY`   |`ANY == ANY`          |
+|equals exact           |`ANY === ANY`  |`ANY isEqualTo ANY`   |
+|not equals             |`ANY != ANY`   |`ANY != ANY`          |
+|not equals exact       |`ANY !== ANY`  |`!(ANY isEqualTo ANY)`|
+|not                    |`!ANY`         |`!ANY`                |
 
 ### Other
-|     Name     |        SQC        |                    SQF                       |
-|--------------|-------------------|----------------------------------------------|
-|Pre increment |`func(++VARIABLE)` |`VARIABLE = VARIABLE + 1; VARIABLE call func;`|
-|Post increment|`func(VARIABLE++)` |`VARIABLE call func; VARIABLE = VARIABLE + 1;`|
-|Pre decrement |`func(--VARIABLE)` |`VARIABLE = VARIABLE - 1; VARIABLE call func;`|
-|Post decrement|`func(VARIABLE--)` |`VARIABLE call func; VARIABLE = VARIABLE - 1;`|
-|Array access  |`ARRAY[VALUE]`     |`ARRAY select VALUE`                          |
-|Object access |`OBJECT.IDENTIFIER`|`OBJECT get "IDENTIFIER"`                     |
+|     Name        |        SQC                  |                    SQF                       |
+|-----------------|-----------------------------|----------------------------------------------|
+|Pre increment    |`func(++VARIABLE)`           |`VARIABLE = VARIABLE + 1; VARIABLE call func;`|
+|Post increment   |`func(VARIABLE++)`           |`VARIABLE call func; VARIABLE = VARIABLE + 1;`|
+|Pre decrement    |`func(--VARIABLE)`           |`VARIABLE = VARIABLE - 1; VARIABLE call func;`|
+|Post decrement   |`func(VARIABLE--)`           |`VARIABLE call func; VARIABLE = VARIABLE - 1;`|
+|Array access     |`ARRAY[VALUE]`               |`ARRAY select VALUE`                          |
+|Object access    |`OBJECT.IDENTIFIER`          |`OBJECT get "IDENTIFIER"`                     |
+|Ternary operator |`CONDITION ? VALUE1 : VALUE2`|`if CONDITION then { VALUE1 } else { VALUE2 }`|
 
 ## Control Structures
-
 ### If
 
+    if (BOOL1)   func();                                     <-> if BOOL1 then { [] call funcA; }
+    if (BOOL1) { funcA(); }                                  <-> if BOOL1 then { [] call funcA; }
+    if (BOOL1)   funcA();   else   funcB();                  <-> if BOOL1 then { [] call funcA; } else { [] call funcB; }
+    if (BOOL1) { funcA(); } else { funcB(); }                <-> if BOOL1 then { [] call funcA; } else { [] call funcB; }
+
+    // Chaining is also possible thanks to the single-statement acceptance
+    if (BOOL1) { funcA(); } else if (BOOL2) { funcB(); }    <-> if BOOL1 then { [] call funcA; } else { if BOOL2 then { [] call funcA; } }
 ### Switch
+**SQC:**
+    switch (5)
+    {
+        case 1: diag_log("single instruction, marking the end of case.");
+
+        case 2: // fallthrough
+        case 3: {
+            diag_log("codeblock with brackets");
+        }
+
+        default: diag_log("default 'fallback'");
+    }
+**SQF:**
+    switch 5
+    {
+        case 1: { diag_log "single instruction, marking the end of case."; };
+
+        case 2: // fallthrough
+        case 3: {
+            diag_log "codeblock with brackets" ;
+        };
+
+        default { diag_log "default 'fallback'"; };
+    }
 
 ### For Step
+**SQC:**
+    for i from 0 to 100 {
+        diag_log(i);
+    }
+    
+    for i from 0 to 100
+        diag_log(i);
+        
+    for i from 0 to 100 step 2 {
+        diag_log(i);
+    }
+**SQF:**
+    for "_i" from 0 to 100 do {
+        diag_log(i);
+    }
+    
+    for "_i" from 0 to 100 do {
+        diag_log(i);
+    }
+        
+    for "_i" from 0 to 100 step 2 do {
+        diag_log(i);
+    }
 
 ### For Each
+**SQC:**
+    for (it : ARRAY) {
+        diag_log(it);
+    }
+    
+    for (it : ARRAY)
+        diag_log(it);
+**SQF:**
+    {
+        diag_log(_x);
+    } foreach ARRAY;
+    
+    {
+        diag_log(_x);
+    } foreach ARRAY;
 
 ### While
+**SQC:**
+    while (BOOL) {
+        diag_log(position(player));
+    }
+    
+    while (BOOL)
+        diag_log(position(player));
+**SQF:**
+    while { BOOL } do {
+        diag_log position player;
+    }
+    
+    while { BOOL } do {
+        diag_log position player;
+    }
 
 ### Do While
+**SQC:**
+    do {
+        diag_log(position(player));
+    } while (BOOL);
+    
+    do diag_log(position(player)); while (BOOL);
+**SQF:**
+    diag_log position player;
+    while { BOOL } do {
+        diag_log position player;
+    }
+    
+    diag_log position player;
+    while { BOOL } do {
+        diag_log position player;
+    }
 
 ### Try Catch
-
-
+**SQC**
+    try {
+        throw VALUE;
+    }
+    catch (exception) {
+        diag_log(exception);
+    }
+    
+    try throw VALUE;
+    catch (exception) diag_log(exception);
+**SQC**
+    try {
+        throw VALUE;
+    }
+    catch {
+        diag_log(_exception);
+    }
+    
+    try {
+        throw VALUE;
+    }
+    catch {
+        diag_log(_exception);
+    }
 
 # Examples
 # SQC features mixed
