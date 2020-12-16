@@ -85,6 +85,8 @@
                DOWHILE,
                TRYCATCH,
                SWITCH,
+               OBJECT_ITEMS,
+               OBJECT_ITEM,
                CASE,
                CASE_DEFAULT,
                OP_TERNARY,
@@ -104,7 +106,8 @@
                OP_DIVIDE,
                OP_REMAINDER,
                OP_NOT,
-               OP_BINARY,
+               OP_CALL,
+               OP_ACCESS_GET,
                OP_UNARY,
                OP_ARRAY_GET,
                OP_ARRAY_SET,
@@ -112,14 +115,21 @@
                OP_ARRAY_SET_MINUS,
                OP_ARRAY_SET_STAR,
                OP_ARRAY_SET_SLASH,
+               OP_ACCESS_SET,
+               OP_ACCESS_SET_PLUS,
+               OP_ACCESS_SET_MINUS,
+               OP_ACCESS_SET_STAR,
+               OP_ACCESS_SET_SLASH,
                SVAL_FORMAT_STRING,
                VAL_STRING,
                VAL_ARRAY,
                VAL_NUMBER,
                VAL_TRUE,
                VAL_FALSE,
+               VAL_THIS,
                VAL_NIL,
-               GET_VARIABLE
+               GET_VARIABLE,
+               OBJECT
           };
           struct astnode
           {
@@ -152,7 +162,7 @@
           };
      }
 
-#line 156 "parser.tab.hh" // lalr1.cc:377
+#line 166 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -229,7 +239,7 @@
 
 #line 8 "parser.y" // lalr1.cc:377
 namespace  sqf { namespace sqc { namespace bison  {
-#line 233 "parser.tab.hh" // lalr1.cc:377
+#line 243 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -386,7 +396,6 @@ namespace  sqf { namespace sqc { namespace bison  {
       // funchead
       // arglist
       // argitem
-      // codeblock
       // if
       // for
       // while
@@ -404,7 +413,13 @@ namespace  sqf { namespace sqc { namespace bison  {
       // exp08
       // exp09
       // arrget
+      // call
+      // objget
       // expp
+      // obj
+      // obj_item
+      // obj_items
+      // codeblock
       // value
       // array
       // explist
@@ -487,51 +502,52 @@ namespace  sqf { namespace sqc { namespace bison  {
         CASE = 275,
         DEFAULT = 276,
         NIL = 277,
-        TRUE = 278,
-        PARAMS = 279,
-        PRIVATE = 280,
-        WHILE = 281,
-        CURLYO = 282,
-        CURLYC = 283,
-        ROUNDO = 284,
-        ROUNDC = 285,
-        SQUAREO = 286,
-        SQUAREC = 287,
-        SEMICOLON = 288,
-        COMMA = 289,
-        DOT = 290,
-        QUESTIONMARK = 291,
-        BE = 292,
-        EQUAL = 293,
-        ANDAND = 294,
-        SLASH = 295,
-        SLASHASSIGN = 296,
-        STAR = 297,
-        STARASSIGN = 298,
-        PERCENT = 299,
-        VLINEVLINE = 300,
-        COLON = 301,
-        PLUS = 302,
-        PLUSPLUS = 303,
-        PLUSASSIGN = 304,
-        MINUS = 305,
-        MINUSMINUS = 306,
-        MINUSASSIGN = 307,
-        LTEQUAL = 308,
-        LT = 309,
-        GTEQUAL = 310,
-        GT = 311,
-        EQUALEQUALEQUAL = 312,
-        EQUALEQUAL = 313,
-        EXCLAMATIONMARKEQUALEQUAL = 314,
-        EXCLAMATIONMARKEQUAL = 315,
-        EXCLAMATIONMARK = 316,
-        NUMBER = 317,
-        IDENT = 318,
-        STRING = 319,
-        FORMAT_STRING_START = 320,
-        FORMAT_STRING_CONTINUE = 321,
-        FORMAT_STRING_FINAL = 322
+        THIS = 278,
+        TRUE = 279,
+        PARAMS = 280,
+        PRIVATE = 281,
+        WHILE = 282,
+        CURLYO = 283,
+        CURLYC = 284,
+        ROUNDO = 285,
+        ROUNDC = 286,
+        SQUAREO = 287,
+        SQUAREC = 288,
+        SEMICOLON = 289,
+        COMMA = 290,
+        DOT = 291,
+        QUESTIONMARK = 292,
+        BE = 293,
+        EQUAL = 294,
+        ANDAND = 295,
+        SLASH = 296,
+        SLASHASSIGN = 297,
+        STAR = 298,
+        STARASSIGN = 299,
+        PERCENT = 300,
+        VLINEVLINE = 301,
+        COLON = 302,
+        PLUS = 303,
+        PLUSPLUS = 304,
+        PLUSASSIGN = 305,
+        MINUS = 306,
+        MINUSMINUS = 307,
+        MINUSASSIGN = 308,
+        LTEQUAL = 309,
+        LT = 310,
+        GTEQUAL = 311,
+        GT = 312,
+        EQUALEQUALEQUAL = 313,
+        EQUALEQUAL = 314,
+        EXCLAMATIONMARKEQUALEQUAL = 315,
+        EXCLAMATIONMARKEQUAL = 316,
+        EXCLAMATIONMARK = 317,
+        NUMBER = 318,
+        IDENT = 319,
+        STRING = 320,
+        FORMAT_STRING_START = 321,
+        FORMAT_STRING_CONTINUE = 322,
+        FORMAT_STRING_FINAL = 323
       };
     };
 
@@ -723,6 +739,10 @@ namespace  sqf { namespace sqc { namespace bison  {
     static inline
     symbol_type
     make_NIL (const location_type& l);
+
+    static inline
+    symbol_type
+    make_THIS (const location_type& l);
 
     static inline
     symbol_type
@@ -979,7 +999,7 @@ namespace  sqf { namespace sqc { namespace bison  {
   static const unsigned char yydefact_[];
 
   // YYPGOTO[NTERM-NUM].
-  static const signed char yypgoto_[];
+  static const short int yypgoto_[];
 
   // YYDEFGOTO[NTERM-NUM].
   static const short int yydefgoto_[];
@@ -1109,12 +1129,12 @@ namespace  sqf { namespace sqc { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 785,     ///< Last index in yytable_.
-      yynnts_ = 36,  ///< Number of nonterminal symbols.
-      yyfinal_ = 96, ///< Termination state number.
+      yylast_ = 1066,     ///< Last index in yytable_.
+      yynnts_ = 41,  ///< Number of nonterminal symbols.
+      yyfinal_ = 106, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 68  ///< Number of tokens.
+      yyntokens_ = 69  ///< Number of tokens.
     };
 
 
@@ -1166,9 +1186,9 @@ namespace  sqf { namespace sqc { namespace bison  {
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
       45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
       55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
-      65,    66,    67
+      65,    66,    67,    68
     };
-    const unsigned int user_token_number_max_ = 322;
+    const unsigned int user_token_number_max_ = 323;
     const token_number_type undef_token_ = 2;
 
     if (static_cast<int>(t) <= yyeof_)
@@ -1201,17 +1221,16 @@ namespace  sqf { namespace sqc { namespace bison  {
   {
       switch (other.type_get ())
     {
-      case 70: // filehead
-      case 71: // statements
-      case 72: // statement
-      case 73: // assignment
-      case 74: // vardecl
-      case 75: // funcdecl
-      case 76: // function
-      case 77: // funchead
-      case 78: // arglist
-      case 79: // argitem
-      case 80: // codeblock
+      case 71: // filehead
+      case 72: // statements
+      case 73: // statement
+      case 74: // assignment
+      case 75: // vardecl
+      case 76: // funcdecl
+      case 77: // function
+      case 78: // funchead
+      case 79: // arglist
+      case 80: // argitem
       case 81: // if
       case 82: // for
       case 83: // while
@@ -1229,46 +1248,52 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 95: // exp08
       case 96: // exp09
       case 97: // arrget
-      case 98: // expp
-      case 99: // value
-      case 100: // array
-      case 101: // explist
-      case 102: // format_string
-      case 103: // format_string_match
+      case 98: // call
+      case 99: // objget
+      case 100: // expp
+      case 101: // obj
+      case 102: // obj_item
+      case 103: // obj_items
+      case 104: // codeblock
+      case 105: // value
+      case 106: // array
+      case 107: // explist
+      case 108: // format_string
+      case 109: // format_string_match
         value.copy< sqf::sqc::bison::astnode > (other.value);
         break;
 
-      case 37: // "be"
-      case 38: // "="
-      case 39: // "&&"
-      case 40: // "/"
-      case 41: // "/="
-      case 42: // "*"
-      case 43: // "*="
-      case 44: // "%"
-      case 45: // "||"
-      case 46: // ":"
-      case 47: // "+"
-      case 48: // "++"
-      case 49: // "+="
-      case 50: // "-"
-      case 51: // "--"
-      case 52: // "-="
-      case 53: // "<="
-      case 54: // "<"
-      case 55: // ">="
-      case 56: // ">"
-      case 57: // "==="
-      case 58: // "=="
-      case 59: // "!=="
-      case 60: // "!="
-      case 61: // "!"
-      case 62: // NUMBER
-      case 63: // IDENT
-      case 64: // STRING
-      case 65: // FORMAT_STRING_START
-      case 66: // FORMAT_STRING_CONTINUE
-      case 67: // FORMAT_STRING_FINAL
+      case 38: // "be"
+      case 39: // "="
+      case 40: // "&&"
+      case 41: // "/"
+      case 42: // "/="
+      case 43: // "*"
+      case 44: // "*="
+      case 45: // "%"
+      case 46: // "||"
+      case 47: // ":"
+      case 48: // "+"
+      case 49: // "++"
+      case 50: // "+="
+      case 51: // "-"
+      case 52: // "--"
+      case 53: // "-="
+      case 54: // "<="
+      case 55: // "<"
+      case 56: // ">="
+      case 57: // ">"
+      case 58: // "==="
+      case 59: // "=="
+      case 60: // "!=="
+      case 61: // "!="
+      case 62: // "!"
+      case 63: // NUMBER
+      case 64: // IDENT
+      case 65: // STRING
+      case 66: // FORMAT_STRING_START
+      case 67: // FORMAT_STRING_CONTINUE
+      case 68: // FORMAT_STRING_FINAL
         value.copy< tokenizer::token > (other.value);
         break;
 
@@ -1289,17 +1314,16 @@ namespace  sqf { namespace sqc { namespace bison  {
     (void) v;
       switch (this->type_get ())
     {
-      case 70: // filehead
-      case 71: // statements
-      case 72: // statement
-      case 73: // assignment
-      case 74: // vardecl
-      case 75: // funcdecl
-      case 76: // function
-      case 77: // funchead
-      case 78: // arglist
-      case 79: // argitem
-      case 80: // codeblock
+      case 71: // filehead
+      case 72: // statements
+      case 73: // statement
+      case 74: // assignment
+      case 75: // vardecl
+      case 76: // funcdecl
+      case 77: // function
+      case 78: // funchead
+      case 79: // arglist
+      case 80: // argitem
       case 81: // if
       case 82: // for
       case 83: // while
@@ -1317,46 +1341,52 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 95: // exp08
       case 96: // exp09
       case 97: // arrget
-      case 98: // expp
-      case 99: // value
-      case 100: // array
-      case 101: // explist
-      case 102: // format_string
-      case 103: // format_string_match
+      case 98: // call
+      case 99: // objget
+      case 100: // expp
+      case 101: // obj
+      case 102: // obj_item
+      case 103: // obj_items
+      case 104: // codeblock
+      case 105: // value
+      case 106: // array
+      case 107: // explist
+      case 108: // format_string
+      case 109: // format_string_match
         value.copy< sqf::sqc::bison::astnode > (v);
         break;
 
-      case 37: // "be"
-      case 38: // "="
-      case 39: // "&&"
-      case 40: // "/"
-      case 41: // "/="
-      case 42: // "*"
-      case 43: // "*="
-      case 44: // "%"
-      case 45: // "||"
-      case 46: // ":"
-      case 47: // "+"
-      case 48: // "++"
-      case 49: // "+="
-      case 50: // "-"
-      case 51: // "--"
-      case 52: // "-="
-      case 53: // "<="
-      case 54: // "<"
-      case 55: // ">="
-      case 56: // ">"
-      case 57: // "==="
-      case 58: // "=="
-      case 59: // "!=="
-      case 60: // "!="
-      case 61: // "!"
-      case 62: // NUMBER
-      case 63: // IDENT
-      case 64: // STRING
-      case 65: // FORMAT_STRING_START
-      case 66: // FORMAT_STRING_CONTINUE
-      case 67: // FORMAT_STRING_FINAL
+      case 38: // "be"
+      case 39: // "="
+      case 40: // "&&"
+      case 41: // "/"
+      case 42: // "/="
+      case 43: // "*"
+      case 44: // "*="
+      case 45: // "%"
+      case 46: // "||"
+      case 47: // ":"
+      case 48: // "+"
+      case 49: // "++"
+      case 50: // "+="
+      case 51: // "-"
+      case 52: // "--"
+      case 53: // "-="
+      case 54: // "<="
+      case 55: // "<"
+      case 56: // ">="
+      case 57: // ">"
+      case 58: // "==="
+      case 59: // "=="
+      case 60: // "!=="
+      case 61: // "!="
+      case 62: // "!"
+      case 63: // NUMBER
+      case 64: // IDENT
+      case 65: // STRING
+      case 66: // FORMAT_STRING_START
+      case 67: // FORMAT_STRING_CONTINUE
+      case 68: // FORMAT_STRING_FINAL
         value.copy< tokenizer::token > (v);
         break;
 
@@ -1415,17 +1445,16 @@ namespace  sqf { namespace sqc { namespace bison  {
     // Type destructor.
     switch (yytype)
     {
-      case 70: // filehead
-      case 71: // statements
-      case 72: // statement
-      case 73: // assignment
-      case 74: // vardecl
-      case 75: // funcdecl
-      case 76: // function
-      case 77: // funchead
-      case 78: // arglist
-      case 79: // argitem
-      case 80: // codeblock
+      case 71: // filehead
+      case 72: // statements
+      case 73: // statement
+      case 74: // assignment
+      case 75: // vardecl
+      case 76: // funcdecl
+      case 77: // function
+      case 78: // funchead
+      case 79: // arglist
+      case 80: // argitem
       case 81: // if
       case 82: // for
       case 83: // while
@@ -1443,46 +1472,52 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 95: // exp08
       case 96: // exp09
       case 97: // arrget
-      case 98: // expp
-      case 99: // value
-      case 100: // array
-      case 101: // explist
-      case 102: // format_string
-      case 103: // format_string_match
+      case 98: // call
+      case 99: // objget
+      case 100: // expp
+      case 101: // obj
+      case 102: // obj_item
+      case 103: // obj_items
+      case 104: // codeblock
+      case 105: // value
+      case 106: // array
+      case 107: // explist
+      case 108: // format_string
+      case 109: // format_string_match
         value.template destroy< sqf::sqc::bison::astnode > ();
         break;
 
-      case 37: // "be"
-      case 38: // "="
-      case 39: // "&&"
-      case 40: // "/"
-      case 41: // "/="
-      case 42: // "*"
-      case 43: // "*="
-      case 44: // "%"
-      case 45: // "||"
-      case 46: // ":"
-      case 47: // "+"
-      case 48: // "++"
-      case 49: // "+="
-      case 50: // "-"
-      case 51: // "--"
-      case 52: // "-="
-      case 53: // "<="
-      case 54: // "<"
-      case 55: // ">="
-      case 56: // ">"
-      case 57: // "==="
-      case 58: // "=="
-      case 59: // "!=="
-      case 60: // "!="
-      case 61: // "!"
-      case 62: // NUMBER
-      case 63: // IDENT
-      case 64: // STRING
-      case 65: // FORMAT_STRING_START
-      case 66: // FORMAT_STRING_CONTINUE
-      case 67: // FORMAT_STRING_FINAL
+      case 38: // "be"
+      case 39: // "="
+      case 40: // "&&"
+      case 41: // "/"
+      case 42: // "/="
+      case 43: // "*"
+      case 44: // "*="
+      case 45: // "%"
+      case 46: // "||"
+      case 47: // ":"
+      case 48: // "+"
+      case 49: // "++"
+      case 50: // "+="
+      case 51: // "-"
+      case 52: // "--"
+      case 53: // "-="
+      case 54: // "<="
+      case 55: // "<"
+      case 56: // ">="
+      case 57: // ">"
+      case 58: // "==="
+      case 59: // "=="
+      case 60: // "!=="
+      case 61: // "!="
+      case 62: // "!"
+      case 63: // NUMBER
+      case 64: // IDENT
+      case 65: // STRING
+      case 66: // FORMAT_STRING_START
+      case 67: // FORMAT_STRING_CONTINUE
+      case 68: // FORMAT_STRING_FINAL
         value.template destroy< tokenizer::token > ();
         break;
 
@@ -1509,17 +1544,16 @@ namespace  sqf { namespace sqc { namespace bison  {
     super_type::move(s);
       switch (this->type_get ())
     {
-      case 70: // filehead
-      case 71: // statements
-      case 72: // statement
-      case 73: // assignment
-      case 74: // vardecl
-      case 75: // funcdecl
-      case 76: // function
-      case 77: // funchead
-      case 78: // arglist
-      case 79: // argitem
-      case 80: // codeblock
+      case 71: // filehead
+      case 72: // statements
+      case 73: // statement
+      case 74: // assignment
+      case 75: // vardecl
+      case 76: // funcdecl
+      case 77: // function
+      case 78: // funchead
+      case 79: // arglist
+      case 80: // argitem
       case 81: // if
       case 82: // for
       case 83: // while
@@ -1537,46 +1571,52 @@ namespace  sqf { namespace sqc { namespace bison  {
       case 95: // exp08
       case 96: // exp09
       case 97: // arrget
-      case 98: // expp
-      case 99: // value
-      case 100: // array
-      case 101: // explist
-      case 102: // format_string
-      case 103: // format_string_match
+      case 98: // call
+      case 99: // objget
+      case 100: // expp
+      case 101: // obj
+      case 102: // obj_item
+      case 103: // obj_items
+      case 104: // codeblock
+      case 105: // value
+      case 106: // array
+      case 107: // explist
+      case 108: // format_string
+      case 109: // format_string_match
         value.move< sqf::sqc::bison::astnode > (s.value);
         break;
 
-      case 37: // "be"
-      case 38: // "="
-      case 39: // "&&"
-      case 40: // "/"
-      case 41: // "/="
-      case 42: // "*"
-      case 43: // "*="
-      case 44: // "%"
-      case 45: // "||"
-      case 46: // ":"
-      case 47: // "+"
-      case 48: // "++"
-      case 49: // "+="
-      case 50: // "-"
-      case 51: // "--"
-      case 52: // "-="
-      case 53: // "<="
-      case 54: // "<"
-      case 55: // ">="
-      case 56: // ">"
-      case 57: // "==="
-      case 58: // "=="
-      case 59: // "!=="
-      case 60: // "!="
-      case 61: // "!"
-      case 62: // NUMBER
-      case 63: // IDENT
-      case 64: // STRING
-      case 65: // FORMAT_STRING_START
-      case 66: // FORMAT_STRING_CONTINUE
-      case 67: // FORMAT_STRING_FINAL
+      case 38: // "be"
+      case 39: // "="
+      case 40: // "&&"
+      case 41: // "/"
+      case 42: // "/="
+      case 43: // "*"
+      case 44: // "*="
+      case 45: // "%"
+      case 46: // "||"
+      case 47: // ":"
+      case 48: // "+"
+      case 49: // "++"
+      case 50: // "+="
+      case 51: // "-"
+      case 52: // "--"
+      case 53: // "-="
+      case 54: // "<="
+      case 55: // "<"
+      case 56: // ">="
+      case 57: // ">"
+      case 58: // "==="
+      case 59: // "=="
+      case 60: // "!=="
+      case 61: // "!="
+      case 62: // "!"
+      case 63: // NUMBER
+      case 64: // IDENT
+      case 65: // STRING
+      case 66: // FORMAT_STRING_START
+      case 67: // FORMAT_STRING_CONTINUE
+      case 68: // FORMAT_STRING_FINAL
         value.move< tokenizer::token > (s.value);
         break;
 
@@ -1641,7 +1681,7 @@ namespace  sqf { namespace sqc { namespace bison  {
      285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
      295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
      305,   306,   307,   308,   309,   310,   311,   312,   313,   314,
-     315,   316,   317,   318,   319,   320,   321,   322
+     315,   316,   317,   318,   319,   320,   321,   322,   323
     };
     return static_cast<token_type> (yytoken_number_[type]);
   }
@@ -1770,6 +1810,12 @@ namespace  sqf { namespace sqc { namespace bison  {
   parser::make_NIL (const location_type& l)
   {
     return symbol_type (token::NIL, l);
+  }
+
+  parser::symbol_type
+  parser::make_THIS (const location_type& l)
+  {
+    return symbol_type (token::THIS, l);
   }
 
   parser::symbol_type
@@ -2045,7 +2091,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 #line 8 "parser.y" // lalr1.cc:377
 } } } //  sqf::sqc::bison 
-#line 2049 "parser.tab.hh" // lalr1.cc:377
+#line 2095 "parser.tab.hh" // lalr1.cc:377
 
 
 

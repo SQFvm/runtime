@@ -2,6 +2,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <functional>
 
 
 
@@ -119,3 +120,13 @@ namespace sqf
         struct t_netobject : public sqf::runtime::type::extend<t_netobject> { t_netobject() : extend() {} static const std::string name() { return "NetObject"; } };
     }
 }
+
+template<>
+struct std::hash<sqf::runtime::type>
+{
+    std::size_t operator()(sqf::runtime::type const& t) const noexcept
+    {
+        std::size_t h1 = std::hash<short>{}(t);
+        return h1;
+    }
+};

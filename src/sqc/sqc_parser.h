@@ -29,7 +29,8 @@ namespace sqf::sqc
             std::string ident;
             std::string replace;
         };
-        constexpr static const char* __scopename_function = "___sqc_func";
+        constexpr static const char* key_scopename_function = "___sqc_func";
+        constexpr static const char* key_self = "___self";
         void to_assembly(::sqf::runtime::runtime& runtime, util::setbuilder& set, std::vector<emplace>& locals, const ::sqf::sqc::bison::astnode& current_node);
     public:
         parser(Logger& logger) : CanLog(logger)

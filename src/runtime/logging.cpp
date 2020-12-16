@@ -2727,6 +2727,23 @@ namespace logmessage::runtime
         output.append(messageB);
         return output;
     }
+    std::string ScopeNameNotFound::formatMessage() const
+    {
+        const auto messageA = "Scopename `"sv;
+        const auto messageB = "` was not found."sv;
+
+        std::string output;
+        output.reserve(
+            messageA.length() +
+            m_scope_name.length() +
+            messageB.length()
+        );
+
+        output.append(messageA);
+        output.append(m_scope_name);
+        output.append(messageB);
+        return output;
+    }
 }
 
 std::string logmessage::fileio::ResolveVirtualRequested::formatMessage() const
