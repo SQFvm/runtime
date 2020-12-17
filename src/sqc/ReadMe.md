@@ -2,6 +2,9 @@ This ReadMe is a Work-In-Progress documentation of the SQC language
 
 # Table of Contents
 - [Table of Contents](#table-of-contents)
+- [Transpiling SQC to SQF](#transpiling-sqc-to-sqf)
+  - [Using SQF-VM executable](#using-sqf-vm-executable)
+  - [Using the SQF-VM language server with vscode](#using-the-sqf-vm-language-server-with-vscode)
 - [Language Reference](#language-reference)
   - [Variable assignment](#variable-assignment)
   - [Calling Mechanisms](#calling-mechanisms)
@@ -32,6 +35,20 @@ This ReadMe is a Work-In-Progress documentation of the SQC language
 - [SQC features mixed](#sqc-features-mixed)
     - [SQC](#sqc)
     - [Transpiled to SQF](#transpiled-to-sqf)
+# Transpiling SQC to SQF
+## Using SQF-VM executable
+1. Download a `sqfvm_sqc` build (usually packed along with the normal sqfvm versions)
+2. Open a command line where your `sqfvm_sqc` binary is located (on windows, you can use `SHIFT + Right Click`)
+3. run `sqfvm_sqc` with `--compile-all PATH` (on windows, eg. `sqfvm_sqc.exe --compile-all C:/arma/addon/tag_pboname`)
+4. Continue with addon packing like usual
+## Using the SQF-VM language server with vscode
+1. Download the [SQF-VM language server](https://marketplace.visualstudio.com/items?itemName=SQF-VM.sqf-vm-language-server) extension
+2. Open your settings using `CTRL + ,`
+3. Search in the new window for `Sqc Support` and tick the box
+4. Restart vscode
+5. Create or open a `.sqc` file
+6. Modify it and save
+7. Continue with addon packing like usual
 # Language Reference
 ## Variable assignment
 A variable in SQC is assigned like this:
