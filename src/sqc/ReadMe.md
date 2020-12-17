@@ -184,10 +184,10 @@ The object syntax is contained of a list of keys (`<name>`) and values of any ty
 |-----------------------|---------------|----------------------|
 |And                    |`ANY && ANY`   |`ANY && ANY`          |
 |Or                     |`ANY \|\| ANY` |`ANY \|\| ANY`        |
-|Greater than           |`ANY > ANY`    |`ANY * ANY`           |
-|Greater than or equal  |`ANY >= ANY`   |`ANY / ANY`           |
-|Less than              |`ANY < ANY`    |`ANY % ANY`           |
-|Less than or equal     |`ANY <= ANY`   |`ANY % ANY`           |
+|Greater than           |`ANY > ANY`    |`ANY > ANY`           |
+|Greater than or equal  |`ANY >= ANY`   |`ANY >= ANY`          |
+|Less than              |`ANY < ANY`    |`ANY < ANY`           |
+|Less than or equal     |`ANY <= ANY`   |`ANY <= ANY`          |
 |equals                 |`ANY == ANY`   |`ANY == ANY`          |
 |equals exact           |`ANY === ANY`  |`ANY isEqualTo ANY`   |
 |not equals             |`ANY != ANY`   |`ANY != ANY`          |
@@ -214,9 +214,10 @@ The object syntax is contained of a list of keys (`<name>`) and values of any ty
     if (BOOL1) { funcA(); } else { funcB(); }                <-> if BOOL1 then { [] call funcA; } else { [] call funcB; }
 
     // Chaining is also possible thanks to the single-statement acceptance
-    if (BOOL1) { funcA(); } else if (BOOL2) { funcB(); }    <-> if BOOL1 then { [] call funcA; } else { if BOOL2 then { [] call funcA; } }
+    if (BOOL1) { funcA(); } else if (BOOL2) { funcB(); }     <-> if BOOL1 then { [] call funcA; } else { if BOOL2 then { [] call funcA; } }
 ### Switch
 **SQC:**
+
     switch (5)
     {
         case 1: diag_log("single instruction, marking the end of case.");
@@ -229,11 +230,12 @@ The object syntax is contained of a list of keys (`<name>`) and values of any ty
         default: diag_log("default 'fallback'");
     }
 **SQF:**
-    switch 5
+
+    switch 5 do
     {
         case 1: { diag_log "single instruction, marking the end of case."; };
 
-        case 2: // fallthrough
+        case 2; // fallthrough
         case 3: {
             diag_log "codeblock with brackets" ;
         };
@@ -243,106 +245,121 @@ The object syntax is contained of a list of keys (`<name>`) and values of any ty
 
 ### For Step
 **SQC:**
+
     for i from 0 to 100 {
         diag_log(i);
     }
-    
+
+
     for i from 0 to 100
         diag_log(i);
-        
+
+
     for i from 0 to 100 step 2 {
         diag_log(i);
     }
 **SQF:**
+
     for "_i" from 0 to 100 do {
         diag_log(i);
     }
-    
+
+
     for "_i" from 0 to 100 do {
         diag_log(i);
     }
-        
+
+
     for "_i" from 0 to 100 step 2 do {
         diag_log(i);
     }
 
 ### For Each
 **SQC:**
+
     for (it : ARRAY) {
         diag_log(it);
     }
-    
+
+
     for (it : ARRAY)
         diag_log(it);
 **SQF:**
+
     {
         diag_log(_x);
     } foreach ARRAY;
-    
+
+
     {
         diag_log(_x);
     } foreach ARRAY;
 
 ### While
 **SQC:**
+
     while (BOOL) {
         diag_log(position(player));
     }
-    
+
+
     while (BOOL)
         diag_log(position(player));
 **SQF:**
-    while { BOOL } do {
-        diag_log position player;
-    }
-    
+
     while { BOOL } do {
         diag_log position player;
     }
 
+
+    while { BOOL } do {
+        diag_log position player;
+    }
 ### Do While
 **SQC:**
+
     do {
         diag_log(position(player));
     } while (BOOL);
-    
+
+
     do diag_log(position(player)); while (BOOL);
 **SQF:**
-    diag_log position player;
-    while { BOOL } do {
-        diag_log position player;
-    }
-    
+
     diag_log position player;
     while { BOOL } do {
         diag_log position player;
     }
 
+
+    diag_log position player;
+    while { BOOL } do { diag_log position player; }
+
 ### Try Catch
 **SQC**
+
     try {
         throw VALUE;
     }
     catch (exception) {
         diag_log(exception);
     }
-    
+
+
     try throw VALUE;
     catch (exception) diag_log(exception);
-**SQC**
+**SQF**
+
     try {
         throw VALUE;
     }
     catch {
-        diag_log(_exception);
+        diag_log _exception;
     }
-    
-    try {
-        throw VALUE;
-    }
-    catch {
-        diag_log(_exception);
-    }
+
+
+    try { throw VALUE; }
+    catch { diag_log _exception; }
 
 # Examples
 # SQC features mixed
