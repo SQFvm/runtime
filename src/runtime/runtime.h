@@ -216,7 +216,7 @@ namespace sqf::runtime
         bool sqfop_exists_nular(std::string key) const
         {
             std::transform(key.begin(), key.end(), key.begin(), [](char& c) { return (char)std::tolower((int)c); });
-            return sqfop_exists(sqf::runtime::sqfop_nular::key{ key }) != m_operators_nular.end();
+            return sqfop_exists(sqf::runtime::sqfop_nular::key{ key });
         }
         void register_sqfop(sqf::runtime::sqfop_nular op)
         {
