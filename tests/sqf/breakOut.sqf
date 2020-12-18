@@ -5,18 +5,19 @@
             {
                 private _arr = [];
                 [] call {
-                    _arr push_back 1;
+                    _arr pushBack 1;
                     [] call {
-                        _arr push_back 2;
+                        _arr pushBack 2;
                         [] call {
-                          _arr push_back 3;
+                          _arr pushBack 3;
                           breakOut "someunknowngiberishstuffyscope";
-                          _arr push_back 3;
+                          _arr pushBack 3;
                         };
-                      _arr push_back 2;
+                      _arr pushBack 2;
                     };
-                    _arr push_back 1;
+                    _arr pushBack 1;
                 };
+                _arr
             }
         ],
         [1, 2, 3]
@@ -27,18 +28,19 @@
             {
                 private _arr = [];
                 [] call {
-                    _arr push_back 1;
+                    _arr pushBack 1;
                     [] call {
-                        _arr push_back 2;
+                        _arr pushBack 2;
                         [] call {
-                          _arr push_back 3;
+                          _arr pushBack 3;
                           breakOut "";
-                          _arr push_back 3;
+                          _arr pushBack 3;
                         };
-                      _arr push_back 2;
+                      _arr pushBack 2;
                     };
-                    _arr push_back 1;
+                    _arr pushBack 1;
                 };
+                _arr
             }
         ],
         [1, 2, 3, 2, 1]
@@ -49,19 +51,20 @@
             {
                 private _arr = [];
                 [] call {
-                    _arr push_back 1;
+                    _arr pushBack 1;
                     [] call {
-                        _arr push_back 2;
-                        scopeName "test-scope"
+                        _arr pushBack 2;
+                        scopeName "test-scope";
                         [] call {
-                          _arr push_back 3;
+                          _arr pushBack 3;
                           breakOut "test-scope";
-                          _arr push_back 3;
+                          _arr pushBack 3;
                         };
-                      _arr push_back 2;
+                      _arr pushBack 2;
                     };
-                    _arr push_back 1;
+                    _arr pushBack 1;
                 };
+                _arr
             }
         ],
         [1, 2, 3, 1]
@@ -72,24 +75,25 @@
             {
                 private _arr = [];
                 [] call {
-                    _arr push_back 1;
+                    _arr pushBack 1;
                     _arr pushBack ([] call {
-                        _arr push_back 2;
-                        scopeName "test-scope"
+                        _arr pushBack 2;
+                        scopeName "test-scope";
                         [] call {
-                          _arr push_back 3;
+                          _arr pushBack 3;
                           true breakOut "test-scope";
-                          _arr push_back 3;
+                          _arr pushBack 3;
                           false
                         };
-                      _arr push_back 2;
+                      _arr pushBack 2;
                       false
                     });
-                    _arr push_back 1;
+                    _arr pushBack 1;
                     false
                 };
+                _arr
             }
         ],
         [1, 2, 3, true, 1]
-    ],
+    ]
 ]

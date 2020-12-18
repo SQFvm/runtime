@@ -2046,19 +2046,27 @@ namespace
         auto target_scope = right.data<d_string>()->value();
         auto& context = runtime.context_active();
         size_t pop_frame_count = 0;
-        for (auto it = context.frames_rbegin(); it != context.frames_rend(); ++it, ++pop_frame_count)
-        {
-            if (it->scope_name() == target_scope)
-            {
-                for (; pop_frame_count != 0; --pop_frame_count)
-                {
-                    context.pop_frame();
-                }
-                return left;
-            }
+        if (target_scope.empty())
+        { // Empty just pops
+            context.pop_frame();
+            return left;
         }
-        runtime.__logmsg(err::ScopeNameNotFound(runtime.context_active().current_frame().diag_info_from_position(), target_scope));
-        return {};
+        else
+        {
+            for (auto it = context.frames_rbegin(); it != context.frames_rend(); ++it, ++pop_frame_count)
+            {
+                if (it->scope_name() == target_scope)
+                {
+                    for (pop_frame_count++; pop_frame_count != 0; --pop_frame_count)
+                    {
+                        context.pop_frame();
+                    }
+                    return left;
+                }
+            }
+            runtime.__logmsg(err::ScopeNameNotFound(runtime.context_active().current_frame().diag_info_from_position(), target_scope));
+            return {};
+        }
     }
     value breakout_string(runtime& runtime, value::cref right)
     {
