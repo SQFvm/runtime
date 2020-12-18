@@ -427,7 +427,19 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // Add variable to locals
         std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
-        locals.push_back({ var ,lvar });
+        locals.push_back({ var, lvar });
+        if (runtime.sqfop_exists_nular(var))
+        {
+            log(logmessage::runtime::ErrorMessage({}, "SQC", "Hiding nular operator."));
+        }
+        else if (runtime.sqfop_exists_unary(var))
+        {
+            log(logmessage::runtime::ErrorMessage({}, "SQC", "Hiding unary operator."));
+        }
+        else if (runtime.sqfop_exists_binary(var))
+        {
+            log(logmessage::runtime::ErrorMessage({}, "SQC", "Hiding binary operator."));
+        }
     } break;
     case ::sqf::sqc::bison::astkind::FORWARD_DECLARATION: {
         // Push assigned value

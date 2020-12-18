@@ -182,7 +182,11 @@ namespace sqf::runtime
         bool sqfop_exists(const sqf::runtime::sqfop_binary::key key) const { return m_operators_binary.find(key) != m_operators_binary.end(); }
         sqf::runtime::sqfop_binary::cref sqfop_at(const sqf::runtime::sqfop_binary::key key) const { return m_operators_binary.at(key); }
         const std::vector<sqf::runtime::sqfop_binary::cwref>& sqfop_binary_by_name(const std::string key) const { return m_operators_by_name_binary.at(key); }
-        bool sqfop_exists_binary(const std::string key) const { return m_operators_by_name_binary.find(key) != m_operators_by_name_binary.end(); }
+        bool sqfop_exists_binary(std::string key) const
+        {
+            std::transform(key.begin(), key.end(), key.begin(), [](char& c) { return (char)std::tolower((int)c); });
+            return m_operators_by_name_binary.find(key) != m_operators_by_name_binary.end();
+        }
         void register_sqfop(sqf::runtime::sqfop_binary op)
         {
             m_operators_binary.insert({ op.get_key(), op });
@@ -194,7 +198,11 @@ namespace sqf::runtime
         bool sqfop_exists(const sqf::runtime::sqfop_unary::key key) const { return m_operators_unary.find(key) != m_operators_unary.end(); }
         sqf::runtime::sqfop_unary::cref sqfop_at(const sqf::runtime::sqfop_unary::key key) const { return m_operators_unary.at(key); }
         const std::vector<sqf::runtime::sqfop_unary::cwref>& sqfop_unary_by_name(const std::string key) const { return m_operators_by_name_unary.at(key); }
-        bool sqfop_exists_unary(const std::string key) const { return m_operators_by_name_unary.find(key) != m_operators_by_name_unary.end(); }
+        bool sqfop_exists_unary(std::string key) const
+        {
+            std::transform(key.begin(), key.end(), key.begin(), [](char& c) { return (char)std::tolower((int)c); }); 
+            return m_operators_by_name_unary.find(key) != m_operators_by_name_unary.end();
+        }
         void register_sqfop(sqf::runtime::sqfop_unary op)
         {
             m_operators_unary.insert({ op.get_key(), op });
@@ -205,6 +213,11 @@ namespace sqf::runtime
         sqfop_nular_iterator sqfop_nular_end() const { return m_operators_nular.end(); }
         bool sqfop_exists(const sqf::runtime::sqfop_nular::key key) const { return m_operators_nular.find(key) != m_operators_nular.end(); }
         sqf::runtime::sqfop_nular::cref sqfop_at(const sqf::runtime::sqfop_nular::key key) const { return m_operators_nular.at(key); }
+        bool sqfop_exists_nular(std::string key) const
+        {
+            std::transform(key.begin(), key.end(), key.begin(), [](char& c) { return (char)std::tolower((int)c); });
+            return sqfop_exists(sqf::runtime::sqfop_nular::key{ key }) != m_operators_nular.end();
+        }
         void register_sqfop(sqf::runtime::sqfop_nular op)
         {
             m_operators_nular.insert({ op.get_key(), op });

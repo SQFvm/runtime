@@ -1760,11 +1760,24 @@ namespace logmessage {
         };
         class ScopeNameNotFound : public RuntimeBase {
             static const loglevel level = loglevel::error;
-            static const size_t errorCode = 60037;
+            static const size_t errorCode = 60096;
             std::string m_scope_name;
         public:
             ScopeNameNotFound(LogLocationInfo loc, std::string scope_name) :
                 RuntimeBase(level, errorCode, std::move(loc)), m_scope_name(scope_name)
+            {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+        class WarningMessage : public RuntimeBase {
+            static const loglevel level = loglevel::warning;
+            static const size_t errorCode = 60097;
+            std::string m_source;
+            std::string m_message;
+        public:
+            WarningMessage(LogLocationInfo loc, std::string source, std::string message) :
+                RuntimeBase(level, errorCode, std::move(loc)),
+                m_source(source),
+                m_message(message)
             {}
             [[nodiscard]] std::string formatMessage() const override;
         };

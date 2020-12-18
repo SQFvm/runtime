@@ -2744,6 +2744,24 @@ namespace logmessage::runtime
         output.append(messageB);
         return output;
     }
+    std::string WarningMessage::formatMessage() const
+    {
+        auto output = m_location.format();
+
+        output.reserve(
+            output.length()
+            + "["sv.length()
+            + m_source.length()
+            + "] "sv.length()
+            + m_message.length()
+        );
+
+        output.append("["sv);
+        output.append(m_source);
+        output.append("] "sv);
+        output.append(m_message);
+        return output;
+    }
 }
 
 std::string logmessage::fileio::ResolveVirtualRequested::formatMessage() const
