@@ -17,7 +17,7 @@
     ["assertEqual",      { sin 30 }, 0.5],
     ["assertEqual",      { asin 0.5 }, 30],
     ["assertEqual",      { str cos 60 }, str 0.5],
-    ["assertEqual",      { acos 0.5 },  60],
+    ["assertEqual",      { str acos 0.5 },  str 60],
     ["assertEqual",      { exp 2 }, 7.3890562057495117],
     ["assertEqual",      { sqrt 220 }, 14.8323965072631836],
     ["assertEqual",      { tan 45 }, 1],
