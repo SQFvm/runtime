@@ -1477,18 +1477,21 @@ namespace
             runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 0, t_string(), rvec->at(0).type()));
             return {};
         }
-        if (!rvec->at(1).is<t_array>())
+        std::shared_ptr<d_array> arr;
+        if (rvec->at(1).is<t_array>())
         {
-            runtime.__logmsg(err::ExpectedArrayTypeMissmatch(runtime.context_active().current_frame().diag_info_from_position(), 1, t_string(), rvec->at(1).type()));
-            return {};
+            arr = rvec->at(1).data<d_array>();
+            if (arr->size() > RVARGSLIMIT)
+            {
+                runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak(runtime.context_active().current_frame().diag_info_from_position(), 0, RVARGSLIMIT, arr->size()));
+                runtime.__logmsg(err::ReturningErrorCode(runtime.context_active().current_frame().diag_info_from_position(), "SYNTAX_ERROR_WRONG_PARAMS_SIZE(101)"s));
+                return std::vector<value> { "", 0, 101 };
+            }
         }
-
-        auto arr = rvec->at(1).data<d_array>();
-        if (arr->size() > RVARGSLIMIT)
+        else
         {
-            runtime.__logmsg(err::ExpectedArraySizeMissmatchWeak(runtime.context_active().current_frame().diag_info_from_position(), 0, RVARGSLIMIT, arr->size()));
-            runtime.__logmsg(err::ReturningErrorCode(runtime.context_active().current_frame().diag_info_from_position(), "SYNTAX_ERROR_WRONG_PARAMS_SIZE(101)"s));
-            return std::vector<value> { "", 0, 101 };
+            arr = std::make_shared<d_array>();
+            arr->push_back(rvec->at(1));
         }
         std::vector<std::string> argstringvec;
 
