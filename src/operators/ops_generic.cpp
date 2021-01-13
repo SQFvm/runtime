@@ -1950,6 +1950,14 @@ namespace
         }
         return {};
     }
+    value throw_if_any(runtime& runtime, value::cref left, value::cref right)
+    {
+        if (left.data<d_boolean, bool>())
+        {
+            return throw_any(runtime, right);
+        }
+        return {};
+    }
     value try_code(runtime& runtime, value::cref right)
     {
         return std::make_shared<d_exception>(right.data<d_code, sqf::runtime::instruction_set>());
@@ -2165,6 +2173,7 @@ void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(binary(4, "in", t_any(), t_array(), "Checks whether value is in array. String values will be compared casesensitive.", in_any_array));
     runtime.register_sqfop(binary(4, "in", t_string(), t_string(), "Checks whether string is in string. Values will be compared casesensitive.", in_string_string));
     runtime.register_sqfop(unary("throw", t_any(), "Throws an exception. The exception is processed by first catch block. This command will terminate further execution of the code.", throw_any));
+    runtime.register_sqfop(binary(4, "throw", t_if(), t_any(), "Throws an exception. The exception is processed by first catch block. This command will terminate further execution of the code.", throw_if_any));
     runtime.register_sqfop(unary("try", t_code(), "Defines a try-catch structure. This sets up an exception handling block.", try_code));
     runtime.register_sqfop(binary(4, "catch", t_exception(), t_code(), "Processes code when an exception is thrown in a try block. The exception caught can be found in the _exception variable.", catch_exception_code));
 }
