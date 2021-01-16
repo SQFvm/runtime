@@ -29,6 +29,7 @@
     ["assertEqual",      { ceil 133.7 }, 134],
     ["assertEqual",      { ln 220 }, 5.3936276435852051],
     ["assertEqual",      { 1337 mod 220 }, 17],
+    ["assertEqual",      { 1337 % 220 }, 17],
     ["assertEqual",      { round 133.7 }, 134],
     ["assertEqual",      { [1,2,3] vectorDotProduct [3,2,1] }, 10],
     ["assertEqual",      { vectorMagnitude [1,2,3] }, 3.7416574954986572],

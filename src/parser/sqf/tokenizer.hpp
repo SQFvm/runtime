@@ -478,6 +478,7 @@ namespace sqf::parser::sqf
             case ']':           return try_match({ etoken::s_edgec });
             case '{':           return try_match({ etoken::s_curlyo });
             case '}':           return try_match({ etoken::s_curlyc });
+            case '%':           return try_match({ etoken::t_operator });
             case '&':           return try_match({ etoken::t_operator });
             case '$':           return try_match({ etoken::t_hexadecimal });
             case '!':           return try_match({ etoken::t_operator });
