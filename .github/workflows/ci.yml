@@ -24,6 +24,9 @@ jobs:
           name: sqfvm_linux_x64
           path: build/sqfvm*
 
+      - name: Run CBA A3 Tests
+        run: PATH=build:$PATH python tests/cba_a3.py
+
   macos:
     name: macOS
     runs-on: macos-10.15
@@ -41,6 +44,9 @@ jobs:
         with:
           name: sqfvm_macos
           path: build/sqfvm*
+
+      - name: Run CBA A3 Tests
+        run: PATH=build:$PATH python tests/cba_a3.py
 
   windows_win32:
     name: Windows Win32
@@ -60,6 +66,11 @@ jobs:
           name: sqfvm_windows_win32
           path: build/Release/*.exe
 
+      - name: Run CBA A3 Tests
+        run: |
+          $env:Path += ";build/Release/"
+          python tests/cba_a3.py
+
   windows_x64:
     name: Windows x64
     runs-on: windows-2019
@@ -77,3 +88,8 @@ jobs:
         with:
           name: sqfvm_windows_x64
           path: build/Release/*.exe
+
+      - name: Run CBA A3 Tests
+        run: |
+          $env:Path += ";build/Release/"
+          python tests/cba_a3.py
