@@ -1138,6 +1138,11 @@ namespace
         lock->push_frame(f);
         return scriptdata;
     }
+    value scriptnull_(runtime& runtime)
+    {
+        auto scriptdata = std::make_shared<d_script>();
+        return scriptdata;
+    }
     value scriptdone_script(runtime& runtime, value::cref right)
     {
         auto r = right.data<d_script>();
@@ -2144,6 +2149,7 @@ void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(binary(4, ":", t_switch(), t_code(), "Checks if switch type has the case flag being set and executes provided code then. If another switch got executed already, nothing will be done.", colon_switch_code));
     runtime.register_sqfop(unary("default", t_code(), "Sets the code to be executed by default if no case matched.", default_code));
     runtime.register_sqfop(binary(4, "apply", t_array(), t_code(), "Applies given code to each element of the array and returns resulting array. The value of the current array element, to which the code will be applied, is stored in variable _x.", apply_array_code));
+    runtime.register_sqfop(nular("scriptNull", "A non-existing Script or script that has finished.", scriptnull_));
     runtime.register_sqfop(binary(4, "spawn", t_any(), t_code(), "Adds given code to the scheduler. For SQF-runtime, every script is guaranteed to get the same ammount of instructions done before being suspended.", spawn_any_code));
     runtime.register_sqfop(unary("scriptDone", t_script(), "Check if a script is finished running using the Script_(Handle).", scriptdone_script));
     runtime.register_sqfop(unary("terminate", t_script(), "Terminates (aborts) spawned or execVMed script. "
