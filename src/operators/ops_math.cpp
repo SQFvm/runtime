@@ -384,6 +384,7 @@ void sqf::operators::ops_math(sqf::runtime::runtime& runtime)
 	runtime.register_sqfop(unary("+", t_scalar(), "Returns a copy of a.", plus_scalar));
 	runtime.register_sqfop(unary("+", t_nan(), "Returns a copy of a.", plus_scalar));
 	runtime.register_sqfop(unary("!", t_boolean(), "Returns a negation of Boolean expression. That means true becomes false and vice versa.", exclamationmark_bool));
+	runtime.register_sqfop(unary("not", t_boolean(), "Returns a negation of Boolean expression. That means true becomes false and vice versa.", exclamationmark_bool));
 	runtime.register_sqfop(binary(6, "min", t_scalar(), t_scalar(), "The smaller of a, b", min_scalar_scalar));
 	runtime.register_sqfop(binary(6, "max", t_scalar(), t_scalar(), "The greater of a, b.", max_scalar_scalar));
 	runtime.register_sqfop(unary("floor", t_scalar(), "Returns the next lowest integer in relation to x.", floor_scalar));
