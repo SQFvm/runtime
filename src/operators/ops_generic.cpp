@@ -1761,7 +1761,7 @@ namespace
                             types.push_back(it.type());
                         }
                         runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak(runtime.context_active().current_frame().diag_info_from_position(), i, types, current_input_value.type()));
-                        return params_descriptors.at(1);
+                        current_input_value = params_descriptors.at(1);
                     }
                 }
                 if (params_descriptors.size() >= 4 && current_input_value.is<t_array>())
@@ -1788,7 +1788,7 @@ namespace
                             types.push_back(it.type());
                         }
                         runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak(runtime.context_active().current_frame().diag_info_from_position(), i, types, current_input_value.type()));
-                        return params_descriptors.at(1);
+                        current_input_value = params_descriptors.at(1);
                     }
                 }
                 runtime.context_active().current_frame()[params_descriptors.at(0).data<d_string, std::string>()] = current_input_value;
