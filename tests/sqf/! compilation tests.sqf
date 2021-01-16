@@ -3,6 +3,8 @@
     ["assertExcept", { compile "." }],
     ["assert",       { compile "1" }],
     ["assert",       { compile ";" }],
+    ["assert",       { compile "1E7" }],
+    ["assert",       { compile "1e7" }],
     ["assert",       { compile "0x1" }],
     ["assert",       { compile "$1" }],
     ["assertExcept", { compile "[1,2,3" }],

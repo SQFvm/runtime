@@ -378,6 +378,14 @@ namespace sqf::parser::sqf
                         if (res == 0) { --iter; }
                         else { iter += res; }
                     }
+                    if (is_match<'e', 'E'>(iter))
+                    {
+                        ++iter;
+                        // match second part of number
+                        auto res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(iter);
+                        if (res == 0) { --iter; }
+                        else { iter += res; }
+                    }
                     len = iter - m_current;
                 } break;
                 }
