@@ -208,6 +208,8 @@
 /*** BEGIN - Change the grammar rules below ***/
 start: END_OF_FILE                          { result = ::sqf::parser::sqf::bison::astnode{}; }
      | statements                           { result = ::sqf::parser::sqf::bison::astnode{}; result.append($1); }
+     | separators                           { result = ::sqf::parser::sqf::bison::astnode{}; }
+     | separators statements                { result = ::sqf::parser::sqf::bison::astnode{}; result.append($2); }
      ;
 statements: statement                       { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::STATEMENTS }; $$.append($1); }
           | statements separators           { $$ = $1; }
