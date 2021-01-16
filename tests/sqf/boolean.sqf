@@ -14,5 +14,7 @@
     ["assertTrue",      { false || { true } }],                                          // BOOL || CODE
     ["assertTrue",      { !false }],                                                     // BOOL || CODE
     ["assertFalse",     { !true  }],                                                     // BOOL || CODE
+    ["assertTrue",      { not false }],                                                  // BOOL || CODE
+    ["assertFalse",     { not true }],                                                   // BOOL || CODE
     ["assertFalse",     { false isEqualTo true }]                                        // BOOL isEqualTo BOOL
 ]
