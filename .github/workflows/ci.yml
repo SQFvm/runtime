@@ -16,7 +16,7 @@ jobs:
           CXX: g++-8
 
       - name: Run SQF-VM Tests
-        run: build/sqfvm -a -i tests/runTests.sqf
+        run: build/sqfvm -a -i tests/config.cpp -i tests/runTests.sqf
 
       - name: Upload Linux x64 binaries
         uses: actions/upload-artifact@v2
@@ -34,7 +34,7 @@ jobs:
         run: mkdir build && cd build && cmake .. && make
 
       - name: Run SQF-VM Tests
-        run: build/sqfvm -a -i tests/runTests.sqf
+        run: build/sqfvm -a -i tests/config.cpp -i tests/runTests.sqf
         
       - name: Upload macOS binaries
         uses: actions/upload-artifact@v2
@@ -52,7 +52,7 @@ jobs:
         run: mkdir build && cd build && cmake -G "Visual Studio 16 2019" -A Win32 .. && cmake --build . --config Release
 
       - name: Run SQF-VM Tests
-        run: build/Release/sqfvm.exe -a -i tests/runTests.sqf
+        run: build/Release/sqfvm.exe -a -i tests/config.cpp -i tests/runTests.sqf
 
       - name: Upload Windows Win32 binaries
         uses: actions/upload-artifact@v2
@@ -70,7 +70,7 @@ jobs:
         run: mkdir build && cd build && cmake -G "Visual Studio 16 2019" -A x64 .. && cmake --build . --config Release
 
       - name: Run SQF-VM Tests
-        run: build/Release/sqfvm.exe -a -i tests/runTests.sqf
+        run: build/Release/sqfvm.exe -a -i tests/config.cpp -i tests/runTests.sqf
 
       - name: Upload Windows x64 binaries
         uses: actions/upload-artifact@v2
