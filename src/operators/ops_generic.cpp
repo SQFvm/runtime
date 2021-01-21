@@ -1131,6 +1131,8 @@ namespace
     {
         auto context_weak = runtime.context_create();
         auto lock = context_weak.lock();
+        lock->can_suspend(true);
+        lock->weak_error_handling(true);
         auto scriptdata = std::make_shared<d_script>(context_weak);
         frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>());
         f["_thisScript"] = scriptdata;
@@ -1836,7 +1838,9 @@ namespace
             runtime.__logmsg(err::SuspensionInUnscheduledEnvironment(runtime.context_active().current_frame().diag_info_from_position()));
             return {};
         }
-        auto duration = std::chrono::duration<float>();
+
+        float f = right.data<d_scalar, float>();
+        auto duration = std::chrono::duration<float>(f);
         auto durationCasted = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
 
         runtime.context_active().suspend(durationCasted);
