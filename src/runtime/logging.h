@@ -1781,6 +1781,17 @@ namespace logmessage {
             {}
             [[nodiscard]] std::string formatMessage() const override;
         };
+        class InvalidAssemblyInstruction : public RuntimeBase {
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 60098;
+            std::string m_assembly;
+        public:
+            InvalidAssemblyInstruction(LogLocationInfo loc, std::string assembly) :
+                RuntimeBase(level, errorCode, std::move(loc)),
+                m_assembly(assembly)
+            {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
     }
     namespace fileio
     {
