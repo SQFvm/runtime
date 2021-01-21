@@ -139,10 +139,6 @@ std::streamsize PboEntryBuffer::xsgetn(char* _Ptr, std::streamsize _Count) {
 }
 
 std::basic_streambuf<char>::pos_type PboEntryBuffer::seekoff(off_type offs, std::ios_base::seekdir dir, std::ios_base::openmode mode) {
-    auto test = egptr();
-    auto test2 = gptr();
-
-
     switch (dir) {
         case std::ios_base::beg: {
             //#TODO negative offs is error
