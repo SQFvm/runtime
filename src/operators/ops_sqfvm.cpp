@@ -61,7 +61,7 @@ namespace
             std::string name = full;
             std::string arg;
             // Find either Space or end-of-string
-            auto nameEndIndex = full.find(' ');
+            std::string::size_type nameEndIndex = full.find(' ');
             if (nameEndIndex + 1 > full.length())
             {
                 runtime.__logmsg(err::InvalidAssemblyInstruction(
@@ -70,7 +70,7 @@ namespace
                 return {};
             }
             
-            if (nameEndIndex != -1)
+            if (nameEndIndex != std::string::npos)
             {
                 name = full.substr(0, nameEndIndex);
                 arg = full.substr(nameEndIndex + 1);

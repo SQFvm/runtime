@@ -186,20 +186,20 @@ namespace
 			return std::make_shared<d_array>();
 		}
 
-		auto l_rows = l->size();
-		auto l_cols = l->at(0).data<d_array>()->size();
-		auto r_rows = r->size();
-		auto r_cols = r->at(0).data<d_array>()->size();
+		size_t l_rows = l->size();
+		size_t l_cols = l->at(0).data<d_array>()->size();
+		size_t r_rows = r->size();
+		size_t r_cols = r->at(0).data<d_array>()->size();
 
 		// Check that array is n x k
-		for (int i = 1; i < l_rows; i++) {
+		for (size_t i = 1; i < l_rows; i++) {
 			if (l->at(i).data<d_array>()->size() != l_cols) {
 				return std::make_shared<d_array>();
 			}
 		}
 
 		// Check that array is k x m
-		for (int i = 1; i < r_rows; i++) {
+		for (size_t i = 1; i < r_rows; i++) {
 			if (r->at(i).data<d_array>()->size() != r_cols) {
 				return std::make_shared<d_array>();
 			}
@@ -212,11 +212,11 @@ namespace
 
 		auto multiplied = std::make_shared<d_array>();
 
-		for (int i = 0; i < l_rows; i++) {
+		for (size_t i = 0; i < l_rows; i++) {
 			auto row = std::make_shared<d_array>();
-			for (int j = 0; j < r_cols; j++) {
+			for (size_t j = 0; j < r_cols; j++) {
 				float col = 0;
-				for (int k = 0; k < r_rows; k++) {
+				for (size_t k = 0; k < r_rows; k++) {
 					auto l_value = l->at(i).data<d_array>()->at(k).data<d_scalar, float>();
 					auto r_value = r->at(k).data<d_array>()->at(j).data<d_scalar, float>();
 					col = col + l_value * r_value;
@@ -241,7 +241,7 @@ namespace
 		auto col_size = l->at(0).data<d_array>()->size();
 
 		// Check that array is n x k
-		for (int i = 1; i < row_size; i++) {
+		for (size_t i = 1; i < row_size; i++) {
 			if (l->at(i).data<d_array>()->size() != col_size) {
 				return std::make_shared<d_array>();
 			}
@@ -249,9 +249,9 @@ namespace
 
 		auto transposed = std::make_shared<d_array>();
 
-		for (int i = 0; i < col_size; i++) {
+		for (size_t i = 0; i < col_size; i++) {
 			auto row = std::make_shared<d_array>();
-			for (int j = 0; j < row_size; j++) {
+			for (size_t j = 0; j < row_size; j++) {
 				row->push_back(l->at(j).data<d_array>()->at(i).data<d_scalar, float>());
 			}
 			transposed->push_back(row);

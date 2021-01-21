@@ -113,7 +113,7 @@ namespace sqf::sqc::util
         std::vector<region_impl> m_regions;
         std::vector<::sqf::sqc::bison::astkind> m_parents;
         std::string_view m_contents;
-        setbuilder(std::string_view contents, std::vector<::sqf::sqc::bison::astkind> m_parents) : m_contents(contents), m_parents(m_parents) {}
+        setbuilder(std::string_view contents, std::vector<::sqf::sqc::bison::astkind> m_parents) : m_parents(m_parents), m_contents(contents) {}
     public:
         setbuilder(std::string_view contents) : m_contents(contents) {}
 
@@ -256,6 +256,8 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             // Emit "/"
             set.push_back(node.token, std::make_shared<opcodes::call_binary>("/"s, (short)7));
             break;
+        default:
+            break;
         }
 
         // Assign Value
@@ -322,6 +324,8 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_SLASH:
                 // Emit "/"
                 set.push_back(node.token, std::make_shared<opcodes::call_binary>("/"s, (short)7));
+                break;
+            default:
                 break;
             }
 
@@ -396,6 +400,8 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             case ::sqf::sqc::bison::astkind::OP_ACCESS_SET_SLASH:
                 // Emit "/"
                 set.push_back(node.token, std::make_shared<opcodes::call_binary>("/"s, (short)7));
+                break;
+            default:
                 break;
             }
 
@@ -654,6 +660,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                     // Make array 
                     set.push_back(node.token, std::make_shared<opcodes::make_array>(3));
                 } break;
+                default: break;
                 }
             }
         }
@@ -1345,6 +1352,8 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
                 case tokenizer::etoken::t_formatted_string_final:
                     sstream << util::strip_formatted(child.token.contents);
+                    break;
+                default:
                     break;
                 }
             }
