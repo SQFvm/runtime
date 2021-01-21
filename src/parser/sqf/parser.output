@@ -13,7 +13,7 @@ Zustand 36 Konflikte: 30 Schiebe/Reduziere
 Zustand 37 Konflikte: 30 Schiebe/Reduziere
 Zustand 38 Konflikte: 30 Schiebe/Reduziere
 Zustand 39 Konflikte: 30 Schiebe/Reduziere
-Zustand 103 Konflikte: 2 Schiebe/Reduziere
+Zustand 102 Konflikte: 2 Schiebe/Reduziere
 
 
 Grammatik
@@ -80,7 +80,7 @@ Grammatik
    50      | "[" "]"
 
    51 assignment: "private" IDENT "=" expression
-   52           | IDENT "=" expression
+   52           | value "=" expression
 
    53 expression: exp0
 
@@ -231,7 +231,7 @@ OPERATOR_BUN_9 (310) 35 103 126
 OPERATOR_U (311) 105
 OPERATOR_N (312) 15
 OPERATOR_UN (313) 106
-IDENT (314) 36 51 52
+IDENT (314) 36 51
 NUMBER (315) 37
 HEXNUMBER (316) 38
 STRING (317) 14
@@ -256,7 +256,7 @@ separators (68)
 value (69)
     auf der linken Seite: 14 15 16 17 18 19 20 21 22 23 24 25 26 27
     28 29 30 31 32 33 34 35 36 37 38 39 40 41 42, auf der rechten Seite:
-    128
+    52 128
 exp_list (70)
     auf der linken Seite: 43 44, auf der rechten Seite: 44 49
 code (71)
@@ -449,10 +449,10 @@ Zustand 4
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
-    expu   gehe zu Zustand 70 über
+    expu   gehe zu Zustand 71 über
 
 
 Zustand 5
@@ -466,7 +466,7 @@ Zustand 5
     "true"          schiebe und gehe zu Zustand 3 über
     "private"       schiebe und gehe zu Zustand 4 über
     "{"             schiebe und gehe zu Zustand 5 über
-    "}"             schiebe und gehe zu Zustand 71 über
+    "}"             schiebe und gehe zu Zustand 72 über
     "("             schiebe und gehe zu Zustand 6 über
     "["             schiebe und gehe zu Zustand 7 über
     ";"             schiebe und gehe zu Zustand 8 über
@@ -509,10 +509,10 @@ Zustand 5
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    statements  gehe zu Zustand 72 über
+    statements  gehe zu Zustand 73 über
     statement   gehe zu Zustand 49 über
     separator   gehe zu Zustand 50 über
-    separators  gehe zu Zustand 73 über
+    separators  gehe zu Zustand 74 über
     value       gehe zu Zustand 52 über
     code        gehe zu Zustand 53 über
     array       gehe zu Zustand 54 über
@@ -574,12 +574,12 @@ Zustand 6
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value       gehe zu Zustand 52 über
+    value       gehe zu Zustand 70 über
     code        gehe zu Zustand 53 über
     array       gehe zu Zustand 54 über
     expression  gehe zu Zustand 75 über
@@ -641,12 +641,12 @@ Zustand 7
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value       gehe zu Zustand 52 über
+    value       gehe zu Zustand 70 über
     exp_list    gehe zu Zustand 77 über
     code        gehe zu Zustand 53 über
     array       gehe zu Zustand 54 über
@@ -721,12 +721,12 @@ Zustand 10
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 79 über
@@ -775,12 +775,12 @@ Zustand 11
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 80 über
@@ -829,12 +829,12 @@ Zustand 12
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 81 über
@@ -883,12 +883,12 @@ Zustand 13
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 82 über
@@ -937,12 +937,12 @@ Zustand 14
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 83 über
@@ -991,12 +991,12 @@ Zustand 15
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 84 über
@@ -1045,12 +1045,12 @@ Zustand 16
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 85 über
@@ -1099,12 +1099,12 @@ Zustand 17
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 86 über
@@ -1153,12 +1153,12 @@ Zustand 18
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 87 über
@@ -1207,12 +1207,12 @@ Zustand 19
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 88 über
@@ -1332,7 +1332,7 @@ Zustand 30
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
@@ -1369,7 +1369,7 @@ Zustand 30
     OPERATOR_BUN_9  [reduziere mit Regel 26 (value)]
     $default        reduziere mit Regel 26 (value)
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 89 über
@@ -1419,7 +1419,7 @@ Zustand 31
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
@@ -1456,7 +1456,7 @@ Zustand 31
     OPERATOR_BUN_9  [reduziere mit Regel 27 (value)]
     $default        reduziere mit Regel 27 (value)
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 90 über
@@ -1506,7 +1506,7 @@ Zustand 32
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
@@ -1543,7 +1543,7 @@ Zustand 32
     OPERATOR_BUN_9  [reduziere mit Regel 28 (value)]
     $default        reduziere mit Regel 28 (value)
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 91 über
@@ -1593,7 +1593,7 @@ Zustand 33
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
@@ -1630,7 +1630,7 @@ Zustand 33
     OPERATOR_BUN_9  [reduziere mit Regel 29 (value)]
     $default        reduziere mit Regel 29 (value)
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 92 über
@@ -1680,7 +1680,7 @@ Zustand 34
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
@@ -1717,7 +1717,7 @@ Zustand 34
     OPERATOR_BUN_9  [reduziere mit Regel 30 (value)]
     $default        reduziere mit Regel 30 (value)
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 93 über
@@ -1767,7 +1767,7 @@ Zustand 35
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
@@ -1804,7 +1804,7 @@ Zustand 35
     OPERATOR_BUN_9  [reduziere mit Regel 31 (value)]
     $default        reduziere mit Regel 31 (value)
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 94 über
@@ -1854,7 +1854,7 @@ Zustand 36
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
@@ -1891,7 +1891,7 @@ Zustand 36
     OPERATOR_BUN_9  [reduziere mit Regel 32 (value)]
     $default        reduziere mit Regel 32 (value)
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 95 über
@@ -1941,7 +1941,7 @@ Zustand 37
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
@@ -1978,7 +1978,7 @@ Zustand 37
     OPERATOR_BUN_9  [reduziere mit Regel 33 (value)]
     $default        reduziere mit Regel 33 (value)
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 96 über
@@ -2028,7 +2028,7 @@ Zustand 38
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
@@ -2065,7 +2065,7 @@ Zustand 38
     OPERATOR_BUN_9  [reduziere mit Regel 34 (value)]
     $default        reduziere mit Regel 34 (value)
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 97 über
@@ -2115,7 +2115,7 @@ Zustand 39
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
@@ -2152,7 +2152,7 @@ Zustand 39
     OPERATOR_BUN_9  [reduziere mit Regel 35 (value)]
     $default        reduziere mit Regel 35 (value)
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 98 über
@@ -2201,12 +2201,12 @@ Zustand 40
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 99 über
@@ -2262,12 +2262,12 @@ Zustand 42
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 100 über
@@ -2276,9 +2276,6 @@ Zustand 42
 Zustand 43
 
    36 value: IDENT .
-   52 assignment: IDENT . "=" expression
-
-    "="  schiebe und gehe zu Zustand 101 über
 
     $default  reduziere mit Regel 36 (value)
 
@@ -2308,7 +2305,7 @@ Zustand 47
 
     0 $accept: start . END_OF_FILE
 
-    END_OF_FILE  schiebe und gehe zu Zustand 102 über
+    END_OF_FILE  schiebe und gehe zu Zustand 101 über
 
 
 Zustand 48
@@ -2323,7 +2320,7 @@ Zustand 48
     $default  reduziere mit Regel 2 (start)
 
     separator   gehe zu Zustand 50 über
-    separators  gehe zu Zustand 103 über
+    separators  gehe zu Zustand 102 über
 
 
 Zustand 49
@@ -2394,9 +2391,9 @@ Zustand 51
 
     $default  reduziere mit Regel 3 (start)
 
-    statements  gehe zu Zustand 104 über
+    statements  gehe zu Zustand 103 über
     statement   gehe zu Zustand 49 über
-    separator   gehe zu Zustand 105 über
+    separator   gehe zu Zustand 104 über
     value       gehe zu Zustand 52 über
     code        gehe zu Zustand 53 über
     array       gehe zu Zustand 54 über
@@ -2417,7 +2414,10 @@ Zustand 51
 
 Zustand 52
 
+   52 assignment: value . "=" expression
   128 expu: value .
+
+    "="  schiebe und gehe zu Zustand 105 über
 
     $default  reduziere mit Regel 128 (expu)
 
@@ -2660,15 +2660,15 @@ Zustand 68
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
-    expu   gehe zu Zustand 70 über
+    expu   gehe zu Zustand 71 über
 
 
 Zustand 69
@@ -2683,19 +2683,26 @@ Zustand 69
 
 Zustand 70
 
+  128 expu: value .
+
+    $default  reduziere mit Regel 128 (expu)
+
+
+Zustand 71
+
   104 expu: "private" expu .
 
     $default  reduziere mit Regel 104 (expu)
 
 
-Zustand 71
+Zustand 72
 
    48 code: "{" "}" .
 
     $default  reduziere mit Regel 48 (code)
 
 
-Zustand 72
+Zustand 73
 
     6 statements: statements . separators
     7           | statements . separators statement
@@ -2706,10 +2713,10 @@ Zustand 72
     ","  schiebe und gehe zu Zustand 9 über
 
     separator   gehe zu Zustand 50 über
-    separators  gehe zu Zustand 103 über
+    separators  gehe zu Zustand 102 über
 
 
-Zustand 73
+Zustand 74
 
    13 separators: separators . separator
    46 code: "{" separators . statements "}"
@@ -2764,7 +2771,7 @@ Zustand 73
 
     statements  gehe zu Zustand 149 über
     statement   gehe zu Zustand 49 über
-    separator   gehe zu Zustand 105 über
+    separator   gehe zu Zustand 104 über
     value       gehe zu Zustand 52 über
     code        gehe zu Zustand 53 über
     array       gehe zu Zustand 54 über
@@ -2781,13 +2788,6 @@ Zustand 73
     exp8        gehe zu Zustand 65 über
     exp9        gehe zu Zustand 66 über
     expu        gehe zu Zustand 67 über
-
-
-Zustand 74
-
-   36 value: IDENT .
-
-    $default  reduziere mit Regel 36 (value)
 
 
 Zustand 75
@@ -2976,77 +2976,12 @@ Zustand 100
 
 Zustand 101
 
-   52 assignment: IDENT "=" . expression
-
-    "false"         schiebe und gehe zu Zustand 2 über
-    "true"          schiebe und gehe zu Zustand 3 über
-    "private"       schiebe und gehe zu Zustand 68 über
-    "{"             schiebe und gehe zu Zustand 5 über
-    "("             schiebe und gehe zu Zustand 6 über
-    "["             schiebe und gehe zu Zustand 7 über
-    OPERATOR_BU_0   schiebe und gehe zu Zustand 10 über
-    OPERATOR_BU_1   schiebe und gehe zu Zustand 11 über
-    OPERATOR_BU_2   schiebe und gehe zu Zustand 12 über
-    OPERATOR_BU_3   schiebe und gehe zu Zustand 13 über
-    OPERATOR_BU_4   schiebe und gehe zu Zustand 14 über
-    OPERATOR_BU_5   schiebe und gehe zu Zustand 15 über
-    OPERATOR_BU_6   schiebe und gehe zu Zustand 16 über
-    OPERATOR_BU_7   schiebe und gehe zu Zustand 17 über
-    OPERATOR_BU_8   schiebe und gehe zu Zustand 18 über
-    OPERATOR_BU_9   schiebe und gehe zu Zustand 19 über
-    OPERATOR_BN_0   schiebe und gehe zu Zustand 20 über
-    OPERATOR_BN_1   schiebe und gehe zu Zustand 21 über
-    OPERATOR_BN_2   schiebe und gehe zu Zustand 22 über
-    OPERATOR_BN_3   schiebe und gehe zu Zustand 23 über
-    OPERATOR_BN_4   schiebe und gehe zu Zustand 24 über
-    OPERATOR_BN_5   schiebe und gehe zu Zustand 25 über
-    OPERATOR_BN_6   schiebe und gehe zu Zustand 26 über
-    OPERATOR_BN_7   schiebe und gehe zu Zustand 27 über
-    OPERATOR_BN_8   schiebe und gehe zu Zustand 28 über
-    OPERATOR_BN_9   schiebe und gehe zu Zustand 29 über
-    OPERATOR_BUN_0  schiebe und gehe zu Zustand 30 über
-    OPERATOR_BUN_1  schiebe und gehe zu Zustand 31 über
-    OPERATOR_BUN_2  schiebe und gehe zu Zustand 32 über
-    OPERATOR_BUN_3  schiebe und gehe zu Zustand 33 über
-    OPERATOR_BUN_4  schiebe und gehe zu Zustand 34 über
-    OPERATOR_BUN_5  schiebe und gehe zu Zustand 35 über
-    OPERATOR_BUN_6  schiebe und gehe zu Zustand 36 über
-    OPERATOR_BUN_7  schiebe und gehe zu Zustand 37 über
-    OPERATOR_BUN_8  schiebe und gehe zu Zustand 38 über
-    OPERATOR_BUN_9  schiebe und gehe zu Zustand 39 über
-    OPERATOR_U      schiebe und gehe zu Zustand 40 über
-    OPERATOR_N      schiebe und gehe zu Zustand 41 über
-    OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
-    NUMBER          schiebe und gehe zu Zustand 44 über
-    HEXNUMBER       schiebe und gehe zu Zustand 45 über
-    STRING          schiebe und gehe zu Zustand 46 über
-
-    value       gehe zu Zustand 52 über
-    code        gehe zu Zustand 53 über
-    array       gehe zu Zustand 54 über
-    expression  gehe zu Zustand 153 über
-    exp0        gehe zu Zustand 57 über
-    exp1        gehe zu Zustand 58 über
-    exp2        gehe zu Zustand 59 über
-    exp3        gehe zu Zustand 60 über
-    exp4        gehe zu Zustand 61 über
-    exp5        gehe zu Zustand 62 über
-    exp6        gehe zu Zustand 63 über
-    exp7        gehe zu Zustand 64 über
-    exp8        gehe zu Zustand 65 über
-    exp9        gehe zu Zustand 66 über
-    expu        gehe zu Zustand 67 über
-
-
-Zustand 102
-
     0 $accept: start END_OF_FILE .
 
     $default  annehmen
 
 
-Zustand 103
+Zustand 102
 
     6 statements: statements separators .
     7           | statements separators . statement
@@ -3102,8 +3037,8 @@ Zustand 103
     ","       [reduziere mit Regel 6 (statements)]
     $default  reduziere mit Regel 6 (statements)
 
-    statement   gehe zu Zustand 154 über
-    separator   gehe zu Zustand 105 über
+    statement   gehe zu Zustand 153 über
+    separator   gehe zu Zustand 104 über
     value       gehe zu Zustand 52 über
     code        gehe zu Zustand 53 über
     array       gehe zu Zustand 54 über
@@ -3122,7 +3057,7 @@ Zustand 103
     expu        gehe zu Zustand 67 über
 
 
-Zustand 104
+Zustand 103
 
     4 start: separators statements .
     6 statements: statements . separators
@@ -3134,14 +3069,79 @@ Zustand 104
     $default  reduziere mit Regel 4 (start)
 
     separator   gehe zu Zustand 50 über
-    separators  gehe zu Zustand 103 über
+    separators  gehe zu Zustand 102 über
 
 
-Zustand 105
+Zustand 104
 
    13 separators: separators separator .
 
     $default  reduziere mit Regel 13 (separators)
+
+
+Zustand 105
+
+   52 assignment: value "=" . expression
+
+    "false"         schiebe und gehe zu Zustand 2 über
+    "true"          schiebe und gehe zu Zustand 3 über
+    "private"       schiebe und gehe zu Zustand 68 über
+    "{"             schiebe und gehe zu Zustand 5 über
+    "("             schiebe und gehe zu Zustand 6 über
+    "["             schiebe und gehe zu Zustand 7 über
+    OPERATOR_BU_0   schiebe und gehe zu Zustand 10 über
+    OPERATOR_BU_1   schiebe und gehe zu Zustand 11 über
+    OPERATOR_BU_2   schiebe und gehe zu Zustand 12 über
+    OPERATOR_BU_3   schiebe und gehe zu Zustand 13 über
+    OPERATOR_BU_4   schiebe und gehe zu Zustand 14 über
+    OPERATOR_BU_5   schiebe und gehe zu Zustand 15 über
+    OPERATOR_BU_6   schiebe und gehe zu Zustand 16 über
+    OPERATOR_BU_7   schiebe und gehe zu Zustand 17 über
+    OPERATOR_BU_8   schiebe und gehe zu Zustand 18 über
+    OPERATOR_BU_9   schiebe und gehe zu Zustand 19 über
+    OPERATOR_BN_0   schiebe und gehe zu Zustand 20 über
+    OPERATOR_BN_1   schiebe und gehe zu Zustand 21 über
+    OPERATOR_BN_2   schiebe und gehe zu Zustand 22 über
+    OPERATOR_BN_3   schiebe und gehe zu Zustand 23 über
+    OPERATOR_BN_4   schiebe und gehe zu Zustand 24 über
+    OPERATOR_BN_5   schiebe und gehe zu Zustand 25 über
+    OPERATOR_BN_6   schiebe und gehe zu Zustand 26 über
+    OPERATOR_BN_7   schiebe und gehe zu Zustand 27 über
+    OPERATOR_BN_8   schiebe und gehe zu Zustand 28 über
+    OPERATOR_BN_9   schiebe und gehe zu Zustand 29 über
+    OPERATOR_BUN_0  schiebe und gehe zu Zustand 30 über
+    OPERATOR_BUN_1  schiebe und gehe zu Zustand 31 über
+    OPERATOR_BUN_2  schiebe und gehe zu Zustand 32 über
+    OPERATOR_BUN_3  schiebe und gehe zu Zustand 33 über
+    OPERATOR_BUN_4  schiebe und gehe zu Zustand 34 über
+    OPERATOR_BUN_5  schiebe und gehe zu Zustand 35 über
+    OPERATOR_BUN_6  schiebe und gehe zu Zustand 36 über
+    OPERATOR_BUN_7  schiebe und gehe zu Zustand 37 über
+    OPERATOR_BUN_8  schiebe und gehe zu Zustand 38 über
+    OPERATOR_BUN_9  schiebe und gehe zu Zustand 39 über
+    OPERATOR_U      schiebe und gehe zu Zustand 40 über
+    OPERATOR_N      schiebe und gehe zu Zustand 41 über
+    OPERATOR_UN     schiebe und gehe zu Zustand 42 über
+    IDENT           schiebe und gehe zu Zustand 43 über
+    NUMBER          schiebe und gehe zu Zustand 44 über
+    HEXNUMBER       schiebe und gehe zu Zustand 45 über
+    STRING          schiebe und gehe zu Zustand 46 über
+
+    value       gehe zu Zustand 70 über
+    code        gehe zu Zustand 53 über
+    array       gehe zu Zustand 54 über
+    expression  gehe zu Zustand 154 über
+    exp0        gehe zu Zustand 57 über
+    exp1        gehe zu Zustand 58 über
+    exp2        gehe zu Zustand 59 über
+    exp3        gehe zu Zustand 60 über
+    exp4        gehe zu Zustand 61 über
+    exp5        gehe zu Zustand 62 über
+    exp6        gehe zu Zustand 63 über
+    exp7        gehe zu Zustand 64 über
+    exp8        gehe zu Zustand 65 über
+    exp9        gehe zu Zustand 66 über
+    expu        gehe zu Zustand 67 über
 
 
 Zustand 106
@@ -3187,12 +3187,12 @@ Zustand 106
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp1   gehe zu Zustand 155 über
@@ -3250,12 +3250,12 @@ Zustand 107
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp1   gehe zu Zustand 156 über
@@ -3313,12 +3313,12 @@ Zustand 108
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp1   gehe zu Zustand 157 über
@@ -3376,12 +3376,12 @@ Zustand 109
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp1   gehe zu Zustand 158 über
@@ -3439,12 +3439,12 @@ Zustand 110
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp2   gehe zu Zustand 159 über
@@ -3501,12 +3501,12 @@ Zustand 111
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp2   gehe zu Zustand 160 über
@@ -3563,12 +3563,12 @@ Zustand 112
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp2   gehe zu Zustand 161 über
@@ -3625,12 +3625,12 @@ Zustand 113
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp2   gehe zu Zustand 162 über
@@ -3687,12 +3687,12 @@ Zustand 114
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp3   gehe zu Zustand 163 über
@@ -3748,12 +3748,12 @@ Zustand 115
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp3   gehe zu Zustand 164 über
@@ -3809,12 +3809,12 @@ Zustand 116
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp3   gehe zu Zustand 165 über
@@ -3870,12 +3870,12 @@ Zustand 117
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp3   gehe zu Zustand 166 über
@@ -3931,12 +3931,12 @@ Zustand 118
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp4   gehe zu Zustand 167 über
@@ -3991,12 +3991,12 @@ Zustand 119
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp4   gehe zu Zustand 168 über
@@ -4051,12 +4051,12 @@ Zustand 120
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp4   gehe zu Zustand 169 über
@@ -4111,12 +4111,12 @@ Zustand 121
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp4   gehe zu Zustand 170 über
@@ -4171,12 +4171,12 @@ Zustand 122
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp5   gehe zu Zustand 171 über
@@ -4230,12 +4230,12 @@ Zustand 123
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp5   gehe zu Zustand 172 über
@@ -4289,12 +4289,12 @@ Zustand 124
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp5   gehe zu Zustand 173 über
@@ -4348,12 +4348,12 @@ Zustand 125
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp5   gehe zu Zustand 174 über
@@ -4407,12 +4407,12 @@ Zustand 126
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp6   gehe zu Zustand 175 über
@@ -4465,12 +4465,12 @@ Zustand 127
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp6   gehe zu Zustand 176 über
@@ -4523,12 +4523,12 @@ Zustand 128
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp6   gehe zu Zustand 177 über
@@ -4581,12 +4581,12 @@ Zustand 129
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp6   gehe zu Zustand 178 über
@@ -4639,12 +4639,12 @@ Zustand 130
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp7   gehe zu Zustand 179 über
@@ -4696,12 +4696,12 @@ Zustand 131
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp7   gehe zu Zustand 180 über
@@ -4753,12 +4753,12 @@ Zustand 132
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp7   gehe zu Zustand 181 über
@@ -4810,12 +4810,12 @@ Zustand 133
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp7   gehe zu Zustand 182 über
@@ -4867,12 +4867,12 @@ Zustand 134
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp8   gehe zu Zustand 183 über
@@ -4923,12 +4923,12 @@ Zustand 135
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp8   gehe zu Zustand 184 über
@@ -4979,12 +4979,12 @@ Zustand 136
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp8   gehe zu Zustand 185 über
@@ -5035,12 +5035,12 @@ Zustand 137
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp8   gehe zu Zustand 186 über
@@ -5091,12 +5091,12 @@ Zustand 138
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp9   gehe zu Zustand 187 über
@@ -5146,12 +5146,12 @@ Zustand 139
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp9   gehe zu Zustand 188 über
@@ -5201,12 +5201,12 @@ Zustand 140
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp9   gehe zu Zustand 189 über
@@ -5256,12 +5256,12 @@ Zustand 141
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     exp9   gehe zu Zustand 190 über
@@ -5311,12 +5311,12 @@ Zustand 142
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 191 über
@@ -5365,12 +5365,12 @@ Zustand 143
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 192 über
@@ -5419,12 +5419,12 @@ Zustand 144
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 193 über
@@ -5473,12 +5473,12 @@ Zustand 145
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value  gehe zu Zustand 52 über
+    value  gehe zu Zustand 70 über
     code   gehe zu Zustand 53 über
     array  gehe zu Zustand 54 über
     expu   gehe zu Zustand 194 über
@@ -5527,12 +5527,12 @@ Zustand 146
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value       gehe zu Zustand 52 über
+    value       gehe zu Zustand 70 über
     code        gehe zu Zustand 53 über
     array       gehe zu Zustand 54 über
     expression  gehe zu Zustand 195 über
@@ -5574,7 +5574,7 @@ Zustand 149
     ","  schiebe und gehe zu Zustand 9 über
 
     separator   gehe zu Zustand 50 über
-    separators  gehe zu Zustand 103 über
+    separators  gehe zu Zustand 102 über
 
 
 Zustand 150
@@ -5634,12 +5634,12 @@ Zustand 152
     OPERATOR_U      schiebe und gehe zu Zustand 40 über
     OPERATOR_N      schiebe und gehe zu Zustand 41 über
     OPERATOR_UN     schiebe und gehe zu Zustand 42 über
-    IDENT           schiebe und gehe zu Zustand 74 über
+    IDENT           schiebe und gehe zu Zustand 43 über
     NUMBER          schiebe und gehe zu Zustand 44 über
     HEXNUMBER       schiebe und gehe zu Zustand 45 über
     STRING          schiebe und gehe zu Zustand 46 über
 
-    value       gehe zu Zustand 52 über
+    value       gehe zu Zustand 70 über
     code        gehe zu Zustand 53 über
     array       gehe zu Zustand 54 über
     expression  gehe zu Zustand 197 über
@@ -5658,16 +5658,16 @@ Zustand 152
 
 Zustand 153
 
-   52 assignment: IDENT "=" expression .
+    7 statements: statements separators statement .
 
-    $default  reduziere mit Regel 52 (assignment)
+    $default  reduziere mit Regel 7 (statements)
 
 
 Zustand 154
 
-    7 statements: statements separators statement .
+   52 assignment: value "=" expression .
 
-    $default  reduziere mit Regel 7 (statements)
+    $default  reduziere mit Regel 52 (assignment)
 
 
 Zustand 155

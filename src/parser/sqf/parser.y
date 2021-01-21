@@ -267,7 +267,7 @@ array: "[" exp_list "]"                     { $$ = ::sqf::parser::sqf::bison::as
      | "[" "]"                              { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ARRAY, $1 }; }
      ;
 assignment: "private" IDENT "=" expression  { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ASSIGNMENT_LOCAL, $2 }; $$.append($4); }
-          | IDENT "=" expression            { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ASSIGNMENT, $1 }; $$.append($3); }
+          | value "=" expression            { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::ASSIGNMENT, $2 }; $$.append($1); $$.append($3); }
           ;
 expression: exp0                            { $$ = $1; }
           ;

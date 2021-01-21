@@ -191,10 +191,19 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
     break;
     case bison::astkind::ASSIGNMENT:
     {
-        to_assembly(contents, node.children[0], set);
-        auto inst = std::make_shared<::sqf::opcodes::assign_to>(node.token.contents);
-        inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
-        set.push_back(inst);
+        to_assembly(contents, node.children[1], set);
+        if (node.children[0].children.empty() && node.children[0].token.type == tokenizer::etoken::t_ident)
+        {
+            auto inst = std::make_shared<::sqf::opcodes::assign_to>(node.children[0].token.contents);
+            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+            set.push_back(inst);
+        }
+        else
+        {
+            auto inst = std::make_shared<::sqf::opcodes::assign_to>(""s);
+            inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
+            set.push_back(inst);
+        }
     }
     break;
     case bison::astkind::ASSIGNMENT_LOCAL:
