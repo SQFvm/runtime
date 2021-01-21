@@ -532,8 +532,8 @@ namespace logmessage {
             std::string_view msg;
         public:
             ParseError(LogLocationInfo loc, std::string_view msg) :
-                msg(msg),
-                SqfBase(level, errorCode, std::move(loc)) { }
+                SqfBase(level, errorCode, std::move(loc)),
+                msg(msg) { }
             [[nodiscard]] std::string formatMessage() const override;
         };
     }
