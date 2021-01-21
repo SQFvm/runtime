@@ -113,7 +113,7 @@ namespace sqf::sqc::util
         std::vector<region_impl> m_regions;
         std::vector<::sqf::sqc::bison::astkind> m_parents;
         std::string_view m_contents;
-        setbuilder(std::string_view contents, std::vector<::sqf::sqc::bison::astkind> m_parents) : m_contents(contents), m_parents(m_parents) {}
+        setbuilder(std::string_view contents, std::vector<::sqf::sqc::bison::astkind> m_parents) : m_parents(m_parents), m_contents(contents) {}
     public:
         setbuilder(std::string_view contents) : m_contents(contents) {}
 
