@@ -2088,6 +2088,10 @@ namespace
     {
         return breakout_any_string(runtime, {}, right);
     }
+    value disableserialization(runtime& runtime)
+    {
+        return {};
+    }
 }
 void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
 {
@@ -2193,4 +2197,5 @@ void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(binary(4, "throw", t_if(), t_any(), "Throws an exception. The exception is processed by first catch block. This command will terminate further execution of the code.", throw_if_any));
     runtime.register_sqfop(unary("try", t_code(), "Defines a try-catch structure. This sets up an exception handling block.", try_code));
     runtime.register_sqfop(binary(4, "catch", t_exception(), t_code(), "Processes code when an exception is thrown in a try block. The exception caught can be found in the _exception variable.", catch_exception_code));
+    runtime.register_sqfop(nular("disableSerialization", "Disable saving of script containing this command.", disableserialization));
 }
