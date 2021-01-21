@@ -156,7 +156,7 @@ namespace
         }
 
         // Only input which is defined in templates needs to be validated
-        for (int i = 0; i < r->size(); i++)
+        for (size_t i = 0; i < r->size(); i++)
         {
             auto left = l->at(i);
             auto right = r->at(i);
