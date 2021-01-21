@@ -357,9 +357,9 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
                         std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                             "        " <<
                             "        " <<
-                            "    " << "\x1B[36mERASE CONTEXT\033[0m \x1B[90" << ((*iterator)->name().empty() ? "<unnamed>" : (*iterator)->name()) << "\033[0m" << std::endl;
+                            "    " << "\x1B[36mERASE CONTEXT\033[0m \x1B[90" << (m_context_active->name().empty() ? "<unnamed>" : m_context_active->name()) << "\033[0m" << std::endl;
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
-                        auto opt_val = m_contexts[i]->pop_value(true);
+                        auto opt_val = m_context_active->pop_value(true);
                         if (opt_val.has_value() && configuration().print_context_work_to_log_on_exit)
                         {
                             __logmsg(logmessage::runtime::ContextValuePrint(opt_val.value()));
