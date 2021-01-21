@@ -422,9 +422,9 @@ namespace sqf::parser::sqf
             m_start(start),
             m_current(start),
             m_end(end),
+            m_mode(emode::normal),
             m_line(0),
-            m_column(0),
-            m_mode(emode::normal)
+            m_column(0)
         {
             m_strings.push_back(new std::string(path));
         }
