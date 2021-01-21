@@ -2183,6 +2183,7 @@ void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(unary("param", t_array(), "Extracts a single value with given index from _this.", param_array));
     runtime.register_sqfop(binary(4, "param", t_any(), t_array(), "Extracts a single value with given index from input argument.", param_any_array));
     runtime.register_sqfop(unary("sleep", t_scalar(), "Suspends code execution for given time in seconds. The delay given is the minimal delay expected.", sleep_scalar));
+    runtime.register_sqfop(unary("uiSleep", t_scalar(), "Suspends code execution for given time in seconds. The delay given is the minimal delay expected.", sleep_scalar));
     runtime.register_sqfop(nular("canSuspend", "Returns true if sleep, uiSleep or waitUntil commands can be used in current scope.", cansuspend_));
     runtime.register_sqfop(unary("loadFile", t_string(), "", loadfile_string));
     runtime.register_sqfop(unary("preprocessFileLineNumbers", t_string(), "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
