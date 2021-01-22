@@ -40,11 +40,12 @@ namespace
         {
             // Get navigation path
             std::vector<std::string> path;
-            do
+            path.push_back(nav->name);
+            while (nav->id_parent_logical != config::invalid_id)
             {
                 path.push_back(nav->name);
                 nav = nav.parent_logical();
-            } while (nav->id_parent_logical != config::invalid_id);
+            }
 
             std::reverse(path.begin(), path.end());
             runtime.__logmsg(err::ConfigEntryNotFoundWeak(runtime.context_active().current_frame().diag_info_from_position(), path, target));
@@ -115,11 +116,12 @@ namespace
         }
         // Get navigation path
         std::vector<value> path;
-        do
+        path.push_back(nav->name);
+        while (nav->id_parent_logical != config::invalid_id)
         {
             path.push_back(nav->name);
             nav = nav.parent_logical();
-        } while (nav->id_parent_logical != config::invalid_id);
+        }
 
         std::reverse(path.begin(), path.end());
         return path;
@@ -170,7 +172,7 @@ namespace
             runtime.__logmsg(err::ReturningFalse(runtime.context_active().current_frame().diag_info_from_position()));
             return false;
         }
-        return nav->size() > 0;
+        return nav->size() > 0 || (nav->size() == 0 && nav->value.empty());
     }
     value isarray_config(runtime& runtime, value::cref right)
     {

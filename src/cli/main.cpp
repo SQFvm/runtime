@@ -153,7 +153,7 @@ int main_actual(int argc, char** argv)
 
 #ifdef DF__CLI_PRINT_INPUT_ARGS
     std::cout << "\x1B[95m[CLI-INARG-PRINT]\033[0m" << "Got arguments:" << std::endl;
-    for (size_t i = 0; i < argc; i++)
+    for (int i = 0; i < argc; i++)
     {
         std::cout << "\x1B[95m[CLI-INARG-PRINT]\033[0m" << "    " << std::setw(3) << i << ": `" << argv[i] << "`" << std::endl;
     }
@@ -330,7 +330,7 @@ int main_actual(int argc, char** argv)
     if (verboseArg.getValue())
     {
         std::cout << "Got arguments:" << std::endl;
-        for (size_t i = 0; i < argc; i++)
+        for (int i = 0; i < argc; i++)
         {
             std::cout << "    " << std::setw(3) << i << ": `" << argv[i] << "`" << std::endl;
         }

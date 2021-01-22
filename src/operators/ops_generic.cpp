@@ -1131,11 +1131,18 @@ namespace
     {
         auto context_weak = runtime.context_create();
         auto lock = context_weak.lock();
+        lock->can_suspend(true);
+        lock->weak_error_handling(true);
         auto scriptdata = std::make_shared<d_script>(context_weak);
         frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>());
         f["_thisScript"] = scriptdata;
         f["_this"] = left;
         lock->push_frame(f);
+        return scriptdata;
+    }
+    value scriptnull_(runtime& runtime)
+    {
+        auto scriptdata = std::make_shared<d_script>();
         return scriptdata;
     }
     value scriptdone_script(runtime& runtime, value::cref right)
@@ -1761,7 +1768,7 @@ namespace
                             types.push_back(it.type());
                         }
                         runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak(runtime.context_active().current_frame().diag_info_from_position(), i, types, current_input_value.type()));
-                        return params_descriptors.at(1);
+                        current_input_value = params_descriptors.at(1);
                     }
                 }
                 if (params_descriptors.size() >= 4 && current_input_value.is<t_array>())
@@ -1788,7 +1795,7 @@ namespace
                             types.push_back(it.type());
                         }
                         runtime.__logmsg(err::ExpectedArrayTypeMissmatchWeak(runtime.context_active().current_frame().diag_info_from_position(), i, types, current_input_value.type()));
-                        return params_descriptors.at(1);
+                        current_input_value = params_descriptors.at(1);
                     }
                 }
                 runtime.context_active().current_frame()[params_descriptors.at(0).data<d_string, std::string>()] = current_input_value;
@@ -1831,7 +1838,9 @@ namespace
             runtime.__logmsg(err::SuspensionInUnscheduledEnvironment(runtime.context_active().current_frame().diag_info_from_position()));
             return {};
         }
-        auto duration = std::chrono::duration<float>();
+
+        float f = right.data<d_scalar, float>();
+        auto duration = std::chrono::duration<float>(f);
         auto durationCasted = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
 
         runtime.context_active().suspend(durationCasted);
@@ -1950,6 +1959,14 @@ namespace
             {
                 runtime.context_active().pop_frame();
             }
+        }
+        return {};
+    }
+    value throw_if_any(runtime& runtime, value::cref left, value::cref right)
+    {
+        if (left.data<d_boolean, bool>())
+        {
+            return throw_any(runtime, right);
         }
         return {};
     }
@@ -2075,6 +2092,10 @@ namespace
     {
         return breakout_any_string(runtime, {}, right);
     }
+    value disableserialization(runtime& runtime)
+    {
+        return {};
+    }
 }
 void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
 {
@@ -2136,6 +2157,7 @@ void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(binary(4, ":", t_switch(), t_code(), "Checks if switch type has the case flag being set and executes provided code then. If another switch got executed already, nothing will be done.", colon_switch_code));
     runtime.register_sqfop(unary("default", t_code(), "Sets the code to be executed by default if no case matched.", default_code));
     runtime.register_sqfop(binary(4, "apply", t_array(), t_code(), "Applies given code to each element of the array and returns resulting array. The value of the current array element, to which the code will be applied, is stored in variable _x.", apply_array_code));
+    runtime.register_sqfop(nular("scriptNull", "A non-existing Script or script that has finished.", scriptnull_));
     runtime.register_sqfop(binary(4, "spawn", t_any(), t_code(), "Adds given code to the scheduler. For SQF-runtime, every script is guaranteed to get the same ammount of instructions done before being suspended.", spawn_any_code));
     runtime.register_sqfop(unary("scriptDone", t_script(), "Check if a script is finished running using the Script_(Handle).", scriptdone_script));
     runtime.register_sqfop(unary("terminate", t_script(), "Terminates (aborts) spawned or execVMed script. "
@@ -2165,6 +2187,7 @@ void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(unary("param", t_array(), "Extracts a single value with given index from _this.", param_array));
     runtime.register_sqfop(binary(4, "param", t_any(), t_array(), "Extracts a single value with given index from input argument.", param_any_array));
     runtime.register_sqfop(unary("sleep", t_scalar(), "Suspends code execution for given time in seconds. The delay given is the minimal delay expected.", sleep_scalar));
+    runtime.register_sqfop(unary("uiSleep", t_scalar(), "Suspends code execution for given time in seconds. The delay given is the minimal delay expected.", sleep_scalar));
     runtime.register_sqfop(nular("canSuspend", "Returns true if sleep, uiSleep or waitUntil commands can be used in current scope.", cansuspend_));
     runtime.register_sqfop(unary("loadFile", t_string(), "", loadfile_string));
     runtime.register_sqfop(unary("preprocessFileLineNumbers", t_string(), "Reads and processes the content of the specified file. Preprocessor is C-like, supports comments using // or /* and */ and PreProcessor Commands.", preprocessfile_string));
@@ -2176,6 +2199,8 @@ void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(binary(4, "in", t_any(), t_array(), "Checks whether value is in array. String values will be compared casesensitive.", in_any_array));
     runtime.register_sqfop(binary(4, "in", t_string(), t_string(), "Checks whether string is in string. Values will be compared casesensitive.", in_string_string));
     runtime.register_sqfop(unary("throw", t_any(), "Throws an exception. The exception is processed by first catch block. This command will terminate further execution of the code.", throw_any));
+    runtime.register_sqfop(binary(4, "throw", t_if(), t_any(), "Throws an exception. The exception is processed by first catch block. This command will terminate further execution of the code.", throw_if_any));
     runtime.register_sqfop(unary("try", t_code(), "Defines a try-catch structure. This sets up an exception handling block.", try_code));
     runtime.register_sqfop(binary(4, "catch", t_exception(), t_code(), "Processes code when an exception is thrown in a try block. The exception caught can be found in the _exception variable.", catch_exception_code));
+    runtime.register_sqfop(nular("disableSerialization", "Disable saving of script containing this command.", disableserialization));
 }

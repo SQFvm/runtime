@@ -41,7 +41,7 @@ namespace sqf::opcodes
             {
                 vm.__logmsg(logmessage::runtime::AssigningNilValue(diag_info(), m_variable_name));
             }
-
+            if (m_variable_name.empty()) { return; }
             if (m_variable_name[0] == '_')
             {
                 for (auto it = context.frames_rbegin(); it != context.frames_rend(); ++it)

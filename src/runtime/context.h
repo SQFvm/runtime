@@ -30,7 +30,12 @@ namespace sqf::runtime
         bool m_terminate;
 
     public:
-        context() = default;
+        context() :
+            m_can_suspend(false),
+            m_suspended(false),
+            m_weak_error_handling(false),
+            m_terminate(false)
+        { }
 
 
         std::string name() const { return m_name; }

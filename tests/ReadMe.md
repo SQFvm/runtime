@@ -11,7 +11,7 @@ theese, this test-framework can be deemed as incompatible to Arma.
 
 To run theese tests, start SQF-VM with the following commands:
 
-`-a -i tests/runTests.sqf`
+`-a -i tests/config.cpp -i tests/runTests.sqf`
 
 ## Creating Tests ##
 

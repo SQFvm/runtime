@@ -113,7 +113,7 @@ namespace sqf::sqc::util
         std::vector<region_impl> m_regions;
         std::vector<::sqf::sqc::bison::astkind> m_parents;
         std::string_view m_contents;
-        setbuilder(std::string_view contents, std::vector<::sqf::sqc::bison::astkind> m_parents) : m_contents(contents), m_parents(m_parents) {}
+        setbuilder(std::string_view contents, std::vector<::sqf::sqc::bison::astkind> m_parents) : m_parents(m_parents), m_contents(contents) {}
     public:
         setbuilder(std::string_view contents) : m_contents(contents) {}
 
@@ -256,6 +256,8 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             // Emit "/"
             set.push_back(node.token, std::make_shared<opcodes::call_binary>("/"s, (short)7));
             break;
+        default:
+            break;
         }
 
         // Assign Value
@@ -322,6 +324,8 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             case ::sqf::sqc::bison::astkind::OP_ARRAY_SET_SLASH:
                 // Emit "/"
                 set.push_back(node.token, std::make_shared<opcodes::call_binary>("/"s, (short)7));
+                break;
+            default:
                 break;
             }
 
@@ -396,6 +400,8 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             case ::sqf::sqc::bison::astkind::OP_ACCESS_SET_SLASH:
                 // Emit "/"
                 set.push_back(node.token, std::make_shared<opcodes::call_binary>("/"s, (short)7));
+                break;
+            default:
                 break;
             }
 
@@ -654,6 +660,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                     // Make array 
                     set.push_back(node.token, std::make_shared<opcodes::make_array>(3));
                 } break;
+                default: break;
                 }
             }
         }
@@ -788,13 +795,26 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             // Create additional instruction_set vector
             auto local_set1 = set.create_from();
 
+            // Create copy of locals
+            auto locals_copy = locals;
+
+            // Check if locals _x already exists and, if it does, emit "private _x_red_LINE_COL"
+            auto res_x = std::find_if(locals_copy.begin(), locals_copy.end(),
+                [](emplace &emp) -> bool { return emp.replace == "_x"; });
+            if (res_x != locals_copy.end())
+            {
+                res_x->replace = "_x_redirect_" +
+                    std::to_string(node.children[0].token.line) +
+                    "_" +
+                    std::to_string(node.children[0].token.column);
+
+                set.push_back(node.children[2].token, std::make_shared<opcodes::get_variable>("_x"sv));
+                set.push_back(node.children[2].token, std::make_shared<opcodes::assign_to_local>(res_x->replace));
+            }
+
             // Assign variable for forEach _x
             std::string var(node.children[0].token.contents);
-            std::string lvar = "_"s + var;
-
-            // Create copy of locals where `_x` exists
-            auto locals_copy = locals;
-            locals_copy.push_back({ var ,lvar });
+            locals_copy.push_back({ var, "_x" });
 
             // Fill actual instruction_set
             to_assembly(runtime, local_set1, locals_copy, node.children[2]);
@@ -896,10 +916,6 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             std::string lvar = "_"s + var;
             std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
             set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to_local>(lvar));
-
-            // Create copy of locals where `_x` exists
-            auto locals_copy = locals;
-            locals_copy.push_back({ var ,lvar });
 
             // Fill actual instruction_set for code
             to_assembly(runtime, local_set1, locals, node.children[1]);
@@ -1336,6 +1352,8 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
                 case tokenizer::etoken::t_formatted_string_final:
                     sstream << util::strip_formatted(child.token.contents);
+                    break;
+                default:
                     break;
                 }
             }

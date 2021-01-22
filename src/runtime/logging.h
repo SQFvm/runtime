@@ -532,8 +532,8 @@ namespace logmessage {
             std::string_view msg;
         public:
             ParseError(LogLocationInfo loc, std::string_view msg) :
-                msg(msg),
-                SqfBase(level, errorCode, std::move(loc)) { }
+                SqfBase(level, errorCode, std::move(loc)),
+                msg(msg) { }
             [[nodiscard]] std::string formatMessage() const override;
         };
     }
@@ -1778,6 +1778,17 @@ namespace logmessage {
                 RuntimeBase(level, errorCode, std::move(loc)),
                 m_source(source),
                 m_message(message)
+            {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+        class InvalidAssemblyInstruction : public RuntimeBase {
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 60098;
+            std::string m_assembly;
+        public:
+            InvalidAssemblyInstruction(LogLocationInfo loc, std::string assembly) :
+                RuntimeBase(level, errorCode, std::move(loc)),
+                m_assembly(assembly)
             {}
             [[nodiscard]] std::string formatMessage() const override;
         };

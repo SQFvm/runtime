@@ -21,6 +21,7 @@
 #include "d_config.h"
 #include "d_object.h"
 #include "ops_namespace.h"
+#include "../opcodes/common.h"
 
 
 #include <sstream>
@@ -41,6 +42,119 @@ using namespace std::string_literals;
 
 namespace
 {
+    value fromAssembly___array(runtime& runtime, value::cref right)
+    {
+        auto arr = right.data<d_array, std::vector<value>>();
+
+        std::vector<sqf::runtime::instruction::sptr> code;
+        for (auto it = arr.begin(); it != arr.end(); it++)
+        {
+            if (!it->is<t_string>())
+            {
+                runtime.__logmsg(err::ExpectedArrayTypeMissmatch(
+                    runtime.context_active().current_frame().diag_info_from_position(),
+                    it - arr.begin(), t_string(), it->type()));
+                return {};
+            }
+
+            auto full = it->data<d_string, std::string>();
+            std::string name = full;
+            std::string arg;
+            // Find either Space or end-of-string
+            std::string::size_type nameEndIndex = full.find(' ');
+            if (nameEndIndex + 1 > full.length())
+            {
+                runtime.__logmsg(err::InvalidAssemblyInstruction(
+                    runtime.context_active().current_frame().diag_info_from_position(),
+                    full));
+                return {};
+            }
+            
+            if (nameEndIndex != std::string::npos)
+            {
+                name = full.substr(0, nameEndIndex);
+                arg = full.substr(nameEndIndex + 1);
+            }
+
+            std::transform(name.begin(), name.end(), name.begin(), [](char c) { return (char)std::tolower(c); });
+            if (name == "assignto")
+            {
+                auto str = sqf::types::d_string::from_sqf(arg);
+                code.push_back(std::make_shared<sqf::opcodes::assign_to>(str));
+            }
+            else if (name == "assigntolocal")
+            {
+                auto str = sqf::types::d_string::from_sqf(arg);
+                code.push_back(std::make_shared<sqf::opcodes::assign_to_local>(str));
+            }
+            else if (name == "callbinary")
+            {
+                auto str = arg;
+                if (!runtime.sqfop_exists_binary(str))
+                {
+                    runtime.__logmsg(err::InvalidAssemblyInstruction(
+                        runtime.context_active().current_frame().diag_info_from_position(),
+                        full));
+                    return {};
+                }
+                auto binary_ops = runtime.sqfop_binary_by_name(str);
+                auto prec = binary_ops.begin()->get().precedence();
+                code.push_back(std::make_shared<sqf::opcodes::call_binary>(str, prec));
+            }
+            else if (name == "callnular")
+            {
+                auto str = arg;
+                code.push_back(std::make_shared<sqf::opcodes::call_nular>(str));
+            }
+            else if (name == "callunary")
+            {
+                auto str = arg;
+                code.push_back(std::make_shared<sqf::opcodes::call_unary>(str));
+            }
+            else if (name == "endstatement")
+            {
+                code.push_back(std::make_shared<sqf::opcodes::end_statement>());
+            }
+            else if (name == "getvariable")
+            {
+                auto str = sqf::types::d_string::from_sqf(arg);
+                code.push_back(std::make_shared<sqf::opcodes::get_variable>(str));
+            }
+            else if (name == "makearray")
+            {
+                auto len = std::stof(arg);
+                code.push_back(std::make_shared<sqf::opcodes::make_array>((size_t)len));
+            }
+            else if (name == "push")
+            {
+                auto result = runtime.parser_sqf().parse(runtime, arg, {});
+                if (!result.has_value())
+                {
+                    runtime.__logmsg(err::InvalidAssemblyInstruction(
+                        runtime.context_active().current_frame().diag_info_from_position(),
+                        full));
+                    return {};
+                }
+                if (!result->empty())
+                {
+                    auto instruction = *result->begin();
+                    auto tmp = std::dynamic_pointer_cast<sqf::opcodes::push>(instruction);
+                    if (tmp)
+                    {
+                        code.push_back(std::make_shared<sqf::opcodes::push>(tmp->value()));
+                    }
+                }
+            }
+            else
+            {
+                runtime.__logmsg(err::InvalidAssemblyInstruction(
+                    runtime.context_active().current_frame().diag_info_from_position(),
+                    full));
+                return {};
+            }
+        }
+        return std::make_shared<d_code>(code);
+    }
     value assembly___code(runtime& runtime, value::cref right)
     {
         auto code = right.data<d_code>();
@@ -686,6 +800,7 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
     runtime.register_sqfop(nular("respawn__", "'Respawns' the player object.", respawn___));
     runtime.register_sqfop(unary("preprocess__", t_string(), "Runs the PreProcessor on provided string.", preprocess___string));
+    runtime.register_sqfop(unary("fromAssembly__", t_array(), "Parses the provided array of assembly instruction strings into actual code.", fromAssembly___array));
     runtime.register_sqfop(unary("assembly__", t_code(), "returns an array, containing the assembly instructions as string.", assembly___code));
     runtime.register_sqfop(unary("assembly__", t_string(), "returns an array, containing the assembly instructions as string.", assembly___string));
     runtime.register_sqfop(binary(4, "except__", t_code(), t_code(), "Allows to define a block that catches VM exceptions. It is to note, that this will also catch exceptions in spawn! Exception will be put into the magic variable '_exception'. A callstack is available in '_callstack'.", except___code_code));

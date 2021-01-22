@@ -159,7 +159,7 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
 
     std::filesystem::path toFindPath(viewVirtual);
     toFindPath = toFindPath.lexically_normal();
-    if (toFindPath.is_relative() || viewVirtual.size() > 3 && (viewVirtual.substr(0, 3) == "../"sv || viewVirtual.substr(0, 3) == "..\\"sv))
+    if (toFindPath.is_relative() || (viewVirtual.size() > 3 && (viewVirtual.substr(0, 3) == "../"sv || viewVirtual.substr(0, 3) == "..\\"sv)))
     {
         if (std::filesystem::is_regular_file(current.physical))
         {

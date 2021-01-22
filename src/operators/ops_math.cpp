@@ -173,6 +173,92 @@ namespace
 	{
 		return right;
 	}
+	value matrixmultiply_array_array(runtime& runtime, value::cref left, value::cref right)
+	{
+		auto l = left.data<d_array>();
+		auto r = right.data<d_array>();
+
+		// Check that neither rows nor first col is empty
+		if (l->size() == 0 || l->at(0).type() != t_array() || l->at(0).data<d_array>()->size() == 0) {
+			return std::make_shared<d_array>();
+		}
+		if (r->size() == 0 || r->at(0).type() != t_array() || r->at(0).data<d_array>()->size() == 0) {
+			return std::make_shared<d_array>();
+		}
+
+		size_t l_rows = l->size();
+		size_t l_cols = l->at(0).data<d_array>()->size();
+		size_t r_rows = r->size();
+		size_t r_cols = r->at(0).data<d_array>()->size();
+
+		// Check that array is n x k
+		for (size_t i = 1; i < l_rows; i++) {
+			if (l->at(i).data<d_array>()->size() != l_cols) {
+				return std::make_shared<d_array>();
+			}
+		}
+
+		// Check that array is k x m
+		for (size_t i = 1; i < r_rows; i++) {
+			if (r->at(i).data<d_array>()->size() != r_cols) {
+				return std::make_shared<d_array>();
+			}
+		}
+
+		// Ensure arrays are n x k and k x m
+		if (l_cols != r_rows) {
+			return std::make_shared<d_array>();
+		}
+
+		auto multiplied = std::make_shared<d_array>();
+
+		for (size_t i = 0; i < l_rows; i++) {
+			auto row = std::make_shared<d_array>();
+			for (size_t j = 0; j < r_cols; j++) {
+				float col = 0;
+				for (size_t k = 0; k < r_rows; k++) {
+					auto l_value = l->at(i).data<d_array>()->at(k).data<d_scalar, float>();
+					auto r_value = r->at(k).data<d_array>()->at(j).data<d_scalar, float>();
+					col = col + l_value * r_value;
+				}
+				row->push_back(col);
+			}
+			multiplied->push_back(row);
+		}
+
+		return multiplied;
+	}
+	value matrixtranspose_array(runtime& runtime, value::cref left)
+	{
+		auto l = left.data<d_array>();
+
+		// Check that neither rows nor first col is empty
+		if (l->size() == 0 || l->at(0).type() != t_array() || l->at(0).data<d_array>()->size() == 0) {
+			return std::make_shared<d_array>();
+		}
+
+		auto row_size = l->size();
+		auto col_size = l->at(0).data<d_array>()->size();
+
+		// Check that array is n x k
+		for (size_t i = 1; i < row_size; i++) {
+			if (l->at(i).data<d_array>()->size() != col_size) {
+				return std::make_shared<d_array>();
+			}
+		}
+
+		auto transposed = std::make_shared<d_array>();
+
+		for (size_t i = 0; i < col_size; i++) {
+			auto row = std::make_shared<d_array>();
+			for (size_t j = 0; j < row_size; j++) {
+				row->push_back(l->at(j).data<d_array>()->at(i).data<d_scalar, float>());
+			}
+			transposed->push_back(row);
+		}
+
+		return transposed;
+	}
 	float dotProduct(vec3 left, vec3 right)
 	{
 		return left.x * right.x + left.y * right.y + left.z * right.z;
@@ -384,6 +470,7 @@ void sqf::operators::ops_math(sqf::runtime::runtime& runtime)
 	runtime.register_sqfop(unary("+", t_scalar(), "Returns a copy of a.", plus_scalar));
 	runtime.register_sqfop(unary("+", t_nan(), "Returns a copy of a.", plus_scalar));
 	runtime.register_sqfop(unary("!", t_boolean(), "Returns a negation of Boolean expression. That means true becomes false and vice versa.", exclamationmark_bool));
+	runtime.register_sqfop(unary("not", t_boolean(), "Returns a negation of Boolean expression. That means true becomes false and vice versa.", exclamationmark_bool));
 	runtime.register_sqfop(binary(6, "min", t_scalar(), t_scalar(), "The smaller of a, b", min_scalar_scalar));
 	runtime.register_sqfop(binary(6, "max", t_scalar(), t_scalar(), "The greater of a, b.", max_scalar_scalar));
 	runtime.register_sqfop(unary("floor", t_scalar(), "Returns the next lowest integer in relation to x.", floor_scalar));
@@ -402,6 +489,8 @@ void sqf::operators::ops_math(sqf::runtime::runtime& runtime)
 	runtime.register_sqfop(binary(7, "*", t_scalar(), t_scalar(), "Returns the value of a multiplied by b.", multiply_scalar_scalar));
 	runtime.register_sqfop(binary(7, "/", t_scalar(), t_scalar(), "a divided by b. Division by 0 throws \"Division by zero\" error, however script doesn't stop and the result of such division is assumed to be 0.", divide_scalar_scalar));
 
+	runtime.register_sqfop(binary(4, "matrixMultiply", t_array(), t_array(), "", matrixmultiply_array_array));
+	runtime.register_sqfop(unary("matrixTranspose", t_array(), "", matrixtranspose_array));
 	runtime.register_sqfop(binary(4, "vectorAdd", t_array(), t_array(), "Adds two 3D vectors.", vectoradd_array_array));
 	runtime.register_sqfop(binary(4, "vectorCos", t_array(), t_array(), "Cosine of angle between two 3D vectors.", vectorcos_array_array));
 	runtime.register_sqfop(binary(4, "vectorCrossProduct", t_array(), t_array(), "Cross product of two 3D vectors.", vectorcrossproduct_array_array));

@@ -378,6 +378,15 @@ namespace sqf::parser::sqf
                         if (res == 0) { --iter; }
                         else { iter += res; }
                     }
+                    if (is_match<'e', 'E'>(iter))
+                    {
+                        ++iter;
+                        if (is_match<'+', '-'>(iter)) { ++iter; }
+                        // match second part of number
+                        auto res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(iter);
+                        if (res == 0) { --iter; }
+                        else { iter += res; }
+                    }
                     len = iter - m_current;
                 } break;
                 }
@@ -413,9 +422,9 @@ namespace sqf::parser::sqf
             m_start(start),
             m_current(start),
             m_end(end),
+            m_mode(emode::normal),
             m_line(0),
-            m_column(0),
-            m_mode(emode::normal)
+            m_column(0)
         {
             m_strings.push_back(new std::string(path));
         }
@@ -478,6 +487,7 @@ namespace sqf::parser::sqf
             case ']':           return try_match({ etoken::s_edgec });
             case '{':           return try_match({ etoken::s_curlyo });
             case '}':           return try_match({ etoken::s_curlyc });
+            case '%':           return try_match({ etoken::t_operator });
             case '&':           return try_match({ etoken::t_operator });
             case '$':           return try_match({ etoken::t_hexadecimal });
             case '!':           return try_match({ etoken::t_operator });

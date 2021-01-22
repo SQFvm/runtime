@@ -2762,6 +2762,22 @@ namespace logmessage::runtime
         output.append(m_message);
         return output;
     }
+    std::string InvalidAssemblyInstruction::formatMessage() const
+    {
+        auto output = m_location.format();
+
+        output.reserve(
+            output.length()
+            + "Invalid assembly instruction { "sv.length()
+            + m_assembly.length()
+            + " }"sv.length()
+        );
+
+        output.append("Invalid assembly instruction { "sv);
+        output.append(m_assembly);
+        output.append(" }"sv);
+        return output;
+    }
 }
 
 std::string logmessage::fileio::ResolveVirtualRequested::formatMessage() const

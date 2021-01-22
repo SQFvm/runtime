@@ -1,7 +1,16 @@
-// Contains parse tests that should not crash
+// Contains parse tests that should not crash and should parse
 [   ["assert",       { compile """unclosed string" }],
     ["assertExcept", { compile "." }],
     ["assert",       { compile "1" }],
+    ["assert",       { compile ";" }],
+    ["assert",       { compile "1E7" }],
+    ["assert",       { compile "1e7" }],
+    ["assert",       { compile "-1E7" }],
+    ["assert",       { compile "-1e7" }],
+    ["assert",       { compile "1E-7" }],
+    ["assert",       { compile "1e-7" }],
+    ["assert",       { compile "-1E-7" }],
+    ["assert",       { compile "-1e-7" }],
     ["assert",       { compile "0x1" }],
     ["assert",       { compile "$1" }],
     ["assertExcept", { compile "[1,2,3" }],

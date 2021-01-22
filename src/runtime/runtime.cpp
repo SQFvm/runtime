@@ -323,9 +323,9 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
             m_state = state::running;
             while (!m_contexts.empty())
             {
-                for (auto iterator = m_contexts.begin(); iterator != m_contexts.end(); iterator++)
+                for (size_t i = 0; i < m_contexts.size(); i++)
                 {
-                    m_context_active = *iterator;
+                    m_context_active = m_contexts[i];
                     if (m_context_active->suspended())
                     {
                         if (m_context_active->wakeup_timestamp() <= std::chrono::system_clock::now())
@@ -357,20 +357,20 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
                         std::cout << "\x1B[33m[ASSEMBLY ASSERT]\033[0m" <<
                             "        " <<
                             "        " <<
-                            "    " << "\x1B[36mERASE CONTEXT\033[0m \x1B[90" << ((*iterator)->name().empty() ? "<unnamed>" : (*iterator)->name()) << "\033[0m" << std::endl;
+                            "    " << "\x1B[36mERASE CONTEXT\033[0m \x1B[90" << (m_context_active->name().empty() ? "<unnamed>" : m_context_active->name()) << "\033[0m" << std::endl;
 #endif // DF__SQF_RUNTIME__ASSEMBLY_DEBUG_ON_EXECUTE
-                        auto opt_val = (*iterator)->pop_value(true);
+                        auto opt_val = m_context_active->pop_value(true);
                         if (opt_val.has_value() && configuration().print_context_work_to_log_on_exit)
                         {
                             __logmsg(logmessage::runtime::ContextValuePrint(opt_val.value()));
                         }
-                        m_contexts.erase(iterator);
+                        m_contexts.erase(m_contexts.begin() + i);
                         if (m_contexts.empty())
                         {
                             m_context_active = {};
                             goto start_loop_exit;
                         }
-                        iterator = m_contexts.begin();
+                        i--;
                     } break;
                     case sqf::runtime::runtime::result::invalid:
                     case sqf::runtime::runtime::result::action_error:

@@ -977,7 +977,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(::sqf:
             }
             if (current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write)
             {
-                if (wordstream.rdbuf()->in_avail() > 0)
+                if (wordstream.tellp() > 0)
                 {
                     auto word = wordstream.str();
                     wordstream.str("");

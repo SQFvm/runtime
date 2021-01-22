@@ -6,6 +6,7 @@
 #include "../runtime/d_scalar.h"
 #include "../runtime/d_boolean.h"
 #include "../runtime/d_code.h"
+#include "../runtime/d_array.h"
 
 #include "../runtime/value.h"
 
@@ -100,6 +101,79 @@ namespace
     {
         return left.type() == right.type();
     }
+    value isequaltypeall_array_any(runtime& runtime, value::cref left, value::cref right)
+    {
+        auto type = right.type();
+        auto arr = left.data<d_array>();
+
+        if (arr->size() == 0)
+        {
+            return false;
+        }
+
+        for (const auto &item : arr->value()) {
+            if (item.type() != type) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    value isequaltypeany_any_array(runtime& runtime, value::cref left, value::cref right)
+    {
+        auto type = left.type();
+        auto arr = right.data<d_array>();
+
+        for (const auto &item : arr->value()) {
+            if (item.type() == type) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    value isequaltypearray_array_array(runtime& runtime, value::cref left, value::cref right)
+    {
+        auto l = left.data<d_array>();
+        auto r = right.data<d_array>();
+
+        return std::equal(l->value().begin(), l->value().end(), r->value().begin(), r->value().end(),
+                          [](value left, value right) { return left.type() == right.type(); });
+    }
+    value isequaltypeparams_any_array(runtime& runtime, value::cref left, value::cref right)
+    {
+        if (!left.is(t_array())) {
+            return false;
+        }
+
+        auto l = left.data<d_array>();
+        auto r = right.data<d_array>();
+
+        // Early exit if input does not cover all templates
+        if (l->size() < r->size())
+        {
+            return false;
+        }
+
+        // Only input which is defined in templates needs to be validated
+        for (size_t i = 0; i < r->size(); i++)
+        {
+            auto l_value = l->at(i);
+            auto r_template = r->at(i);
+
+            // Template which is nil accepts all types
+            if (r_template.empty()) {
+                continue;
+            }
+
+            if (l_value.type() != r_template.type())
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     value true_(runtime& runtime)
     {
@@ -162,4 +236,8 @@ void sqf::operators::ops_logic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(binary(3, "!=", t_location(), t_location(), "Returns whether one value is not equal to another.", notequals_any_any));
     runtime.register_sqfop(binary(4, "isEqualTo", t_any(), t_any(), "Check if one value is equal to another. Both values need to be of the same type.", isequalto_any_any));
     runtime.register_sqfop(binary(4, "isEqualType", t_any(), t_any(), "Compares 2 values by their type. A much faster alternative to typeName a == typeName b.", isequaltype_any_any));
+    runtime.register_sqfop(binary(4, "isEqualTypeAll", t_array(), t_any(), "Compares types of all elements of an array to the type of a single value.", isequaltypeall_array_any));
+    runtime.register_sqfop(binary(4, "isEqualTypeAny", t_any(), t_array(), "Compares type of given value to every type in the given array and if match is found, true is returned.", isequaltypeany_any_array));
+    runtime.register_sqfop(binary(4, "isEqualTypeArray", t_array(), t_array(), "Compares types of all elements of one array to types of all elements of another array.", isequaltypearray_array_array));
+    runtime.register_sqfop(binary(4, "isEqualTypeParams", t_any(), t_array(), "Compares types of all elements of input array to types of all elements of template array.", isequaltypeparams_any_array));
 }

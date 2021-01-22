@@ -22,6 +22,7 @@ namespace sqf::opcodes
             auto& context = vm.context_active();
 
             auto value = vm.context_active().pop_value();
+            if (m_variable_name.empty()) { return; }
             if (!value.has_value())
             {
                 if (context.weak_error_handling())
