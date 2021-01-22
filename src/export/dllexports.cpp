@@ -119,12 +119,22 @@ void exportstarget::log(loglevel level, std::string_view message)
 */
 
 
-#include "runtime/logging.h"
-#include "runtime/runtime.h"
+#include "../runtime/logging.h"
+#include "../runtime/runtime.h"
+#include "../parser/config/default.h"
+#include "../parser/sqf/sqf_parser.hpp"
+#include "../parser/preprocessor/default.h"
+#include "../operators/ops.h"
+#include "../fileio/default.h"
+#include "../sqc/sqc_parser.h"
 #include "dllexports.h"
+
 #include <chrono>
 #include <functional>
 #include <optional>
+#include <memory>
+
+using namespace std::string_view_literals;
 
 namespace dllexports
 {
@@ -184,6 +194,12 @@ namespace dllexports
         conf.print_context_work_to_log_on_exit = false;
         actual->runtime = new sqf::runtime::runtime(*actual->logger, conf);
 
+        actual->runtime->fileio(std::make_unique<sqf::fileio::impl_default>(*actual->logger));
+        actual->runtime->parser_config(std::make_unique<sqf::parser::config::impl_default>(*actual->logger));
+        actual->runtime->parser_preprocessor(std::make_unique<sqf::parser::preprocessor::impl_default>(*actual->logger));
+        actual->runtime->parser_sqf(std::make_unique<sqf::parser::sqf::parser>(*actual->logger));
+        sqf::operators::ops(*actual->runtime);
+
         return actual;
     }
     namespace time
@@ -212,11 +228,122 @@ extern "C" DLLEXPORT_PREFIX int32_t sqfvm_load_config(void* instance, const char
 }
 extern "C" int32_t sqfvm_call(void* instance, void* call_data, char type, const char* code, uint32_t length)
 {
-    
+    const int32_t instance_invalid = -1;
+    const int32_t preprocessing_failed = -2;
+    const int32_t parsing_failed = -3;
+    const int32_t instance_running = -4;
+    const int32_t invalid_type = -5;
+    const int32_t result_ok = 0;
+    const int32_t result_failed = -6;
+    const char type_assembly = 'a';
+    const char type_sqf = 's';
+    const char type_sqc = 'c';
+    const char type_preprocess = 'p';
+
+
+    auto result = dllexports::with_instance_do(instance, [&](dllexports::instance& ref) -> int32_t {
+        if (ref.runtime->runtime_state() != sqf::runtime::runtime::state::empty)
+        {
+            return instance_running;
+        }
+        ref.logger->call_data = call_data;
+        auto ppedStr = ref.runtime->parser_preprocessor().preprocess(
+            *ref.runtime, std::string_view(code, length), { "dllexports"sv, {} });
+
+        if (!ppedStr.has_value())
+        {
+            ref.logger->callback(ref.logger->user_data, call_data, -1, ppedStr->data(), ppedStr->length());
+            return preprocessing_failed;
+        }
+        switch (type)
+        {
+            case type_assembly:
+            {
+
+            } break;
+            case type_sqf: {
+                auto set = ref.runtime->parser_sqf().parse(*ref.runtime, ppedStr.value(), { "dllexports"sv, {} });
+                if (!set.has_value())
+                {
+                    return parsing_failed;
+                }
+                else
+                {
+                    auto wptr = ref.runtime->context_create();
+                    auto context = wptr.lock();
+                    context->push_frame({ ref.runtime->default_value_scope(), set.value() });
+                    auto result = ref.runtime->execute(sqf::runtime::runtime::action::start);
+                    switch (result)
+                    {
+                        case sqf::runtime::runtime::result::ok:
+                        case sqf::runtime::runtime::result::empty:
+                        return result_ok;
+
+                        case sqf::runtime::runtime::result::invalid:
+                        case sqf::runtime::runtime::result::action_error:
+                        case sqf::runtime::runtime::result::runtime_error:
+                        ref.runtime->execute(sqf::runtime::runtime::action::abort);
+                        default:
+                        return result_failed;
+                    }
+                }
+            }
+            case type_sqc: {
+                auto sqc = std::make_shared<sqf::sqc::parser>(*ref.logger);
+                auto set = sqc->parse(*ref.runtime, ppedStr.value(), { "dllexports"sv, {} });
+                if (!set.has_value())
+                {
+                    return parsing_failed;
+                }
+                else
+                {
+                    auto wptr = ref.runtime->context_create();
+                    auto context = wptr.lock();
+                    context->push_frame({ ref.runtime->default_value_scope(), set.value() });
+                    auto result = ref.runtime->execute(sqf::runtime::runtime::action::start);
+                    switch (result)
+                    {
+                        case sqf::runtime::runtime::result::ok:
+                        case sqf::runtime::runtime::result::empty:
+                        return result_ok;
+
+                        case sqf::runtime::runtime::result::invalid:
+                        case sqf::runtime::runtime::result::action_error:
+                        case sqf::runtime::runtime::result::runtime_error:
+                        ref.runtime->execute(sqf::runtime::runtime::action::abort);
+                        default:
+                        return result_failed;
+                    }
+                }
+            }
+            case type_preprocess: {
+                ref.logger->callback(ref.logger->user_data, call_data, -1, ppedStr->data(), ppedStr->length());
+                return result_ok;
+            }
+            default: return invalid_type;
+        }
+        return static_cast<int32_t>(ref.runtime->runtime_state());
+    });
+    if (result.has_value())
+    {
+        return result.value();
+    }
+    else
+    {
+        return instance_invalid;
+    }
 }
 extern "C" int32_t sqfvm_status(void* instance)
 {
     auto result = dllexports::with_instance_do(instance, [](dllexports::instance& ref) -> int32_t {
         return static_cast<int32_t>(ref.runtime->runtime_state());
     });
+    if (result.has_value())
+    {
+        return result.value();
+    }
+    else
+    {
+        return -1;
+    }
 }
