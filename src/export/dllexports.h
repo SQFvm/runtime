@@ -36,9 +36,10 @@ extern "C" {
     // @param instance A valid instance as returned from sqfvm_create_instance
     // @param contents The config contents to load
     // @param length The length of contents.
-    // @return  0 if calling the SQF-VM instance was successful,
+    // @return  0 if loading the config was successful,
     //         -1 if the instance was null
-    //         -2 if parsing failed
+    //         -2 if preprocessing failed
+    //         -3 if parsing failed
     int32_t sqfvm_load_config(void* instance, const char* contents, uint32_t length);
 
     // Checks the status of the instance

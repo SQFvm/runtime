@@ -1,124 +1,3 @@
-/*
-#include "dllexports.h"
-#include "virtualmachine.h"
-#include "commandmap.h"
-#include "value.h"
-#include "vmstack.h"
-#include "configdata.h"
-#include "Entry.h"
-#include <iostream>
-#include <sstream>
-#include <cstring>
-
-#ifdef _WIN32
-#include <windows.h>
-#include <direct.h>
-#include <cstring>
-#else
-#include <limits.h>
-#include <sys/ioctl.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <execinfo.h>
-#endif
-
-std::string get_working_dir()
-{
-#if defined(_WIN32) || defined(_WIN64)
-    char buffer[MAX_PATH];
-    _getcwd(buffer, MAX_PATH);
-    return std::string(buffer);
-#elif defined(__GNUC__)
-    char buffer[PATH_MAX];
-    getcwd(buffer, PATH_MAX);
-    return std::string(buffer);
-#else
-#error "NO IMPLEMENTATION AVAILABLE"
-#endif
-}
-extern "C" {
-    DLLEXPORT_PREFIX void sqfvm_init(unsigned long long limit)
-    {
-        sqfvm_virtualmachine = std::make_shared<sqf::virtualmachine>(sqfvm_exportstarget, limit);
-        sqfvm_virtualmachine->allow_suspension(false);
-#if !defined(FILESYSTEM_DISABLE_DISALLOW)
-        sqfvm_virtualmachine->get_filesystem().disallow(true);
-#endif
-        sqfvm_virtualmachine->disable_networking();
-        sqf::commandmap::get().init();
-    }
-    DLLEXPORT_PREFIX void sqfvm_exec(const char* code, char* buffer, unsigned int bufferlen)
-    {
-        std::stringstream sstream;
-        bool err;
-        std::string executable_path;
-        {
-#if defined(_WIN32) || defined(_WIN64)
-            char buffer[MAX_PATH];
-            _getcwd(buffer, MAX_PATH);
-            executable_path = sqf::filesystem::sanitize(buffer);
-#elif defined(__GNUC__)
-            char buffer[PATH_MAX];
-            getcwd(buffer, PATH_MAX);
-            executable_path = sqf::filesystem::sanitize(buffer);
-#else
-#error "NO IMPLEMENTATION AVAILABLE"
-#endif
-        }
-        auto inputAfterPP = sqfvm_virtualmachine->preprocess(code, err, "__libraryfeed.sqf");
-        if (!err)
-        {
-            sqfvm_virtualmachine->parse_sqf(inputAfterPP, "__libraryfeed.sqf");
-            auto result = sqfvm_virtualmachine->execute(sqf::virtualmachine::execaction::start);
-            if (result != sqf::virtualmachine::execresult::OK)
-            {
-                sqfvm_virtualmachine->execute(sqf::virtualmachine::execaction::abort);
-            }
-            sstream << sqfvm_exportstarget.str();
-            sqfvm_exportstarget.clear();
-            auto val = sqfvm_virtualmachine->active_vmstack()->last_value();
-            if (val.data() != nullptr)
-            {
-                sstream << "[WORK]\t<" << sqf::type_str(val.dtype()) << ">\t" << val.as_string() << std::endl;
-            }
-            else
-            {
-                sstream << "[WORK]\t<" << "EMPTY" << ">\t" << std::endl;
-            }
-        }
-        else
-        {
-            sstream << sqfvm_exportstarget.str();
-            sqfvm_exportstarget.clear();
-        }
-        auto str = sstream.str();
-        memset(buffer, 0, sizeof(char) * bufferlen);
-#ifdef _WIN32
-        strncpy_s(buffer, str.length() + 1, str.c_str(), bufferlen);
-#else
-        std::strncpy(buffer, str.c_str(), bufferlen);
-#endif
-    }
-
-    DLLEXPORT_PREFIX void sqfvm_loadconfig(const char* cfg)
-    {
-        sqfvm_virtualmachine->parse_config(cfg);
-    }
-
-    DLLEXPORT_PREFIX void sqfvm_uninit()
-    {
-        sqf::commandmap::get().uninit();
-        sqfvm_virtualmachine = std::shared_ptr<sqf::virtualmachine>();
-    }
-}
-
-void exportstarget::log(loglevel level, std::string_view message)
-{
-    m_sstream << Logger::loglevelstring(level) << " " << message << std::endl;
-}
-*/
-
-
 #include "../runtime/logging.h"
 #include "../runtime/runtime.h"
 #include "../parser/config/default.h"
@@ -203,6 +82,16 @@ namespace dllexports
 
         return actual;
     }
+    static void destroy_instance(void* in)
+    {
+        auto actual = reinterpret_cast<instance*>(in);
+
+        if (actual->seq[0] == 'S' && actual->seq[1] == 'Q' && actual->seq[2] == 'F' && actual->seq[3] == 'L')
+        {
+            delete actual->runtime;
+            delete actual->logger;
+        }
+    }
     namespace time
     {
         using unixstamp = std::chrono::seconds;
@@ -217,15 +106,38 @@ namespace dllexports
 
 extern "C" DLLEXPORT_PREFIX void* sqfvm_create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
 {
-
+    return dllexports::create_instance(user_data, callback, max_runtime_seconds);
 }
 extern "C" DLLEXPORT_PREFIX void sqfvm_destroy_instance(void* instance)
 {
-    
+    return dllexports::destroy_instance(instance);
 }
 extern "C" DLLEXPORT_PREFIX int32_t sqfvm_load_config(void* instance, const char* contents, uint32_t length)
 {
-    
+    const int32_t instance_invalid = -1;
+    const int32_t preprocessing_failed = -2;
+    const int32_t parsing_failed = -3;
+    const int32_t result_ok = 0;
+    auto result = dllexports::with_instance_do(instance, [&](dllexports::instance& ref) -> int32_t {
+        auto ppedStr = ref.runtime->parser_preprocessor().preprocess(
+            *ref.runtime, std::string_view(contents, length), { "dllexports"sv, {} });
+
+        if (!ppedStr.has_value())
+        {
+            ref.logger->callback(ref.logger->user_data, NULL, -1, ppedStr->data(), ppedStr->length());
+            return preprocessing_failed;
+        }
+        auto success = ref.runtime->parser_config().parse(ref.runtime->confighost(), *ppedStr, { "dllexports"sv, {} });
+        return success ? result_ok : parsing_failed;
+    });
+    if (result.has_value())
+    {
+        return result.value();
+    }
+    else
+    {
+        return instance_invalid;
+    }
 }
 extern "C" int32_t sqfvm_call(void* instance, void* call_data, char type, const char* code, uint32_t length)
 {
