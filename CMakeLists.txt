@@ -39,7 +39,7 @@ file(GLOB vm_src
     "${PROJECT_SOURCE_DIR}/src/parser/config/*.h" "${PROJECT_SOURCE_DIR}/src/parser/config/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser/config/*.c"
     "${PROJECT_SOURCE_DIR}/src/parser/preprocessor/*.h" "${PROJECT_SOURCE_DIR}/src/parser/preprocessor/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser/preprocessor/*.c"
     "${PROJECT_SOURCE_DIR}/src/parser/sqf/*.h" "${PROJECT_SOURCE_DIR}/src/parser/sqf/*.hh" "${PROJECT_SOURCE_DIR}/src/parser/sqf/*.hpp" "${PROJECT_SOURCE_DIR}/src/parser/sqf/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser/sqf/*.c" "${PROJECT_SOURCE_DIR}/src/parser/sqf/*.cc"
-    "${PROJECT_SOURCE_DIR}/src/parser/pbo/*.h" "${PROJECT_SOURCE_DIR}/src/parser/pbo/*.hh" "${PROJECT_SOURCE_DIR}/src/parser/pbo/*.hpp" "${PROJECT_SOURCE_DIR}/src/parser/pbo/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser/pbo/*.c" "${PROJECT_SOURCE_DIR}/src/parser/pbo/*.cc"
+    "${PROJECT_SOURCE_DIR}/src/parser/assembly/*.h" "${PROJECT_SOURCE_DIR}/src/parser/assembly/*.hh" "${PROJECT_SOURCE_DIR}/src/parser/assembly/*.hpp" "${PROJECT_SOURCE_DIR}/src/parser/assembly/*.cpp" "${PROJECT_SOURCE_DIR}/src/parser/assembly/*.c" "${PROJECT_SOURCE_DIR}/src/parser/assembly/*.cc"
     "${PROJECT_SOURCE_DIR}/src/operators/*.h" "${PROJECT_SOURCE_DIR}/src/operators/*.cpp" "${PROJECT_SOURCE_DIR}/src/operators/*.c"
     "${PROJECT_SOURCE_DIR}/src/opcodes/*.h" "${PROJECT_SOURCE_DIR}/src/opcodes/*.cpp" "${PROJECT_SOURCE_DIR}/src/opcodes/*.c"
     "${PROJECT_SOURCE_DIR}/src/fileio/*.h" "${PROJECT_SOURCE_DIR}/src/fileio/*.cpp" "${PROJECT_SOURCE_DIR}/src/fileio/*.c"
@@ -79,6 +79,17 @@ list(APPEND vm_lib_src_sqc ${vm_src_sqc})
 list(REMOVE_ITEM vm_lib_src_sqc "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
 list(REMOVE_ITEM vm_lib_src_sqc "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
 
+#################################################### vm_lib_src_sqc (SQF-VM Library with SQC support) ####################################################
+
+file(GLOB vm_lib_cexports_src
+    "${PROJECT_SOURCE_DIR}/src/export/*.h"
+    "${PROJECT_SOURCE_DIR}/src/export/*.hh"
+    "${PROJECT_SOURCE_DIR}/src/export/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/export/*.c"
+    "${PROJECT_SOURCE_DIR}/src/export/*.cc"
+)
+list(APPEND vm_lib_cexports_src ${vm_lib_src_sqc})
+
 
 ############################
 ##                        ##
@@ -91,13 +102,14 @@ find_package(Threads)
 
 option(SQFVM_BUILD_EXECUTABLE "BUILD EXECUTABLE" ON)
 option(SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD "BUILD ARMA2 EXECUTABLE" ON)
-option(SQFVM_BUILD_LIBRARY "BUILD LIBRARY" ON)
-option(SQFVM_BUILD_LIBRARY_SQC_SUPPORT "BUILD LIBRARY WITH SQC SUPPORT" ON)
+option(SQFVM_BUILD_LIBRARY "BUILD LIBRARY" OFF)
+option(SQFVM_BUILD_LIBRARY_SQC_SUPPORT "BUILD LIBRARY WITH SQC SUPPORT" OFF)
 option(SQFVM_BUILD_STATIC_LIBRARY "BUILD STATIC LIBRARY" ON)
 option(SQFVM_BUILD_STATIC_LIBRARY_SQC_SUPPORT "BUILD STATIC LIBRARY WITH SQC SUPPORT" ON)
 option(SQFVM_BUILD_EXECUTABLE_SQC_SUPPORT "BUILD EXECUTABLE WITH SQC SUPPORT" ON)
 option(SQFVM_BUILD_EXECUTABLE_FULL_DIAGNOSE "BUILD DIAGNOSE EXECUTABLE" ON)
 option(SQFVM_BUILD_EXECUTABLE_ARMA2_LOCALKEYWORD_FULL_DIAGNOSE "BUILD ARMA2 DIAGNOSE EXECUTABLE" ON)
+option(SQFVM_BUILD_CEXPORTS "BUILD C-EXPORTS LIBRARY" ON)
 
 
 if (SQFVM_BUILD_EXECUTABLE)
@@ -219,6 +231,21 @@ if (SQFVM_BUILD_LIBRARY_SQC_SUPPORT)
      $<$<CXX_COMPILER_ID:MSVC>:
           /W4>)
     SET_TARGET_PROPERTIES(libsqfvm_sqc PROPERTIES PREFIX "")
+endif ()
+
+if (SQFVM_BUILD_CEXPORTS)
+    add_library(libcsqfvm SHARED ${vm_lib_cexports_src})
+    target_compile_definitions(libcsqfvm PUBLIC DISABLE_CLIPBOARD)
+    target_include_directories(libcsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    
+    target_compile_definitions(libcsqfvm PUBLIC SQF_SQC_SUPPORT)
+    
+    target_compile_options(libcsqfvm PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall -Wno-unknown-pragmas>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
+    SET_TARGET_PROPERTIES(libcsqfvm PROPERTIES PREFIX "")
 endif ()
 
 if (SQFVM_BUILD_STATIC_LIBRARY)

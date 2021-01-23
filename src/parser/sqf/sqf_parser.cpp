@@ -1,5 +1,4 @@
 #include "sqf_parser.hpp"
-#include "sqf_parser.hpp"
 #include "tokenizer.hpp"
 #include "parser.tab.hh"
 

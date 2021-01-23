@@ -1,0 +1,590 @@
+Terminale, die in Grammatik unbenutzt sind
+
+   INVALID
+   "("
+   ")"
+   ";"
+   "="
+
+
+Grammatik
+
+    0 $accept: start END_OF_FILE
+
+    1 start: END_OF_FILE
+    2      | statements
+
+    3 statements: statement
+    4           | statements statement
+
+    5 statement: assignto
+    6          | assigntolocal
+    7          | getvariable
+    8          | callunary
+    9          | callnular
+   10          | callbinary
+   11          | push
+   12          | endstatement
+   13          | error
+
+   14 assignto: ASSIGN_TO STRING
+
+   15 assigntolocal: ASSIGN_TO_LOCAL STRING
+
+   16 getvariable: GET_VARIABLE STRING
+
+   17 callunary: CALL_UNARY IDENT
+
+   18 callnular: CALL_NULAR IDENT
+
+   19 callbinary: CALL_BINARY IDENT
+
+   20 push: PUSH value
+
+   21 endstatement: END_STATEMENT
+
+   22 value: STRING
+   23      | NUMBER
+   24      | HEXNUMBER
+   25      | "true"
+   26      | "false"
+   27      | code
+   28      | array
+
+   29 exp_list: value
+   30         | exp_list "," value
+
+   31 code: "{" statements "}"
+   32     | "{" "}"
+
+   33 array: "[" exp_list "]"
+   34      | "[" "]"
+
+
+Terminale und die Regeln, in denen sie verwendet werden
+
+END_OF_FILE (0) 0 1
+error (256) 13
+INVALID (258)
+"false" (259) 26
+"true" (260) 25
+"{" (261) 31 32
+"}" (262) 31 32
+"(" (263)
+")" (264)
+"[" (265) 33 34
+"]" (266) 33 34
+";" (267)
+"," (268) 30
+"=" (269)
+ASSIGN_TO (270) 14
+ASSIGN_TO_LOCAL (271) 15
+GET_VARIABLE (272) 16
+CALL_UNARY (273) 17
+CALL_NULAR (274) 18
+CALL_BINARY (275) 19
+PUSH (276) 20
+END_STATEMENT (277) 21
+IDENT (278) 17 18 19
+NUMBER (279) 23
+HEXNUMBER (280) 24
+STRING (281) 14 15 16 22
+
+
+Nicht-Terminal und die Regeln, in denen sie verwendet werden
+
+$accept (27)
+    auf der linken Seite: 0
+start (28)
+    auf der linken Seite: 1 2, auf der rechten Seite: 0
+statements (29)
+    auf der linken Seite: 3 4, auf der rechten Seite: 2 4 31
+statement (30)
+    auf der linken Seite: 5 6 7 8 9 10 11 12 13, auf der rechten Seite:
+    3 4
+assignto (31)
+    auf der linken Seite: 14, auf der rechten Seite: 5
+assigntolocal (32)
+    auf der linken Seite: 15, auf der rechten Seite: 6
+getvariable (33)
+    auf der linken Seite: 16, auf der rechten Seite: 7
+callunary (34)
+    auf der linken Seite: 17, auf der rechten Seite: 8
+callnular (35)
+    auf der linken Seite: 18, auf der rechten Seite: 9
+callbinary (36)
+    auf der linken Seite: 19, auf der rechten Seite: 10
+push (37)
+    auf der linken Seite: 20, auf der rechten Seite: 11
+endstatement (38)
+    auf der linken Seite: 21, auf der rechten Seite: 12
+value (39)
+    auf der linken Seite: 22 23 24 25 26 27 28, auf der rechten Seite:
+    20 29 30
+exp_list (40)
+    auf der linken Seite: 29 30, auf der rechten Seite: 30 33
+code (41)
+    auf der linken Seite: 31 32, auf der rechten Seite: 27
+array (42)
+    auf der linken Seite: 33 34, auf der rechten Seite: 28
+
+
+Zustand 0
+
+    0 $accept: . start END_OF_FILE
+
+    END_OF_FILE      schiebe und gehe zu Zustand 1 über
+    error            schiebe und gehe zu Zustand 2 über
+    ASSIGN_TO        schiebe und gehe zu Zustand 3 über
+    ASSIGN_TO_LOCAL  schiebe und gehe zu Zustand 4 über
+    GET_VARIABLE     schiebe und gehe zu Zustand 5 über
+    CALL_UNARY       schiebe und gehe zu Zustand 6 über
+    CALL_NULAR       schiebe und gehe zu Zustand 7 über
+    CALL_BINARY      schiebe und gehe zu Zustand 8 über
+    PUSH             schiebe und gehe zu Zustand 9 über
+    END_STATEMENT    schiebe und gehe zu Zustand 10 über
+
+    start          gehe zu Zustand 11 über
+    statements     gehe zu Zustand 12 über
+    statement      gehe zu Zustand 13 über
+    assignto       gehe zu Zustand 14 über
+    assigntolocal  gehe zu Zustand 15 über
+    getvariable    gehe zu Zustand 16 über
+    callunary      gehe zu Zustand 17 über
+    callnular      gehe zu Zustand 18 über
+    callbinary     gehe zu Zustand 19 über
+    push           gehe zu Zustand 20 über
+    endstatement   gehe zu Zustand 21 über
+
+
+Zustand 1
+
+    1 start: END_OF_FILE .
+
+    $default  reduziere mit Regel 1 (start)
+
+
+Zustand 2
+
+   13 statement: error .
+
+    $default  reduziere mit Regel 13 (statement)
+
+
+Zustand 3
+
+   14 assignto: ASSIGN_TO . STRING
+
+    STRING  schiebe und gehe zu Zustand 22 über
+
+
+Zustand 4
+
+   15 assigntolocal: ASSIGN_TO_LOCAL . STRING
+
+    STRING  schiebe und gehe zu Zustand 23 über
+
+
+Zustand 5
+
+   16 getvariable: GET_VARIABLE . STRING
+
+    STRING  schiebe und gehe zu Zustand 24 über
+
+
+Zustand 6
+
+   17 callunary: CALL_UNARY . IDENT
+
+    IDENT  schiebe und gehe zu Zustand 25 über
+
+
+Zustand 7
+
+   18 callnular: CALL_NULAR . IDENT
+
+    IDENT  schiebe und gehe zu Zustand 26 über
+
+
+Zustand 8
+
+   19 callbinary: CALL_BINARY . IDENT
+
+    IDENT  schiebe und gehe zu Zustand 27 über
+
+
+Zustand 9
+
+   20 push: PUSH . value
+
+    "false"    schiebe und gehe zu Zustand 28 über
+    "true"     schiebe und gehe zu Zustand 29 über
+    "{"        schiebe und gehe zu Zustand 30 über
+    "["        schiebe und gehe zu Zustand 31 über
+    NUMBER     schiebe und gehe zu Zustand 32 über
+    HEXNUMBER  schiebe und gehe zu Zustand 33 über
+    STRING     schiebe und gehe zu Zustand 34 über
+
+    value  gehe zu Zustand 35 über
+    code   gehe zu Zustand 36 über
+    array  gehe zu Zustand 37 über
+
+
+Zustand 10
+
+   21 endstatement: END_STATEMENT .
+
+    $default  reduziere mit Regel 21 (endstatement)
+
+
+Zustand 11
+
+    0 $accept: start . END_OF_FILE
+
+    END_OF_FILE  schiebe und gehe zu Zustand 38 über
+
+
+Zustand 12
+
+    2 start: statements .
+    4 statements: statements . statement
+
+    error            schiebe und gehe zu Zustand 2 über
+    ASSIGN_TO        schiebe und gehe zu Zustand 3 über
+    ASSIGN_TO_LOCAL  schiebe und gehe zu Zustand 4 über
+    GET_VARIABLE     schiebe und gehe zu Zustand 5 über
+    CALL_UNARY       schiebe und gehe zu Zustand 6 über
+    CALL_NULAR       schiebe und gehe zu Zustand 7 über
+    CALL_BINARY      schiebe und gehe zu Zustand 8 über
+    PUSH             schiebe und gehe zu Zustand 9 über
+    END_STATEMENT    schiebe und gehe zu Zustand 10 über
+
+    END_OF_FILE  reduziere mit Regel 2 (start)
+
+    statement      gehe zu Zustand 39 über
+    assignto       gehe zu Zustand 14 über
+    assigntolocal  gehe zu Zustand 15 über
+    getvariable    gehe zu Zustand 16 über
+    callunary      gehe zu Zustand 17 über
+    callnular      gehe zu Zustand 18 über
+    callbinary     gehe zu Zustand 19 über
+    push           gehe zu Zustand 20 über
+    endstatement   gehe zu Zustand 21 über
+
+
+Zustand 13
+
+    3 statements: statement .
+
+    $default  reduziere mit Regel 3 (statements)
+
+
+Zustand 14
+
+    5 statement: assignto .
+
+    $default  reduziere mit Regel 5 (statement)
+
+
+Zustand 15
+
+    6 statement: assigntolocal .
+
+    $default  reduziere mit Regel 6 (statement)
+
+
+Zustand 16
+
+    7 statement: getvariable .
+
+    $default  reduziere mit Regel 7 (statement)
+
+
+Zustand 17
+
+    8 statement: callunary .
+
+    $default  reduziere mit Regel 8 (statement)
+
+
+Zustand 18
+
+    9 statement: callnular .
+
+    $default  reduziere mit Regel 9 (statement)
+
+
+Zustand 19
+
+   10 statement: callbinary .
+
+    $default  reduziere mit Regel 10 (statement)
+
+
+Zustand 20
+
+   11 statement: push .
+
+    $default  reduziere mit Regel 11 (statement)
+
+
+Zustand 21
+
+   12 statement: endstatement .
+
+    $default  reduziere mit Regel 12 (statement)
+
+
+Zustand 22
+
+   14 assignto: ASSIGN_TO STRING .
+
+    $default  reduziere mit Regel 14 (assignto)
+
+
+Zustand 23
+
+   15 assigntolocal: ASSIGN_TO_LOCAL STRING .
+
+    $default  reduziere mit Regel 15 (assigntolocal)
+
+
+Zustand 24
+
+   16 getvariable: GET_VARIABLE STRING .
+
+    $default  reduziere mit Regel 16 (getvariable)
+
+
+Zustand 25
+
+   17 callunary: CALL_UNARY IDENT .
+
+    $default  reduziere mit Regel 17 (callunary)
+
+
+Zustand 26
+
+   18 callnular: CALL_NULAR IDENT .
+
+    $default  reduziere mit Regel 18 (callnular)
+
+
+Zustand 27
+
+   19 callbinary: CALL_BINARY IDENT .
+
+    $default  reduziere mit Regel 19 (callbinary)
+
+
+Zustand 28
+
+   26 value: "false" .
+
+    $default  reduziere mit Regel 26 (value)
+
+
+Zustand 29
+
+   25 value: "true" .
+
+    $default  reduziere mit Regel 25 (value)
+
+
+Zustand 30
+
+   31 code: "{" . statements "}"
+   32     | "{" . "}"
+
+    error            schiebe und gehe zu Zustand 2 über
+    "}"              schiebe und gehe zu Zustand 40 über
+    ASSIGN_TO        schiebe und gehe zu Zustand 3 über
+    ASSIGN_TO_LOCAL  schiebe und gehe zu Zustand 4 über
+    GET_VARIABLE     schiebe und gehe zu Zustand 5 über
+    CALL_UNARY       schiebe und gehe zu Zustand 6 über
+    CALL_NULAR       schiebe und gehe zu Zustand 7 über
+    CALL_BINARY      schiebe und gehe zu Zustand 8 über
+    PUSH             schiebe und gehe zu Zustand 9 über
+    END_STATEMENT    schiebe und gehe zu Zustand 10 über
+
+    statements     gehe zu Zustand 41 über
+    statement      gehe zu Zustand 13 über
+    assignto       gehe zu Zustand 14 über
+    assigntolocal  gehe zu Zustand 15 über
+    getvariable    gehe zu Zustand 16 über
+    callunary      gehe zu Zustand 17 über
+    callnular      gehe zu Zustand 18 über
+    callbinary     gehe zu Zustand 19 über
+    push           gehe zu Zustand 20 über
+    endstatement   gehe zu Zustand 21 über
+
+
+Zustand 31
+
+   33 array: "[" . exp_list "]"
+   34      | "[" . "]"
+
+    "false"    schiebe und gehe zu Zustand 28 über
+    "true"     schiebe und gehe zu Zustand 29 über
+    "{"        schiebe und gehe zu Zustand 30 über
+    "["        schiebe und gehe zu Zustand 31 über
+    "]"        schiebe und gehe zu Zustand 42 über
+    NUMBER     schiebe und gehe zu Zustand 32 über
+    HEXNUMBER  schiebe und gehe zu Zustand 33 über
+    STRING     schiebe und gehe zu Zustand 34 über
+
+    value     gehe zu Zustand 43 über
+    exp_list  gehe zu Zustand 44 über
+    code      gehe zu Zustand 36 über
+    array     gehe zu Zustand 37 über
+
+
+Zustand 32
+
+   23 value: NUMBER .
+
+    $default  reduziere mit Regel 23 (value)
+
+
+Zustand 33
+
+   24 value: HEXNUMBER .
+
+    $default  reduziere mit Regel 24 (value)
+
+
+Zustand 34
+
+   22 value: STRING .
+
+    $default  reduziere mit Regel 22 (value)
+
+
+Zustand 35
+
+   20 push: PUSH value .
+
+    $default  reduziere mit Regel 20 (push)
+
+
+Zustand 36
+
+   27 value: code .
+
+    $default  reduziere mit Regel 27 (value)
+
+
+Zustand 37
+
+   28 value: array .
+
+    $default  reduziere mit Regel 28 (value)
+
+
+Zustand 38
+
+    0 $accept: start END_OF_FILE .
+
+    $default  annehmen
+
+
+Zustand 39
+
+    4 statements: statements statement .
+
+    $default  reduziere mit Regel 4 (statements)
+
+
+Zustand 40
+
+   32 code: "{" "}" .
+
+    $default  reduziere mit Regel 32 (code)
+
+
+Zustand 41
+
+    4 statements: statements . statement
+   31 code: "{" statements . "}"
+
+    error            schiebe und gehe zu Zustand 2 über
+    "}"              schiebe und gehe zu Zustand 45 über
+    ASSIGN_TO        schiebe und gehe zu Zustand 3 über
+    ASSIGN_TO_LOCAL  schiebe und gehe zu Zustand 4 über
+    GET_VARIABLE     schiebe und gehe zu Zustand 5 über
+    CALL_UNARY       schiebe und gehe zu Zustand 6 über
+    CALL_NULAR       schiebe und gehe zu Zustand 7 über
+    CALL_BINARY      schiebe und gehe zu Zustand 8 über
+    PUSH             schiebe und gehe zu Zustand 9 über
+    END_STATEMENT    schiebe und gehe zu Zustand 10 über
+
+    statement      gehe zu Zustand 39 über
+    assignto       gehe zu Zustand 14 über
+    assigntolocal  gehe zu Zustand 15 über
+    getvariable    gehe zu Zustand 16 über
+    callunary      gehe zu Zustand 17 über
+    callnular      gehe zu Zustand 18 über
+    callbinary     gehe zu Zustand 19 über
+    push           gehe zu Zustand 20 über
+    endstatement   gehe zu Zustand 21 über
+
+
+Zustand 42
+
+   34 array: "[" "]" .
+
+    $default  reduziere mit Regel 34 (array)
+
+
+Zustand 43
+
+   29 exp_list: value .
+
+    $default  reduziere mit Regel 29 (exp_list)
+
+
+Zustand 44
+
+   30 exp_list: exp_list . "," value
+   33 array: "[" exp_list . "]"
+
+    "]"  schiebe und gehe zu Zustand 46 über
+    ","  schiebe und gehe zu Zustand 47 über
+
+
+Zustand 45
+
+   31 code: "{" statements "}" .
+
+    $default  reduziere mit Regel 31 (code)
+
+
+Zustand 46
+
+   33 array: "[" exp_list "]" .
+
+    $default  reduziere mit Regel 33 (array)
+
+
+Zustand 47
+
+   30 exp_list: exp_list "," . value
+
+    "false"    schiebe und gehe zu Zustand 28 über
+    "true"     schiebe und gehe zu Zustand 29 über
+    "{"        schiebe und gehe zu Zustand 30 über
+    "["        schiebe und gehe zu Zustand 31 über
+    NUMBER     schiebe und gehe zu Zustand 32 über
+    HEXNUMBER  schiebe und gehe zu Zustand 33 über
+    STRING     schiebe und gehe zu Zustand 34 über
+
+    value  gehe zu Zustand 48 über
+    code   gehe zu Zustand 36 über
+    array  gehe zu Zustand 37 über
+
+
+Zustand 48
+
+   30 exp_list: exp_list "," value .
+
+    $default  reduziere mit Regel 30 (exp_list)
