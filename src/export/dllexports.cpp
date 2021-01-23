@@ -45,7 +45,7 @@ namespace dllexports
     {
         auto actual = reinterpret_cast<instance*>(in);
 
-        if (actual->seq[0] == 'S' && actual->seq[1] == 'Q' && actual->seq[2] == 'F' && actual->seq[3] == 'L')
+        if (actual->seq[0] == 'S' && actual->seq[1] == 'Q' && actual->seq[2] == 'F' && actual->seq[3] == 'E')
         {
             return func(*actual);
         }
@@ -63,6 +63,8 @@ namespace dllexports
         actual->seq[3] = 'E';
 
         actual->logger = new target();
+        actual->logger->callback = callback;
+        actual->logger->user_data = user_data;
 
         sqf::runtime::runtime::runtime_conf conf;
         auto duration = std::chrono::duration<float>(max_runtime_seconds);
@@ -86,10 +88,15 @@ namespace dllexports
     {
         auto actual = reinterpret_cast<instance*>(in);
 
-        if (actual->seq[0] == 'S' && actual->seq[1] == 'Q' && actual->seq[2] == 'F' && actual->seq[3] == 'L')
+        if (actual->seq[0] == 'S' && actual->seq[1] == 'Q' && actual->seq[2] == 'F' && actual->seq[3] == 'E')
         {
+            actual->seq[0] = '\0';
+            actual->seq[1] = '\0';
+            actual->seq[2] = '\0';
+            actual->seq[3] = '\0';
             delete actual->runtime;
             delete actual->logger;
+            delete actual;
         }
     }
     namespace time
