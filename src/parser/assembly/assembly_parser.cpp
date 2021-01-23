@@ -119,18 +119,18 @@ void ::sqf::parser::assembly::parser::to_assembly(::sqf::runtime::runtime& runti
                 auto binary_ops = runtime.sqfop_binary_by_name(str);
                 auto prec = binary_ops.begin()->get().precedence();
 
-                auto inst = std::make_shared<::sqf::opcodes::call_binary>(node.children[1].token.contents);
+                auto inst = std::make_shared<::sqf::opcodes::call_binary>(str, prec);
                 inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
                 set.push_back(inst);
             }
         } break;
         case bison::astkind::CALL_UNARY: {
-            auto inst = std::make_shared<::sqf::opcodes::call_unary>(node.children[1].token.contents);
+            auto inst = std::make_shared<::sqf::opcodes::call_unary>(std::string(node.children[1].token.contents));
             inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
             set.push_back(inst);
         } break;
         case bison::astkind::CALL_NULAR: {
-            auto inst = std::make_shared<::sqf::opcodes::call_nular>(node.children[1].token.contents);
+            auto inst = std::make_shared<::sqf::opcodes::call_nular>(std::string(node.children[1].token.contents));
             inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
             set.push_back(inst);
         } break;

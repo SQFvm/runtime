@@ -89,8 +89,6 @@ file(GLOB vm_lib_cexports_src
     "${PROJECT_SOURCE_DIR}/src/export/*.cc"
 )
 list(APPEND vm_lib_cexports_src ${vm_lib_src_sqc})
-list(REMOVE_ITEM vm_lib_src_sqc "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
-list(REMOVE_ITEM vm_lib_src_sqc "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_SOURCE_DIR}/src/cli/*.cpp" "${PROJECT_SOURCE_DIR}/src/cli/*.c")
 
 
 ############################
@@ -220,21 +218,6 @@ if (SQFVM_BUILD_LIBRARY)
     SET_TARGET_PROPERTIES(libsqfvm PROPERTIES PREFIX "")
 endif ()
 
-if (SQFVM_BUILD_CEXPORTS)
-    add_library(libcsqfvm SHARED ${vm_lib_cexports_src})
-    target_compile_definitions(libcsqfvm PUBLIC DISABLE_CLIPBOARD)
-    target_include_directories(libcsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
-    
-    target_compile_definitions(libcsqfvm PUBLIC SQF_SQC_SUPPORT)
-    
-    target_compile_options(libcsqfvm PRIVATE
-     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-          -Wall -Wno-unknown-pragmas>
-     $<$<CXX_COMPILER_ID:MSVC>:
-          /W4>)
-    SET_TARGET_PROPERTIES(libcsqfvm PROPERTIES PREFIX "")
-endif ()
-
 if (SQFVM_BUILD_LIBRARY_SQC_SUPPORT)
     add_library(libsqfvm_sqc SHARED ${vm_lib_src_sqc})
     target_compile_definitions(libsqfvm_sqc PUBLIC DISABLE_CLIPBOARD)
@@ -248,6 +231,21 @@ if (SQFVM_BUILD_LIBRARY_SQC_SUPPORT)
      $<$<CXX_COMPILER_ID:MSVC>:
           /W4>)
     SET_TARGET_PROPERTIES(libsqfvm_sqc PROPERTIES PREFIX "")
+endif ()
+
+if (SQFVM_BUILD_CEXPORTS)
+    add_library(libcsqfvm SHARED ${vm_lib_cexports_src})
+    target_compile_definitions(libcsqfvm PUBLIC DISABLE_CLIPBOARD)
+    target_include_directories(libcsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    
+    target_compile_definitions(libcsqfvm PUBLIC SQF_SQC_SUPPORT)
+    
+    target_compile_options(libcsqfvm PRIVATE
+     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+          -Wall -Wno-unknown-pragmas>
+     $<$<CXX_COMPILER_ID:MSVC>:
+          /W4>)
+    SET_TARGET_PROPERTIES(libcsqfvm PROPERTIES PREFIX "")
 endif ()
 
 if (SQFVM_BUILD_STATIC_LIBRARY)

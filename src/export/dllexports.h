@@ -27,10 +27,10 @@ extern "C" {
     // @param user_data Custom data from the callee that will be passed into callback
     // @param max_runtime_seconds the maximum runtime in seconds as float. Pass 0
     // Returns NULL on error
-    void* sqfvm_create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds);
+    DLLEXPORT_PREFIX void* sqfvm_create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds);
 
     // Destroys a previously created SQF-VM instance
-    void sqfvm_destroy_instance(void* instance);
+    DLLEXPORT_PREFIX void sqfvm_destroy_instance(void* instance);
 
     // Loads the provided config into the config tree of the provided instance
     // @param instance A valid instance as returned from sqfvm_create_instance
@@ -40,7 +40,7 @@ extern "C" {
     //         -1 if the instance was null
     //         -2 if preprocessing failed
     //         -3 if parsing failed
-    int32_t sqfvm_load_config(void* instance, const char* contents, uint32_t length);
+    DLLEXPORT_PREFIX int32_t sqfvm_load_config(void* instance, const char* contents, uint32_t length);
 
     // Checks the status of the instance
     // @param instance A valid instance as returned from sqfvm_create_instance
@@ -51,7 +51,7 @@ extern "C" {
     //         +3 Instance is in halted_error
     //         +4 evaluating
     //         
-    int32_t sqfvm_status(void* instance);
+    DLLEXPORT_PREFIX int32_t sqfvm_status(void* instance);
 
     // Calls the provided code, using the SQF-VM instance.
     // @param instance A valid instance as returned from sqfvm_create_instance
@@ -71,5 +71,5 @@ extern "C" {
     //         -4 if the instance is already running
     //         -5 if the provided type was invalid
     //         -6 if the execution did not succeed
-    int32_t sqfvm_call(void* instance, void* call_data, char type, const char* code, uint32_t length);
+    DLLEXPORT_PREFIX int32_t sqfvm_call(void* instance, void* call_data, char type, const char* code, uint32_t length);
 }
