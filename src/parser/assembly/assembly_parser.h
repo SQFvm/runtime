@@ -4,8 +4,9 @@
 #include "../../runtime/diagnostics/diag_info.h"
 #include "../../runtime/fileio.h"
 #include "../../runtime/util.h"
+#include "../../runtime/value.h"
 #include "../../runtime/instruction_set.h"
-#include "../sqf/tokenizer.hpp"
+#include "tokenizer.hpp"
 
 #include <string>
 #include <string_view>
@@ -13,12 +14,17 @@
 
 
 
+namespace sqf::parser::assembly::bison
+{
+    struct astnode;
+}
 namespace sqf::parser::assembly
 {
     class parser : public ::sqf::runtime::parser::sqf, public CanLog
     {
     private:
-        void to_assembly(std::string_view contents, const ::sqf::parser::sqf::bison::astnode& node, std::vector<::sqf::runtime::instruction::sptr>& set);
+        ::sqf::runtime::value get_value(::sqf::runtime::runtime& runtime, std::string_view contents, const ::sqf::parser::assembly::bison::astnode& node);
+        void to_assembly(::sqf::runtime::runtime& runtime, std::string_view contents, const ::sqf::parser::assembly::bison::astnode& node, std::vector<::sqf::runtime::instruction::sptr>& set);
     public:
         parser(Logger& logger) : CanLog(logger)
         {

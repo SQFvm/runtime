@@ -81,7 +81,7 @@ list(REMOVE_ITEM vm_lib_src_sqc "${PROJECT_SOURCE_DIR}/src/cli/*.h" "${PROJECT_S
 
 #################################################### vm_lib_src_sqc (SQF-VM Library with SQC support) ####################################################
 
-file(GLOB vm_src_sqc
+file(GLOB vm_lib_cexports_src
     "${PROJECT_SOURCE_DIR}/src/export/*.h"
     "${PROJECT_SOURCE_DIR}/src/export/*.hh"
     "${PROJECT_SOURCE_DIR}/src/export/*.cpp"

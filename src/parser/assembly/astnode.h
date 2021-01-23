@@ -19,20 +19,14 @@ namespace sqf::parser::assembly::bison
         EXPRESSION_LIST,
         CODE,
         ARRAY,
-        ASSIGNMENT,
-        ASSIGNMENT_LOCAL,
-        EXPN,
-        EXP0,
-        EXP1,
-        EXP2,
-        EXP3,
-        EXP4,
-        EXP5,
-        EXP6,
-        EXP7,
-        EXP8,
-        EXP9,
-        EXPU
+        ASSIGN_TO,
+        ASSIGN_TO_LOCAL,
+        GET_VARIABLE,
+        CALL_UNARY,
+        CALL_NULAR,
+        CALL_BINARY,
+        PUSH,
+        END_STATEMENT,
     };
     struct astnode
     {

@@ -122,6 +122,7 @@ void exportstarget::log(loglevel level, std::string_view message)
 #include "../runtime/logging.h"
 #include "../runtime/runtime.h"
 #include "../parser/config/default.h"
+#include "../parser/assembly/assembly_parser.h"
 #include "../parser/sqf/sqf_parser.hpp"
 #include "../parser/preprocessor/default.h"
 #include "../operators/ops.h"
@@ -259,7 +260,32 @@ extern "C" int32_t sqfvm_call(void* instance, void* call_data, char type, const 
         {
             case type_assembly:
             {
+                auto sqc = std::make_shared<sqf::parser::assembly::parser>(*ref.logger);
+                auto set = sqc->parse(*ref.runtime, ppedStr.value(), { "dllexports"sv, {} });
+                if (!set.has_value())
+                {
+                    return parsing_failed;
+                }
+                else
+                {
+                    auto wptr = ref.runtime->context_create();
+                    auto context = wptr.lock();
+                    context->push_frame({ ref.runtime->default_value_scope(), set.value() });
+                    auto result = ref.runtime->execute(sqf::runtime::runtime::action::start);
+                    switch (result)
+                    {
+                        case sqf::runtime::runtime::result::ok:
+                        case sqf::runtime::runtime::result::empty:
+                        return result_ok;
 
+                        case sqf::runtime::runtime::result::invalid:
+                        case sqf::runtime::runtime::result::action_error:
+                        case sqf::runtime::runtime::result::runtime_error:
+                        ref.runtime->execute(sqf::runtime::runtime::action::abort);
+                        default:
+                        return result_failed;
+                    }
+                }
             } break;
             case type_sqf: {
                 auto set = ref.runtime->parser_sqf().parse(*ref.runtime, ppedStr.value(), { "dllexports"sv, {} });

@@ -5,7 +5,7 @@
 #include <string_view>
 #include <cctype>
 #include <vector>
-namespace sqf::parser::sqf
+namespace sqf::parser::assembly
 {
     class tokenizer
     {
@@ -36,7 +36,6 @@ namespace sqf::parser::sqf
             s_roundc,
             s_edgeo,
             s_edgec,
-            s_semicolon,
             s_comma,
             s_equal,
 
@@ -272,7 +271,6 @@ namespace sqf::parser::sqf
                         0
                         ;
                     break;
-                case etoken::s_semicolon:        len = is_match<';'>(iter); break;
                 case etoken::s_comma:            len = is_match<','>(iter); break;
 
                 case etoken::t_string_single: {
@@ -504,7 +502,6 @@ namespace sqf::parser::sqf
             case '?':           return try_match({ });
             case ':':           return try_match({ etoken::t_operator });
             case '^':           return try_match({ etoken::t_operator });
-            case ';':           return try_match({ etoken::s_semicolon });
             case ',':           return try_match({ etoken::s_comma });
             case '.':           return try_match({ etoken::t_number });
             case ' ':           return try_match({ etoken::i_whitespace });
@@ -556,7 +553,6 @@ namespace sqf::parser::sqf
             case etoken::s_roundc:           return ")"sv;
             case etoken::s_edgeo:            return "["sv;
             case etoken::s_edgec:            return "]"sv;
-            case etoken::s_semicolon:        return ";"sv;
             case etoken::s_comma:            return ","sv;
             case etoken::s_equal:            return "="sv;
 
