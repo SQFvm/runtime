@@ -45,7 +45,7 @@ namespace dllexports
     {
         auto actual = reinterpret_cast<instance*>(in);
 
-        if (actual->seq[0] == 'S' && actual->seq[1] == 'Q' && actual->seq[2] == 'F' && actual->seq[3] == 'E')
+        if (in && actual->seq[0] == 'S' && actual->seq[1] == 'Q' && actual->seq[2] == 'F' && actual->seq[3] == 'E')
         {
             return func(*actual);
         }
