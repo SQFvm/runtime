@@ -73,7 +73,7 @@ namespace dllexports
         conf.disable_sleep = false;
         conf.enable_classname_check = true;
         conf.disable_networking = true;
-        conf.print_context_work_to_log_on_exit = false;
+        conf.print_context_work_to_log_on_exit = true;
         actual->runtime = new sqf::runtime::runtime(*actual->logger, conf);
 
         actual->runtime->fileio(std::make_unique<sqf::fileio::impl_default>(*actual->logger));
