@@ -236,6 +236,16 @@ namespace logmessage {
             [[nodiscard]] std::string formatMessage() const override;
         };
 
+        class UnknownPragma : public PreprocBase {
+            static const loglevel level = loglevel::warning;
+            static const size_t errorCode = 10014;
+            std::string_view line;
+        public:
+            UnknownPragma(LogLocationInfo loc, std::string_view line) :
+                PreprocBase(level, errorCode, std::move(loc)), line(line) {}
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
     }
     namespace assembly
     {

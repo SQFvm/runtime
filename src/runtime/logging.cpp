@@ -231,7 +231,8 @@ namespace logmessage::preprocessor {
         return output;
     }
 
-    std::string EmptyArgument::formatMessage() const {
+    std::string EmptyArgument::formatMessage() const
+    {
         auto output = m_location.format();
         const auto message = "Empty argument passed to macro."sv;
 
@@ -241,6 +242,21 @@ namespace logmessage::preprocessor {
         );
 
         output.append(message);
+        return output;
+    }
+    std::string UnknownPragma::formatMessage() const
+    {
+        auto output = m_location.format();
+        const auto message = "Ignoring unknown pragma:"sv;
+
+        output.reserve(
+            output.length()
+            + message.length()
+            + line.length()
+        );
+
+        output.append(message);
+        output.append(line);
         return output;
     }
 }

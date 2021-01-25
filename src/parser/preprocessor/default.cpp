@@ -679,7 +679,6 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(::sq
 #endif
     return replace(runtime, original_fileinfo, m, params);
 }
-
 std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstruction(::sqf::runtime::runtime& runtime, preprocessorfileinfo& fileinfo)
 {
     auto inst = fileinfo.get_word();
@@ -911,6 +910,10 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
         }
         current_file_scope().conditions.pop_back();
         return "\n";
+    }
+    else if (inst == "PRAGMA")
+    { // #endif
+        return parse_pragma(runtime, fileinfo, line);
     }
     else
     {
@@ -1188,4 +1191,15 @@ std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(
         return {};
     }
     return res;
+}
+
+
+std::string sqf::parser::preprocessor::impl_default::instance::parse_pragma(::sqf::runtime::runtime& runtime, preprocessorfileinfo& fileinfo, std::string_view line)
+{
+    if (false) { }
+    else
+    {
+        log(err::UnknownPragma(fileinfo.operator ::sqf::runtime::diagnostics::diag_info(), line));
+        return "\n";
+    }
 }

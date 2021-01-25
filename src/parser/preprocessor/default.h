@@ -289,6 +289,7 @@ namespace sqf::parser::preprocessor
                 const std::unordered_map<std::string, std::string>& param_map);
 
             std::string parse_ppinstruction(::sqf::runtime::runtime& runtime, preprocessorfileinfo& fileinfo);
+            std::string parse_pragma(::sqf::runtime::runtime& runtime, preprocessorfileinfo& fileinfo, std::string_view line);
 
             std::string parse_file(::sqf::runtime::runtime& runtime, preprocessorfileinfo& fileinfo);
 
