@@ -6,6 +6,7 @@
 #include <string_view>
 #include <memory>
 #include <array>
+#include <unordered_map>
 #include "type.h"
 #include "diagnostics/diag_info.h"
 #include "diagnostics/stacktrace.h"
@@ -20,7 +21,6 @@ enum class loglevel {
     verbose,
     trace
 };
-
 class LogLocationInfo {
 public:
     LogLocationInfo() = default;
@@ -33,8 +33,6 @@ public:
 
     [[nodiscard]] std::string format() const;
 };
-
-
 class LogMessageBase {
 public:
     LogMessageBase(loglevel level, size_t code) : level(level), errorCode(code) {}
@@ -59,14 +57,31 @@ protected:
 };
 class Logger {
 protected:
-    std::vector<bool> enabledWarningLevels;
+    std::unordered_map<size_t, bool> m_enabled_log_codes;
+    std::vector<bool> m_enabled_log_levels;
 public:
-    Logger() : enabledWarningLevels({ true, true, true, true, true, true }) {}
-    [[nodiscard]] bool isEnabled(loglevel level) const {
-        return enabledWarningLevels[static_cast<size_t>(level)];
+    Logger() : m_enabled_log_levels({ true, true, true, true, true, true }) {}
+    
+    [[nodiscard]] bool is_enabled(loglevel level) const
+    {
+        return m_enabled_log_levels[static_cast<size_t>(level)];
     }
-    void setEnabled(loglevel level, bool isEnabled) {
-        enabledWarningLevels[static_cast<size_t>(level)] = isEnabled;
+    [[nodiscard]] bool is_enabled(size_t log_code) const
+    {
+        auto res = m_enabled_log_codes.find(log_code);
+        if (res == m_enabled_log_codes.end())
+        {
+            return true;
+        }
+        return res->second;
+    }
+    void set_enabled(loglevel level, bool is_enabled)
+    {
+        m_enabled_log_levels[static_cast<size_t>(level)] = is_enabled;
+    }
+    void set_enabled(size_t errorCode, bool log_code)
+    {
+        m_enabled_log_codes[errorCode] = log_code;
     }
     static std::string_view loglevelstring(loglevel level)
     {

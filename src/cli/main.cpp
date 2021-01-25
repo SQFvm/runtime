@@ -451,8 +451,8 @@ int main_actual(int argc, char** argv)
 
 
     StdOutLogger logger;
-    logger.setEnabled(loglevel::verbose, verboseArg.getValue());
-    logger.setEnabled(loglevel::trace, traceArg.getValue());
+    logger.set_enabled(loglevel::verbose, verboseArg.getValue());
+    logger.set_enabled(loglevel::trace, traceArg.getValue());
     sqf::runtime::runtime::runtime_conf conf;
     conf.enable_classname_check = enableClassnameCheckArg.getValue();
     conf.print_context_work_to_log_on_exit = !noWrokPrintArg.getValue();

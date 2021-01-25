@@ -49,7 +49,8 @@ std::string LogLocationInfo::format() const {
 #pragma endregion LogLocationInfo
 
 void CanLog::log(LogMessageBase& message) const {
-    if (!m_logger.isEnabled(message.getLevel())) return;
+    if (!m_logger.is_enabled(message.getLevel())) return;
+    if (!m_logger.is_enabled(message.getErrorCode())) return;
     m_logger.log(message);
 
 
@@ -57,7 +58,8 @@ void CanLog::log(LogMessageBase& message) const {
 
 }
 void CanLog::log(LogMessageBase&& message) const {
-    if (!m_logger.isEnabled(message.getLevel())) return;
+    if (!m_logger.is_enabled(message.getLevel())) return;
+    if (!m_logger.is_enabled(message.getErrorCode())) return;
     m_logger.log(message);
 
 
