@@ -21,7 +21,7 @@ namespace sqf
         struct t_namespace : public sqf::runtime::type::extend<t_namespace> { t_namespace() : extend() {} static const std::string name() { return "NAMESPACE"; } };
         class runtime;
         class context;
-        class instruction_set;
+        class instruction_blob;
     }
     namespace types
     {

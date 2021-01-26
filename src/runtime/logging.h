@@ -1505,9 +1505,9 @@ namespace logmessage {
         class VariableNotFound : public RuntimeBase {
             static const loglevel level = loglevel::warning;
             static const size_t errorCode = 60070;
-            std::string m_variable_name;
+            std::string_view m_variable_name;
         public:
-            VariableNotFound(LogLocationInfo loc, std::string variable_name) :
+            VariableNotFound(LogLocationInfo loc, std::string_view variable_name) :
                 RuntimeBase(level, errorCode, std::move(loc)),
                 m_variable_name(variable_name)
             {}
@@ -1738,9 +1738,9 @@ namespace logmessage {
         class AssigningNilValue : public RuntimeBase {
             static const loglevel level = loglevel::warning;
             static const size_t errorCode = 60091;
-            std::string m_variable_name;
+            std::string_view m_variable_name;
         public:
-            AssigningNilValue(LogLocationInfo loc, std::string variable_name) :
+            AssigningNilValue(LogLocationInfo loc, std::string_view variable_name) :
                 RuntimeBase(level, errorCode, std::move(loc)),
                 m_variable_name(variable_name)
             {}

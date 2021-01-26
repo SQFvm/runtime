@@ -1,5 +1,6 @@
 #pragma once
 #include "diagnostics/diag_info.h"
+#include "instruction_blob.hpp"
 
 #include <string>
 #include <memory>

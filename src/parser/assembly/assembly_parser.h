@@ -36,6 +36,6 @@ namespace sqf::parser::assembly
         bool get_tree(::sqf::runtime::runtime& runtime, tokenizer& t, bison::astnode* out);
         virtual ~parser() override { };
         virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;
-        virtual std::optional<::sqf::runtime::instruction_set> parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;
+        virtual std::optional<::sqf::runtime::instruction_blob> parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;
     };
 }

@@ -72,7 +72,7 @@ namespace
     }
     value call_code(runtime& runtime, value::cref right)
     {
-        frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
+        frame f = { runtime.default_value_scope(), right.data<d_code, instruction_blob>() };
         auto _this = runtime.context_active().get_variable("_this");
         f["_this"] = _this.has_value() ? *_this : value{};
         runtime.context_active().push_frame(f);
@@ -80,7 +80,7 @@ namespace
     }
     value call_any_code(runtime& runtime, value::cref left, value::cref right)
     {
-        frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
+        frame f = { runtime.default_value_scope(), right.data<d_code, instruction_blob>() };
         f["_this"] = left;
         runtime.context_active().push_frame(f);
         return {};
@@ -150,7 +150,7 @@ namespace
         }
         else
         {
-            frame f(runtime.default_value_scope(), left.data<d_code, instruction_set>(), std::make_shared<behavior_count_exit>(r));
+            frame f(runtime.default_value_scope(), left.data<d_code, instruction_blob>(), std::make_shared<behavior_count_exit>(r));
             f["_x"] = r->at(0);
             runtime.context_active().push_frame(f);
         }
@@ -210,7 +210,7 @@ namespace
             }
             if (el0.is<t_code>())
             {
-                runtime.context_active().push_frame({ runtime.default_value_scope(), el0.data<d_code, instruction_set>() });
+                runtime.context_active().push_frame({ runtime.default_value_scope(), el0.data<d_code, instruction_blob>() });
                 return {};
             }
             else
@@ -227,7 +227,7 @@ namespace
             }
             if (el1.is<t_code>())
             {
-                runtime.context_active().push_frame({ runtime.default_value_scope(), el1.data<d_code, instruction_set>() });
+                runtime.context_active().push_frame({ runtime.default_value_scope(), el1.data<d_code, instruction_blob>() });
                 return {};
             }
             else
@@ -242,7 +242,7 @@ namespace
         auto ifcond = left.data<d_boolean, bool>();
         if (ifcond)
         {
-            runtime.context_active().push_frame({ runtime.default_value_scope(), right.data<d_code, instruction_set>() });
+            runtime.context_active().push_frame({ runtime.default_value_scope(), right.data<d_code, instruction_blob>() });
             return {};
         }
         else
@@ -255,7 +255,7 @@ namespace
         if (left.data<d_boolean, bool>())
         {
             runtime.context_active().current_frame().die();
-            runtime.context_active().push_frame({ runtime.default_value_scope(), right.data<d_code, instruction_set>() });
+            runtime.context_active().push_frame({ runtime.default_value_scope(), right.data<d_code, instruction_blob>() });
             return {};
         }
         else
@@ -311,13 +311,13 @@ namespace
             };
         };
 
-        frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_waituntil_exit>());
+        frame f(runtime.default_value_scope(), right.data<d_code, instruction_blob>(), std::make_shared<behavior_waituntil_exit>());
         runtime.context_active().push_frame(f);
         return {};
     }
     value while_code(runtime& runtime, value::cref right)
     {
-        return std::make_shared<d_while>(right.data_try<d_code, instruction_set>({}));
+        return std::make_shared<d_while>(right.data_try<d_code, instruction_blob>({}));
     }
     value do_while_code(runtime& runtime, value::cref left, value::cref right)
     {
@@ -330,11 +330,11 @@ namespace
                 Code
             };
             mode m_mode;
-            instruction_set m_condition;
-            instruction_set m_code;
+            instruction_blob m_condition;
+            instruction_blob m_code;
         public:
-            behavior_while_exit(instruction_set condition, instruction_set code) : m_mode(mode::Condition), m_condition(condition), m_code(code) {}
-            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override
+            behavior_while_exit(instruction_blob condition, instruction_blob code) : m_mode(mode::Condition), m_condition(condition), m_code(code) {}
+            virtual sqf::runtime::instruction_blob get_instruction_set(sqf::runtime::frame& frame) override
             {
                 switch (m_mode)
                 {
@@ -387,8 +387,8 @@ namespace
                 return result::ok;
             };
         };
-        auto condition = left.data<d_code, instruction_set>();
-        auto code = right.data<d_code, instruction_set>();
+        auto condition = left.data<d_code, instruction_blob>();
+        auto code = right.data<d_code, instruction_blob>();
 
         if (condition.empty())
         {
@@ -483,7 +483,7 @@ namespace
                 return {};
             }
         }
-        frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_for_exit>(fordata));
+        frame f(runtime.default_value_scope(), right.data<d_code, instruction_blob>(), std::make_shared<behavior_for_exit>(fordata));
         f[fordata->variable()] = fordata->from();
         runtime.context_active().push_frame(f);
         return {};
@@ -522,7 +522,7 @@ namespace
         auto arr = right.data<d_array>();
         if (arr->size() > 0)
         {
-            frame f(runtime.default_value_scope(), left.data<d_code, instruction_set>(), std::make_shared<behavior_foreach_exit>(arr));
+            frame f(runtime.default_value_scope(), left.data<d_code, instruction_blob>(), std::make_shared<behavior_foreach_exit>(arr));
             f["_forEachIndex"] = 0;
             f["_x"] = arr->at(0);
             runtime.context_active().push_frame(f);
@@ -680,7 +680,7 @@ namespace
         auto arr = left.data<d_array>();
         if (arr->size() > 0)
         {
-            frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_select_exit>(arr));
+            frame f(runtime.default_value_scope(), right.data<d_code, instruction_blob>(), std::make_shared<behavior_select_exit>(arr));
             f["_x"] = arr->at(0);
             runtime.context_active().push_frame(f);
             return {};
@@ -888,7 +888,7 @@ namespace
         auto r = left.data<d_array>();
         if (r->size() > 0)
         {
-            frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_findif_exit>(r));
+            frame f(runtime.default_value_scope(), right.data<d_code, instruction_blob>(), std::make_shared<behavior_findif_exit>(r));
             f["_x"] = r->at(0);
             runtime.context_active().push_frame(f);
             return {};
@@ -966,7 +966,7 @@ namespace
             };
         };
 
-        frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_isnil_exit>());
+        frame f(runtime.default_value_scope(), right.data<d_code, instruction_blob>(), std::make_shared<behavior_isnil_exit>());
         runtime.context_active().push_frame(f);
         return {};
     }
@@ -1001,7 +1001,7 @@ namespace
             bool m_switched;
         public:
             behavior_switch_exit() : m_switched(false) {}
-            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override
+            virtual sqf::runtime::instruction_blob get_instruction_set(sqf::runtime::frame& frame) override
             {
                 return frame[d_switch::magic].data<d_switch>()->target_code();
             }
@@ -1020,7 +1020,7 @@ namespace
             };
         };
 
-        frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_switch_exit>());
+        frame f(runtime.default_value_scope(), right.data<d_code, instruction_blob>(), std::make_shared<behavior_switch_exit>());
         f[d_switch::magic] = left;
         runtime.context_active().push_frame(f);
         return {};
@@ -1052,7 +1052,7 @@ namespace
         auto swtch = valswtch->data<d_switch>();
         if (!swtch->has_match())
         {
-            swtch->target_code(right.data<d_code, instruction_set>());
+            swtch->target_code(right.data<d_code, instruction_blob>());
         }
         return {};
     }
@@ -1067,7 +1067,7 @@ namespace
         auto swtch = valswtch->data<d_switch>();
         if (!swtch->has_match() && swtch->match_now())
         {
-            swtch->target_code(right.data<d_code, instruction_set>());
+            swtch->target_code(right.data<d_code, instruction_blob>());
             swtch->match_now(false);
             swtch->has_match(true);
             runtime.context_active().current_frame().seek(0, frame::seekpos::end);
@@ -1120,7 +1120,7 @@ namespace
         auto arr = left.data<d_array>();
         if (arr->size() > 0)
         {
-            frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>(), std::make_shared<behavior_apply_exit>(arr));
+            frame f(runtime.default_value_scope(), right.data<d_code, instruction_blob>(), std::make_shared<behavior_apply_exit>(arr));
             f["_x"] = arr->at(0);
             runtime.context_active().push_frame(f);
             return {};
@@ -1134,7 +1134,7 @@ namespace
         lock->can_suspend(true);
         lock->weak_error_handling(true);
         auto scriptdata = std::make_shared<d_script>(context_weak);
-        frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>());
+        frame f(runtime.default_value_scope(), right.data<d_code, instruction_blob>());
         f["_thisScript"] = scriptdata;
         f["_this"] = left;
         lock->push_frame(f);
@@ -1972,17 +1972,17 @@ namespace
     }
     value try_code(runtime& runtime, value::cref right)
     {
-        return std::make_shared<d_exception>(right.data<d_code, sqf::runtime::instruction_set>());
+        return std::make_shared<d_exception>(right.data<d_code, sqf::runtime::instruction_blob>());
     }
     value catch_exception_code(runtime& runtime, value::cref left, value::cref right)
     {
         class behavior_catch_exit : public frame::behavior
         {
         private:
-            instruction_set m_set;
+            instruction_blob m_set;
         public:
-            behavior_catch_exit(instruction_set set) : m_set(set) {}
-            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
+            behavior_catch_exit(instruction_blob set) : m_set(set) {}
+            virtual sqf::runtime::instruction_blob get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
                 if (runtime.__runtime_error())
@@ -2008,9 +2008,9 @@ namespace
         };
         frame f(
             runtime.default_value_scope(),
-            left.data<d_code, sqf::runtime::instruction_set>(),
+            left.data<d_code, sqf::runtime::instruction_blob>(),
             {},
-            std::make_shared<behavior_catch_exit>(right.data<d_code, sqf::runtime::instruction_set>()));
+            std::make_shared<behavior_catch_exit>(right.data<d_code, sqf::runtime::instruction_blob>()));
         runtime.context_active().push_frame(f);
         return {};
     }

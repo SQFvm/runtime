@@ -33,7 +33,7 @@ namespace
         auto l = left.data<d_boolean, bool>();
         if (l)
         {
-            frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>());
+            frame f(runtime.default_value_scope(), right.data<d_code, instruction_blob>());
             runtime.context_active().push_frame(f);
             return {};
         }
@@ -51,7 +51,7 @@ namespace
         }
         else
         {
-            frame f(runtime.default_value_scope(), right.data<d_code, instruction_set>());
+            frame f(runtime.default_value_scope(), right.data<d_code, instruction_blob>());
             runtime.context_active().push_frame(f);
             return {};
         }

@@ -1,4 +1,5 @@
 #include "d_scalar.h"
+#include "instruction_blob.hpp"
 #include <sstream>
 #include <iomanip>
 
@@ -45,4 +46,15 @@ std::string sqf::types::d_scalar::to_string() const
         delete[] buff;
         return str;
     }
+}
+
+void sqf::types::d_scalar::write(sqf::runtime::instruction_blob& b) const
+{
+    b.write<sqf::runtime::opcodes>(sqf::runtime::opcodes::meta_string);
+    b.write<float>(value());
+}
+
+std::shared_ptr<sqf::types::d_scalar> sqf::types::d_scalar::read(sqf::runtime::instruction_handle& h)
+{
+    return std::make_shared<d_scalar>(h.read<float>());
 }

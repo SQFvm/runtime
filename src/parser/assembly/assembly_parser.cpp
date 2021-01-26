@@ -70,7 +70,7 @@ sqf::runtime::value sqf::parser::assembly::parser::get_value(::sqf::runtime::run
                 previous_node = node.children[i];
                 to_assembly(runtime, contents, previous_node, tmp_set);
             }
-            auto inst_set = ::sqf::runtime::instruction_set(tmp_set);
+            auto inst_set = ::sqf::runtime::instruction_blob(tmp_set);
             return ::sqf::runtime::value(std::make_shared<::sqf::types::d_code>(inst_set));
         }
         break;
@@ -166,7 +166,7 @@ bool sqf::parser::assembly::parser::get_tree(::sqf::runtime::runtime& runtime, :
     return success;
 }
 
-std::optional<sqf::runtime::instruction_set> sqf::parser::assembly::parser::parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
+std::optional<sqf::runtime::instruction_blob> sqf::parser::assembly::parser::parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
 {
     tokenizer t(contents.begin(), contents.end(), file.physical);
     ::sqf::parser::assembly::bison::astnode res;

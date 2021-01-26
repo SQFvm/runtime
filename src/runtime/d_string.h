@@ -13,6 +13,8 @@ namespace sqf
 {
     namespace runtime
     {
+        class instruction_handle;
+        class instruction_blob;
         struct t_string : public type::extend<t_string> { t_string() : extend() {} static const std::string name() { return "STRING"; } };
     }
     namespace types
@@ -97,6 +99,9 @@ namespace sqf
 
             operator std::string() { return m_value; }
             operator std::string_view() { return m_value; }
+
+            void write(sqf::runtime::instruction_blob& b) const override;
+            static std::shared_ptr<d_string> read(sqf::runtime::instruction_handle& h);
         };
 
         template<>

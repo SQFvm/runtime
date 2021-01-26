@@ -32,7 +32,7 @@ namespace sqf::runtime
                 /// </summary>
                 seek_end,
                 /// <summary>
-                /// Tells that the active instruction_set should be changed to the one
+                /// Tells that the active instruction_blob should be changed to the one
                 /// provided by this behavior.
                 /// </summary>
                 exchange,
@@ -51,7 +51,7 @@ namespace sqf::runtime
                 replace_self_seek_start,
             };
             virtual std::shared_ptr<behavior> get_behavior() { return {}; };
-            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) { return {}; };
+            virtual sqf::runtime::instruction_blob get_instruction_set(sqf::runtime::frame& frame) { return {}; };
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) = 0;
             behavior() = default;
         };
@@ -81,7 +81,7 @@ namespace sqf::runtime
         };
         friend class behavior;
     private:
-        sqf::runtime::instruction_set m_instruction_set;
+        sqf::runtime::instruction_blob m_instruction_set;
         // Use index over iterator due to iterator invalidation problems
         size_t m_position;
         std::shared_ptr<behavior> m_exit_behavior;
@@ -98,16 +98,16 @@ namespace sqf::runtime
         static const size_t position_invalid = ~(size_t)0;
         frame() :
             frame({}, {}, {}, {}) {}
-        frame(std::shared_ptr<sqf::runtime::value_scope> globals_scope, sqf::runtime::instruction_set instruction_set, std::shared_ptr<behavior> exit_behavior) :
-            frame(globals_scope, instruction_set, exit_behavior, {}) {}
-        frame(std::shared_ptr<sqf::runtime::value_scope> globals_scope, sqf::runtime::instruction_set instruction_set) :
-            frame(globals_scope, instruction_set, {}, {}) {}
+        frame(std::shared_ptr<sqf::runtime::value_scope> globals_scope, sqf::runtime::instruction_blob instruction_blob, std::shared_ptr<behavior> exit_behavior) :
+            frame(globals_scope, instruction_blob, exit_behavior, {}) {}
+        frame(std::shared_ptr<sqf::runtime::value_scope> globals_scope, sqf::runtime::instruction_blob instruction_blob) :
+            frame(globals_scope, instruction_blob, {}, {}) {}
         frame(std::shared_ptr<sqf::runtime::value_scope> globals_scope,
-            sqf::runtime::instruction_set instruction_set,
+            sqf::runtime::instruction_blob instruction_blob,
             std::shared_ptr<behavior> exit_behavior,
             std::shared_ptr<behavior> error_behavior)
             :
-            m_instruction_set(instruction_set),
+            m_instruction_set(instruction_blob),
             m_position(position_invalid),
             m_exit_behavior(exit_behavior),
             m_error_behavior(error_behavior),
@@ -227,8 +227,8 @@ namespace sqf::runtime
             return m_position;
         }
 
-        sqf::runtime::instruction_set::iterator peek() const { bool flag; return peek(flag); }
-        sqf::runtime::instruction_set::iterator peek(bool& success) const
+        sqf::runtime::instruction_blob::iterator peek() const { bool flag; return peek(flag); }
+        sqf::runtime::instruction_blob::iterator peek(bool& success) const
         {
             auto pos = m_position >= m_instruction_set.size() ? m_instruction_set.size() - 1 : m_position + 1;
             auto it = m_instruction_set.begin() + pos;
@@ -239,7 +239,7 @@ namespace sqf::runtime
         bool bubble_variable() const { return m_bubble_variable; }
         void bubble_variable(bool flag) { m_bubble_variable = flag; }
 
-        sqf::runtime::instruction_set::iterator current() const { return m_instruction_set.begin() + m_position; }
+        sqf::runtime::instruction_blob::iterator current() const { return m_instruction_set.begin() + m_position; }
         std::shared_ptr<sqf::runtime::value_scope> globals_value_scope() const { return m_globals_value_scope; }
         void globals_value_scope(std::shared_ptr<sqf::runtime::value_scope> scope) { m_globals_value_scope = scope; }
 

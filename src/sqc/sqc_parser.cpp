@@ -145,7 +145,7 @@ namespace sqf::sqc::util
                 m_regions.back().push_back(ptr, pos);
             }
         }
-        operator ::sqf::runtime::instruction_set() const
+        operator ::sqf::runtime::instruction_blob() const
         {
             return { inner };
         }
@@ -488,7 +488,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 }
             }
         }
-        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set }));
+        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set }));
         set.push_back(node.token, std::make_shared<opcodes::assign_to>(std::string(node.children[0].token.contents)));
     } break;
     case ::sqf::sqc::bison::astkind::FINAL_FUNCTION_DECLARATION: {
@@ -520,7 +520,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         }
 
         // Push instructions as string
-        auto code = std::make_shared<::sqf::types::d_code>(runtime::instruction_set{ local_set });
+        auto code = std::make_shared<::sqf::types::d_code>(runtime::instruction_blob{ local_set });
         set.push_back(node.children[0].token, std::make_shared<opcodes::push>(code->to_string_sqf()));
 
         // Emit "compileFinal"
@@ -556,7 +556,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 }
             }
         }
-        set.push_back(node.token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set }));
+        set.push_back(node.token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set }));
     } break;
     case ::sqf::sqc::bison::astkind::ARGLIST: {
         size_t param_count = 0;
@@ -693,7 +693,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         auto local_set = set.create_from();
         to_assembly(runtime, local_set, locals, node.children[1]);
-        set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set }));
+        set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set }));
 
         set.push_back(node.token, std::make_shared<opcodes::call_binary>("then"s, (short)4));
     } break;
@@ -707,12 +707,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         // Emit on-true
         auto local_set1 = set.create_from();
         to_assembly(runtime, local_set1, locals, node.children[1]);
-        set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+        set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
 
         // Emit on-false
         auto local_set2 = set.create_from();
         to_assembly(runtime, local_set2, locals, node.children[2]);
-        set.push_back(node.children[2].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set2 }));
+        set.push_back(node.children[2].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set2 }));
         set.push_back(node.children[2].token, std::make_shared<opcodes::call_binary>("else"s, (short)5));
 
         set.push_back(node.token, std::make_shared<opcodes::call_binary>("then"s, (short)4));
@@ -736,16 +736,16 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // Emit Codeblock
         {
-            // Create additional instruction_set vector
+            // Create additional instruction_blob vector
             auto local_set1 = set.create_from();
 
             // Create copy of locals where var exists
             auto locals_copy = locals;
             locals_copy.push_back({ var ,lvar });
 
-            // Fill actual instruction_set
+            // Fill actual instruction_blob
             to_assembly(runtime, local_set1, locals_copy, node.children[3]);
-            set.push_back(node.children[3].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.children[3].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
         }
 
         // Emit "do"
@@ -773,16 +773,16 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // Emit Codeblock
         {
-            // Create additional instruction_set vector
+            // Create additional instruction_blob vector
             auto local_set1 = set.create_from();
 
             // Create copy of locals where var exists
             auto locals_copy = locals;
             locals_copy.push_back({ var ,lvar });
 
-            // Fill actual instruction_set
+            // Fill actual instruction_blob
             to_assembly(runtime, local_set1, locals_copy, node.children[4]);
-            set.push_back(node.children[4].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.children[4].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
         }
 
         // Emit "do"
@@ -792,7 +792,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         util::setbuilder::region __region(set);
         // Emit Codeblock
         {
-            // Create additional instruction_set vector
+            // Create additional instruction_blob vector
             auto local_set1 = set.create_from();
 
             // Create copy of locals
@@ -816,9 +816,9 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             std::string var(node.children[0].token.contents);
             locals_copy.push_back({ var, "_x" });
 
-            // Fill actual instruction_set
+            // Fill actual instruction_blob
             to_assembly(runtime, local_set1, locals_copy, node.children[2]);
-            set.push_back(node.children[2].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.children[2].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
         }
         // Emit value
         to_assembly(runtime, set, locals, node.children[1]);
@@ -830,23 +830,23 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         util::setbuilder::region __region(set);
         // Emit "while"
         {
-            // Create additional instruction_set vector for condition expression
+            // Create additional instruction_blob vector for condition expression
             auto local_set1 = set.create_from();
 
-            // Fill actual instruction_set for code
+            // Fill actual instruction_blob for code
             to_assembly(runtime, local_set1, locals, node.children[0]);
-            set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
         }
         set.push_back(node.token, std::make_shared<opcodes::call_binary>("while"s, (short)4));
 
         // Emit codeblock
         {
-            // Create additional instruction_set vector for condition expression
+            // Create additional instruction_blob vector for condition expression
             auto local_set1 = set.create_from();
 
-            // Fill actual instruction_set for code
+            // Fill actual instruction_blob for code
             to_assembly(runtime, local_set1, locals, node.children[1]);
-            set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
         }
 
         // Emit "do"
@@ -856,12 +856,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         util::setbuilder::region __region(set);
         // Emit call before while for the "do once"
         {
-            // Create additional instruction_set vector for condition expression
+            // Create additional instruction_blob vector for condition expression
             auto local_set1 = set.create_from();
 
-            // Fill actual instruction_set for code
+            // Fill actual instruction_blob for code
             to_assembly(runtime, local_set1, locals, node.children[0]);
-            set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
 
             // Use unary call to call created scope
             set.push_back(node.children[0].token, std::make_shared<opcodes::call_unary>("call"s));
@@ -869,23 +869,23 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // Emit "while"
         {
-            // Create additional instruction_set vector for condition expression
+            // Create additional instruction_blob vector for condition expression
             auto local_set1 = set.create_from();
 
-            // Fill actual instruction_set for code
+            // Fill actual instruction_blob for code
             to_assembly(runtime, local_set1, locals, node.children[1]);
-            set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
         }
         set.push_back(node.children[1].token, std::make_shared<opcodes::call_binary>("while"s, (short)4));
 
         // Emit codeblock
         {
-            // Create additional instruction_set vector for condition expression
+            // Create additional instruction_blob vector for condition expression
             auto local_set1 = set.create_from();
 
-            // Fill actual instruction_set for code
+            // Fill actual instruction_blob for code
             to_assembly(runtime, local_set1, locals, node.children[0]);
-            set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
         }
 
         // Emit "do"
@@ -894,12 +894,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     case ::sqf::sqc::bison::astkind::TRYCATCH: {
         // Emit "try"
         {
-            // Create additional instruction_set vector for condition expression
+            // Create additional instruction_blob vector for condition expression
             auto local_set1 = set.create_from();
 
-            // Fill actual instruction_set for code
+            // Fill actual instruction_blob for code
             to_assembly(runtime, local_set1, locals, node.children[0]);
-            set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
 
             // Use unary call to call created scope
             set.push_back(node.children[0].token, std::make_shared<opcodes::call_unary>("try"s));
@@ -907,7 +907,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // Emit "catch"
         {
-            // Create additional instruction_set vector
+            // Create additional instruction_blob vector
             auto local_set1 = set.create_from();
 
             // Assign variable for _exception
@@ -917,9 +917,9 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
             std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
             set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to_local>(lvar));
 
-            // Fill actual instruction_set for code
+            // Fill actual instruction_blob for code
             to_assembly(runtime, local_set1, locals, node.children[1]);
-            set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
         }
         set.push_back(node.children[1].token, std::make_shared<opcodes::call_binary>("catch"s, (short)4));
     } break;
@@ -931,15 +931,15 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // Emit "do switch"
         {
-            // Create additional instruction_set vector for condition expression
+            // Create additional instruction_blob vector for condition expression
             auto local_set1 = set.create_from();
 
-            // Fill actual instruction_set with cases
+            // Fill actual instruction_blob with cases
             for (auto it = node.children.begin() + 1; it != node.children.end(); it++)
             {
                 to_assembly(runtime, local_set1, locals, *it);
             }
-            set.push_back(node.token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
 
             // Emit "do"
             set.push_back(node.token, std::make_shared<opcodes::call_binary>("do"s, (short)4));
@@ -953,24 +953,24 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // If has codeblock, emit ":"
         if (node.children.size() == 2) {
-            // Create additional instruction_set vector for condition expression
+            // Create additional instruction_blob vector for condition expression
             auto local_set1 = set.create_from();
 
-            // Fill actual instruction_set for code
+            // Fill actual instruction_blob for code
             to_assembly(runtime, local_set1, locals, node.children[1]);
-            set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+            set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
 
             // Emit "colon"
             set.push_back(node.token, std::make_shared<opcodes::call_binary>(":"s, (short)4));
         }
     } break;
     case ::sqf::sqc::bison::astkind::CASE_DEFAULT: {
-        // Create additional instruction_set vector for condition expression
+        // Create additional instruction_blob vector for condition expression
         auto local_set1 = set.create_from();
 
-        // Fill actual instruction_set for code
+        // Fill actual instruction_blob for code
         to_assembly(runtime, local_set1, locals, node.children[0]);
-        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set1 }));
+        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(runtime::instruction_blob{ local_set1 }));
 
         // Emit "default"
         set.push_back(node.token, std::make_shared<opcodes::call_unary>("default"s));
@@ -1468,7 +1468,7 @@ bool sqf::sqc::parser::check_syntax(::sqf::runtime::runtime& runtime, std::strin
     bool success = p.parse() == 0;
     return success;
 }
-std::optional<::sqf::runtime::instruction_set> sqf::sqc::parser::parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
+std::optional<::sqf::runtime::instruction_blob> sqf::sqc::parser::parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
 {
     tokenizer t(contents.begin(), contents.end(), file.physical);
     util::setbuilder set(contents);

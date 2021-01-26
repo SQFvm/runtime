@@ -39,7 +39,7 @@ namespace
     value do_with_code(runtime& runtime, value::cref left, value::cref right)
     {
         auto scope = left.data<d_with, std::shared_ptr<value_scope>>();
-        auto set = right.data<d_code, instruction_set>();
+        auto set = right.data<d_code, instruction_blob>();
 
         frame f(scope, set);
         runtime.context_active().push_frame(f);

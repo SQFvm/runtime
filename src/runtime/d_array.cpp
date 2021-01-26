@@ -1,7 +1,10 @@
 #include "d_array.h"
 #include "d_scalar.h"
+#include "d_string.h"
+#include "d_code.h"
 #include "logging.h"
 #include "runtime.h"
+#include "instruction_blob.hpp"
 namespace err = logmessage::runtime;
 
 static std::array<float, 3> as_vec3(const sqf::types::d_array& data)
@@ -93,6 +96,38 @@ bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, sqf::runtim
     }
     return errflag;
 
+}
+
+void sqf::types::d_array::write(sqf::runtime::instruction_blob& b) const
+{
+    b.write<sqf::runtime::opcodes>(sqf::runtime::opcodes::meta_array);
+    b.write<uint64_t>(uint64_t(size()));
+    for (auto& it : m_value)
+    {
+        it.data()->write(b);
+    }
+}
+
+std::shared_ptr<sqf::types::d_array> sqf::types::d_array::read(sqf::runtime::instruction_handle& h)
+{
+    auto len = h.read<uint64_t>();
+    std::vector<sqf::runtime::value> values;
+    values.resize(len);
+    for (auto i = 0; i < len; i++)
+    {
+        auto opcode = h.read<sqf::runtime::opcodes>();
+        switch (opcode)
+        {
+            case sqf::runtime::opcodes::meta_array: values.emplace_back(sqf::types::d_array::read(h));
+            case sqf::runtime::opcodes::meta_code: values.emplace_back(sqf::types::d_code::read(h));
+            case sqf::runtime::opcodes::meta_float: values.emplace_back(sqf::types::d_scalar::read(h));
+            case sqf::runtime::opcodes::meta_string: values.emplace_back(sqf::types::d_string::read(h));
+            case sqf::runtime::opcodes::meta_nil:
+            [[fallthrough]]
+            default: values.emplace_back();
+        }
+    }
+    return std::make_shared<d_array>(values);
 }
 
 bool sqf::types::d_array::check_type(sqf::runtime::runtime& runtime, const sqf::runtime::type* p_t, size_t min, size_t max) const

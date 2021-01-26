@@ -40,7 +40,7 @@ namespace sqf
             using data_type = sqf::runtime::t_exception;
         public:
             d_exception() = default;
-            d_exception(sqf::runtime::instruction_set set) : d_code(set) {}
+            d_exception(sqf::runtime::instruction_blob set) : d_code(set) {}
 
             sqf::runtime::type type() const override { return data_type(); }
         };
@@ -91,7 +91,7 @@ namespace sqf
             using data_type = sqf::runtime::t_switch;
             inline static const std::string magic = "___switch";
         private:
-            sqf::runtime::instruction_set m_target_code;
+            sqf::runtime::instruction_blob m_target_code;
             sqf::runtime::value m_value;
             bool m_match_now;
             bool m_has_match;
@@ -116,8 +116,8 @@ namespace sqf
             sqf::runtime::type type() const override { return data_type(); }
             virtual std::size_t hash() const override { return std::hash<sqf::runtime::value>()(m_value); }
 
-            sqf::runtime::instruction_set target_code() const { return m_target_code; }
-            void target_code(sqf::runtime::instruction_set set) { m_target_code = set; }
+            sqf::runtime::instruction_blob target_code() const { return m_target_code; }
+            void target_code(sqf::runtime::instruction_blob set) { m_target_code = set; }
 
             sqf::runtime::value::cref value() const { return m_value; }
             void value(sqf::runtime::value set) { m_value = set; }
@@ -134,7 +134,7 @@ namespace sqf
             using data_type = sqf::runtime::t_while;
         public:
             d_while() = default;
-            d_while(sqf::runtime::instruction_set set) : d_code(set) {}
+            d_while(sqf::runtime::instruction_blob set) : d_code(set) {}
 
             sqf::runtime::type type() const override { return data_type(); }
         };

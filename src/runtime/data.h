@@ -6,6 +6,7 @@
 
 namespace sqf::runtime
 {
+    class instruction_blob;
     class runtime;
     class data
     {
@@ -83,6 +84,8 @@ namespace sqf::runtime
         virtual ::sqf::runtime::type type() const = 0;
 
         virtual std::size_t hash() const = 0;
+
+        virtual void write(sqf::runtime::instruction_blob& b) const = 0;
     };
 }
 namespace std

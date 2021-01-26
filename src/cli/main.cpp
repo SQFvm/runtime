@@ -663,7 +663,7 @@ int main_actual(int argc, char** argv)
                     }
                     auto ext = path.extension().string();
                     std::transform(ext.begin(), ext.end(), ext.begin(), [](char c) { return (char)std::tolower(c); });
-                    std::optional<sqf::runtime::instruction_set> set;
+                    std::optional<sqf::runtime::instruction_blob> set;
                     if (ext == ".sqc")
                     {
                         set = parserSqc.parse(runtime, *ppedStr, { sanitized, {} });

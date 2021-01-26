@@ -17,6 +17,8 @@ namespace sqf
 {
     namespace runtime
     {
+        class instruction_handle;
+        class instruction_blob;
         struct t_array : public type::extend<t_array> { t_array() : extend() {} static const std::string name() { return "ARRAY"; } };
     }
     namespace types
@@ -208,6 +210,9 @@ namespace sqf
                 if (size() > 2) { v.z = at(2).data_try<d_scalar, float>(0); }
                 return v;
             }
+
+            void write(sqf::runtime::instruction_blob& b) const override;
+            static std::shared_ptr<d_array> read(sqf::runtime::instruction_handle& h);
 
         private:
             bool check_type(sqf::runtime::runtime&, const sqf::runtime::type*, size_t, size_t) const;

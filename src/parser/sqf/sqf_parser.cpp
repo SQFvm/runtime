@@ -171,7 +171,7 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
             previous_node = node.children[i];
             to_assembly(contents, previous_node, tmp_set);
         }
-        auto inst_set = ::sqf::runtime::instruction_set(tmp_set);
+        auto inst_set = ::sqf::runtime::instruction_blob(tmp_set);
         auto inst = std::make_shared<::sqf::opcodes::push>(::sqf::runtime::value(std::make_shared<::sqf::types::d_code>(inst_set)));
         inst->diag_info({ node.token.line, node.token.column, node.token.offset, { *node.token.path, {} }, create_code_segment(contents, node.token.offset, node.token.contents.length()) });
         set.push_back(inst);
@@ -245,7 +245,7 @@ bool sqf::parser::sqf::parser::get_tree(::sqf::runtime::runtime& runtime, ::sqf:
     return success;
 }
 
-std::optional<sqf::runtime::instruction_set> sqf::parser::sqf::parser::parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
+std::optional<sqf::runtime::instruction_blob> sqf::parser::sqf::parser::parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file)
 {
     tokenizer t(contents.begin(), contents.end(), file.physical);
     ::sqf::parser::sqf::bison::astnode res;

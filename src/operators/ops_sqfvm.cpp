@@ -433,11 +433,11 @@ namespace
         class behavior_except : public frame::behavior
         {
         private:
-            instruction_set m_set;
+            instruction_blob m_set;
             bool m_exchanged;
         public:
-            behavior_except(instruction_set set) : m_set(set), m_exchanged(false) {}
-            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
+            behavior_except(instruction_blob set) : m_set(set), m_exchanged(false) {}
+            virtual sqf::runtime::instruction_blob get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
                 if (!m_exchanged)
@@ -457,9 +457,9 @@ namespace
         };
         frame f(
             runtime.default_value_scope(),
-            left.data<d_code, sqf::runtime::instruction_set>(),
+            left.data<d_code, sqf::runtime::instruction_blob>(),
             {},
-            std::make_shared<behavior_except>(right.data<d_code, sqf::runtime::instruction_set>()));
+            std::make_shared<behavior_except>(right.data<d_code, sqf::runtime::instruction_blob>()));
         runtime.context_active().push_frame(f);
         return {};
     }
@@ -624,7 +624,7 @@ namespace
     }
     value nobubble___any_code(runtime& runtime, value::cref left, value::cref right)
     {
-        frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
+        frame f = { runtime.default_value_scope(), right.data<d_code, instruction_blob>() };
         f["_this"] = left;
         f.bubble_variable(false);
         runtime.context_active().push_frame(f);
@@ -632,7 +632,7 @@ namespace
     }
     value nobubble___code(runtime& runtime, value::cref right)
     {
-        frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
+        frame f = { runtime.default_value_scope(), right.data<d_code, instruction_blob>() };
         f["_this"] = {};
         f.bubble_variable(false);
         runtime.context_active().push_frame(f);
@@ -670,12 +670,12 @@ namespace
             std::chrono::high_resolution_clock::time_point m_start;
             size_t m_amount;
             size_t m_max;
-            instruction_set m_set;
+            instruction_blob m_set;
             std::chrono::nanoseconds m_overhead;
         public:
-            behavior_measureoverhead(sqf::runtime::instruction_set set, size_t max) : m_start(std::chrono::high_resolution_clock::now()), m_amount(0), m_max(max), m_set(set), m_overhead(0) {}
+            behavior_measureoverhead(sqf::runtime::instruction_blob set, size_t max) : m_start(std::chrono::high_resolution_clock::now()), m_amount(0), m_max(max), m_set(set), m_overhead(0) {}
             virtual std::shared_ptr<behavior> get_behavior() override { return std::make_shared<behavior_measureperformance>(m_overhead, m_max); };
-            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
+            virtual sqf::runtime::instruction_blob get_instruction_set(sqf::runtime::frame& frame) override { return m_set; };
             virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
             {
                 if (++m_amount < m_max)
@@ -691,7 +691,7 @@ namespace
                 }
             };
         };
-        frame f = { runtime.default_value_scope(), {}, std::make_shared<behavior_measureoverhead>(right.data<d_code, sqf::runtime::instruction_set>(), 10000) };
+        frame f = { runtime.default_value_scope(), {}, std::make_shared<behavior_measureoverhead>(right.data<d_code, sqf::runtime::instruction_blob>(), 10000) };
         f["_this"] = {};
         f.bubble_variable(false);
         runtime.context_active().push_frame(f);

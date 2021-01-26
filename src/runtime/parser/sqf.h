@@ -18,7 +18,7 @@ namespace sqf
             public:
                 virtual ~sqf() {};
                 virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) = 0;
-                virtual std::optional<::sqf::runtime::instruction_set> parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) = 0;
+                virtual std::optional<::sqf::runtime::instruction_blob> parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) = 0;
                 static std::string create_code_segment(std::string_view view, size_t off, size_t length)
                 {
                     size_t i = off < 15 ? 0 : off - 15;
@@ -67,7 +67,7 @@ namespace sqf
         public:
             virtual ~disabled() override { return; };
             virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override { return false; }
-            virtual std::optional<::sqf::runtime::instruction_set> parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override { return {}; }
+            virtual std::optional<::sqf::runtime::instruction_blob> parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override { return {}; }
         };
     }
 }

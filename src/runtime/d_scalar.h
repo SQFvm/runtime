@@ -11,6 +11,8 @@ namespace sqf
 {
     namespace runtime
     {
+        class instruction_handle;
+        class instruction_blob;
         struct t_scalar : public type::extend<t_scalar> { t_scalar() : extend() {} static const std::string name() { return "SCALAR"; } };
     }
     namespace types
@@ -53,6 +55,9 @@ namespace sqf
             void value(float f) { m_value = f; }
             operator float() { return m_value; }
             static void set_decimals(int val) { s_decimals = val; }
+
+            void write(sqf::runtime::instruction_blob& b) const override;
+            static std::shared_ptr<d_scalar> read(sqf::runtime::instruction_handle& h);
         };
 
         template<> inline std::shared_ptr<sqf::runtime::data> to_data<int8_t>(int8_t  value)              { return std::make_shared<d_scalar>(value); }
