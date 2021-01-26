@@ -39,53 +39,19 @@ namespace sqf
 
             std::string to_string_sqf() const override
             {
-                std::vector<std::string> strs;
-                auto it = m_value.rbegin();
-                for (; it != m_value.rend(); it++)
-                {
-                    auto opt = (*it)->reconstruct(it, m_value.rend(), 0, false);
-                    if (!opt.has_value())
-                    {
-                        return {};
-                    }
-                    if (opt.value().empty())
-                    {
-                        continue;
-                    }
-                    strs.push_back(*opt);
-                }
-                std::reverse(strs.begin(), strs.end());
+                std::string content = m_value.reconstruct_sqf();
 
-                std::stringstream sstream;
-                sstream << "{ ";
-                if (!strs.empty())
-                {
-                    sstream << strs.front();
-                    for (auto it2 = strs.begin() + 1; it2 != strs.end(); it2++)
-                    {
-                        sstream << "; " << *it2;
-                    }
-                }
-                sstream << " }";
+                std::string output;
+                output.reserve(2 + content.length() + 2);
+                output.append("{ ");
+                output.append(content);
+                output.append(" }");
 
-                return sstream.str();
+                return output;
             }
             std::string to_string() const override
             {
-                std::stringstream sstream;
-                auto it = m_value.begin();
-                sstream << "[ ";
-                for (; it != m_value.end(); it++)
-                {
-                    if (it != m_value.begin())
-                    {
-                        sstream << ", ";
-                    }
-                    sstream << (*it)->to_string();
-                }
-                sstream << "]";
-
-                return sstream.str();
+                return m_value.reconstruct_assembly();
             }
 
             sqf::runtime::type type() const override { return data_type(); }

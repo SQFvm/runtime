@@ -138,6 +138,9 @@ namespace sqf::runtime
                 m_data.insert(m_data.end(), value.begin(), value.end());
             }
         }
+
+        std::string reconstruct_sqf() const;
+        std::string reconstruct_assembly() const;
     };
     instruction_handle::instruction_handle(const instruction_blob& blob) :
         m_start(blob.m_data.data()),

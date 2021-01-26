@@ -7,6 +7,8 @@
 #include "d_string.h"
 
 
+using namespace std::string_view_literals;
+
 void sqf::runtime::instructions::assign_to::execute(sqf::runtime::runtime& vm, sqf::runtime::diagnostics::diag_info& diag_info) const
 {
     auto& context = vm.context_active();
@@ -268,4 +270,273 @@ sqf::runtime::instructions::push sqf::runtime::instructions::push::read(sqf::run
         [[fallthrough]]
         default: return { {} };
     }
+}
+
+std::string sqf::runtime::instruction_blob::reconstruct_sqf() const
+{
+    auto h = create_handle();
+    std::vector<std::string> strings;
+    while (!h.eos())
+    {
+        auto op = h.read<opcodes>();
+        switch (op)
+        {
+            case opcodes::assign_to: {
+                if (strings.empty()) { break; }
+                auto op = instructions::assign_to::read(h);
+                std::string str;
+                str.reserve(
+                    op.variable_name.length() +
+                    " = "sv.length() +
+                    strings.back().length()
+                );
+                str.append(op.variable_name);
+                str.append(" = "sv);
+                str.append(strings.back());
+                strings.pop_back();
+                strings.push_back(str);
+            } break;
+            case opcodes::assign_to_local: {
+                if (strings.empty()) { break; }
+                auto op = instructions::assign_to_local::read(h);
+                std::string str;
+                str.reserve(
+                    "private "sv.length() +
+                    op.variable_name.length() +
+                    " = "sv.length() +
+                    strings.back().length()
+                );
+                str.append("private "sv);
+                str.append(op.variable_name);
+                str.append(" = "sv);
+                str.append(strings.back());
+                strings.pop_back();
+                strings.push_back(str);
+            } break;
+            case opcodes::get_variable: {
+                auto op = instructions::get_variable::read(h);
+                strings.push_back(std::string(op.variable_name));
+            } break;
+            case opcodes::call_nular: {
+                auto op = instructions::call_nular::read(h);
+                strings.push_back(std::string(op.operator_name));
+            } break;
+            case opcodes::call_unary: {
+                if (strings.empty()) { break; }
+                auto op = instructions::call_unary::read(h);
+                auto r = strings.back();
+                strings.pop_back();
+
+
+                std::string str;
+                str.reserve(
+                    op.operator_name.length() +
+                    " "sv.length() +
+                    r.length()
+                );
+                str.append(op.operator_name);
+                str.append(" "sv);
+                str.append(r);
+                strings.push_back(str);
+            } break;
+            case opcodes::call_binary: {
+                auto op = instructions::call_unary::read(h);
+                if (strings.empty()) { break; }
+                auto r = strings.back();
+                strings.pop_back();
+                if (strings.empty()) { break; }
+                auto l = strings.back();
+                strings.pop_back();
+
+
+                std::string str;
+                str.reserve(
+                    l.length() +
+                    " "sv.length() +
+                    op.operator_name.length() +
+                    " "sv.length() +
+                    r.length()
+                );
+                str.append(l);
+                str.append(" "sv);
+                str.append(op.operator_name);
+                str.append(" "sv);
+                str.append(r);
+                strings.push_back(str);
+            } break;
+            case opcodes::push:
+            {
+                auto op = instructions::push::read(h);
+                strings.push_back(op.data.to_string_sqf());
+            } break;
+            case opcodes::make_array:
+            {
+                auto op = instructions::make_array::read(h);
+                if (strings.size() < op.size) { break; }
+                size_t len = 1; // [
+                for (auto rit = strings.rbegin(); rit != rbegin() + op.size; ++rit)
+                {
+                    len += rit->length();
+                    len += ","sv.length(); // No need to check for last as "]"sv.length() == 1 too.
+                }
+                std::string str = "[";
+                str.reserve(len);
+                for (size_t i = 0; i < op.size; i++)
+                {
+                    str.append(strings.back());
+                    strings.pop_back();
+                    str.append(",");
+                }
+                str.append("]");
+                strings.push_back(str);
+            } break;
+            case opcodes::end_statement:
+            {
+                auto op = instructions::push::read(h);
+                strings.push_back("; ");
+            } break;
+        }
+    }
+    size_t len = 0;
+    for (auto it : strings)
+    {
+        len += it.length();
+    }
+    std::string output;
+    output.reserve(len);
+    for (auto it : strings)
+    {
+        output.append(it);
+    }
+    return output;
+}
+
+std::string sqf::runtime::instruction_blob::reconstruct_assembly() const
+{
+    auto h = create_handle();
+    std::vector<std::string> strings;
+    while (!h.eos())
+    {
+        auto op = h.read<opcodes>();
+        switch (op)
+        {
+            case opcodes::assign_to:
+            {
+                auto op = instructions::assign_to::read(h);
+                std::string str;
+                str.reserve(
+                    "assignTo "sv.length() +
+                    op.variable_name.length()
+                );
+                str.append("assignTo "sv);
+                str.append(op.variable_name);
+                strings.push_back(str);
+            } break;
+            case opcodes::assign_to_local:
+            {
+                auto op = instructions::assign_to_local::read(h);
+                std::string str;
+                str.reserve(
+                    "assignToLocal "sv.length() +
+                    op.variable_name.length()
+                );
+                str.append("assignToLocal "sv);
+                str.append(op.variable_name);
+                strings.push_back(str);
+            } break;
+            case opcodes::get_variable:
+            {
+                auto op = instructions::get_variable::read(h);
+                std::string str;
+                str.reserve(
+                    "getVariable "sv.length() +
+                    op.variable_name.length()
+                );
+                str.append("getVariable "sv);
+                str.append(op.variable_name);
+                strings.push_back(str);
+            } break;
+            case opcodes::call_nular:
+            {
+                auto op = instructions::call_nular::read(h);
+                std::string str;
+                str.reserve(
+                    "callNular "sv.length() +
+                    op.operator_name.length()
+                );
+                str.append("getVariable "sv);
+                str.append(op.operator_name);
+                strings.push_back(str);
+            } break;
+            case opcodes::call_unary:
+            {
+                auto op = instructions::call_unary::read(h);
+                std::string str;
+                str.reserve(
+                    "callUnary "sv.length() +
+                    op.operator_name.length()
+                );
+                str.append("getVariable "sv);
+                str.append(op.operator_name);
+                strings.push_back(str);
+            } break;
+            case opcodes::call_binary:
+            {
+                auto op = instructions::call_binary::read(h);
+                std::string str;
+                str.reserve(
+                    "callBinary "sv.length() +
+                    op.operator_name.length()
+                );
+                str.append("callBinary "sv);
+                str.append(op.operator_name);
+                strings.push_back(str);
+            } break;
+            case opcodes::push:
+            {
+                auto op = instructions::push::read(h);
+                auto content = op.data.to_string();
+                std::string str;
+                str.reserve(
+                    "push "sv.length() +
+                    content.length()
+                );
+                str.append("push "sv);
+                str.append(content);
+                strings.push_back(str);
+            } break;
+            case opcodes::make_array:
+            {
+                auto op = instructions::make_array::read(h);
+                std::string content = std::to_string(op.size);
+                std::string str;
+                str.reserve(
+                    "makeArray "sv.length() +
+                    content.length()
+                );
+                str.append("makeArray "sv);
+                str.append(content);
+                strings.push_back(str);
+            } break;
+            case opcodes::end_statement:
+            {
+                auto op = instructions::push::read(h);
+                strings.push_back("endStatement");
+            } break;
+        }
+    }
+    size_t len = 0;
+    for (auto it : strings)
+    {
+        len += it.length();
+        len++;
+    }
+    std::string output;
+    output.reserve(len);
+    for (auto it : strings)
+    {
+        output.append(it);
+        output.append("\n"sv);
+    }
+    return output;
 }
