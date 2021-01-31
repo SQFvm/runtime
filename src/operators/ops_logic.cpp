@@ -7,6 +7,7 @@
 #include "../runtime/d_boolean.h"
 #include "../runtime/d_code.h"
 #include "../runtime/d_array.h"
+#include "d_text.h"
 
 #include "../runtime/value.h"
 

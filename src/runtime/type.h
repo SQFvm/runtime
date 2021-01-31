@@ -110,7 +110,6 @@ namespace sqf
         struct t_vector : public sqf::runtime::type::extend<t_vector> { t_vector() : extend() {} static const std::string name() { return "VECTOR"; } };
         struct t_trans : public sqf::runtime::type::extend<t_trans> { t_trans() : extend() {} static const std::string name() { return "TRANS"; } };
         struct t_orient : public sqf::runtime::type::extend<t_orient> { t_orient() : extend() {} static const std::string name() { return "ORIENT"; } };
-        struct t_text : public sqf::runtime::type::extend<t_text> { t_text() : extend() {} static const std::string name() { return "TEXT"; } };
         struct t_task : public sqf::runtime::type::extend<t_task> { t_task() : extend() {} static const std::string name() { return "TASK"; } };
         struct t_target : public sqf::runtime::type::extend<t_target> { t_target() : extend() {} static const std::string name() { return "TARGET"; } };
         struct t_jclass : public sqf::runtime::type::extend<t_jclass> { t_jclass() : extend() {} static const std::string name() { return "JCLASS"; } };

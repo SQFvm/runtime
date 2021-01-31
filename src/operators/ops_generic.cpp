@@ -12,6 +12,7 @@
 #include "../runtime/d_array.h"
 #include "../runtime/diagnostics/d_stacktrace.h"
 #include "../runtime/d_code.h"
+#include "d_text.h"
 #include "../runtime/git_sha1.h"
 
 #include "dlops_storage.h"
@@ -978,7 +979,7 @@ namespace
     }
     value hint_text(runtime& runtime, value::cref right)
     {
-        auto r = right.data<d_string, std::string>();
+        auto r = right.data<d_text, std::string>();
         runtime.__logmsg(err::InfoMessage(runtime.context_active().current_frame().diag_info_from_position(), "HINT"s, r));
         return {};
     }
