@@ -1305,7 +1305,7 @@ namespace
     value selectmax_array(runtime& runtime, value::cref right)
     {
         auto r = right.data<d_array>();
-        double max = 0;
+        double max = std::numeric_limits<float>::lowest();
         for (size_t i = r->size() - 1; i != ~(size_t)0; i--)
         {
             auto tmp = r->at(i);
@@ -1337,7 +1337,7 @@ namespace
     value selectmin_array(runtime& runtime, value::cref right)
     {
         auto r = right.data<d_array>();
-        double min = 0;
+        double min = std::numeric_limits<float>::max();
         for (size_t i = r->size() - 1; i != ~(size_t)0; i--)
         {
             auto tmp = r->at(i);
