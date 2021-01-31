@@ -1067,7 +1067,7 @@ std::string file_macro_callback(
     const std::vector<std::string>& params,
     ::sqf::runtime::runtime& runtime)
 {
-    return dinf.path.physical;
+    return "\""s + dinf.path.physical + "\""s;
 }
 std::string eval_macro_callback(
     const ::sqf::runtime::parser::macro& m,
