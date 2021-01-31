@@ -1249,7 +1249,7 @@ namespace
     {
         auto arr = left.data<d_array>();
         auto r = right.data<d_array>();
-        arr->insert(arr->begin(), r->begin(), r->end());
+        arr->insert(arr->end(), r->begin(), r->end());
         return {};
     }
     value arrayintersect_array_array(runtime& runtime, value::cref left, value::cref right)
