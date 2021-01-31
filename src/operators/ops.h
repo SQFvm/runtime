@@ -10,6 +10,7 @@
 #include "ops_object.h"
 #include "ops_sqfvm.h"
 #include "ops_string.h"
+#include "ops_text.h"
 #include "ops_dummy_nular.h"
 #include "ops_dummy_unary.h"
 #include "ops_dummy_binary.h"
@@ -38,6 +39,7 @@ namespace sqf
             sqf::operators::ops_object(runtime);
             sqf::operators::ops_sqfvm(runtime);
             sqf::operators::ops_string(runtime);
+            sqf::operators::ops_text(runtime);
             sqf::operators::ops_dummy_nular(runtime);
             sqf::operators::ops_dummy_unary(runtime);
             sqf::operators::ops_dummy_binary(runtime);
