@@ -96,21 +96,26 @@ def run(cmd):
     if return_code:
         raise subprocess.CalledProcessError(return_code, cmd)
 
-tests_passed = 0
-tests_failed = 0
+tests_passed = []
+tests_failed = []
 
 for line in run(sqfvm):
     if "Test OK" in line:
-        tests_passed += 1
+        tests_passed.append(line)
     if "Test FAIL" in line:
-        tests_failed += 1
+        tests_failed.append(line)
 
     if "defined twice" not in line and "Unexpected IFDEF" not in line:
         print(line)
+
+if len(tests_failed):
+    print('==== Failing tests ====')
+    for test in tests_failed:
+        print(test)
 
 print('''
 ==== CBA A3 tests summary ====
 Tests passed: %d
 Tests failed: %d
 ==============================
-''' % (tests_passed, tests_failed))
+''' % (len(tests_passed), len(tests_failed)))
