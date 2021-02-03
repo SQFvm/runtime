@@ -75,6 +75,7 @@
             NUMBER_DECIMAL,
             NUMBER_HEXADECIMAL,
             STRING,
+            IDENT,
             ARRAY,
             BOOLEAN_FALSE,
             ANYSTRING,
@@ -105,7 +106,7 @@
         };
      }
 
-#line 109 "parser.tab.hh" // lalr1.cc:377
+#line 110 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -182,7 +183,7 @@
 
 #line 9 "parser.y" // lalr1.cc:377
 namespace sqf { namespace parser { namespace config { namespace bison  {
-#line 186 "parser.tab.hh" // lalr1.cc:377
+#line 187 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -595,7 +596,7 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
 
 
     /// Build a parser object.
-    parser (::sqf::parser::config::tokenizer &tokenizer_yyarg, ::sqf::parser::config::bison::astnode& result_yyarg, ::sqf::parser::config::parser& actual_yyarg, ::sqf::runtime::runtime &runtime_yyarg);
+    parser (::sqf::parser::config::tokenizer &tokenizer_yyarg, ::sqf::parser::config::bison::astnode& result_yyarg, ::sqf::parser::config::parser& actual_yyarg);
     virtual ~parser ();
 
     /// Parse.
@@ -811,7 +812,6 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     ::sqf::parser::config::tokenizer &tokenizer;
     ::sqf::parser::config::bison::astnode& result;
     ::sqf::parser::config::parser& actual;
-    ::sqf::runtime::runtime &runtime;
   };
 
   // Symbol number corresponding to token number t.

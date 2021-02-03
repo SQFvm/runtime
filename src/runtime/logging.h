@@ -639,6 +639,19 @@ namespace logmessage {
                 ConfigBase(level, errorCode, std::move(loc)) { }
             [[nodiscard]] std::string formatMessage() const override;
         };
+        class ParseError : public ConfigBase
+        {
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 40013;
+            std::string_view msg;
+        public:
+            ParseError(LogLocationInfo loc, std::string_view msg) :
+                ConfigBase(level, errorCode, std::move(loc)),
+                msg(msg)
+            {
+            }
+            [[nodiscard]] std::string formatMessage() const override;
+        };
     }
     namespace linting
     {

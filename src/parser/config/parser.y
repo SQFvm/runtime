@@ -64,6 +64,7 @@
             NUMBER_DECIMAL,
             NUMBER_HEXADECIMAL,
             STRING,
+            IDENT,
             ARRAY,
             BOOLEAN_FALSE,
             ANYSTRING,
@@ -105,12 +106,10 @@
      }
 }
 
-%lex-param { ::sqf::runtime::runtime &runtime }
 %lex-param { ::sqf::parser::config::tokenizer &tokenizer }
 %parse-param { ::sqf::parser::config::tokenizer &tokenizer }
 %parse-param { ::sqf::parser::config::bison::astnode& result }
 %parse-param { ::sqf::parser::config::parser& actual }
-%parse-param { ::sqf::runtime::runtime &runtime }
 %locations
 %define parse.error verbose
 
@@ -203,7 +202,7 @@ number: NUMBER                                          { $$ = ::sqf::parser::co
       | HEXNUMBER                                       { $$ = ::sqf::parser::config::bison::astnode{ astkind::NUMBER_HEXADECIMAL, $1 }; }
       ;
 array: "{" "}"                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ARRAY }; }
-     | "{" arrayvaluelist "}"                           { $$ = $2 }
+     | "{" arrayvaluelist "}"                           { $$ = $2; }
      ;
 arrayvalue: string                                      { $$ = $1; }
           | number                                      { $$ = $1; }
@@ -235,11 +234,11 @@ anyp: "class"                                           { $$ = ::sqf::parser::co
     | "="                                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
     | ANY                                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
     ;
-anyarray: anyp                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANYSTRING, $1 }; $$.append($1) }
-        | anyarray anyarr                               { $$ = $1; $$.append($2) }
+anyarray: anyp                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANYSTRING }; $$.append($1); }
+        | anyarray anyarr                               { $$ = $1; $$.append($2); }
         ;
-anyvalue: anyp                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANYSTRING, $1 }; $$.append($1) }
-        | anyvalue anyval                               { $$ = $1; $$.append($2) }
+anyvalue: anyp                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANYSTRING }; $$.append($1); }
+        | anyvalue anyval                               { $$ = $1; $$.append($2); }
         ;
 
 
@@ -254,11 +253,11 @@ anyvalue: anyp                                          { $$ = ::sqf::parser::co
 #include "config_parser.hpp"
 namespace sqf::parser::config::bison
 {
-    void parser::error (const location_type& loc, const std::string& msg)
+    void parser::error(const location_type& loc, const std::string& msg)
     {
         actual.__log(logmessage::config::ParseError({ *loc.begin.filename, loc.begin.line, loc.begin.column }, msg));
     }
-    inline parser::symbol_type yylex (::sqf::runtime::runtime& runtime, ::sqf::parser::config::tokenizer& tokenizer)
+    inline parser::symbol_type yylex(::sqf::parser::config::tokenizer& tokenizer)
     {
          auto token = tokenizer.next();
          parser::location_type loc;
@@ -272,10 +271,10 @@ namespace sqf::parser::config::bison
          {
          case tokenizer::etoken::eof: return parser::make_END_OF_FILE(loc);
          case tokenizer::etoken::invalid: return parser::make_INVALID(loc);
-         case tokenizer::etoken::m_line: return yylex(runtime, tokenizer);
-         case tokenizer::etoken::i_comment_line: return yylex(runtime, tokenizer);
-         case tokenizer::etoken::i_comment_block: return yylex(runtime, tokenizer);
-         case tokenizer::etoken::i_whitespace: return yylex(runtime, tokenizer);
+         case tokenizer::etoken::m_line: return yylex(tokenizer);
+         case tokenizer::etoken::i_comment_line: return yylex(tokenizer);
+         case tokenizer::etoken::i_comment_block: return yylex(tokenizer);
+         case tokenizer::etoken::i_whitespace: return yylex(tokenizer);
          
          case tokenizer::etoken::t_class: return parser::make_CLASS(token, loc);
          case tokenizer::etoken::t_delete: return parser::make_DELETE(token, loc);
@@ -295,7 +294,7 @@ namespace sqf::parser::config::bison
          case tokenizer::etoken::t_hexadecimal: return parser::make_HEXNUMBER(token, loc);
          case tokenizer::etoken::s_equal: return parser::make_EQUAL(token, loc);
          default:
-             return parser::make_ANY(loc);
+             return parser::make_ANY(token, loc);
          }
      }
 }
