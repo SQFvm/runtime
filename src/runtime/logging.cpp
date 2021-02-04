@@ -915,6 +915,43 @@ namespace logmessage::config
         output.append(message);
         return output;
     }
+    std::string ParseError::formatMessage() const
+    {
+        auto output = m_location.format();
+
+        output.reserve(
+            output.length()
+            + "Parse Error: "sv.length()
+            + msg.length()
+        );
+
+        output.append("Parse Error: "sv);
+        output.append(msg);
+        return output;
+    }
+    std::string InheritedParentNotFound::formatMessage() const
+    {
+        auto output = m_location.format();
+        const auto message_a = "The provided inherited config node was not located on current or upper levels (class "sv;
+        const auto message_b = " : "sv;
+        const auto message_c = ")."sv;
+
+        output.reserve(
+            output.length()
+            + message_a.length()
+            + node_name.length()
+            + message_b.length()
+            + parent_name.length()
+            + message_c.length()
+        );
+
+        output.append(message_a);
+        output.append(node_name);
+        output.append(message_b);
+        output.append(parent_name);
+        output.append(message_c);
+        return output;
+    }
 }
 namespace logmessage::linting
 {

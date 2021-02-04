@@ -5,7 +5,7 @@
 #include "../operators/object.h"
 #include "../operators/ops.h"
 
-#include "../parser/config/default.h"
+#include "../parser/config/config_parser.hpp"
 #include "../parser/sqf/sqf_parser.hpp"
 #include "../parser/preprocessor/default.h"
 
@@ -461,7 +461,7 @@ int main_actual(int argc, char** argv)
 
     sqf::runtime::runtime runtime(logger, conf);
     runtime.fileio(std::make_unique<sqf::fileio::impl_default>(logger));
-    runtime.parser_config(std::make_unique<sqf::parser::config::impl_default>(logger));
+    runtime.parser_config(std::make_unique<sqf::parser::config::parser>(logger));
     runtime.parser_preprocessor(std::make_unique<sqf::parser::preprocessor::impl_default>(logger));
 #if defined(SQF_SQC_SUPPORT)
     if (useSqcArg.getValue())

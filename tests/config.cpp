@@ -22,6 +22,8 @@ class type_tests
 {
     type_array[] = { 1, "test", { 1, 2, 3 } };
     type_string = "test";
+    type_anytext = any fancy text should be accepted;
+    type_anytext_array[] = { any, fancy, text, should, be, accepted };
     type_scalar = 1;
     class type_class {};
 };
