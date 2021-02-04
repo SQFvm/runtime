@@ -190,9 +190,19 @@ classbody: "{" "}"                                      { $$ = ::sqf::parser::co
          | "{" statements "}"                           { $$ = $2; }
          ;
 
-field: ident "=" string                                 { $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD, $2 }; $$.append($1); $$.append($3); }
-     | ident "=" number                                 { $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD, $2 }; $$.append($1); $$.append($3); }
-     | ident "=" anyvalue                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD, $2 }; $$.append($1); $$.append($3); }
+field: ident "=" anyvalue
+     {
+         $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD, $2 };
+         $$.append($1);
+         if ($3.children.size() == 1 && $3.children[0].kind != astkind::ANY)
+         {
+            $$.append($3.children[0]);
+         }
+         else
+         {
+            $$.append($3);
+         }
+     }
      | ident "[" "]" "=" array                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD_ARRAY, $4 }; $$.append($1); $$.append($5); }
      | ident "[" "]" "+=" array                         { $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD_ARRAY_APPEND, $4 }; $$.append($1); $$.append($5); }
      ;
@@ -207,40 +217,44 @@ number: NUMBER                                          { $$ = ::sqf::parser::co
 array: "{" "}"                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ARRAY }; }
      | "{" arrayvaluelist "}"                           { $$ = $2; }
      ;
-arrayvalue: string                                      { $$ = $1; }
-          | number                                      { $$ = $1; }
-          | array                                       { $$ = $1; }
-          | anyarray                                    { $$ = $1; }
+arrayvalue: array                                       { $$ = $1; }
+          | anyarray
+          {
+              if ($1.children.size() == 1 && $1.children[0].kind != astkind::ANY)
+              {
+                 $$ = $1.children[0];
+              }
+              else
+              {
+                 $$ = $1;
+              }
+          }
           ;
 arrayvaluelist: arrayvalue                              { $$ = ::sqf::parser::config::bison::astnode{ astkind::ARRAY }; $$.append($1); }
               | arrayvaluelist "," arrayvalue           { $$ = $1; $$.append($3); }
               ;
 anyval: anyp                                            { $$ = $1; }
-      | NUMBER                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
-      | HEXNUMBER                                       { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
-      | STRING                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
       | "{"                                             { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
       | "}"                                             { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
       | ","                                             { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
       ;
 anyarr: anyp                                            { $$ = $1; }
-      | NUMBER                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
-      | HEXNUMBER                                       { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
-      | STRING                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
       ;
 anyp: "class"                                           { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
     | "delete"                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
-    | IDENT                                             { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
+    | number                                            { $$ = $1; }
+    | string                                            { $$ = $1; }
+    | ident                                             { $$ = $1; }
     | "["                                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
     | "]"                                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
     | ":"                                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
     | "="                                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
     | ANY                                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
     ;
-anyarray: anyp                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANYSTRING }; $$.append($1); }
+anyarray: anyarr                                        { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANYSTRING }; $$.append($1); }
         | anyarray anyarr                               { $$ = $1; $$.append($2); }
         ;
-anyvalue: anyp                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANYSTRING }; $$.append($1); }
+anyvalue: anyval                                        { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANYSTRING }; $$.append($1); }
         | anyvalue anyval                               { $$ = $1; $$.append($2); }
         ;
 
@@ -297,6 +311,7 @@ namespace sqf::parser::config::bison
          case tokenizer::etoken::t_hexadecimal: return parser::make_HEXNUMBER(token, loc);
          case tokenizer::etoken::t_plus_equal: return parser::make_PLUSEQUAL(token, loc);
          case tokenizer::etoken::s_equal: return parser::make_EQUAL(token, loc);
+         case tokenizer::etoken::any: return parser::make_ANY(token, loc);
          default:
              return parser::make_ANY(token, loc);
          }

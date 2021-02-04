@@ -707,7 +707,7 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     static const char* const yytname_[];
 #if YYDEBUG
   // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-  static const unsigned char yyrline_[];
+  static const unsigned short int yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r);
     /// Print the state stack on the debug stream.
@@ -806,7 +806,7 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 124,     ///< Last index in yytable_.
+      yylast_ = 103,     ///< Last index in yytable_.
       yynnts_ = 22,  ///< Number of nonterminal symbols.
       yyfinal_ = 14, ///< Termination state number.
       yyterror_ = 1,

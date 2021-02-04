@@ -14,6 +14,7 @@ namespace sqf::parser::config
         {
             eof,
             invalid,
+            any,
             m_line,
             i_comment_line,
             i_comment_block,
@@ -234,6 +235,7 @@ namespace sqf::parser::config
                 case etoken::s_semicolon:        len = is_match<';'>(iter); break;
                 case etoken::s_comma:            len = is_match<','>(iter); break;
                 case etoken::t_plus_equal:       len = len_ident_match(iter, "+="); break;
+                case etoken::any:                len = 1; break;
 
                 case etoken::t_string_single: {
                     ++iter;
@@ -337,8 +339,11 @@ namespace sqf::parser::config
                     }
                 } break;
                 case etoken::t_number: {
+                    bool is_good = false;
+                    if (is_match<'+', '-'>(iter)) { ++iter; }
                     if (!is_match<'.'>(iter))
                     {
+                        is_good = true;
                         // match first part of number
                         auto res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(iter);
                         if (res == 0) { len = 0; break; }
@@ -346,6 +351,7 @@ namespace sqf::parser::config
                     }
                     if (is_match<'.'>(iter))
                     {
+                        is_good = true;
                         ++iter;
                         // match second part of number
                         auto res = len_match<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(iter);
@@ -354,6 +360,7 @@ namespace sqf::parser::config
                     }
                     if (is_match<'e', 'E'>(iter))
                     {
+                        is_good = true;
                         ++iter;
                         if (is_match<'+', '-'>(iter)) { ++iter; }
                         // match second part of number
@@ -361,7 +368,10 @@ namespace sqf::parser::config
                         if (res == 0) { --iter; }
                         else { iter += res; }
                     }
-                    len = iter - m_current;
+                    if (is_good)
+                    {
+                        len = iter - m_current;
+                    }
                 } break;
                 }
 
@@ -451,29 +461,29 @@ namespace sqf::parser::config
             case '7':           return try_match({ etoken::t_number });
             case '8':           return try_match({ etoken::t_number });
             case '9':           return try_match({ etoken::t_number });
-            case '+':           return try_match({ etoken::t_plus_equal, etoken::t_number });
-            case '-':           return try_match({ etoken::t_number });
-            case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block });
-            case '*':           return try_match({  });
-            case '(':           return try_match({  });
-            case ')':           return try_match({  });
+            case '+':           return try_match({ etoken::t_plus_equal, etoken::t_number, etoken::any });
+            case '-':           return try_match({ etoken::t_number, etoken::any });
+            case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block, etoken::any });
+            case '*':
+            case '(':
+            case ')':
+            case '%':
+            case '&':
+            case '!':
+            case '|':
+            case '>':
+            case '<':
+            case '?':
+            case '^':           return try_match({ etoken::any });
             case '[':           return try_match({ etoken::s_edgeo });
             case ']':           return try_match({ etoken::s_edgec });
             case '{':           return try_match({ etoken::s_curlyo });
             case '}':           return try_match({ etoken::s_curlyc });
-            case '%':           return try_match({  });
-            case '&':           return try_match({  });
             case '$':           return try_match({ etoken::t_hexadecimal });
-            case '!':           return try_match({  });
-            case '|':           return try_match({  });
-            case '>':           return try_match({  });
-            case '<':           return try_match({  });
             case '"':           return try_match({ etoken::t_string_double });
             case '=':           return try_match({ etoken::s_equal });
             case '\'':          return try_match({ etoken::t_string_single });
-            case '?':           return try_match({ });
             case ':':           return try_match({ etoken::s_colon });
-            case '^':           return try_match({ });
             case ';':           return try_match({ etoken::s_semicolon });
             case ',':           return try_match({ etoken::s_comma });
             case '.':           return try_match({ etoken::t_number });
