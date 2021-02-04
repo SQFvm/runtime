@@ -593,45 +593,49 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
     auto opt_set = sqf_parser.parse(*this, view, { std::string("__evaluate_expression__.sqf"), {} });
     if (opt_set.has_value())
     {
+        auto eval_context = context_create().lock();
         frame f(default_value_scope(), opt_set.value());
-        std::vector<sqf::runtime::value> values(context_active().values_rbegin(), context_active().values_rend());
-        auto frames = context_active().frames_size();
-        context_active().push_frame(f);
-        context_active().clear_values();
+        eval_context->push_frame(f);
+        auto old_active = context_active_as_shared();
+        m_context_active = eval_context;
         try
         {
-            while (frames < context_active().frames_size())
+            while (!eval_context->empty())
             {
+                auto oldstate = m_state;
+                if (m_state == runtime::state::empty)
+                {
+                    m_state = runtime::state::running;
+                }
                 execute_do(*this, 1);
+                m_state = oldstate;
             }
         }
         catch (const std::exception& ex)
         {
             m_evaluate_halt = false;
         }
+        m_context_active = old_active;
         if (m_runtime_error)
         {
             m_evaluate_halt = false;
             m_runtime_error = false;
             success = false;
-            context_active().clear_values();
-            for (auto val : values)
-            {
-                context_active().push_value(val);
-            }
             return {};
         }
         else
         {
-            auto val = context_active().pop_value();
-            context_active().clear_values();
-            for (auto it : values)
-            {
-                context_active().push_value(it);
-            }
+            auto val = eval_context->pop_value(true);
             m_evaluate_halt = false;
             success = true;
-            return val.value();
+            if (val.has_value())
+            {
+                return val.value();
+            }
+            else
+            {
+                return {};
+            }
         }
     }
     else
