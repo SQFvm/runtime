@@ -57,7 +57,10 @@ bool sqf::parser::config::parser::apply_to_confighost(::sqf::parser::config::bis
            case ::sqf::parser::config::bison::astkind::DELETE_CLASS: {
                parent.delete_inherited_or_replace(node.children[0].token.contents);
            } break;
-           case ::sqf::parser::config::bison::astkind::FIELD:
+           case ::sqf::parser::config::bison::astkind::FIELD: {
+               auto nav = parent.append_or_replace(node.children[0].token.contents);
+               apply_to_confighost(node.children[1], confighost, nav);
+           } break;
            case ::sqf::parser::config::bison::astkind::FIELD_ARRAY: {
                auto nav = parent.append_or_replace(node.children[0].token.contents);
                apply_to_confighost(node.children[1], confighost, nav);
@@ -127,7 +130,12 @@ bool sqf::parser::config::parser::apply_to_confighost(::sqf::parser::config::bis
 
 
            case ::sqf::parser::config::bison::astkind::IDENT:
-           case ::sqf::parser::config::bison::astkind::ANY:
+           case ::sqf::parser::config::bison::astkind::ANY: {
+               auto start = node.token.contents.data();
+               auto end = node.token.contents.data() + node.token.contents.length();
+               std::string str = { start, end };
+               parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_string>(str)));
+           } break;
            case ::sqf::parser::config::bison::astkind::STATEMENTS:
            case ::sqf::parser::config::bison::astkind::ENDOFFILE:
            case ::sqf::parser::config::bison::astkind::INVALID:
