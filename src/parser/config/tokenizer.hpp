@@ -486,7 +486,7 @@ namespace sqf::parser::config
             case ':':           return try_match({ etoken::s_colon });
             case ';':           return try_match({ etoken::s_semicolon });
             case ',':           return try_match({ etoken::s_comma });
-            case '.':           return try_match({ etoken::t_number });
+            case '.':           return try_match({ etoken::t_number, etoken::any });
             case ' ':           return try_match({ etoken::i_whitespace });
             case '\r':          return try_match({ etoken::i_whitespace });
             case '\t':          return try_match({ etoken::i_whitespace });
