@@ -61,12 +61,13 @@
             CLASS_EXT,
             DELETE_CLASS,
             FIELD,
+            FIELD_ARRAY,
+            FIELD_ARRAY_APPEND,
             NUMBER_DECIMAL,
             NUMBER_HEXADECIMAL,
             STRING,
             IDENT,
             ARRAY,
-            BOOLEAN_FALSE,
             ANYSTRING,
             ANY
         };
@@ -102,7 +103,7 @@
      namespace sqf::parser::config::bison
      {
           // Return the next token.
-          parser::symbol_type yylex (::sqf::runtime::runtime &runtime, ::sqf::parser::config::tokenizer&);
+          parser::symbol_type yylex (::sqf::parser::config::tokenizer&);
      }
 }
 
@@ -133,6 +134,7 @@
 %token <tokenizer::token> COLON                     ":"
 %token <tokenizer::token> SEMICOLON                 ";"
 %token <tokenizer::token> COMMA                     ","
+%token <tokenizer::token> PLUSEQUAL                 "+="
 %token <tokenizer::token> EQUAL                     "="
 
 %token <tokenizer::token> IDENT
@@ -185,13 +187,14 @@ deleteclass: "delete" ident                             { $$ = ::sqf::parser::co
            ;
 
 classbody: "{" "}"                                      { $$ = ::sqf::parser::config::bison::astnode{ astkind::STATEMENTS }; }
-         | "{" statements "}"                           { $$ = $1; }
+         | "{" statements "}"                           { $$ = $2; }
          ;
 
 field: ident "=" string                                 { $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD, $2 }; $$.append($1); $$.append($3); }
      | ident "=" number                                 { $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD, $2 }; $$.append($1); $$.append($3); }
      | ident "=" anyvalue                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD, $2 }; $$.append($1); $$.append($3); }
-     | ident "[" "]" "=" array                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD, $4 }; $$.append($1); $$.append($5); }
+     | ident "[" "]" "=" array                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD_ARRAY, $4 }; $$.append($1); $$.append($5); }
+     | ident "[" "]" "+=" array                         { $$ = ::sqf::parser::config::bison::astnode{ astkind::FIELD_ARRAY_APPEND, $4 }; $$.append($1); $$.append($5); }
      ;
 
 ident: IDENT                                            { $$ = ::sqf::parser::config::bison::astnode{ astkind::IDENT, $1 }; }
@@ -292,6 +295,7 @@ namespace sqf::parser::config::bison
          case tokenizer::etoken::t_string_single: return parser::make_STRING(token, loc);
          case tokenizer::etoken::t_number: return parser::make_NUMBER(token, loc);
          case tokenizer::etoken::t_hexadecimal: return parser::make_HEXNUMBER(token, loc);
+         case tokenizer::etoken::t_plus_equal: return parser::make_PLUSEQUAL(token, loc);
          case tokenizer::etoken::s_equal: return parser::make_EQUAL(token, loc);
          default:
              return parser::make_ANY(token, loc);

@@ -72,12 +72,13 @@
             CLASS_EXT,
             DELETE_CLASS,
             FIELD,
+            FIELD_ARRAY,
+            FIELD_ARRAY_APPEND,
             NUMBER_DECIMAL,
             NUMBER_HEXADECIMAL,
             STRING,
             IDENT,
             ARRAY,
-            BOOLEAN_FALSE,
             ANYSTRING,
             ANY
         };
@@ -106,7 +107,7 @@
         };
      }
 
-#line 110 "parser.tab.hh" // lalr1.cc:377
+#line 111 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -183,7 +184,7 @@
 
 #line 9 "parser.y" // lalr1.cc:377
 namespace sqf { namespace parser { namespace config { namespace bison  {
-#line 187 "parser.tab.hh" // lalr1.cc:377
+#line 188 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -362,6 +363,7 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
       // ":"
       // ";"
       // ","
+      // "+="
       // "="
       // IDENT
       // NUMBER
@@ -404,12 +406,13 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
         COLON = 267,
         SEMICOLON = 268,
         COMMA = 269,
-        EQUAL = 270,
-        IDENT = 271,
-        NUMBER = 272,
-        HEXNUMBER = 273,
-        STRING = 274,
-        ANY = 275
+        PLUSEQUAL = 270,
+        EQUAL = 271,
+        IDENT = 272,
+        NUMBER = 273,
+        HEXNUMBER = 274,
+        STRING = 275,
+        ANY = 276
       };
     };
 
@@ -569,6 +572,10 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     static inline
     symbol_type
     make_COMMA (const tokenizer::token& v, const location_type& l);
+
+    static inline
+    symbol_type
+    make_PLUSEQUAL (const tokenizer::token& v, const location_type& l);
 
     static inline
     symbol_type
@@ -799,12 +806,12 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 122,     ///< Last index in yytable_.
+      yylast_ = 124,     ///< Last index in yytable_.
       yynnts_ = 22,  ///< Number of nonterminal symbols.
       yyfinal_ = 14, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 21  ///< Number of tokens.
+      yyntokens_ = 22  ///< Number of tokens.
     };
 
 
@@ -850,9 +857,9 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20
+      15,    16,    17,    18,    19,    20,    21
     };
-    const unsigned int user_token_number_max_ = 275;
+    const unsigned int user_token_number_max_ = 276;
     const token_number_type undef_token_ = 2;
 
     if (static_cast<int>(t) <= yyeof_)
@@ -885,25 +892,25 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
   {
       switch (other.type_get ())
     {
-      case 24: // topstatements
-      case 25: // topstatement
-      case 26: // statements
-      case 27: // statement
-      case 28: // classdef
-      case 29: // deleteclass
-      case 30: // classbody
-      case 31: // field
-      case 32: // ident
-      case 33: // string
-      case 34: // number
-      case 35: // array
-      case 36: // arrayvalue
-      case 37: // arrayvaluelist
-      case 38: // anyval
-      case 39: // anyarr
-      case 40: // anyp
-      case 41: // anyarray
-      case 42: // anyvalue
+      case 25: // topstatements
+      case 26: // topstatement
+      case 27: // statements
+      case 28: // statement
+      case 29: // classdef
+      case 30: // deleteclass
+      case 31: // classbody
+      case 32: // field
+      case 33: // ident
+      case 34: // string
+      case 35: // number
+      case 36: // array
+      case 37: // arrayvalue
+      case 38: // arrayvaluelist
+      case 39: // anyval
+      case 40: // anyarr
+      case 41: // anyp
+      case 42: // anyarray
+      case 43: // anyvalue
         value.copy< ::sqf::parser::config::bison::astnode > (other.value);
         break;
 
@@ -918,12 +925,13 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
       case 12: // ":"
       case 13: // ";"
       case 14: // ","
-      case 15: // "="
-      case 16: // IDENT
-      case 17: // NUMBER
-      case 18: // HEXNUMBER
-      case 19: // STRING
-      case 20: // ANY
+      case 15: // "+="
+      case 16: // "="
+      case 17: // IDENT
+      case 18: // NUMBER
+      case 19: // HEXNUMBER
+      case 20: // STRING
+      case 21: // ANY
         value.copy< tokenizer::token > (other.value);
         break;
 
@@ -944,25 +952,25 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     (void) v;
       switch (this->type_get ())
     {
-      case 24: // topstatements
-      case 25: // topstatement
-      case 26: // statements
-      case 27: // statement
-      case 28: // classdef
-      case 29: // deleteclass
-      case 30: // classbody
-      case 31: // field
-      case 32: // ident
-      case 33: // string
-      case 34: // number
-      case 35: // array
-      case 36: // arrayvalue
-      case 37: // arrayvaluelist
-      case 38: // anyval
-      case 39: // anyarr
-      case 40: // anyp
-      case 41: // anyarray
-      case 42: // anyvalue
+      case 25: // topstatements
+      case 26: // topstatement
+      case 27: // statements
+      case 28: // statement
+      case 29: // classdef
+      case 30: // deleteclass
+      case 31: // classbody
+      case 32: // field
+      case 33: // ident
+      case 34: // string
+      case 35: // number
+      case 36: // array
+      case 37: // arrayvalue
+      case 38: // arrayvaluelist
+      case 39: // anyval
+      case 40: // anyarr
+      case 41: // anyp
+      case 42: // anyarray
+      case 43: // anyvalue
         value.copy< ::sqf::parser::config::bison::astnode > (v);
         break;
 
@@ -977,12 +985,13 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
       case 12: // ":"
       case 13: // ";"
       case 14: // ","
-      case 15: // "="
-      case 16: // IDENT
-      case 17: // NUMBER
-      case 18: // HEXNUMBER
-      case 19: // STRING
-      case 20: // ANY
+      case 15: // "+="
+      case 16: // "="
+      case 17: // IDENT
+      case 18: // NUMBER
+      case 19: // HEXNUMBER
+      case 20: // STRING
+      case 21: // ANY
         value.copy< tokenizer::token > (v);
         break;
 
@@ -1041,25 +1050,25 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     // Type destructor.
     switch (yytype)
     {
-      case 24: // topstatements
-      case 25: // topstatement
-      case 26: // statements
-      case 27: // statement
-      case 28: // classdef
-      case 29: // deleteclass
-      case 30: // classbody
-      case 31: // field
-      case 32: // ident
-      case 33: // string
-      case 34: // number
-      case 35: // array
-      case 36: // arrayvalue
-      case 37: // arrayvaluelist
-      case 38: // anyval
-      case 39: // anyarr
-      case 40: // anyp
-      case 41: // anyarray
-      case 42: // anyvalue
+      case 25: // topstatements
+      case 26: // topstatement
+      case 27: // statements
+      case 28: // statement
+      case 29: // classdef
+      case 30: // deleteclass
+      case 31: // classbody
+      case 32: // field
+      case 33: // ident
+      case 34: // string
+      case 35: // number
+      case 36: // array
+      case 37: // arrayvalue
+      case 38: // arrayvaluelist
+      case 39: // anyval
+      case 40: // anyarr
+      case 41: // anyp
+      case 42: // anyarray
+      case 43: // anyvalue
         value.template destroy< ::sqf::parser::config::bison::astnode > ();
         break;
 
@@ -1074,12 +1083,13 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
       case 12: // ":"
       case 13: // ";"
       case 14: // ","
-      case 15: // "="
-      case 16: // IDENT
-      case 17: // NUMBER
-      case 18: // HEXNUMBER
-      case 19: // STRING
-      case 20: // ANY
+      case 15: // "+="
+      case 16: // "="
+      case 17: // IDENT
+      case 18: // NUMBER
+      case 19: // HEXNUMBER
+      case 20: // STRING
+      case 21: // ANY
         value.template destroy< tokenizer::token > ();
         break;
 
@@ -1106,25 +1116,25 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     super_type::move(s);
       switch (this->type_get ())
     {
-      case 24: // topstatements
-      case 25: // topstatement
-      case 26: // statements
-      case 27: // statement
-      case 28: // classdef
-      case 29: // deleteclass
-      case 30: // classbody
-      case 31: // field
-      case 32: // ident
-      case 33: // string
-      case 34: // number
-      case 35: // array
-      case 36: // arrayvalue
-      case 37: // arrayvaluelist
-      case 38: // anyval
-      case 39: // anyarr
-      case 40: // anyp
-      case 41: // anyarray
-      case 42: // anyvalue
+      case 25: // topstatements
+      case 26: // topstatement
+      case 27: // statements
+      case 28: // statement
+      case 29: // classdef
+      case 30: // deleteclass
+      case 31: // classbody
+      case 32: // field
+      case 33: // ident
+      case 34: // string
+      case 35: // number
+      case 36: // array
+      case 37: // arrayvalue
+      case 38: // arrayvaluelist
+      case 39: // anyval
+      case 40: // anyarr
+      case 41: // anyp
+      case 42: // anyarray
+      case 43: // anyvalue
         value.move< ::sqf::parser::config::bison::astnode > (s.value);
         break;
 
@@ -1139,12 +1149,13 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
       case 12: // ":"
       case 13: // ";"
       case 14: // ","
-      case 15: // "="
-      case 16: // IDENT
-      case 17: // NUMBER
-      case 18: // HEXNUMBER
-      case 19: // STRING
-      case 20: // ANY
+      case 15: // "+="
+      case 16: // "="
+      case 17: // IDENT
+      case 18: // NUMBER
+      case 19: // HEXNUMBER
+      case 20: // STRING
+      case 21: // ANY
         value.move< tokenizer::token > (s.value);
         break;
 
@@ -1205,7 +1216,7 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275
+     275,   276
     };
     return static_cast<token_type> (yytoken_number_[type]);
   }
@@ -1289,6 +1300,12 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
   }
 
   parser::symbol_type
+  parser::make_PLUSEQUAL (const tokenizer::token& v, const location_type& l)
+  {
+    return symbol_type (token::PLUSEQUAL, v, l);
+  }
+
+  parser::symbol_type
   parser::make_EQUAL (const tokenizer::token& v, const location_type& l)
   {
     return symbol_type (token::EQUAL, v, l);
@@ -1327,7 +1344,7 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
 
 #line 9 "parser.y" // lalr1.cc:377
 } } } } //  ::sqf::parser::config::bison 
-#line 1331 "parser.tab.hh" // lalr1.cc:377
+#line 1348 "parser.tab.hh" // lalr1.cc:377
 
 
 // //                    "%code provides" blocks.
@@ -1340,7 +1357,7 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
         #pragma warning(pop)
     #endif
 
-#line 1344 "parser.tab.hh" // lalr1.cc:377
+#line 1361 "parser.tab.hh" // lalr1.cc:377
 
 
 #endif // !YY_YY_PARSER_TAB_HH_INCLUDED

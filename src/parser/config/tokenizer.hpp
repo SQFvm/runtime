@@ -29,6 +29,7 @@ namespace sqf::parser::config
             s_colon,
             s_semicolon,
             s_comma,
+            t_plus_equal,
             s_equal,
 
             t_string_double,
@@ -232,6 +233,7 @@ namespace sqf::parser::config
                 case etoken::s_colon:            len = is_match<':'>(iter); break;
                 case etoken::s_semicolon:        len = is_match<';'>(iter); break;
                 case etoken::s_comma:            len = is_match<','>(iter); break;
+                case etoken::t_plus_equal:       len = len_ident_match(iter, "+="); break;
 
                 case etoken::t_string_single: {
                     ++iter;
@@ -449,9 +451,9 @@ namespace sqf::parser::config
             case '7':           return try_match({ etoken::t_number });
             case '8':           return try_match({ etoken::t_number });
             case '9':           return try_match({ etoken::t_number });
-            case '+':           return try_match({ etoken::t_number });
+            case '+':           return try_match({ etoken::t_plus_equal, etoken::t_number });
             case '-':           return try_match({ etoken::t_number });
-            case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block, etoken::t_operator });
+            case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block });
             case '*':           return try_match({  });
             case '(':           return try_match({  });
             case ')':           return try_match({  });
@@ -470,7 +472,7 @@ namespace sqf::parser::config
             case '=':           return try_match({ etoken::s_equal });
             case '\'':          return try_match({ etoken::t_string_single });
             case '?':           return try_match({ });
-            case ':':           return try_match({ etoken::t_colon });
+            case ':':           return try_match({ etoken::s_colon });
             case '^':           return try_match({ });
             case ';':           return try_match({ etoken::s_semicolon });
             case ',':           return try_match({ etoken::s_comma });
@@ -517,9 +519,9 @@ namespace sqf::parser::config
             case etoken::s_colon:            return ":"sv;
             case etoken::s_semicolon:        return ";"sv;
             case etoken::s_comma:            return ","sv;
+            case etoken::t_plus_equal:       return "+="sv;
             case etoken::s_equal:            return "="sv;
 
-            case etoken::t_operator:         return "operator"sv;
             case etoken::t_string_double:    return "string(\")"sv;
             case etoken::t_string_single:    return "string(')"sv;
             case etoken::t_ident:            return "ident"sv;

@@ -20,89 +20,125 @@ namespace err = logmessage::config;
 
 bool sqf::parser::config::parser::apply_to_confighost(::sqf::parser::config::bison::astnode& node, ::sqf::runtime::confighost& confighost, ::sqf::runtime::confignav parent)
 {
+    using namespace std::string_literals;
     // ToDo: Check if a corresponding config already exists in confighost before creating it to avoid duplicates
 
     switch (node.kind)
     {
-        case nodetype::CONFIGNODE:
-        {
-            if (!node.children.empty() && node.children.front().kind == nodetype::CONFIGNODE_PARENTIDENT)
-            {
-                auto curnode = parent.append_or_replace(node.content, node.children.front().content);
-                for (size_t i = 1; i < node.children.size(); i++)
-                {
-                    auto subnode = node.children[i];
-                    apply_to_confighost(subnode, confighost, curnode);
-                }
-            }
-            else
-            {
-                auto curnode = parent.append_or_replace(node.content);
-                for (auto subnode : node.children)
-                {
-                    apply_to_confighost(subnode, confighost, curnode);
-                }
-            }
-        } break;
-        case nodetype::DELETENODE:
-        {
-            parent.delete_inherited_or_replace(node.content);
-        } break;
-        case nodetype::VALUENODE_ADDARRAY:
-        case nodetype::VALUENODE:
-        {
-            auto curnode = parent.append_or_replace(node.content);
+        
+           case ::sqf::parser::config::bison::astkind::CLASS_DEF: {
+               parent.append_or_replace(node.children[0].token.contents);
+           } break;
+           case ::sqf::parser::config::bison::astkind::CLASS_DEF_EXT: {
+               auto nav = parent.append_or_replace(node.children[0].token.contents, node.children[1].token.contents);
+               if (nav.parent_inherited().empty())
+               {
+                   __log(err::InheritedParentNotFound({ *node.token.path, node.token.line, node.token.column }, node.children[0].token.contents, node.children[1].token.contents));
+               }
+           } break;
+           case ::sqf::parser::config::bison::astkind::CLASS: {
+               auto nav = parent.append_or_replace(node.children[0].token.contents);
+               for (auto subnode : node.children[1].children)
+               {
+                   apply_to_confighost(subnode, confighost, nav);
+               }
+           } break;
+           case ::sqf::parser::config::bison::astkind::CLASS_EXT: {
+               auto nav = parent.append_or_replace(node.children[0].token.contents, node.children[1].token.contents);
+               if (nav.parent_inherited().empty())
+               {
+                   __log(err::InheritedParentNotFound({ *node.token.path, node.token.line, node.token.column }, node.children[0].token.contents, node.children[1].token.contents));
+               }
+               for (auto subnode : node.children[2].children)
+               {
+                   apply_to_confighost(subnode, confighost, nav);
+               }
+           } break;
+           case ::sqf::parser::config::bison::astkind::DELETE_CLASS: {
+               parent.delete_inherited_or_replace(node.children[0].token.contents);
+           } break;
+           case ::sqf::parser::config::bison::astkind::FIELD:
+           case ::sqf::parser::config::bison::astkind::FIELD_ARRAY: {
+               auto nav = parent.append_or_replace(node.children[0].token.contents);
+               apply_to_confighost(node.children[1], confighost, nav);
+           } break;
+           case ::sqf::parser::config::bison::astkind::FIELD_ARRAY_APPEND: {
+               auto nav = parent.append_or_replace(node.children[0].token.contents);
+               apply_to_confighost(node.children[1], confighost, nav);
 
-            for (auto& subnode : node.children)
-            {
-                apply_to_confighost(subnode, confighost, curnode);
-            }
-            if (node.kind == nodetype::VALUENODE_ADDARRAY)
-            {
-                auto parent_inherited = curnode.parent_logical().parent_inherited();
-                auto valuefield = parent_inherited / node.content;
-                if (!valuefield.empty())
-                {
-                    auto self = curnode->value.data_try<sqf::types::d_array>();
-                    auto other = valuefield->value.data_try<sqf::types::d_array>();
-                    if (self.get() && other.get())
-                    {
-                        self->insert(self->end(), other->begin(), other->end());
-                    }
-                }
-            }
-        } break;
-        case nodetype::STRING:
-        parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_string>(node.content)));
-        break;
-        case nodetype::NUMBER:
-        parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_scalar>((double)std::stod(node.content))));
-        break;
-        case nodetype::HEXNUMBER:
-        parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_scalar>((int64_t)std::stol(node.content, nullptr, 16))));
-        break;
-        case nodetype::LOCALIZATION:
-        parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_string>(node.content)));
-        break;
-        case nodetype::ARRAY:
-        {
-            std::vector<sqf::runtime::value> values;
-            for (auto& subnode : node.children)
-            {
-                apply_to_confighost(subnode, confighost, parent);
-                values.push_back(parent->value);
-            }
-            parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_array>(values)));
-        } break;
-        case nodetype::VALUE:
-        break;
+               auto parent_inherited = nav.parent_logical().parent_inherited();
+               auto inherited_value_field = parent_inherited / std::string(node.children[0].token.contents.data(), node.children[0].token.contents.length());
+               if (!inherited_value_field.empty())
+               {
+                   auto self = nav->value.data_try<sqf::types::d_array>();
+                   auto inherited = inherited_value_field->value.data_try<sqf::types::d_array>();
+                   if (self.get() && inherited.get())
+                   {
+                       self->insert(self->begin(), inherited->begin(), inherited->end());
+                   }
+               }
+           } break;
+           case ::sqf::parser::config::bison::astkind::NUMBER_DECIMAL: {
+               try
+               {
+                   auto d = (double)std::stod(std::string(node.token.contents));
+                   parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_scalar>(d)));
+               }
+               catch (std::out_of_range&)
+               {
+                   parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_scalar>(std::nanf(""))));
+               }
+           } break;
+           case ::sqf::parser::config::bison::astkind::NUMBER_HEXADECIMAL: {
+               try
+               {
+                   auto str = std::string(node.token.contents);
+                   if (str[0] == '$') { str = "0x"s.append(str.substr(1)); }
+                   auto hexnum = (int64_t)std::stol(str, nullptr, 16);
+                   parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_scalar>(hexnum)));
+               }
+               catch (std::out_of_range&)
+               {
+                   parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_scalar>(std::nanf(""))));
+               }
+           } break;
+           case ::sqf::parser::config::bison::astkind::STRING: {
+               auto transformed = sqf::types::d_string::from_sqf(node.token.contents);
+               parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_string>(transformed)));
+           } break;
+           case ::sqf::parser::config::bison::astkind::ARRAY: {
+               std::vector<sqf::runtime::value> values;
+               for (auto& subnode : node.children)
+               {
+                   // Abuse parents value for setting a local value that is not the actual value
+                   apply_to_confighost(subnode, confighost, parent);
+                   values.push_back(parent->value);
+               }
+               // Set parents value to the actual value
+               parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_array>(values)));
+           } break;
+           case ::sqf::parser::config::bison::astkind::ANYSTRING: {
+               auto start = node.children.front().token.contents.data();
+               auto end = node.children.back().token.contents.data() + node.children.back().token.contents.length();
+               std::string str = { start, end };
+               parent.value(sqf::runtime::value(std::make_shared<sqf::types::d_string>(str)));
+           } break;
+
+
+
+           case ::sqf::parser::config::bison::astkind::IDENT:
+           case ::sqf::parser::config::bison::astkind::ANY:
+           case ::sqf::parser::config::bison::astkind::STATEMENTS:
+           case ::sqf::parser::config::bison::astkind::ENDOFFILE:
+           case ::sqf::parser::config::bison::astkind::INVALID:
+           case ::sqf::parser::config::bison::astkind::__TOKEN:
+           case ::sqf::parser::config::bison::astkind::NA:
         default:
+        for (auto& subnode : node.children)
         {
-            for (auto& subnode : node.children)
-            {
-                apply_to_confighost(subnode, confighost, parent);
-            }
+            apply_to_confighost(subnode, confighost, parent);
         }
+        break;
     }
     return true;
 }

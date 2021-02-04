@@ -267,42 +267,69 @@ namespace sqf::runtime
             }
             return { m_confighost, config::invalid_id };
         }
+        confignav append_or_replace(std::string_view target, std::string_view inherited = {}) const
+        {
+            std::string s_target = { target.data(), target.length() };
+            std::string s_inherited = { inherited.data(), inherited.length() };
+            return append_or_replace(s_target, s_inherited);
+        }
         confignav append_or_replace(std::string target, std::string inherited = {}) const
         {
             if (!empty())
             {
+                // get config container from master-register
                 auto& container = m_confighost.m_containers.at(m_index);
-                auto find_res = container.find(target);
 
+
+                // Find the targeted config ...
+                auto find_res = container.find(target);
                 if (find_res == container.end())
-                {
-                    auto& created = m_confighost.m_containers.emplace_back(m_confighost.m_containers.size(), target);
-                    // container might be invalidated here due to m_containers resizing.
+                { // ... not found
+                    // Create new container
+                    auto& created = m_confighost.m_containers.emplace_back(m_confighost.m_containers.size(), target); // container might be invalidated here due to m_containers resizing.
+
+                    // Set logical parent to current container
                     created.id_parent_logical = m_index;
 
+                    // check if inherited is empty
                     if (!inherited.empty())
-                    {
+                    { // it is not
+                        // attempt to find inherited parent
                         auto nav = lookup_in_logical(inherited);
-                        created.id_parent_inherited = nav.m_index;
+
+                        // and set it as parent
+                        created.id_parent_inherited = nav.m_index; // index is invalid if parent was not found
                     }
+
+                    // Add created container as child to parent container
                     m_confighost.m_containers.at(m_index).push_back(target, created.id);
+
+                    // Return created container as confignav
                     return { m_confighost, created.id };
                 }
                 else
-                {
+                { // ... found
+                    // Receive existing container
                     auto& replaced = m_confighost.m_containers[find_res->second];
-                    replaced.id_parent_logical = m_index;
 
+                    // Check if inherited is empty
                     if (!inherited.empty())
-                    {
+                    { // it is not
+                        // Lookup inherited node and replace it
                         auto nav = lookup_in_logical(inherited);
                         replaced.id_parent_inherited = nav.m_index;
                     }
-                    container.push_back(target, replaced.id);
+
+                    // Return found container as confignav
                     return { m_confighost, replaced.id };
                 }
             }
             return { m_confighost, config::invalid_id };
+        }
+        void delete_inherited_or_replace(std::string_view target) const
+        {
+            std::string s_target = { target.data(), target.length() };
+            delete_inherited_or_replace(s_target);
         }
         void delete_inherited_or_replace(std::string target) const
         {
