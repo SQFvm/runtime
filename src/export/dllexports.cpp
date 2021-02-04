@@ -1,6 +1,6 @@
 #include "../runtime/logging.h"
 #include "../runtime/runtime.h"
-#include "../parser/config/default.h"
+#include "../parser/config/config_parser.hpp"
 #include "../parser/assembly/assembly_parser.h"
 #include "../parser/sqf/sqf_parser.hpp"
 #include "../parser/preprocessor/default.h"
@@ -77,7 +77,7 @@ namespace dllexports
         actual->runtime = new sqf::runtime::runtime(*actual->logger, conf);
 
         actual->runtime->fileio(std::make_unique<sqf::fileio::impl_default>(*actual->logger));
-        actual->runtime->parser_config(std::make_unique<sqf::parser::config::impl_default>(*actual->logger));
+        actual->runtime->parser_config(std::make_unique<sqf::parser::config::parser>(*actual->logger));
         actual->runtime->parser_preprocessor(std::make_unique<sqf::parser::preprocessor::impl_default>(*actual->logger));
         actual->runtime->parser_sqf(std::make_unique<sqf::parser::sqf::parser>(*actual->logger));
         sqf::operators::ops(*actual->runtime);
