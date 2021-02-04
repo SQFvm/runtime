@@ -42,6 +42,13 @@
 // //                    "%code requires" blocks.
 #line 16 "parser.y" // lalr1.cc:377
 
+    #ifdef __GNUG__
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wall"
+    #endif
+    #ifdef _MSC_VER
+        #pragma warning(push, 0)
+    #endif
      namespace sqf::sqc
      {
           class parser;
@@ -162,7 +169,7 @@
           };
      }
 
-#line 166 "parser.tab.hh" // lalr1.cc:377
+#line 173 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -239,7 +246,7 @@
 
 #line 8 "parser.y" // lalr1.cc:377
 namespace  sqf { namespace sqc { namespace bison  {
-#line 243 "parser.tab.hh" // lalr1.cc:377
+#line 250 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -2091,7 +2098,7 @@ namespace  sqf { namespace sqc { namespace bison  {
 
 #line 8 "parser.y" // lalr1.cc:377
 } } } //  sqf::sqc::bison 
-#line 2095 "parser.tab.hh" // lalr1.cc:377
+#line 2102 "parser.tab.hh" // lalr1.cc:377
 
 
 

@@ -14,6 +14,13 @@
 
 %code requires
 {
+    #ifdef __GNUG__
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wall"
+    #endif
+    #ifdef _MSC_VER
+        #pragma warning(push, 0)
+    #endif
      namespace sqf::sqc
      {
           class parser;
@@ -437,6 +444,12 @@ format_string_match : FORMAT_STRING_CONTINUE format_string_match           { $$ 
                     | exp01 FORMAT_STRING_FINAL                            { $$ = sqf::sqc::bison::astnode{}; $$.append($1); $$.append($2); }
                     ;
 %%
+#ifdef __GNUG__
+    #pragma GCC diagnostic pop
+#endif
+#ifdef _MSC_VER
+    #pragma warning(pop)
+#endif
 
 #include "sqc_parser.h"
 namespace sqf::sqc::bison
