@@ -475,6 +475,7 @@ namespace sqf::parser::config
             case '>':
             case '<':
             case '?':
+            case '\\':          return try_match({ etoken::any });
             case '^':           return try_match({ etoken::any });
             case '[':           return try_match({ etoken::s_edgeo });
             case ']':           return try_match({ etoken::s_edgec });
