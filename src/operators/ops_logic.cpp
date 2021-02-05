@@ -98,6 +98,14 @@ namespace
         }
         return left == right;
     }
+    value isnotequalto_any_any(runtime& runtime, value::cref left, value::cref right)
+    {
+        if (left.empty() && right.empty())
+        {
+            return true;
+        }
+        return left != right;
+    }
     value isequaltype_any_any(runtime& runtime, value::cref left, value::cref right)
     {
         return left.type() == right.type();
@@ -236,6 +244,7 @@ void sqf::operators::ops_logic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(binary(3, "!=", t_control(), t_control(), "Returns whether one value is not equal to another.", notequals_any_any));
     runtime.register_sqfop(binary(3, "!=", t_location(), t_location(), "Returns whether one value is not equal to another.", notequals_any_any));
     runtime.register_sqfop(binary(4, "isEqualTo", t_any(), t_any(), "Check if one value is equal to another. Both values need to be of the same type.", isequalto_any_any));
+    runtime.register_sqfop(binary(4, "isNotEqualTo", t_any(), t_any(), "Check if one value is not equal to another. Both values need to be of the same type.", isnotequalto_any_any));
     runtime.register_sqfop(binary(4, "isEqualType", t_any(), t_any(), "Compares 2 values by their type. A much faster alternative to typeName a == typeName b.", isequaltype_any_any));
     runtime.register_sqfop(binary(4, "isEqualTypeAll", t_array(), t_any(), "Compares types of all elements of an array to the type of a single value.", isequaltypeall_array_any));
     runtime.register_sqfop(binary(4, "isEqualTypeAny", t_any(), t_array(), "Compares type of given value to every type in the given array and if match is found, true is returned.", isequaltypeany_any_array));

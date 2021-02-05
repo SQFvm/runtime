@@ -1018,8 +1018,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         to_assembly(runtime, set, locals, node.children[1]);
 
         // Emit "!=="
-        set.push_back(node.token, std::make_shared<opcodes::call_binary>("isequalto"s, (short)4));
-        set.push_back(node.token, std::make_shared<opcodes::call_unary>("!"s));
+        set.push_back(node.token, std::make_shared<opcodes::call_binary>("isnotequalto"s, (short)4));
     } break;
     case ::sqf::sqc::bison::astkind::OP_NOTEQUAL: {
         // Emit Left-Argument
