@@ -465,6 +465,7 @@ namespace sqf::parser::config
             case '+':           return try_match({ etoken::t_plus_equal, etoken::t_number, etoken::any });
             case '-':           return try_match({ etoken::t_number, etoken::any });
             case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block, etoken::any });
+            case '\\':          return try_match({ etoken::any });
             case '*':
             case '(':
             case ')':
