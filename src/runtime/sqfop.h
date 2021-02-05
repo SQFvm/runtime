@@ -28,12 +28,19 @@ namespace sqf::runtime
         };
     private:
         key m_key;
+        std::vector<sqf::runtime::type> m_return_types;
         std::string m_description;
         callback m_callback;
         short m_precedence;
     public:
         sqfop_binary() = default;
-        sqfop_binary(short precedence, key key, std::string description, callback callback) : m_key(key), m_description(description), m_callback(callback), m_precedence(precedence) {}
+        sqfop_binary(short precedence, key key, std::string description, callback callback) :
+            m_key(key), m_return_types(), m_description(description), m_callback(callback), m_precedence(precedence)
+        {
+            m_return_types.push_back(sqf::types::t_any());
+        }
+        sqfop_binary(std::vector<sqf::runtime::type> return_types, key key, short precedence, std::string description, callback callback) :
+            m_key(key), m_return_types(std::move(return_types)), m_description(description), m_callback(callback), m_precedence(precedence) {}
         std::string_view name() const { return m_key.name; }
         std::string_view description() const { return m_description; }
         short precedence() const { return m_precedence; }
@@ -41,6 +48,7 @@ namespace sqf::runtime
         sqf::runtime::type right_type() const { return m_key.right_type; }
         value execute(sqf::runtime::runtime& vm, sqf::runtime::value::cref left, value::cref right) const { return m_callback(vm, left, right); }
         key get_key() const { return m_key; }
+        const std::vector<sqf::runtime::type>& return_types() const { return m_return_types; }
     };
     class sqfop_unary
     {
@@ -60,17 +68,28 @@ namespace sqf::runtime
         };
     private:
         key m_key;
+        std::vector<sqf::runtime::type> m_return_types;
         std::string m_description;
 
         callback m_callback;
     public:
         sqfop_unary() = default;
-        sqfop_unary(key key, std::string description, callback callback) : m_key(key), m_description(description), m_callback(callback) {}
+        sqfop_unary(key key, std::string description, callback callback) :
+            m_key(key), m_return_types(), m_description(description), m_callback(callback)
+        {
+            m_return_types.push_back(sqf::types::t_any());
+        }
+        sqfop_unary(std::vector<sqf::runtime::type> return_types, key key, std::string description, callback callback) :
+            m_key(key), m_return_types(std::move(return_types)), m_description(description), m_callback(callback)
+        {
+            m_return_types.push_back(sqf::types::t_any());
+        }
         std::string_view name() const { return m_key.name; }
         std::string_view description() const { return m_description; }
         sqf::runtime::type right_type() const { return m_key.right_type; }
         value execute(sqf::runtime::runtime& vm, value::cref right) const { return m_callback(vm, right); }
         key get_key() const { return m_key; }
+        const std::vector<sqf::runtime::type>& return_types() const { return m_return_types; }
     };
     class sqfop_nular
     {
@@ -89,16 +108,24 @@ namespace sqf::runtime
         };
     private:
         key m_key;
+        std::vector<sqf::runtime::type> m_return_types;
         std::string m_description;
 
         callback m_callback;
     public:
         sqfop_nular() = default;
-        sqfop_nular(key key, std::string description, callback callback) : m_key(key), m_description(description), m_callback(callback) {}
+        sqfop_nular(key key, std::string description, callback callback) :
+            m_key(key), m_return_types(), m_description(description), m_callback(callback)
+        {
+            m_return_types.push_back(sqf::types::t_any());
+        }
+        sqfop_nular(key key, std::vector<sqf::runtime::type> return_types, std::string description, callback callback) :
+            m_key(key), m_return_types(std::move(return_types)), m_description(description), m_callback(callback) {}
         std::string_view name() const { return m_key.name; }
         std::string_view description() const { return m_description; }
         value execute(sqf::runtime::runtime& vm) const { return m_callback(vm); }
         key get_key() const { return m_key; }
+        const std::vector<sqf::runtime::type>& return_types() const { return m_return_types; }
     };
     namespace sqfop
     {
@@ -113,6 +140,31 @@ namespace sqf::runtime
         {
             std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return (char)std::tolower((int)c); });
             return { { name }, description, fnc };
+        }
+        /// <summary>
+        /// Utility method to create a nular operator.
+        /// </summary>
+        /// <param name="name">The name of the operator to create.</param>
+        /// <param name="description">The description of the operator.</param>
+        /// <param name="fnc">The method to execute when the operator gets invoked.</param>
+        /// <returns>A valid sqfop_nular.</returns>
+        static inline sqfop_nular nular(std::vector<sqf::runtime::type> return_types, std::string name, std::string description, sqfop_nular::callback fnc)
+        {
+            std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return (char)std::tolower((int)c); });
+            return { { name }, return_types, description, fnc };
+        }
+        /// <summary>
+        /// Utility method to create a nular operator.
+        /// </summary>
+        /// <param name="name">The name of the operator to create.</param>
+        /// <param name="description">The description of the operator.</param>
+        /// <param name="fnc">The method to execute when the operator gets invoked.</param>
+        /// <returns>A valid sqfop_nular.</returns>
+        template<size_t size>
+        static inline sqfop_nular nular(std::array<sqf::runtime::type, size> return_types, std::string name, std::string description, sqfop_nular::callback fnc)
+        {
+            std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return (char)std::tolower((int)c); });
+            return { { name }, { return_types.begin(), return_types.end() }, description, fnc };
         }
 
         /// <summary>
@@ -137,10 +189,68 @@ namespace sqf::runtime
         /// <param name="description">The description of the operator.</param>
         /// <param name="fnc">The method to execute when the operator gets invoked.</param>
         /// <returns>A valid sqfop_unary.</returns>
+        static inline sqfop_unary unary(std::vector<sqf::runtime::type> return_types, std::string name, type rtype, std::string description, sqfop_unary::callback fnc)
+        {
+            std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return (char)std::tolower((int)c); });
+            return { return_types, { name, rtype }, description, fnc };
+        }
+
+        /// <summary>
+        /// Utility method to create a unary operator.
+        /// </summary>
+        /// <param name="name">The name of the operator to create.</param>
+        /// <param name="rtype">The accepted type on the right side of the operator.</param>
+        /// <param name="description">The description of the operator.</param>
+        /// <param name="fnc">The method to execute when the operator gets invoked.</param>
+        /// <returns>A valid sqfop_unary.</returns>
+        template<size_t size>
+        static inline sqfop_unary unary(std::array<sqf::runtime::type, size> return_types, std::string name, type rtype, std::string description, sqfop_unary::callback fnc)
+        {
+            std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return (char)std::tolower((int)c); });
+            return { { return_types.begin(), return_types.end() }, { name, rtype }, description, fnc };
+        }
+
+        /// <summary>
+        /// Utility method to create a unary operator.
+        /// </summary>
+        /// <param name="name">The name of the operator to create.</param>
+        /// <param name="rtype">The accepted type on the right side of the operator.</param>
+        /// <param name="description">The description of the operator.</param>
+        /// <param name="fnc">The method to execute when the operator gets invoked.</param>
+        /// <returns>A valid sqfop_unary.</returns>
         static inline sqfop_binary binary(short precedence, std::string name, type ltype, type rtype, std::string description, sqfop_binary::callback fnc)
         {
             std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return (char)std::tolower((int)c); });
             return { precedence, { name, ltype, rtype }, description, fnc };
+        }
+
+        /// <summary>
+        /// Utility method to create a unary operator.
+        /// </summary>
+        /// <param name="name">The name of the operator to create.</param>
+        /// <param name="rtype">The accepted type on the right side of the operator.</param>
+        /// <param name="description">The description of the operator.</param>
+        /// <param name="fnc">The method to execute when the operator gets invoked.</param>
+        /// <returns>A valid sqfop_unary.</returns>
+        static inline sqfop_binary binary(std::vector<sqf::runtime::type> return_types, std::string name, short precedence, type ltype, type rtype, std::string description, sqfop_binary::callback fnc)
+        {
+            std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return (char)std::tolower((int)c); });
+            return { return_types, { name, ltype, rtype }, precedence, description, fnc };
+        }
+
+        /// <summary>
+        /// Utility method to create a unary operator.
+        /// </summary>
+        /// <param name="name">The name of the operator to create.</param>
+        /// <param name="rtype">The accepted type on the right side of the operator.</param>
+        /// <param name="description">The description of the operator.</param>
+        /// <param name="fnc">The method to execute when the operator gets invoked.</param>
+        /// <returns>A valid sqfop_unary.</returns>
+        template<size_t size>
+        static inline sqfop_binary binary(std::array<sqf::runtime::type, size> return_types, std::string name, short precedence, type ltype, type rtype, std::string description, sqfop_binary::callback fnc)
+        {
+            std::transform(name.begin(), name.end(), name.begin(), [](char& c) { return (char)std::tolower((int)c); });
+            return { { return_types.begin(), return_types.end() }, { name, ltype, rtype }, precedence, description, fnc };
         }
     }
 }
