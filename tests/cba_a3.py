@@ -78,9 +78,9 @@ sqfvm = [sqfvm_binary, '--automated']
 sqfvm.extend(['--virtual', '{}|\\a3'.format(a3_dir)])
 sqfvm.extend(['--virtual', '{}|\\x\\cba\\addons'.format(addons_dir)])
 
-# Load addon configs (currently broken)
-#for addon in os.listdir(addons_dir):
-#  sqfvm.extend(['--input-config', '{}/{}/config.cpp'.format(addons_dir, addon)])
+# Load addon configs
+for addon in os.listdir(addons_dir):
+  sqfvm.extend(['--input-config', '{}/{}/config.cpp'.format(addons_dir, addon)])
 
 sqfvm.extend(['--input-sqf', sqfvm_test_script])
 
@@ -105,7 +105,7 @@ for line in run(sqfvm):
     if "Test FAIL" in line:
         tests_failed.append(line)
 
-    if "defined twice" not in line and "Unexpected IFDEF" not in line:
+    if "defined twice" not in line and "Unexpected IFDEF" not in line and "The provided inherited config node was not located on current or upper levels" not in line:
         print(line)
 
 if len(tests_failed):
