@@ -368,7 +368,8 @@ namespace sqf::parser::config
                         if (res == 0) { --iter; }
                         else { iter += res; }
                     }
-                    if (is_good)
+                    if (is_good && !is_match< 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+                        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_'>(iter))
                     {
                         len = iter - m_current;
                     }
@@ -451,16 +452,16 @@ namespace sqf::parser::config
             case 'y': case 'Y': return try_match({ etoken::t_ident });
             case 'z': case 'Z': return try_match({ etoken::t_ident });
             case '_':           return try_match({ etoken::t_ident });
-            case '0':           return try_match({ etoken::t_hexadecimal, etoken::t_number });
-            case '1':           return try_match({ etoken::t_number });
-            case '2':           return try_match({ etoken::t_number });
-            case '3':           return try_match({ etoken::t_number });
-            case '4':           return try_match({ etoken::t_number });
-            case '5':           return try_match({ etoken::t_number });
-            case '6':           return try_match({ etoken::t_number });
-            case '7':           return try_match({ etoken::t_number });
-            case '8':           return try_match({ etoken::t_number });
-            case '9':           return try_match({ etoken::t_number });
+            case '0':           return try_match({ etoken::t_hexadecimal, etoken::t_number, etoken::t_ident });
+            case '1':           return try_match({ etoken::t_number, etoken::t_ident });
+            case '2':           return try_match({ etoken::t_number, etoken::t_ident });
+            case '3':           return try_match({ etoken::t_number, etoken::t_ident });
+            case '4':           return try_match({ etoken::t_number, etoken::t_ident });
+            case '5':           return try_match({ etoken::t_number, etoken::t_ident });
+            case '6':           return try_match({ etoken::t_number, etoken::t_ident });
+            case '7':           return try_match({ etoken::t_number, etoken::t_ident });
+            case '8':           return try_match({ etoken::t_number, etoken::t_ident });
+            case '9':           return try_match({ etoken::t_number, etoken::t_ident });
             case '+':           return try_match({ etoken::t_plus_equal, etoken::t_number, etoken::any });
             case '-':           return try_match({ etoken::t_number, etoken::any });
             case '/':           return try_match({ etoken::i_comment_line, etoken::i_comment_block, etoken::any });
