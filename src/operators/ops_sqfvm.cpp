@@ -254,7 +254,7 @@ namespace
         }
         return outarr;
     }
-    value vm___(runtime& runtime)
+    value cmdsvm___(runtime& runtime)
     {
         std::vector<value> outarr;
         auto str = "n";
@@ -292,21 +292,6 @@ namespace
         }
         return outarr;
     }
-    // value tree___string(runtime& runtime, value::cref right)
-    // {
-    //     auto str = right.as_string();
-    //     std::stringstream sstream;
-    //     runtime.parse_sqf_tree(str, &sstream);
-    //     return sstream.str();
-    // }
-    // value tree___code(runtime& runtime, value::cref right)
-    // {
-    //     auto code = right.data<codedata>();
-    //     auto str = code->tosqf();
-    //     std::stringstream sstream;
-    //     runtime.parse_sqf_tree(str, &sstream);
-    //     return sstream.str();
-    // }
     value help___string(runtime& runtime, value::cref right)
     {
         std::stringstream sstream;
@@ -797,7 +782,7 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(nular("exit__", "Exits the VM execution immediately. Will not notify debug interface when used.", exit___));
     runtime.register_sqfop(unary("vmctrl__", t_string(), "Executes the provided SQF-VM exection action.", vmctrl___string));
     runtime.register_sqfop(unary("exitcode__", t_scalar(), "Exits the VM execution immediately. Will not notify debug interface when used. Allows to pass an exit code to the VM.", exit___scalar));
-    runtime.register_sqfop(nular("vm__", "Provides a list of all SQF-VM only commands.", vm___));
+    runtime.register_sqfop(nular("cmdsvm__", "Provides a list of all SQF-VM only commands.", cmdsvm___));
     runtime.register_sqfop(nular("respawn__", "'Respawns' the player object.", respawn___));
     runtime.register_sqfop(unary("preprocess__", t_string(), "Runs the PreProcessor on provided string.", preprocess___string));
     runtime.register_sqfop(unary("fromAssembly__", t_array(), "Parses the provided array of assembly instruction strings into actual code.", fromAssembly___array));
