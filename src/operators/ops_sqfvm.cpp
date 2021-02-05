@@ -764,6 +764,18 @@ namespace
     //    }
     //    return {};
     //}
+    value vmctrl___runtime_string(runtime& runtime, value::cref left, value::cref right)
+    {
+        return {};
+    }
+    value createvm___(runtime& runtime)
+    {
+        return {};
+    }
+    value vmpushcontext___runtime_code(runtime& runtime, value::cref left, value::cref right)
+    {
+        return {};
+    }
 }
 void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
 {
@@ -780,7 +792,6 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
     // runtime.register_sqfop(unary("prettysqf__", t_code(), "Takes provided SQF code and pretty-prints it to output.", pretty___code));
     // runtime.register_sqfop(unary("prettysqf__", t_string(), "Takes provided SQF code and pretty-prints it to output.", prettysqf___string));
     runtime.register_sqfop(nular("exit__", "Exits the VM execution immediately. Will not notify debug interface when used.", exit___));
-    runtime.register_sqfop(unary("vmctrl__", t_string(), "Executes the provided SQF-VM exection action.", vmctrl___string));
     runtime.register_sqfop(unary("exitcode__", t_scalar(), "Exits the VM execution immediately. Will not notify debug interface when used. Allows to pass an exit code to the VM.", exit___scalar));
     runtime.register_sqfop(nular("cmdsvm__", "Provides a list of all SQF-VM only commands.", cmdsvm___));
     runtime.register_sqfop(nular("respawn__", "'Respawns' the player object.", respawn___));
@@ -794,6 +805,10 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
         "Returns all files available in that path with the given file extensions." " "
         "RIGHT: File extension filters that are looked for. If empty, all files are returned." " "
         , allfiles___array));
+    runtime.register_sqfop(unary("vmCtrl__", t_string(), "Executes the provided SQF-VM execute action.", vmctrl___string));
+    runtime.register_sqfop(binary(4, "vmCtrl__", t_runtime(), t_string(), "Executes the provided SQF-VM execute action.", vmctrl___runtime_string));
+    runtime.register_sqfop(nular("createVm__", "Creates a new VM instance.", createvm___));
+    runtime.register_sqfop(binary(4, "vmPushContext__", t_runtime(), t_code(), "Creates a new context on the provided VM and pushes the code as frame into that context.", vmpushcontext___runtime_code));
     runtime.register_sqfop(nular("pwd__", "Current path determined by current instruction.", pwd___));
     runtime.register_sqfop(nular("currentDirectory__", "Current directory determined by current instruction.", currentdirectory___));
     runtime.register_sqfop(unary("trim__", t_string(), "Trims provided strings start and end.", trim___));
