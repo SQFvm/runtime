@@ -218,7 +218,7 @@ namespace sqf
             bool check_type(sqf::runtime::runtime& runtime, const std::array<sqf::runtime::type, size>& arr) const { return check_type(runtime, arr.data(), size, size); }
             bool check_type(sqf::runtime::runtime& runtime, const std::vector<sqf::runtime::type>& vec) const { return check_type(runtime, vec.data(), vec.size(), vec.size()); }
             template<size_t size>
-            bool check_type(sqf::runtime::runtime& runtime, const std::array<sqf::runtime::type, size>& arr, size_t optionalstart) const { return check_type(runtime, arr.data(), size, optionalstart); }
+            bool check_type(sqf::runtime::runtime& runtime, const std::array<sqf::runtime::type, size>& arr, size_t optionalstart) const { return check_type(runtime, arr.data(), optionalstart, size); }
         };
         template<>
         inline std::shared_ptr<sqf::runtime::data> to_data<std::vector<sqf::runtime::value>>(std::vector<sqf::runtime::value> arr)
