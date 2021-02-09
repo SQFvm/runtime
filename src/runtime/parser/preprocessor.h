@@ -5,6 +5,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <functional>
 
 
 namespace sqf
@@ -73,10 +74,50 @@ namespace sqf
                     const std::vector<std::string>& params,
                     ::sqf::runtime::runtime& runtime) const { return m_callback(*this, dinf, location, params, runtime); }
             };
+            class pragma
+            {
+            public:
+                // Special method pointer that may be filled
+                // to give this pragma its behavior.
+                // m -> the original pragma
+                // local_fileinfo -> the location, where the macro is called locally (lowest level)
+                // original_fileinfo -> the most upper file in the macro chain
+                // data -> the data available after the name
+                using callback = std::string(
+                    const pragma& m,
+                    ::sqf::runtime::runtime& runtime,
+                    const ::sqf::runtime::diagnostics::diag_info dinf,
+                    const ::sqf::runtime::fileio::pathinfo location,
+                    const std::string& data
+                    );
+            private:
+                std::string m_name;
+                std::function<callback> m_callback;
+
+            public:
+                pragma() = default;
+                pragma(std::string name, std::function<callback> cb) :
+                    m_name(name),
+                    m_callback(cb)
+                {
+                }
+
+                std::string_view name() const { return m_name; }
+
+                std::string operator()(
+                    ::sqf::runtime::runtime& runtime,
+                    const ::sqf::runtime::diagnostics::diag_info dinf,
+                    const ::sqf::runtime::fileio::pathinfo location,
+                    const std::string& data) const
+                {
+                    return m_callback(*this, runtime, dinf, location, data);
+                }
+            };
             class preprocessor
             {
             public:
                 virtual void push_back(::sqf::runtime::parser::macro m) = 0;
+                virtual void push_back(::sqf::runtime::parser::pragma p) = 0;
                 virtual ~preprocessor() {}
                 virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) = 0;
                 std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::sqf::runtime::fileio::pathinfo pathinfo);
@@ -89,6 +130,7 @@ namespace sqf
         {
             public:
                 virtual void push_back(::sqf::runtime::parser::macro m) override {};
+                virtual void push_back(::sqf::runtime::parser::pragma p) override {};
                 virtual ~passthrough() override { return; };
                 virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, ::std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) override;
         };

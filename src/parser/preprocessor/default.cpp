@@ -55,8 +55,8 @@ void sqf::parser::preprocessor::impl_default::instance::replace_stringify(
             m.args().begin(),
             m.args().end(),
             [word](std::string s) -> bool {
-                return s.compare(word) == 0;
-            }
+            return s.compare(word) == 0;
+        }
         );
         if (param_res != m.args().end())
         {
@@ -69,8 +69,8 @@ void sqf::parser::preprocessor::impl_default::instance::replace_stringify(
                 m_macros.begin(),
                 m_macros.end(),
                 [word](std::unordered_map<std::string, ::sqf::runtime::parser::macro>::value_type m) -> bool {
-                    return m.first.compare(word) == 0;
-                }
+                return m.first.compare(word) == 0;
+            }
             );
             if (macro_res == m_macros.end())
             {
@@ -148,8 +148,8 @@ void sqf::parser::preprocessor::impl_default::instance::replace_concat(
         m.args().begin(),
         m.args().end(),
         [word](std::string s) -> bool {
-            return s.compare(word) == 0;
-        }
+        return s.compare(word) == 0;
+    }
     );
     if (param_res != m.args().end())
     {
@@ -162,8 +162,8 @@ void sqf::parser::preprocessor::impl_default::instance::replace_concat(
             m_macros.begin(),
             m_macros.end(),
             [word](std::unordered_map<std::string, ::sqf::runtime::parser::macro>::value_type m) -> bool {
-                return m.first.compare(word) == 0;
-            }
+            return m.first.compare(word) == 0;
+        }
         );
         if (macro_res == m_macros.end())
         {
@@ -224,24 +224,24 @@ size_t sqf::parser::preprocessor::impl_default::instance::replace_find_wordend(:
         char c = fileinfo.next();
         switch (c)
         {
-        case 'a': case 'b': case 'c': case 'd': case 'e':
-        case 'f': case 'g': case 'h': case 'i': case 'j':
-        case 'k': case 'l': case 'm': case 'n': case 'o':
-        case 'p': case 'q': case 'r': case 's': case 't':
-        case 'u': case 'v': case 'w': case 'x': case 'y':
-        case 'z': case 'A': case 'B': case 'C': case 'D':
-        case 'E': case 'F': case 'G': case 'H': case 'I':
-        case 'J': case 'K': case 'L': case 'M': case 'N':
-        case 'O': case 'P': case 'Q': case 'R': case 'S':
-        case 'T': case 'U': case 'V': case 'W': case 'X':
-        case 'Y': case 'Z': case '0': case '1': case '2':
-        case '3': case '4': case '5': case '6': case '7':
-        case '8': case '9': case '_':
+            case 'a': case 'b': case 'c': case 'd': case 'e':
+            case 'f': case 'g': case 'h': case 'i': case 'j':
+            case 'k': case 'l': case 'm': case 'n': case 'o':
+            case 'p': case 'q': case 'r': case 's': case 't':
+            case 'u': case 'v': case 'w': case 'x': case 'y':
+            case 'z': case 'A': case 'B': case 'C': case 'D':
+            case 'E': case 'F': case 'G': case 'H': case 'I':
+            case 'J': case 'K': case 'L': case 'M': case 'N':
+            case 'O': case 'P': case 'Q': case 'R': case 'S':
+            case 'T': case 'U': case 'V': case 'W': case 'X':
+            case 'Y': case 'Z': case '0': case '1': case '2':
+            case '3': case '4': case '5': case '6': case '7':
+            case '8': case '9': case '_':
             continue;
-        case '\0':
+            case '\0':
             res = fileinfo.off - currentOffset;
             goto exit;
-        default:
+            default:
             res = fileinfo.off - currentOffset - 1;
             goto exit;
         }
@@ -278,29 +278,29 @@ void sqf::parser::preprocessor::impl_default::instance::replace_skip(::sqf::runt
             char c = fileinfo.peek();
             switch (c)
             {
-            case 'a': case 'b': case 'c': case 'd': case 'e':
-            case 'f': case 'g': case 'h': case 'i': case 'j':
-            case 'k': case 'l': case 'm': case 'n': case 'o':
-            case 'p': case 'q': case 'r': case 's': case 't':
-            case 'u': case 'v': case 'w': case 'x': case 'y':
-            case 'z': case 'A': case 'B': case 'C': case 'D':
-            case 'E': case 'F': case 'G': case 'H': case 'I':
-            case 'J': case 'K': case 'L': case 'M': case 'N':
-            case 'O': case 'P': case 'Q': case 'R': case 'S':
-            case 'T': case 'U': case 'V': case 'W': case 'X':
-            case 'Y': case 'Z': case '0': case '1': case '2':
-            case '3': case '4': case '5': case '6': case '7':
-            case '8': case '9': case '_':
-            case '\n': case '\\':
-            case '#':
-            case '\0':
+                case 'a': case 'b': case 'c': case 'd': case 'e':
+                case 'f': case 'g': case 'h': case 'i': case 'j':
+                case 'k': case 'l': case 'm': case 'n': case 'o':
+                case 'p': case 'q': case 'r': case 's': case 't':
+                case 'u': case 'v': case 'w': case 'x': case 'y':
+                case 'z': case 'A': case 'B': case 'C': case 'D':
+                case 'E': case 'F': case 'G': case 'H': case 'I':
+                case 'J': case 'K': case 'L': case 'M': case 'N':
+                case 'O': case 'P': case 'Q': case 'R': case 'S':
+                case 'T': case 'U': case 'V': case 'W': case 'X':
+                case 'Y': case 'Z': case '0': case '1': case '2':
+                case '3': case '4': case '5': case '6': case '7':
+                case '8': case '9': case '_':
+                case '\n': case '\\':
+                case '#':
+                case '\0':
                 flag = false;
                 break;
-            case '\r':
+                case '\r':
                 break;
-            case '"':
+                case '"':
                 in_string = true;
-            default:
+                default:
                 sstream << fileinfo.next();
             }
         }
@@ -386,8 +386,8 @@ std::string sqf::parser::preprocessor::impl_default::instance::replace(::sqf::ru
                     m.args().begin(),
                     m.args().end(),
                     [word](std::string s) -> bool {
-                        return s.compare(word) == 0;
-                    }
+                    return s.compare(word) == 0;
+                }
                 );
                 if (param_res != m.args().end())
                 { // word matches a parameter, replacee
@@ -474,23 +474,23 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_arg(::sqf:
         }
         switch (c)
         {
-        case '"':
+            case '"':
             string_mode = true;
             sstream << c;
             break;
-        case 'a': case 'b': case 'c': case 'd': case 'e':
-        case 'f': case 'g': case 'h': case 'i': case 'j':
-        case 'k': case 'l': case 'm': case 'n': case 'o':
-        case 'p': case 'q': case 'r': case 's': case 't':
-        case 'u': case 'v': case 'w': case 'x': case 'y':
-        case 'z': case 'A': case 'B': case 'C': case 'D':
-        case 'E': case 'F': case 'G': case 'H': case 'I':
-        case 'J': case 'K': case 'L': case 'M': case 'N':
-        case 'O': case 'P': case 'Q': case 'R': case 'S':
-        case 'T': case 'U': case 'V': case 'W': case 'X':
-        case 'Y': case 'Z': case '0': case '1': case '2':
-        case '3': case '4': case '5': case '6': case '7':
-        case '8': case '9': case '_':
+            case 'a': case 'b': case 'c': case 'd': case 'e':
+            case 'f': case 'g': case 'h': case 'i': case 'j':
+            case 'k': case 'l': case 'm': case 'n': case 'o':
+            case 'p': case 'q': case 'r': case 's': case 't':
+            case 'u': case 'v': case 'w': case 'x': case 'y':
+            case 'z': case 'A': case 'B': case 'C': case 'D':
+            case 'E': case 'F': case 'G': case 'H': case 'I':
+            case 'J': case 'K': case 'L': case 'M': case 'N':
+            case 'O': case 'P': case 'Q': case 'R': case 'S':
+            case 'T': case 'U': case 'V': case 'W': case 'X':
+            case 'Y': case 'Z': case '0': case '1': case '2':
+            case '3': case '4': case '5': case '6': case '7':
+            case '8': case '9': case '_':
             if (!inside_word)
             {
                 inside_word = true;
@@ -501,12 +501,12 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_arg(::sqf:
                 break;
             } // Intended conditional fallthrough
             part_of_word = true;
-        default:
+            default:
             if (inside_word)
             {
                 inside_word = false;
                 auto word = local_fileinfo.content.substr(word_start, local_fileinfo.off - word_start - (!part_of_word ? 1 : 0));
-                auto res = get_try(word);
+                auto res = try_get_macro(word);
                 if (res.has_value())
                 {
                     if (res.value().is_callable())
@@ -628,15 +628,15 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(::sq
             }
             switch (c)
             {
-            case '[': eb_counter++; break;
-            case ']': eb_counter--; break;
-            case '{': cb_counter++; break;
-            case '}': cb_counter--; break;
-            case '(': rb_counter++; break;
-            case '"': in_string = true; break;
-            case ')': if (rb_counter != 0) { rb_counter--; break; }
-                    else { exit = true; /* goto case ',' */ }
-            case ',':
+                case '[': eb_counter++; break;
+                case ']': eb_counter--; break;
+                case '{': cb_counter++; break;
+                case '}': cb_counter--; break;
+                case '(': rb_counter++; break;
+                case '"': in_string = true; break;
+                case ')': if (rb_counter != 0) { rb_counter--; break; }
+                        else { exit = true; /* goto case ',' */ }
+                case ',':
                 if (rb_counter == 0 && eb_counter == 0 && cb_counter == 0)
                 {
                     local_fileinfo.move_back();
@@ -662,7 +662,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(::sq
                             "    " << "\x1B[36mhandle_macro(...)\033[0m found empty param: " << params.back() << std::endl;
 #endif
                         params.emplace_back("");
-                        log(err::EmptyArgument(original_fileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
+                        log(err::EmptyArgument(original_fileinfo.to_diag_info()));
                     }
                     local_fileinfo.next();
                     lastargstart = local_fileinfo.off;
@@ -694,12 +694,12 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
         }
         line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](char c) -> bool {
             return c != '"';
-            }));
+        }));
         auto endIter = std::find_if(line.begin(), line.end(), [](char c) -> bool {
             return c == '"';
-            });
+        });
         if (std::distance(endIter, line.end()) > 1)
-            log(err::UnexpectedDataAfterInclude(fileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
+            log(err::UnexpectedDataAfterInclude(fileinfo.to_diag_info()));
         line.erase(endIter, line.end());
         try
         {
@@ -707,7 +707,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
             if (!include_path_info.has_value())
             {
                 m_errflag = true;
-                log(err::IncludeFailed(fileinfo.operator ::sqf::runtime::diagnostics::diag_info(), line, "FileIO returned no file."));
+                log(err::IncludeFailed(fileinfo.to_diag_info(), line, "FileIO returned no file."));
                 return "";
             }
             const auto& physical = include_path_info->physical;
@@ -721,7 +721,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
                 {
                     includeTree << i << ". " << m_file_scopes[i].path.physical << " [" << m_file_scopes[i].path.virtual_ << "]\n";
                 }
-                log(err::RecursiveInclude(fileinfo.operator ::sqf::runtime::diagnostics::diag_info(), includeTree.str()));
+                log(err::RecursiveInclude(fileinfo.to_diag_info(), includeTree.str()));
                 return "";
             }
             preprocessorfileinfo otherfinfo(*include_path_info);
@@ -744,7 +744,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
         catch (const std::runtime_error& ex)
         {
             m_errflag = true;
-            log(err::IncludeFailed(fileinfo.operator ::sqf::runtime::diagnostics::diag_info(), line, ex));
+            log(err::IncludeFailed(fileinfo.to_diag_info(), line, ex));
             return "";
         }
     }
@@ -766,13 +766,13 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
                 (ch >= 'a' && ch <= 'z') ||
                 (ch >= 'A' && ch <= 'Z') ||
                 (ch >= '0' && ch <= '9'));
-            });
+        });
         auto spaceIndex = spaceIter == line.end() ? std::string::npos : std::distance(line.begin(), spaceIter);
         if (bracketsIndex == std::string::npos && spaceIndex == std::string::npos)
         { // Empty define
-            if (get_try(line).has_value())
+            if (try_get_macro(line).has_value())
             {
-                log(err::MacroDefinedTwice(fileinfo.operator ::sqf::runtime::diagnostics::diag_info(), line));
+                log(err::MacroDefinedTwice(fileinfo.to_diag_info(), line));
             }
             m_macros[line] = { fileinfo, line };
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_PARSE
@@ -787,9 +787,9 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
             if (spaceIndex < bracketsIndex || bracketsIndex == std::string::npos) // std::string::npos does not need to be catched as bracketsIndex always < npos here
             { // First bracket was found after first space OR is not existing thus we have a simple define with a replace value here
                 auto name_tmp = line.substr(0, spaceIndex);
-                if (get_try(name_tmp).has_value())
+                if (try_get_macro(name_tmp).has_value())
                 {
-                    log(err::MacroDefinedTwice(fileinfo.operator ::sqf::runtime::diagnostics::diag_info(), name_tmp));
+                    log(err::MacroDefinedTwice(fileinfo.to_diag_info(), name_tmp));
                 }
                 std::string content(trim(line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex))); // Special magic for '#define macro\'
                 m_macros[name_tmp] = { fileinfo, name_tmp, content };
@@ -803,9 +803,9 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
             else
             { // We got a define with arguments here
                 auto name_tmp = line.substr(0, bracketsIndex);
-                if (get_try(name_tmp).has_value())
+                if (try_get_macro(name_tmp).has_value())
                 {
-                    log(err::MacroDefinedTwice(fileinfo.operator ::sqf::runtime::diagnostics::diag_info(), name_tmp));
+                    log(err::MacroDefinedTwice(fileinfo.to_diag_info(), name_tmp));
                 }
                 auto bracketsEndIndex = line.find(')');
                 auto argumentsString = line.substr(bracketsIndex + 1, bracketsEndIndex);
@@ -862,7 +862,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
         auto res = m_macros.find(static_cast<std::string>(line));
         if (res == m_macros.end())
         {
-            log(err::MacroNotFound(fileinfo.operator ::sqf::runtime::diagnostics::diag_info(), line));
+            log(err::MacroNotFound(fileinfo.to_diag_info(), line));
         }
         else
         {
@@ -874,7 +874,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
     { // #ifdef TEST
         if (!current_file_scope().conditions.empty())
         {
-            log(err::UnexpectedIfdef(fileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
+            log(err::UnexpectedIfdef(fileinfo.to_diag_info()));
         }
         auto res = m_macros.find(static_cast<std::string>(line));
         current_file_scope().conditions.push_back({ res != m_macros.end(), fileinfo, fileinfo });
@@ -884,7 +884,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
     { // #ifndef TEST
         if (!current_file_scope().conditions.empty())
         {
-            log(err::UnexpectedIfndef(fileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
+            log(err::UnexpectedIfndef(fileinfo.to_diag_info()));
         }
         auto res = m_macros.find(static_cast<std::string>(line));
         current_file_scope().conditions.push_back({ res == m_macros.end(), fileinfo, fileinfo });
@@ -895,7 +895,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
         if (current_file_scope().conditions.empty())
         {
             m_errflag = true;
-            log(err::UnexpectedElse(fileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
+            log(err::UnexpectedElse(fileinfo.to_diag_info()));
             return "";
         }
         current_file_scope().conditions.back().allow_write = !current_file_scope().conditions.back().allow_write;
@@ -906,16 +906,76 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
         if (current_file_scope().conditions.empty())
         {
             m_errflag = true;
-            log(err::UnexpectedEndif(fileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
+            log(err::UnexpectedEndif(fileinfo.to_diag_info()));
             return "";
         }
         current_file_scope().conditions.pop_back();
         return "\n";
     }
+    else if (inst == "PRAGMA")
+    { // #endif
+        if (!(current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write))
+        {
+#ifdef DF__SQF_PREPROC__TRACE_MACRO_PARSE
+            std::cout << "\x1B[33m[PP-DEFINE-PARSE]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36m" << line << "\033[0m skipped due to m_allowwrite == 0" << std::endl;
+#endif // DF__SQF_PREPROC__TRACE_MACRO_PARSE
+            return "\n";
+        }
+        auto spaceIter = std::find_if(line.begin(), line.end(), [](char ch) {
+            return !(ch == '_' ||
+                (ch >= 'a' && ch <= 'z') ||
+                (ch >= 'A' && ch <= 'Z') ||
+                (ch >= '0' && ch <= '9'));
+        });
+        auto spaceIndex = spaceIter == line.end() ? std::string::npos : std::distance(line.begin(), spaceIter);
+        if (spaceIndex == std::string::npos)
+        { // Empty define
+            auto p = m_owner->try_get_pragma(line);
+            if (p.has_value())
+            {
+#ifdef DF__SQF_PREPROC__TRACE_MACRO_PARSE
+                std::cout << "\x1B[33m[PP-DEFINE-PARSE]\033[0m" <<
+                    "        " <<
+                    "        " <<
+                    "    " << "\x1B[36m" << line << "\033[0m PRAGMA " << line << std::endl;
+#endif // DF__SQF_PREPROC__TRACE_MACRO_PARSE
+                p.value()(runtime, fileinfo.to_diag_info(), fileinfo.to_pathinfo(), {});
+            }
+            else
+            {
+                log(err::UnknownPragma(fileinfo.to_diag_info(), line));
+            }
+
+        }
+        else
+        {
+            auto name_tmp = line.substr(0, spaceIndex);
+            std::string content(trim(line.substr(line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex))); // Special magic for '#define macro\'
+            auto p = m_owner->try_get_pragma(name_tmp);
+            if (p.has_value())
+            {
+#ifdef DF__SQF_PREPROC__TRACE_MACRO_PARSE
+                std::cout << "\x1B[33m[PP-DEFINE-PARSE]\033[0m" <<
+                    "        " <<
+                    "        " <<
+                    "    " << "\x1B[36m" << line << "\033[0m PRAGMA " << line << std::endl;
+#endif // DF__SQF_PREPROC__TRACE_MACRO_PARSE
+                p.value()(runtime, fileinfo.to_diag_info(), fileinfo.to_pathinfo(), {});
+            }
+            else
+            {
+                log(err::UnknownPragma(fileinfo.to_diag_info(), name_tmp));
+            }
+        }
+        return "\n";
+    }
     else
     {
         m_errflag = true;
-        log(err::UnknownInstruction(fileinfo.operator ::sqf::runtime::diagnostics::diag_info(), inst));
+        log(err::UnknownInstruction(fileinfo.to_diag_info(), inst));
         return "";
     }
 }
@@ -943,95 +1003,95 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(::sqf:
         }
         switch (c)
         {
-        case '"':
-        {
-            is_in_string = true;
-            auto word = wordstream.str();
-            wordstream.str("");
-            if (current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write)
-                sstream << word << c;
-        } break;
-        case '\n':
-        {
-            was_new_line = true;
-            // Fall Through
-        }
-        case '#':
-        {
-            if (c == '#' && was_new_line)
+            case '"':
             {
-                auto res = parse_ppinstruction(runtime, fileinfo);
-                if (m_errflag)
-                {
-                    return res;
-                }
-                sstream << res;
-                break;
+                is_in_string = true;
+                auto word = wordstream.str();
+                wordstream.str("");
+                if (current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write)
+                    sstream << word << c;
+            } break;
+            case '\n':
+            {
+                was_new_line = true;
+                // Fall Through
             }
-        }
-        default:
-        {
-            if (c != ' ' && c != '\t' && c != '\n' && c != '\r')
+            case '#':
             {
-                was_new_line = false;
-            }
-            if (current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write)
-            {
-                if (wordstream.tellp() > 0)
+                if (c == '#' && was_new_line)
                 {
-                    auto word = wordstream.str();
-                    wordstream.str("");
-                    auto m = get_try(word);
-                    if (m.has_value())
+                    auto res = parse_ppinstruction(runtime, fileinfo);
+                    if (m_errflag)
                     {
-                        fileinfo.move_back();
-                        auto res = handle_macro(runtime, fileinfo, fileinfo, m.value(), empty_parammap);
-                        if (m_errflag)
+                        return res;
+                    }
+                    sstream << res;
+                    break;
+                }
+            }
+            default:
+            {
+                if (c != ' ' && c != '\t' && c != '\n' && c != '\r')
+                {
+                    was_new_line = false;
+                }
+                if (current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write)
+                {
+                    if (wordstream.tellp() > 0)
+                    {
+                        auto word = wordstream.str();
+                        wordstream.str("");
+                        auto m = try_get_macro(word);
+                        if (m.has_value())
                         {
-                            return res;
+                            fileinfo.move_back();
+                            auto res = handle_macro(runtime, fileinfo, fileinfo, m.value(), empty_parammap);
+                            if (m_errflag)
+                            {
+                                return res;
+                            }
+                            sstream << res;
                         }
-                        sstream << res;
+                        else
+                        {
+                            sstream << word << c;
+                        }
                     }
                     else
                     {
-                        sstream << word << c;
+                        sstream << c;
                     }
                 }
-                else
+                else if (c == '\n')
                 {
                     sstream << c;
                 }
-            }
-            else if (c == '\n')
+            } break;
+            case 'a': case 'b': case 'c': case 'd': case 'e':
+            case 'f': case 'g': case 'h': case 'i': case 'j':
+            case 'k': case 'l': case 'm': case 'n': case 'o':
+            case 'p': case 'q': case 'r': case 's': case 't':
+            case 'u': case 'v': case 'w': case 'x': case 'y':
+            case 'z': case 'A': case 'B': case 'C': case 'D':
+            case 'E': case 'F': case 'G': case 'H': case 'I':
+            case 'J': case 'K': case 'L': case 'M': case 'N':
+            case 'O': case 'P': case 'Q': case 'R': case 'S':
+            case 'T': case 'U': case 'V': case 'W': case 'X':
+            case 'Y': case 'Z': case '0': case '1': case '2':
+            case '3': case '4': case '5': case '6': case '7':
+            case '8': case '9': case '_':
             {
-                sstream << c;
-            }
-        } break;
-        case 'a': case 'b': case 'c': case 'd': case 'e':
-        case 'f': case 'g': case 'h': case 'i': case 'j':
-        case 'k': case 'l': case 'm': case 'n': case 'o':
-        case 'p': case 'q': case 'r': case 's': case 't':
-        case 'u': case 'v': case 'w': case 'x': case 'y':
-        case 'z': case 'A': case 'B': case 'C': case 'D':
-        case 'E': case 'F': case 'G': case 'H': case 'I':
-        case 'J': case 'K': case 'L': case 'M': case 'N':
-        case 'O': case 'P': case 'Q': case 'R': case 'S':
-        case 'T': case 'U': case 'V': case 'W': case 'X':
-        case 'Y': case 'Z': case '0': case '1': case '2':
-        case '3': case '4': case '5': case '6': case '7':
-        case '8': case '9': case '_':
-        {
-            if (current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write)
-                wordstream << c;
-            was_new_line = false;
-        } break;
+                if (current_file_scope().conditions.empty() || current_file_scope().conditions.back().allow_write)
+                    wordstream << c;
+                was_new_line = false;
+            } break;
         }
     }
 
     auto word = wordstream.str();
     if (!word.empty())
     {
-        auto m = get_try(word);
+        auto m = try_get_macro(word);
         if (m.has_value())
         {
             fileinfo.move_back();
@@ -1119,7 +1179,7 @@ void sqf::parser::preprocessor::impl_default::instance::pop_path(preprocessorfil
 {
     if (!m_file_scopes.back().conditions.empty())
     {
-        log(logmessage::preprocessor::MissingEndif(preprocessorfileinfo.operator ::sqf::runtime::diagnostics::diag_info()));
+        log(logmessage::preprocessor::MissingEndif(preprocessorfileinfo.to_diag_info()));
         m_errflag = true;
     }
     m_file_scopes.pop_back();
@@ -1167,7 +1227,7 @@ std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(
 {
     preprocessorfileinfo fileinfo(pathinfo);
     fileinfo.content = view;
-    instance i(get_logger(), m_macros);
+    instance i(this, get_logger(), m_macros);
     auto res = i.parse_file(runtime, fileinfo);
     if (out_included)
     {

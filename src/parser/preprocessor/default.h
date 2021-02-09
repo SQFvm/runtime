@@ -224,12 +224,14 @@ namespace sqf::parser::preprocessor
                     break;
                 }
             }
-
-            operator ::sqf::runtime::diagnostics::diag_info() const { return { line, col, off, pathinf, {} }; }
+            ::sqf::runtime::diagnostics::diag_info to_diag_info() const { return { line, col, off, pathinf, {} }; }
+            ::sqf::runtime::fileio::pathinfo to_pathinfo() const { return pathinf; }
+            operator ::sqf::runtime::diagnostics::diag_info() const { return to_diag_info(); }
             operator ::sqf::runtime::fileio::pathinfo() const { return pathinf; }
         };
     private:
         std::unordered_map<std::string, ::sqf::runtime::parser::macro> m_macros;
+        std::unordered_map<std::string, ::sqf::runtime::parser::pragma> m_pragmas;
         struct condition_scope
         {
             bool allow_write;
@@ -244,10 +246,11 @@ namespace sqf::parser::preprocessor
         class instance : public CanLog
         {
         public:
-            instance(Logger& logger, std::unordered_map<std::string, ::sqf::runtime::parser::macro> macros) : CanLog(logger), m_macros(macros) {};
+            instance(impl_default* owner, Logger& logger, std::unordered_map<std::string, ::sqf::runtime::parser::macro> macros) : CanLog(logger), m_owner(owner), m_macros(macros) {};
             std::vector<file_scope> m_file_scopes;
             std::unordered_set<std::string> m_visited;
             bool m_errflag = false;
+            impl_default* m_owner;
             std::unordered_map<std::string, ::sqf::runtime::parser::macro> m_macros;
 
             void replace_stringify(
@@ -302,7 +305,7 @@ namespace sqf::parser::preprocessor
             void push_path(const ::sqf::runtime::fileio::pathinfo pathinfo);
             void pop_path(preprocessorfileinfo& preprocessorfileinfo);
 
-            std::optional<::sqf::runtime::parser::macro> get_try(const std::string macro_name) const
+            std::optional<::sqf::runtime::parser::macro> try_get_macro(const std::string macro_name) const
             {
                 auto res = m_macros.find(macro_name);
                 if (res == m_macros.end())
@@ -323,14 +326,24 @@ namespace sqf::parser::preprocessor
             std::vector<::sqf::runtime::parser::macro>* out_macros);
 
         virtual void push_back(::sqf::runtime::parser::macro m) override { m_macros[std::string(m.name())] = m; };
+        virtual void push_back(::sqf::runtime::parser::pragma p) override { m_pragmas[std::string(p.name())] = p; };
         virtual ~impl_default() override { }
         virtual std::optional<std::string> preprocess(::sqf::runtime::runtime& runtime, std::string_view view, ::sqf::runtime::fileio::pathinfo pathinfo) override
         { return preprocess(runtime, view, pathinfo, nullptr, nullptr); }
 
-        std::optional<::sqf::runtime::parser::macro> get_try(const std::string macro_name) const
+        std::optional<::sqf::runtime::parser::macro> try_get_macro(const std::string macro_name) const
         {
             auto res = m_macros.find(macro_name);
             if (res == m_macros.end())
+            {
+                return {};
+            }
+            return res->second;
+        }
+        std::optional<::sqf::runtime::parser::pragma> try_get_pragma(const std::string name) const
+        {
+            auto res = m_pragmas.find(name);
+            if (res == m_pragmas.end())
             {
                 return {};
             }

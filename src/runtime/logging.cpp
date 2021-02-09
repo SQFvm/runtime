@@ -243,6 +243,22 @@ namespace logmessage::preprocessor {
         output.append(message);
         return output;
     }
+    std::string UnknownPragma::formatMessage() const
+    {
+        auto output = m_location.format();
+
+        output.reserve(
+            output.length()
+            + "Unknown pragma instruction '"sv.length()
+            + instruction.length()
+            + "'."sv.length()
+        );
+
+        output.append("Unknown pragma instruction '"sv);
+        output.append(instruction);
+        output.append("'."sv);
+        return output;
+    }
 }
 
 namespace logmessage::assembly {
