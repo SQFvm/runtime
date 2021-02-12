@@ -1,5 +1,6 @@
 // Contains parse tests that should not crash and should parse
 [   ["assert",       { compile """unclosed string" }],
+    ["assert",       { compile "'unclosed string" }],
     ["assertExcept", { compile "." }],
     ["assert",       { compile "1" }],
     ["assert",       { compile ";" }],

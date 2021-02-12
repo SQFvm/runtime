@@ -287,7 +287,14 @@ namespace sqf::parser::sqf
                             m_line++;
                             m_column = 0;
                         }
-                        ++iter;
+                        if (iter == m_end)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            iter++;
+                        }
                     }
                     // set length
                     len = iter - m_current;
