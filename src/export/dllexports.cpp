@@ -54,7 +54,13 @@ namespace dllexports
             return {};
         }
     }
-    static void* create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
+    enum class ops_set
+    {
+        none,
+        basic,
+        full
+    };
+    static void* create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds, ops_set ops)
     {
         auto actual = new instance();
         actual->seq[0] = 'S';
@@ -80,7 +86,34 @@ namespace dllexports
         actual->runtime->parser_config(std::make_unique<sqf::parser::config::parser>(*actual->logger));
         actual->runtime->parser_preprocessor(std::make_unique<sqf::parser::preprocessor::impl_default>(*actual->logger));
         actual->runtime->parser_sqf(std::make_unique<sqf::parser::sqf::parser>(*actual->logger));
-        sqf::operators::ops(*actual->runtime);
+        switch (ops)
+        {
+            case dllexports::ops_set::none:
+            default:
+            break;
+            case dllexports::ops_set::basic:
+            sqf::operators::ops_config(*actual->runtime);
+            sqf::operators::ops_diag(*actual->runtime);
+            sqf::operators::ops_generic(*actual->runtime);
+            // sqf::operators::ops_group(*actual->runtime);
+            sqf::operators::ops_logic(*actual->runtime);
+            // sqf::operators::ops_markers(*actual->runtime);
+            sqf::operators::ops_math(*actual->runtime);
+            sqf::operators::ops_namespace(*actual->runtime);
+            // sqf::operators::ops_object(*actual->runtime);
+            sqf::operators::ops_sqfvm(*actual->runtime);
+            sqf::operators::ops_string(*actual->runtime);
+            sqf::operators::ops_text(*actual->runtime);
+            // sqf::operators::ops_dummy_nular(*actual->runtime);
+            // sqf::operators::ops_dummy_unary(*actual->runtime);
+            // sqf::operators::ops_dummy_binary(*actual->runtime);
+            sqf::operators::ops_osspecific(*actual->runtime);
+            sqf::operators::ops_hashmap(*actual->runtime);
+            break;
+            case dllexports::ops_set::full:
+            sqf::operators::ops(*actual->runtime);
+            break;
+        }
 
         return actual;
     }
@@ -113,7 +146,15 @@ namespace dllexports
 extern "C" {
     DLLEXPORT_PREFIX void* sqfvm_create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
     {
-        return dllexports::create_instance(user_data, callback, max_runtime_seconds);
+        return dllexports::create_instance(user_data, callback, max_runtime_seconds, dllexports::ops_set::full);
+    }
+    DLLEXPORT_PREFIX void* sqfvm_create_instance_basic(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
+    {
+        return dllexports::create_instance(user_data, callback, max_runtime_seconds, dllexports::ops_set::basic);
+    }
+    DLLEXPORT_PREFIX void* sqfvm_create_instance_empty(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
+    {
+        return dllexports::create_instance(user_data, callback, max_runtime_seconds, dllexports::ops_set::none);
     }
     DLLEXPORT_PREFIX void sqfvm_destroy_instance(void* instance)
     {

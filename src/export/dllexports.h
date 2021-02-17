@@ -22,12 +22,26 @@ extern "C" {
     //                 5: trace
     typedef void(*sqfvm_log_callback)(void* user_data, void* call_data, int32_t severity, const char* message, uint32_t length);
 
-    // Creates a new SQF-VM instance
+    // Creates a new SQF-VM instance with all operators loaded
     // @param callback The callback to report log messages on
     // @param user_data Custom data from the callee that will be passed into callback
     // @param max_runtime_seconds the maximum runtime in seconds as float. Pass 0
     // Returns NULL on error
     DLLEXPORT_PREFIX void* sqfvm_create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds);
+
+    // Creates a new SQF-VM instance with the basic, non-arma specific operators loaded
+    // @param callback The callback to report log messages on
+    // @param user_data Custom data from the callee that will be passed into callback
+    // @param max_runtime_seconds the maximum runtime in seconds as float. Pass 0
+    // Returns NULL on error
+    DLLEXPORT_PREFIX void* sqfvm_create_instance_basic(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds);
+
+    // Creates a new SQF-VM instance without any operators loaded
+    // @param callback The callback to report log messages on
+    // @param user_data Custom data from the callee that will be passed into callback
+    // @param max_runtime_seconds the maximum runtime in seconds as float. Pass 0
+    // Returns NULL on error
+    DLLEXPORT_PREFIX void* sqfvm_create_instance_empty(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds);
 
     // Destroys a previously created SQF-VM instance
     DLLEXPORT_PREFIX void sqfvm_destroy_instance(void* instance);
