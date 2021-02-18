@@ -408,7 +408,7 @@ obj: "{" "}"                          { $$ = sqf::sqc::bison::astnode{ astkind::
    | "{" obj_items "}"                { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; $$.append($2); }
    | "{" obj_items "," "}"            { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; $$.append($2); }
    ;
-obj_item: IDENT ":" value             { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT_ITEM, $1 }; $$.append($3); }
+obj_item: IDENT ":" exp01             { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT_ITEM, $1 }; $$.append($3); }
         ;
 obj_items: obj_item                   { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT_ITEMS, tokenizer.create_token() }; $$.append($1); }
          | obj_items "," obj_item     { $$ = $1; $$.append($3); }
