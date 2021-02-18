@@ -1118,11 +1118,11 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         set.push_back(node.token, std::make_shared<opcodes::call_unary>("!"s));
     } break;
     case ::sqf::sqc::bison::astkind::OBJECT: {
-        for (auto child : node.children[0].children)
+        for (auto child : node.children)
         {
             to_assembly(runtime, set, locals, child);
         }
-        set.push_back(node.token, std::make_shared<opcodes::make_array>(node.children[0].children.size()));
+        set.push_back(node.token, std::make_shared<opcodes::make_array>(node.children.size()));
         set.push_back(node.token, std::make_shared<opcodes::call_unary>("createhashmapfromarray"s));
     } break;
     case ::sqf::sqc::bison::astkind::OBJECT_ITEM: {

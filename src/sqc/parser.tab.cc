@@ -1416,13 +1416,13 @@ namespace  sqf { namespace sqc { namespace bison  {
 
   case 113:
 #line 408 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[1].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1421 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 114:
 #line 409 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); }
+    { yylhs.value.as< sqf::sqc::bison::astnode > () = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; yylhs.value.as< sqf::sqc::bison::astnode > ().append_children(yystack_[2].value.as< sqf::sqc::bison::astnode > ()); }
 #line 1427 "parser.tab.cc" // lalr1.cc:859
     break;
 
