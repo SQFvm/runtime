@@ -405,8 +405,8 @@ expp: IDENT "(" ")"                   { $$ = sqf::sqc::bison::astnode{ astkind::
     | value                           { $$ = $1; }
     ;
 obj: "{" "}"                          { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; }
-   | "{" obj_items "}"                { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; $$.append($2); }
-   | "{" obj_items "," "}"            { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; $$.append($2); }
+   | "{" obj_items "}"                { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; $$.append_children($2); }
+   | "{" obj_items "," "}"            { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT, tokenizer.create_token() }; $$.append_children($2); }
    ;
 obj_item: IDENT ":" value             { $$ = sqf::sqc::bison::astnode{ astkind::OBJECT_ITEM, $1 }; $$.append($3); }
         ;
