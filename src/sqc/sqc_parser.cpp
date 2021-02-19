@@ -117,6 +117,11 @@ namespace sqf::sqc::util
     public:
         setbuilder(std::string_view contents) : m_contents(contents) {}
 
+        std::vector<::sqf::runtime::instruction::sptr>& instructions()
+        {
+            return inner;
+        }
+
         setbuilder create_from() const
         {
             return { m_contents, m_parents };
@@ -172,6 +177,12 @@ namespace sqf::sqc::util
 
 void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbuilder& set, std::vector<emplace>& locals, const ::sqf::sqc::bison::astnode& node)
 {
+    bool is_top_level = set.has_parent(::sqf::sqc::bison::astkind::STATEMENTS, 2)
+        || set.has_parent(::sqf::sqc::bison::astkind::FUNCTION, 2)
+        || set.has_parent(::sqf::sqc::bison::astkind::FUNCTION_DECLARATION, 2)
+        || set.has_parent(::sqf::sqc::bison::astkind::FINAL_FUNCTION_DECLARATION, 2);
+
+
     util::setbuilder::position icpp_pos;
     float icpp_value;
     auto parent_lock = set.lock_parent(node.kind);
@@ -693,9 +704,43 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         auto local_set = set.create_from();
         to_assembly(runtime, local_set, locals, node.children[1]);
+
+        // Handle the case that the last instruction was `return` before pushing
+        bool should_exit_with = is_top_level;
+        if (should_exit_with && local_set.instructions().size() >= 2)
+        {
+            auto& instructions = local_set.instructions();
+            auto& back = instructions.back();
+            auto casted_binary = std::dynamic_pointer_cast<const ::sqf::opcodes::call_binary>(back);
+            if (casted_binary.get())
+            {
+                if (should_exit_with = casted_binary->operator_name() == "breakout"s)
+                {
+                    instructions.erase(instructions.end() - 2, instructions.end() - 2);
+                }
+            }
+            else
+            {
+                auto casted_unary = std::dynamic_pointer_cast<const ::sqf::opcodes::call_unary>(back);
+                if (casted_unary.get())
+                {
+                    if (should_exit_with = casted_unary->operator_name() == "breakout"s)
+                    {
+                        instructions.erase(instructions.end() - 2, instructions.end());
+                    }
+                }
+            }
+        }
         set.push_back(node.children[1].token, std::make_shared<opcodes::push>(runtime::instruction_set{ local_set }));
 
-        set.push_back(node.token, std::make_shared<opcodes::call_binary>("then"s, (short)4));
+        if (should_exit_with)
+        {
+            set.push_back(node.token, std::make_shared<opcodes::call_binary>("exitwith"s, (short)4));
+        }
+        else
+        {
+            set.push_back(node.token, std::make_shared<opcodes::call_binary>("then"s, (short)4));
+        }
     } break;
     case ::sqf::sqc::bison::astkind::OP_TERNARY: /* fallthrough */
     case ::sqf::sqc::bison::astkind::IFELSE: {
