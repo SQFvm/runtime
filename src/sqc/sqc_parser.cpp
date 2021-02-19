@@ -189,17 +189,27 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
     switch (node.kind)
     {
     case ::sqf::sqc::bison::astkind::RETURN: {
-        if (node.children.empty())
+        if (is_top_level)
         {
-            set.push_back(node.token, std::make_shared<opcodes::push>(key_scopename_function));
-            set.push_back(node.token, std::make_shared<opcodes::call_unary>("breakout"s));
+            if (!node.children.empty())
+            {
+                to_assembly(runtime, set, locals, node.children[0]);
+            }
         }
         else
         {
-            util::setbuilder::region __region(set);
-            to_assembly(runtime, set, locals, node.children[0]);
-            set.push_back(node.token, std::make_shared<opcodes::push>(key_scopename_function));
-            set.push_back(node.token, std::make_shared<opcodes::call_binary>("breakout"s, (short)4));
+            if (node.children.empty())
+            {
+                set.push_back(node.token, std::make_shared<opcodes::push>(key_scopename_function));
+                set.push_back(node.token, std::make_shared<opcodes::call_unary>("breakout"s));
+            }
+            else
+            {
+                util::setbuilder::region __region(set);
+                to_assembly(runtime, set, locals, node.children[0]);
+                set.push_back(node.token, std::make_shared<opcodes::push>(key_scopename_function));
+                set.push_back(node.token, std::make_shared<opcodes::call_binary>("breakout"s, (short)4));
+            }
         }
     } break;
     case ::sqf::sqc::bison::astkind::THROW: {
