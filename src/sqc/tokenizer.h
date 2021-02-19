@@ -571,12 +571,13 @@ namespace sqf::sqc
             case ';':           return try_match({ etoken::s_semicolon });
             case ',':           return try_match({ etoken::s_comma });
             case '.':           return try_match({ etoken::s_dot });
-            case ' ':			return try_match({ etoken::i_whitespace });
-            case '\r':			return try_match({ etoken::i_whitespace });
-            case '\t':			return try_match({ etoken::i_whitespace });
-            case '\n': 			return try_match({ etoken::i_whitespace });
+            case '%':           return try_match({ etoken::s_percent });
+            case ' ':           return try_match({ etoken::i_whitespace });
+            case '\r':          return try_match({ etoken::i_whitespace });
+            case '\t':          return try_match({ etoken::i_whitespace });
+            case '\n':          return try_match({ etoken::i_whitespace });
             case '#':           return try_match({ etoken::m_line });
-            default:			return { etoken::invalid, m_line, m_column, (size_t)(m_current - m_start), {} };
+            default:            return { etoken::invalid, m_line, m_column, (size_t)(m_current - m_start), {} };
             }
         }
         token create_token() const
