@@ -3,8 +3,8 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  linux_x64:
-    name: Linux x64
+  linux_x64_gcc:
+    name: Linux x64 (GCC)
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
@@ -21,7 +21,31 @@ jobs:
       - name: Upload Linux x64 binaries
         uses: actions/upload-artifact@v2
         with:
-          name: sqfvm_linux_x64
+          name: sqfvm_linux_x64_gcc
+          path: build/sqfvm*
+
+      - name: Run CBA A3 Tests
+        run: PATH=build:$PATH python tests/cba_a3.py
+
+  linux_x64_clang:
+    name: Linux x64 (Clang)
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Linux x64
+        run: mkdir build && cd build && cmake .. && cmake --build . --parallel 2
+        env:
+          CC: clang
+          CXX: clang++
+
+      - name: Run SQF-VM Tests
+        run: build/sqfvm -a -i tests/config.cpp -i tests/runTests.sqf
+
+      - name: Upload Linux x64 binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: sqfvm_linux_x64_clang
           path: build/sqfvm*
 
       - name: Run CBA A3 Tests
