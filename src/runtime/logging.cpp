@@ -3198,3 +3198,121 @@ std::string logmessage::fileio::ResolvePhysicalFailedToLookup::formatMessage() c
     output.append(messageD);
     return output;
 }
+
+std::string logmessage::fileio::PBOFileAlreadyRegistered::formatMessage() const
+{
+    const auto messageA = "File `"sv;
+    const auto messageB = "` of PBO `"sv;
+    const auto messageC = "` already is registred."sv;
+
+    std::string output;
+    output.reserve(
+        messageA.length() +
+        m_file.length() +
+        messageB.length() +
+        m_path.length() +
+        messageC.length()
+    );
+
+    output.append(messageA);
+    output.append(m_file);
+    output.append(messageB);
+    output.append(m_path);
+    output.append(messageC);
+    return output;
+}
+
+std::string logmessage::fileio::PBOHasNoPrefixAttribute::formatMessage() const
+{
+    const auto messageA = "PBO `"sv;
+    const auto messageB = "` has no `prefix` attribute."sv;
+
+    std::string output;
+    output.reserve(
+        messageA.length() +
+        m_path.length() +
+        messageB.length()
+    );
+
+    output.append(messageA);
+    output.append(m_path);
+    output.append(messageB);
+    return output;
+}
+
+std::string logmessage::fileio::FailedToParsePBO::formatMessage() const
+{
+    const auto messageA = "Failed to parse PBO `"sv;
+    const auto messageB = "`."sv;
+
+    std::string output;
+    output.reserve(
+        messageA.length() +
+        m_path.length() +
+        messageB.length()
+    );
+
+    output.append(messageA);
+    output.append(m_path);
+    output.append(messageB);
+    return output;
+}
+
+std::string logmessage::fileio::PBOAlreadyAdded::formatMessage() const
+{
+    const auto messageA = "The PBO `"sv;
+    const auto messageB = "` was added already."sv;
+
+    std::string output;
+    output.reserve(
+        messageA.length() +
+        m_path.length() +
+        messageB.length()
+    );
+
+    output.append(messageA);
+    output.append(m_path);
+    output.append(messageB);
+    return output;
+}
+
+std::string logmessage::fileio::PBOFileNotFound::formatMessage() const
+{
+    const auto messageA = "PBO `"sv;
+    const auto messageB = "` is supposed to be loaded but is not."sv;
+
+    std::string output;
+    output.reserve(
+        messageA.length() +
+        m_path.length() +
+        messageB.length()
+    );
+
+    output.append(messageA);
+    output.append(m_path);
+    output.append(messageB);
+    return output;
+}
+
+std::string logmessage::fileio::PBOFailedToReadFile::formatMessage() const
+{
+    const auto messageA = "Failed to read `"sv;
+    const auto messageB = "` from PBO `"sv;
+    const auto messageC = "`."sv;
+
+    std::string output;
+    output.reserve(
+        messageA.length() +
+        m_file.length() +
+        messageB.length() +
+        m_path.length() +
+        messageC.length()
+    );
+
+    output.append(messageA);
+    output.append(m_file);
+    output.append(messageB);
+    output.append(m_path);
+    output.append(messageC);
+    return output;
+}

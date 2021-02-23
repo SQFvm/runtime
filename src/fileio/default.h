@@ -1,6 +1,7 @@
 #pragma once
 #include "../runtime/fileio.h"
 #include "../runtime/logging.h"
+#include "../rvutils/pbofile.hpp"
 #include <unordered_map>
 #include <filesystem>
 #include <string>
@@ -22,6 +23,7 @@ namespace sqf::fileio
         using file_tree_iterator = std::unordered_map<std::string, std::shared_ptr<path_element>>::iterator;
 
         std::vector<std::shared_ptr<path_element>> m_path_elements;
+        std::unordered_map<std::string, rvutils::pbo::pbofile> m_pbos;
 
 
         void get_directories_recursive(std::vector<std::string>& paths, const std::shared_ptr<path_element>& el) const
@@ -57,7 +59,8 @@ namespace sqf::fileio
             m_virtual_file_root->virtual_full = "/";
             m_path_elements.push_back(m_virtual_file_root);
         }
-#pragma region sqf::runtime::fileio
+        void add_pbo_mapping(rvutils::pbo::pbofile& pbo);
+        void add_pbo_mapping(std::filesystem::path p);
         virtual std::optional<sqf::runtime::fileio::pathinfo> get_info(std::string_view view, sqf::runtime::fileio::pathinfo current) const override
         {
             auto res =  get_info_virtual(view, current);
@@ -75,7 +78,6 @@ namespace sqf::fileio
             get_directories_recursive(paths, m_virtual_file_root);
             return paths;
         }
-#pragma endregion
 
     };
 }

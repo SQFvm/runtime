@@ -116,6 +116,7 @@ namespace rvutils::pbo
             std::ifstream m_file;
             datablock m_block;
             bool m_good;
+            file_descriptor m_file_descriptor;
 
             reader(const reader& copy) = delete;
             reader(const reader&& rcopy) = delete;
@@ -127,6 +128,10 @@ namespace rvutils::pbo
                     m_block = h.block_data;
                     m_file.seekg(m_block.start);
                     m_good = true;
+                    m_file_descriptor.name = h.name;
+                    m_file_descriptor.packing = h.method;
+                    m_file_descriptor.size = h.size;
+                    m_file_descriptor.size_original = h.size_original;
                     return true;
                 }
                 else
@@ -136,6 +141,7 @@ namespace rvutils::pbo
             }
         public:
             reader() : m_good(false) { }
+            file_descriptor descriptor() const { return m_file_descriptor; }
             bool good() const { return m_good; }
             size_t read(char* arr, std::streamsize bytes)
             {
@@ -1150,6 +1156,7 @@ namespace rvutils::pbo
             }
         }
         bool good() const { return m_good; }
+        std::filesystem::path path() const { return m_path; }
 
         // // Will rearrange the files inside of the PBO, removing any free datablock
         // void defragment()
