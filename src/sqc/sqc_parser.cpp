@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <charconv>
 #include <sstream>
+#include <functional>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -1540,4 +1541,558 @@ std::optional<::sqf::runtime::instruction_set> sqf::sqc::parser::parse(::sqf::ru
     set.push_back({}, std::make_shared<opcodes::end_statement>());
     to_assembly(runtime, set, locals, res);
     return set;
+}
+
+
+enum class source_type
+{
+    NA,
+    ROOT,
+    ASSIGN,
+    OPERATOR,
+    CODE,
+    PARAMS,
+    PARAMS_ENTRY,
+    CALL,
+    CLAUSE,
+    EXITWITH,
+    FORMAT,
+    GET_TYPE
+};
+static void to_sqc_actual(std::stringstream& out_sstream, source_type type, ::sqf::runtime::instruction_set::iterator begin, ::sqf::runtime::instruction_set::iterator end, uint8_t tab)
+{
+    struct my_stack;
+    using func = std::function<void(my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab)>;
+    struct my_stack : public std::vector<func>
+    {
+        func pop()
+        {
+            if (!empty())
+            {
+                auto val = back();
+                pop_back();
+                return val;
+            }
+            else
+            {
+                return [](my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab) { };
+            }
+        }
+    };
+    my_stack stack;
+    using namespace std::string_literals;
+    using namespace std::string_view_literals;
+    bool starts_with_params = false;
+
+    // Iterate over instructions like this would be the VM
+    for (auto it = begin; it != end; it++)
+    {
+        std::shared_ptr<sqf::opcodes::assign_to> assign_to;
+        std::shared_ptr<sqf::opcodes::assign_to_local> assign_to_local;
+        std::shared_ptr<sqf::opcodes::call_binary> call_binary;
+        std::shared_ptr<sqf::opcodes::call_nular> call_nular;
+        std::shared_ptr<sqf::opcodes::call_unary> call_unary;
+        std::shared_ptr<sqf::opcodes::end_statement> end_statement;
+        std::shared_ptr<sqf::opcodes::get_variable> get_variable;
+        std::shared_ptr<sqf::opcodes::make_array> make_array;
+        std::shared_ptr<sqf::opcodes::push> push;
+        if ((assign_to = std::dynamic_pointer_cast<sqf::opcodes::assign_to>(*it)))
+        {
+            stack.push_back([assign_to](my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab) {
+                if (stack.size() >= 1)
+                {
+                    sstream << assign_to->variable_name() << " = "sv;
+                    stack.pop()(stack, sstream, source_type::ASSIGN, tab);
+                }
+            });
+        }
+        else if ((assign_to_local = std::dynamic_pointer_cast<sqf::opcodes::assign_to_local>(*it)))
+        {
+            stack.push_back([assign_to_local](my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab) {
+                if (stack.size() >= 1)
+                {
+                    sstream << "private "sv << assign_to_local->variable_name() << " = "sv;
+                    stack.pop()(stack, sstream, source_type::ASSIGN, tab);
+                }
+            });
+        }
+        else if ((call_binary = std::dynamic_pointer_cast<sqf::opcodes::call_binary>(*it)))
+        {
+            stack.push_back([call_binary](my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab) {
+                if (stack.size() >= 2)
+                {
+                    auto n = call_binary->operator_name();
+
+                    if (n == "call")
+                    {
+                        std::stringstream tmpsstream;
+                        auto rgen = stack.pop();
+                        rgen(stack, tmpsstream, source_type::CALL, tab);
+                        auto rstring = tmpsstream.str();
+                        tmpsstream.str("");
+
+                        auto lgen = stack.pop();
+                        lgen(stack, tmpsstream, source_type::CALL, tab);
+                        auto lstring = tmpsstream.str();
+                        sstream << rstring << "(" << lstring << ")";
+                    }
+                    else if (n == "select")
+                    {
+                        std::stringstream tmpsstream;
+                        auto rgen = stack.pop();
+                        rgen(stack, tmpsstream, type, tab);
+                        auto rstring = tmpsstream.str();
+                        tmpsstream.str("");
+
+                        auto lgen = stack.pop();
+                        lgen(stack, tmpsstream, type, tab);
+                        auto lstring = tmpsstream.str();
+                        sstream << lstring << "[" << rstring << "]";
+                    }
+                    else if (n == "then")
+                    {
+                        std::stringstream tmpsstream;
+                        auto rgen = stack.pop();
+                        rgen(stack, tmpsstream, source_type::CLAUSE, tab);
+                        auto rstring = tmpsstream.str();
+                        tmpsstream.str("");
+
+                        auto lgen = stack.pop();
+                        lgen(stack, tmpsstream, source_type::OPERATOR, tab);
+                        auto lstring = tmpsstream.str();
+                        sstream << lstring << rstring;
+                    }
+                    else if (n == "exitwith")
+                    {
+                        std::stringstream tmpsstream;
+                        auto rgen = stack.pop();
+                        rgen(stack, tmpsstream, source_type::EXITWITH, tab);
+                        auto rstring = tmpsstream.str();
+                        tmpsstream.str("");
+
+                        auto lgen = stack.pop();
+                        lgen(stack, tmpsstream, source_type::OPERATOR, tab);
+                        auto lstring = tmpsstream.str();
+                        sstream << lstring << rstring;
+                    }
+                    else if (n == "else")
+                    {
+                        std::stringstream tmpsstream;
+                        auto rgen = stack.pop();
+                        rgen(stack, tmpsstream, source_type::CLAUSE, tab);
+                        auto rstring = tmpsstream.str();
+                        tmpsstream.str("");
+
+                        auto lgen = stack.pop();
+                        lgen(stack, tmpsstream, source_type::CLAUSE, tab);
+                        auto lstring = tmpsstream.str();
+                        sstream << lstring << "\n"sv << std::string(tab * 4, ' ') << "else"sv << rstring;
+                    }
+                    else if (n == "mod")
+                    {
+                        std::stringstream tmpsstream;
+                        auto rgen = stack.pop();
+                        rgen(stack, tmpsstream, type, tab);
+                        auto rstring = tmpsstream.str();
+                        tmpsstream.str("");
+
+                        auto lgen = stack.pop();
+                        lgen(stack, tmpsstream, type, tab);
+                        auto lstring = tmpsstream.str();
+                        sstream << lstring << " % "sv << rstring;
+                    }
+                    else if (n == "isEqualTo")
+                    {
+                        std::stringstream tmpsstream;
+                        auto rgen = stack.pop();
+                        rgen(stack, tmpsstream, type, tab);
+                        auto rstring = tmpsstream.str();
+                        tmpsstream.str("");
+
+                        auto lgen = stack.pop();
+                        lgen(stack, tmpsstream, type, tab);
+                        auto lstring = tmpsstream.str();
+                        sstream << lstring << " === "sv << rstring;
+                    }
+                    else if (n == "isNotEqualTo")
+                    {
+                        std::stringstream tmpsstream;
+                        auto rgen = stack.pop();
+                        rgen(stack, tmpsstream, type, tab);
+                        auto rstring = tmpsstream.str();
+                        tmpsstream.str("");
+
+                        auto lgen = stack.pop();
+                        lgen(stack, tmpsstream, type, tab);
+                        auto lstring = tmpsstream.str();
+                        sstream << lstring << " !== "sv << rstring;
+                    }
+                    else if (n == "+" || n == "-" || n == "*" || n == "/"
+                        || n == "%" || n == "==" || n == ">=" || n == "<="
+                        || n == "!=" || n == ">" || n == "<")
+                    {
+                        std::stringstream tmpsstream;
+                        auto rgen = stack.pop();
+                        rgen(stack, tmpsstream, type, tab);
+                        auto rstring = tmpsstream.str();
+                        tmpsstream.str("");
+
+                        auto lgen = stack.pop();
+                        lgen(stack, tmpsstream, type, tab);
+                        auto lstring = tmpsstream.str();
+                        sstream << lstring << " "sv << n << " "sv << rstring;
+                    }
+                    else
+                    {
+                        std::stringstream tmpsstream;
+                        auto rgen = stack.pop();
+                        rgen(stack, tmpsstream, source_type::CALL, tab);
+                        auto rstring = tmpsstream.str();
+                        tmpsstream.str("");
+
+                        auto lgen = stack.pop();
+                        lgen(stack, tmpsstream, source_type::CALL, tab);
+                        auto lstring = tmpsstream.str();
+                        sstream << lstring << "."sv << n << "(" << rstring << ")";
+                    }
+                }
+            });
+        }
+        else if ((call_nular = std::dynamic_pointer_cast<sqf::opcodes::call_nular>(*it)))
+        {
+            stack.push_back([call_nular](my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab) {
+                    sstream << call_nular->operator_name();
+            });
+        }
+        else if ((call_unary = std::dynamic_pointer_cast<sqf::opcodes::call_unary>(*it)))
+        {
+            if (call_unary->operator_name() == "params")
+            {
+                stack.push_back([&starts_with_params, call_unary](my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab) {
+                    if (stack.size() >= 1)
+                    {
+                        sstream << "("sv;
+                        stack.pop()(stack, sstream, source_type::PARAMS, tab);
+                        sstream << ")"sv;
+                        if (stack.size() == 0)
+                        {
+                            starts_with_params = true;
+                        }
+                    }
+                });
+            }
+            else
+            {
+                stack.push_back([call_unary](my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab) {
+                    if (stack.size() >= 1)
+                    {
+                        auto n = call_unary->operator_name();
+                        if (n == "format")
+                        {
+                            stack.pop()(stack, sstream, source_type::FORMAT, tab);
+                        }
+                        else if (n == "!" || n == "+" || n == "-")
+                        {
+                            sstream << call_unary->operator_name();
+                            stack.pop()(stack, sstream, source_type::OPERATOR, tab);
+                        }
+                        else
+                        {
+                            sstream << call_unary->operator_name() << "("sv;
+                            stack.pop()(stack, sstream, source_type::CALL, tab);
+                            sstream << ")"sv;
+                        }
+                    }
+                });
+            }
+        }
+        else if ((end_statement = std::dynamic_pointer_cast<sqf::opcodes::end_statement>(*it)))
+        {
+        }
+        else if ((get_variable = std::dynamic_pointer_cast<sqf::opcodes::get_variable>(*it)))
+        {
+            stack.push_back([get_variable](my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab) {
+                    sstream << get_variable->variable_name();
+            });
+        }
+        else if ((make_array = std::dynamic_pointer_cast<sqf::opcodes::make_array>(*it)))
+        {
+            stack.push_back([make_array](my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab) {
+                switch (type)
+                {
+                    case source_type::FORMAT:
+                    {
+                        std::vector<std::string> strings;
+                        std::stringstream tmpsstream;
+                        for (size_t i = 0; i < make_array->array_size() && !stack.empty(); i++)
+                        {
+                            stack.pop()(stack, tmpsstream, source_type::NA, tab);
+                            strings.push_back(tmpsstream.str());
+                            tmpsstream.str("");
+                        }
+                        if (strings.empty()) { break; }
+                        std::reverse(strings.begin(), strings.end());
+                        auto str = strings[0];
+                        bool was_percent = false;
+                        size_t index = 0;
+
+                        sstream << "$";
+                        for (auto c : str)
+                        {
+                            if (c == '%')
+                            {
+                                was_percent = true;
+                                index = 0;
+                            }
+                            else if (was_percent)
+                            {
+                                switch (c)
+                                {
+                                    case '0': index *= 10; index += 0; break;
+                                    case '1': index *= 10; index += 1; break;
+                                    case '2': index *= 10; index += 2; break;
+                                    case '3': index *= 10; index += 3; break;
+                                    case '4': index *= 10; index += 4; break;
+                                    case '5': index *= 10; index += 5; break;
+                                    case '6': index *= 10; index += 6; break;
+                                    case '7': index *= 10; index += 7; break;
+                                    case '8': index *= 10; index += 8; break;
+                                    case '9': index *= 10; index += 9; break;
+                                    default:
+                                    if (index != 0 && index < strings.size())
+                                    {
+                                        sstream << "{" << strings[index] << "}";
+                                    }
+                                    sstream << c;
+                                    was_percent = false;
+                                    break;
+                                }
+                            }
+                            else if (c == '{' || c == '}')
+                            {
+                                sstream << c << c;
+                            }
+                            else
+                            {
+                                sstream << c;
+                            }
+                        }
+                    } break;
+                    case source_type::CALL:
+                    {
+                        std::vector<std::string> strings;
+                        std::stringstream tmpsstream;
+                        for (size_t i = 0; i < make_array->array_size() && !stack.empty(); i++)
+                        {
+                            stack.pop()(stack, tmpsstream, source_type::NA, tab);
+                            strings.push_back(tmpsstream.str());
+                            tmpsstream.str("");
+                        }
+                        if (strings.size() <= 1)
+                        {
+                            sstream << "[";
+                        }
+                        for (auto rit = strings.rbegin(); rit != strings.rend(); rit++)
+                        {
+                            if (rit != strings.rbegin()) { sstream << ", "; }
+                            sstream << *rit;
+                        }
+                        if (strings.size() <= 1)
+                        {
+                            sstream << "]";
+                        }
+                    } break;
+                    case source_type::PARAMS:
+                    {
+                        std::vector<std::string> strings;
+                        std::stringstream tmpsstream;
+                        for (size_t i = 0; i < make_array->array_size() && !stack.empty(); i++)
+                        {
+                            stack.pop()(stack, tmpsstream, source_type::PARAMS_ENTRY, tab);
+                            strings.push_back(tmpsstream.str());
+                            tmpsstream.str("");
+                        }
+                        for (auto rit = strings.rbegin(); rit != strings.rend(); rit++)
+                        {
+                            if (rit != strings.rbegin()) { sstream << ", "; }
+                            sstream << *rit;
+                        }
+                    } break;
+                    case source_type::PARAMS_ENTRY:
+                    {
+                        std::vector<func> gens;
+                        for (size_t i = 0; i < make_array->array_size() && !stack.empty(); i++)
+                        {
+                            gens.push_back(stack.pop());
+                        }
+                        std::reverse(gens.begin(), gens.end());
+                        if (gens.size() >= 3)
+                        {
+                            gens[2](stack, sstream, source_type::GET_TYPE, tab);
+                            sstream << " ";
+                        }
+                        if (gens.size() >= 1)
+                        {
+                            std::stringstream tmpsstream;
+                            gens[0](stack, tmpsstream, source_type::NA, tab);
+                            auto str = tmpsstream.str();
+                            sstream << sqf::runtime::util::trim(str, "\""sv);
+                        }
+                        if (gens.size() >= 2)
+                        {
+                            sstream << " = "sv;
+                            gens[1](stack, sstream, source_type::NA, tab);
+                        }
+                        for (size_t i = 3; i < gens.size(); i++)
+                        {
+                            std::stringstream tmpsstream;
+                            gens[i](stack, tmpsstream, source_type::NA, tab);
+                        }
+                    } break;
+                    default:
+                    {
+                        std::vector<std::string> strings;
+                        std::stringstream tmpsstream;
+                        for (size_t i = 0; i < make_array->array_size() && !stack.empty(); i++)
+                        {
+                            stack.pop()(stack, tmpsstream, source_type::NA, tab);
+                            strings.push_back(tmpsstream.str());
+                            tmpsstream.str("");
+                        }
+                        sstream << "[";
+                        // Read in vector reversed
+                        for (auto rit = strings.rbegin(); rit != strings.rend(); rit++)
+                        {
+                            if (rit != strings.rbegin()) { sstream << ", "; }
+                            sstream << *rit;
+                        }
+                        sstream << "]";
+                    } break;
+                }
+            });
+        }
+        else if ((push = std::dynamic_pointer_cast<sqf::opcodes::push>(*it)))
+        {
+            stack.push_back([push](my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab) {
+                if (type == source_type::GET_TYPE)
+                {
+                    auto sview = push->value().type().to_string();
+                    std::string str(sview.begin(), sview.end());
+                    std::transform(str.begin(), str.end(), str.begin(), [](char c) -> char { return (char)std::tolower(c); });
+                    sstream << str;
+                }
+                else if (push->value().type() == sqf::runtime::t_code())
+                {
+                    if (type == source_type::CLAUSE)
+                    {
+                        auto& lset = push->value().data<::sqf::types::d_code>()->value();
+                        sstream << "\n"sv << std::string(tab * 4, ' ') << "{"sv;
+                        to_sqc_actual(sstream, source_type::NA, lset.begin(), lset.end(), tab + 1);
+                        sstream << "\n"sv << std::string(tab * 4, ' ') << "}"sv;
+                    }
+                    else if (type == source_type::EXITWITH)
+                    {
+                        auto& lset = push->value().data<::sqf::types::d_code>()->value();
+                        if (lset.empty())
+                        {
+                            sstream << " { return; }"sv;
+                        }
+                        else
+                        {
+                            sstream << "\n"sv << std::string(tab * 4, ' ') << "{"sv;
+                            to_sqc_actual(sstream, source_type::NA, lset.begin(), lset.end(), tab + 1);
+                            sstream << "\n"sv << std::string((tab + 1) * 4, ' ') << "return;"sv; // just always insert empty return here
+                            sstream << "\n"sv << std::string(tab * 4, ' ') << "}"sv;
+                        }
+                    }
+                    else
+                    {
+                        auto& lset = push->value().data<::sqf::types::d_code>()->value();
+                        to_sqc_actual(sstream, source_type::CODE, lset.begin(), lset.end(), tab + 1);
+                    }
+                }
+                else
+                {
+                    sstream << push->value().data<::sqf::runtime::data>()->to_string_sqf();
+                }
+            });
+        }
+    }
+
+
+
+    // Write out every generator method on stack into vector
+    std::vector<std::string> strings;
+    std::stringstream sstream;
+    while (!stack.empty())
+    {
+        stack.pop()(stack, sstream, type, tab);
+        strings.push_back(sstream.str());
+        sstream.str("");
+    }
+
+    if (strings.size() == 0)
+    {
+        if (type == source_type::CODE)
+        {
+            out_sstream << "function() {}";
+        }
+    }
+    else
+    {
+        if (type == source_type::ROOT && starts_with_params)
+        {
+            out_sstream << "params";
+        }
+        bool skip_final_newline = false;
+        // Read in vector reversed
+        for (auto rit = strings.rbegin(); rit != strings.rend(); rit++)
+        {
+            if (type == source_type::CODE && rit == strings.rbegin())
+            {
+                out_sstream << "function"sv;
+                if (!starts_with_params)
+                {
+                    if (rit->length() < 32 && strings.size() == 1)
+                    {
+                        skip_final_newline = true;
+                        out_sstream << "() { "sv << *rit << ";"sv;
+                    }
+                    else
+                    {
+                        out_sstream << "() {\n"sv << std::string(tab * 4, ' ') << *rit << ";"sv;
+                    }
+                }
+                else
+                {
+                    out_sstream << std::string(tab * 4, ' ') << *rit << ") {"sv;
+                }
+            }
+            else
+            {
+                out_sstream << "\n"sv << std::string(tab * 4, ' ') << *rit << ";"sv;
+            }
+        }
+        if (type == source_type::CODE)
+        {
+            if (skip_final_newline)
+            {
+                out_sstream << " "sv;
+            }
+            else
+            {
+                out_sstream << "\n"sv << std::string((tab - 1) * 4, ' ');
+            }
+            out_sstream << "}"sv;
+        }
+    }
+}
+std::string sqf::sqc::parser::to_sqc(const::sqf::runtime::instruction_set& set)
+{
+    auto begin = set.begin();
+    auto end = set.end();
+    std::stringstream sstream;
+    to_sqc_actual(sstream, source_type::ROOT, begin, end, 0);
+    auto str = sstream.str();
+    return str;
 }
