@@ -690,7 +690,6 @@ namespace rvutils::pbo
             }
             else
             {
-                const size_t buffsize = 512;
                 char buff[buffsize];
                 std::streampos source_cur = old_start;
                 while (source_cur < old_end)
@@ -1048,7 +1047,7 @@ namespace rvutils::pbo
 
             // If front is empty section, move its data back further
             size_t rem = h.bytes();
-            for (auto& it = m_headers.begin(); it != m_headers.end() && rem > 0 && it->is_invalid(); ++it)
+            for (auto it = m_headers.begin(); it != m_headers.end() && rem > 0 && it->is_invalid(); ++it)
             {
                 if (it->size > 0)
                 {
@@ -1111,7 +1110,7 @@ namespace rvutils::pbo
             // If back is empty section, move its data forward
             size_t rem = m.bytes();
             auto start = (m_attributes.end() - 2)->block.start;
-            for (auto& it = m_attributes.rbegin() + 1; it != m_attributes.rend() && rem > 0 && it->is_invalid(); ++it)
+            for (auto it = m_attributes.rbegin() + 1; it != m_attributes.rend() && rem > 0 && it->is_invalid(); ++it)
             {
                 if (!it->key.empty())
                 {
