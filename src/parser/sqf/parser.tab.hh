@@ -49,74 +49,17 @@
     #ifdef _MSC_VER
         #pragma warning(push, 0)
     #endif
-     namespace sqf::runtime
-     {
-          class runtime;
-     }
-     namespace sqf::parser::sqf
-     {
-          class parser;
-     }
-     namespace sqf::parser::sqf::bison
-     {
-        enum class astkind
-        {
-            ENDOFFILE = -3,
-            INVALID = -2,
-            __TOKEN = -1,
-            NA = 0,
-            STATEMENTS,
-            STATEMENT,
-            IDENT,
-            NUMBER,
-            HEXNUMBER,
-            STRING,
-            BOOLEAN_TRUE,
-            BOOLEAN_FALSE,
-            EXPRESSION_LIST,
-            CODE,
-            ARRAY,
-            ASSIGNMENT,
-            ASSIGNMENT_LOCAL,
-            EXPN,
-            EXP0,
-            EXP1,
-            EXP2,
-            EXP3,
-            EXP4,
-            EXP5,
-            EXP6,
-            EXP7,
-            EXP8,
-            EXP9,
-            EXPU
-        };
-        struct astnode
-        {
-            ::sqf::parser::sqf::tokenizer::token token;
-            astkind kind;
-            std::vector<astnode> children;
+    namespace sqf::runtime
+    {
+         class runtime;
+    }
+    namespace sqf::parser::sqf
+    {
+         class parser;
+    }
+    #include "astnode.hpp"
 
-            astnode() : token(), kind(astkind::NA) { }
-            astnode(astkind kind) : token(), kind(kind) { }
-            astnode(::sqf::parser::sqf::tokenizer::token t) : token(t), kind(astkind::__TOKEN) { }
-            astnode(astkind kind, ::sqf::parser::sqf::tokenizer::token t) : token(t), kind(kind) { }
-
-            void append(astnode node)
-            {
-                children.push_back(node);
-            }
-            void append_children(const astnode& other)
-            { 
-                for (auto node : other.children)
-                {
-                    append(node); 
-                } 
-            }
-        };
-     }
-
-#line 120 "parser.tab.hh" // lalr1.cc:377
+#line 63 "parser.tab.hh" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -193,7 +136,7 @@
 
 #line 9 "parser.y" // lalr1.cc:377
 namespace sqf { namespace parser { namespace sqf { namespace bison  {
-#line 197 "parser.tab.hh" // lalr1.cc:377
+#line 140 "parser.tab.hh" // lalr1.cc:377
 
 
 
@@ -2018,7 +1961,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
 
 #line 9 "parser.y" // lalr1.cc:377
 } } } } //  ::sqf::parser::sqf::bison 
-#line 2022 "parser.tab.hh" // lalr1.cc:377
+#line 1965 "parser.tab.hh" // lalr1.cc:377
 
 
 // //                    "%code provides" blocks.
@@ -2031,7 +1974,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
         #pragma warning(pop)
     #endif
 
-#line 2035 "parser.tab.hh" // lalr1.cc:377
+#line 1978 "parser.tab.hh" // lalr1.cc:377
 
 
 #endif // !YY_YY_PARSER_TAB_HH_INCLUDED
