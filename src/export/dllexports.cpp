@@ -316,9 +316,8 @@ extern "C" {
                     {
                         sqf::sqc::parser sqc(*ref.logger);
                         auto res = sqc.to_sqc(set.value());
-                        ref.logger->callback(ref.logger->user_data, "SQF2SQC", (int32_t)loglevel::info, "", 0);
-                        ref.logger->callback(ref.logger->user_data, "SQF2SQC", (int32_t)loglevel::info, res.data(), res.length());
-                        ref.logger->callback(ref.logger->user_data, "SQF2SQC", (int32_t)loglevel::info, "", 0);
+                        ref.logger->callback(ref.logger->user_data, call_data, (int32_t)loglevel::info, "", 0);
+                        ref.logger->callback(ref.logger->user_data, call_data, (int32_t)loglevel::info, res.data(), res.length());
                     }
                     return result_ok;
                 }
