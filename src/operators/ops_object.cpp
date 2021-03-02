@@ -664,15 +664,23 @@ namespace
     value side_object(runtime& runtime, value::cref right)
     {
         auto obj = right.data<d_object>();
-        auto grp = obj->value()->group();
-        if (grp->is_null())
+        if (obj->is_null())
         {
             runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
             return std::make_shared<d_side>(d_side::side::Empty);
         }
         else
         {
-            return grp->value()->side();
+            auto grp = obj->value()->group();
+            if (grp->is_null())
+            {
+                runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
+                return std::make_shared<d_side>(d_side::side::Empty);
+            }
+            else
+            {
+                return grp->value()->side();
+            }
         }
     }
     value allunits_(runtime& runtime)
