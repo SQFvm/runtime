@@ -273,8 +273,8 @@ extern "C" {
                 }
                 case 'c':
                 {
-                    auto sqc = std::make_shared<sqf::sqc::parser>(*ref.logger);
-                    auto set = sqc->parse(*ref.runtime, ppedStr.value(), { "dllexports"sv, {} });
+                    sqf::sqc::parser sqc(*ref.logger);
+                    auto set = sqc.parse(*ref.runtime, ppedStr.value(), { "dllexports"sv, {} });
                     if (!set.has_value())
                     {
                         return parsing_failed;
@@ -303,6 +303,23 @@ extern "C" {
                 case 'p':
                 {
                     ref.logger->callback(ref.logger->user_data, call_data, -1, ppedStr->data(), ppedStr->length());
+                    return result_ok;
+                }
+                case '1':
+                {
+                    auto set = ref.runtime->parser_sqf().parse(*ref.runtime, ppedStr.value(), { "dllexports"sv, {} });
+                    if (!set.has_value())
+                    {
+                        return parsing_failed;
+                    }
+                    else
+                    {
+                        sqf::sqc::parser sqc(*ref.logger);
+                        auto res = sqc.to_sqc(set.value());
+                        ref.logger->callback(ref.logger->user_data, "SQF2SQC", (int32_t)loglevel::info, "", 0);
+                        ref.logger->callback(ref.logger->user_data, "SQF2SQC", (int32_t)loglevel::info, res.data(), res.length());
+                        ref.logger->callback(ref.logger->user_data, "SQF2SQC", (int32_t)loglevel::info, "", 0);
+                    }
                     return result_ok;
                 }
                 default: return invalid_type;

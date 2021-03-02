@@ -76,6 +76,7 @@ extern "C" {
     //             - 's' denotes SQF code
     //             - 'c' denotes SQC code
     //             - 'p' denotes that the code provided should only be ran through the preprocessor
+    //             - '1' denotes SQF to SQC transpilation
     // @param code The code to execute
     // @param length The length of the code to execute.
     // @return  0 if calling the SQF-VM instance was successful,
