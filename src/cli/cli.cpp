@@ -299,6 +299,23 @@ cli::cli() : m_logger(), m_runtime(m_logger, {}), m_cli_file(false), m_parse_onl
 
 int cli::run(size_t argc, const char** argv)
 {
+    std::string executable_path;
+    {
+#if defined(_WIN32) || defined(_WIN64)
+        char buffer[MAX_PATH];
+        _getcwd(buffer, MAX_PATH);
+        executable_path = buffer;
+#elif defined(__GNUC__)
+        char buffer[PATH_MAX];
+        if (getcwd(buffer, PATH_MAX))
+        {
+            executable_path = buffer;
+        }
+#else
+#error "NO IMPLEMENTATION AVAILABLE"
+#endif
+}
+
     m_good = true;
 #ifdef DF__CLI_PRINT_INPUT_ARGS
     std::cout << "\x1B[95m[CLI-INARG-PRINT]\033[0m" << "Got arguments:" << std::endl;
@@ -314,44 +331,45 @@ int cli::run(size_t argc, const char** argv)
     CMDADD(TCLAP::SwitchArg, traceArg, "T", "trace", "Enables trace output.", false);
 
     // CLI Configuration
-    CMDADD(TCLAP::ValueArg<std::string>,    cliFileArg,                 "",     "cli-file",             "Allows to provide a file from which to load arguments from. If passed, all other arguments will be ignored! Each argument needs to be separated by line-feed. " RELPATHHINT, false, "", "PATH");
-    CMDADD(TCLAP::SwitchArg,                interactiveArg,             "",     "interactive",          "Starts into the interactive mode. Interactive mode will run the VM in a separate thread, allowing you to control the behavior via basic commands.", false);
-    CMDADD(TCLAP::SwitchArg,                automatedArg,               "a",    "automated",            "Disables CLI prompts.", false);
-    CMDADD(TCLAP::SwitchArg,                suppressWelcomeArg,         "",     "suppress-welcome",     "Suppresses the welcome message during execution.", false);
-    CMDADD(TCLAP::SwitchArg,                parseOnlyArg,               "",     "parse-only",           "Disables code execution and performs only parsing.", false);
-    CMDADD(TCLAP::SwitchArg,                noExecutePrintArg,          "",     "no-execute-print",     "Disables the `Executing...` and two horizontal lines hint printing.", false);
-    CMDADD(TCLAP::SwitchArg,                noSpawnPlayerArg,           "",     "no-spawn-player",      "Prevents automatic player creation.", false);
+    CMDADD(TCLAP::ValueArg<std::string>,    cliFileArg,                 "",     "cli-file",                 "Allows to provide a file from which to load arguments from. If passed, all other arguments will be ignored! Each argument needs to be separated by line-feed. " RELPATHHINT, false, "", "PATH");
+    CMDADD(TCLAP::SwitchArg,                interactiveArg,             "",     "interactive",              "Starts into the interactive mode. Interactive mode will run the VM in a separate thread, allowing you to control the behavior via basic commands.", false);
+    CMDADD(TCLAP::SwitchArg,                automatedArg,               "a",    "automated",                "Disables CLI prompts.", false);
+    CMDADD(TCLAP::SwitchArg,                suppressWelcomeArg,         "",     "suppress-welcome",         "Suppresses the welcome message during execution.", false);
+    CMDADD(TCLAP::SwitchArg,                parseOnlyArg,               "",     "parse-only",               "Disables code execution and performs only parsing.", false);
+    CMDADD(TCLAP::SwitchArg,                noExecutePrintArg,          "",     "no-execute-print",         "Disables the `Executing...` and two horizontal lines hint printing.", false);
+    CMDADD(TCLAP::SwitchArg,                noSpawnPlayerArg,           "",     "no-spawn-player",          "Prevents automatic player creation.", false);
+    CMDADD(TCLAP::SwitchArg,                noLoadExecDirArg,           "",     "no-load-executable-dir",   "Does not adds the executable path to the virtual file system.", false);
 
     // Runtime configuration
-    CMDADD(TCLAP::ValueArg<long>,           maxRuntimeArg,              "m",    "max-runtime",          "Sets the maximum allowed runtime for the VM. 0 means no restriction in place.", false, 0, "MILLISECONDS");
-    CMDADD(TCLAP::SwitchArg,                enableClassnameCheckArg,    "c",    "check-classnames",     "Enables the config checking for eg. createVehicle.", false);
-    CMDADD(TCLAP::SwitchArg,                noOperatorsArg,             "",     "no-operators",         "If provided, SQF-VM will not be loaded using the default set of operators it comes with (except for SQF-VM specific operators).", false);
-    CMDADD(TCLAP::SwitchArg,                noWorkPrintArg,             "",     "no-work-print",        "Prevents the results printing of contexts that reached an empty state.", false);
-    CMDADD(TCLAP::MultiArg<std::string>,    virtualArg,                 "v",    "virtual",              "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. " RELPATHHINT, false, "PATH|VIRTUAL");
+    CMDADD(TCLAP::ValueArg<long>,           maxRuntimeArg,              "m",    "max-runtime",              "Sets the maximum allowed runtime for the VM. 0 means no restriction in place.", false, 0, "MILLISECONDS");
+    CMDADD(TCLAP::SwitchArg,                enableClassnameCheckArg,    "c",    "check-classnames",         "Enables the config checking for eg. createVehicle.", false);
+    CMDADD(TCLAP::SwitchArg,                noOperatorsArg,             "",     "no-operators",             "If provided, SQF-VM will not be loaded using the default set of operators it comes with (except for SQF-VM specific operators).", false);
+    CMDADD(TCLAP::SwitchArg,                noWorkPrintArg,             "",     "no-work-print",            "Prevents the results printing of contexts that reached an empty state.", false);
+    CMDADD(TCLAP::MultiArg<std::string>,    virtualArg,                 "v",    "virtual",                  "Creates a mapping for a virtual and a physical path. Mapping is separated by a '|', with the left side being the physical, and the right argument the virtual path. " RELPATHHINT, false, "PATH|VIRTUAL");
 
     // Input - File
-    CMDADD(TCLAP::MultiArg<std::string>,    inputArg,                   "i",    "input",                "Loads provided file from disk. File-Type is determined using default file extensions (sqf, cpp, hpp, pbo). " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
-    CMDADD(TCLAP::MultiArg<std::string>,    inputSqfArg,                "",     "input-sqf",            "Loads provided SQF file from disk. Will be executed as if it was spawned. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
-    CMDADD(TCLAP::MultiArg<std::string>,    inputConfigArg,             "",     "input-config",         "Loads provided config file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
-    CMDADD(TCLAP::MultiArg<std::string>,    inputPboArg,                "",     "input-pbo",            "Loads provided PBO file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
+    CMDADD(TCLAP::MultiArg<std::string>,    inputArg,                   "i",    "input",                    "Loads provided file from disk. File-Type is determined using default file extensions (sqf, cpp, hpp, pbo). " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
+    CMDADD(TCLAP::MultiArg<std::string>,    inputSqfArg,                "",     "input-sqf",                "Loads provided SQF file from disk. Will be executed as if it was spawned. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
+    CMDADD(TCLAP::MultiArg<std::string>,    inputConfigArg,             "",     "input-config",             "Loads provided config file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
+    CMDADD(TCLAP::MultiArg<std::string>,    inputPboArg,                "",     "input-pbo",                "Loads provided PBO file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 
     // Input - Raw
-    CMDADD(TCLAP::MultiArg<std::string>,    sqfArg,                     "",     "sqf",                  "Loads provided sqf-code directly into the VM. Input is getting preprocessed! Will be executed as if it was spawned.", false, "CODE");
-    CMDADD(TCLAP::MultiArg<std::string>,    configArg,                  "",     "config",               "Loads provided config-code directly into the VM. Input is getting preprocessed!", false, "CODE");
+    CMDADD(TCLAP::MultiArg<std::string>,    sqfArg,                     "",     "sqf",                      "Loads provided sqf-code directly into the VM. Input is getting preprocessed! Will be executed as if it was spawned.", false, "CODE");
+    CMDADD(TCLAP::MultiArg<std::string>,    configArg,                  "",     "config",                   "Loads provided config-code directly into the VM. Input is getting preprocessed!", false, "CODE");
 
     // Preprocessing
-    CMDADD(TCLAP::MultiArg<std::string>,    preprocessFileArg,          "E",    "preprocess-file",      "Runs the preprocessor on provided file and prints it to stdout. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
-    CMDADD(TCLAP::MultiArg<std::string>,    defineArg,                  "D",    "define",               "Allows to add PreProcessor definitions. Note that file-based definitions may override and/or conflict with theese.", false, "NAME|NAME=VALUE");
+    CMDADD(TCLAP::MultiArg<std::string>,    preprocessFileArg,          "E",    "preprocess-file",          "Runs the preprocessor on provided file and prints it to stdout. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
+    CMDADD(TCLAP::MultiArg<std::string>,    defineArg,                  "D",    "define",                   "Allows to add PreProcessor definitions. Note that file-based definitions may override and/or conflict with theese.", false, "NAME|NAME=VALUE");
 
     // Dummy Operators
-    CMDADD(TCLAP::MultiArg<std::string>,    commandDummyNular,          "",     "command-dummy-nular",  "Adds the provided command as dummy.", false, "NAME");
-    CMDADD(TCLAP::MultiArg<std::string>,    commandDummyUnary,          "",     "command-dummy-unary",  "Adds the provided command as dummy.", false, "NAME");
-    CMDADD(TCLAP::MultiArg<std::string>,    commandDummyBinary,         "",     "command-dummy-binary", "Adds the provided command as dummy. Note that you need to also provide a precedence. Example: 4|commandname", false, "PRECEDENCE|NAME");
+    CMDADD(TCLAP::MultiArg<std::string>,    commandDummyNular,          "",     "command-dummy-nular",      "Adds the provided command as dummy.", false, "NAME");
+    CMDADD(TCLAP::MultiArg<std::string>,    commandDummyUnary,          "",     "command-dummy-unary",      "Adds the provided command as dummy.", false, "NAME");
+    CMDADD(TCLAP::MultiArg<std::string>,    commandDummyBinary,         "",     "command-dummy-binary",     "Adds the provided command as dummy. Note that you need to also provide a precedence. Example: 4|commandname", false, "PRECEDENCE|NAME");
 
 #if defined(SQF_SQC_SUPPORT)
-    CMDADD(TCLAP::MultiArg<std::string>,    sqfToSqcArg,                "",     "sqf-to-sqc",           "Transforms the provided SQF files to valid SQC syntax. SQC created may not be as clean as hand written options. New file will be placed next to existing .sqf file, with .sqc extension. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
-    CMDADD(TCLAP::MultiArg<std::string>,    inputSqcArg,                "",     "input-sqc",            "Loads provided SQC file from disk. Will be executed as if it was spawned. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
-    CMDADD(TCLAP::MultiArg<std::string>,    sqcArg,                     "",     "sqc",                  "Loads provided sqc-code directly into the VM. Input is getting preprocessed! Will be executed as if it was spawned.", false, "CODE");
+    CMDADD(TCLAP::MultiArg<std::string>,    sqfToSqcArg,                "",     "sqf-to-sqc",               "Transforms the provided SQF files to valid SQC syntax. SQC created may not be as clean as hand written options. New file will be placed next to existing .sqf file, with .sqc extension. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
+    CMDADD(TCLAP::MultiArg<std::string>,    inputSqcArg,                "",     "input-sqc",                "Loads provided SQC file from disk. Will be executed as if it was spawned. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
+    CMDADD(TCLAP::MultiArg<std::string>,    sqcArg,                     "",     "sqc",                      "Loads provided sqc-code directly into the VM. Input is getting preprocessed! Will be executed as if it was spawned.", false, "CODE");
 #endif
 
     cmd.getArgList().reverse();
@@ -362,6 +380,8 @@ int cli::run(size_t argc, const char** argv)
         m_logger.setEnabled(loglevel::verbose, verboseArg.getValue());
         m_logger.setEnabled(loglevel::trace, traceArg.getValue());
     }
+
+
 
     if (!cliFileArg.getValue().empty() && !m_cli_file)
     {
@@ -383,6 +403,10 @@ int cli::run(size_t argc, const char** argv)
         if (!noOperatorsArg.getValue()) { sqf::operators::ops(m_runtime); }
         m_runtime.configuration().print_context_work_to_log_on_exit = !noWorkPrintArg.getValue();
         mount_filesystem(virtualArg.getValue());
+        if (!noLoadExecDirArg.getValue())
+        {
+            m_runtime.fileio().add_mapping(executable_path, "/");
+        }
     }
 
     /* Input */ {
