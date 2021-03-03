@@ -136,7 +136,7 @@ namespace sqf::parser::util
     {
         size_t i = 0;
         while (is_match<TArgs...>(*value++)) { ++i; }
-        return len == i;
+        return len <= i;
     }
 
     template<char ... TArgs>

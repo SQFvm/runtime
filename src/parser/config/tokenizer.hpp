@@ -82,7 +82,7 @@ namespace sqf::parser::config
         {
             size_t i = 0;
             while (value < m_end && is_match<TArgs...>(*value++)) { ++i; }
-            return len == i;
+            return len <= i;
         }
 
         template<char ... TArgs>
