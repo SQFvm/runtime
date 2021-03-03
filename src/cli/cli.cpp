@@ -370,6 +370,7 @@ int cli::run(size_t argc, const char** argv)
     CMDADD(TCLAP::MultiArg<std::string>,    sqfToSqcArg,                "",     "sqf-to-sqc",               "Transforms the provided SQF files to valid SQC syntax. SQC created may not be as clean as hand written options. New file will be placed next to existing .sqf file, with .sqc extension. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
     CMDADD(TCLAP::MultiArg<std::string>,    inputSqcArg,                "",     "input-sqc",                "Loads provided SQC file from disk. Will be executed as if it was spawned. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
     CMDADD(TCLAP::MultiArg<std::string>,    sqcArg,                     "",     "sqc",                      "Loads provided sqc-code directly into the VM. Input is getting preprocessed! Will be executed as if it was spawned.", false, "CODE");
+    CMDADD(TCLAP::SwitchArg,                parseSqcArg,                "",     "parse-sqc",                "Replaces the default (SQF) parser with the SQC one.", false);
 #endif
 
     cmd.getArgList().reverse();
@@ -393,7 +394,18 @@ int cli::run(size_t argc, const char** argv)
     /* Basic setup */ {
         m_runtime.parser_config(std::make_unique<sqf::parser::config::parser>(m_logger));
         m_runtime.parser_preprocessor(std::make_unique<sqf::parser::preprocessor::impl_default>(m_logger));
+#if defined(SQF_SQC_SUPPORT)
+        if (parseSqcArg.getValue())
+        {
+            m_runtime.parser_sqf(std::make_unique<sqf::sqc::parser>(m_logger));
+        }
+        else
+        {
+            m_runtime.parser_sqf(std::make_unique<sqf::parser::sqf::parser>(m_logger));
+        }
+#else
         m_runtime.parser_sqf(std::make_unique<sqf::parser::sqf::parser>(m_logger));
+#endif
         m_parse_only = parseOnlyArg.getValue();
     }
 
