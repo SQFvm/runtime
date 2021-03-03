@@ -1839,12 +1839,7 @@ static void to_sqc_actual(std::stringstream& out_sstream, source_type type, ::sq
                         sstream << "$";
                         for (auto c : str)
                         {
-                            if (c == '%')
-                            {
-                                was_percent = true;
-                                index = 0;
-                            }
-                            else if (was_percent)
+                            if (was_percent)
                             {
                                 switch (c)
                                 {
@@ -1863,10 +1858,22 @@ static void to_sqc_actual(std::stringstream& out_sstream, source_type type, ::sq
                                     {
                                         sstream << "{" << strings[index] << "}";
                                     }
-                                    sstream << c;
-                                    was_percent = false;
+                                    if (c == '%')
+                                    {
+                                        index = 0;
+                                    }
+                                    else
+                                    {
+                                        sstream << c;
+                                        was_percent = false;
+                                    }
                                     break;
                                 }
+                            }
+                            else if (c == '%')
+                            {
+                                was_percent = true;
+                                index = 0;
                             }
                             else if (c == '{' || c == '}')
                             {
