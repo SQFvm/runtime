@@ -107,7 +107,7 @@ void ::sqf::parser::assembly::parser::to_assembly(::sqf::runtime::runtime& runti
             set.push_back(inst);
         } break;
         case bison::astkind::CALL_BINARY: {
-            auto str = std::string(node.children[1].token.contents);
+            auto str = std::string(node.children[0].token.contents);
             if (!runtime.sqfop_exists_binary(str))
             {
                 __log(logmessage::runtime::InvalidAssemblyInstruction(
