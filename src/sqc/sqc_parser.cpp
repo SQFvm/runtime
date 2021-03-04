@@ -1497,8 +1497,11 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
                 set.push_back(node.children[0].token, std::make_shared<opcodes::assign_to>(tmp), icpp_pos);
             }
         }
-        // Emit the Get-Variable
-        to_assembly(runtime, set, locals, node.children[0]);
+        if (!set.has_parent(::sqf::sqc::bison::astkind::STATEMENTS, 2))
+        {
+            // Emit the Get-Variable
+            to_assembly(runtime, set, locals, node.children[0]);
+        }
     } break;
     case ::sqf::sqc::bison::astkind::STATEMENTS: {
         for (const auto& child : node.children)
