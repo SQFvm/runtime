@@ -190,6 +190,54 @@ void cli::handle_files()
                     std::cout << "Failed to preprocess file '" << path << "'" << std::endl;
                 }
             }
+            else if (key == "sqc2sqf")
+            {
+                sqf::sqc::parser sqc_parser(m_logger);
+                if (verbose()) { std::cout << "Preprocessing file '" << path << std::endl; }
+                auto ppedStr = m_runtime.parser_preprocessor().preprocess(m_runtime, contents, { path.string(), {} });
+                if (ppedStr.has_value())
+                {
+                    if (verbose()) { std::cout << "Parsing file '" << path << std::endl; }
+                    if (m_parse_only)
+                    {
+                        auto success = sqc_parser.check_syntax(m_runtime, *ppedStr, { path.string(), {} });
+                        m_good = m_good && !success;
+                    }
+                    else
+                    {
+                        auto set = sqc_parser.parse(m_runtime, *ppedStr, { path.string(), {} });
+                        if (set.has_value())
+                        {
+                            auto path_sqc = path.replace_extension(".sqf");
+                            std::ofstream output_file(path_sqc, std::ios::out | std::ios::trunc);
+                            if (!output_file.is_open() || !output_file.good())
+                            {
+                                std::cout << "Failed to open output file '" << path_sqc << "'" << std::endl;
+                            }
+                            else
+                            {
+                                auto transpiled = sqf::types::d_code(set.value()).to_string_sqf();
+                                if (transpiled.length() > 2)
+                                {
+                                    output_file << std::string_view(transpiled.data() + 1, transpiled.length() - 2);
+                                }
+
+                                if (verbose()) { std::cout << "Written out transpiled '" << path << "' to '" << path_sqc << "'." << std::endl; }
+                            }
+                        }
+                        else
+                        {
+                            m_good = false;
+                            std::cout << "Failed to parse file '" << path << "'" << std::endl;
+                        }
+                    }
+                }
+                else
+                {
+                    m_good = false;
+                    std::cout << "Failed to preprocess file '" << path << "'" << std::endl;
+                }
+            }
 #endif
         }
     }
@@ -367,6 +415,7 @@ int cli::run(size_t argc, const char** argv)
     CMDADD(TCLAP::MultiArg<std::string>,    commandDummyBinary,         "",     "command-dummy-binary",     "Adds the provided command as dummy. Note that you need to also provide a precedence. Example: 4|commandname", false, "PRECEDENCE|NAME");
 
 #if defined(SQF_SQC_SUPPORT)
+    CMDADD(TCLAP::MultiArg<std::string>,    sqcToSqfArg,                "",     "sqc-to-sqf",               "Transforms the provided SQC files to valid SQF syntax. New file will be placed next to existing .sqc file, with .sqf extension. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
     CMDADD(TCLAP::MultiArg<std::string>,    sqfToSqcArg,                "",     "sqf-to-sqc",               "Transforms the provided SQF files to valid SQC syntax. SQC created may not be as clean as hand written options. New file will be placed next to existing .sqf file, with .sqc extension. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
     CMDADD(TCLAP::MultiArg<std::string>,    inputSqcArg,                "",     "input-sqc",                "Loads provided SQC file from disk. Will be executed as if it was spawned. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
     CMDADD(TCLAP::MultiArg<std::string>,    sqcArg,                     "",     "sqc",                      "Loads provided sqc-code directly into the VM. Input is getting preprocessed! Will be executed as if it was spawned.", false, "CODE");
@@ -563,6 +612,22 @@ int cli::run(size_t argc, const char** argv)
             std::filesystem::path path(*rit);
             path = path.lexically_normal();
             m_files["sqf2sqc"].push_back([path]() -> std::pair<std::filesystem::path, std::string> {
+                auto res = sqf::fileio::disabled::read_file_from_disk(path.string());
+                if (res.has_value())
+                {
+                    return std::make_pair(path, res.value());
+                }
+                else
+                {
+                    throw std::runtime_error("Failed to load file '" + path.string() + "'.");
+                }
+            });
+        }
+        for (auto rit = sqcToSqfArg.getValue().rbegin(); rit != sqcToSqfArg.getValue().rend(); ++rit)
+        {
+            std::filesystem::path path(*rit);
+            path = path.lexically_normal();
+            m_files["sqc2sqf"].push_back([path]() -> std::pair<std::filesystem::path, std::string> {
                 auto res = sqf::fileio::disabled::read_file_from_disk(path.string());
                 if (res.has_value())
                 {
