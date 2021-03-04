@@ -1561,7 +1561,8 @@ enum class source_type
     CLAUSE,
     EXITWITH,
     FORMAT,
-    GET_TYPE
+    GET_TYPE,
+    BOX_REQUIRED
 };
 static void to_sqc_actual(std::stringstream& out_sstream, source_type type, ::sqf::runtime::instruction_set::iterator begin, ::sqf::runtime::instruction_set::iterator end, uint8_t tab)
 {
@@ -1625,6 +1626,10 @@ static void to_sqc_actual(std::stringstream& out_sstream, source_type type, ::sq
             stack.push_back([call_binary](my_stack& stack, std::stringstream& sstream, source_type type, uint8_t tab) {
                 if (stack.size() >= 2)
                 {
+                    if (type == source_type::BOX_REQUIRED)
+                    {
+                        sstream << "(";
+                    }
                     auto n = call_binary->operator_name();
 
                     if (n == "call")
@@ -1644,12 +1649,12 @@ static void to_sqc_actual(std::stringstream& out_sstream, source_type type, ::sq
                     {
                         std::stringstream tmpsstream;
                         auto rgen = stack.pop();
-                        rgen(stack, tmpsstream, type, tab);
+                        rgen(stack, tmpsstream, source_type::BOX_REQUIRED, tab);
                         auto rstring = tmpsstream.str();
                         tmpsstream.str("");
 
                         auto lgen = stack.pop();
-                        lgen(stack, tmpsstream, type, tab);
+                        lgen(stack, tmpsstream, source_type::BOX_REQUIRED, tab);
                         auto lstring = tmpsstream.str();
                         sstream << lstring << "[" << rstring << "]";
                     }
@@ -1746,6 +1751,19 @@ static void to_sqc_actual(std::stringstream& out_sstream, source_type type, ::sq
                         auto lstring = tmpsstream.str();
                         sstream << lstring << " "sv << n << " "sv << rstring;
                     }
+                    else if (n == ">>")
+                    {
+                        std::stringstream tmpsstream;
+                        auto rgen = stack.pop();
+                        rgen(stack, tmpsstream, type, tab);
+                        auto rstring = tmpsstream.str();
+                        tmpsstream.str("");
+
+                        auto lgen = stack.pop();
+                        lgen(stack, tmpsstream, type, tab);
+                        auto lstring = tmpsstream.str();
+                        sstream << lstring << " / "sv << rstring;
+                    }
                     else
                     {
                         std::stringstream tmpsstream;
@@ -1758,6 +1776,10 @@ static void to_sqc_actual(std::stringstream& out_sstream, source_type type, ::sq
                         lgen(stack, tmpsstream, source_type::CALL, tab);
                         auto lstring = tmpsstream.str();
                         sstream << lstring << "."sv << n << "(" << rstring << ")";
+                    }
+                    if (type == source_type::BOX_REQUIRED)
+                    {
+                        sstream << ")";
                     }
                 }
             });
