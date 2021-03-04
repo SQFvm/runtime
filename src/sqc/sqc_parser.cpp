@@ -812,6 +812,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
         // Emit "for"
         std::string var(node.children[0].token.contents);
         std::string lvar = "_"s + var;
+        std::transform(var.begin(), var.end(), var.begin(), [](char c) { return (char)std::tolower(c); });
         set.push_back(node.children[0].token, std::make_shared<opcodes::push>(lvar));
         set.push_back(node.children[0].token, std::make_shared<opcodes::call_unary>("for"s));
 
