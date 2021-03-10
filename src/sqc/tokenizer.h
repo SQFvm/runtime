@@ -310,7 +310,7 @@ namespace sqf::sqc
                 case etoken::s_equalequalequal:         len = is_match_repeated<3, '='>(iter) ? 3 : 0; break;
                 case etoken::s_equalequal:              len = is_match_repeated<2, '='>(iter) ? 2 : 0; break;
                 case etoken::s_equal:                   len = is_match<'='>(iter); break;
-                case etoken::s_greaterthenequal:        len = is_match<'<'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
+                case etoken::s_greaterthenequal:        len = is_match<'>'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
                 case etoken::s_greaterthengreaterthen:  len = is_match_repeated<3, '>'>(iter) ? 3 : 0; break;
                 case etoken::s_greaterthen:             len = is_match<'>'>(iter); break;
                 case etoken::s_lessthenequal:           len = is_match<'<'>(iter) && is_match<'='>(iter + 1) ? 2 : 0; break;
