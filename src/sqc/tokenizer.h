@@ -161,7 +161,14 @@ namespace sqf::sqc
             {
                 if ((char)std::tolower(*it) != against[i]) { return 0; }
             }
-            if (it < m_end && ((char)std::tolower(*it) >= 'a' && (char)std::tolower(*it) <= 'z'))
+            if (it < m_end && 
+                (
+                    ((char)std::tolower(*it) >= 'a' && (char)std::tolower(*it) <= 'z')
+                    ||
+                    ((char)std::tolower(*it) >= '0' && (char)std::tolower(*it) <= '9')
+                    ||
+                    *it == '_'
+                ))
             {
                 return 0;
             }
