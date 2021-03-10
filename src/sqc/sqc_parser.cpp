@@ -1046,6 +1046,7 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
             // Assign variable for forEach _x
             std::string var(node.children[0].token.contents);
+            std::transform(var.begin(), var.end(), var.begin(), [](char c) -> char { return (char)std::tolower(c); });
             locals_copy.push_back({ var, "_x" });
 
             // Fill actual instruction_set
