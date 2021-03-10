@@ -713,7 +713,12 @@ void sqf::sqc::parser::to_assembly(::sqf::runtime::runtime& runtime, util::setbu
 
         // Push instructions as string
         auto code = std::make_shared<::sqf::types::d_code>(runtime::instruction_set{ local_set });
-        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(code->to_string_sqf()));
+        auto sqf = code->to_string_sqf();
+        if (sqf.length() >= 2)
+        {
+            sqf = sqf.substr(1, sqf.length() - 2);
+        }
+        set.push_back(node.children[0].token, std::make_shared<opcodes::push>(sqf));
 
         // Emit "compileFinal"
         set.push_back(node.token, std::make_shared<opcodes::call_unary>("compilefinal"));
