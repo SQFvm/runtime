@@ -932,7 +932,7 @@ namespace rvutils::pbo
                 // Rewrite empty header to very end
                 first_moved_header_iter--;
                 auto move_target_empty = first_moved_header_iter->block_entry.end;
-                m_headers.back().block_entry.end = move_target_empty + std::streamsize(m_headers.back().block_entry.length());
+                m_headers.back().block_entry.end = move_target_empty + std::streamoff(m_headers.back().block_entry.length());
                 m_headers.back().block_entry.start = move_target_empty;
 
                 // Sort virtual representation
@@ -1018,7 +1018,7 @@ namespace rvutils::pbo
             m_attributes.insert(m_attributes.end() - 1, created);
             write_attribute(file, created);
             m_attributes.back().block.start = created.block.end;
-            m_attributes.back().block.end = m_attributes.back().block.start + std::streamsize(1);
+            m_attributes.back().block.end = m_attributes.back().block.start + std::streamoff(1);
         }
         // Adds the header virtually and physically at the very end of the headers list.
         //
@@ -1061,7 +1061,7 @@ namespace rvutils::pbo
 
             // Set block_entry
             h.block_entry.start = m_headers.back().block_entry.start;
-            h.block_entry.end = h.block_entry.start + std::streamsize(h.bytes());
+            h.block_entry.end = h.block_entry.start + std::streamoff(h.bytes());
 
             // Write out created header
             write_header(file, h);
@@ -1131,7 +1131,7 @@ namespace rvutils::pbo
 
             // Set block_entry
             m.block.start = start;
-            m.block.end = start + std::streamsize(m.bytes());
+            m.block.end = start + std::streamoff(m.bytes());
 
             // Write out created header
             write_attribute(file, m);
@@ -1197,7 +1197,7 @@ namespace rvutils::pbo
             }
             attribute_ attribute_empty = {};
             attribute_empty.block.start = file.tellg();
-            attribute_empty.block.end = attribute_empty.block.start + std::streamsize(1);
+            attribute_empty.block.end = attribute_empty.block.start + std::streamoff(1);
             m_attributes.push_back(attribute_empty);
 #if _DEBUG
             DBG_POS = file.tellg();
