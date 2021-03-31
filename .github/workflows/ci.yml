@@ -12,8 +12,8 @@ jobs:
       - name: Build Linux x64
         run: mkdir build && cd build && cmake .. && cmake --build . --parallel 2
         env:
-          CC: gcc-8
-          CXX: g++-8
+          CC: gcc-9
+          CXX: g++-9
 
       - name: Run SQF-VM Tests
         run: build/sqfvm -a -i tests/config.cpp -i tests/runTests.sqf
