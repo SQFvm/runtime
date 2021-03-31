@@ -770,7 +770,7 @@ int cli::run(size_t argc, const char** argv)
                         "Please enter your SQF code.\n"
                         "To get info about a command, use the `help__` operator.\n"
                         "For a list of all implemented commands, use the `cmds__` operator.\n"
-                        "For a list of all SQF-VM internal commands, use the `vm__` operator.\n"
+                        "For a list of all SQF-VM internal commands, use the `cmdsvm__` operator.\n"
                         "To run the code, Press [ENTER] twice.\n"
                         "To exit, use the `exit__` command.\n"
                         "If you enjoy this tool, consider donating: https://paypal.me/X39\n");
