@@ -144,7 +144,7 @@ namespace
         auto nav = cd.navigate(runtime.confighost());
         if (nav.empty())
         {
-            runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+            runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
             runtime.__logmsg(err::ReturningFalse(runtime.context_active().current_frame().diag_info_from_position()));
             return false;
         }
@@ -156,7 +156,7 @@ namespace
         auto nav = cd.navigate(runtime.confighost());
         if (nav.empty())
         {
-            runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+            runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
             runtime.__logmsg(err::ReturningFalse(runtime.context_active().current_frame().diag_info_from_position()));
             return false;
         }
@@ -168,7 +168,7 @@ namespace
         auto nav = cd.navigate(runtime.confighost());
         if (nav.empty())
         {
-            runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+            runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
             runtime.__logmsg(err::ReturningFalse(runtime.context_active().current_frame().diag_info_from_position()));
             return false;
         }
@@ -180,7 +180,7 @@ namespace
         auto nav = cd.navigate(runtime.confighost());
         if (nav.empty())
         {
-            runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+            runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
             runtime.__logmsg(err::ReturningFalse(runtime.context_active().current_frame().diag_info_from_position()));
             return false;
         }
@@ -192,7 +192,7 @@ namespace
         auto nav = cd.navigate(runtime.confighost());
         if (nav.empty())
         {
-            runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+            runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
             runtime.__logmsg(err::ReturningScalarZero(runtime.context_active().current_frame().diag_info_from_position()));
             return 0;
         }
@@ -204,7 +204,7 @@ namespace
         auto nav = cd.navigate(runtime.confighost());
         if (nav.empty())
         {
-            runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+            runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
             runtime.__logmsg(err::ReturningEmptyString(runtime.context_active().current_frame().diag_info_from_position()));
             return "";
         }
@@ -216,7 +216,7 @@ namespace
         auto nav = cd.navigate(runtime.confighost());
         if (nav.empty())
         {
-            runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+            runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
             runtime.__logmsg(err::ReturningEmptyArray(runtime.context_active().current_frame().diag_info_from_position()));
             return std::make_shared<d_array>();
         }

@@ -30,5 +30,20 @@
     ["assertFalse",     { isClass (configFile / "type_tests" / "type_string") }],
     ["assertFalse",     { isClass (configFile / "type_tests" / "type_anytext") }],
     ["assertFalse",     { isClass (configFile / "type_tests" / "type_scalar") }],
-    ["assertTrue",      { isClass (configFile / "type_tests" / "type_class") }]
+    ["assertTrue",      { isClass (configFile / "type_tests" / "type_class") }],
+    ["assertFalse",     { isText configNull }],
+    ["assertFalse",     { isText (configFile >> "doesNotExist") }],
+    ["assertFalse",     { isArray configNull }],
+    ["assertFalse",     { isArray (configFile >> "doesNotExist") }],
+    ["assertFalse",     { isNumber configNull }],
+    ["assertFalse",     { isNumber (configFile >> "doesNotExist") }],
+    ["assertFalse",     { isClass configNull }],
+    ["assertFalse",     { isClass (configFile >> "doesNotExist") }],
+    ["assertEqual",     { getArray configNull }, []],
+    ["assertEqual",     { getArray (configFile >> "doesNotExist") }, []],
+    ["assertEqual",     { getNumber configNull }, 0],
+    ["assertEqual",     { getNumber (configFile >> "doesNotExist") }, 0],
+    ["assertEqual",     { getText configNull }, ""],
+    ["assertEqual",     { getText (configFile >> "doesNotExist") }, ""],
+    ["assertTrue",      { isNull configNull }]
 ]
