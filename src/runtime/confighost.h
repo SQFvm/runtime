@@ -152,7 +152,7 @@ namespace sqf::runtime
                 while (m_id != config::invalid_id)
                 {
                     auto& container = m_confighost.m_containers[m_id];
-                    if (container.size() != m_index)
+                    if ((container.size() - 1) > m_index)
                     {
                         m_index++;
                         return *this;
@@ -173,7 +173,7 @@ namespace sqf::runtime
                 return *this;
             }
             iterator_base<recursive> operator++(int) { iterator retval = *this; ++(*this); return retval; }
-            bool operator==(iterator_base<recursive> other) const { return m_index == other.m_id; }
+            bool operator==(iterator_base<recursive> other) const { return m_id == other.m_id; }
             bool operator!=(iterator_base<recursive> other) const { return !(*this == other); }
             value_type operator*()
             {

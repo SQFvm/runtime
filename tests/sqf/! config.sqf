@@ -45,5 +45,13 @@
     ["assertEqual",     { getNumber (configFile >> "doesNotExist") }, 0],
     ["assertEqual",     { getText configNull }, ""],
     ["assertEqual",     { getText (configFile >> "doesNotExist") }, ""],
-    ["assertTrue",      { isNull configNull }]
+    ["assertTrue",      { isNull configNull }],
+    ["assertTrue",      { isNull (configFile >> "doesNotExist" >> "anything") }],
+    ["assertTrue",      { !isClass (configFile >> "doesNotExist" >> "anything") }],
+    ["assertTrue",      { isNull (configFile / "doesNotExist" / "anything") }],
+    ["assertTrue",      { !isClass (configFile / "doesNotExist" / "anything") }],
+    ["assertEqual",     { count ("true" configClasses (configFile >> "flat_tests")) }, 5],
+    ["assertEqual",     { ("getNumber (_x >> 'key') == 2" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "B"]],
+    ["assertEqual",     { ("getNumber (_x >> 'key') == 5" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "E"]],
+    ["assertEqual",     { ("(getNumber (_x >> 'key')) % 2 == 0" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "B", configFile >> "flat_tests" >> "D"]]
 ]

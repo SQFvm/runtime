@@ -27,3 +27,10 @@ class type_tests
     type_scalar = 1;
     class type_class {};
 };
+class flat_tests {
+    class A { key = 1; };
+    class B { key = 2; };
+    class C: A {};
+    class D: C { key = 4; };
+    class E: B { key = 5; };
+};

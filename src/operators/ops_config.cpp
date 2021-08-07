@@ -24,7 +24,7 @@ namespace
         auto cd = left.data<d_config, config>();
         if (cd.is_null())
         {
-            runtime.__logmsg(err::ExpectedNonNullValue(runtime.context_active().current_frame().diag_info_from_position()));
+            runtime.__logmsg(err::ExpectedNonNullValueWeak(runtime.context_active().current_frame().diag_info_from_position()));
             runtime.__logmsg(err::ReturningConfigNull(runtime.context_active().current_frame().diag_info_from_position()));
             return config();
         }
@@ -250,10 +250,11 @@ namespace
                 auto res = runtime.context_active().pop_value();
                 if (res.has_value())
                 {
-                    auto value = res->data_try<d_boolean, bool>();
-                    if (value.has_value())
+                    if (res->is<t_boolean>())
                     {
-                        m_out_arr->push_back({ *m_iterator_current });
+                        if (res->data<d_boolean, bool>()) {
+                            m_out_arr->push_back({ *m_iterator_current });
+                        }
                     }
                     else
                     {
@@ -301,7 +302,7 @@ namespace
             if (res.has_value())
             {
                 frame f(runtime.default_value_scope(), res.value(), std::make_shared<behavior_configclasses_exit>(nav));
-                f["_x"] = nav->operator[](0);
+                f["_x"] = { *(nav.begin()) };
                 runtime.context_active().push_frame(f);
             }
         }
