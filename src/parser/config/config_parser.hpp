@@ -5,12 +5,12 @@
 #include "../../runtime/fileio.h"
 #include "../../runtime/util.h"
 #include "../../runtime/instruction_set.h"
+#include "../../runtime/confighost.h"
 #include "tokenizer.hpp"
 
 #include <string>
 #include <string_view>
 #include <vector>
-#include <runtime/confighost.h>
 
 
 
