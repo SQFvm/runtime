@@ -322,68 +322,93 @@ namespace
     }
     value do_while_code(runtime& runtime, value::cref left, value::cref right)
     {
-        class behavior_while_exit : public frame::behavior
+        class behavior_while_exit :
+                public frame::behavior
         {
         private:
             enum class mode
             {
-                Condition,
-                Code
+                Condition, Code
             };
+            size_t m_loop_count;
             mode m_mode;
             instruction_set m_condition;
             instruction_set m_code;
         public:
-            behavior_while_exit(instruction_set condition, instruction_set code) : m_mode(mode::Condition), m_condition(condition), m_code(code) {}
-            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame& frame) override
+            behavior_while_exit(instruction_set condition, instruction_set code)
+                    : m_loop_count(0), m_mode(mode::Condition), m_condition(condition), m_code(code)
+            {
+            }
+
+            virtual sqf::runtime::instruction_set get_instruction_set(sqf::runtime::frame &frame) override
             {
                 switch (m_mode)
                 {
-                case behavior_while_exit::mode::Condition:
-                    m_mode = mode::Code;
-                    return m_code;
-                case behavior_while_exit::mode::Code:
-                    m_mode = mode::Condition;
-                    return m_condition;
-                default: return {};
+                    case behavior_while_exit::mode::Condition:m_mode = mode::Code;
+                        return m_code;
+                    case behavior_while_exit::mode::Code:m_mode = mode::Condition;
+                        return m_condition;
+                    default: return { };
                 }
             }
-            virtual result enact(sqf::runtime::runtime& runtime, sqf::runtime::frame& frame) override
+
+            virtual result enact(sqf::runtime::runtime &runtime, sqf::runtime::frame &frame) override
             {
                 switch (m_mode)
                 {
-                case behavior_while_exit::mode::Condition:
-                {
-                    auto res = runtime.context_active().pop_value();
-                    if (res.has_value())
+                    case behavior_while_exit::mode::Condition:
                     {
-                        if (res->is<t_boolean>())
+                        auto res = runtime.context_active().pop_value();
+                        if (res.has_value())
                         {
-                            if (res->data<d_boolean, bool>())
+                            if (res->is<t_boolean>())
                             {
-                                runtime.context_active().clear_values();
-                                frame.clear_value_scope();
-                                return m_code.empty() ? result::seek_start : result::exchange;
+                                if (res->data<d_boolean, bool>())
+                                {
+                                    runtime.context_active().clear_values();
+                                    frame.clear_value_scope();
+                                    return m_code.empty() ? result::seek_start : result::exchange;
+                                }
                             }
-                        }
-                        else if (res->empty())
-                        {
-                            runtime.__logmsg(logmessage::runtime::TypeMissmatchWeak(frame.diag_info_from_position(), t_boolean(), res->type()));
+                            else if (res->empty())
+                            {
+                                runtime.__logmsg(
+                                        logmessage::runtime::TypeMissmatchWeak(
+                                                frame.diag_info_from_position(),
+                                                t_boolean(),
+                                                res->type()));
+                            }
+                            else
+                            {
+                                runtime.__logmsg(
+                                        logmessage::runtime::TypeMissmatch(
+                                                frame.diag_info_from_position(),
+                                                t_boolean(),
+                                                res->type()));
+                            }
                         }
                         else
                         {
-                            runtime.__logmsg(logmessage::runtime::TypeMissmatch(frame.diag_info_from_position(), t_boolean(), res->type()));
+                            runtime.__logmsg(
+                                    logmessage::runtime::CallstackFoundNoValue(
+                                            frame.diag_info_from_position(),
+                                            "while"s));
                         }
                     }
-                    else
-                    {
-                        runtime.__logmsg(logmessage::runtime::CallstackFoundNoValue(frame.diag_info_from_position(), "while"s));
-                    }
-                } break;
-                case behavior_while_exit::mode::Code:
-                    runtime.context_active().clear_values();
-                    frame.clear_value_scope();
-                    return result::exchange;
+                        break;
+                    case behavior_while_exit::mode::Code:
+                        if (!runtime.context_active().can_suspend())
+                        {
+                            m_loop_count++;
+                            auto max = runtime.configuration().max_loop_iterations_in_unscheduled;
+                            if (max > 0 && m_loop_count >= max)
+                            {
+                                return result::ok;
+                            }
+                        }
+                        runtime.context_active().clear_values();
+                        frame.clear_value_scope();
+                        return result::exchange;
                 }
                 return result::ok;
             };
@@ -393,13 +418,17 @@ namespace
 
         if (condition.empty())
         {
-            runtime.__logmsg(logmessage::runtime::ConditionEmpty(runtime.context_active().current_frame().diag_info_from_position()));
-            return {};
+            runtime.__logmsg(
+                    logmessage::runtime::ConditionEmpty(
+                            runtime.context_active()
+                                   .current_frame()
+                                   .diag_info_from_position()));
+            return { };
         }
 
         frame f(runtime.default_value_scope(), condition, std::make_shared<behavior_while_exit>(condition, code));
         runtime.context_active().push_frame(f);
-        return {};
+        return { };
     }
     value for_string(runtime& runtime, value::cref right)
     {
@@ -478,7 +507,7 @@ namespace
             auto step = fordata->step();
 
 
-            auto step_is_rero = std::abs(step) <= std::numeric_limits<float>::epsilon(); 
+            auto step_is_rero = std::abs(step) <= std::numeric_limits<float>::epsilon();
             if (!step_is_rero && (step > 0 ? from > to : to > from))
             {
                 return {};

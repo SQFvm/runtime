@@ -7,6 +7,7 @@
     ["assertEqual",     { private _i = 0; while { _i = _i + 1; _i < 5 } do {}; _i }, 5],          // while CODE do CODE: empty body
     ["assertEqual",     { private _i = 0; while { _i = _i + 1; _i < 5 } do { nil }; _i }, 5],     // while CODE do CODE: nil body
     ["assertEqual",     { private _i = 0; while { _i < 5 } do { _i = _i + 1; }; _i }, 5],         // while CODE do CODE: normal body
+    ["assertEqual",     ["while loop limit of 10000 in unscheduled", { private _iterations = 0; while { _iterations < 10001 } do { _iterations = _iterations + 1; }; _iterations }], 10000],         // while CODE do CODE: normal body
     ["assertEqual",
         [
             "Frame-Variables Cleared before each repetition.",

@@ -55,35 +55,29 @@ namespace sqf::runtime
         };
         struct runtime_conf
         {
-            /// <summary>
-            /// Allows to set a maximum to VM runtime
-            /// Ignored if 0.
-            /// </summary>
+            // Allows to set a maximum to VM runtime
+            // Ignored if 0.
             std::chrono::milliseconds max_runtime;
 
-            /// <summary>
-            /// If true, all sleeps are ignored.
-            /// </summary>
+            // If true, all sleeps are ignored.
             bool disable_sleep;
 
-            /// <summary>
-            /// If true, instructs operators to
-            /// error on unexisting classnames.
-            /// If false, they shall only warn and return
-            /// a dummy/default value for what they would
-            /// have read from config normally.
-            /// </summary>
+            // If true, instructs operators to
+            // error on unexisting classnames.
+            // If false, they shall only warn and return
+            // a dummy/default value for what they would
+            // have read from config normally.
             bool enable_classname_check;
 
-            /// <summary>
-            /// Wether networking is disabled.
-            /// </summary>
+            // Whether networking is disabled.
             bool disable_networking;
 
-            /// <summary>
-            /// If true, a context containing values will push them before being erased from the context list.
-            /// </summary>
+            // If true, a context containing values will push them before being erased from the context list.
             bool print_context_work_to_log_on_exit;
+
+            // Maximum iterations of a while-loop in unscheduled environments.
+            // Defaults to 10000.
+            size_t max_loop_iterations_in_unscheduled;
 
 
             runtime_conf() :
@@ -91,7 +85,8 @@ namespace sqf::runtime
                 disable_sleep(false),
                 enable_classname_check(true),
                 disable_networking(false),
-                print_context_work_to_log_on_exit(false)
+                print_context_work_to_log_on_exit(false),
+                max_loop_iterations_in_unscheduled(10000)
             {}
         };
 
