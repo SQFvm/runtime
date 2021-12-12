@@ -221,7 +221,7 @@ namespace sqf::runtime
         {
             if (!empty())
             {
-                auto& container = m_confighost.m_containers.at(index);
+                auto& container = m_confighost.m_containers.at(m_index);
                 if (index < container.size())
                 {
                     return { m_confighost, container[index] };
