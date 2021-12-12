@@ -34,3 +34,16 @@ class flat_tests {
     class D: C { key = 4; };
     class E: B { key = 5; };
 };
+class test_select_selects_addon
+{
+    class addon {};
+};
+
+class test_config_classes_only_returns_config_entries
+{
+    property = 0;
+    class TestSub
+    {
+        subProperty = 0;
+    }; 
+};

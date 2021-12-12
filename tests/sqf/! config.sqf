@@ -53,5 +53,7 @@
     ["assertEqual",     { count ("true" configClasses (configFile >> "flat_tests")) }, 5],
     ["assertEqual",     { ("getNumber (_x >> 'key') == 2" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "B"]],
     ["assertEqual",     { ("getNumber (_x >> 'key') == 5" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "E"]],
-    ["assertEqual",     { ("(getNumber (_x >> 'key')) % 2 == 0" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "B", configFile >> "flat_tests" >> "D"]]
+    ["assertEqual",     { ("(getNumber (_x >> 'key')) % 2 == 0" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "B", configFile >> "flat_tests" >> "D"]],
+    ["assertEqual",     { configName ((configFile >> "test_select_selects_addon") select 0) }, "addon"],
+    ["assertEqual",     { ("true" configClasses (configFile >> "test_config_classes_only_returns_config_entries")) apply { configName _x } }, ["TestSub"]]
 ]
