@@ -6,8 +6,11 @@
 #include "../parser/preprocessor/default.h"
 #include "../operators/ops.h"
 #include "../fileio/default.h"
-#include "../sqc/sqc_parser.h"
 #include "dllexports.h"
+
+#ifdef SQF_SQC_SUPPORT
+#include "../sqc/sqc_parser.h"
+#endif
 
 #include <chrono>
 #include <functional>
@@ -271,6 +274,7 @@ extern "C" {
                         }
                     }
                 }
+#ifdef SQF_SQC_SUPPORT
                 case 'c':
                 {
                     sqf::sqc::parser sqc(*ref.logger);
@@ -300,6 +304,7 @@ extern "C" {
                         }
                     }
                 }
+#endif
                 case 'p':
                 {
                     ref.logger->callback(ref.logger->user_data, call_data, -1, ppedStr->data(), ppedStr->length());
@@ -312,6 +317,7 @@ extern "C" {
                     {
                         return parsing_failed;
                     }
+#ifdef SQF_SQC_SUPPORT
                     else
                     {
                         sqf::sqc::parser sqc(*ref.logger);
@@ -319,6 +325,7 @@ extern "C" {
                         ref.logger->callback(ref.logger->user_data, call_data, (int32_t)loglevel::info, "", 0);
                         ref.logger->callback(ref.logger->user_data, call_data, (int32_t)loglevel::info, res.data(), res.length());
                     }
+#endif
                     return result_ok;
                 }
                 default: return invalid_type;
