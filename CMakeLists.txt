@@ -274,3 +274,6 @@ if (SQFVM_BUILD_STATIC_LIBRARY_SQC_SUPPORT)
           /W4>)
     SET_TARGET_PROPERTIES(slibsqfvm_sqc PROPERTIES PREFIX "")
 endif ()
+
+enable_testing()
+add_subdirectory(tests)
