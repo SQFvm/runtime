@@ -106,6 +106,7 @@ int main(int argc, char** argv)
     auto res = main_actual(argc, argv);
     return res;
 }
+
 int main_actual(int argc, char** argv)
 {
 #ifdef WIN32
@@ -126,6 +127,13 @@ int main_actual(int argc, char** argv)
     }
 #endif // DF__CLI_PRINT_INPUT_ARGS
 
-    cli command_line_interface;
-    return command_line_interface.run(argc, const_cast<const char**>(argv));
+    try {
+        cli command_line_interface;
+        return command_line_interface.run(argc, const_cast<const char**>(argv));
+    }
+    catch (std::exception& ex)
+    {
+        std::cerr << ex.what() << std::endl;
+        return -1;
+    }
 }

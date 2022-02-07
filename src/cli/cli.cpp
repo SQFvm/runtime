@@ -336,7 +336,12 @@ int cli::cli_from_file(const char* arg0, std::filesystem::path path)
     }
     catch (std::runtime_error& err)
     {
-        std::cout << err.what() << std::endl;
+        std::cerr << err.what() << std::endl;
+        return -1;
+    }
+    catch (...)
+    {
+        std::cerr << "Unknown exception" << std::endl;
         return -1;
     }
 }
