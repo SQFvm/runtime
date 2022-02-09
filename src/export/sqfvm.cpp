@@ -148,23 +148,23 @@ namespace dllexports
     }
 }
 extern "C" {
-    SQLVM_EXPORT void* sqfvm_create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
+    SQFVM_EXPORT void* sqfvm_create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
     {
         return dllexports::create_instance(user_data, callback, max_runtime_seconds, dllexports::ops_set::full);
     }
-    SQLVM_EXPORT void* sqfvm_create_instance_basic(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
+    SQFVM_EXPORT void* sqfvm_create_instance_basic(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
     {
         return dllexports::create_instance(user_data, callback, max_runtime_seconds, dllexports::ops_set::basic);
     }
-    SQLVM_EXPORT void* sqfvm_create_instance_empty(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
+    SQFVM_EXPORT void* sqfvm_create_instance_empty(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
     {
         return dllexports::create_instance(user_data, callback, max_runtime_seconds, dllexports::ops_set::none);
     }
-    SQLVM_EXPORT void sqfvm_destroy_instance(void* instance)
+    SQFVM_EXPORT void sqfvm_destroy_instance(void* instance)
     {
         return dllexports::destroy_instance(instance);
     }
-    SQLVM_EXPORT int32_t sqfvm_load_config(void* instance, const char* contents, uint32_t length)
+    SQFVM_EXPORT int32_t sqfvm_load_config(void* instance, const char* contents, uint32_t length)
     {
         const int32_t instance_invalid = -1;
         const int32_t preprocessing_failed = -2;
@@ -191,7 +191,7 @@ extern "C" {
             return instance_invalid;
         }
     }
-    SQLVM_EXPORT int32_t sqfvm_call(void* instance, void* call_data, char type, const char* code, uint32_t length)
+    SQFVM_EXPORT int32_t sqfvm_call(void* instance, void* call_data, char type, const char* code, uint32_t length)
     {
         const int32_t instance_invalid = -1;
         const int32_t preprocessing_failed = -2;
@@ -342,7 +342,7 @@ extern "C" {
             return instance_invalid;
         }
     }
-    SQLVM_EXPORT int32_t sqfvm_status(void* instance)
+    SQFVM_EXPORT int32_t sqfvm_status(void* instance)
     {
         auto result = dllexports::with_instance_do(instance, [](dllexports::instance& ref) -> int32_t {
             return static_cast<int32_t>(ref.runtime->runtime_state());
