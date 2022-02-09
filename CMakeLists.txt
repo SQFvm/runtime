@@ -61,10 +61,14 @@ add_executable(sqfvm ${sqfvm_SOURCES})
 
 target_link_libraries(sqfvm ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
 target_include_directories(sqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
+target_compile_definitions(sqfvm PRIVATE SQLVM_BUILD)
 
 add_library(libsqfvm SHARED ${sqfvm_SOURCES})
 target_include_directories(libsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
-target_compile_definitions(libsqfvm PUBLIC DISABLE_CLIPBOARD)
+target_compile_definitions(libsqfvm 
+    PUBLIC DISABLE_CLIPBOARD 
+    PRIVATE SQLVM_BUILD # this is a define visible only to the library itself
+)
 set_target_properties(libsqfvm PROPERTIES PREFIX "")
 
 if (SQFVM_ENABLE_SQC_SUPPORT)

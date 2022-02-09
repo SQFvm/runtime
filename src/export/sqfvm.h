@@ -1,11 +1,13 @@
 #pragma once
-#include <vector>
-
 
 #ifdef _WIN32
-#define DLLEXPORT_PREFIX __declspec(dllexport)
+#ifdef SQLVM_BUILD
+#define SQLVM_EXPORT __declspec(dllexport)
 #else
-#define DLLEXPORT_PREFIX __attribute__((visibility("default")))
+#define SQLVM_EXPORT __declspec(dllimport)
+#endif
+#else
+#define SQLVM_EXPORT __attribute__((visibility("default")))
 #endif
 
 extern "C" {
@@ -27,24 +29,24 @@ extern "C" {
     // @param user_data Custom data from the callee that will be passed into callback
     // @param max_runtime_seconds the maximum runtime in seconds as float. Pass 0
     // Returns NULL on error
-    DLLEXPORT_PREFIX void* sqfvm_create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds);
+    SQLVM_EXPORT void* sqfvm_create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds);
 
     // Creates a new SQF-VM instance with the basic, non-arma specific operators loaded
     // @param callback The callback to report log messages on
     // @param user_data Custom data from the callee that will be passed into callback
     // @param max_runtime_seconds the maximum runtime in seconds as float. Pass 0
     // Returns NULL on error
-    DLLEXPORT_PREFIX void* sqfvm_create_instance_basic(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds);
+    SQLVM_EXPORT void* sqfvm_create_instance_basic(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds);
 
     // Creates a new SQF-VM instance without any operators loaded
     // @param callback The callback to report log messages on
     // @param user_data Custom data from the callee that will be passed into callback
     // @param max_runtime_seconds the maximum runtime in seconds as float. Pass 0
     // Returns NULL on error
-    DLLEXPORT_PREFIX void* sqfvm_create_instance_empty(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds);
+    SQLVM_EXPORT void* sqfvm_create_instance_empty(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds);
 
     // Destroys a previously created SQF-VM instance
-    DLLEXPORT_PREFIX void sqfvm_destroy_instance(void* instance);
+    SQLVM_EXPORT void sqfvm_destroy_instance(void* instance);
 
     // Loads the provided config into the config tree of the provided instance
     // @param instance A valid instance as returned from sqfvm_create_instance
@@ -54,7 +56,7 @@ extern "C" {
     //         -1 if the instance was null
     //         -2 if preprocessing failed
     //         -3 if parsing failed
-    DLLEXPORT_PREFIX int32_t sqfvm_load_config(void* instance, const char* contents, uint32_t length);
+    SQLVM_EXPORT int32_t sqfvm_load_config(void* instance, const char* contents, uint32_t length);
 
     // Checks the status of the instance
     // @param instance A valid instance as returned from sqfvm_create_instance
@@ -65,7 +67,7 @@ extern "C" {
     //         +3 Instance is in halted_error
     //         +4 evaluating
     //         
-    DLLEXPORT_PREFIX int32_t sqfvm_status(void* instance);
+    SQLVM_EXPORT int32_t sqfvm_status(void* instance);
 
     // Calls the provided code, using the SQF-VM instance.
     // @param instance A valid instance as returned from sqfvm_create_instance
@@ -86,5 +88,5 @@ extern "C" {
     //         -4 if the instance is already running
     //         -5 if the provided type was invalid
     //         -6 if the execution did not succeed
-    DLLEXPORT_PREFIX int32_t sqfvm_call(void* instance, void* call_data, char type, const char* code, uint32_t length);
+    SQLVM_EXPORT int32_t sqfvm_call(void* instance, void* call_data, char type, const char* code, uint32_t length);
 }

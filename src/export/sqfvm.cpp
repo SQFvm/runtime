@@ -6,7 +6,8 @@
 #include "../parser/preprocessor/default.h"
 #include "../operators/ops.h"
 #include "../fileio/default.h"
-#include "dllexports.h"
+
+#include "sqlvm.h"
 
 #ifdef SQF_SQC_SUPPORT
 #include "../sqc/sqc_parser.h"
@@ -147,23 +148,23 @@ namespace dllexports
     }
 }
 extern "C" {
-    DLLEXPORT_PREFIX void* sqfvm_create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
+    SQLVM_EXPORT void* sqfvm_create_instance(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
     {
         return dllexports::create_instance(user_data, callback, max_runtime_seconds, dllexports::ops_set::full);
     }
-    DLLEXPORT_PREFIX void* sqfvm_create_instance_basic(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
+    SQLVM_EXPORT void* sqfvm_create_instance_basic(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
     {
         return dllexports::create_instance(user_data, callback, max_runtime_seconds, dllexports::ops_set::basic);
     }
-    DLLEXPORT_PREFIX void* sqfvm_create_instance_empty(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
+    SQLVM_EXPORT void* sqfvm_create_instance_empty(void* user_data, sqfvm_log_callback callback, float max_runtime_seconds)
     {
         return dllexports::create_instance(user_data, callback, max_runtime_seconds, dllexports::ops_set::none);
     }
-    DLLEXPORT_PREFIX void sqfvm_destroy_instance(void* instance)
+    SQLVM_EXPORT void sqfvm_destroy_instance(void* instance)
     {
         return dllexports::destroy_instance(instance);
     }
-    DLLEXPORT_PREFIX int32_t sqfvm_load_config(void* instance, const char* contents, uint32_t length)
+    SQLVM_EXPORT int32_t sqfvm_load_config(void* instance, const char* contents, uint32_t length)
     {
         const int32_t instance_invalid = -1;
         const int32_t preprocessing_failed = -2;
@@ -190,7 +191,7 @@ extern "C" {
             return instance_invalid;
         }
     }
-    DLLEXPORT_PREFIX int32_t sqfvm_call(void* instance, void* call_data, char type, const char* code, uint32_t length)
+    SQLVM_EXPORT int32_t sqfvm_call(void* instance, void* call_data, char type, const char* code, uint32_t length)
     {
         const int32_t instance_invalid = -1;
         const int32_t preprocessing_failed = -2;
@@ -341,7 +342,7 @@ extern "C" {
             return instance_invalid;
         }
     }
-    DLLEXPORT_PREFIX int32_t sqfvm_status(void* instance)
+    SQLVM_EXPORT int32_t sqfvm_status(void* instance)
     {
         auto result = dllexports::with_instance_do(instance, [](dllexports::instance& ref) -> int32_t {
             return static_cast<int32_t>(ref.runtime->runtime_state());
