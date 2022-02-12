@@ -20,6 +20,9 @@ jobs:
           CC: clang
           CXX: clang++
 
+      - name: Sanity check
+        run: build/sqfvm --version
+
       - name: Move binary to docker directory
         run: mv build/sqfvm docker/
 
