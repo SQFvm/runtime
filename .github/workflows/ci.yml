@@ -22,7 +22,7 @@ jobs:
           path: build/sqfvm*
 
       - name: Run SQF-VM Tests
-        run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
+        run: cd build && ctest
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba/cba_a3.py
@@ -46,7 +46,7 @@ jobs:
           path: build/sqfvm*
 
       - name: Run SQF-VM Tests
-        run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
+        run: cd build && ctest
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba/cba_a3.py
@@ -67,7 +67,7 @@ jobs:
           path: build/sqfvm*
 
       - name: Run SQF-VM Tests
-        run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
+        run: cd build && ctest
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba/cba_a3.py
@@ -88,7 +88,7 @@ jobs:
           path: build/Release/*.exe
 
       - name: Run SQF-VM Tests
-        run: build/Release/sqfvm.exe -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
+        run: cd build && ctest
 
       - name: Run CBA A3 Tests
         run: |
@@ -111,7 +111,7 @@ jobs:
           path: build/Release/*.exe
 
       - name: Run SQF-VM Tests
-        run: build/Release/sqfvm.exe -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
+        run: cd build && ctest
 
       - name: Run CBA A3 Tests
         run: |
