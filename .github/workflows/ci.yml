@@ -15,14 +15,14 @@ jobs:
           CC: gcc-9
           CXX: g++-9
 
-      - name: Run SQF-VM Tests
-        run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
-
       - name: Upload Linux x64 binaries
         uses: actions/upload-artifact@v2
         with:
           name: sqfvm_linux_x64_gcc
           path: build/sqfvm*
+
+      - name: Run SQF-VM Tests
+        run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba_a3.py
@@ -39,14 +39,14 @@ jobs:
           CC: clang
           CXX: clang++
 
-      - name: Run SQF-VM Tests
-        run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
-
       - name: Upload Linux x64 binaries
         uses: actions/upload-artifact@v2
         with:
           name: sqfvm_linux_x64_clang
           path: build/sqfvm*
+
+      - name: Run SQF-VM Tests
+        run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba_a3.py
@@ -59,15 +59,15 @@ jobs:
 
       - name: Build macOS
         run: mkdir build && cd build && cmake .. && cmake --build . --parallel 2
-
-      - name: Run SQF-VM Tests
-        run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
         
       - name: Upload macOS binaries
         uses: actions/upload-artifact@v2
         with:
           name: sqfvm_macos
           path: build/sqfvm*
+
+      - name: Run SQF-VM Tests
+        run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba_a3.py
@@ -81,14 +81,14 @@ jobs:
       - name: Build Windows Win32
         run: mkdir build && cd build && cmake -G "Visual Studio 16 2019" -A Win32 .. && cmake --build . --config Release
 
-      - name: Run SQF-VM Tests
-        run: build/Release/sqfvm.exe -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
-
       - name: Upload Windows Win32 binaries
         uses: actions/upload-artifact@v2
         with:
           name: sqfvm_windows_win32
           path: build/Release/*.exe
+
+      - name: Run SQF-VM Tests
+        run: build/Release/sqfvm.exe -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
 
       - name: Run CBA A3 Tests
         run: |
@@ -104,14 +104,14 @@ jobs:
       - name: Build Windows x64
         run: mkdir build && cd build && cmake -G "Visual Studio 16 2019" -A x64 .. && cmake --build . --config Release
 
-      - name: Run SQF-VM Tests
-        run: build/Release/sqfvm.exe -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
-
       - name: Upload Windows x64 binaries
         uses: actions/upload-artifact@v2
         with:
           name: sqfvm_windows_x64
           path: build/Release/*.exe
+
+      - name: Run SQF-VM Tests
+        run: build/Release/sqfvm.exe -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
 
       - name: Run CBA A3 Tests
         run: |
