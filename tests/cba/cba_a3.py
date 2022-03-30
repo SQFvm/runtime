@@ -18,7 +18,7 @@ cba_dir = os.path.join(current_dir, 'cba_a3')
 a3_dir = os.path.join(cba_dir, 'include', 'a3')
 addons_dir = os.path.join(cba_dir, 'addons')
 
-if os.path.exists('cba_a3'):
+if os.path.exists(cba_dir):
     subprocess.call(['git', '-C', cba_dir, 'fetch'])
 else:
     subprocess.call(['git', 'clone', 'https://github.com/CBATeam/CBA_A3.git', cba_dir])
