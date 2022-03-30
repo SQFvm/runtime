@@ -25,7 +25,7 @@ jobs:
         run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
 
       - name: Run CBA A3 Tests
-        run: PATH=build:$PATH python tests/cba_a3.py
+        run: PATH=build:$PATH python tests/cba/cba_a3.py
 
   linux_x64_clang:
     name: Linux x64 (Clang)
@@ -49,7 +49,7 @@ jobs:
         run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
 
       - name: Run CBA A3 Tests
-        run: PATH=build:$PATH python tests/cba_a3.py
+        run: PATH=build:$PATH python tests/cba/cba_a3.py
 
   macos:
     name: macOS
@@ -70,7 +70,7 @@ jobs:
         run: build/sqfvm -a --no-execute-print -i tests/config.cpp -i tests/runTests.sqf
 
       - name: Run CBA A3 Tests
-        run: PATH=build:$PATH python tests/cba_a3.py
+        run: PATH=build:$PATH python tests/cba/cba_a3.py
 
   windows_win32:
     name: Windows Win32
@@ -93,7 +93,7 @@ jobs:
       - name: Run CBA A3 Tests
         run: |
           $env:Path += ";build/Release/"
-          python tests/cba_a3.py
+          python tests/cba/cba_a3.py
 
   windows_x64:
     name: Windows x64
@@ -116,4 +116,4 @@ jobs:
       - name: Run CBA A3 Tests
         run: |
           $env:Path += ";build/Release/"
-          python tests/cba_a3.py
+          python tests/cba/cba_a3.py

@@ -353,5 +353,3 @@ build/git_sha1\.cpp
 
 *.diagsession
 src/sqc/parser.output
-
-/tests/cba_a3/
