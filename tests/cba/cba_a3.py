@@ -72,7 +72,7 @@ replace_in_file(os.path.join(addons_dir, 'vectors', 'fnc_vectDot.sqf'), 'BIS_fnc
 sqfvm_binary = 'sqfvm'
 sqfvm_test_script = os.path.join(current_dir, 'cba_a3.sqf')
 
-sqfvm = [sqfvm_binary, '--automated']
+sqfvm = [sqfvm_binary, '--automated', '--no-execute-print']
 
 # Map a3 and cba folders into Arma prefixes
 sqfvm.extend(['--virtual', '{}|\\a3'.format(a3_dir)])
