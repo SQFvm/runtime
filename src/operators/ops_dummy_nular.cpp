@@ -263,5 +263,9 @@ void sqf::operators::ops_dummy_nular(sqf::runtime::runtime& runtime)
 	runtime.register_sqfop(nular("allusers", "",[](sqf::runtime::runtime& runtime) -> value{ runtime.__logmsg(logmessage::runtime::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "NOT IMPLEMENTED", "allusers")); return {}; }));
 	runtime.register_sqfop(nular("speechvolume", "",[](sqf::runtime::runtime& runtime) -> value{ runtime.__logmsg(logmessage::runtime::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "NOT IMPLEMENTED", "speechvolume")); return {}; }));
 	runtime.register_sqfop(nular("environmentvolume", "",[](sqf::runtime::runtime& runtime) -> value{ runtime.__logmsg(logmessage::runtime::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "NOT IMPLEMENTED", "environmentvolume")); return {}; }));
+	runtime.register_sqfop(nular("issaving", "", [](sqf::runtime::runtime& runtime) -> value { runtime.__logmsg(logmessage::runtime::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "NOT IMPLEMENTED", "issaving")); return {}; }));
+	runtime.register_sqfop(nular("getpipviewdistance", "", [](sqf::runtime::runtime& runtime) -> value { runtime.__logmsg(logmessage::runtime::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "NOT IMPLEMENTED", "getpipviewdistance")); return {}; }));
+	runtime.register_sqfop(nular("rainparams", "", [](sqf::runtime::runtime& runtime) -> value { runtime.__logmsg(logmessage::runtime::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "NOT IMPLEMENTED", "rainparams")); return {}; }));
+	runtime.register_sqfop(nular("allenv3dsoundsources", "", [](sqf::runtime::runtime& runtime) -> value { runtime.__logmsg(logmessage::runtime::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "NOT IMPLEMENTED", "allenv3dsoundsources")); return {}; }));
 
 }
