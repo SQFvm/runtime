@@ -10,7 +10,9 @@ function(add_sqf_run_test test_full_path)
 	message(VERBOSE "Registering test " ${test_full_path} " as " ${test_full_name})
 	add_test(
 		NAME "${test_full_name}"
-		COMMAND sqfvm -a -V --no-execute-print --input-sqf "framework.sqf" --input-config ${TEST_ROOT_LOCATION}/config.cpp --sqf "\"\\\"${test_relative_path}\\\" call test_fnc_run_from_file;\"" --max-runtime 10000
+		COMMAND sqfvm -a -V --no-execute-print --max-runtime 1000
+                --input-sqf "framework.sqf" --input-config ${TEST_ROOT_LOCATION}/config.cpp 
+                --sqf "\"${test_relative_path}\" call test_fnc_run_from_file;"
 		WORKING_DIRECTORY ${TEST_ROOT_LOCATION}
 	)
 	set_tests_properties(${test_full_name} PROPERTIES TIMEOUT 11)

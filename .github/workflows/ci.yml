@@ -23,7 +23,7 @@ jobs:
 
       - name: Run SQF-VM Tests
         working-directory: build
-        run: ctest
+        run: ctest --output-on-failure
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba/cba_a3.py
@@ -48,7 +48,7 @@ jobs:
 
       - name: Run SQF-VM Tests
         working-directory: build
-        run: ctest
+        run: ctest --output-on-failure
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba/cba_a3.py
@@ -70,7 +70,7 @@ jobs:
 
       - name: Run SQF-VM Tests
         working-directory: build
-        run: ctest
+        run: ctest --output-on-failure
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba/cba_a3.py
@@ -92,7 +92,7 @@ jobs:
 
       - name: Run SQF-VM Tests
         working-directory: build
-        run: ctest -C Release
+        run: ctest --output-on-failure -C Release
 
       - name: Run CBA A3 Tests
         run: |
@@ -116,7 +116,7 @@ jobs:
 
       - name: Run SQF-VM Tests
         working-directory: build
-        run: ctest -C Release
+        run: ctest --output-on-failure -C Release
 
       - name: Run CBA A3 Tests
         run: |
