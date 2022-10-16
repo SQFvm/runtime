@@ -22,7 +22,8 @@ jobs:
           path: build/sqfvm*
 
       - name: Run SQF-VM Tests
-        run: cd build && ctest
+        working-directory: build
+        run: ctest
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba/cba_a3.py
@@ -46,7 +47,8 @@ jobs:
           path: build/sqfvm*
 
       - name: Run SQF-VM Tests
-        run: cd build && ctest
+        working-directory: build
+        run: ctest
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba/cba_a3.py
@@ -67,7 +69,8 @@ jobs:
           path: build/sqfvm*
 
       - name: Run SQF-VM Tests
-        run: cd build && ctest
+        working-directory: build
+        run: ctest
 
       - name: Run CBA A3 Tests
         run: PATH=build:$PATH python tests/cba/cba_a3.py
@@ -88,7 +91,8 @@ jobs:
           path: build/Release/*.exe
 
       - name: Run SQF-VM Tests
-        run: cd build && ctest -C Release
+        working-directory: build
+        run: ctest -C Release
 
       - name: Run CBA A3 Tests
         run: |
@@ -111,7 +115,8 @@ jobs:
           path: build/Release/*.exe
 
       - name: Run SQF-VM Tests
-        run: cd build && ctest -C Release
+        working-directory: build
+        run: ctest -C Release
 
       - name: Run CBA A3 Tests
         run: |

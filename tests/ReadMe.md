@@ -5,11 +5,11 @@ The test-framework depends heavily on SQF-VM own commands and can be used as a r
 implementation (or straight copied) for your own Test-Framework using SQF-VM.
 
 Due to features like `assertException` expecting runtime-errors and Arma not being able to handle
-theese, this test-framework can be deemed as incompatible to Arma.
+these, this test-framework can be deemed as incompatible to Arma.
 
 ## Executing Tests ##
 
-To run theese tests, start SQF-VM with the following commands:
+To run these tests, start SQF-VM with the following commands:
 
 `-a -i tests/config.cpp -i tests/runTests.sqf`
 

@@ -46,11 +46,11 @@ void cli::handle_files()
             auto [path, contents] = generator();
             if (key == "sqf")
             {
-                if (verbose()) { std::cout << "Preprocessing file '" << path << std::endl; }
+                if (verbose()) { std::cout << "Preprocessing file '" << path << "'" << std::endl; }
                 auto ppedStr = m_runtime.parser_preprocessor().preprocess(m_runtime, contents, { path.string(), {} });
                 if (ppedStr.has_value())
                 {
-                    if (verbose()) { std::cout << "Parsing file '" << path << std::endl; }
+                    if (verbose()) { std::cout << "Parsing file '" << path << "'" << std::endl; }
                     if (m_parse_only)
                     {
                         auto success = m_runtime.parser_sqf().check_syntax(m_runtime, *ppedStr, { path.string(), {} });
@@ -82,11 +82,11 @@ void cli::handle_files()
             }
             else if (key == "config")
             {
-                if (verbose()) { std::cout << "Preprocessing file '" << path << std::endl; }
+                if (verbose()) { std::cout << "Preprocessing file '" << path << "'" << std::endl; }
                 auto ppedStr = m_runtime.parser_preprocessor().preprocess(m_runtime, contents, { path.string(), {} });
                 if (ppedStr.has_value())
                 {
-                    if (verbose()) { std::cout << "Parsing file '" << path << std::endl; }
+                    if (verbose()) { std::cout << "Parsing file '" << path << "'" << std::endl; }
                     if (m_parse_only)
                     {
                         auto success = !m_runtime.parser_config().check_syntax(*ppedStr, { path.string(), {} });
@@ -112,11 +112,11 @@ void cli::handle_files()
             else if (key == "sqc")
             {
                 sqf::sqc::parser sqc_parser(m_logger);
-                if (verbose()) { std::cout << "Preprocessing file '" << path << std::endl; }
+                if (verbose()) { std::cout << "Preprocessing file '" << path << "'" << std::endl; }
                 auto ppedStr = m_runtime.parser_preprocessor().preprocess(m_runtime, contents, { path.string(), {} });
                 if (ppedStr.has_value())
                 {
-                    if (verbose()) { std::cout << "Parsing file '" << path << std::endl; }
+                    if (verbose()) { std::cout << "Parsing file '" << path << "'" << std::endl; }
                     if (m_parse_only)
                     {
                         auto success = sqc_parser.check_syntax(m_runtime, *ppedStr, { path.string(), {} });
@@ -148,11 +148,11 @@ void cli::handle_files()
             }
             else if (key == "sqf2sqc")
             {
-                if (verbose()) { std::cout << "Preprocessing file '" << path << std::endl; }
+                if (verbose()) { std::cout << "Preprocessing file '" << path << "'" << std::endl; }
                 auto ppedStr = m_runtime.parser_preprocessor().preprocess(m_runtime, contents, { path.string(), {} });
                 if (ppedStr.has_value())
                 {
-                    if (verbose()) { std::cout << "Parsing file '" << path << std::endl; }
+                    if (verbose()) { std::cout << "Parsing file '" << path << "'" << std::endl; }
                     if (m_parse_only)
                     {
                         auto success = m_runtime.parser_sqf().check_syntax(m_runtime, *ppedStr, { path.string(), {} });
@@ -193,11 +193,11 @@ void cli::handle_files()
             else if (key == "sqc2sqf")
             {
                 sqf::sqc::parser sqc_parser(m_logger);
-                if (verbose()) { std::cout << "Preprocessing file '" << path << std::endl; }
+                if (verbose()) { std::cout << "Preprocessing file '" << path << "'" << std::endl; }
                 auto ppedStr = m_runtime.parser_preprocessor().preprocess(m_runtime, contents, { path.string(), {} });
                 if (ppedStr.has_value())
                 {
-                    if (verbose()) { std::cout << "Parsing file '" << path << std::endl; }
+                    if (verbose()) { std::cout << "Parsing file '" << path << "'" << std::endl; }
                     if (m_parse_only)
                     {
                         auto success = sqc_parser.check_syntax(m_runtime, *ppedStr, { path.string(), {} });
@@ -412,7 +412,7 @@ int cli::run(size_t argc, const char** argv)
 
     // Preprocessing
     CMDADD(TCLAP::MultiArg<std::string>,    preprocessFileArg,          "E",    "preprocess-file",          "Runs the preprocessor on provided file and prints it to stdout. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
-    CMDADD(TCLAP::MultiArg<std::string>,    defineArg,                  "D",    "define",                   "Allows to add PreProcessor definitions. Note that file-based definitions may override and/or conflict with theese.", false, "NAME|NAME=VALUE");
+    CMDADD(TCLAP::MultiArg<std::string>,    defineArg,                  "D",    "define",                   "Allows to add PreProcessor definitions. Note that file-based definitions may override and/or conflict with these.", false, "NAME|NAME=VALUE");
 
     // Dummy Operators
     CMDADD(TCLAP::MultiArg<std::string>,    commandDummyNular,          "",     "command-dummy-nular",      "Adds the provided command as dummy.", false, "NAME");
@@ -679,7 +679,7 @@ int cli::run(size_t argc, const char** argv)
                     continue;
                 }
                 auto str = *file;
-                if (verbose()) { std::cout << "Preprocessing file '" << path << std::endl; }
+                if (verbose()) { std::cout << "Preprocessing file '" << path << "'" << std::endl; }
                 auto ppedStr = m_runtime.parser_preprocessor().preprocess(m_runtime, str, { path.string(), {} });
                 if (ppedStr.has_value())
                 {
