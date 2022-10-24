@@ -70,7 +70,7 @@ Instead, SQC attempts to automatically mangle the different types and functions 
 
 For example, a call to `diag_log` in SQC, treats `diag_log` as method which makes the call look like this: `diag_log("fooo bar")`.
 special attention should be given to operators, expecting arrays as their parameter though.
-For theese, SQC automatically transforms parameter lists into arrays (`nearestObjects(player, ["Tank"],500)`) however, given that only one argument
+For these, SQC automatically transforms parameter lists into arrays (`nearestObjects(player, ["Tank"],500)`) however, given that only one argument
 gets passed to an operator expecting an array, the correct way to call that then is to pass the array then as a proper array (`private(["_someVar"])`)
 
 With Binary operators (eg. `in`), SQC gives you a somewhat OOP way to access them, making `player setPosition [1,2,3]` to `player.setPosition(1,2,3)`.
@@ -139,7 +139,7 @@ In SQC, a function is made using the following syntax:
 ```
 ### Function Args
 `<ARGS>` are a comma separated list of "arguments" that the method shall receive.
-Theese can be typed. They follow the following syntax:
+these can be typed. They follow the following syntax:
 
 ```js
     variableName
@@ -157,7 +157,7 @@ existing variables in the function code. This is what that syntax does. It rewri
 
 Full example: `arr.select(function(it: "_x") { return it > 2; });` gets `arr select { _x > 2 }`
 ## File Header
-SQC Files may start with a so called "params" directive. This is so, that CfgFunctions may be used to initialize theese methods.
+SQC Files may start with a so called "params" directive. This is so, that CfgFunctions may be used to initialize these methods.
 It lends itself the comma separated list of `<ARGS>` known from Functions and looks like this:
 
 ```js
