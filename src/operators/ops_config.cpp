@@ -252,7 +252,9 @@ namespace
                 {
                     if (res->is<t_boolean>())
                     {
-                        if (res->data<d_boolean, bool>()) {
+                        auto nav = m_iterator_current.nav();
+                        bool is_class = nav->size() > 0 || (nav->size() == 0 && nav->value.empty());
+                        if (res->data<d_boolean, bool>() && is_class) {
                             m_out_arr->push_back({ *m_iterator_current });
                         }
                     }
