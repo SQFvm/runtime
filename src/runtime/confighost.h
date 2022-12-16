@@ -181,6 +181,12 @@ namespace sqf::runtime
                 auto actual_index = container[m_index];
                 return m_confighost.m_containers[actual_index];
             }
+            inline confignav nav()
+            {
+                auto& container = m_confighost.m_containers[m_id];
+                auto actual_index = container[m_index];
+                return confignav(m_confighost, actual_index);
+            }
         };
         using iterator = iterator_base<false>;
         using iterator_recursive = iterator_base<true>;
@@ -414,4 +420,4 @@ namespace sqf::runtime
     };
     inline confignav config::navigate(confighost& host) const { return { host, m_container_id }; }
     inline confignav confighost::root() { return { *this, 0 }; }
-}
+    }
