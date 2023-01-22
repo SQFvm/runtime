@@ -37,5 +37,6 @@ namespace sqf::parser::assembly
         virtual ~parser() override { };
         virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;
         virtual std::optional<::sqf::runtime::instruction_set> parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;
+        virtual std::optional<std::string> parse_pretty(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override { return {}; }
     };
 }

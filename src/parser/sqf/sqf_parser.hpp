@@ -23,6 +23,7 @@ namespace sqf::parser::sqf
     {
     private:
         void to_assembly(std::string_view contents, const ::sqf::parser::sqf::bison::astnode& node, std::vector<::sqf::runtime::instruction::sptr>& set);
+        void to_pretty(std::string_view contents, const ::sqf::parser::sqf::bison::astnode& node, size_t depth, std::string& buff);
     public:
         parser(Logger& logger) : CanLog(logger)
         {
@@ -35,5 +36,6 @@ namespace sqf::parser::sqf
         virtual ~parser() override { };
         virtual bool check_syntax(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;
         virtual std::optional<::sqf::runtime::instruction_set> parse(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;
+        virtual std::optional<std::string> parse_pretty(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) override;
     };
 }

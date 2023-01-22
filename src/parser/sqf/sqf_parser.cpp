@@ -238,6 +238,128 @@ void ::sqf::parser::sqf::parser::to_assembly(std::string_view contents, const ::
     }
 }
 
+void ::sqf::parser::sqf::parser::to_pretty(std::string_view contents, const ::sqf::parser::sqf::bison::astnode& node, size_t depth, std::string& buff) {
+    switch (node.kind) {
+        case bison::astkind::EXP0:
+        case bison::astkind::EXP1:
+        case bison::astkind::EXP2:
+        case bison::astkind::EXP3:
+        case bison::astkind::EXP4:
+        case bison::astkind::EXP5:
+        case bison::astkind::EXP6:
+        case bison::astkind::EXP7:
+        case bison::astkind::EXP8:
+        case bison::astkind::EXP9:
+        {
+            to_pretty(contents, node.children[0], depth, buff);
+            buff += " ";
+            auto s = std::string(node.token.contents);
+            std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
+            buff += s;
+            buff += " ";
+            to_pretty(contents, node.children[1], depth, buff);
+        }
+        break;
+        case bison::astkind::EXPU:
+        {
+            auto s = std::string(node.token.contents);
+            std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
+            buff += s;
+            buff += " ";
+
+            if (s == "if" && node.children[0].token.contents != "!")
+                buff += "(";
+            else if (s == "!")
+                buff += "(";
+
+            to_pretty(contents, node.children[0], depth, buff);
+            
+            if (s == "if" && node.children[0].token.contents != "!")
+                buff += ")";
+            else if (s == "!")
+                buff += ")";
+        }
+        break;
+        case bison::astkind::HEXNUMBER:
+        {
+            auto str = std::string(node.token.contents);
+            if (str[0] == '$') { str = "0x"s.append(str.substr(1)); }
+            buff += str;
+        }
+        break;
+        case bison::astkind::EXPN:
+        case bison::astkind::IDENT:
+        case bison::astkind::NUMBER:
+        case bison::astkind::STRING:
+        case bison::astkind::BOOLEAN_TRUE:
+        case bison::astkind::BOOLEAN_FALSE:
+        {
+            buff += node.token.contents;
+        }
+        break;
+        case bison::astkind::CODE:
+        {
+            buff += "{";
+            
+            if (!node.children.empty())
+                buff += "\n";
+            
+            depth++;
+            for (size_t i = 0; i < node.children.size(); i++) {
+                buff += std::string(depth * 4, ' ');
+                to_pretty(contents, node.children[i], depth, buff);
+            }
+            depth--;
+            buff += std::string(depth * 4, ' ');
+            buff += "}";
+        }
+        break;
+        case bison::astkind::ARRAY:
+        {
+            buff += "[";
+            bool flag = false;
+            for (auto& subnode : node.children) {
+                if (flag) {
+                    buff += ", ";
+                }
+                else {
+                    flag = true;
+                }
+                to_pretty(contents, subnode, depth, buff);
+            }
+            buff += "]";
+        }
+        break;
+        case bison::astkind::ASSIGNMENT:
+        {
+            if (node.children[0].children.empty() && node.children[0].token.type == tokenizer::etoken::t_ident) {
+                buff += node.children[0].token.contents;
+                buff += " = ";
+            }
+            to_pretty(contents, node.children[1], depth, buff);
+        }
+        break;
+        case bison::astkind::ASSIGNMENT_LOCAL:
+        {
+            buff += "private ";
+            buff += node.token.contents;
+            buff += " = ";
+            to_pretty(contents, node.children[0], depth, buff);
+        }
+        break;
+        default:
+        {
+            for (size_t i = 0; i < node.children.size(); i++) {
+                if (node.kind != bison::astkind::NA)
+                    buff += std::string(depth, '\t');
+                to_pretty(contents, node.children[i], depth, buff);
+                if (node.kind != bison::astkind::NA)
+                    buff += ";\n";
+            }
+        }
+    }
+}
+
 bool sqf::parser::sqf::parser::get_tree(::sqf::runtime::runtime& runtime, ::sqf::parser::sqf::tokenizer& t, ::sqf::parser::sqf::bison::astnode* out)
 {
     ::sqf::parser::sqf::bison::parser p(t, *out, *this, runtime);
@@ -268,4 +390,17 @@ bool ::sqf::parser::sqf::parser::check_syntax(::sqf::runtime::runtime& runtime, 
     ::sqf::parser::sqf::bison::parser p(t, res, *this, runtime);
     bool success = p.parse() == 0;
     return success;
+}
+
+std::optional<std::string> sqf::parser::sqf::parser::parse_pretty(::sqf::runtime::runtime& runtime, std::string contents, ::sqf::runtime::fileio::pathinfo file) {
+    tokenizer t(contents.begin(), contents.end(), file.physical);
+    ::sqf::parser::sqf::bison::astnode res;
+    ::sqf::parser::sqf::bison::parser p(t, res, *this, runtime);
+    bool success = p.parse() == 0;
+    if (!success) {
+        return {};
+    }
+    std::string pretty;
+    to_pretty(contents, res, 0, pretty);
+    return pretty;
 }
