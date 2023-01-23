@@ -301,15 +301,17 @@ void ::sqf::parser::sqf::parser::to_pretty(std::string_view contents, const ::sq
         {
             buff += "{";
             
-            if (!node.children.empty())
+            if (!node.children.empty()) {
                 buff += "\n";
-            
-            depth++;
-            for (size_t i = 0; i < node.children.size(); i++) {
-                buff += std::string(depth * 4, ' ');
-                to_pretty(contents, node.children[i], depth, buff);
+                depth++;
             }
-            depth--;
+
+            for (size_t i = 0; i < node.children.size(); i++)
+                to_pretty(contents, node.children[i], depth, buff);
+
+            if (!node.children.empty())
+                depth--;
+            
             buff += std::string(depth * 4, ' ');
             buff += "}";
         }
@@ -351,7 +353,7 @@ void ::sqf::parser::sqf::parser::to_pretty(std::string_view contents, const ::sq
         {
             for (size_t i = 0; i < node.children.size(); i++) {
                 if (node.kind != bison::astkind::NA)
-                    buff += std::string(depth, '\t');
+                    buff += std::string(depth * 4, ' ');
                 to_pretty(contents, node.children[i], depth, buff);
                 if (node.kind != bison::astkind::NA)
                     buff += ";\n";
