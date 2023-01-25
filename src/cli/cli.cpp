@@ -11,6 +11,7 @@
 #include "../parser/preprocessor/default.h"
 #include "../fileio/default.h"
 #include "../parser/sqf/sqf_parser.hpp"
+#include "../parser/sqf/sqf_formatter.h"
 #if defined(SQF_SQC_SUPPORT)
 #include "../sqc/sqc_parser.h"
 #endif
@@ -745,18 +746,14 @@ int cli::run(size_t argc, const char** argv)
                 auto str = *file;
                 if (verbose()) { std::cout << "Pretty printing file '" << path << "'" << std::endl; }
 
-                auto prettyStr = m_runtime.parser_sqf().parse_pretty(m_runtime, str, { path.string(), {} });
-                if (prettyStr.has_value()) {
-                    if (prettyStr->empty()) {
-                        std::cout << "Failed to pretty print file." << std::endl;
-                    }
-                    else {
-                        std::cout << *prettyStr << std::endl;
-                    }
-                }
-                else {
-                    std::cout << "Failed to parse commandline feed." << std::endl;
-                }
+                std::string prettyStr;
+                ::sqf::parser::sqf::formatter fmt(m_runtime, str, {path.string(), {}});
+                fmt.prettify(fmt.getRes(), 0, prettyStr);
+                
+                if (prettyStr.empty())
+                    std::cout << "Failed to pretty print file." << std::endl;
+                else
+                    std::cout << prettyStr << std::endl;
 
             }
             catch (const std::runtime_error& ex) {
