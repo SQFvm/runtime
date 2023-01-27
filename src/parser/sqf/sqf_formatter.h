@@ -19,6 +19,6 @@ namespace sqf::parser::sqf {
 	public:
 		formatter(::sqf::runtime::runtime& r, std::string c, ::sqf::runtime::fileio::pathinfo f);
 		::sqf::parser::sqf::bison::astnode& getRes() { return this->res; }
-		void prettify(const ::sqf::parser::sqf::bison::astnode& node, size_t depth, std::string& buff);
+		void prettify(const ::sqf::parser::sqf::bison::astnode& node, size_t depth, std::ostringstream& buff);
 	};
 }

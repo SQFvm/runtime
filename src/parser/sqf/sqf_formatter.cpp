@@ -9,7 +9,7 @@
 }
 
 
-void ::sqf::parser::sqf::formatter::formatter::prettify(const ::sqf::parser::sqf::bison::astnode& node, size_t depth, std::string& buff) {
+void ::sqf::parser::sqf::formatter::formatter::prettify(const ::sqf::parser::sqf::bison::astnode& node, size_t depth, std::ostringstream& buff) {
     switch (node.kind) {
     case bison::astkind::EXP0:
     case bison::astkind::EXP1:
@@ -23,11 +23,11 @@ void ::sqf::parser::sqf::formatter::formatter::prettify(const ::sqf::parser::sqf
     case bison::astkind::EXP9:
     {
         this->prettify(node.children[0], depth, buff);
-        buff += " ";
+        buff << " ";
         auto s = std::string(node.token.contents);
         std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
-        buff += s;
-        buff += " ";
+        buff << s;
+        buff << " ";
         this->prettify(node.children[1], depth, buff);
     }
     break;
@@ -35,27 +35,27 @@ void ::sqf::parser::sqf::formatter::formatter::prettify(const ::sqf::parser::sqf
     {
         auto s = std::string(node.token.contents);
         std::transform(s.begin(), s.end(), s.begin(), [](char& c) { return (char)std::tolower((int)c); });
-        buff += s;
-        buff += " ";
+        buff << s;
+        buff << " ";
 
         if (s == "if" && node.children[0].token.contents != "!")
-            buff += "(";
+            buff << "(";
         else if (s == "!")
-            buff += "(";
+            buff << "(";
 
         this->prettify(node.children[0], depth, buff);
 
         if (s == "if" && node.children[0].token.contents != "!")
-            buff += ")";
+            buff << ")";
         else if (s == "!")
-            buff += ")";
+            buff << ")";
     }
     break;
     case bison::astkind::HEXNUMBER:
     {
         auto str = std::string(node.token.contents);
         if (str[0] == '$') { str = std::string("0x").append(str.substr(1)); }
-        buff += str;
+        buff << str;
     }
     break;
     case bison::astkind::EXPN:
@@ -65,15 +65,15 @@ void ::sqf::parser::sqf::formatter::formatter::prettify(const ::sqf::parser::sqf
     case bison::astkind::BOOLEAN_TRUE:
     case bison::astkind::BOOLEAN_FALSE:
     {
-        buff += node.token.contents;
+        buff << node.token.contents;
     }
     break;
     case bison::astkind::CODE:
     {
-        buff += "{";
+        buff << "{";
 
         if (!node.children.empty()) {
-            buff += "\n";
+            buff << "\n";
             depth++;
         }
 
@@ -83,40 +83,40 @@ void ::sqf::parser::sqf::formatter::formatter::prettify(const ::sqf::parser::sqf
         if (!node.children.empty())
             depth--;
 
-        buff += std::string(depth * 4, ' ');
-        buff += "}";
+        buff << std::string(depth * 4, ' ');
+        buff << "}";
     }
     break;
     case bison::astkind::ARRAY:
     {
-        buff += "[";
+        buff << "[";
         bool flag = false;
         for (auto& subnode : node.children) {
             if (flag) {
-                buff += ", ";
+                buff << ", ";
             }
             else {
                 flag = true;
             }
             this->prettify(subnode, depth, buff);
         }
-        buff += "]";
+        buff << "]";
     }
     break;
     case bison::astkind::ASSIGNMENT:
     {
         if (node.children[0].children.empty() && node.children[0].token.type == tokenizer::etoken::t_ident) {
-            buff += node.children[0].token.contents;
-            buff += " = ";
+            buff << node.children[0].token.contents;
+            buff << " = ";
         }
         this->prettify(node.children[1], depth, buff);
     }
     break;
     case bison::astkind::ASSIGNMENT_LOCAL:
     {
-        buff += "private ";
-        buff += node.token.contents;
-        buff += " = ";
+        buff << "private ";
+        buff << node.token.contents;
+        buff << " = ";
         this->prettify(node.children[0], depth, buff);
     }
     break;
@@ -124,10 +124,10 @@ void ::sqf::parser::sqf::formatter::formatter::prettify(const ::sqf::parser::sqf
     {
         for (size_t i = 0; i < node.children.size(); i++) {
             if (node.kind != bison::astkind::NA)
-                buff += std::string(depth * 4, ' ');
+                buff << std::string(depth * 4, ' ');
             this->prettify(node.children[i], depth, buff);
             if (node.kind != bison::astkind::NA)
-                buff += ";\n";
+                buff << ";\n";
         }
     }
     }

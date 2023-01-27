@@ -746,14 +746,14 @@ int cli::run(size_t argc, const char** argv)
                 auto str = *file;
                 if (verbose()) { std::cout << "Pretty printing file '" << path << "'" << std::endl; }
 
-                std::string prettyStr;
+                std::ostringstream prettyStr;
                 ::sqf::parser::sqf::formatter fmt(m_runtime, str, {path.string(), {}});
                 fmt.prettify(fmt.getRes(), 0, prettyStr);
-                
-                if (prettyStr.empty())
+
+                if (prettyStr.str().empty())
                     std::cout << "Failed to pretty print file." << std::endl;
                 else
-                    std::cout << prettyStr << std::endl;
+                    std::cout << prettyStr.str() << std::endl;
 
             }
             catch (const std::runtime_error& ex) {
