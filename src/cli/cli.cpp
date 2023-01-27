@@ -11,6 +11,7 @@
 #include "../parser/preprocessor/default.h"
 #include "../fileio/default.h"
 #include "../parser/sqf/sqf_parser.hpp"
+#include "../parser/sqf/sqf_formatter.h"
 #if defined(SQF_SQC_SUPPORT)
 #include "../sqc/sqc_parser.h"
 #endif
@@ -409,6 +410,7 @@ int cli::run(size_t argc, const char** argv)
     // Input - Raw
     CMDADD(TCLAP::MultiArg<std::string>,    sqfArg,                     "",     "sqf",                      "Loads provided sqf-code directly into the VM. Input is getting preprocessed! Will be executed as if it was spawned.", false, "CODE");
     CMDADD(TCLAP::MultiArg<std::string>,    configArg,                  "",     "config",                   "Loads provided config-code directly into the VM. Input is getting preprocessed!", false, "CODE");
+    CMDADD(TCLAP::MultiArg<std::string>,    prettyPrintArg,             "",     "pretty-print",             "Loads provided SQF file from disk and pretty-prints it onto console." RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 
     // Preprocessing
     CMDADD(TCLAP::MultiArg<std::string>,    preprocessFileArg,          "E",    "preprocess-file",          "Runs the preprocessor on provided file and prints it to stdout. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
@@ -726,6 +728,38 @@ int cli::run(size_t argc, const char** argv)
             m_runtime.register_sqfop(sqf::runtime::sqfop::binary(static_cast<short>(std::stoi(precedence)), name, sqf::types::t_any(), sqf::types::t_any(), "DUMMY", [](sqf::runtime::runtime& runtime, sqf::runtime::value::cref l, sqf::runtime::value::cref r) -> sqf::runtime::value {
                 runtime.__logmsg(logmessage::runtime::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "DUMMY", "DUMMY")); return {};
             }));
+        }
+    }
+
+    /* Pretty Print */ {
+        for (auto& f : prettyPrintArg.getValue()) {
+            auto path = std::filesystem::absolute(std::filesystem::path(f).lexically_normal());
+            if (path.empty()) { continue; }
+            try {
+                if (verbose()) { std::cout << "Loading file '" << path << "' to pretty print..." << std::endl; }
+                auto file = sqf::runtime::fileio::read_file_from_disk(path.string());
+                if (!file.has_value()) {
+                    m_good = false;
+                    std::cout << "Failed to load file '" << path << "'" << std::endl;
+                    continue;
+                }
+                auto str = *file;
+                if (verbose()) { std::cout << "Pretty printing file '" << path << "'" << std::endl; }
+
+                std::ostringstream prettyStr;
+                ::sqf::parser::sqf::formatter fmt(m_runtime, str, {path.string(), {}});
+                fmt.prettify(fmt.getRes(), 0, prettyStr);
+
+                if (prettyStr.str().empty())
+                    std::cout << "Failed to pretty print file." << std::endl;
+                else
+                    std::cout << prettyStr.str() << std::endl;
+
+            }
+            catch (const std::runtime_error& ex) {
+                m_good = false;
+                std::cout << "Failed to load file " << ex.what() << std::endl;
+            }
         }
     }
 
