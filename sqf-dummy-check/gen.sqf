@@ -18,7 +18,7 @@ private _toAdd = [];
 			case 3: { ["b", (_x # 1), 4] };
 		};
         if ((_ops_list findIf {(_x select [0,2]) isEqualTo (_cmd select [0,2])}) == -1) then {
-            _toAdd pushBack str _cmd;
+            _toAdd pushBackUnique str _cmd;
         };
 	};
 };

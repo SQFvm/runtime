@@ -15,6 +15,7 @@
 #include <vector>
 #include <typeinfo>
 #include <typeindex>
+#include <cassert>
 
 namespace sqf::runtime
 {
@@ -184,6 +185,7 @@ namespace sqf::runtime
         }
         void register_sqfop(sqf::runtime::sqfop_binary op)
         {
+            assert(!sqfop_exists(op.get_key()));
             m_operators_binary.insert({ op.get_key(), op });
             m_operators_by_name_binary[std::string(op.name())].push_back(m_operators_binary[op.get_key()]);
         }
@@ -200,6 +202,7 @@ namespace sqf::runtime
         }
         void register_sqfop(sqf::runtime::sqfop_unary op)
         {
+            assert(!sqfop_exists(op.get_key()));
             m_operators_unary.insert({ op.get_key(), op });
             m_operators_by_name_unary[std::string(op.name())].push_back(m_operators_unary[op.get_key()]);
         }
@@ -215,6 +218,7 @@ namespace sqf::runtime
         }
         void register_sqfop(sqf::runtime::sqfop_nular op)
         {
+            assert(!sqfop_exists(op.get_key()));
             m_operators_nular.insert({ op.get_key(), op });
         }
 
