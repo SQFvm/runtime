@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.16)
 project(sqfvm)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -11,7 +11,10 @@ if (MSVC)
   add_definitions(/MP /W4 /wd4100)
 else()
   add_definitions(-Wall -Wno-unknown-pragmas)
-  add_link_options(-static-libstdc++ -static-libgcc)
+
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_link_options(-static-libstdc++ -static-libgcc)
+  endif()
 endif()
 
 # Add the filesystem library if we are building on Clang or GCC

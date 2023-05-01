@@ -354,5 +354,5 @@ build/git_sha1\.cpp
 
 *.diagsession
 src/sqc/parser.output
-
-/tests/cba_a3/
+/tests/_out1_.txt
+/tests/_err1_.txt

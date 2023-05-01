@@ -18,7 +18,7 @@ cba_dir = os.path.join(current_dir, 'cba_a3')
 a3_dir = os.path.join(cba_dir, 'include', 'a3')
 addons_dir = os.path.join(cba_dir, 'addons')
 
-if os.path.exists('cba_a3'):
+if os.path.exists(cba_dir):
     subprocess.call(['git', '-C', cba_dir, 'fetch'])
 else:
     subprocess.call(['git', 'clone', 'https://github.com/CBATeam/CBA_A3.git', cba_dir])
@@ -72,7 +72,7 @@ replace_in_file(os.path.join(addons_dir, 'vectors', 'fnc_vectDot.sqf'), 'BIS_fnc
 sqfvm_binary = 'sqfvm'
 sqfvm_test_script = os.path.join(current_dir, 'cba_a3.sqf')
 
-sqfvm = [sqfvm_binary, '--automated']
+sqfvm = [sqfvm_binary, '--automated', '--no-execute-print']
 
 # Map a3 and cba folders into Arma prefixes
 sqfvm.extend(['--virtual', '{}|\\a3'.format(a3_dir)])
