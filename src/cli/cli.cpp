@@ -54,7 +54,7 @@ void cli::handle_files()
                     if (m_parse_only)
                     {
                         auto success = m_runtime.parser_sqf().check_syntax(m_runtime, *ppedStr, { path.string(), {} });
-                        m_good = m_good && !success;
+                        m_good = m_good && success;
                     }
                     else
                     {
