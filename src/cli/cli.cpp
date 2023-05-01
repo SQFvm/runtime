@@ -55,7 +55,7 @@ void cli::handle_files()
                     if (m_parse_only)
                     {
                         auto success = m_runtime.parser_sqf().check_syntax(m_runtime, *ppedStr, { path.string(), {} });
-                        m_good = m_good && !success;
+                        m_good = m_good && success;
                     }
                     else
                     {
@@ -404,8 +404,8 @@ int cli::run(size_t argc, const char** argv)
     // Input - File
     CMDADD(TCLAP::MultiArg<std::string>,    inputArg,                   "i",    "input",                    "Loads provided file from disk. File-Type is determined using default file extensions (sqf, cpp, hpp, pbo). " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
     CMDADD(TCLAP::MultiArg<std::string>,    inputSqfArg,                "",     "input-sqf",                "Loads provided SQF file from disk. Will be executed as if it was spawned. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
-    CMDADD(TCLAP::MultiArg<std::string>,    inputConfigArg,             "",     "input-config",             "Loads provided config file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
-    CMDADD(TCLAP::MultiArg<std::string>,    inputPboArg,                "",     "input-pbo",                "Loads provided PBO file from disk. Will be parsed before files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
+    CMDADD(TCLAP::MultiArg<std::string>,    inputConfigArg,             "",     "input-config",             "Loads provided config file from disk. Will be parsed prior to files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
+    CMDADD(TCLAP::MultiArg<std::string>,    inputPboArg,                "",     "input-pbo",                "Loads provided PBO file from disk and mounts it to SQF-VMs virtual file system (see `--virtual`). If the PBO contains a config.cpp (not binarized), it will be loaded into the config tree. Will be parsed prior to files, added using '--input'. " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "PATH");
 
     // Input - Raw
     CMDADD(TCLAP::MultiArg<std::string>,    sqfArg,                     "",     "sqf",                      "Loads provided sqf-code directly into the VM. Input is getting preprocessed! Will be executed as if it was spawned.", false, "CODE");
