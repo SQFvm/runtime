@@ -22,6 +22,7 @@
 #include "d_object.h"
 #include "ops_namespace.h"
 #include "../opcodes/common.h"
+#include "sqfvm_storage.h"
 
 
 #include <sstream>
@@ -607,6 +608,19 @@ namespace
     {
         return { std::make_shared<d_namespace>(runtime.get_value_scope(right.data<d_string, std::string>())) };
     }
+    value isserver___boolean(runtime& runtime, value::cref right)
+    {
+        if (!right.is<t_boolean>()) {
+            // ToDo: Create custom log message for enum errors
+            runtime.__logmsg(err::ErrorMessage(runtime.context_active().current_frame().diag_info_from_position(), "isServer__", "Expected bool."));
+        }
+        else {
+            auto& storage = runtime.storage<sqfvm_storage>();
+            auto flag = right.data<d_boolean, bool>();
+            storage.is_server(flag);
+        }
+        return {};
+    }
     value nobubble___any_code(runtime& runtime, value::cref left, value::cref right)
     {
         frame f = { runtime.default_value_scope(), right.data<d_code, instruction_set>() };
@@ -804,4 +818,5 @@ void sqf::operators::ops_sqfvm(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(unary("noBubble__", t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", nobubble___code));
     runtime.register_sqfop(binary(4, "noBubble__", t_any(), t_code(), "Acts like call but disables bubbling of variables for the lower scope. (lower scope will have no access to upper scope variables)", nobubble___any_code));
     runtime.register_sqfop(unary("customNamespace__", t_string(), "operator to get a custom namespace that lives as long as the VM lives.", customnamespace___string));
+    runtime.register_sqfop(unary("isServer__", t_boolean(), "Allows to set what isServer returns.", isserver___boolean));
 }
