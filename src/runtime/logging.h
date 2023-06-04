@@ -1847,8 +1847,8 @@ namespace logmessage {
             std::string_view m_physical;
             std::string_view m_virtual;
         public:
-            ResolveVirtualRequested(std::string_view phys, std::string_view virt) :
-                FileIoBase(level, errorCode, {}),
+            ResolveVirtualRequested(LogLocationInfo loc, std::string_view phys, std::string_view virt) :
+                FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt) {}
             [[nodiscard]] std::string formatMessage() const override;
@@ -1859,8 +1859,8 @@ namespace logmessage {
             std::string_view m_physical;
             std::string_view m_virtual;
         public:
-            ResolveVirtualFileNotFound(std::string_view phys, std::string_view virt) :
-                FileIoBase(level, errorCode, {}),
+            ResolveVirtualFileNotFound(LogLocationInfo loc, std::string_view phys, std::string_view virt) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt) {}
             [[nodiscard]] std::string formatMessage() const override;
@@ -1872,8 +1872,8 @@ namespace logmessage {
             std::string_view m_virtual;
             std::string_view m_match_physical;
         public:
-            ResolveVirtualFileMatched(std::string_view phys, std::string_view virt, std::string_view match_phys) :
-                FileIoBase(level, errorCode, {}),
+            ResolveVirtualFileMatched(LogLocationInfo loc, std::string_view phys, std::string_view virt, std::string_view match_phys) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt),
                 m_match_physical(match_phys) {}
@@ -1885,8 +1885,8 @@ namespace logmessage {
             std::string_view m_physical;
             std::string_view m_virtual;
         public:
-            ResolveVirtualNavigateUp(std::string_view phys, std::string_view virt) :
-                FileIoBase(level, errorCode, {}),
+            ResolveVirtualNavigateUp(LogLocationInfo loc, std::string_view phys, std::string_view virt) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt) {}
             [[nodiscard]] std::string formatMessage() const override;
@@ -1898,8 +1898,8 @@ namespace logmessage {
             std::string_view m_virtual;
             std::string_view m_matched;
         public:
-            ResolveVirtualNavigateDown(std::string_view phys, std::string_view virt, std::string_view matched) :
-                FileIoBase(level, errorCode, {}),
+            ResolveVirtualNavigateDown(LogLocationInfo loc, std::string_view phys, std::string_view virt, std::string_view matched) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt),
                 m_matched(matched) {}
@@ -1912,8 +1912,8 @@ namespace logmessage {
             std::string_view m_virtual;
             std::string_view m_matched;
         public:
-            ResolveVirtualNavigateDeadEnd(std::string_view phys, std::string_view virt, std::string_view matched) :
-                FileIoBase(level, errorCode, {}),
+            ResolveVirtualNavigateDeadEnd(LogLocationInfo loc, std::string_view phys, std::string_view virt, std::string_view matched) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt),
                 m_matched(matched) {}
@@ -1925,8 +1925,8 @@ namespace logmessage {
             std::string_view m_physical;
             std::string_view m_virtual;
         public:
-            ResolveVirtualNavigateNoNodesLeftForExploring(std::string_view phys, std::string_view virt) :
-                FileIoBase(level, errorCode, {}),
+            ResolveVirtualNavigateNoNodesLeftForExploring(LogLocationInfo loc, std::string_view phys, std::string_view virt) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt) {}
             [[nodiscard]] std::string formatMessage() const override;
@@ -1938,8 +1938,8 @@ namespace logmessage {
             std::string_view m_virtual;
             std::string_view m_matched;
         public:
-            ResolveVirtualTestFileExists(std::string_view phys, std::string_view virt, std::string_view matched) :
-                FileIoBase(level, errorCode, {}),
+            ResolveVirtualTestFileExists(LogLocationInfo loc, std::string_view phys, std::string_view virt, std::string_view matched) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt),
                 m_matched(matched) {}
@@ -1951,8 +1951,8 @@ namespace logmessage {
             std::string_view m_physical;
             std::string_view m_virtual;
         public:
-            ResolveVirtualGotRemainder(std::string_view phys, std::string_view virt) :
-                FileIoBase(level, errorCode, {}),
+            ResolveVirtualGotRemainder(LogLocationInfo loc, std::string_view phys, std::string_view virt) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt) {}
             [[nodiscard]] std::string formatMessage() const override;
@@ -1964,8 +1964,8 @@ namespace logmessage {
             std::string_view m_virtual;
             std::string_view m_matched;
         public:
-            ResolvePhysicalRequested(std::string_view phys, std::string_view virt, std::string_view matched) :
-                FileIoBase(level, errorCode, {}),
+            ResolvePhysicalRequested(LogLocationInfo loc, std::string_view phys, std::string_view virt, std::string_view matched) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt),
                 m_matched(matched) {}
@@ -1978,8 +1978,8 @@ namespace logmessage {
             std::string_view m_virtual;
             std::string_view m_matched;
         public:
-            ResolvePhysicalAdjustedPath(std::string_view phys, std::string_view virt, std::string_view matched) :
-                FileIoBase(level, errorCode, {}),
+            ResolvePhysicalAdjustedPath(LogLocationInfo loc, std::string_view phys, std::string_view virt, std::string_view matched) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt),
                 m_matched(matched) {}
@@ -1992,8 +1992,8 @@ namespace logmessage {
             std::string_view m_virtual;
             std::string_view m_matched;
         public:
-            ResolvePhysicalTestingAgainst(std::string_view phys, std::string_view virt, std::string_view matched) :
-                FileIoBase(level, errorCode, {}),
+            ResolvePhysicalTestingAgainst(LogLocationInfo loc, std::string_view phys, std::string_view virt, std::string_view matched) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt),
                 m_matched(matched) {}
@@ -2006,8 +2006,8 @@ namespace logmessage {
             std::string_view m_virtual;
             std::string_view m_matched;
         public:
-            ResolvePhysicalMatched(std::string_view phys, std::string_view virt, std::string_view matched) :
-                FileIoBase(level, errorCode, {}),
+            ResolvePhysicalMatched(LogLocationInfo loc, std::string_view phys, std::string_view virt, std::string_view matched) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt),
                 m_matched(matched) {}
@@ -2020,8 +2020,8 @@ namespace logmessage {
             std::string_view m_virtual;
             std::string_view m_matched;
         public:
-            ResolvePhysicalFailedToLookup(std::string_view phys, std::string_view virt, std::string_view matched) :
-                FileIoBase(level, errorCode, {}),
+            ResolvePhysicalFailedToLookup(LogLocationInfo loc, std::string_view phys, std::string_view virt, std::string_view matched) :
+               FileIoBase(level, errorCode, loc),
                 m_physical(phys),
                 m_virtual(virt),
                 m_matched(matched) {}
@@ -2032,8 +2032,8 @@ namespace logmessage {
             static const size_t errorCode = 70015;
             std::string_view m_path;
         public:
-            PBOAlreadyAdded(std::string_view path) :
-                FileIoBase(level, errorCode, {}),
+            PBOAlreadyAdded(LogLocationInfo loc, std::string_view path) :
+               FileIoBase(level, errorCode, loc),
                 m_path(path) {}
             [[nodiscard]] std::string formatMessage() const override;
         };
@@ -2042,8 +2042,8 @@ namespace logmessage {
             static const size_t errorCode = 70016;
             std::string_view m_path;
         public:
-            FailedToParsePBO(std::string_view path) :
-                FileIoBase(level, errorCode, {}),
+            FailedToParsePBO(LogLocationInfo loc, std::string_view path) :
+               FileIoBase(level, errorCode, loc),
                 m_path(path) {}
             [[nodiscard]] std::string formatMessage() const override;
         };
@@ -2052,8 +2052,8 @@ namespace logmessage {
             static const size_t errorCode = 70017;
             std::string_view m_path;
         public:
-            PBOHasNoPrefixAttribute(std::string_view path) :
-                FileIoBase(level, errorCode, {}),
+            PBOHasNoPrefixAttribute(LogLocationInfo loc, std::string_view path) :
+               FileIoBase(level, errorCode, loc),
                 m_path(path) {}
             [[nodiscard]] std::string formatMessage() const override;
         };
@@ -2063,8 +2063,8 @@ namespace logmessage {
             std::string_view m_path;
             std::string_view m_file;
         public:
-            PBOFileAlreadyRegistered(std::string_view path, std::string_view file) :
-                FileIoBase(level, errorCode, {}),
+            PBOFileAlreadyRegistered(LogLocationInfo loc, std::string_view path, std::string_view file) :
+                FileIoBase(level, errorCode, loc),
                 m_path(path),
                 m_file(path)
             {}
@@ -2075,8 +2075,8 @@ namespace logmessage {
             static const size_t errorCode = 70019;
             std::string_view m_path;
         public:
-            PBOFileNotFound(std::string_view path) :
-                FileIoBase(level, errorCode, {}),
+            PBOFileNotFound(LogLocationInfo loc, std::string_view path) :
+                FileIoBase(level, errorCode, loc),
                 m_path(path)
             {}
             [[nodiscard]] std::string formatMessage() const override;
@@ -2087,8 +2087,8 @@ namespace logmessage {
             std::string_view m_path;
             std::string_view m_file;
         public:
-            PBOFailedToReadFile(std::string_view path, std::string_view file) :
-                FileIoBase(level, errorCode, {}),
+            PBOFailedToReadFile(LogLocationInfo loc, std::string_view path, std::string_view file) :
+                FileIoBase(level, errorCode, loc),
                 m_path(path),
                 m_file(path)
             {
