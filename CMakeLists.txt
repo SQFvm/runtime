@@ -62,7 +62,6 @@ list(APPEND sqfvm_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp")
 find_package(Threads)
 
 add_executable(sqfvm ${sqfvm_SOURCES})
-
 target_link_libraries(sqfvm ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
 target_include_directories(sqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
 target_compile_definitions(sqfvm PRIVATE SQFVM_BUILD)
@@ -73,16 +72,25 @@ target_compile_definitions(libsqfvm
     PUBLIC DISABLE_CLIPBOARD 
     PRIVATE SQFVM_BUILD # this is a define visible only to the library itself
 )
+
+add_library(slibsqfvm STATIC ${sqfvm_SOURCES})
+target_include_directories(slibsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
+target_compile_definitions(slibsqfvm
+    PUBLIC DISABLE_CLIPBOARD
+    PRIVATE SQFVM_BUILD # this is a define visible only to the library itself
+)
 set_target_properties(libsqfvm PROPERTIES PREFIX "")
 
 if (SQFVM_ENABLE_SQC_SUPPORT)
     target_compile_definitions(sqfvm PUBLIC SQF_SQC_SUPPORT)
     target_compile_definitions(libsqfvm PUBLIC SQF_SQC_SUPPORT)
+    target_compile_definitions(slibsqfvm PUBLIC SQF_SQC_SUPPORT)
 endif()
 
 if (SQFVM_ENABLE_ARMA2_LOCALKEYWORD)
     target_compile_definitions(sqfvm PUBLIC SQFVM_ARMA2_SYNTAX)
     target_compile_definitions(libsqfvm PUBLIC SQFVM_ARMA2_SYNTAX)
+    target_compile_definitions(slibsqfvm PUBLIC SQFVM_ARMA2_SYNTAX)
 endif ()
 
 if (SQFVM_ENABLE_FULL_DIAGNOSE)
