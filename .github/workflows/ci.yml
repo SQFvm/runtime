@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   linux_x64_gcc:
     name: Linux x64 (GCC)
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -30,7 +30,7 @@ jobs:
 
   linux_x64_clang:
     name: Linux x64 (Clang)
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -55,7 +55,7 @@ jobs:
 
   macos:
     name: macOS
-    runs-on: macos-10.15
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -77,12 +77,12 @@ jobs:
 
   windows_win32:
     name: Windows Win32
-    runs-on: windows-2019
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
 
       - name: Build Windows Win32
-        run: mkdir build && cd build && cmake -G "Visual Studio 16 2019" -A Win32 .. && cmake --build . --config Release
+        run: mkdir build && cd build && cmake -A Win32 .. && cmake --build . --config Release
 
       - name: Upload Windows Win32 binaries
         uses: actions/upload-artifact@v2
@@ -101,12 +101,12 @@ jobs:
 
   windows_x64:
     name: Windows x64
-    runs-on: windows-2019
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
 
       - name: Build Windows x64
-        run: mkdir build && cd build && cmake -G "Visual Studio 16 2019" -A x64 .. && cmake --build . --config Release
+        run: mkdir build && cd build && cmake -A x64 .. && cmake --build . --config Release
 
       - name: Upload Windows x64 binaries
         uses: actions/upload-artifact@v2
