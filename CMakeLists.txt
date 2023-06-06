@@ -40,6 +40,7 @@ option(SQFVM_ENABLE_ARMA2_LOCALKEYWORD "ENABLE ARMA2 LOCALKEYWORD" OFF)
 
 
 file(GLOB_RECURSE sqfvm_SOURCES CONFIGURE_DEPENDS src/*.cpp src/*.hpp src/*.h src/*.hh src/*.c src/*.cc)
+file(GLOB_RECURSE sqfvm_INCLUDE_DIR CONFIGURE_DEPENDS src)
 list(FILTER sqfvm_SOURCES EXCLUDE REGEX ".*src/unused/.*")
 if (NOT SQFVM_ENABLE_SQC_SUPPORT)
     list(FILTER sqfvm_SOURCES EXCLUDE REGEX ".*src/sqc/.*")
