@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="sqfvm - run sqf-tests" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="-a -i tests/config.cpp -i tests/runTests.sqf" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="sqfvm_language_server" TARGET_NAME="sqfvm" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="sqfvm_language_server" RUN_TARGET_NAME="sqfvm">
-    <method v="2">
-      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-    </method>
-  </configuration>
-</component>
