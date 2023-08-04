@@ -72,13 +72,6 @@ target_compile_definitions(libsqfvm
     PUBLIC DISABLE_CLIPBOARD 
     PRIVATE SQFVM_BUILD # this is a define visible only to the library itself
 )
-
-add_library(slibsqfvm STATIC ${sqfvm_SOURCES})
-target_include_directories(slibsqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
-target_compile_definitions(slibsqfvm
-    PUBLIC DISABLE_CLIPBOARD
-    PRIVATE SQFVM_BUILD # this is a define visible only to the library itself
-)
 set_target_properties(libsqfvm PROPERTIES PREFIX "")
 
 add_library(slibsqfvm STATIC ${sqfvm_SOURCES})
