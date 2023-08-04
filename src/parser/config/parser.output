@@ -5,9 +5,9 @@ Terminale, die in Grammatik unbenutzt sind
    ")"
 
 
-Zustand 17 Konflikte: 1 Schiebe/Reduziere
-Zustand 31 Konflikte: 1 Schiebe/Reduziere
-Zustand 55 Konflikte: 1 Schiebe/Reduziere
+Zustand 19 Konflikte: 1 Schiebe/Reduziere
+Zustand 33 Konflikte: 1 Schiebe/Reduziere
+Zustand 57 Konflikte: 1 Schiebe/Reduziere
 
 
 Grammatik
@@ -52,44 +52,46 @@ Grammatik
    27      | ident "[" "]" "+=" array
 
    28 ident: IDENT
+   29      | NUMBER
+   30      | HEXNUMBER
 
-   29 string: STRING
+   31 string: STRING
 
-   30 number: NUMBER
-   31       | HEXNUMBER
+   32 number: NUMBER
+   33       | HEXNUMBER
 
-   32 array: "{" "}"
-   33      | "{" arrayvaluelist "}"
+   34 array: "{" "}"
+   35      | "{" arrayvaluelist "}"
 
-   34 arrayvalue: array
-   35           | anyarray
+   36 arrayvalue: array
+   37           | anyarray
 
-   36 arrayvaluelist: arrayvalue
-   37               | arrayvaluelist "," arrayvalue
+   38 arrayvaluelist: arrayvalue
+   39               | arrayvaluelist "," arrayvalue
 
-   38 anyval: anyp
-   39       | "{"
-   40       | "}"
-   41       | ","
+   40 anyval: anyp
+   41       | "{"
+   42       | "}"
+   43       | ","
 
-   42 anyarr: anyp
+   44 anyarr: anyp
 
-   43 anyp: "class"
-   44     | "delete"
-   45     | number
-   46     | string
-   47     | ident
-   48     | "["
-   49     | "]"
-   50     | ":"
-   51     | "="
-   52     | ANY
+   45 anyp: "class"
+   46     | "delete"
+   47     | number
+   48     | string
+   49     | IDENT
+   50     | "["
+   51     | "]"
+   52     | ":"
+   53     | "="
+   54     | ANY
 
-   53 anyarray: anyarr
-   54         | anyarray anyarr
+   55 anyarray: anyarr
+   56         | anyarray anyarr
 
-   55 anyvalue: anyval
-   56         | anyvalue anyval
+   57 anyvalue: anyval
+   58         | anyvalue anyval
 
 
 Terminale und die Regeln, in denen sie verwendet werden
@@ -97,24 +99,24 @@ Terminale und die Regeln, in denen sie verwendet werden
 END_OF_FILE (0) 0 1
 error (256)
 INVALID (258)
-"delete" (259) 22 44
-"class" (260) 18 19 20 21 43
-"{" (261) 23 24 32 33 39
-"}" (262) 23 24 32 33 40
+"delete" (259) 22 46
+"class" (260) 18 19 20 21 45
+"{" (261) 23 24 34 35 41
+"}" (262) 23 24 34 35 42
 "(" (263)
 ")" (264)
-"[" (265) 26 27 48
-"]" (266) 26 27 49
-":" (267) 19 21 50
+"[" (265) 26 27 50
+"]" (266) 26 27 51
+":" (267) 19 21 52
 ";" (268) 5 6
-"," (269) 37 41
+"," (269) 39 43
 "+=" (270) 27
-"=" (271) 25 26 51
-IDENT (272) 28
-NUMBER (273) 30
-HEXNUMBER (274) 31
-STRING (275) 29
-ANY (276) 52
+"=" (271) 25 26 53
+IDENT (272) 28 49
+NUMBER (273) 29 32
+HEXNUMBER (274) 30 33
+STRING (275) 31
+ANY (276) 54
 
 
 Nicht-Terminal und die Regeln, in denen sie verwendet werden
@@ -143,29 +145,29 @@ classbody (31)
 field (32)
     auf der linken Seite: 25 26 27, auf der rechten Seite: 16
 ident (33)
-    auf der linken Seite: 28, auf der rechten Seite: 18 19 20 21 22
-    25 26 27 47
+    auf der linken Seite: 28 29 30, auf der rechten Seite: 18 19 20
+    21 22 25 26 27
 string (34)
-    auf der linken Seite: 29, auf der rechten Seite: 46
+    auf der linken Seite: 31, auf der rechten Seite: 48
 number (35)
-    auf der linken Seite: 30 31, auf der rechten Seite: 45
+    auf der linken Seite: 32 33, auf der rechten Seite: 47
 array (36)
-    auf der linken Seite: 32 33, auf der rechten Seite: 26 27 34
+    auf der linken Seite: 34 35, auf der rechten Seite: 26 27 36
 arrayvalue (37)
-    auf der linken Seite: 34 35, auf der rechten Seite: 36 37
+    auf der linken Seite: 36 37, auf der rechten Seite: 38 39
 arrayvaluelist (38)
-    auf der linken Seite: 36 37, auf der rechten Seite: 33 37
+    auf der linken Seite: 38 39, auf der rechten Seite: 35 39
 anyval (39)
-    auf der linken Seite: 38 39 40 41, auf der rechten Seite: 55 56
+    auf der linken Seite: 40 41 42 43, auf der rechten Seite: 57 58
 anyarr (40)
-    auf der linken Seite: 42, auf der rechten Seite: 53 54
+    auf der linken Seite: 44, auf der rechten Seite: 55 56
 anyp (41)
-    auf der linken Seite: 43 44 45 46 47 48 49 50 51 52, auf der rechten Seite:
-    38 42
+    auf der linken Seite: 45 46 47 48 49 50 51 52 53 54, auf der rechten Seite:
+    40 44
 anyarray (42)
-    auf der linken Seite: 53 54, auf der rechten Seite: 35 54
+    auf der linken Seite: 55 56, auf der rechten Seite: 37 56
 anyvalue (43)
-    auf der linken Seite: 55 56, auf der rechten Seite: 25 56
+    auf der linken Seite: 57 58, auf der rechten Seite: 25 58
 
 
 Zustand 0
@@ -196,9 +198,11 @@ Zustand 2
 
    22 deleteclass: "delete" . ident
 
-    IDENT  schiebe und gehe zu Zustand 11 über
+    IDENT      schiebe und gehe zu Zustand 11 über
+    NUMBER     schiebe und gehe zu Zustand 12 über
+    HEXNUMBER  schiebe und gehe zu Zustand 13 über
 
-    ident  gehe zu Zustand 12 über
+    ident  gehe zu Zustand 14 über
 
 
 Zustand 3
@@ -208,9 +212,11 @@ Zustand 3
    20         | "class" . ident classbody
    21         | "class" . ident ":" ident classbody
 
-    IDENT  schiebe und gehe zu Zustand 11 über
+    IDENT      schiebe und gehe zu Zustand 11 über
+    NUMBER     schiebe und gehe zu Zustand 12 über
+    HEXNUMBER  schiebe und gehe zu Zustand 13 über
 
-    ident  gehe zu Zustand 13 über
+    ident  gehe zu Zustand 15 über
 
 
 Zustand 4
@@ -224,7 +230,7 @@ Zustand 5
 
     0 $accept: start . END_OF_FILE
 
-    END_OF_FILE  schiebe und gehe zu Zustand 14 über
+    END_OF_FILE  schiebe und gehe zu Zustand 16 über
 
 
 Zustand 6
@@ -235,11 +241,11 @@ Zustand 6
 
     "delete"  schiebe und gehe zu Zustand 2 über
     "class"   schiebe und gehe zu Zustand 3 über
-    ";"       schiebe und gehe zu Zustand 15 über
+    ";"       schiebe und gehe zu Zustand 17 über
 
     $default  reduziere mit Regel 3 (start)
 
-    topstatements  gehe zu Zustand 16 über
+    topstatements  gehe zu Zustand 18 über
     topstatement   gehe zu Zustand 8 über
     classdef       gehe zu Zustand 9 über
     deleteclass    gehe zu Zustand 10 über
@@ -255,7 +261,7 @@ Zustand 7
 
     $default  reduziere mit Regel 2 (start)
 
-    separators  gehe zu Zustand 17 über
+    separators  gehe zu Zustand 19 über
 
 
 Zustand 8
@@ -288,41 +294,55 @@ Zustand 11
 
 Zustand 12
 
+   29 ident: NUMBER .
+
+    $default  reduziere mit Regel 29 (ident)
+
+
+Zustand 13
+
+   30 ident: HEXNUMBER .
+
+    $default  reduziere mit Regel 30 (ident)
+
+
+Zustand 14
+
    22 deleteclass: "delete" ident .
 
     $default  reduziere mit Regel 22 (deleteclass)
 
 
-Zustand 13
+Zustand 15
 
    18 classdef: "class" ident .
    19         | "class" ident . ":" ident
    20         | "class" ident . classbody
    21         | "class" ident . ":" ident classbody
 
-    "{"  schiebe und gehe zu Zustand 18 über
-    ":"  schiebe und gehe zu Zustand 19 über
+    "{"  schiebe und gehe zu Zustand 20 über
+    ":"  schiebe und gehe zu Zustand 21 über
 
     $default  reduziere mit Regel 18 (classdef)
 
-    classbody  gehe zu Zustand 20 über
+    classbody  gehe zu Zustand 22 über
 
 
-Zustand 14
+Zustand 16
 
     0 $accept: start END_OF_FILE .
 
     $default  annehmen
 
 
-Zustand 15
+Zustand 17
 
     6 separators: separators ";" .
 
     $default  reduziere mit Regel 6 (separators)
 
 
-Zustand 16
+Zustand 18
 
     4 start: separators topstatements .
     8 topstatements: topstatements . separators
@@ -332,10 +352,10 @@ Zustand 16
 
     $default  reduziere mit Regel 4 (start)
 
-    separators  gehe zu Zustand 17 über
+    separators  gehe zu Zustand 19 über
 
 
-Zustand 17
+Zustand 19
 
     6 separators: separators . ";"
     8 topstatements: topstatements separators .
@@ -343,551 +363,552 @@ Zustand 17
 
     "delete"  schiebe und gehe zu Zustand 2 über
     "class"   schiebe und gehe zu Zustand 3 über
-    ";"       schiebe und gehe zu Zustand 15 über
+    ";"       schiebe und gehe zu Zustand 17 über
 
     ";"       [reduziere mit Regel 8 (topstatements)]
     $default  reduziere mit Regel 8 (topstatements)
 
-    topstatement  gehe zu Zustand 21 über
+    topstatement  gehe zu Zustand 23 über
     classdef      gehe zu Zustand 9 über
     deleteclass   gehe zu Zustand 10 über
 
 
-Zustand 18
+Zustand 20
 
    23 classbody: "{" . "}"
    24          | "{" . statements "}"
 
-    "delete"  schiebe und gehe zu Zustand 2 über
-    "class"   schiebe und gehe zu Zustand 3 über
-    "}"       schiebe und gehe zu Zustand 22 über
-    IDENT     schiebe und gehe zu Zustand 11 über
+    "delete"   schiebe und gehe zu Zustand 2 über
+    "class"    schiebe und gehe zu Zustand 3 über
+    "}"        schiebe und gehe zu Zustand 24 über
+    IDENT      schiebe und gehe zu Zustand 11 über
+    NUMBER     schiebe und gehe zu Zustand 12 über
+    HEXNUMBER  schiebe und gehe zu Zustand 13 über
 
-    statements   gehe zu Zustand 23 über
-    statement    gehe zu Zustand 24 über
-    classdef     gehe zu Zustand 25 über
-    deleteclass  gehe zu Zustand 26 über
-    field        gehe zu Zustand 27 über
-    ident        gehe zu Zustand 28 über
+    statements   gehe zu Zustand 25 über
+    statement    gehe zu Zustand 26 über
+    classdef     gehe zu Zustand 27 über
+    deleteclass  gehe zu Zustand 28 über
+    field        gehe zu Zustand 29 über
+    ident        gehe zu Zustand 30 über
 
 
-Zustand 19
+Zustand 21
 
    19 classdef: "class" ident ":" . ident
    21         | "class" ident ":" . ident classbody
 
-    IDENT  schiebe und gehe zu Zustand 11 über
+    IDENT      schiebe und gehe zu Zustand 11 über
+    NUMBER     schiebe und gehe zu Zustand 12 über
+    HEXNUMBER  schiebe und gehe zu Zustand 13 über
 
-    ident  gehe zu Zustand 29 über
+    ident  gehe zu Zustand 31 über
 
 
-Zustand 20
+Zustand 22
 
    20 classdef: "class" ident classbody .
 
     $default  reduziere mit Regel 20 (classdef)
 
 
-Zustand 21
+Zustand 23
 
     9 topstatements: topstatements separators topstatement .
 
     $default  reduziere mit Regel 9 (topstatements)
 
 
-Zustand 22
+Zustand 24
 
    23 classbody: "{" "}" .
 
     $default  reduziere mit Regel 23 (classbody)
 
 
-Zustand 23
+Zustand 25
 
    13 statements: statements . separators
    14           | statements . separators statement
    24 classbody: "{" statements . "}"
 
-    "}"  schiebe und gehe zu Zustand 30 über
+    "}"  schiebe und gehe zu Zustand 32 über
     ";"  schiebe und gehe zu Zustand 4 über
 
-    separators  gehe zu Zustand 31 über
+    separators  gehe zu Zustand 33 über
 
 
-Zustand 24
+Zustand 26
 
    12 statements: statement .
 
     $default  reduziere mit Regel 12 (statements)
 
 
-Zustand 25
+Zustand 27
 
    15 statement: classdef .
 
     $default  reduziere mit Regel 15 (statement)
 
 
-Zustand 26
+Zustand 28
 
    17 statement: deleteclass .
 
     $default  reduziere mit Regel 17 (statement)
 
 
-Zustand 27
+Zustand 29
 
    16 statement: field .
 
     $default  reduziere mit Regel 16 (statement)
 
 
-Zustand 28
+Zustand 30
 
    25 field: ident . "=" anyvalue
    26      | ident . "[" "]" "=" array
    27      | ident . "[" "]" "+=" array
 
-    "["  schiebe und gehe zu Zustand 32 über
-    "="  schiebe und gehe zu Zustand 33 über
+    "["  schiebe und gehe zu Zustand 34 über
+    "="  schiebe und gehe zu Zustand 35 über
 
 
-Zustand 29
+Zustand 31
 
    19 classdef: "class" ident ":" ident .
    21         | "class" ident ":" ident . classbody
 
-    "{"  schiebe und gehe zu Zustand 18 über
+    "{"  schiebe und gehe zu Zustand 20 über
 
     $default  reduziere mit Regel 19 (classdef)
 
-    classbody  gehe zu Zustand 34 über
+    classbody  gehe zu Zustand 36 über
 
 
-Zustand 30
+Zustand 32
 
    24 classbody: "{" statements "}" .
 
     $default  reduziere mit Regel 24 (classbody)
 
 
-Zustand 31
+Zustand 33
 
     6 separators: separators . ";"
    13 statements: statements separators .
    14           | statements separators . statement
 
-    "delete"  schiebe und gehe zu Zustand 2 über
-    "class"   schiebe und gehe zu Zustand 3 über
-    ";"       schiebe und gehe zu Zustand 15 über
-    IDENT     schiebe und gehe zu Zustand 11 über
+    "delete"   schiebe und gehe zu Zustand 2 über
+    "class"    schiebe und gehe zu Zustand 3 über
+    ";"        schiebe und gehe zu Zustand 17 über
+    IDENT      schiebe und gehe zu Zustand 11 über
+    NUMBER     schiebe und gehe zu Zustand 12 über
+    HEXNUMBER  schiebe und gehe zu Zustand 13 über
 
     ";"       [reduziere mit Regel 13 (statements)]
     $default  reduziere mit Regel 13 (statements)
 
-    statement    gehe zu Zustand 35 über
-    classdef     gehe zu Zustand 25 über
-    deleteclass  gehe zu Zustand 26 über
-    field        gehe zu Zustand 27 über
-    ident        gehe zu Zustand 28 über
+    statement    gehe zu Zustand 37 über
+    classdef     gehe zu Zustand 27 über
+    deleteclass  gehe zu Zustand 28 über
+    field        gehe zu Zustand 29 über
+    ident        gehe zu Zustand 30 über
 
 
-Zustand 32
+Zustand 34
 
    26 field: ident "[" . "]" "=" array
    27      | ident "[" . "]" "+=" array
 
-    "]"  schiebe und gehe zu Zustand 36 über
+    "]"  schiebe und gehe zu Zustand 38 über
 
 
-Zustand 33
+Zustand 35
 
    25 field: ident "=" . anyvalue
 
-    "delete"   schiebe und gehe zu Zustand 37 über
-    "class"    schiebe und gehe zu Zustand 38 über
-    "{"        schiebe und gehe zu Zustand 39 über
-    "}"        schiebe und gehe zu Zustand 40 über
-    "["        schiebe und gehe zu Zustand 41 über
-    "]"        schiebe und gehe zu Zustand 42 über
-    ":"        schiebe und gehe zu Zustand 43 über
-    ","        schiebe und gehe zu Zustand 44 über
-    "="        schiebe und gehe zu Zustand 45 über
-    IDENT      schiebe und gehe zu Zustand 11 über
-    NUMBER     schiebe und gehe zu Zustand 46 über
-    HEXNUMBER  schiebe und gehe zu Zustand 47 über
-    STRING     schiebe und gehe zu Zustand 48 über
-    ANY        schiebe und gehe zu Zustand 49 über
+    "delete"   schiebe und gehe zu Zustand 39 über
+    "class"    schiebe und gehe zu Zustand 40 über
+    "{"        schiebe und gehe zu Zustand 41 über
+    "}"        schiebe und gehe zu Zustand 42 über
+    "["        schiebe und gehe zu Zustand 43 über
+    "]"        schiebe und gehe zu Zustand 44 über
+    ":"        schiebe und gehe zu Zustand 45 über
+    ","        schiebe und gehe zu Zustand 46 über
+    "="        schiebe und gehe zu Zustand 47 über
+    IDENT      schiebe und gehe zu Zustand 48 über
+    NUMBER     schiebe und gehe zu Zustand 49 über
+    HEXNUMBER  schiebe und gehe zu Zustand 50 über
+    STRING     schiebe und gehe zu Zustand 51 über
+    ANY        schiebe und gehe zu Zustand 52 über
 
-    ident     gehe zu Zustand 50 über
-    string    gehe zu Zustand 51 über
-    number    gehe zu Zustand 52 über
-    anyval    gehe zu Zustand 53 über
-    anyp      gehe zu Zustand 54 über
-    anyvalue  gehe zu Zustand 55 über
+    string    gehe zu Zustand 53 über
+    number    gehe zu Zustand 54 über
+    anyval    gehe zu Zustand 55 über
+    anyp      gehe zu Zustand 56 über
+    anyvalue  gehe zu Zustand 57 über
 
 
-Zustand 34
+Zustand 36
 
    21 classdef: "class" ident ":" ident classbody .
 
     $default  reduziere mit Regel 21 (classdef)
 
 
-Zustand 35
+Zustand 37
 
    14 statements: statements separators statement .
 
     $default  reduziere mit Regel 14 (statements)
 
 
-Zustand 36
+Zustand 38
 
    26 field: ident "[" "]" . "=" array
    27      | ident "[" "]" . "+=" array
 
-    "+="  schiebe und gehe zu Zustand 56 über
-    "="   schiebe und gehe zu Zustand 57 über
-
-
-Zustand 37
-
-   44 anyp: "delete" .
-
-    $default  reduziere mit Regel 44 (anyp)
-
-
-Zustand 38
-
-   43 anyp: "class" .
-
-    $default  reduziere mit Regel 43 (anyp)
+    "+="  schiebe und gehe zu Zustand 58 über
+    "="   schiebe und gehe zu Zustand 59 über
 
 
 Zustand 39
 
-   39 anyval: "{" .
+   46 anyp: "delete" .
 
-    $default  reduziere mit Regel 39 (anyval)
+    $default  reduziere mit Regel 46 (anyp)
 
 
 Zustand 40
 
-   40 anyval: "}" .
+   45 anyp: "class" .
 
-    $default  reduziere mit Regel 40 (anyval)
+    $default  reduziere mit Regel 45 (anyp)
 
 
 Zustand 41
 
-   48 anyp: "[" .
+   41 anyval: "{" .
 
-    $default  reduziere mit Regel 48 (anyp)
+    $default  reduziere mit Regel 41 (anyval)
 
 
 Zustand 42
 
-   49 anyp: "]" .
+   42 anyval: "}" .
 
-    $default  reduziere mit Regel 49 (anyp)
+    $default  reduziere mit Regel 42 (anyval)
 
 
 Zustand 43
 
-   50 anyp: ":" .
+   50 anyp: "[" .
 
     $default  reduziere mit Regel 50 (anyp)
 
 
 Zustand 44
 
-   41 anyval: "," .
-
-    $default  reduziere mit Regel 41 (anyval)
-
-
-Zustand 45
-
-   51 anyp: "=" .
+   51 anyp: "]" .
 
     $default  reduziere mit Regel 51 (anyp)
 
 
-Zustand 46
+Zustand 45
 
-   30 number: NUMBER .
-
-    $default  reduziere mit Regel 30 (number)
-
-
-Zustand 47
-
-   31 number: HEXNUMBER .
-
-    $default  reduziere mit Regel 31 (number)
-
-
-Zustand 48
-
-   29 string: STRING .
-
-    $default  reduziere mit Regel 29 (string)
-
-
-Zustand 49
-
-   52 anyp: ANY .
+   52 anyp: ":" .
 
     $default  reduziere mit Regel 52 (anyp)
 
 
+Zustand 46
+
+   43 anyval: "," .
+
+    $default  reduziere mit Regel 43 (anyval)
+
+
+Zustand 47
+
+   53 anyp: "=" .
+
+    $default  reduziere mit Regel 53 (anyp)
+
+
+Zustand 48
+
+   49 anyp: IDENT .
+
+    $default  reduziere mit Regel 49 (anyp)
+
+
+Zustand 49
+
+   32 number: NUMBER .
+
+    $default  reduziere mit Regel 32 (number)
+
+
 Zustand 50
 
-   47 anyp: ident .
+   33 number: HEXNUMBER .
 
-    $default  reduziere mit Regel 47 (anyp)
+    $default  reduziere mit Regel 33 (number)
 
 
 Zustand 51
 
-   46 anyp: string .
+   31 string: STRING .
 
-    $default  reduziere mit Regel 46 (anyp)
+    $default  reduziere mit Regel 31 (string)
 
 
 Zustand 52
 
-   45 anyp: number .
+   54 anyp: ANY .
 
-    $default  reduziere mit Regel 45 (anyp)
+    $default  reduziere mit Regel 54 (anyp)
 
 
 Zustand 53
 
-   55 anyvalue: anyval .
+   48 anyp: string .
 
-    $default  reduziere mit Regel 55 (anyvalue)
+    $default  reduziere mit Regel 48 (anyp)
 
 
 Zustand 54
 
-   38 anyval: anyp .
+   47 anyp: number .
 
-    $default  reduziere mit Regel 38 (anyval)
+    $default  reduziere mit Regel 47 (anyp)
 
 
 Zustand 55
 
-   25 field: ident "=" anyvalue .
-   56 anyvalue: anyvalue . anyval
+   57 anyvalue: anyval .
 
-    "delete"   schiebe und gehe zu Zustand 37 über
-    "class"    schiebe und gehe zu Zustand 38 über
-    "{"        schiebe und gehe zu Zustand 39 über
-    "}"        schiebe und gehe zu Zustand 40 über
-    "["        schiebe und gehe zu Zustand 41 über
-    "]"        schiebe und gehe zu Zustand 42 über
-    ":"        schiebe und gehe zu Zustand 43 über
-    ","        schiebe und gehe zu Zustand 44 über
-    "="        schiebe und gehe zu Zustand 45 über
-    IDENT      schiebe und gehe zu Zustand 11 über
-    NUMBER     schiebe und gehe zu Zustand 46 über
-    HEXNUMBER  schiebe und gehe zu Zustand 47 über
-    STRING     schiebe und gehe zu Zustand 48 über
-    ANY        schiebe und gehe zu Zustand 49 über
-
-    "}"       [reduziere mit Regel 25 (field)]
-    $default  reduziere mit Regel 25 (field)
-
-    ident   gehe zu Zustand 50 über
-    string  gehe zu Zustand 51 über
-    number  gehe zu Zustand 52 über
-    anyval  gehe zu Zustand 58 über
-    anyp    gehe zu Zustand 54 über
+    $default  reduziere mit Regel 57 (anyvalue)
 
 
 Zustand 56
 
-   27 field: ident "[" "]" "+=" . array
+   40 anyval: anyp .
 
-    "{"  schiebe und gehe zu Zustand 59 über
-
-    array  gehe zu Zustand 60 über
+    $default  reduziere mit Regel 40 (anyval)
 
 
 Zustand 57
 
-   26 field: ident "[" "]" "=" . array
+   25 field: ident "=" anyvalue .
+   58 anyvalue: anyvalue . anyval
 
-    "{"  schiebe und gehe zu Zustand 59 über
+    "delete"   schiebe und gehe zu Zustand 39 über
+    "class"    schiebe und gehe zu Zustand 40 über
+    "{"        schiebe und gehe zu Zustand 41 über
+    "}"        schiebe und gehe zu Zustand 42 über
+    "["        schiebe und gehe zu Zustand 43 über
+    "]"        schiebe und gehe zu Zustand 44 über
+    ":"        schiebe und gehe zu Zustand 45 über
+    ","        schiebe und gehe zu Zustand 46 über
+    "="        schiebe und gehe zu Zustand 47 über
+    IDENT      schiebe und gehe zu Zustand 48 über
+    NUMBER     schiebe und gehe zu Zustand 49 über
+    HEXNUMBER  schiebe und gehe zu Zustand 50 über
+    STRING     schiebe und gehe zu Zustand 51 über
+    ANY        schiebe und gehe zu Zustand 52 über
 
-    array  gehe zu Zustand 61 über
+    "}"       [reduziere mit Regel 25 (field)]
+    $default  reduziere mit Regel 25 (field)
+
+    string  gehe zu Zustand 53 über
+    number  gehe zu Zustand 54 über
+    anyval  gehe zu Zustand 60 über
+    anyp    gehe zu Zustand 56 über
 
 
 Zustand 58
 
-   56 anyvalue: anyvalue anyval .
+   27 field: ident "[" "]" "+=" . array
 
-    $default  reduziere mit Regel 56 (anyvalue)
+    "{"  schiebe und gehe zu Zustand 61 über
+
+    array  gehe zu Zustand 62 über
 
 
 Zustand 59
 
-   32 array: "{" . "}"
-   33      | "{" . arrayvaluelist "}"
+   26 field: ident "[" "]" "=" . array
 
-    "delete"   schiebe und gehe zu Zustand 37 über
-    "class"    schiebe und gehe zu Zustand 38 über
-    "{"        schiebe und gehe zu Zustand 59 über
-    "}"        schiebe und gehe zu Zustand 62 über
-    "["        schiebe und gehe zu Zustand 41 über
-    "]"        schiebe und gehe zu Zustand 42 über
-    ":"        schiebe und gehe zu Zustand 43 über
-    "="        schiebe und gehe zu Zustand 45 über
-    IDENT      schiebe und gehe zu Zustand 11 über
-    NUMBER     schiebe und gehe zu Zustand 46 über
-    HEXNUMBER  schiebe und gehe zu Zustand 47 über
-    STRING     schiebe und gehe zu Zustand 48 über
-    ANY        schiebe und gehe zu Zustand 49 über
+    "{"  schiebe und gehe zu Zustand 61 über
 
-    ident           gehe zu Zustand 50 über
-    string          gehe zu Zustand 51 über
-    number          gehe zu Zustand 52 über
-    array           gehe zu Zustand 63 über
-    arrayvalue      gehe zu Zustand 64 über
-    arrayvaluelist  gehe zu Zustand 65 über
-    anyarr          gehe zu Zustand 66 über
-    anyp            gehe zu Zustand 67 über
-    anyarray        gehe zu Zustand 68 über
+    array  gehe zu Zustand 63 über
 
 
 Zustand 60
+
+   58 anyvalue: anyvalue anyval .
+
+    $default  reduziere mit Regel 58 (anyvalue)
+
+
+Zustand 61
+
+   34 array: "{" . "}"
+   35      | "{" . arrayvaluelist "}"
+
+    "delete"   schiebe und gehe zu Zustand 39 über
+    "class"    schiebe und gehe zu Zustand 40 über
+    "{"        schiebe und gehe zu Zustand 61 über
+    "}"        schiebe und gehe zu Zustand 64 über
+    "["        schiebe und gehe zu Zustand 43 über
+    "]"        schiebe und gehe zu Zustand 44 über
+    ":"        schiebe und gehe zu Zustand 45 über
+    "="        schiebe und gehe zu Zustand 47 über
+    IDENT      schiebe und gehe zu Zustand 48 über
+    NUMBER     schiebe und gehe zu Zustand 49 über
+    HEXNUMBER  schiebe und gehe zu Zustand 50 über
+    STRING     schiebe und gehe zu Zustand 51 über
+    ANY        schiebe und gehe zu Zustand 52 über
+
+    string          gehe zu Zustand 53 über
+    number          gehe zu Zustand 54 über
+    array           gehe zu Zustand 65 über
+    arrayvalue      gehe zu Zustand 66 über
+    arrayvaluelist  gehe zu Zustand 67 über
+    anyarr          gehe zu Zustand 68 über
+    anyp            gehe zu Zustand 69 über
+    anyarray        gehe zu Zustand 70 über
+
+
+Zustand 62
 
    27 field: ident "[" "]" "+=" array .
 
     $default  reduziere mit Regel 27 (field)
 
 
-Zustand 61
+Zustand 63
 
    26 field: ident "[" "]" "=" array .
 
     $default  reduziere mit Regel 26 (field)
 
 
-Zustand 62
-
-   32 array: "{" "}" .
-
-    $default  reduziere mit Regel 32 (array)
-
-
-Zustand 63
-
-   34 arrayvalue: array .
-
-    $default  reduziere mit Regel 34 (arrayvalue)
-
-
 Zustand 64
 
-   36 arrayvaluelist: arrayvalue .
+   34 array: "{" "}" .
 
-    $default  reduziere mit Regel 36 (arrayvaluelist)
+    $default  reduziere mit Regel 34 (array)
 
 
 Zustand 65
 
-   33 array: "{" arrayvaluelist . "}"
-   37 arrayvaluelist: arrayvaluelist . "," arrayvalue
+   36 arrayvalue: array .
 
-    "}"  schiebe und gehe zu Zustand 69 über
-    ","  schiebe und gehe zu Zustand 70 über
+    $default  reduziere mit Regel 36 (arrayvalue)
 
 
 Zustand 66
 
-   53 anyarray: anyarr .
+   38 arrayvaluelist: arrayvalue .
 
-    $default  reduziere mit Regel 53 (anyarray)
+    $default  reduziere mit Regel 38 (arrayvaluelist)
 
 
 Zustand 67
 
-   42 anyarr: anyp .
+   35 array: "{" arrayvaluelist . "}"
+   39 arrayvaluelist: arrayvaluelist . "," arrayvalue
 
-    $default  reduziere mit Regel 42 (anyarr)
+    "}"  schiebe und gehe zu Zustand 71 über
+    ","  schiebe und gehe zu Zustand 72 über
 
 
 Zustand 68
 
-   35 arrayvalue: anyarray .
-   54 anyarray: anyarray . anyarr
+   55 anyarray: anyarr .
 
-    "delete"   schiebe und gehe zu Zustand 37 über
-    "class"    schiebe und gehe zu Zustand 38 über
-    "["        schiebe und gehe zu Zustand 41 über
-    "]"        schiebe und gehe zu Zustand 42 über
-    ":"        schiebe und gehe zu Zustand 43 über
-    "="        schiebe und gehe zu Zustand 45 über
-    IDENT      schiebe und gehe zu Zustand 11 über
-    NUMBER     schiebe und gehe zu Zustand 46 über
-    HEXNUMBER  schiebe und gehe zu Zustand 47 über
-    STRING     schiebe und gehe zu Zustand 48 über
-    ANY        schiebe und gehe zu Zustand 49 über
-
-    $default  reduziere mit Regel 35 (arrayvalue)
-
-    ident   gehe zu Zustand 50 über
-    string  gehe zu Zustand 51 über
-    number  gehe zu Zustand 52 über
-    anyarr  gehe zu Zustand 71 über
-    anyp    gehe zu Zustand 67 über
+    $default  reduziere mit Regel 55 (anyarray)
 
 
 Zustand 69
 
-   33 array: "{" arrayvaluelist "}" .
+   44 anyarr: anyp .
 
-    $default  reduziere mit Regel 33 (array)
+    $default  reduziere mit Regel 44 (anyarr)
 
 
 Zustand 70
 
-   37 arrayvaluelist: arrayvaluelist "," . arrayvalue
+   37 arrayvalue: anyarray .
+   56 anyarray: anyarray . anyarr
 
-    "delete"   schiebe und gehe zu Zustand 37 über
-    "class"    schiebe und gehe zu Zustand 38 über
-    "{"        schiebe und gehe zu Zustand 59 über
-    "["        schiebe und gehe zu Zustand 41 über
-    "]"        schiebe und gehe zu Zustand 42 über
-    ":"        schiebe und gehe zu Zustand 43 über
-    "="        schiebe und gehe zu Zustand 45 über
-    IDENT      schiebe und gehe zu Zustand 11 über
-    NUMBER     schiebe und gehe zu Zustand 46 über
-    HEXNUMBER  schiebe und gehe zu Zustand 47 über
-    STRING     schiebe und gehe zu Zustand 48 über
-    ANY        schiebe und gehe zu Zustand 49 über
+    "delete"   schiebe und gehe zu Zustand 39 über
+    "class"    schiebe und gehe zu Zustand 40 über
+    "["        schiebe und gehe zu Zustand 43 über
+    "]"        schiebe und gehe zu Zustand 44 über
+    ":"        schiebe und gehe zu Zustand 45 über
+    "="        schiebe und gehe zu Zustand 47 über
+    IDENT      schiebe und gehe zu Zustand 48 über
+    NUMBER     schiebe und gehe zu Zustand 49 über
+    HEXNUMBER  schiebe und gehe zu Zustand 50 über
+    STRING     schiebe und gehe zu Zustand 51 über
+    ANY        schiebe und gehe zu Zustand 52 über
 
-    ident       gehe zu Zustand 50 über
-    string      gehe zu Zustand 51 über
-    number      gehe zu Zustand 52 über
-    array       gehe zu Zustand 63 über
-    arrayvalue  gehe zu Zustand 72 über
-    anyarr      gehe zu Zustand 66 über
-    anyp        gehe zu Zustand 67 über
-    anyarray    gehe zu Zustand 68 über
+    $default  reduziere mit Regel 37 (arrayvalue)
+
+    string  gehe zu Zustand 53 über
+    number  gehe zu Zustand 54 über
+    anyarr  gehe zu Zustand 73 über
+    anyp    gehe zu Zustand 69 über
 
 
 Zustand 71
 
-   54 anyarray: anyarray anyarr .
+   35 array: "{" arrayvaluelist "}" .
 
-    $default  reduziere mit Regel 54 (anyarray)
+    $default  reduziere mit Regel 35 (array)
 
 
 Zustand 72
 
-   37 arrayvaluelist: arrayvaluelist "," arrayvalue .
+   39 arrayvaluelist: arrayvaluelist "," . arrayvalue
 
-    $default  reduziere mit Regel 37 (arrayvaluelist)
+    "delete"   schiebe und gehe zu Zustand 39 über
+    "class"    schiebe und gehe zu Zustand 40 über
+    "{"        schiebe und gehe zu Zustand 61 über
+    "["        schiebe und gehe zu Zustand 43 über
+    "]"        schiebe und gehe zu Zustand 44 über
+    ":"        schiebe und gehe zu Zustand 45 über
+    "="        schiebe und gehe zu Zustand 47 über
+    IDENT      schiebe und gehe zu Zustand 48 über
+    NUMBER     schiebe und gehe zu Zustand 49 über
+    HEXNUMBER  schiebe und gehe zu Zustand 50 über
+    STRING     schiebe und gehe zu Zustand 51 über
+    ANY        schiebe und gehe zu Zustand 52 über
+
+    string      gehe zu Zustand 53 über
+    number      gehe zu Zustand 54 über
+    array       gehe zu Zustand 65 über
+    arrayvalue  gehe zu Zustand 74 über
+    anyarr      gehe zu Zustand 68 über
+    anyp        gehe zu Zustand 69 über
+    anyarray    gehe zu Zustand 70 über
+
+
+Zustand 73
+
+   56 anyarray: anyarray anyarr .
+
+    $default  reduziere mit Regel 56 (anyarray)
+
+
+Zustand 74
+
+   39 arrayvaluelist: arrayvaluelist "," arrayvalue .
+
+    $default  reduziere mit Regel 39 (arrayvaluelist)

@@ -187,6 +187,9 @@ namespace sqf::runtime
                 auto actual_index = container[m_index];
                 return confignav(m_confighost, actual_index);
             }
+            confignav navigate() {
+                return (**this).navigate(m_confighost);
+            }
         };
         using iterator = iterator_base<false>;
         using iterator_recursive = iterator_base<true>;
@@ -204,7 +207,11 @@ namespace sqf::runtime
         }
 
         bool empty() const { return m_index == config::invalid_id; }
-        const config::container* operator->() const
+
+        bool is_config_class() const {
+            return to_container_ptr()->size() > 0 || (to_container_ptr()->size() == 0 && to_container_ptr()->value.empty());
+        }
+        const config::container* to_container_ptr() const
         {
             if (!empty())
             {
@@ -212,7 +219,8 @@ namespace sqf::runtime
             }
             return {};
         }
-        config operator*() const
+        const config::container* operator->() const { return to_container_ptr(); }
+        config deref_config() const
         {
             if (!empty())
             {
@@ -220,6 +228,7 @@ namespace sqf::runtime
             }
             return {};
         }
+        config operator*() const { return deref_config(); }
         operator config() const { return **this; }
         confignav operator/(std::string target) const { return lookup_in_inherited(target); }
         confignav operator/(size_t index) const { return at(index); }

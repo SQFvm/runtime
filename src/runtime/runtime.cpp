@@ -602,13 +602,10 @@ sqf::runtime::runtime::result sqf::runtime::runtime::execute(sqf::runtime::runti
         {
             while (!eval_context->empty())
             {
-                auto oldstate = m_state;
-                if (m_state == runtime::state::empty)
-                {
-                    m_state = runtime::state::running;
-                }
+                auto tmp_state = m_state;
+                m_state = runtime::state::running;
                 execute_do(*this, 1);
-                m_state = oldstate;
+                m_state = tmp_state;
             }
         }
         catch (const std::exception& ex)

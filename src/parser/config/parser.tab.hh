@@ -806,9 +806,9 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 103,     ///< Last index in yytable_.
+      yylast_ = 107,     ///< Last index in yytable_.
       yynnts_ = 22,  ///< Number of nonterminal symbols.
-      yyfinal_ = 14, ///< Termination state number.
+      yyfinal_ = 16, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
       yyntokens_ = 22  ///< Number of tokens.

@@ -47,3 +47,12 @@ class test_config_classes_only_returns_config_entries
         subProperty = 0;
     }; 
 };
+class config_variance_tests
+{
+    class just_number_idents {
+        class 0 {
+            1 = 5;
+            2[] = {1,2};
+        };
+    };
+};
