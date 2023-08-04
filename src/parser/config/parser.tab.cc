@@ -832,43 +832,55 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     break;
 
   case 30:
-#line 212 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::STRING, yystack_[0].value.as< tokenizer::token > () }; }
+#line 211 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::IDENT, yystack_[0].value.as< tokenizer::token > () }; }
 #line 838 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 31:
-#line 214 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::NUMBER_DECIMAL, yystack_[0].value.as< tokenizer::token > () }; }
+#line 212 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::IDENT, yystack_[0].value.as< tokenizer::token > () }; }
 #line 844 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 32:
-#line 215 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::NUMBER_HEXADECIMAL, yystack_[0].value.as< tokenizer::token > () }; }
+#line 214 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::STRING, yystack_[0].value.as< tokenizer::token > () }; }
 #line 850 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 33:
-#line 217 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ARRAY }; }
+#line 216 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::NUMBER_DECIMAL, yystack_[0].value.as< tokenizer::token > () }; }
 #line 856 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 34:
-#line 218 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[1].value.as< ::sqf::parser::config::bison::astnode > (); }
+#line 217 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::NUMBER_HEXADECIMAL, yystack_[0].value.as< tokenizer::token > () }; }
 #line 862 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 35:
-#line 220 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[0].value.as< ::sqf::parser::config::bison::astnode > (); }
+#line 219 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ARRAY }; }
 #line 868 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 36:
+#line 220 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[1].value.as< ::sqf::parser::config::bison::astnode > (); }
+#line 874 "parser.tab.cc" // lalr1.cc:859
+    break;
+
+  case 37:
 #line 222 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[0].value.as< ::sqf::parser::config::bison::astnode > (); }
+#line 880 "parser.tab.cc" // lalr1.cc:859
+    break;
+
+  case 38:
+#line 224 "parser.y" // lalr1.cc:859
     {
               if (yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ().children.size() == 1 && yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ().children[0].kind != astkind::ANY)
               {
@@ -879,36 +891,24 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
                  yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ();
               }
           }
-#line 883 "parser.tab.cc" // lalr1.cc:859
-    break;
-
-  case 37:
-#line 233 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ARRAY }; yylhs.value.as< ::sqf::parser::config::bison::astnode > ().append(yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ()); }
-#line 889 "parser.tab.cc" // lalr1.cc:859
-    break;
-
-  case 38:
-#line 234 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[2].value.as< ::sqf::parser::config::bison::astnode > (); yylhs.value.as< ::sqf::parser::config::bison::astnode > ().append(yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ()); }
 #line 895 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 39:
-#line 236 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[0].value.as< ::sqf::parser::config::bison::astnode > (); }
+#line 235 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ARRAY }; yylhs.value.as< ::sqf::parser::config::bison::astnode > ().append(yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ()); }
 #line 901 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 40:
-#line 237 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANY, yystack_[0].value.as< tokenizer::token > () }; }
+#line 236 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[2].value.as< ::sqf::parser::config::bison::astnode > (); yylhs.value.as< ::sqf::parser::config::bison::astnode > ().append(yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ()); }
 #line 907 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 41:
 #line 238 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANY, yystack_[0].value.as< tokenizer::token > () }; }
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[0].value.as< ::sqf::parser::config::bison::astnode > (); }
 #line 913 "parser.tab.cc" // lalr1.cc:859
     break;
 
@@ -919,32 +919,32 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     break;
 
   case 43:
-#line 241 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[0].value.as< ::sqf::parser::config::bison::astnode > (); }
+#line 240 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANY, yystack_[0].value.as< tokenizer::token > () }; }
 #line 925 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 44:
-#line 243 "parser.y" // lalr1.cc:859
+#line 241 "parser.y" // lalr1.cc:859
     { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANY, yystack_[0].value.as< tokenizer::token > () }; }
 #line 931 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 45:
-#line 244 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANY, yystack_[0].value.as< tokenizer::token > () }; }
+#line 243 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[0].value.as< ::sqf::parser::config::bison::astnode > (); }
 #line 937 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 46:
 #line 245 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[0].value.as< ::sqf::parser::config::bison::astnode > (); }
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANY, yystack_[0].value.as< tokenizer::token > () }; }
 #line 943 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 47:
 #line 246 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[0].value.as< ::sqf::parser::config::bison::astnode > (); }
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANY, yystack_[0].value.as< tokenizer::token > () }; }
 #line 949 "parser.tab.cc" // lalr1.cc:859
     break;
 
@@ -956,13 +956,13 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
 
   case 49:
 #line 248 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANY, yystack_[0].value.as< tokenizer::token > () }; }
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[0].value.as< ::sqf::parser::config::bison::astnode > (); }
 #line 961 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 50:
 #line 249 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANY, yystack_[0].value.as< tokenizer::token > () }; }
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::IDENT, yystack_[0].value.as< tokenizer::token > () }; }
 #line 967 "parser.tab.cc" // lalr1.cc:859
     break;
 
@@ -985,31 +985,43 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
     break;
 
   case 54:
-#line 254 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANYSTRING }; yylhs.value.as< ::sqf::parser::config::bison::astnode > ().append(yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ()); }
+#line 253 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANY, yystack_[0].value.as< tokenizer::token > () }; }
 #line 991 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 55:
-#line 255 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[1].value.as< ::sqf::parser::config::bison::astnode > (); yylhs.value.as< ::sqf::parser::config::bison::astnode > ().append(yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ()); }
+#line 254 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANY, yystack_[0].value.as< tokenizer::token > () }; }
 #line 997 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 56:
-#line 257 "parser.y" // lalr1.cc:859
+#line 256 "parser.y" // lalr1.cc:859
     { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANYSTRING }; yylhs.value.as< ::sqf::parser::config::bison::astnode > ().append(yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ()); }
 #line 1003 "parser.tab.cc" // lalr1.cc:859
     break;
 
   case 57:
-#line 258 "parser.y" // lalr1.cc:859
+#line 257 "parser.y" // lalr1.cc:859
     { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[1].value.as< ::sqf::parser::config::bison::astnode > (); yylhs.value.as< ::sqf::parser::config::bison::astnode > ().append(yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ()); }
 #line 1009 "parser.tab.cc" // lalr1.cc:859
     break;
 
+  case 58:
+#line 259 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = ::sqf::parser::config::bison::astnode{ astkind::ANYSTRING }; yylhs.value.as< ::sqf::parser::config::bison::astnode > ().append(yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ()); }
+#line 1015 "parser.tab.cc" // lalr1.cc:859
+    break;
 
-#line 1013 "parser.tab.cc" // lalr1.cc:859
+  case 59:
+#line 260 "parser.y" // lalr1.cc:859
+    { yylhs.value.as< ::sqf::parser::config::bison::astnode > () = yystack_[1].value.as< ::sqf::parser::config::bison::astnode > (); yylhs.value.as< ::sqf::parser::config::bison::astnode > ().append(yystack_[0].value.as< ::sqf::parser::config::bison::astnode > ()); }
+#line 1021 "parser.tab.cc" // lalr1.cc:859
+    break;
+
+
+#line 1025 "parser.tab.cc" // lalr1.cc:859
             default:
               break;
             }
@@ -1264,95 +1276,95 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
   }
 
 
-  const signed char parser::yypact_ninf_ = -30;
+  const signed char parser::yypact_ninf_ = -35;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const signed char
   parser::yypact_[] =
   {
-      71,   -30,   -14,   -14,   -30,    11,    64,    22,   -30,   -30,
-     -30,   -30,   -30,     0,   -30,   -30,    22,    64,    81,   -14,
-     -30,   -30,   -30,    45,   -30,   -30,   -30,   -30,    41,    33,
-     -30,    86,    42,    26,   -30,   -30,    77,   -30,   -30,   -30,
-     -30,   -30,   -30,   -30,   -30,   -30,   -30,   -30,   -30,   -30,
-     -30,   -30,   -30,   -30,   -30,    26,    53,    53,   -30,     3,
-     -30,   -30,   -30,   -30,   -30,    20,   -30,   -30,    62,   -30,
-      44,   -30,   -30
+      11,   -35,    -5,    -5,   -35,    10,    78,    36,   -35,   -35,
+     -35,   -35,   -35,   -35,   -35,    -4,   -35,   -35,    36,    78,
+       2,    -5,   -35,   -35,   -35,    24,   -35,   -35,   -35,   -35,
+      55,    29,   -35,    85,    61,    22,   -35,   -35,    38,   -35,
+     -35,   -35,   -35,   -35,   -35,   -35,   -35,   -35,   -35,   -35,
+     -35,   -35,   -35,   -35,   -35,   -35,   -35,    22,    67,    67,
+     -35,    40,   -35,   -35,   -35,   -35,   -35,    41,   -35,   -35,
+      76,   -35,    58,   -35,   -35
   };
 
   const unsigned char
   parser::yydefact_[] =
   {
        0,     2,     0,     0,     6,     0,     4,     3,     8,    11,
-      12,    29,    23,    19,     1,     7,     5,     9,     0,     0,
-      21,    10,    24,     0,    13,    16,    18,    17,     0,    20,
-      25,    14,     0,     0,    22,    15,     0,    45,    44,    40,
-      41,    49,    50,    51,    42,    52,    31,    32,    30,    53,
-      48,    47,    46,    56,    39,    26,     0,     0,    57,     0,
-      28,    27,    33,    35,    37,     0,    54,    43,    36,    34,
-       0,    55,    38
+      12,    29,    30,    31,    23,    19,     1,     7,     5,     9,
+       0,     0,    21,    10,    24,     0,    13,    16,    18,    17,
+       0,    20,    25,    14,     0,     0,    22,    15,     0,    47,
+      46,    42,    43,    51,    52,    53,    44,    54,    50,    33,
+      34,    32,    55,    49,    48,    58,    41,    26,     0,     0,
+      59,     0,    28,    27,    35,    37,    39,     0,    56,    45,
+      38,    36,     0,    57,    40
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-     -30,   -30,     2,    83,    70,   -30,    39,   -13,    10,    67,
-     -30,    -2,   -30,   -30,    38,    27,   -30,    46,    32,   -29,
-     -30,   -30
+     -35,   -35,     0,    79,    65,   -35,    66,   -15,    -3,    69,
+     -35,     1,   -35,   -35,     8,    33,   -35,    44,    37,   -34,
+     -35,   -35
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-      -1,     5,    17,     7,     8,    23,    24,     9,    10,    20,
-      27,    50,    51,    52,    63,    64,    65,    53,    66,    67,
-      68,    55
+      -1,     5,    19,     7,     8,    25,    26,     9,    10,    22,
+      29,    30,    53,    54,    65,    66,    67,    55,    68,    69,
+      70,    57
   };
 
   const unsigned char
   parser::yytable_[] =
   {
-      12,    13,     6,    11,    54,    25,    18,    37,    38,    59,
-      62,    14,    19,    41,    42,    43,    28,    29,    25,    45,
-      11,    46,    47,    48,    49,    31,    54,    69,    26,    28,
-      37,    38,    39,    40,    70,     4,    41,    42,    43,    18,
-      44,    26,    45,    11,    46,    47,    48,    49,    37,    38,
-      59,    32,    30,    36,    41,    42,    43,    33,     4,    59,
-      45,    11,    46,    47,    48,    49,    37,    38,     2,     3,
-      35,     1,    41,    42,    43,     2,     3,    15,    45,    11,
-      46,    47,    48,    49,     4,     2,     3,    21,    22,    16,
-       2,     3,    56,    57,    60,    61,    34,    72,    11,    15,
-      71,    58,     0,    11
+       6,    56,    20,    14,    15,    27,     2,     3,    21,    24,
+      16,     1,    11,    12,    13,     2,     3,    28,    27,    11,
+      12,    13,    31,    56,     4,    33,    39,    40,    41,    42,
+      28,    32,    43,    44,    45,    20,    46,     4,    47,    48,
+      49,    50,    51,    52,    39,    40,    61,    64,    71,     4,
+      43,    44,    45,    58,    59,    72,    47,    48,    49,    50,
+      51,    52,    39,    40,    61,    34,    62,    63,    43,    44,
+      45,    35,    38,    61,    47,    48,    49,    50,    51,    52,
+      39,    40,     2,     3,    23,    18,    43,    44,    45,     2,
+       3,    17,    47,    48,    49,    50,    51,    52,    17,    37,
+      36,    60,    11,    12,    13,    74,     0,    73
   };
 
   const signed char
   parser::yycheck_[] =
   {
-       2,     3,     0,    17,    33,    18,     6,     4,     5,     6,
-       7,     0,    12,    10,    11,    12,    18,    19,    31,    16,
-      17,    18,    19,    20,    21,    23,    55,     7,    18,    31,
-       4,     5,     6,     7,    14,    13,    10,    11,    12,     6,
-      14,    31,    16,    17,    18,    19,    20,    21,     4,     5,
-       6,    10,     7,    11,    10,    11,    12,    16,    13,     6,
-      16,    17,    18,    19,    20,    21,     4,     5,     4,     5,
-      31,     0,    10,    11,    12,     4,     5,    13,    16,    17,
-      18,    19,    20,    21,    13,     4,     5,    17,     7,     6,
-       4,     5,    15,    16,    56,    57,    29,    70,    17,    13,
-      68,    55,    -1,    17
+       0,    35,     6,     2,     3,    20,     4,     5,    12,     7,
+       0,     0,    17,    18,    19,     4,     5,    20,    33,    17,
+      18,    19,    21,    57,    13,    25,     4,     5,     6,     7,
+      33,     7,    10,    11,    12,     6,    14,    13,    16,    17,
+      18,    19,    20,    21,     4,     5,     6,     7,     7,    13,
+      10,    11,    12,    15,    16,    14,    16,    17,    18,    19,
+      20,    21,     4,     5,     6,    10,    58,    59,    10,    11,
+      12,    16,    11,     6,    16,    17,    18,    19,    20,    21,
+       4,     5,     4,     5,    19,     6,    10,    11,    12,     4,
+       5,    13,    16,    17,    18,    19,    20,    21,    13,    33,
+      31,    57,    17,    18,    19,    72,    -1,    70
   };
 
   const unsigned char
   parser::yystos_[] =
   {
        0,     0,     4,     5,    13,    23,    24,    25,    26,    29,
-      30,    17,    33,    33,     0,    13,    25,    24,     6,    12,
-      31,    26,     7,    27,    28,    29,    30,    32,    33,    33,
-       7,    24,    10,    16,    31,    28,    11,     4,     5,     6,
-       7,    10,    11,    12,    14,    16,    18,    19,    20,    21,
-      33,    34,    35,    39,    41,    43,    15,    16,    39,     6,
-      36,    36,     7,    36,    37,    38,    40,    41,    42,     7,
-      14,    40,    37
+      30,    17,    18,    19,    33,    33,     0,    13,    25,    24,
+       6,    12,    31,    26,     7,    27,    28,    29,    30,    32,
+      33,    33,     7,    24,    10,    16,    31,    28,    11,     4,
+       5,     6,     7,    10,    11,    12,    14,    16,    17,    18,
+      19,    20,    21,    34,    35,    39,    41,    43,    15,    16,
+      39,     6,    36,    36,     7,    36,    37,    38,    40,    41,
+      42,     7,    14,    40,    37
   };
 
   const unsigned char
@@ -1361,9 +1373,9 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
        0,    22,    23,    23,    23,    23,    24,    24,    25,    25,
       25,    26,    26,    27,    27,    27,    28,    28,    28,    29,
       29,    29,    29,    30,    31,    31,    32,    32,    32,    33,
-      34,    35,    35,    36,    36,    37,    37,    38,    38,    39,
-      39,    39,    39,    40,    41,    41,    41,    41,    41,    41,
-      41,    41,    41,    41,    42,    42,    43,    43
+      33,    33,    34,    35,    35,    36,    36,    37,    37,    38,
+      38,    39,    39,    39,    39,    40,    41,    41,    41,    41,
+      41,    41,    41,    41,    41,    41,    42,    42,    43,    43
   };
 
   const unsigned char
@@ -1372,9 +1384,9 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
        0,     2,     1,     1,     1,     2,     1,     2,     1,     2,
        3,     1,     1,     1,     2,     3,     1,     1,     1,     2,
        4,     3,     5,     2,     2,     3,     3,     5,     5,     1,
-       1,     1,     1,     2,     3,     1,     1,     1,     3,     1,
-       1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     1,     2,     1,     2
+       1,     1,     1,     1,     1,     2,     3,     1,     1,     1,
+       3,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+       1,     1,     1,     1,     1,     1,     1,     2,     1,     2
   };
 
 
@@ -1401,9 +1413,9 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
        0,   157,   157,   158,   159,   160,   162,   163,   165,   166,
      167,   169,   170,   172,   173,   174,   176,   177,   178,   181,
      182,   183,   184,   186,   189,   190,   193,   206,   207,   210,
-     212,   214,   215,   217,   218,   220,   221,   233,   234,   236,
-     237,   238,   239,   241,   243,   244,   245,   246,   247,   248,
-     249,   250,   251,   252,   254,   255,   257,   258
+     211,   212,   214,   216,   217,   219,   220,   222,   223,   235,
+     236,   238,   239,   240,   241,   243,   245,   246,   247,   248,
+     249,   250,   251,   252,   253,   254,   256,   257,   259,   260
   };
 
   // Print the state stack on the debug stream.
@@ -1438,8 +1450,8 @@ namespace sqf { namespace parser { namespace config { namespace bison  {
 
 #line 9 "parser.y" // lalr1.cc:1167
 } } } } //  ::sqf::parser::config::bison 
-#line 1442 "parser.tab.cc" // lalr1.cc:1167
-#line 262 "parser.y" // lalr1.cc:1168
+#line 1454 "parser.tab.cc" // lalr1.cc:1167
+#line 264 "parser.y" // lalr1.cc:1168
 
 #ifdef __GNUG__
     #pragma GCC diagnostic pop

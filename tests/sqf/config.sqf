@@ -55,6 +55,8 @@
     ["assertEqual",     { ("getNumber (_x >> 'key') == 5" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "E"]],
     ["assertEqual",     { ("(getNumber (_x >> 'key')) % 2 == 0" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "B", configFile >> "flat_tests" >> "D"]],
     ["assertEqual",     { configName ((configFile >> "test_select_selects_addon") select 0) }, "addon"],
+    ["assertEqual",     { getArray  (configFile >> "config_variance_tests" >> "just_number_idents" >> "0" >> "2") }, [1,2]],
+    ["assertEqual",     { getNumber  (configFile >> "config_variance_tests" >> "just_number_idents" >> "0" >> "1") }, 5],
     ["assertEqual",     { ("true" configClasses (configFile >> "test_config_classes_only_returns_config_entries")) apply { configName _x } }, ["TestSub"]],
     ["assertEqual",     { ("true" configClasses (configFile >> "nested_tests")) apply { configName _x } }, ["nested1"]],
     ["assertEqual",     { ("true" configClasses (configFile >> "nested_tests" >> "nested1")) apply { configName _x } }, ["nested2"]]

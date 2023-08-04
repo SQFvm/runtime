@@ -208,6 +208,8 @@ field: ident "=" anyvalue
      ;
 
 ident: IDENT                                            { $$ = ::sqf::parser::config::bison::astnode{ astkind::IDENT, $1 }; }
+     | NUMBER					        { $$ = ::sqf::parser::config::bison::astnode{ astkind::IDENT, $1 }; }
+     | HEXNUMBER					{ $$ = ::sqf::parser::config::bison::astnode{ astkind::IDENT, $1 }; }
      ;
 string: STRING                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::STRING, $1 }; }
       ;
@@ -244,7 +246,7 @@ anyp: "class"                                           { $$ = ::sqf::parser::co
     | "delete"                                          { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
     | number                                            { $$ = $1; }
     | string                                            { $$ = $1; }
-    | ident                                             { $$ = $1; }
+    | IDENT                                             { $$ = ::sqf::parser::config::bison::astnode{ astkind::IDENT, $1 }; }
     | "["                                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
     | "]"                                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
     | ":"                                               { $$ = ::sqf::parser::config::bison::astnode{ astkind::ANY, $1 }; }
