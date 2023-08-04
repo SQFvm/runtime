@@ -172,7 +172,7 @@ namespace
             runtime.__logmsg(err::ReturningFalse(runtime.context_active().current_frame().diag_info_from_position()));
             return false;
         }
-        return nav->size() > 0 || (nav->size() == 0 && nav->value.empty());
+        return nav.is_config_class();
     }
     value isarray_config(runtime& runtime, value::cref right)
     {
@@ -267,18 +267,20 @@ namespace
                 {
                     runtime.__logmsg(logmessage::runtime::CallstackFoundNoValue((*frame.current())->diag_info(), "configClasses"s));
                 }
-                if (++m_iterator_current == m_confignav.end())
+                do
                 {
-                    runtime.context_active().push_value(m_out_arr);
-                    return result::ok;
+                    if (++m_iterator_current == m_confignav.end())
+                    {
+                        runtime.context_active().push_value(m_out_arr);
+                        return result::ok;
+                    }
                 }
-                else
-                {
-                    runtime.context_active().clear_values();
-                    frame.clear_value_scope();
-                    frame["_x"] = { *m_iterator_current };
-                    return result::seek_start;
-                }
+                while (!m_iterator_current.navigate().is_config_class());
+
+                runtime.context_active().clear_values();
+                frame.clear_value_scope();
+                frame["_x"] = { *m_iterator_current };
+                return result::seek_start;
             };
         };
 
