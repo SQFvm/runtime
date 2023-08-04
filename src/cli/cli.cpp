@@ -549,7 +549,8 @@ int cli::run(size_t argc, const char** argv)
         for (auto rit = sqf_files.rbegin(); rit != sqf_files.rend(); ++rit)
         {
             std::filesystem::path path(*rit);
-            path = path.lexically_normal();
+            path = std::filesystem::absolute(path.lexically_normal());
+
             m_files["sqf"].push_back([path]() -> std::pair<std::filesystem::path, std::string> {
                 auto res = sqf::fileio::disabled::read_file_from_disk(path.string());
                 if (res.has_value())
@@ -565,7 +566,7 @@ int cli::run(size_t argc, const char** argv)
         for (auto rit = config_files.rbegin(); rit != config_files.rend(); ++rit)
         {
             std::filesystem::path path(*rit);
-            path = path.lexically_normal();
+            path = std::filesystem::absolute(path.lexically_normal());
             m_files["config"].push_back([path]() -> std::pair<std::filesystem::path, std::string> {
                 auto res = sqf::fileio::disabled::read_file_from_disk(path.string());
                 if (res.has_value())
@@ -581,7 +582,7 @@ int cli::run(size_t argc, const char** argv)
         for (auto rit = pbo_files.rbegin(); rit != pbo_files.rend(); ++rit)
         {
             std::filesystem::path path(*rit);
-            path = path.lexically_normal();
+            path = std::filesystem::absolute(path.lexically_normal());
             rvutils::pbo::pbofile pbo(path);
             if (!pbo.good())
             {
@@ -624,7 +625,7 @@ int cli::run(size_t argc, const char** argv)
         for (auto rit = sqc_files.rbegin(); rit != sqc_files.rend(); ++rit)
         {
             std::filesystem::path path(*rit);
-            path = path.lexically_normal();
+            path = std::filesystem::absolute(path.lexically_normal());
             m_files["sqc"].push_back([path]() -> std::pair<std::filesystem::path, std::string> {
                 auto res = sqf::fileio::disabled::read_file_from_disk(path.string());
                 if (res.has_value())
@@ -646,7 +647,7 @@ int cli::run(size_t argc, const char** argv)
         for (auto rit = sqfToSqcArg.getValue().rbegin(); rit != sqfToSqcArg.getValue().rend(); ++rit)
         {
             std::filesystem::path path(*rit);
-            path = path.lexically_normal();
+            path = std::filesystem::absolute(path.lexically_normal());
             m_files["sqf2sqc"].push_back([path]() -> std::pair<std::filesystem::path, std::string> {
                 auto res = sqf::fileio::disabled::read_file_from_disk(path.string());
                 if (res.has_value())
@@ -662,7 +663,7 @@ int cli::run(size_t argc, const char** argv)
         for (auto rit = sqcToSqfArg.getValue().rbegin(); rit != sqcToSqfArg.getValue().rend(); ++rit)
         {
             std::filesystem::path path(*rit);
-            path = path.lexically_normal();
+            path = std::filesystem::absolute(path.lexically_normal());
             m_files["sqc2sqf"].push_back([path]() -> std::pair<std::filesystem::path, std::string> {
                 auto res = sqf::fileio::disabled::read_file_from_disk(path.string());
                 if (res.has_value())
