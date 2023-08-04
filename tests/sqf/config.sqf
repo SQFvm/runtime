@@ -51,6 +51,7 @@
     ["assertTrue",      { isNull (configFile / "doesNotExist" / "anything") }],
     ["assertTrue",      { !isClass (configFile / "doesNotExist" / "anything") }],
     ["assertEqual",     { count ("true" configClasses (configFile >> "flat_tests")) }, 5],
+    ["assertEqual",     { (configFile >> "flat_tests") select 2 }, configFile >> "flat_tests" >> "C"],
     ["assertEqual",     { ("getNumber (_x >> 'key') == 2" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "B"]],
     ["assertEqual",     { ("getNumber (_x >> 'key') == 5" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "E"]],
     ["assertEqual",     { ("(getNumber (_x >> 'key')) % 2 == 0" configClasses (configFile >> "flat_tests")) }, [configFile >> "flat_tests" >> "B", configFile >> "flat_tests" >> "D"]],
