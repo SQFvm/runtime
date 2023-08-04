@@ -17,6 +17,8 @@ LogLocationInfo::LogLocationInfo(const sqf::runtime::diagnostics::diag_info& inf
     path = info.path.physical;
     line = info.line;
     col =  info.column;
+    offset = info.file_offset;
+    length = info.length;
 }
 
 std::string LogLocationInfo::format() const {

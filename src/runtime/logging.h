@@ -25,11 +25,14 @@ class LogLocationInfo {
 public:
     LogLocationInfo() = default;
     LogLocationInfo(const sqf::runtime::diagnostics::diag_info&);
-    LogLocationInfo(std::string path, size_t line, size_t col) : path(path), line(line), col(col) {}
+    LogLocationInfo(std::string path, size_t line, size_t col) : path(path), line(line), col(col), offset(0), length(0) {}
+    LogLocationInfo(std::string path, size_t line, size_t col, size_t offset, size_t length) : path(path), line(line), col(col), offset(offset), length(length) {}
 
     std::string path;
     size_t line;
     size_t col;
+    size_t offset;
+    size_t length;
 
     [[nodiscard]] std::string format() const;
 };

@@ -16,6 +16,7 @@
 #include "../runtime/git_sha1.h"
 
 #include "dlops_storage.h"
+#include "sqfvm_storage.h"
 
 
 #include <cmath>
@@ -1880,6 +1881,11 @@ namespace
     {
         return runtime.context_active().can_suspend();
     }
+    value isserver_(runtime& runtime)
+    {
+        auto is_server = runtime.storage<sqfvm_storage>().is_server();
+        return is_server;
+    }
     value loadfile_string(runtime& runtime, value::cref right)
     {
         auto& fileio = runtime.fileio();
@@ -2233,4 +2239,6 @@ void sqf::operators::ops_generic(sqf::runtime::runtime& runtime)
     runtime.register_sqfop(unary("try", t_code(), "Defines a try-catch structure. This sets up an exception handling block.", try_code));
     runtime.register_sqfop(binary(4, "catch", t_exception(), t_code(), "Processes code when an exception is thrown in a try block. The exception caught can be found in the _exception variable.", catch_exception_code));
     runtime.register_sqfop(nular("disableSerialization", "Disable saving of script containing this command.", disableserialization));
+    runtime.register_sqfop(nular("isServer", "Returns true if the machine executing the command is the server in a multiplayer game or is running single player. It will return true for both dedicated and player-hosted server. For SQF-VM this value can be set using isServer__ BOOL.", isserver_));
+
 }

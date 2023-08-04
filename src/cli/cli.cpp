@@ -428,8 +428,9 @@ int cli::run(size_t argc, const char** argv)
     CMDADD(TCLAP::MultiArg<std::string>,    sqcArg,                     "",     "sqc",                      "Loads provided sqc-code directly into the VM. Input is getting preprocessed! Will be executed as if it was spawned.", false, "CODE");
     CMDADD(TCLAP::SwitchArg,                parseSqcArg,                "",     "parse-sqc",                "Replaces the default (SQF) parser with the SQC one.", false);
 #endif
-
     cmd.getArgList().reverse();
+    ::TCLAP::UnlabeledMultiArg<std::string> unlabeledMultiArg("", "Interprets all dangling, unmatched arguments as file from disk as if --input was provided. File-Type is determined using default file extensions (sqf, cpp, hpp, pbo). " RELPATHHINT "!BE AWARE! This is case-sensitive!", false, "FILE");
+    cmd.add(unlabeledMultiArg);
     cmd.parse(argc, argv);
 
     /* Logswitches */
@@ -489,6 +490,34 @@ int cli::run(size_t argc, const char** argv)
         // bool noAssemblyCreation = noAssemblyCreationArg.getValue();
         bool parseOnly = parseOnlyArg.getValue(); // || noAssemblyCreation;
         for (auto& f : inputArg.getValue())
+        {
+            std::filesystem::path path(f);
+            if (path.extension() == ".sqf")
+            {
+                sqf_files.push_back(f);
+            }
+#if defined(SQF_SQC_SUPPORT)
+
+            else if (path.extension() == ".sqc")
+            {
+                sqc_files.push_back(f);
+            }
+#endif
+            else if (path.extension() == ".cpp" || path.extension() == ".hpp" || path.extension() == ".ext")
+            {
+                config_files.push_back(f);
+            }
+            else if (path.extension() == ".pbo")
+            {
+                pbo_files.push_back(f);
+            }
+            else
+            {
+                errflag = true;
+                std::cerr << "The file extension '" << path.extension() << "' is not mapped for auto-detection. Consider using '--input-sqf' for example, to explicitly add your file." << std::endl;
+            }
+        }
+        for (auto& f : unlabeledMultiArg.getValue())
         {
             std::filesystem::path path(f);
             if (path.extension() == ".sqf")

@@ -1,4 +1,5 @@
 #pragma once
+#include "tokenizer.hpp"
 
 namespace sqf::parser::sqf::bison
 {

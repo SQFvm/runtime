@@ -13,6 +13,7 @@
 #include <chrono>
 #include <atomic>
 #include <vector>
+#include <functional>
 #include <typeinfo>
 #include <typeindex>
 #include <cassert>
@@ -318,6 +319,7 @@ namespace sqf::runtime
         std::unique_ptr<sqf::runtime::parser::sqf> m_parser_sqf;
         std::unique_ptr<sqf::runtime::parser::config> m_parser_config;
         std::unique_ptr<sqf::runtime::parser::preprocessor> m_parser_preprocessor;
+        std::vector<std::function<void()>> m_user_finalizers;
 
     public:
         runtime(Logger& logger, runtime_conf config) :
@@ -342,6 +344,13 @@ namespace sqf::runtime
             m_parser_preprocessor(std::make_unique<sqf::parser::preprocessor::passthrough>())
         {
         }
+
+        ~runtime() {
+            for (auto& finalizer : m_user_finalizers)
+                finalizer();
+        }
+
+        void add_finalizer(std::function<void()> func) { m_user_finalizers.push_back(func); }
 
 
         sqf::runtime::runtime::result execute(sqf::runtime::runtime::action action);
