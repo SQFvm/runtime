@@ -1,19 +1,16 @@
 #pragma once
+
 #include <string>
 #include <string_view>
 #include <optional>
 #include <filesystem>
 #include <vector>
 
-namespace sqf
-{
-    namespace runtime
-    {
-        class fileio
-        {
+namespace sqf {
+    namespace runtime {
+        class fileio {
         public:
-            struct pathinfo
-            {
+            struct pathinfo {
                 /// <summary>
                 /// The full physical path as found on the OSs filesystem.
                 /// </summary>
@@ -31,18 +28,29 @@ namespace sqf
                 /// The full virtual path of the file.
                 /// </summary>
                 std::string virtual_;
+
                 pathinfo() : physical({}), additional({}), virtual_({}) {}
+
                 pathinfo(std::string_view p, std::string_view v) : pathinfo(p, {}, v) {}
-                pathinfo(std::string_view p, std::string_view a, std::string_view v) : pathinfo(std::string(p), std::string(a), std::string(v)) {}
+
+                pathinfo(std::string_view p, std::string_view a, std::string_view v) : pathinfo(std::string(p),
+                                                                                                std::string(a),
+                                                                                                std::string(v)) {}
+
                 pathinfo(std::string p, std::string v) : pathinfo(p, {}, v) {}
+
                 pathinfo(std::string p, std::string a, std::string v) : physical(p), additional(a), virtual_(v) {}
 
 
-                bool operator==(const pathinfo& b) const { return physical == physical; }
-                bool operator!=(const pathinfo& b) const { return physical != physical; }
+                bool operator==(const pathinfo &b) const { return physical == physical; }
+
+                bool operator!=(const pathinfo &b) const { return physical != physical; }
             };
+
         public:
+
             virtual ~fileio() {}
+
             /// <summary>
             /// Convenience method to read a file from disk.
             /// Will not use the filesystem to resolve the path but rather
@@ -51,6 +59,7 @@ namespace sqf
             /// <param name="physical_path">The physical path of the file</param>
             /// <returns>The contents of the file. Optional will be empty if file does not exist or could not be opened for any other reason.</returns>
             static std::optional<std::string> read_file_from_disk(std::string_view physical_path);
+
             /// <summary>
             /// Convenience method to read a file from disk.
             /// Will not use the filesystem to resolve the path but rather
@@ -58,7 +67,9 @@ namespace sqf
             /// </summary>
             /// <param name="physical_path">The physical path of the file</param>
             /// <returns>The contents of the file. Optional will be empty if file does not exist or could not be opened for any other reason.</returns>
-            static std::optional<std::string> read_file_from_disk(std::string physical_path) { return read_file_from_disk(std::string_view(physical_path)); }
+            static std::optional<std::string> read_file_from_disk(std::string physical_path) {
+                return read_file_from_disk(std::string_view(physical_path));
+            }
 
             /// <summary>
             /// Method to receive path informations of a new path.
@@ -66,7 +77,8 @@ namespace sqf
             /// <param name="view">The new path requested.</param>
             /// <param name="current">Current pathinfo or empty '{}'.</param>
             /// <returns>Optional that is filled when the path resolution was successful</returns>
-            virtual std::optional<sqf::runtime::fileio::pathinfo> get_info(std::string_view view, sqf::runtime::fileio::pathinfo current) const = 0;
+            virtual std::optional<sqf::runtime::fileio::pathinfo>
+            get_info(std::string_view view, sqf::runtime::fileio::pathinfo current) const = 0;
 
             /// <summary>
             /// Maps a physical path onto a virtual one.
@@ -95,25 +107,38 @@ namespace sqf
             void add_mapping_auto(std::string_view physical);
         };
     }
-    namespace fileio
-    {
-        class disabled : public sqf::runtime::fileio
-        {
+    namespace fileio {
+        class disabled : public sqf::runtime::fileio {
         public:
             virtual ~disabled() override {}
+
             // Inherited via fileio
-            virtual std::optional<sqf::runtime::fileio::pathinfo> get_info(std::string_view view, sqf::runtime::fileio::pathinfo current) const override { return {}; }
-            virtual void add_mapping(std::string_view physical, std::string_view virtual_) override { }
+            virtual std::optional<sqf::runtime::fileio::pathinfo>
+            get_info(std::string_view view, sqf::runtime::fileio::pathinfo current) const override { return {}; }
+
+            virtual void add_mapping(std::string_view physical, std::string_view virtual_) override {}
+
             virtual std::string read_file(sqf::runtime::fileio::pathinfo info) const override { return {}; }
+
             virtual std::vector<std::string> get_directories() const override { return {}; }
         };
-        class passthrough : public sqf::runtime::fileio
-        {
+
+        class passthrough : public sqf::runtime::fileio {
         public:
             virtual ~passthrough() override {}
-            virtual std::optional<sqf::runtime::fileio::pathinfo> get_info(std::string_view view, sqf::runtime::fileio::pathinfo current) const override { return { { view, ""} }; }
-            virtual void add_mapping(std::string_view physical, std::string_view virtual_) override { }
-            virtual std::string read_file(sqf::runtime::fileio::pathinfo info) const override { auto opt = fileio::read_file_from_disk(info.physical); return opt.has_value() ? opt.value() : std::string{}; }
+
+            virtual std::optional<sqf::runtime::fileio::pathinfo>
+            get_info(std::string_view view, sqf::runtime::fileio::pathinfo current) const override {
+                return {{view, ""}};
+            }
+
+            virtual void add_mapping(std::string_view physical, std::string_view virtual_) override {}
+
+            virtual std::string read_file(sqf::runtime::fileio::pathinfo info) const override {
+                auto opt = fileio::read_file_from_disk(info.physical);
+                return opt.has_value() ? opt.value() : std::string{};
+            }
+
             virtual std::vector<std::string> get_directories() const override { return {}; }
         };
     }
