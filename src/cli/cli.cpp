@@ -394,6 +394,10 @@ int cli::run(size_t argc, const char** argv)
     CMDADD(TCLAP::SwitchArg,                noSpawnPlayerArg,           "",     "no-spawn-player",          "Prevents automatic player creation.", false);
     CMDADD(TCLAP::SwitchArg,                noLoadExecDirArg,           "",     "no-load-executable-dir",   "Does not adds the executable path to the virtual file system.", false);
 
+    // Emulation Configuration
+    CMDADD(TCLAP::SwitchArg,                useCfgFunctionsArg,         "",     "use-cfg-functions",        "Adds a script which will load the functions present in CfgFunctions.", false);
+
+
     // Runtime configuration
     CMDADD(TCLAP::ValueArg<long>,           maxRuntimeArg,              "m",    "max-runtime",              "Sets the maximum allowed runtime for the VM. 0 means no restriction in place.", false, 0, "MILLISECONDS");
     CMDADD(TCLAP::SwitchArg,                enableClassnameCheckArg,    "c",    "check-classnames",         "Enables the config checking for eg. createVehicle.", false);
@@ -544,6 +548,58 @@ int cli::run(size_t argc, const char** argv)
                 errflag = true;
                 std::cerr << "The file extension '" << path.extension() << "' is not mapped for auto-detection. Consider using '--input-sqf' for example, to explicitly add your file." << std::endl;
             }
+        }
+
+        if (useCfgFunctionsArg.getValue())
+        {
+            m_files["sqf"].push_back([]() -> std::pair<std::filesystem::path, std::string> {
+                const char* cfgFunctions = R"(private _cfgFunctions = configFile >> "CfgFunctions";
+private _preStart = [];
+private _preInit = [];
+private _postInit = [];
+for "_i" from 0 to (count _cfgFunctions - 1) do
+{
+    private _tagCfg = _cfgFunctions select _i;
+    private _tag = configName _tagCfg;
+    for "_j" from 0 to (count _tagCfg - 1) do
+    {
+        private _subCfg = _tagCfg select _j;
+        for "_k" from 0 to (count _subCfg - 1) do
+        {
+            private _cfg = _subCfg select _k;
+            private _name = configName _cfg;
+            private _path = getText (_cfg >> "file");
+            if (_path == "") then
+            {
+                private _folder = getText (_subCfg >> "file");
+                if (_folder == "") exitWith {
+                    diag_log format ["CfgFunctions: %1: %2: No file or folder specified", _tag, _name];
+                };
+                _path = format ["%1\fn_%2.sqf", _folder, _name];
+            };
+            private _content = preprocessFile _path;
+            private _code = compile _content;
+            missionNamespace setVariable [
+                format ["%1_fnc_%2", _tag, _name],
+                _code
+            ];
+            if (getNumber (_cfg >> "PreStart") > 0) then {
+                _preStart pushBack _code;
+            };
+            if (getNumber (_cfg >> "PreInit") > 0) then {
+                _preInit pushBack _code;
+            };
+            if (getNumber (_cfg >> "PostInit") > 0) then {
+                _postInit pushBack _code;
+            };
+        };
+    };
+};
+{ "PreStart" call _x; } forEach _preStart;
+{ "PreInit" call _x; } forEach _preInit;
+{ private _handle = "PostInit" spawn _x; waitUntil { scriptDone _handle; }; } forEach _postInit;)";
+                return std::make_pair(std::filesystem::path("__service"), cfgFunctions);
+            });
         }
 
         for (auto rit = sqf_files.rbegin(); rit != sqf_files.rend(); ++rit)
