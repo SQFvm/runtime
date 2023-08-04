@@ -296,7 +296,7 @@ namespace
                         runtime.__logmsg(logmessage::runtime::TypeMissmatch(frame.diag_info_from_position(), t_boolean(), res->type()));
                     }
                 }
-                else if (m_count > 30000 && runtime.context_active().can_suspend())
+                else if (m_count > 30000 && !runtime.context_active().can_suspend())
                 {
                     runtime.__logmsg(logmessage::runtime::WaitUntilMaxLoopReached(frame.diag_info_from_position()));
                     return result::ok;
