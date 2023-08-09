@@ -92,15 +92,15 @@ public:
     virtual void log(const LogMessageBase& message) override;
 };
 
-//Classes that can log, inherit from this
+// Classes that can log, inherit from this
 class CanLog {
     Logger& m_logger;
 protected:
-    Logger& get_logger() { return m_logger; }
     void log(LogMessageBase& message) const;
     void log(LogMessageBase&& message) const;
 public:
     CanLog(Logger& logger) : m_logger(logger) {}
+    Logger& get_logger() { return m_logger; }
 };
 
 
@@ -2017,8 +2017,8 @@ namespace logmessage {
             [[nodiscard]] std::string formatMessage() const override;
         };
         class ResolvePhysicalFailedToLookup : public FileIoBase {
-            static const loglevel level = loglevel::trace;
-            static const size_t errorCode = 70013;
+            static const loglevel level = loglevel::error;
+            static const size_t errorCode = 70014;
             std::string_view m_physical;
             std::string_view m_virtual;
             std::string_view m_matched;
