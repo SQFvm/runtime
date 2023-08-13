@@ -261,6 +261,18 @@ namespace logmessage::preprocessor {
         output.append("'."sv);
         return output;
     }
+    std::string RecursiveMacro::formatMessage() const {
+        auto output = m_location.format();
+        const auto message = "A macro recursion was detected."sv;
+
+        output.reserve(
+                output.length()
+                + message.length()
+        );
+
+        output.append(message);
+        return output;
+    }
 }
 
 namespace logmessage::assembly {

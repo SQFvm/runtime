@@ -242,13 +242,23 @@ namespace logmessage {
         class UnknownPragma : public PreprocBase
         {
             static const loglevel level = loglevel::warning;
-            static const size_t errorCode = 10013;
+            static const size_t errorCode = 10014;
             std::string instruction;
         public:
             UnknownPragma(LogLocationInfo loc, std::string instruction) :
                 PreprocBase(level, errorCode, std::move(loc)), instruction(instruction)
             {
             }
+            [[nodiscard]] std::string formatMessage() const override;
+        };
+
+        class RecursiveMacro : public PreprocBase
+        {
+            static const loglevel level = loglevel::warning;
+            static const size_t errorCode = 10015;
+        public:
+            RecursiveMacro(LogLocationInfo loc) :
+            PreprocBase(level, errorCode, std::move(loc)) {}
             [[nodiscard]] std::string formatMessage() const override;
         };
 
