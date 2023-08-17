@@ -1521,7 +1521,7 @@ namespace sqf { namespace parser { namespace sqf { namespace bison  {
 
   case 128:
 #line 299 "parser.y" // lalr1.cc:859
-    { yylhs.value.as< ::sqf::parser::sqf::bison::astnode > () = yystack_[1].value.as< ::sqf::parser::sqf::bison::astnode > (); }
+    { yylhs.value.as< ::sqf::parser::sqf::bison::astnode > () = ::sqf::parser::sqf::bison::astnode{ astkind::EXP_GROUP, yystack_[2].value.as< tokenizer::token > () }; yylhs.value.as< ::sqf::parser::sqf::bison::astnode > ().append(yystack_[1].value.as< ::sqf::parser::sqf::bison::astnode > ());  yylhs.value.as< ::sqf::parser::sqf::bison::astnode > ().append(::sqf::parser::sqf::bison::astnode{ astkind::__TOKEN, yystack_[0].value.as< tokenizer::token > () }); }
 #line 1526 "parser.tab.cc" // lalr1.cc:859
     break;
 

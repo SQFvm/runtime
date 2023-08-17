@@ -296,7 +296,7 @@ expu: "private" expu                        { $$ = ::sqf::parser::sqf::bison::as
     | OPERATOR_BUN_7 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
     | OPERATOR_BUN_8 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
     | OPERATOR_BUN_9 expu                   { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXPU, $1 }; $$.append($2); }
-    | "(" expression ")"                    { $$ = $2; }
+    | "(" expression ")"                    { $$ = ::sqf::parser::sqf::bison::astnode{ astkind::EXP_GROUP, $1 }; $$.append($2);  $$.append(::sqf::parser::sqf::bison::astnode{ astkind::__TOKEN, $3 }); }
     | value                                 { $$ = $1; }
     ;
 

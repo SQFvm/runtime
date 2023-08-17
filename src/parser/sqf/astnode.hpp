@@ -33,7 +33,8 @@ namespace sqf::parser::sqf::bison
         EXP7,
         EXP8,
         EXP9,
-        EXPU
+        EXPU,
+        EXP_GROUP,
     };
     struct astnode
     {

@@ -24,8 +24,8 @@ using namespace sqf::runtime::util;
 
 void sqf::parser::preprocessor::impl_default::instance::replace_stringify(
         ::sqf::runtime::runtime &runtime,
-        preprocessorfileinfo &local_fileinfo,
-        preprocessorfileinfo &original_fileinfo,
+        context &local_fileinfo,
+        context &original_fileinfo,
         const ::sqf::runtime::parser::macro &m,
         std::vector<std::string> &params,
         std::stringstream &sstream,
@@ -117,8 +117,8 @@ void sqf::parser::preprocessor::impl_default::instance::replace_stringify(
 
 void sqf::parser::preprocessor::impl_default::instance::replace_concat(
         ::sqf::runtime::runtime &runtime,
-        preprocessorfileinfo &local_fileinfo,
-        preprocessorfileinfo &original_fileinfo,
+        context &local_fileinfo,
+        context &original_fileinfo,
         const ::sqf::runtime::parser::macro &m,
         std::vector<std::string> &params,
         std::stringstream &sstream,
@@ -203,7 +203,7 @@ void sqf::parser::preprocessor::impl_default::instance::replace_concat(
 }
 
 size_t sqf::parser::preprocessor::impl_default::instance::replace_find_wordend(::sqf::runtime::runtime &runtime,
-                                                                               preprocessorfileinfo fileinfo) {
+                                                                               context fileinfo) {
     auto currentOffset = fileinfo.off;
     size_t res;
     while (true) {
@@ -292,7 +292,7 @@ size_t sqf::parser::preprocessor::impl_default::instance::replace_find_wordend(:
 }
 
 void sqf::parser::preprocessor::impl_default::instance::replace_skip(::sqf::runtime::runtime &runtime,
-                                                                     preprocessorfileinfo &fileinfo,
+                                                                     context &fileinfo,
                                                                      std::stringstream &sstream) {
     bool flag = true;
     bool in_string = false;
@@ -397,7 +397,7 @@ void sqf::parser::preprocessor::impl_default::instance::replace_skip(::sqf::runt
 
 std::string sqf::parser::preprocessor::impl_default::instance::replace(
         ::sqf::runtime::runtime &runtime,
-        preprocessorfileinfo &original_fileinfo,
+        context &original_fileinfo,
         const ::sqf::runtime::parser::macro &m,
         std::vector<std::string> &params,
         std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
@@ -406,7 +406,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::replace(
         log(err::ArgCountMissmatch(m.diag_info()));
         return "";
     }
-    preprocessorfileinfo local_fileinfo(m.diag_info());
+    context local_fileinfo(m.diag_info());
     local_fileinfo.content = m.content();
     local_fileinfo.line = m.diag_info().line;
     if (m.has_callback()) {
@@ -527,8 +527,8 @@ std::string sqf::parser::preprocessor::impl_default::instance::replace(
 
 std::string sqf::parser::preprocessor::impl_default::instance::handle_arg(
         ::sqf::runtime::runtime &runtime,
-        preprocessorfileinfo &local_fileinfo,
-        preprocessorfileinfo &original_fileinfo,
+        context &local_fileinfo,
+        context &original_fileinfo,
         size_t endindex,
         const std::unordered_map<std::string, std::string> &param_map,
         std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
@@ -669,8 +669,8 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_arg(
 
 std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(
         ::sqf::runtime::runtime &runtime,
-        preprocessorfileinfo &local_fileinfo,
-        preprocessorfileinfo &original_fileinfo,
+        context &local_fileinfo,
+        context &original_fileinfo,
         const ::sqf::runtime::parser::macro &m,
         const std::unordered_map<std::string, std::string> &param_map,
         std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
@@ -800,7 +800,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(
                     if (rb_counter == 0 && eb_counter == 0 && cb_counter == 0) {
                         local_fileinfo.move_back();
                         if (local_fileinfo.off - lastargstart > 0) {
-                            preprocessorfileinfo copy = local_fileinfo;
+                            context copy = local_fileinfo;
                             copy.off = lastargstart;
                             auto handled_param = handle_arg(
                                     runtime,
@@ -844,9 +844,9 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(
 
 std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstruction(
         ::sqf::runtime::runtime &runtime,
-        preprocessorfileinfo &fileinfo) {
-    auto inst = fileinfo.get_word();
-    std::string line{trim(fileinfo.get_line(true))};
+        context &file_context) {
+    auto inst = file_context.get_word();
+    std::string line{trim(file_context.get_line(true))};
     std::transform(inst.begin(), inst.end(), inst.begin(), [](char &c) { return (char) std::toupper((int) c); });
     if (inst == "INCLUDE") { // #include "file/path"
         // Trim
@@ -860,13 +860,13 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
             return c == '"';
         });
         if (std::distance(endIter, line.end()) > 1)
-            log(err::UnexpectedDataAfterInclude(fileinfo.to_diag_info()));
+            log(err::UnexpectedDataAfterInclude(file_context.to_diag_info()));
         line.erase(endIter, line.end());
         try {
-            auto include_path_info = runtime.fileio().get_info(line, fileinfo);
+            auto include_path_info = runtime.fileio().get_info(line, file_context);
             if (!include_path_info.has_value()) {
                 m_errflag = true;
-                log(err::IncludeFailed(fileinfo.to_diag_info(), line, "FileIO returned no file."));
+                log(err::IncludeFailed(file_context.to_diag_info(), line, "FileIO returned no file."));
                 return "";
             }
             const auto &physical = include_path_info->physical;
@@ -881,22 +881,22 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
                     includeTree << i << ". " << m_file_scopes[i].path.physical << " [" << m_file_scopes[i].path.virtual_
                                 << "]\n";
                 }
-                log(err::RecursiveInclude(fileinfo.to_diag_info(), includeTree.str()));
+                log(err::RecursiveInclude(file_context.to_diag_info(), includeTree.str()));
                 return "";
             }
-            preprocessorfileinfo otherfinfo(*include_path_info);
+            context otherfinfo(*include_path_info);
             otherfinfo.content = runtime.fileio().read_file(*include_path_info);
 
 
             std::string output;
-            auto lineInfo = std::to_string(fileinfo.line - 1);
+            auto lineInfo = std::to_string(file_context.line - 1);
             auto parsedFile = parse_file(runtime, otherfinfo);
             output.reserve(
                     ::sqf::runtime::util::strlen("#line 1 \"") + physical.size() +
                     ::sqf::runtime::util::strlen("\"\n") +
                     parsedFile.size() + ::sqf::runtime::util::strlen("\n") +
                     ::sqf::runtime::util::strlen("#line ") + lineInfo.size() + ::sqf::runtime::util::strlen(" \"") +
-                    fileinfo.pathinf.physical.size() + ::sqf::runtime::util::strlen("\"\n")
+                    file_context.path.physical.size() + ::sqf::runtime::util::strlen("\"\n")
             );
             output.append("#line 1 \"");
             output.append(physical);
@@ -906,13 +906,13 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
             output.append("#line ");
             output.append(lineInfo);
             output.append(" \"");
-            output.append(fileinfo.pathinf.physical);
+            output.append(file_context.path.physical);
             output.append("\"\n");
             return output;
         }
         catch (const std::runtime_error &ex) {
             m_errflag = true;
-            log(err::IncludeFailed(fileinfo.to_diag_info(), line, ex));
+            log(err::IncludeFailed(file_context.to_diag_info(), line, ex));
             return "";
         }
     } else if (inst == "DEFINE") { // #define TEST(A, B, C) A #B##C
@@ -935,9 +935,9 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
         auto spaceIndex = spaceIter == line.end() ? std::string::npos : std::distance(line.begin(), spaceIter);
         if (bracketsIndex == std::string::npos && spaceIndex == std::string::npos) { // Empty define
             if (try_get_macro(line).has_value()) {
-                log(err::MacroDefinedTwice(fileinfo.to_diag_info(), line));
+                log(err::MacroDefinedTwice(file_context.to_diag_info(), line));
             }
-            m_macros[line] = {fileinfo, line};
+            m_macros[line] = {file_context, line};
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_PARSE
             std::cout << "\x1B[33m[PP-DEFINE-PARSE]\033[0m" <<
                 "        " <<
@@ -950,11 +950,11 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
             { // First bracket was found after first space OR is not existing thus we have a simple define with a replace value here
                 auto name_tmp = line.substr(0, spaceIndex);
                 if (try_get_macro(name_tmp).has_value()) {
-                    log(err::MacroDefinedTwice(fileinfo.to_diag_info(), name_tmp));
+                    log(err::MacroDefinedTwice(file_context.to_diag_info(), name_tmp));
                 }
                 std::string content(trim(line.substr(
                         line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex))); // Special magic for '#define macro\'
-                m_macros[name_tmp] = {fileinfo, name_tmp, content};
+                m_macros[name_tmp] = {file_context, name_tmp, content};
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_PARSE
                 std::cout << "\x1B[33m[PP-DEFINE-PARSE]\033[0m" <<
                     "        " <<
@@ -964,7 +964,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
             } else { // We got a define with arguments here
                 auto name_tmp = line.substr(0, bracketsIndex);
                 if (try_get_macro(name_tmp).has_value()) {
-                    log(err::MacroDefinedTwice(fileinfo.to_diag_info(), name_tmp));
+                    log(err::MacroDefinedTwice(file_context.to_diag_info(), name_tmp));
                 }
                 auto bracketsEndIndex = line.find(')');
                 auto argumentsString = line.substr(bracketsIndex + 1, bracketsEndIndex);
@@ -995,7 +995,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
                             line[bracketsEndIndex + 1] == ' ' ? bracketsEndIndex + 2 : bracketsEndIndex + 1)));
                 }
 
-                m_macros[name_tmp] = {fileinfo, name_tmp, args, content};
+                m_macros[name_tmp] = {file_context, name_tmp, args, content};
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_PARSE
                 std::cout << "\x1B[33m[PP-DEFINE-PARSE]\033[0m" <<
                     "        " <<
@@ -1012,29 +1012,29 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
 
         auto res = m_macros.find(static_cast<std::string>(line));
         if (res == m_macros.end()) {
-            log(err::MacroNotFound(fileinfo.to_diag_info(), line));
+            log(err::MacroNotFound(file_context.to_diag_info(), line));
         } else {
             m_macros.erase(res);
         }
         return "\n";
     } else if (inst == "IFDEF") { // #ifdef TEST
         if (!current_file_scope().conditions.empty()) {
-            log(err::UnexpectedIfdef(fileinfo.to_diag_info()));
+            log(err::UnexpectedIfdef(file_context.to_diag_info()));
         }
         auto res = m_macros.find(static_cast<std::string>(line));
-        current_file_scope().conditions.push_back({res != m_macros.end(), fileinfo, fileinfo});
+        current_file_scope().conditions.push_back({res != m_macros.end(), file_context, file_context});
         return "\n";
     } else if (inst == "IFNDEF") { // #ifndef TEST
         if (!current_file_scope().conditions.empty()) {
-            log(err::UnexpectedIfndef(fileinfo.to_diag_info()));
+            log(err::UnexpectedIfndef(file_context.to_diag_info()));
         }
         auto res = m_macros.find(static_cast<std::string>(line));
-        current_file_scope().conditions.push_back({res == m_macros.end(), fileinfo, fileinfo});
+        current_file_scope().conditions.push_back({res == m_macros.end(), file_context, file_context});
         return "\n";
     } else if (inst == "ELSE") { // #else
         if (current_file_scope().conditions.empty()) {
             m_errflag = true;
-            log(err::UnexpectedElse(fileinfo.to_diag_info()));
+            log(err::UnexpectedElse(file_context.to_diag_info()));
             return "";
         }
         current_file_scope().conditions.back().allow_write = !current_file_scope().conditions.back().allow_write;
@@ -1042,7 +1042,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
     } else if (inst == "ENDIF") { // #endif
         if (current_file_scope().conditions.empty()) {
             m_errflag = true;
-            log(err::UnexpectedEndif(fileinfo.to_diag_info()));
+            log(err::UnexpectedEndif(file_context.to_diag_info()));
             return "";
         }
         current_file_scope().conditions.pop_back();
@@ -1073,15 +1073,15 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
                     "        " <<
                     "    " << "\x1B[36m" << line << "\033[0m PRAGMA " << line << std::endl;
 #endif // DF__SQF_PREPROC__TRACE_MACRO_PARSE
-                p.value()(runtime, fileinfo.to_diag_info(), fileinfo.to_pathinfo(), {});
+                auto result = p.value()(runtime, file_context, {});
+                if (result.has_value())
+                    return result.value();
             } else {
-                log(err::UnknownPragma(fileinfo.to_diag_info(), line));
+                log(err::UnknownPragma(file_context.to_diag_info(), line));
             }
 
         } else {
             auto name_tmp = line.substr(0, spaceIndex);
-            std::string content(trim(line.substr(
-                    line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex))); // Special magic for '#define macro\'
             auto p = m_owner->try_get_pragma(name_tmp);
             if (p.has_value()) {
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_PARSE
@@ -1090,33 +1090,37 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
                     "        " <<
                     "    " << "\x1B[36m" << line << "\033[0m PRAGMA " << line << std::endl;
 #endif // DF__SQF_PREPROC__TRACE_MACRO_PARSE
-                p.value()(runtime, fileinfo.to_diag_info(), fileinfo.to_pathinfo(), {});
+                std::string content(trim(line.substr(
+                        line[spaceIndex] == ' ' ? spaceIndex + 1 : spaceIndex))); // Special magic for '#define macro\'
+                auto result = p.value()(runtime, file_context, content);
+                if (result.has_value())
+                    return result.value();
             } else {
-                log(err::UnknownPragma(fileinfo.to_diag_info(), name_tmp));
+                log(err::UnknownPragma(file_context.to_diag_info(), name_tmp));
             }
         }
         return "\n";
     } else {
         m_errflag = true;
-        log(err::UnknownInstruction(fileinfo.to_diag_info(), inst));
+        log(err::UnknownInstruction(file_context.to_diag_info(), inst));
         return "";
     }
 }
 
 std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
         ::sqf::runtime::runtime &runtime,
-        preprocessorfileinfo &fileinfo) {
+        context &file_context) {
 
     std::vector<const ::sqf::runtime::parser::macro *> macro_stack;
-    push_path(fileinfo.pathinf);
+    push_path(file_context.path);
     char c;
     std::stringstream sstream;
     std::stringstream wordstream;
     std::unordered_map<std::string, std::string> empty_parammap;
-    sstream << "#line 0 \"" << fileinfo.pathinf.physical << "\"\n";
+    sstream << "#line 0 \"" << file_context.path.physical << "\"\n";
     bool was_new_line = true;
     bool is_in_string = false;
-    while ((c = fileinfo.next()) != '\0') {
+    while ((c = file_context.next()) != '\0') {
         if (is_in_string) {
             if (c == '"') {
                 is_in_string = false;
@@ -1140,7 +1144,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
             }
             case '#': {
                 if (c == '#' && was_new_line) {
-                    auto res = parse_ppinstruction(runtime, fileinfo);
+                    auto res = parse_ppinstruction(runtime, file_context);
                     if (m_errflag) {
                         return res;
                     }
@@ -1158,11 +1162,11 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
                         wordstream.str("");
                         auto m = try_get_macro(word);
                         if (m.has_value()) {
-                            fileinfo.move_back();
+                            file_context.move_back();
                             auto res = handle_macro(
                                     runtime,
-                                    fileinfo,
-                                    fileinfo,
+                                    file_context,
+                                    file_context,
                                     m.value(),
                                     empty_parammap,
                                     macro_stack);
@@ -1256,8 +1260,8 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
     if (!word.empty()) {
         auto m = try_get_macro(word);
         if (m.has_value()) {
-            fileinfo.move_back();
-            auto res = handle_macro(runtime, fileinfo, fileinfo, m.value(), empty_parammap, macro_stack);
+            file_context.move_back();
+            auto res = handle_macro(runtime, file_context, file_context, m.value(), empty_parammap, macro_stack);
             if (m_errflag) {
                 return res;
             }
@@ -1266,7 +1270,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
             sstream << word;
         }
     }
-    pop_path(fileinfo);
+    pop_path(file_context);
     return sstream.str();
 }
 
@@ -1332,7 +1336,7 @@ void sqf::parser::preprocessor::impl_default::instance::push_path(const ::sqf::r
     m_visited.insert(pathinfo.physical);
 }
 
-void sqf::parser::preprocessor::impl_default::instance::pop_path(preprocessorfileinfo &preprocessorfileinfo) {
+void sqf::parser::preprocessor::impl_default::instance::pop_path(context &preprocessorfileinfo) {
     if (!m_file_scopes.back().conditions.empty()) {
         log(logmessage::preprocessor::MissingEndif(preprocessorfileinfo.to_diag_info()));
         m_errflag = true;
@@ -1383,7 +1387,7 @@ std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(
         ::sqf::runtime::fileio::pathinfo pathinfo,
         std::vector<std::string> *out_included,
         std::vector<::sqf::runtime::parser::macro> *out_macros) {
-    preprocessorfileinfo fileinfo(std::move(pathinfo));
+    context fileinfo(std::move(pathinfo));
     fileinfo.content = view;
     instance i(this, get_logger(), m_macros);
     auto res = i.parse_file(runtime, fileinfo);
