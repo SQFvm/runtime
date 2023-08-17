@@ -30,7 +30,7 @@ void sqf::parser::preprocessor::impl_default::instance::replace_stringify(
         std::vector<std::string> &params,
         std::stringstream &sstream,
         const std::unordered_map<std::string, std::string> &param_map,
-        std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
+        std::vector<const ::sqf::runtime::parser::macro *> macro_stack) {
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
     auto ___begin = sstream.tellp();
 #endif
@@ -123,7 +123,7 @@ void sqf::parser::preprocessor::impl_default::instance::replace_concat(
         std::vector<std::string> &params,
         std::stringstream &sstream,
         const std::unordered_map<std::string, std::string> &param_map,
-        std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
+        std::vector<const ::sqf::runtime::parser::macro *> macro_stack) {
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
     auto ___begin = sstream.tellp();
 #endif
@@ -400,7 +400,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::replace(
         context &original_fileinfo,
         const ::sqf::runtime::parser::macro &m,
         std::vector<std::string> &params,
-        std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
+        std::vector<const ::sqf::runtime::parser::macro *> macro_stack) {
     if (m.args().size() != params.size()) {
         m_errflag = true;
         log(err::ArgCountMissmatch(m.diag_info()));
@@ -531,7 +531,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_arg(
         context &original_fileinfo,
         size_t endindex,
         const std::unordered_map<std::string, std::string> &param_map,
-        std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
+        std::vector<const ::sqf::runtime::parser::macro *> macro_stack) {
     size_t word_start = local_fileinfo.off;
     bool inside_word = false;
     bool string_mode = false;
@@ -673,7 +673,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(
         context &original_fileinfo,
         const ::sqf::runtime::parser::macro &m,
         const std::unordered_map<std::string, std::string> &param_map,
-        std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
+        std::vector<const ::sqf::runtime::parser::macro *> macro_stack) {
     // Check if macro is already in stack
     if (std::find(macro_stack.begin(), macro_stack.end(), &m) != macro_stack.end()) {
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
