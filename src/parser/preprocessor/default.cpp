@@ -1111,7 +1111,6 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
         ::sqf::runtime::runtime &runtime,
         context &file_context) {
 
-    std::vector<const ::sqf::runtime::parser::macro *> macro_stack;
     push_path(file_context.path);
     char c;
     std::stringstream sstream;
@@ -1163,6 +1162,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
                         auto m = try_get_macro(word);
                         if (m.has_value()) {
                             file_context.move_back();
+                            std::vector<const ::sqf::runtime::parser::macro *> macro_stack;
                             auto res = handle_macro(
                                     runtime,
                                     file_context,
@@ -1261,6 +1261,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
         auto m = try_get_macro(word);
         if (m.has_value()) {
             file_context.move_back();
+            std::vector<const ::sqf::runtime::parser::macro *> macro_stack;
             auto res = handle_macro(runtime, file_context, file_context, m.value(), empty_parammap, macro_stack);
             if (m_errflag) {
                 return res;
@@ -1276,8 +1277,8 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
 
 std::string line_macro_callback(
         const ::sqf::runtime::parser::macro &m,
-        const ::sqf::runtime::diagnostics::diag_info& dinf,
-        const ::sqf::runtime::fileio::pathinfo& local,
+        const ::sqf::runtime::diagnostics::diag_info &dinf,
+        const ::sqf::runtime::fileio::pathinfo &local,
         const std::vector<std::string> &params,
         ::sqf::runtime::runtime &runtime) {
     return std::to_string(dinf.line);
@@ -1285,8 +1286,8 @@ std::string line_macro_callback(
 
 std::string file_macro_callback(
         const ::sqf::runtime::parser::macro &m,
-        const ::sqf::runtime::diagnostics::diag_info& dinf,
-        const ::sqf::runtime::fileio::pathinfo& local,
+        const ::sqf::runtime::diagnostics::diag_info &dinf,
+        const ::sqf::runtime::fileio::pathinfo &local,
         const std::vector<std::string> &params,
         ::sqf::runtime::runtime &runtime) {
     return "\""s + dinf.path.physical + "\""s;
@@ -1294,8 +1295,8 @@ std::string file_macro_callback(
 
 std::string eval_macro_callback(
         const ::sqf::runtime::parser::macro &m,
-        const ::sqf::runtime::diagnostics::diag_info& dinf,
-        const ::sqf::runtime::fileio::pathinfo& local,
+        const ::sqf::runtime::diagnostics::diag_info &dinf,
+        const ::sqf::runtime::fileio::pathinfo &local,
         const std::vector<std::string> &params,
         ::sqf::runtime::runtime &runtime) {
     if (params.empty()) {
@@ -1313,8 +1314,8 @@ static int counter_ = 0;
 
 std::string counter_macro_callback(
         const ::sqf::runtime::parser::macro &m,
-        const ::sqf::runtime::diagnostics::diag_info& dinf,
-        const ::sqf::runtime::fileio::pathinfo& local,
+        const ::sqf::runtime::diagnostics::diag_info &dinf,
+        const ::sqf::runtime::fileio::pathinfo &local,
         const std::vector<std::string> &params,
         ::sqf::runtime::runtime &runtime) {
     return std::to_string(counter_++);
@@ -1322,8 +1323,8 @@ std::string counter_macro_callback(
 
 std::string counter_reset_macro_callback(
         const ::sqf::runtime::parser::macro &m,
-        const ::sqf::runtime::diagnostics::diag_info& dinf,
-        const ::sqf::runtime::fileio::pathinfo& local,
+        const ::sqf::runtime::diagnostics::diag_info &dinf,
+        const ::sqf::runtime::fileio::pathinfo &local,
         const std::vector<std::string> &params,
         ::sqf::runtime::runtime &runtime) {
     counter_ = 0;
@@ -1331,7 +1332,7 @@ std::string counter_reset_macro_callback(
 }
 
 
-void sqf::parser::preprocessor::impl_default::instance::push_path(const ::sqf::runtime::fileio::pathinfo& pathinfo) {
+void sqf::parser::preprocessor::impl_default::instance::push_path(const ::sqf::runtime::fileio::pathinfo &pathinfo) {
     m_file_scopes.push_back({pathinfo, {}});
     m_visited.insert(pathinfo.physical);
 }
@@ -1376,7 +1377,7 @@ sqf::parser::preprocessor::impl_default::impl_default(Logger &logger) : CanLog(l
     m_macros["_SQFVM_RUNTIME_VERSION_REVISION"s] = {"_SQFVM_RUNTIME_VERSION_REVISION"s,
                                                     STR(SQFVM_RUNTIME_VERSION_REVISION)};
 #if defined(_DEBUG)
-    m_macros["_SQFVM_DEBUG"s] = { "_DEBUG"s };
+    m_macros["_SQFVM_DEBUG"s] = {"_DEBUG"s};
 #endif
 
 }
@@ -1392,12 +1393,12 @@ std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(
     instance i(this, get_logger(), m_macros);
     auto res = i.parse_file(runtime, fileinfo);
     if (out_included) {
-        for (const auto& entry: i.m_visited) {
+        for (const auto &entry: i.m_visited) {
             out_included->push_back(entry);
         }
     }
     if (out_macros) {
-        for (const auto& entry: i.m_macros) {
+        for (const auto &entry: i.m_macros) {
             out_macros->push_back(entry.second);
         }
     }
