@@ -30,7 +30,7 @@ void sqf::parser::preprocessor::impl_default::instance::replace_stringify(
         std::vector<std::string> &params,
         std::stringstream &sstream,
         const std::unordered_map<std::string, std::string> &param_map,
-        std::vector<const ::sqf::runtime::parser::macro *> macro_stack) {
+        const std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
     auto ___begin = sstream.tellp();
 #endif
@@ -50,8 +50,8 @@ void sqf::parser::preprocessor::impl_default::instance::replace_stringify(
         auto param_res = std::find_if(
                 m.args().begin(),
                 m.args().end(),
-                [word](std::string s) -> bool {
-                    return s.compare(word) == 0;
+                [word](const std::string &s) -> bool {
+                    return s == word;
                 }
         );
         if (param_res != m.args().end()) {
@@ -61,8 +61,8 @@ void sqf::parser::preprocessor::impl_default::instance::replace_stringify(
             auto macro_res = std::find_if(
                     m_macros.begin(),
                     m_macros.end(),
-                    [word](std::unordered_map<std::string, ::sqf::runtime::parser::macro>::value_type m) -> bool {
-                        return m.first.compare(word) == 0;
+                    [word](const std::unordered_map<std::string, ::sqf::runtime::parser::macro>::value_type &m) -> bool {
+                        return m.first == word;
                     }
             );
             if (macro_res == m_macros.end()) {
@@ -139,8 +139,8 @@ void sqf::parser::preprocessor::impl_default::instance::replace_concat(
     auto param_res = std::find_if(
             m.args().begin(),
             m.args().end(),
-            [word](std::string s) -> bool {
-                return s.compare(word) == 0;
+            [word](const std::string &s) -> bool {
+                return s == word;
             }
     );
     if (param_res != m.args().end()) {
@@ -150,15 +150,20 @@ void sqf::parser::preprocessor::impl_default::instance::replace_concat(
         auto macro_res = std::find_if(
                 m_macros.begin(),
                 m_macros.end(),
-                [word](std::unordered_map<std::string, ::sqf::runtime::parser::macro>::value_type m) -> bool {
-                    return m.first.compare(word) == 0;
+                [word](const std::unordered_map<std::string, ::sqf::runtime::parser::macro>::value_type &m) -> bool {
+                    return m.first == word;
                 }
         );
         if (macro_res == m_macros.end()) {
             sstream << word;
         } else {
-            sstream << handle_macro(runtime, local_fileinfo, original_fileinfo, macro_res->second, param_map,
-                                    macro_stack);
+            sstream << handle_macro(
+                    runtime,
+                    local_fileinfo,
+                    original_fileinfo,
+                    macro_res->second,
+                    param_map,
+                    std::move(macro_stack));
         }
     }
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
@@ -202,8 +207,9 @@ void sqf::parser::preprocessor::impl_default::instance::replace_concat(
 #endif
 }
 
-size_t sqf::parser::preprocessor::impl_default::instance::replace_find_wordend(::sqf::runtime::runtime &runtime,
-                                                                               context fileinfo) {
+size_t sqf::parser::preprocessor::impl_default::instance::replace_find_wordend(
+        ::sqf::runtime::runtime &runtime,
+        context fileinfo) {
     auto currentOffset = fileinfo.off;
     size_t res;
     while (true) {
@@ -291,9 +297,10 @@ size_t sqf::parser::preprocessor::impl_default::instance::replace_find_wordend(:
     return res;
 }
 
-void sqf::parser::preprocessor::impl_default::instance::replace_skip(::sqf::runtime::runtime &runtime,
-                                                                     context &fileinfo,
-                                                                     std::stringstream &sstream) {
+void sqf::parser::preprocessor::impl_default::instance::replace_skip(
+        ::sqf::runtime::runtime &runtime,
+        context &fileinfo,
+        std::stringstream &sstream) {
     bool flag = true;
     bool in_string = false;
 #ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
@@ -400,7 +407,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::replace(
         context &original_fileinfo,
         const ::sqf::runtime::parser::macro &m,
         std::vector<std::string> &params,
-        std::vector<const ::sqf::runtime::parser::macro *> macro_stack) {
+        const std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
     if (m.args().size() != params.size()) {
         m_errflag = true;
         log(err::ArgCountMissmatch(m.diag_info()));
@@ -531,7 +538,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_arg(
         context &original_fileinfo,
         size_t endindex,
         const std::unordered_map<std::string, std::string> &param_map,
-        std::vector<const ::sqf::runtime::parser::macro *> macro_stack) {
+        const std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
     size_t word_start = local_fileinfo.off;
     bool inside_word = false;
     bool string_mode = false;
@@ -675,31 +682,58 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(
         const std::unordered_map<std::string, std::string> &param_map,
         std::vector<const ::sqf::runtime::parser::macro *> macro_stack) {
     // Check if macro is already in stack
-    if (std::find(macro_stack.begin(), macro_stack.end(), &m) != macro_stack.end()) {
-#ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
-        std::cout << "\x1B[33m[PREPROCESSOR-RS]\033[0m" <<
-            "        " <<
-            "        " <<
-            "    " << "\x1B[36mhandle_macro(runtime, preprocessorfileinfo, preprocessorfileinfo, macro: " << m.name() << ", unordered_map<string, string>: ";
-        std::cout << "{ ";
-        bool ___first = false;
-        for (auto& it : param_map)
-        {
-            if (___first)
-            {
-                std::cout << ", ";
+    {
+        std::vector<std::vector<const ::sqf::runtime::parser::macro *>::iterator> occurences;
+        for (auto it = macro_stack.begin(); it != macro_stack.end(); ++it) {
+            if (*it == &m) {
+                occurences.push_back(it);
             }
-            else
-            {
-                ___first = true;
-            }
-            std::cout << "{ " << it.first << ", " << it.second << " }";
         }
-        std::cout << " }";
-        std::cout << ")\033[0m found macro recursion" << std::endl;
+        if (occurences.size() >= 3) {
+            for (size_t i = 0; i < occurences.size() - 3; i++) {
+                auto begin = occurences[i];
+                auto middle = occurences[i + 1];
+                auto end = occurences[i + 2];
+                auto distance_begin_middle = std::distance(begin, middle);
+                auto distance_middle_end = std::distance(middle, end);
+                if (distance_begin_middle != distance_middle_end)
+                    continue;
+
+                bool match = true;
+                for (size_t j = 0; j < distance_begin_middle; j++) {
+                    if (*(begin + j) != *(middle + j)) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+#ifdef DF__SQF_PREPROC__TRACE_MACRO_RESOLVE
+                    std::cout << "\x1B[33m[PREPROCESSOR-RS]\033[0m" <<
+                "        " <<
+                "        " <<
+                "    " << "\x1B[36mhandle_macro(runtime, preprocessorfileinfo, preprocessorfileinfo, macro: " << m.name() << ", unordered_map<string, string>: ";
+            std::cout << "{ ";
+            bool ___first = false;
+            for (auto& it : param_map)
+            {
+                if (___first)
+                {
+                    std::cout << ", ";
+                }
+                else
+                {
+                    ___first = true;
+                }
+                std::cout << "{ " << it.first << ", " << it.second << " }";
+            }
+            std::cout << " }";
+            std::cout << ")\033[0m found macro recursion" << std::endl;
 #endif
-        log(err::RecursiveMacro(original_fileinfo.to_diag_info()));
-        return {m.name().begin(), m.name().end()};
+                    log(err::RecursiveMacro(original_fileinfo.to_diag_info()));
+                    return {m.name().begin(), m.name().end()};
+                }
+            }
+        }
     }
     macro_stack.push_back(&m);
     // Needs to handle 'NAME(ARG1, ARG2, ARGN)' not more, not less!

@@ -53,7 +53,7 @@ namespace sqf::parser::preprocessor {
                     std::vector<std::string> &params,
                     std::stringstream &sstream,
                     const std::unordered_map<std::string, std::string> &param_map,
-                    std::vector<const ::sqf::runtime::parser::macro *> macro_stack);
+                    const std::vector<const ::sqf::runtime::parser::macro *>& macro_stack);
 
             void replace_concat(
                     ::sqf::runtime::runtime &runtime,
@@ -78,7 +78,7 @@ namespace sqf::parser::preprocessor {
                     context &fileinfo,
                     const ::sqf::runtime::parser::macro &m,
                     std::vector<std::string> &params,
-                    std::vector<const ::sqf::runtime::parser::macro *> macro_stack);
+                    const std::vector<const ::sqf::runtime::parser::macro *>& macro_stack);
 
             std::string handle_arg(
                     ::sqf::runtime::runtime &runtime,
@@ -86,7 +86,7 @@ namespace sqf::parser::preprocessor {
                     context &original_fileinfo,
                     size_t endindex,
                     const std::unordered_map<std::string, std::string> &param_map,
-                    std::vector<const ::sqf::runtime::parser::macro *> macro_stack);
+                    const std::vector<const ::sqf::runtime::parser::macro *>& macro_stack);
 
             std::string parse_ppinstruction(::sqf::runtime::runtime &runtime, context &file_context);
 
