@@ -20,6 +20,18 @@ namespace sqf::parser::preprocessor {
     private:
         std::unordered_map<std::string, ::sqf::runtime::parser::macro> m_macros;
         std::unordered_map<std::string, ::sqf::runtime::parser::pragma> m_pragmas;
+        std::function<void(
+                size_t orig_start,
+                size_t orig_end,
+                size_t pp_start,
+                size_t pp_end,
+                ::sqf::runtime::runtime & runtime,
+                context & local_fileinfo,
+                context & original_fileinfo,
+        const ::sqf::runtime::parser::macro
+        &m,
+        const std::unordered_map<std::string, std::string> &param_map
+        )> m_macro_resolved_callback;
         struct condition_scope {
             bool allow_write{};
             ::sqf::runtime::diagnostics::diag_info info_if;
@@ -32,6 +44,19 @@ namespace sqf::parser::preprocessor {
 
         class instance : public CanLog {
         public:
+            std::function<void(
+                    size_t orig_start,
+                    size_t orig_end,
+                    size_t pp_start,
+                    size_t pp_end,
+                    ::sqf::runtime::runtime & runtime,
+                    context & local_fileinfo,
+                    context & original_fileinfo,
+            const ::sqf::runtime::parser::macro
+            &m,
+            const std::unordered_map<std::string, std::string> &param_map
+            )> m_macro_resolved_callback;
+
             instance(
                     impl_default *owner,
                     Logger &logger,
@@ -53,7 +78,7 @@ namespace sqf::parser::preprocessor {
                     std::vector<std::string> &params,
                     std::stringstream &sstream,
                     const std::unordered_map<std::string, std::string> &param_map,
-                    const std::vector<const ::sqf::runtime::parser::macro *>& macro_stack);
+                    const std::vector<const ::sqf::runtime::parser::macro *> &macro_stack);
 
             void replace_concat(
                     ::sqf::runtime::runtime &runtime,
@@ -78,7 +103,7 @@ namespace sqf::parser::preprocessor {
                     context &fileinfo,
                     const ::sqf::runtime::parser::macro &m,
                     std::vector<std::string> &params,
-                    const std::vector<const ::sqf::runtime::parser::macro *>& macro_stack);
+                    const std::vector<const ::sqf::runtime::parser::macro *> &macro_stack);
 
             std::string handle_arg(
                     ::sqf::runtime::runtime &runtime,
@@ -86,7 +111,7 @@ namespace sqf::parser::preprocessor {
                     context &original_fileinfo,
                     size_t endindex,
                     const std::unordered_map<std::string, std::string> &param_map,
-                    const std::vector<const ::sqf::runtime::parser::macro *>& macro_stack);
+                    const std::vector<const ::sqf::runtime::parser::macro *> &macro_stack);
 
             std::string parse_ppinstruction(::sqf::runtime::runtime &runtime, context &file_context);
 
@@ -145,10 +170,26 @@ namespace sqf::parser::preprocessor {
             assert(m_pragmas.find(std::string(name.begin(), name.end())) != m_pragmas.end());
         };
 
+        void macro_resolved(std::function< void(
+        size_t orig_start,
+                            size_t orig_end,
+                            size_t pp_start,
+                            size_t pp_end,
+                            ::sqf::runtime::runtime &runtime,
+                            context &local_fileinfo,
+                            context &original_fileinfo,
+                            const ::sqf::runtime::parser::macro &m,
+                            const std::unordered_map<std::string, std::string> &param_map)
+
+        > callback) {
+            m_macro_resolved_callback = std::move(callback);
+        }
+
         ~impl_default() override = default;
 
-        std::optional<std::string> preprocess(::sqf::runtime::runtime &runtime, std::string_view view,
-                                              ::sqf::runtime::fileio::pathinfo pathinfo) override {
+        std::optional<std::string> preprocess(
+                ::sqf::runtime::runtime &runtime, std::string_view view,
+                ::sqf::runtime::fileio::pathinfo pathinfo) override {
             return preprocess(runtime, view, pathinfo, nullptr, nullptr);
         }
 

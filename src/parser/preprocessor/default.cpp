@@ -210,7 +210,7 @@ void sqf::parser::preprocessor::impl_default::instance::replace_concat(
 size_t sqf::parser::preprocessor::impl_default::instance::replace_find_wordend(
         ::sqf::runtime::runtime &runtime,
         context fileinfo) {
-    auto currentOffset = fileinfo.off;
+    auto currentOffset = fileinfo.file_offset;
     size_t res;
     while (true) {
         char c = fileinfo.next();
@@ -280,10 +280,10 @@ size_t sqf::parser::preprocessor::impl_default::instance::replace_find_wordend(
             case '_':
                 continue;
             case '\0':
-                res = fileinfo.off - currentOffset;
+                res = fileinfo.file_offset - currentOffset;
                 goto exit;
             default:
-                res = fileinfo.off - currentOffset - 1;
+                res = fileinfo.file_offset - currentOffset - 1;
                 goto exit;
         }
     }
@@ -539,13 +539,13 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_arg(
         size_t endindex,
         const std::unordered_map<std::string, std::string> &param_map,
         const std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
-    size_t word_start = local_fileinfo.off;
+    size_t word_start = local_fileinfo.file_offset;
     bool inside_word = false;
     bool string_mode = false;
     bool part_of_word = false;
     std::stringstream sstream;
     char c;
-    while (local_fileinfo.off != endindex && (c = local_fileinfo.next()) != '\0') {
+    while (local_fileinfo.file_offset != endindex && (c = local_fileinfo.next()) != '\0') {
         if (string_mode) {
             if (c == '"') {
                 string_mode = false;
@@ -623,16 +623,16 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_arg(
             case '_':
                 if (!inside_word) {
                     inside_word = true;
-                    word_start = local_fileinfo.off - 1;
+                    word_start = local_fileinfo.file_offset - 1;
                 }
-                if (local_fileinfo.off != endindex) {
+                if (local_fileinfo.file_offset != endindex) {
                     break;
                 } // Intended conditional fallthrough
                 part_of_word = true;
             default:
                 if (inside_word) {
                     inside_word = false;
-                    auto word = local_fileinfo.content.substr(word_start, local_fileinfo.off - word_start -
+                    auto word = local_fileinfo.content.substr(word_start, local_fileinfo.file_offset - word_start -
                                                                           (!part_of_word ? 1 : 0));
                     auto res = try_get_macro(word);
                     if (res.has_value()) {
@@ -792,7 +792,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(
         size_t rb_counter = 0;
         size_t cb_counter = 0;
         size_t eb_counter = 0;
-        size_t lastargstart = local_fileinfo.off;
+        size_t lastargstart = local_fileinfo.file_offset;
         bool exit = false;
         char c;
         bool in_string = false;
@@ -833,14 +833,14 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(
                 case ',':
                     if (rb_counter == 0 && eb_counter == 0 && cb_counter == 0) {
                         local_fileinfo.move_back();
-                        if (local_fileinfo.off - lastargstart > 0) {
+                        if (local_fileinfo.file_offset - lastargstart > 0) {
                             context copy = local_fileinfo;
-                            copy.off = lastargstart;
+                            copy.file_offset = lastargstart;
                             auto handled_param = handle_arg(
                                     runtime,
                                     copy,
                                     original_fileinfo,
-                                    local_fileinfo.off,
+                                    local_fileinfo.file_offset,
                                     param_map,
                                     macro_stack);
                             params.emplace_back(std::move(handled_param));
@@ -861,7 +861,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::handle_macro(
                             log(err::EmptyArgument(original_fileinfo.to_diag_info()));
                         }
                         local_fileinfo.next();
-                        lastargstart = local_fileinfo.off;
+                        lastargstart = local_fileinfo.file_offset;
                     }
                     break;
             }
@@ -1153,6 +1153,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
     sstream << "#line 0 \"" << file_context.path.physical << "\"\n";
     bool was_new_line = true;
     bool is_in_string = false;
+
     while ((c = file_context.next()) != '\0') {
         if (is_in_string) {
             if (c == '"') {
@@ -1196,6 +1197,8 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
                         auto m = try_get_macro(word);
                         if (m.has_value()) {
                             file_context.move_back();
+                            assert(file_context.file_offset >= word.length());
+                            auto macro_offset_start = file_context.file_offset - word.length();
                             std::vector<const ::sqf::runtime::parser::macro *> macro_stack;
                             auto res = handle_macro(
                                     runtime,
@@ -1207,7 +1210,22 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
                             if (m_errflag) {
                                 return res;
                             }
+                            auto macro_offset_end = file_context.file_offset;
+                            auto replacement_offset_start = sstream.tellp();
                             sstream << res;
+                            auto replacement_offset_end = sstream.tellp();
+                            if (m_macro_resolved_callback) {
+                                m_macro_resolved_callback(
+                                        macro_offset_start,
+                                        macro_offset_end,
+                                        replacement_offset_start,
+                                        replacement_offset_end,
+                                        runtime,
+                                        file_context,
+                                        file_context,
+                                        m.value(),
+                                        empty_parammap);
+                            }
                         } else {
                             sstream << word << c;
                         }
@@ -1295,12 +1313,29 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
         auto m = try_get_macro(word);
         if (m.has_value()) {
             file_context.move_back();
+            assert(file_context.file_offset >= word.length());
+            auto macro_offset_start = file_context.file_offset - word.length();
             std::vector<const ::sqf::runtime::parser::macro *> macro_stack;
             auto res = handle_macro(runtime, file_context, file_context, m.value(), empty_parammap, macro_stack);
             if (m_errflag) {
                 return res;
             }
+            auto macro_offset_end = file_context.file_offset;
+            auto replacement_offset_start = sstream.tellp();
             sstream << res;
+            auto replacement_offset_end = sstream.tellp();
+            if (m_macro_resolved_callback) {
+                m_macro_resolved_callback(
+                        macro_offset_start,
+                        macro_offset_end,
+                        replacement_offset_start,
+                        replacement_offset_end,
+                        runtime,
+                        file_context,
+                        file_context,
+                        m.value(),
+                        empty_parammap);
+            }
         } else {
             sstream << word;
         }
@@ -1425,6 +1460,7 @@ std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(
     context fileinfo(std::move(pathinfo));
     fileinfo.content = view;
     instance i(this, get_logger(), m_macros);
+    i.m_macro_resolved_callback = m_macro_resolved_callback;
     auto res = i.parse_file(runtime, fileinfo);
     if (out_included) {
         for (const auto &entry: i.m_visited) {

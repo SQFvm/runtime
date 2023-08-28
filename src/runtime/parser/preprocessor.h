@@ -27,10 +27,10 @@ namespace sqf {
 
                     // Handles correct progression of line, col and off
                     char next_internal() {
-                        if (off >= content.length()) {
+                        if (file_offset >= content.length()) {
                             return '\0';
                         }
-                        char c = content[off++];
+                        char c = content[file_offset++];
                         switch (c) {
                             case '\n':
                                 line++;
@@ -61,7 +61,7 @@ namespace sqf {
                     }
 
                     std::string content;
-                    size_t off = 0;
+                    size_t file_offset = 0;
                     size_t line = 1;
                     size_t col = 0;
                     ::sqf::runtime::fileio::pathinfo path;
@@ -69,10 +69,10 @@ namespace sqf {
                     // Returns the next character.
                     // Will not take into account to skip eg. comments or similar things!
                     char peek(size_t len = 0) {
-                        if (off + len >= content.length()) {
+                        if (file_offset + len >= content.length()) {
                             return '\0';
                         }
-                        return content[off + len];
+                        return content[file_offset + len];
                     }
 
                     // Will return the next character in the file.
@@ -124,8 +124,8 @@ namespace sqf {
 
                     std::string get_word() {
                         char c;
-                        size_t off_start = off;
-                        size_t off_end = off;
+                        size_t off_start = file_offset;
+                        size_t off_end = file_offset;
                         while (
                                 (c = next()) != '\0' && (
                                         (c >= 'A' && c <= 'Z') ||
@@ -133,7 +133,7 @@ namespace sqf {
                                         (c >= '0' && c <= '9') ||
                                         c == '_'
                                 )) {
-                            off_end = off;
+                            off_end = file_offset;
                         }
                         move_back();
                         return content.substr(off_start, off_end - off_start);
@@ -141,7 +141,7 @@ namespace sqf {
 
                     std::string get_line(bool catchEscapedNewLine) {
                         char c;
-                        size_t off_start = off;
+                        size_t off_start = file_offset;
                         bool escaped = false;
                         bool exit = false;
                         if (catchEscapedNewLine) {
@@ -172,7 +172,7 @@ namespace sqf {
                         } else {
                             while ((c = next()) != '\0' && c != '\n') {}
                         }
-                        return content.substr(off_start, off - off_start);
+                        return content.substr(off_start, file_offset - off_start);
                     }
 
                     // Moves one character backwards and updates
@@ -180,10 +180,10 @@ namespace sqf {
                     // col will only be tracked for one line!
                     // Not supposed to be used more than once!
                     void move_back() {
-                        if (off == 0) {
+                        if (file_offset == 0) {
                             return;
                         }
-                        char c = content[--off];
+                        char c = content[--file_offset];
                         switch (c) {
                             case '\n':
                                 line--;
@@ -198,7 +198,7 @@ namespace sqf {
                         }
                     }
 
-                    [[nodiscard]] ::sqf::runtime::diagnostics::diag_info to_diag_info() const { return {line, col, off, path, {}}; }
+                    [[nodiscard]] ::sqf::runtime::diagnostics::diag_info to_diag_info() const { return {line, col, file_offset, path, {}}; }
 
                     [[nodiscard]] ::sqf::runtime::fileio::pathinfo to_pathinfo() const { return path; }
 
