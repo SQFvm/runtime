@@ -1198,7 +1198,11 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
                         if (m.has_value()) {
                             file_context.move_back();
                             assert(file_context.file_offset >= word.length());
-                            auto macro_offset_start = file_context.file_offset - word.length();
+                            macro_resolved_data macro_offset_start {
+                                    file_context.line,
+                                    file_context.col - word.length(),
+                                    file_context.file_offset - word.length(),
+                            };
                             std::vector<const ::sqf::runtime::parser::macro *> macro_stack;
                             auto res = handle_macro(
                                     runtime,
@@ -1210,7 +1214,11 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
                             if (m_errflag) {
                                 return res;
                             }
-                            auto macro_offset_end = file_context.file_offset;
+                            macro_resolved_data macro_offset_end {
+                                   file_context.line,
+                                   file_context.col - word.length(),
+                                   file_context.file_offset - word.length(),
+                            };
                             auto replacement_offset_start = sstream.tellp();
                             sstream << res;
                             auto replacement_offset_end = sstream.tellp();
@@ -1314,13 +1322,21 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
         if (m.has_value()) {
             file_context.move_back();
             assert(file_context.file_offset >= word.length());
-            auto macro_offset_start = file_context.file_offset - word.length();
+            macro_resolved_data macro_offset_start {
+                    file_context.line,
+                    file_context.col - word.length(),
+                    file_context.file_offset - word.length(),
+            };
             std::vector<const ::sqf::runtime::parser::macro *> macro_stack;
             auto res = handle_macro(runtime, file_context, file_context, m.value(), empty_parammap, macro_stack);
             if (m_errflag) {
                 return res;
             }
-            auto macro_offset_end = file_context.file_offset;
+            macro_resolved_data macro_offset_end {
+                    file_context.line,
+                    file_context.col - word.length(),
+                    file_context.file_offset - word.length(),
+            };
             auto replacement_offset_start = sstream.tellp();
             sstream << res;
             auto replacement_offset_end = sstream.tellp();

@@ -16,21 +16,27 @@
 
 namespace sqf::parser::preprocessor {
     class impl_default : public ::sqf::runtime::parser::preprocessor, public CanLog {
+    public:
+        struct macro_resolved_data {
+            size_t line;
+            size_t column;
+            size_t offset;
+        };
 
     private:
         std::unordered_map<std::string, ::sqf::runtime::parser::macro> m_macros;
         std::unordered_map<std::string, ::sqf::runtime::parser::pragma> m_pragmas;
         std::function<void(
-                size_t orig_start,
-                size_t orig_end,
+                macro_resolved_data orig_start,
+                macro_resolved_data orig_end,
                 size_t pp_start,
                 size_t pp_end,
-                ::sqf::runtime::runtime & runtime,
-                context & local_fileinfo,
-                context & original_fileinfo,
-        const ::sqf::runtime::parser::macro
-        &m,
-        const std::unordered_map<std::string, std::string> &param_map
+                ::sqf::runtime::runtime &runtime,
+                context &local_fileinfo,
+                context &original_fileinfo,
+                const ::sqf::runtime::parser::macro
+                &m,
+                const std::unordered_map<std::string, std::string> &param_map
         )> m_macro_resolved_callback;
         struct condition_scope {
             bool allow_write{};
@@ -45,16 +51,16 @@ namespace sqf::parser::preprocessor {
         class instance : public CanLog {
         public:
             std::function<void(
-                    size_t orig_start,
-                    size_t orig_end,
+                    macro_resolved_data orig_start,
+                    macro_resolved_data orig_end,
                     size_t pp_start,
                     size_t pp_end,
-                    ::sqf::runtime::runtime & runtime,
-                    context & local_fileinfo,
-                    context & original_fileinfo,
-            const ::sqf::runtime::parser::macro
-            &m,
-            const std::unordered_map<std::string, std::string> &param_map
+                    ::sqf::runtime::runtime &runtime,
+                    context &local_fileinfo,
+                    context &original_fileinfo,
+                    const ::sqf::runtime::parser::macro
+                    &m,
+                    const std::unordered_map<std::string, std::string> &param_map
             )> m_macro_resolved_callback;
 
             instance(
@@ -147,6 +153,7 @@ namespace sqf::parser::preprocessor {
         };
 
     public:
+
         explicit impl_default(Logger &logger);
 
         std::optional<std::string> preprocess(
@@ -170,16 +177,16 @@ namespace sqf::parser::preprocessor {
             assert(m_pragmas.find(std::string(name.begin(), name.end())) != m_pragmas.end());
         };
 
-        void macro_resolved(std::function< void(
-        size_t orig_start,
-                            size_t orig_end,
-                            size_t pp_start,
-                            size_t pp_end,
-                            ::sqf::runtime::runtime &runtime,
-                            context &local_fileinfo,
-                            context &original_fileinfo,
-                            const ::sqf::runtime::parser::macro &m,
-                            const std::unordered_map<std::string, std::string> &param_map)
+        void macro_resolved(std::function<void(
+                macro_resolved_data orig_start,
+                macro_resolved_data orig_end,
+                size_t pp_start,
+                size_t pp_end,
+                ::sqf::runtime::runtime &runtime,
+                context &local_fileinfo,
+                context &original_fileinfo,
+                const ::sqf::runtime::parser::macro &m,
+                const std::unordered_map<std::string, std::string> &param_map)
 
         > callback) {
             m_macro_resolved_callback = std::move(callback);
