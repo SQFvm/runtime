@@ -1216,8 +1216,8 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
                             }
                             macro_resolved_data macro_offset_end {
                                    file_context.line,
-                                   file_context.col - word.length(),
-                                   file_context.file_offset - word.length(),
+                                   file_context.col,
+                                   file_context.file_offset,
                             };
                             auto replacement_offset_start = sstream.tellp();
                             sstream << res;
@@ -1334,8 +1334,8 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_file(
             }
             macro_resolved_data macro_offset_end {
                     file_context.line,
-                    file_context.col - word.length(),
-                    file_context.file_offset - word.length(),
+                    file_context.col,
+                    file_context.file_offset,
             };
             auto replacement_offset_start = sstream.tellp();
             sstream << res;
