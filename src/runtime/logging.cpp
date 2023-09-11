@@ -72,10 +72,40 @@ namespace logmessage::preprocessor {
 
     std::string ArgCountMissmatch::formatMessage() const {
         auto output = m_location.format();
-        auto const message = "Arg Count Missmatch."sv;
-
-        output.reserve(output.length() + message.length());
-        output.append(message);
+        auto macro_line = std::to_string(m_macro_location.line);
+        auto macro_column = std::to_string(m_macro_location.col);
+        auto macro_path = m_macro_location.path;
+        auto expected_arg_count = std::to_string(m_expected_arg_count);
+        auto actual_arg_count = std::to_string(m_actual_arg_count);
+        output.reserve(
+                output.length()
+                + "The macro '"sv.length()
+                + m_macro_name.length()
+                + "' at line '"sv.length()
+                + macro_line.length()
+                + "' column '"sv.length()
+                + macro_column.length()
+                + "' in file '"sv.length()
+                + macro_path.length()
+                + "' expects '"sv.length()
+                + expected_arg_count.length()
+                + "' arguments but got '"sv.length()
+                + actual_arg_count.length()
+                + "'."sv.length()
+        );
+        output.append("The macro '"sv);
+        output.append(m_macro_name);
+        output.append("' at line '"sv);
+        output.append(macro_line);
+        output.append("' column '"sv);
+        output.append(macro_column);
+        output.append("' in file '"sv);
+        output.append(macro_path);
+        output.append("' expects '"sv);
+        output.append(expected_arg_count);
+        output.append("' arguments but got '"sv);
+        output.append(actual_arg_count);
+        output.append("'."sv);
         return output;
     }
 

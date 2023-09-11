@@ -124,8 +124,22 @@ namespace logmessage {
         class ArgCountMissmatch : public PreprocBase {
             static const loglevel level = loglevel::error;
             static const size_t errorCode = 10001;
+            LogLocationInfo m_macro_location;
+            size_t m_expected_arg_count;
+            size_t m_actual_arg_count;
+            std::string m_macro_name;
         public:
-            ArgCountMissmatch(LogLocationInfo loc) : PreprocBase(level, errorCode, std::move(loc)) {}
+            ArgCountMissmatch(
+                    LogLocationInfo loc,
+                    LogLocationInfo macro_location,
+                    size_t expected_arg_count,
+                    size_t actual_arg_count,
+                    std::string macro_name) :
+                    PreprocBase(level, errorCode, std::move(loc)),
+                    m_macro_location(macro_location),
+                    m_expected_arg_count(expected_arg_count),
+                    m_actual_arg_count(actual_arg_count),
+                    m_macro_name(std::move(macro_name)) {}
             [[nodiscard]] std::string formatMessage() const override;
         };
 

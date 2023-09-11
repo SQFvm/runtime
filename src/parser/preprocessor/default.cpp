@@ -410,7 +410,7 @@ std::string sqf::parser::preprocessor::impl_default::instance::replace(
         const std::vector<const ::sqf::runtime::parser::macro *> &macro_stack) {
     if (m.args().size() != params.size()) {
         m_errflag = true;
-        log(err::ArgCountMissmatch(m.diag_info()));
+        log(err::ArgCountMissmatch(original_fileinfo.to_diag_info(), m.diag_info(), m.args().size(), params.size(), std::string(m.name().begin(), m.name().end())));
         return "";
     }
     context local_fileinfo(m.diag_info());
