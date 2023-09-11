@@ -1,4 +1,5 @@
 use crate::mount::{File, FileInfo, IOError, Mount, MountProperty, OpenError, PhysicalPath, PropertyError, ResolveError, SeekFrom, VirtualPath};
+use crate::path::Path;
 
 #[derive(Debug, PartialEq, Eq)]
 struct EmptyFile {}
@@ -50,8 +51,12 @@ impl FileInfo for EmptyFile {
         Ok(String::new())
     }
 
-    fn path(&self) -> Result<VirtualPath, IOError> {
-        Ok(String::new())
+    fn virtual_path(&self) -> Result<VirtualPath, IOError> {
+        Ok(Path::empty())
+    }
+
+    fn physical_path(&self) -> Result<PhysicalPath, IOError> {
+        Ok(Path::empty())
     }
 }
 
@@ -126,6 +131,10 @@ impl Mount for Empty {
 
     fn get_file_info(&self, path: &VirtualPath) -> Result<Box<dyn FileInfo>, IOError> {
         Ok(Box::new(EmptyFile {}))
+    }
+
+    fn iter_directory(&self, path: &VirtualPath, recursive: bool) -> Result<Box<dyn Iterator<Item=Box<dyn FileInfo>>>, IOError> {
+        Ok(Box::new(std::iter::empty()))
     }
 }
 

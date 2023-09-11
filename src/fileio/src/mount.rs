@@ -1,7 +1,8 @@
 use std::fmt::{Debug, Display, Formatter};
+use crate::path::Path;
 
-pub type PhysicalPath = String;
-pub type VirtualPath = String;
+pub type PhysicalPath = Path;
+pub type VirtualPath = Path;
 
 #[derive(Debug, PartialEq, Eq, )]
 pub enum PropertyError {
@@ -41,7 +42,15 @@ impl Display for OpenError {
 impl std::error::Error for OpenError {}
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum IOError {}
+pub enum IOError {
+    ReadFailed,
+    WriteFailed,
+    SeekFailed,
+    PositionFailed,
+    FlushFailed,
+    FailedToGetFileName,
+    PathConversionFailed,
+}
 
 impl Display for IOError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -55,7 +64,7 @@ impl std::error::Error for IOError {}
 pub enum SeekFrom {
     Start(u64),
     Current(i64),
-    End(u64),
+    End(i64),
 }
 
 pub trait File {
@@ -73,7 +82,8 @@ pub trait FileInfo {
     fn is_file(&self) -> bool;
     fn length(&self) -> Result<u64, IOError>;
     fn name(&self) -> Result<String, IOError>;
-    fn path(&self) -> Result<VirtualPath, IOError>;
+    fn virtual_path(&self) -> Result<VirtualPath, IOError>;
+    fn physical_path(&self) -> Result<PhysicalPath, IOError>;
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
@@ -235,6 +245,18 @@ pub trait Mount {
      * The file or an error if the file cannot be found.
      */
     fn get_file_info(&self, path: &VirtualPath) -> Result<Box<dyn FileInfo>, IOError>;
+
+    /**
+     * Gets information about a directory.
+     * If the directory does not exist, an error will be returned.
+     *
+     * # Arguments
+     * - `path` The path to the directory to get information about.
+     *
+     * # Returns
+     * The directory or an error if the directory cannot be found.
+     */
+    fn iter_directory(&self, path: &VirtualPath, recursive: bool) -> Result<Box<dyn Iterator<Item=Box<dyn FileInfo>>>, IOError>;
 }
 
 impl Debug for dyn Mount {
