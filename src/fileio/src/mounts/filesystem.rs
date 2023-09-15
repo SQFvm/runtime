@@ -1,5 +1,6 @@
 use std::io::{Read, Seek, Write};
 use std::io::SeekFrom::{Current, End, Start};
+use std::path::Path;
 use crate::mount::{File, FileInfo, IOError, Mount, MountProperty, OpenError, PhysicalPath, PropertyError, ResolveError, SeekFrom, VirtualPath};
 
 struct FileSystemFile {
@@ -62,11 +63,11 @@ impl File for FileSystemFile {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct FileSystemFileInfo {
-    virtual_path: VirtualPath,
-    physical_path: PhysicalPath,
+struct FileSystemFileInfo<'a> {
+    virtual_path: &'a VirtualPath,
+    physical_path: &'a Path,
 }
-impl FileInfo for FileSystemFileInfo {
+impl FileInfo for FileSystemFileInfo<'_> {
     fn is_directory(&self) -> bool {
         let result = std::fs::metadata(&self.physical_path);
         match result {
@@ -92,14 +93,21 @@ impl FileInfo for FileSystemFileInfo {
     }
 
     fn name(&self) -> Result<String, IOError> {
-        Ok(self.physical_path.last_segment().to_string())
+        match self.physical_path.file_name() {
+            Some(name) => match name.to_str()
+            {
+                Some(name) => Ok(name.to_string()),
+                None => Err(IOError::FailedToGetFileName),
+            },
+            None => Err(IOError::FailedToGetFileName),
+        }
     }
 
-    fn virtual_path(&self) -> Result<VirtualPath, IOError> {
+    fn virtual_path(&self) -> Result<&VirtualPath, IOError> {
         Ok(self.virtual_path.clone())
     }
-    fn physical_path(&self) -> Result<PhysicalPath, IOError> {
-        Ok(self.physical_path.clone())
+    fn physical_path(&self) -> Result<&PhysicalPath, IOError> {
+        Ok(&self.physical_path.as_os_str().to_os_string())
     }
 }
 
@@ -144,19 +152,19 @@ impl Mount for FileSystem {
         true
     }
 
-    fn to_virtual_path(&self, path: &PhysicalPath) -> Result<VirtualPath, ResolveError> {
+    fn to_virtual_path(&self, path: &PhysicalPath) -> Result<&VirtualPath, ResolveError> {
         todo!()
     }
 
-    fn to_physical_path(&self, path: &VirtualPath) -> Result<PhysicalPath, ResolveError> {
+    fn to_physical_path(&self, path: &VirtualPath) -> Result<&PhysicalPath, ResolveError> {
         todo!()
     }
 
-    fn open_read(&self, path: &VirtualPath) -> Result<Box<dyn File>, OpenError> {
+    fn open_read<'a>(&self, path: &VirtualPath) -> Result<&'a dyn File, OpenError> {
         todo!()
     }
 
-    fn open_write(&self, path: &VirtualPath) -> Result<Box<dyn File>, OpenError> {
+    fn open_write<'a>(&self, path: &VirtualPath) -> Result<&'a dyn File, OpenError> {
         todo!()
     }
 
@@ -164,19 +172,19 @@ impl Mount for FileSystem {
         todo!()
     }
 
-    fn create_directory(&self, path: &VirtualPath) -> Result<Box<dyn FileInfo>, IOError> {
+    fn create_directory<'a>(&self, path: &VirtualPath) -> Result<(), IOError> {
         todo!()
     }
 
-    fn create_file(&self, path: &VirtualPath) -> Result<Box<dyn FileInfo>, IOError> {
+    fn create_file<'a>(&self, path: &VirtualPath) -> Result<&'a dyn File, IOError> {
         todo!()
     }
 
-    fn get_file_info(&self, path: &VirtualPath) -> Result<Box<dyn FileInfo>, IOError> {
+    fn get_file_info<'a>(&self, path: &VirtualPath) -> Result<&'a dyn FileInfo, IOError> {
         todo!()
     }
 
-    fn iter_directory(&self, path: &VirtualPath, recursive: bool) -> Result<Box<dyn Iterator<Item=Box<dyn FileInfo>>>, IOError> {
+    fn iter_directory<'a>(&self, path: &VirtualPath, recursive: bool) -> Result<&'a dyn Iterator<Item=&'a dyn FileInfo>, IOError> {
         todo!()
     }
 }

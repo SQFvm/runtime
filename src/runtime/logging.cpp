@@ -2923,6 +2923,29 @@ std::string logmessage::fileio::ResolveVirtualFileNotFound::formatMessage() cons
     return output;
 }
 
+std::string logmessage::fileio::ResolveVirtualFileNoNodesLeftFileNotFindable::formatMessage() const
+{
+    const auto messageA = "Virtual Lookup exhausted all available nodes in path and could not locate a file for `"sv;
+    const auto messageB = "` (Physical Reference Path: `"sv;
+    const auto messageC = "`)."sv;
+
+    std::string output;
+    output.reserve(
+        messageA.length() +
+        m_virtual.length() +
+        messageB.length() +
+        m_physical.length() +
+        messageC.length()
+    );
+
+    output.append(messageA);
+    output.append(m_virtual);
+    output.append(messageB);
+    output.append(m_physical);
+    output.append(messageC);
+    return output;
+}
+
 std::string logmessage::fileio::ResolveVirtualFileMatched::formatMessage() const
 {
     const auto messageA = "Virtual Lookup succeeded for `"sv;
@@ -3003,8 +3026,8 @@ std::string logmessage::fileio::ResolveVirtualNavigateDown::formatMessage() cons
 
 std::string logmessage::fileio::ResolveVirtualNavigateDeadEnd::formatMessage() const
 {
-    const auto messageA = "Virtual Lookup failed to locate down-navigation path `"sv;
-    const auto messageB = "` (Virtual Reference path: `"sv;
+    const auto messageA = "Virtual Lookup unfound down-navigation path `"sv;
+    const auto messageB = "` indicating destination reached (Virtual Reference path: `"sv;
     const auto messageC = "`, Physical Reference Path : `"sv;
     const auto messageD = "`)."sv;
 
@@ -3358,5 +3381,137 @@ std::string logmessage::fileio::PBOFailedToReadFile::formatMessage() const
     output.append(messageB);
     output.append(m_path);
     output.append(messageC);
+    return output;
+}
+
+
+
+
+std::string logmessage::fileio::FileLookupRequested::formatMessage() const
+{
+    const auto messageA = "File lookup requested for `"sv;
+    const auto messageB = "` (Physical Reference Path: `"sv;
+    const auto messageC = "`; Virtual Reference Path: `"sv;
+    const auto messageD = "`)."sv;
+
+    std::string output;
+    output.reserve(
+            messageA.length() +
+            m_requested.length() +
+            messageB.length() +
+            m_request_physical.length() +
+            messageC.length() +
+            m_request_virtual.length() +
+            messageD.length()
+    );
+
+    output.append(messageA);
+    output.append(m_requested);
+    output.append(messageB);
+    output.append(m_request_physical);
+    output.append(messageC);
+    output.append(m_request_virtual);
+    output.append(messageD);
+    return output;
+}
+std::string logmessage::fileio::FileLookupCompletedWithVirtualFile::formatMessage() const
+{
+    const auto messageA = "File lookup found a file via virtual lookup for `"sv;
+    const auto messageB = "` (Physical Found Reference Path: `"sv;
+    const auto messageC = "`; Virtual Found Reference Path: `"sv;
+    const auto messageD = "`; Physical Requested Reference Path: `"sv;
+    const auto messageE = "`; Virtual Requested Reference Path: `"sv;
+    const auto messageF = "`)."sv;
+
+    std::string output;
+    output.reserve(
+            messageA.length() +
+            m_requested.length() +
+            messageB.length() +
+            m_resolved_physical.length() +
+            messageC.length() +
+            m_resolved_virtual.length() +
+            messageD.length() +
+            m_request_physical.length() +
+            messageE.length() +
+            m_request_virtual.length() +
+            messageF.length()
+    );
+
+    output.append(messageA);
+    output.append(m_requested);
+    output.append(messageB);
+    output.append(m_resolved_physical);
+    output.append(messageC);
+    output.append(m_resolved_virtual);
+    output.append(messageD);
+    output.append(m_request_physical);
+    output.append(messageE);
+    output.append(m_request_virtual);
+    output.append(messageF);
+    return output;
+}
+std::string logmessage::fileio::FileLookupCompletedWithPhysicalFile::formatMessage() const
+{
+    const auto messageA = "File lookup found a file via physical lookup for `"sv;
+    const auto messageB = "` (Physical Found Reference Path: `"sv;
+    const auto messageC = "`; Virtual Found Reference Path: `"sv;
+    const auto messageD = "`; Physical Requested Reference Path: `"sv;
+    const auto messageE = "`; Virtual Requested Reference Path: `"sv;
+    const auto messageF = "`)."sv;
+
+    std::string output;
+    output.reserve(
+            messageA.length() +
+            m_requested.length() +
+            messageB.length() +
+            m_resolved_physical.length() +
+            messageC.length() +
+            m_resolved_virtual.length() +
+            messageD.length() +
+            m_request_physical.length() +
+            messageE.length() +
+            m_request_virtual.length() +
+            messageF.length()
+    );
+
+    output.append(messageA);
+    output.append(m_requested);
+    output.append(messageB);
+    output.append(m_resolved_physical);
+    output.append(messageC);
+    output.append(m_resolved_virtual);
+    output.append(messageD);
+    output.append(m_request_physical);
+    output.append(messageE);
+    output.append(m_request_virtual);
+    output.append(messageF);
+    return output;
+}
+std::string logmessage::fileio::FileLookupCompletedWithNoFile::formatMessage() const
+{
+    const auto messageA = "File lookup did not find a file for `"sv;
+    const auto messageB = "` (Physical Reference Path: `"sv;
+    const auto messageC = "`; Virtual Reference Path: `"sv;
+    const auto messageD = "`)."sv;
+
+    std::string output;
+    output.reserve(
+            messageA.length() +
+            m_requested.length() +
+            messageB.length() +
+            m_request_physical.length() +
+            messageC.length() +
+            m_request_virtual.length() +
+            messageD.length()
+    );
+
+    output.append(messageA);
+    output.append(m_requested);
+    output.append(messageB);
+    output.append(m_request_physical);
+    output.append(messageC);
+    output.append(m_request_virtual);
+    output.append(messageD);
     return output;
 }

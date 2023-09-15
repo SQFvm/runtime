@@ -1,10 +1,11 @@
+use std::ffi::OsString;
 use std::fmt::{Debug, Display, Formatter};
-use crate::path::Path;
+use std::path::Path;
 
-pub type PhysicalPath = Path;
+pub type PhysicalPath = OsString;
 pub type VirtualPath = Path;
 
-#[derive(Debug, PartialEq, Eq, )]
+#[derive(Debug, PartialEq, Eq)]
 pub enum PropertyError {
     NotFound
 }
@@ -16,7 +17,6 @@ impl Display for PropertyError {
         }
     }
 }
-
 impl std::error::Error for PropertyError {}
 
 #[derive(Debug, PartialEq, Eq)]
@@ -82,8 +82,8 @@ pub trait FileInfo {
     fn is_file(&self) -> bool;
     fn length(&self) -> Result<u64, IOError>;
     fn name(&self) -> Result<String, IOError>;
-    fn virtual_path(&self) -> Result<VirtualPath, IOError>;
-    fn physical_path(&self) -> Result<PhysicalPath, IOError>;
+    fn virtual_path(&self) -> Result<&VirtualPath, IOError>;
+    fn physical_path(&self) -> Result<&PhysicalPath, IOError>;
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
@@ -158,7 +158,7 @@ pub trait Mount {
      * # Returns
      * The physical path or an error if the path cannot be converted.
      */
-    fn to_virtual_path(&self, path: &PhysicalPath) -> Result<VirtualPath, ResolveError>;
+    fn to_virtual_path(&self, path: &PhysicalPath) -> Result<&VirtualPath, ResolveError>;
 
     /**
      * Converts a physical path to the virtual representation.
@@ -172,7 +172,7 @@ pub trait Mount {
      * # Returns
      * The virtual path or an error if the path cannot be converted.
      */
-    fn to_physical_path(&self, path: &VirtualPath) -> Result<PhysicalPath, ResolveError>;
+    fn to_physical_path(&self, path: &VirtualPath) -> Result<&PhysicalPath, ResolveError>;
 
     /**
      * Opens a file for reading or writing.
@@ -184,7 +184,7 @@ pub trait Mount {
      * # Returns
      * The file or an error if the file cannot be opened.
      */
-    fn open_read(&self, path: &VirtualPath) -> Result<Box<dyn File>, OpenError>;
+    fn open_read<'a>(&self, path: &VirtualPath) -> Result<&'a dyn File, OpenError>;
 
     /**
      * Opens a file for writing.
@@ -196,7 +196,7 @@ pub trait Mount {
      * # Returns
      * The file or an error if the file cannot be opened.
      */
-    fn open_write(&self, path: &VirtualPath) -> Result<Box<dyn File>, OpenError>;
+    fn open_write<'a>(&self, path: &VirtualPath) -> Result<&'a dyn File, OpenError>;
 
     /**
      * Deletes a file.
@@ -220,7 +220,7 @@ pub trait Mount {
      * # Returns
      * The directory or an error if the directory cannot be created.
      */
-    fn create_directory(&self, path: &VirtualPath) -> Result<Box<dyn FileInfo>, IOError>;
+    fn create_directory<'a>(&self, path: &VirtualPath) -> Result<(), IOError>;
 
     /**
      * Creates a file.
@@ -232,7 +232,7 @@ pub trait Mount {
      * # Returns
      * The file or an error if the file cannot be created.
      */
-    fn create_file(&self, path: &VirtualPath) -> Result<Box<dyn FileInfo>, IOError>;
+    fn create_file<'a>(&self, path: &VirtualPath) -> Result<&'a dyn File, IOError>;
 
     /**
      * Gets information about a file.
@@ -242,9 +242,9 @@ pub trait Mount {
      * - `path` The path to the file to get information about.
      * 
      * # Returns
-     * The file or an error if the file cannot be found.
+     * The file information or an error if the file cannot be found.
      */
-    fn get_file_info(&self, path: &VirtualPath) -> Result<Box<dyn FileInfo>, IOError>;
+    fn get_file_info<'a>(&self, path: &VirtualPath) -> Result<&'a dyn FileInfo, IOError>;
 
     /**
      * Gets information about a directory.
@@ -256,7 +256,7 @@ pub trait Mount {
      * # Returns
      * The directory or an error if the directory cannot be found.
      */
-    fn iter_directory(&self, path: &VirtualPath, recursive: bool) -> Result<Box<dyn Iterator<Item=Box<dyn FileInfo>>>, IOError>;
+    fn iter_directory<'a>(&self, path: &VirtualPath, recursive: bool) -> Result<&'a dyn Iterator<Item=&'a dyn FileInfo>, IOError>;
 }
 
 impl Debug for dyn Mount {

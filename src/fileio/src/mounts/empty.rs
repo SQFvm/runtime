@@ -1,5 +1,5 @@
+use std::path::Path;
 use crate::mount::{File, FileInfo, IOError, Mount, MountProperty, OpenError, PhysicalPath, PropertyError, ResolveError, SeekFrom, VirtualPath};
-use crate::path::Path;
 
 #[derive(Debug, PartialEq, Eq)]
 struct EmptyFile {}
@@ -51,12 +51,12 @@ impl FileInfo for EmptyFile {
         Ok(String::new())
     }
 
-    fn virtual_path(&self) -> Result<VirtualPath, IOError> {
-        Ok(Path::empty())
+    fn virtual_path(&self) -> Result<&VirtualPath, IOError> {
+        Ok(VirtualPath::new("/"))
     }
 
-    fn physical_path(&self) -> Result<PhysicalPath, IOError> {
-        Ok(Path::empty())
+    fn physical_path(&self) -> Result<&PhysicalPath, IOError> {
+        Ok(&PhysicalPath::new())
     }
 }
 
@@ -66,8 +66,8 @@ pub struct Empty {
 }
 
 impl Empty {
-    pub fn new() -> Empty {
-        Empty { properties: vec![] }
+    pub fn new<'a>() -> &'a Empty {
+        &Empty { properties: vec![] }
     }
 }
 
@@ -101,40 +101,40 @@ impl Mount for Empty {
         true
     }
 
-    fn to_virtual_path(&self, path: &PhysicalPath) -> Result<VirtualPath, ResolveError> {
-        Ok(path.clone())
+    fn to_virtual_path(&self, path: &PhysicalPath) -> Result<&VirtualPath, ResolveError> {
+        Ok(VirtualPath::new(path))
     }
 
-    fn to_physical_path(&self, path: &VirtualPath) -> Result<PhysicalPath, ResolveError> {
-        Ok(path.clone())
+    fn to_physical_path(&self, path: &VirtualPath) -> Result<&PhysicalPath, ResolveError> {
+        Ok(&path.as_os_str().to_os_string() as &PhysicalPath)
     }
 
-    fn open_read(&self, path: &VirtualPath) -> Result<Box<dyn File>, OpenError> {
-        Ok(Box::new(EmptyFile {}))
+    fn open_read<'a>(&self, path: &VirtualPath) -> Result<&'a dyn File, OpenError> {
+        Ok(&EmptyFile {})
     }
 
-    fn open_write(&self, path: &VirtualPath) -> Result<Box<dyn File>, OpenError> {
-        Ok(Box::new(EmptyFile {}))
+    fn open_write<'a>(&self, path: &VirtualPath) -> Result<&'a dyn File, OpenError> {
+        Ok(&EmptyFile {})
     }
 
     fn delete(&self, path: &VirtualPath) -> Result<(), IOError> {
         Ok(())
     }
 
-    fn create_directory(&self, path: &VirtualPath) -> Result<Box<dyn FileInfo>, IOError> {
-        Ok(Box::new(EmptyFile {}))
+    fn create_directory<'a>(&self, path: &VirtualPath) -> Result<(), IOError> {
+        Ok(())
     }
 
-    fn create_file(&self, path: &VirtualPath) -> Result<Box<dyn FileInfo>, IOError> {
-        Ok(Box::new(EmptyFile {}))
+    fn create_file<'a>(&self, path: &VirtualPath) -> Result<&'a dyn File, IOError> {
+        Ok(&EmptyFile {})
     }
 
-    fn get_file_info(&self, path: &VirtualPath) -> Result<Box<dyn FileInfo>, IOError> {
-        Ok(Box::new(EmptyFile {}))
+    fn get_file_info<'a>(&self, path: &VirtualPath) -> Result<&'a dyn FileInfo, IOError> {
+        Ok(&EmptyFile {})
     }
 
-    fn iter_directory(&self, path: &VirtualPath, recursive: bool) -> Result<Box<dyn Iterator<Item=Box<dyn FileInfo>>>, IOError> {
-        Ok(Box::new(std::iter::empty()))
+    fn iter_directory<'a>(&self, path: &VirtualPath, recursive: bool) -> Result<&'a dyn Iterator<Item=&'a dyn FileInfo>, IOError> {
+        Ok(&std::iter::empty())
     }
 }
 
