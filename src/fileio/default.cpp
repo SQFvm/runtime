@@ -285,11 +285,11 @@ void sqf::fileio::impl_default::add_mapping(std::string_view viewPhysical, std::
     // Create & Cleanse stuff
     auto phys = std::string(viewPhysical);
     std::replace(phys.begin(), phys.end(), '\\', '/');
-    phys = std::string(sqf::runtime::util::trim(phys));
+    phys = std::string(sqf::runtime::util::trim(phys, " \t\r\n"));
     auto path_phys = std::filesystem::path(phys);
 
     auto virt = std::string(viewVirtual);
-    virt = std::string(sqf::runtime::util::trim(virt));
+    virt = std::string(sqf::runtime::util::trim(virt, " \t\r\n"));
     std::replace(virt.begin(), virt.end(), '\\', '/');
 
     // Iterate over the whole virtual path and add missing elements to the file_tree
