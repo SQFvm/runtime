@@ -59,29 +59,16 @@ list(APPEND sqfvm_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp")
 ##                        ##
 ############################
 
-include(ExternalProject)
+include(FetchContent)
 
-find_program(CARGO cargo REQUIRED)
-
-ExternalProject_Add(
-    fileio_ext
-    DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CARGO} build --release
-    SOURCE_DIR "${PROJECT_SOURCE_DIR}/src/fileio"
-    BUILD_IN_SOURCE ON
-    INSTALL_COMMAND ""
-    LOG_BUILD ON
+FetchContent_Declare(
+    Corrosion
+    GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
+    GIT_TAG v0.4
 )
+FetchContent_MakeAvailable(Corrosion)
 
-add_library(fileio INTERFACE)
-add_dependencies(fileio fileio_ext)
-target_include_directories(fileio INTERFACE "${PROJECT_SOURCE_DIR}/src/fileio")
-target_link_libraries(fileio INTERFACE
-    # Below are examples
-    DEBUG "${PROJECT_SOURCE_DIR}/src/fileio/target/debug/fileio.dll"
-    OPTIMIZED "${PROJECT_SOURCE_DIR}/src/fileio/target/release/fileio.dll"
-)
+corrosion_import_crate(MANIFEST_PATH src/fileio/Cargo.toml)
 
 ############################
 ##                        ##
