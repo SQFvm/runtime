@@ -38,6 +38,7 @@ namespace sqf::parser::preprocessor {
                 &m,
                 const std::unordered_map<std::string, std::string> &param_map
         )> m_macro_resolved_callback;
+        std::function<void(context & included_fileinfo, context & source_fileinfo)> m_file_included_callback;
         struct condition_scope {
             bool allow_write{};
             ::sqf::runtime::diagnostics::diag_info info_if;
@@ -62,6 +63,7 @@ namespace sqf::parser::preprocessor {
                     &m,
                     const std::unordered_map<std::string, std::string> &param_map
             )> m_macro_resolved_callback;
+            std::function<void(context & included_fileinfo, context & source_fileinfo)> m_file_included_callback;
 
             instance(
                     impl_default *owner,
@@ -176,6 +178,10 @@ namespace sqf::parser::preprocessor {
             assert(m_pragmas[name].name() == name);
             assert(m_pragmas.find(std::string(name.begin(), name.end())) != m_pragmas.end());
         };
+
+        void file_included(std::function<void(context & included_fileinfo, context & source_fileinfo)> callback) {
+            m_file_included_callback = std::move(callback);
+        }
 
         void macro_resolved(std::function<void(
                 macro_resolved_data orig_start,

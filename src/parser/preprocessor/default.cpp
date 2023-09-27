@@ -942,6 +942,9 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
             output.append(" \"");
             output.append(file_context.path.physical);
             output.append("\"\n");
+            if (m_file_included_callback) {
+                m_file_included_callback(otherfinfo, file_context);
+            }
             return output;
         }
         catch (const std::runtime_error &ex) {
@@ -1477,6 +1480,7 @@ std::optional<std::string> sqf::parser::preprocessor::impl_default::preprocess(
     fileinfo.content = view;
     instance i(this, get_logger(), m_macros);
     i.m_macro_resolved_callback = m_macro_resolved_callback;
+    i.m_file_included_callback = m_file_included_callback;
     auto res = i.parse_file(runtime, fileinfo);
     if (out_included) {
         for (const auto &entry: i.m_visited) {
