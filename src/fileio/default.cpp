@@ -16,23 +16,23 @@ using namespace std::literals::string_literals;
 using namespace std::literals::string_view_literals;
 
 template<char delimiter>
-class StringDelimiter : public std::string
-{ };
+class StringDelimiter : public std::string {
+};
+
 template<char delimiter>
-std::istream & operator>>(std::istream & is, StringDelimiter<delimiter>& output)
-{
+std::istream &operator>>(std::istream &is, StringDelimiter<delimiter> &output) {
     std::getline(is, output, delimiter);
     return is;
 }
 
-inline bool file_exists(std::filesystem::path p)
-{
+inline bool file_exists(std::filesystem::path p) {
     std::ifstream infile(p.string());
     return infile.good();
 }
 
-std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_info_virtual(std::string_view viewVirtual, sqf::runtime::fileio::pathinfo current) const
-{
+std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_info_virtual(
+        std::string_view viewVirtual,
+        sqf::runtime::fileio::pathinfo current) const {
     // Create & Cleanse stuff
     auto virt = std::string(viewVirtual);
     std::replace(virt.begin(), virt.end(), '\\', '/');
@@ -42,9 +42,9 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
     log(logmessage::fileio::ResolveVirtualRequested(LogLocationInfo(current.physical, 0, 0), current.physical, virt));
 
     // Abort conditions
-    if (virt.empty())
-    {
-        log(logmessage::fileio::ResolveVirtualFileNotFound(LogLocationInfo(current.physical, 0, 0), current.physical, virt));
+    if (virt.empty()) {
+        log(logmessage::fileio::ResolveVirtualFileNotFound(LogLocationInfo(current.physical, 0, 0), current.physical,
+                                                           virt));
         return {};
     }
 
@@ -55,30 +55,27 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
 #if WIN32
     if (virt[0] != '/' && !(virt.length() >= 2 && virt[1] == ':'))
 #else
-    if (virt[0] != '/')
+        if (virt[0] != '/')
 #endif
     { // Navigate current virtual path if relative
 
         // Iterate over the whole existing virtual path
-        if (!current.virtual_.empty())
-        {
+        if (!current.virtual_.empty()) {
             virtFull = current.virtual_ + "/" + virt;
 
             std::istringstream stream_virt(current.virtual_);
-            for (auto it = std::istream_iterator<StringDelimiter<'/'>>{ stream_virt }; it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it)
-            {
-                if (it->empty())
-                { /* skip empty */
+            for (auto it = std::istream_iterator<StringDelimiter<'/'>>{stream_virt};
+                 it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it) {
+                if (it->empty()) { /* skip empty */
                     continue;
                 }
-                if (nodes.back()->next.find(*it) != nodes.back()->next.end())
-                {
+                if (nodes.back()->next.find(*it) != nodes.back()->next.end()) {
                     nodes.push_back(nodes.back()->next.at(*it));
-                    log(logmessage::fileio::ResolveVirtualNavigateDown(LogLocationInfo(current.physical, 0, 0), current.physical, virt, *it));
-                }
-                else
-                { /* Dead-End. File Not Found. */
-                    log(logmessage::fileio::ResolveVirtualFileNotFound(LogLocationInfo(current.physical, 0, 0), current.physical, virt));
+                    log(logmessage::fileio::ResolveVirtualNavigateDown(LogLocationInfo(current.physical, 0, 0),
+                                                                       current.physical, virt, *it));
+                } else { /* Dead-End. File Not Found. */
+                    log(logmessage::fileio::ResolveVirtualFileNotFound(LogLocationInfo(current.physical, 0, 0),
+                                                                       current.physical, virt));
                     return {};
                 }
             }
@@ -88,131 +85,124 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
     // Explore further until we hit dead-end
     {
         std::istringstream stream_virt(virt);
-        auto it = std::istream_iterator<StringDelimiter<'/'>>{ stream_virt };
-        for (; it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it)
-        {
+        auto it = std::istream_iterator<StringDelimiter<'/'>>{stream_virt};
+        for (; it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it) {
             if (it->empty()) { /* skip empty */ continue; }
-            if (*it == ".."s && !nodes.empty())
-            {
+            if (*it == ".."s && !nodes.empty()) {
                 // Move dir-up
                 nodes.pop_back();
-                log(logmessage::fileio::ResolveVirtualNavigateUp(LogLocationInfo(current.physical, 0, 0), current.physical, virt));
-            }
-            else
-            {
-                if (nodes.empty())
-                {
-                    log(logmessage::fileio::ResolveVirtualNavigateNoNodesLeftForExploring(LogLocationInfo(current.physical, 0, 0), current.physical, virt));
+                log(logmessage::fileio::ResolveVirtualNavigateUp(LogLocationInfo(current.physical, 0, 0),
+                                                                 current.physical, virt));
+            } else {
+                if (nodes.empty()) {
+                    log(logmessage::fileio::ResolveVirtualNavigateNoNodesLeftForExploring(
+                            LogLocationInfo(current.physical, 0, 0), current.physical, virt));
                     break;
-                }
-                else if (nodes.back()->next.find(*it) == nodes.back()->next.end())
-                { /* Dead-End.  */
-                    log(logmessage::fileio::ResolveVirtualNavigateDeadEnd(LogLocationInfo(current.physical, 0, 0), current.physical, virt, *it));
+                } else if (nodes.back()->next.find(*it) == nodes.back()->next.end()) { /* Dead-End.  */
+                    log(logmessage::fileio::ResolveVirtualNavigateDeadEnd(LogLocationInfo(current.physical, 0, 0),
+                                                                          current.physical, virt, *it));
                     break;
-                }
-                else
-                {
+                } else {
                     nodes.push_back(nodes.back()->next.at(*it));
-                    log(logmessage::fileio::ResolveVirtualNavigateDown(LogLocationInfo(current.physical, 0, 0), current.physical, virt, *it));
+                    log(logmessage::fileio::ResolveVirtualNavigateDown(LogLocationInfo(current.physical, 0, 0),
+                                                                       current.physical, virt, *it));
                 }
             }
         }
 
-        
-        if (nodes.empty())
-        { /* Invalid path from our perspective. Return File-Not-Found. */
 
-            log(logmessage::fileio::ResolveVirtualFileNotFound(LogLocationInfo(current.physical, 0, 0), current.physical, virt));
+        if (nodes.empty()) { /* Invalid path from our perspective. Return File-Not-Found. */
+
+            log(logmessage::fileio::ResolveVirtualFileNoNodesLeftFileNotFindable(
+                    LogLocationInfo(current.physical, 0, 0), current.physical, virt));
             return {};
         }
 
         // Set virtual to remaining and ensure no further dir-up occur
         virt.clear();
-        for (; it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it)
-        {
+        for (; it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it) {
             if (*it == ".."s) { /* skip dir-up */ continue; }
             virt.append("/");
             virt.append(*it);
         }
-        log(logmessage::fileio::ResolveVirtualGotRemainder(LogLocationInfo(current.physical, 0, 0), current.physical, virt));
+        log(logmessage::fileio::ResolveVirtualGotRemainder(LogLocationInfo(current.physical, 0, 0), current.physical,
+                                                           virt));
     }
     // Check every physical path in current tree_element if the file exists
-    for (auto& phys : nodes.back()->physical)
-    {
+    for (auto &phys: nodes.back()->physical) {
         auto tmp = phys.string() + virt;
         std::filesystem::path p(tmp);
-        log(logmessage::fileio::ResolveVirtualTestFileExists(LogLocationInfo(current.physical, 0, 0), current.physical, virt, p.string()));
-        if (file_exists(p))
-        {
+        log(logmessage::fileio::ResolveVirtualTestFileExists(LogLocationInfo(current.physical, 0, 0), current.physical,
+                                                             virt, p.string()));
+        if (file_exists(p)) {
             auto actual = p.string();
-            log(logmessage::fileio::ResolveVirtualFileMatched(LogLocationInfo(current.physical, 0, 0), current.physical, virt, actual));
-            return { { actual, virtFull } };
+            log(logmessage::fileio::ResolveVirtualFileMatched(LogLocationInfo(current.physical, 0, 0), current.physical,
+                                                              virt, actual));
+            return {{actual, virtFull}};
         }
     }
 
-    log(logmessage::fileio::ResolveVirtualFileNotFound(LogLocationInfo(current.physical, 0, 0), current.physical, virt));
+    log(logmessage::fileio::ResolveVirtualFileNotFound(LogLocationInfo(current.physical, 0, 0), current.physical,
+                                                       virt));
     // As we reached this, file-not-found
     return {};
 }
-std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_info_physical(std::string_view viewVirtual, sqf::runtime::fileio::pathinfo current) const
-{
-    log(logmessage::fileio::ResolvePhysicalRequested(LogLocationInfo(current.physical, 0, 0), current.physical, current.virtual_, viewVirtual));
+
+std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_info_physical(std::string_view viewVirtual,
+                                                                                           sqf::runtime::fileio::pathinfo current) const {
+    log(logmessage::fileio::ResolvePhysicalRequested(LogLocationInfo(current.physical, 0, 0), current.physical,
+                                                     current.virtual_, viewVirtual));
 
     std::filesystem::path toFindPath(viewVirtual);
     toFindPath = toFindPath.lexically_normal();
-    if (toFindPath.is_relative() || (viewVirtual.size() > 3 && (viewVirtual.substr(0, 3) == "../"sv || viewVirtual.substr(0, 3) == "..\\"sv)))
-    {
-        if (std::filesystem::is_regular_file(current.physical))
-        {
+    if (toFindPath.is_relative() ||
+        (viewVirtual.size() > 3 && (viewVirtual.substr(0, 3) == "../"sv || viewVirtual.substr(0, 3) == "..\\"sv))) {
+        if (std::filesystem::is_regular_file(current.physical)) {
             auto tmp = std::filesystem::path(current.physical);
             auto tmp2 = tmp.parent_path();
             toFindPath = tmp2 / toFindPath;
-        }
-        else
-        {
+        } else {
             toFindPath = current.physical / toFindPath;
         }
         toFindPath = toFindPath.lexically_normal();
     }
-    log(logmessage::fileio::ResolvePhysicalAdjustedPath(LogLocationInfo(current.physical, 0, 0), current.physical, current.virtual_, viewVirtual));
-    for (auto& it : m_path_elements)
-    {
-        for (auto& phys : it->physical)
-        {
-            log(logmessage::fileio::ResolvePhysicalTestingAgainst(LogLocationInfo(current.physical, 0, 0), current.physical, current.virtual_, phys.string()));
+    log(logmessage::fileio::ResolvePhysicalAdjustedPath(LogLocationInfo(current.physical, 0, 0), current.physical,
+                                                        current.virtual_, viewVirtual));
+    for (auto &it: m_path_elements) {
+        for (auto &phys: it->physical) {
+            log(logmessage::fileio::ResolvePhysicalTestingAgainst(LogLocationInfo(current.physical, 0, 0),
+                                                                  current.physical, current.virtual_, phys.string()));
             auto pair = std::mismatch(phys.begin(), phys.end(), toFindPath.begin());
             auto rootEnd = std::get<0>(pair);
             auto nothing = std::get<0>(pair);
-            if (rootEnd == phys.end() && !std::equal(phys.begin(), phys.end(), toFindPath.begin(), toFindPath.end()))
-            {
-                log(logmessage::fileio::ResolvePhysicalMatched(LogLocationInfo(current.physical, 0, 0), current.physical, current.virtual_, phys.string()));
+            if (rootEnd == phys.end() && !std::equal(phys.begin(), phys.end(), toFindPath.begin(), toFindPath.end())) {
+                log(logmessage::fileio::ResolvePhysicalMatched(LogLocationInfo(current.physical, 0, 0),
+                                                               current.physical, current.virtual_, phys.string()));
                 toFindPath = it->virtual_full + "/" + toFindPath.string().substr(phys.string().size() + 1);
                 toFindPath = toFindPath.lexically_normal();
                 auto toFindString = toFindPath.string();
                 std::replace(toFindString.begin(), toFindString.end(), '\\', '/');
                 auto res = get_info_virtual(toFindString, current);
-                if (res.has_value())
-                {
+                if (res.has_value()) {
                     return res;
                 }
             }
         }
     }
-    log(logmessage::fileio::ResolvePhysicalFailedToLookup(LogLocationInfo(current.physical, 0, 0), current.physical, current.virtual_, viewVirtual));
+    log(logmessage::fileio::ResolvePhysicalFailedToLookup(LogLocationInfo(current.physical, 0, 0), current.physical,
+                                                          current.virtual_, viewVirtual));
     return {};
 }
 
-void sqf::fileio::impl_default::add_pbo_mapping(rvutils::pbo::pbofile& pbo)
-{
-    if (m_pbos.find(pbo.path().string()) != m_pbos.end())
-    {
+void sqf::fileio::impl_default::add_pbo_mapping(rvutils::pbo::pbofile &pbo) {
+    if (m_pbos.find(pbo.path().string()) != m_pbos.end()) {
         log(logmessage::fileio::PBOAlreadyAdded(LogLocationInfo(pbo.path().string(), 0, 0), pbo.path().string()));
         return;
     }
     auto prefix_optional = pbo.attribute("prefix");
-    if (!prefix_optional.has_value())
-    {
-        log(logmessage::fileio::PBOHasNoPrefixAttribute(LogLocationInfo(pbo.path().string(), 0, 0), pbo.path().string()));
+    if (!prefix_optional.has_value()) {
+        log(logmessage::fileio::PBOHasNoPrefixAttribute(LogLocationInfo(pbo.path().string(), 0, 0),
+                                                        pbo.path().string()));
         return;
     }
 
@@ -221,20 +211,20 @@ void sqf::fileio::impl_default::add_pbo_mapping(rvutils::pbo::pbofile& pbo)
 
 
     // We need to register all files with the virtual pathing
-    for (auto& file_desc : pbo.files())
-    {
+    for (auto &file_desc: pbo.files()) {
         // Construct file path
         auto file_path = (prefix / file_desc.name).lexically_normal();
         auto path_iter = file_path.begin();
 
         // Navigate to last available virtual file node from root node
         auto nav = m_virtual_file_root->next.find(path_iter->string());
-        if (nav == m_virtual_file_root->next.end())
-        {
+        if (nav == m_virtual_file_root->next.end()) {
             // Setup path_element for inserting
             auto el = std::make_shared<path_element>();
-            auto tmp = path_iter; tmp++; // Fancy hack because for some reason std::filesystem::path lacks `path + number`
-            el->virtual_full = std::accumulate(file_path.begin(), tmp, std::filesystem::path{}, std::divides{}).string();
+            auto tmp = path_iter;
+            tmp++; // Fancy hack because for some reason std::filesystem::path lacks `path + number`
+            el->virtual_full = std::accumulate(file_path.begin(), tmp, std::filesystem::path{},
+                                               std::divides{}).string();
             el->physical.push_back(pbo.path().string());
 
             // Insert next nav node
@@ -242,32 +232,31 @@ void sqf::fileio::impl_default::add_pbo_mapping(rvutils::pbo::pbofile& pbo)
             nav = iter;
 
             ++path_iter;
-        }
-        else
-        {
+        } else {
             ++path_iter;
             std::unordered_map<std::string, std::shared_ptr<path_element>>::iterator nextnav;
-            while ((nextnav = nav->second->next.find(path_iter->string())) != nav->second->next.end() && path_iter != file_path.end())
-            {
+            while ((nextnav = nav->second->next.find(path_iter->string())) != nav->second->next.end() &&
+                   path_iter != file_path.end()) {
                 nav = nextnav;
                 path_iter++;
             }
         }
 
         // Check we did not iterated the whole of file_path
-        if (path_iter == file_path.end())
-        {
-            log(logmessage::fileio::PBOFileAlreadyRegistered(LogLocationInfo(pbo.path().string(), 0, 0), pbo.path().string(), file_path.string()));
+        if (path_iter == file_path.end()) {
+            log(logmessage::fileio::PBOFileAlreadyRegistered(LogLocationInfo(pbo.path().string(), 0, 0),
+                                                             pbo.path().string(), file_path.string()));
             continue;
         }
 
         // Insert until we hit the file-element
-        while (path_iter != file_path.end())
-        {
+        while (path_iter != file_path.end()) {
             // Setup path_element for inserting
             auto el = std::make_shared<path_element>();
-            auto tmp = path_iter; tmp++; // Fancy hack because for some reason std::filesystem::path lacks `path + number`
-            el->virtual_full = std::accumulate(file_path.begin(), tmp, std::filesystem::path{}, std::divides{}).string();
+            auto tmp = path_iter;
+            tmp++; // Fancy hack because for some reason std::filesystem::path lacks `path + number`
+            el->virtual_full = std::accumulate(file_path.begin(), tmp, std::filesystem::path{},
+                                               std::divides{}).string();
             el->physical.push_back(pbo.path().string());
 
             // Insert next nav node
@@ -278,54 +267,49 @@ void sqf::fileio::impl_default::add_pbo_mapping(rvutils::pbo::pbofile& pbo)
         }
     }
 }
-void sqf::fileio::impl_default::add_pbo_mapping(std::filesystem::path p)
-{
-    if (m_pbos.find(p.string()) != m_pbos.end())
-    {
+
+void sqf::fileio::impl_default::add_pbo_mapping(std::filesystem::path p) {
+    if (m_pbos.find(p.string()) != m_pbos.end()) {
         log(logmessage::fileio::PBOAlreadyAdded(LogLocationInfo(p.string(), 0, 0), p.string()));
         return;
     }
     rvutils::pbo::pbofile pbo(p);
-    if (!pbo.good())
-    {
+    if (!pbo.good()) {
         log(logmessage::fileio::FailedToParsePBO(LogLocationInfo(p.string(), 0, 0), p.string()));
         return;
     }
     add_pbo_mapping(pbo);
 }
 
-void sqf::fileio::impl_default::add_mapping(std::string_view viewPhysical, std::string_view viewVirtual)
-{
+void sqf::fileio::impl_default::add_mapping(std::string_view viewPhysical, std::string_view viewVirtual) {
     // Create & Cleanse stuff
     auto phys = std::string(viewPhysical);
     std::replace(phys.begin(), phys.end(), '\\', '/');
+    phys = std::string(sqf::runtime::util::trim(phys, " \t\r\n"));
     auto path_phys = std::filesystem::path(phys);
 
     auto virt = std::string(viewVirtual);
+    virt = std::string(sqf::runtime::util::trim(virt, " \t\r\n"));
     std::replace(virt.begin(), virt.end(), '\\', '/');
 
     // Iterate over the whole virtual path and add missing elements to the file_tree
     std::istringstream stream_virt(virt);
     std::shared_ptr<path_element> tree = m_virtual_file_root;
     std::vector<std::string> path_elements;
-    for (auto it = std::istream_iterator<StringDelimiter<'/'>>{ stream_virt }; it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it)
-    {
+    for (auto it = std::istream_iterator<StringDelimiter<'/'>>{stream_virt};
+         it != std::istream_iterator<StringDelimiter<'/'>>{}; ++it) {
         if (it->empty()) { /* skip empty */ continue; }
         path_elements.push_back(*it);
         auto res = tree->next.find(*it);
-        if (res == tree->next.end())
-        {
+        if (res == tree->next.end()) {
             std::stringstream sstream;
-            for (auto& el : path_elements)
-            {
+            for (auto &el: path_elements) {
                 sstream << "/" << el;
             }
             tree = tree->next[*it] = std::make_shared<path_element>();
             tree->virtual_full = sstream.str();
             m_path_elements.push_back(tree);
-        }
-        else
-        {
+        } else {
             tree = res->second;
         }
     }
@@ -334,52 +318,84 @@ void sqf::fileio::impl_default::add_mapping(std::string_view viewPhysical, std::
     tree->physical.push_back(std::filesystem::path(phys).lexically_normal());
 }
 
-std::string sqf::fileio::impl_default::read_file(sqf::runtime::fileio::pathinfo info) const
-{
+std::string sqf::fileio::impl_default::read_file(sqf::runtime::fileio::pathinfo info) const {
     std::filesystem::path physical = info.physical;
-    if (physical.extension() == ".pbo")
-    {
+    if (physical.extension() == ".pbo") {
         auto res = m_pbos.find(physical.lexically_normal().string());
-        if (res == m_pbos.end())
-        {
-            log(logmessage::fileio::PBOFileNotFound(LogLocationInfo(physical.lexically_normal().string(), 0, 0), physical.lexically_normal().string()));
+        if (res == m_pbos.end()) {
+            log(logmessage::fileio::PBOFileNotFound(LogLocationInfo(physical.lexically_normal().string(), 0, 0),
+                                                    physical.lexically_normal().string()));
             return {};
-        }
-        else
-        {
+        } else {
             auto prefix_optional = res->second.attribute("prefix");
-            if (!prefix_optional.has_value())
-            {
-                log(logmessage::fileio::PBOHasNoPrefixAttribute(LogLocationInfo(physical.lexically_normal().string(), 0, 0), physical.lexically_normal().string()));
+            if (!prefix_optional.has_value()) {
+                log(logmessage::fileio::PBOHasNoPrefixAttribute(
+                        LogLocationInfo(physical.lexically_normal().string(), 0, 0),
+                        physical.lexically_normal().string()));
                 return {};
             }
             auto prefix = prefix_optional.value();
             auto pbo_path = info.virtual_;
 
-            if (pbo_path.length() > prefix.length() + 1)
-            {
+            if (pbo_path.length() > prefix.length() + 1) {
                 pbo_path = pbo_path.substr(prefix.length() + 1);
             }
-            std::transform(pbo_path.begin(), pbo_path.end(), pbo_path.begin(), [](char c) -> char { return c == '/' ? '\\' : c; });
+            std::transform(pbo_path.begin(), pbo_path.end(), pbo_path.begin(),
+                           [](char c) -> char { return c == '/' ? '\\' : c; });
 
             rvutils::pbo::pbofile::reader reader;
-            if (res->second.read(pbo_path, reader))
-            {
+            if (res->second.read(pbo_path, reader)) {
                 std::string str;
                 str.resize(reader.descriptor().size);
                 reader.read(str.data(), reader.descriptor().size);
                 return str;
-            }
-            else
-            {
-                log(logmessage::fileio::PBOFailedToReadFile(LogLocationInfo(physical.lexically_normal().string(), 0, 0), physical.lexically_normal().string(), pbo_path));
+            } else {
+                log(logmessage::fileio::PBOFailedToReadFile(LogLocationInfo(physical.lexically_normal().string(), 0, 0),
+                                                            physical.lexically_normal().string(), pbo_path));
                 return {};
             }
         }
-    }
-    else
-    {
+    } else {
         auto res = sqf::runtime::fileio::read_file_from_disk(info.physical);
         return *res;
     }
+}
+
+std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_info(
+        std::string_view view,
+        sqf::runtime::fileio::pathinfo current) const {
+
+    log(logmessage::fileio::FileLookupRequested(
+            LogLocationInfo(current.physical, 0, 0),
+            current.physical,
+            current.virtual_,
+            view));
+    auto result_virtual = get_info_virtual(view, current);
+    if (result_virtual.has_value()) {
+        log(logmessage::fileio::FileLookupCompletedWithVirtualFile(
+                LogLocationInfo(current.physical, 0, 0),
+                current.physical,
+                current.virtual_,
+                view,
+                result_virtual->physical,
+                result_virtual->virtual_));
+        return result_virtual;
+    }
+    auto result_physical = get_info_physical(view, current);
+    if (result_physical.has_value()) {
+        log(logmessage::fileio::FileLookupCompletedWithPhysicalFile(
+                LogLocationInfo(current.physical, 0, 0),
+                current.physical,
+                current.virtual_,
+                view,
+                result_physical->physical,
+                result_physical->virtual_));
+        return result_physical;
+    }
+    log(logmessage::fileio::FileLookupCompletedWithNoFile(
+            LogLocationInfo(current.physical, 0, 0),
+            current.physical,
+            current.virtual_,
+            view));
+    return {};
 }
