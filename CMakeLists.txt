@@ -55,6 +55,36 @@ list(APPEND sqfvm_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp")
 
 ############################
 ##                        ##
+##  FILEIO RUST SECTION   ##
+##                        ##
+############################
+
+include(ExternalProject)
+
+find_program(CARGO cargo REQUIRED)
+
+ExternalProject_Add(
+    fileio_ext
+    DOWNLOAD_COMMAND ""
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CARGO} build --release
+    SOURCE_DIR "${PROJECT_SOURCE_DIR}/src/fileio"
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND ""
+    LOG_BUILD ON
+)
+
+add_library(fileio INTERFACE)
+add_dependencies(fileio fileio_ext)
+target_include_directories(fileio INTERFACE "${PROJECT_SOURCE_DIR}/src/fileio")
+target_link_libraries(fileio INTERFACE
+    # Below are examples
+    DEBUG "${PROJECT_SOURCE_DIR}/src/fileio/target/debug/fileio.dll"
+    OPTIMIZED "${PROJECT_SOURCE_DIR}/src/fileio/target/release/fileio.dll"
+)
+
+############################
+##                        ##
 ##  DEPENDENCIES SECTION  ##
 ##                        ##
 ############################
@@ -62,7 +92,7 @@ list(APPEND sqfvm_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/git_sha1.cpp")
 find_package(Threads)
 
 add_executable(sqfvm ${sqfvm_SOURCES})
-target_link_libraries(sqfvm ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS})
+target_link_libraries(sqfvm ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ST_CXXFS_LIBS} fileio)
 target_include_directories(sqfvm PUBLIC ${PROJECT_SOURCE_DIR}/src)
 target_compile_definitions(sqfvm PRIVATE SQFVM_BUILD)
 
