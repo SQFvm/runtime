@@ -447,7 +447,6 @@ int cli::run(size_t argc, const char** argv)
 
     if (!cliFileArg.getValue().empty() && !m_cli_file)
     {
-        m_cli_file = true;
         return cli_from_file(argv[0], std::filesystem::path(cliFileArg.getValue()));
     }
     m_automated = automatedArg.getValue();
