@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #include <array>
 #include <vector>
 #include <string>
