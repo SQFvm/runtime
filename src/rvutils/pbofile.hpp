@@ -157,7 +157,7 @@ namespace rvutils::pbo
                 }
                 remaining = remaining < bytes ? remaining : bytes;
                 m_file.read(arr, remaining);
-                return (size_t)remaining;
+                return static_cast<size_t>(m_file.gcount());
             }
             std::streampos tell()
             {

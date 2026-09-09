@@ -2090,7 +2090,7 @@ namespace logmessage {
             PBOFailedToReadFile(std::string_view path, std::string_view file) :
                 FileIoBase(level, errorCode, {}),
                 m_path(path),
-                m_file(path)
+                m_file(file)
             {
             }
             [[nodiscard]] std::string formatMessage() const override;

@@ -24,6 +24,7 @@ namespace sqf::fileio
 
         std::vector<std::shared_ptr<path_element>> m_path_elements;
         std::unordered_map<std::string, rvutils::pbo::pbofile> m_pbos;
+        std::unordered_map<std::string, sqf::runtime::fileio::pathinfo> m_pbo_files;
 
 
         void get_directories_recursive(std::vector<std::string>& paths, const std::shared_ptr<path_element>& el) const
@@ -59,8 +60,8 @@ namespace sqf::fileio
             m_virtual_file_root->virtual_full = "/";
             m_path_elements.push_back(m_virtual_file_root);
         }
-        void add_pbo_mapping(rvutils::pbo::pbofile& pbo);
-        void add_pbo_mapping(std::filesystem::path p);
+        bool add_pbo_mapping(rvutils::pbo::pbofile& pbo);
+        bool add_pbo_mapping(std::filesystem::path p);
         virtual std::optional<sqf::runtime::fileio::pathinfo> get_info(std::string_view view, sqf::runtime::fileio::pathinfo current) const override
         {
             auto res =  get_info_virtual(view, current);

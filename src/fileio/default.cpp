@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include <iterator>
+#include <stdexcept>
 
 #ifdef DF__SQF_FILEIO__TRACE_REESOLVE
 #include <iostream>
@@ -31,6 +32,18 @@ inline bool file_exists(std::filesystem::path p)
     return infile.good();
 }
 
+static std::string pbo_virtual_path(std::string path)
+{
+    std::replace(path.begin(), path.end(), '\\', '/');
+    auto first = path.find_first_not_of('/');
+    path = first == std::string::npos ? "/" : "/" + path.substr(first);
+    path = std::filesystem::path(path).lexically_normal().generic_string();
+    std::transform(path.begin(), path.end(), path.begin(), [](unsigned char c) {
+        return static_cast<char>(c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c);
+    });
+    return path;
+}
+
 std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_info_virtual(std::string_view viewVirtual, sqf::runtime::fileio::pathinfo current) const
 {
     // Create & Cleanse stuff
@@ -46,6 +59,19 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
     {
         log(logmessage::fileio::ResolveVirtualFileNotFound(current.physical, virt));
         return {};
+    }
+
+    auto pbo_path = virt;
+    if (virt.front() != '/' && !current.virtual_.empty())
+    {
+        auto parent = current.virtual_;
+        std::replace(parent.begin(), parent.end(), '\\', '/');
+        pbo_path = std::filesystem::path(parent).parent_path().generic_string() + "/" + virt;
+    }
+    auto pbo_entry = m_pbo_files.find(pbo_virtual_path(pbo_path));
+    if (pbo_entry != m_pbo_files.end())
+    {
+        return pbo_entry->second;
     }
 
     // Prepare local tree-node list
@@ -202,96 +228,49 @@ std::optional<sqf::runtime::fileio::pathinfo> sqf::fileio::impl_default::get_inf
     return {};
 }
 
-void sqf::fileio::impl_default::add_pbo_mapping(rvutils::pbo::pbofile& pbo)
+bool sqf::fileio::impl_default::add_pbo_mapping(rvutils::pbo::pbofile& pbo)
 {
-    if (m_pbos.find(pbo.path().string()) != m_pbos.end())
+    const auto archive = pbo.path().lexically_normal().string();
+    if (m_pbos.find(archive) != m_pbos.end())
     {
         log(logmessage::fileio::PBOAlreadyAdded(pbo.path().string()));
-        return;
+        return true;
     }
     auto prefix_optional = pbo.attribute("prefix");
     if (!prefix_optional.has_value())
     {
         log(logmessage::fileio::PBOHasNoPrefixAttribute(pbo.path().string()));
-        return;
+        return false;
     }
 
-    m_pbos[pbo.path().lexically_normal().string()] = pbo;
-    std::filesystem::path prefix(*prefix_optional);
-
-
-    // We need to register all files with the virtual pathing
-    for (auto& file_desc : pbo.files())
+    m_pbos[archive] = pbo;
+    for (const auto& file : pbo.files())
     {
-        // Construct file path
-        auto file_path = (prefix / file_desc.name).lexically_normal();
-        auto path_iter = file_path.begin();
-
-        // Navigate to last available virtual file node from root node
-        auto nav = m_virtual_file_root->next.find(path_iter->string());
-        if (nav == m_virtual_file_root->next.end())
+        const auto virtual_path = pbo_virtual_path(*prefix_optional + "/" + file.name);
+        auto [entry, inserted] = m_pbo_files.emplace(virtual_path,
+            sqf::runtime::fileio::pathinfo(archive, file.name, virtual_path));
+        if (!inserted)
         {
-            // Setup path_element for inserting
-            auto el = std::make_shared<path_element>();
-            auto tmp = path_iter; tmp++; // Fancy hack because for some reason std::filesystem::path lacks `path + number`
-            el->virtual_full = std::accumulate(file_path.begin(), tmp, std::filesystem::path{}, std::divides{}).string();
-            el->physical.push_back(pbo.path().string());
-
-            // Insert next nav node
-            auto [iter, success] = m_virtual_file_root->next.emplace(std::make_pair(path_iter->string(), el));
-            nav = iter;
-
-            ++path_iter;
-        }
-        else
-        {
-            ++path_iter;
-            std::unordered_map<std::string, std::shared_ptr<path_element>>::iterator nextnav;
-            while ((nextnav = nav->second->next.find(path_iter->string())) != nav->second->next.end() && path_iter != file_path.end())
-            {
-                nav = nextnav;
-                path_iter++;
-            }
-        }
-
-        // Check we did not iterated the whole of file_path
-        if (path_iter == file_path.end())
-        {
-            log(logmessage::fileio::PBOFileAlreadyRegistered(pbo.path().string(), file_path.string()));
-            continue;
-        }
-
-        // Insert until we hit the file-element
-        while (path_iter != file_path.end())
-        {
-            // Setup path_element for inserting
-            auto el = std::make_shared<path_element>();
-            auto tmp = path_iter; tmp++; // Fancy hack because for some reason std::filesystem::path lacks `path + number`
-            el->virtual_full = std::accumulate(file_path.begin(), tmp, std::filesystem::path{}, std::divides{}).string();
-            el->physical.push_back(pbo.path().string());
-
-            // Insert next nav node
-            auto [iter, success] = nav->second->next.emplace(std::make_pair(path_iter->string(), el));
-            nav = iter;
-
-            ++path_iter;
+            log(logmessage::fileio::PBOFileAlreadyRegistered(archive, virtual_path));
         }
     }
+    return true;
 }
-void sqf::fileio::impl_default::add_pbo_mapping(std::filesystem::path p)
+bool sqf::fileio::impl_default::add_pbo_mapping(std::filesystem::path p)
 {
     if (m_pbos.find(p.string()) != m_pbos.end())
     {
         log(logmessage::fileio::PBOAlreadyAdded(p.string()));
-        return;
+        return true;
     }
-    rvutils::pbo::pbofile pbo(p);
+    rvutils::pbo::pbofile pbo;
+    pbo.open(p);
     if (!pbo.good())
     {
         log(logmessage::fileio::FailedToParsePBO(p.string()));
-        return;
+        return false;
     }
-    add_pbo_mapping(pbo);
+    return add_pbo_mapping(pbo);
 }
 
 void sqf::fileio::impl_default::add_mapping(std::string_view viewPhysical, std::string_view viewVirtual)
@@ -337,45 +316,20 @@ void sqf::fileio::impl_default::add_mapping(std::string_view viewPhysical, std::
 std::string sqf::fileio::impl_default::read_file(sqf::runtime::fileio::pathinfo info) const
 {
     std::filesystem::path physical = info.physical;
-    if (physical.extension() == ".pbo")
+    if (!info.additional.empty())
     {
-        auto res = m_pbos.find(physical.lexically_normal().string());
-        if (res == m_pbos.end())
+        auto archive = m_pbos.find(physical.lexically_normal().string());
+        rvutils::pbo::pbofile::reader reader;
+        if (archive != m_pbos.end() && archive->second.read(info.additional, reader))
         {
-            log(logmessage::fileio::PBOFileNotFound(physical.lexically_normal().string()));
-            return {};
-        }
-        else
-        {
-            auto prefix_optional = res->second.attribute("prefix");
-            if (!prefix_optional.has_value())
+            std::string contents(reader.descriptor().size, '\0');
+            if (reader.read(contents.data(), contents.size()) == contents.size())
             {
-                log(logmessage::fileio::PBOHasNoPrefixAttribute(physical.lexically_normal().string()));
-                return {};
-            }
-            auto prefix = prefix_optional.value();
-            auto pbo_path = info.virtual_;
-
-            if (pbo_path.length() > prefix.length() + 1)
-            {
-                pbo_path = pbo_path.substr(prefix.length() + 1);
-            }
-            std::transform(pbo_path.begin(), pbo_path.end(), pbo_path.begin(), [](char c) -> char { return c == '/' ? '\\' : c; });
-
-            rvutils::pbo::pbofile::reader reader;
-            if (res->second.read(pbo_path, reader))
-            {
-                std::string str;
-                str.resize(reader.descriptor().size);
-                reader.read(str.data(), reader.descriptor().size);
-                return str;
-            }
-            else
-            {
-                log(logmessage::fileio::PBOFailedToReadFile(physical.lexically_normal().string(), pbo_path));
-                return {};
+                return contents;
             }
         }
+        log(logmessage::fileio::PBOFailedToReadFile(info.physical, info.additional));
+        throw std::runtime_error("Failed to read PBO member '" + info.additional + "' from '" + info.physical + "'.");
     }
     else
     {

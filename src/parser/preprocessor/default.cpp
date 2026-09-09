@@ -712,7 +712,10 @@ std::string sqf::parser::preprocessor::impl_default::instance::parse_ppinstructi
             }
             const auto& physical = include_path_info->physical;
             auto res = std::find_if(m_file_scopes.begin(), m_file_scopes.end(),
-                [physical](file_scope& parent) -> bool { return parent.path.physical == physical; });
+                [&include_path_info](file_scope& parent) -> bool {
+                    return parent.path.physical == include_path_info->physical &&
+                        parent.path.additional == include_path_info->additional;
+                });
             if (res != m_file_scopes.end())
             {
                 m_errflag = true;
