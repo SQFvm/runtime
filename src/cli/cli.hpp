@@ -16,7 +16,18 @@ namespace TCLAP
 
 class cli
 {
-    StdOutLogger m_logger;
+    class cli_logger : public StdOutLogger
+    {
+        bool m_fatal_error = false;
+    public:
+        void log(const LogMessageBase& message) override
+        {
+            if (message.getLevel() == loglevel::fatal) { m_fatal_error = true; }
+            StdOutLogger::log(message);
+        }
+        bool has_fatal_error() const { return m_fatal_error; }
+    };
+    cli_logger m_logger;
     sqf::runtime::runtime m_runtime;
     bool m_cli_file;
     bool m_parse_only;

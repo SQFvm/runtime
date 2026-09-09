@@ -553,13 +553,19 @@ int cli::run(size_t argc, const char** argv)
         {
             std::filesystem::path path(*rit);
             path = path.lexically_normal();
-            rvutils::pbo::pbofile pbo(path);
+            rvutils::pbo::pbofile pbo;
+            pbo.open(path);
             if (!pbo.good())
             {
                 std::cout << "Failed to parse PBO '" << path << "'.";
+                m_good = false;
                 continue;
             }
-            static_cast<sqf::fileio::impl_default&>(m_runtime.fileio()).add_pbo_mapping(pbo);
+            if (!static_cast<sqf::fileio::impl_default&>(m_runtime.fileio()).add_pbo_mapping(pbo))
+            {
+                m_good = false;
+                continue;
+            }
             rvutils::pbo::pbofile::reader reader;
             if (pbo.read("config.cpp", reader))
             {
@@ -765,6 +771,7 @@ int cli::run(size_t argc, const char** argv)
 
     handle_files();
 
+    m_good = m_good && !m_logger.has_fatal_error();
     if (!m_good || m_parse_only)
     {
         if (verbose() && !m_good) { std::cout << "Exiting due to error." << std::endl; }
@@ -909,6 +916,7 @@ int cli::run(size_t argc, const char** argv)
             }
         } while (!m_automated && !m_runtime.is_exit_requested());
     }
+    if (m_logger.has_fatal_error()) { return -1; }
     auto exitcode = m_runtime.exit_code();
     if (exitcode.has_value())
     {
